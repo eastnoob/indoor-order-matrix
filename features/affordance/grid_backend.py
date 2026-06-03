@@ -7,6 +7,8 @@ from typing import Iterable
 
 from .models import Polygon, Rect
 
+OCCUPIED_CELL_COVERAGE_THRESHOLD = 0.5
+
 
 @dataclass
 class GridCell:
@@ -79,11 +81,28 @@ class SpatialGridBackend:
             if _rect_intersects_polygon(self.cell_rect(row, col), polygon):
                 yield row, col
 
-    def mark_occupied(self, object_id: str, shape: Rect | Polygon) -> None:
+    def iter_indices_covered_by_shape(
+        self,
+        shape: Rect | Polygon,
+        *,
+        min_coverage: float,
+    ) -> Iterable[tuple[int, int]]:
+        # Occupancy blocks movement, so tiny slivers should not turn a whole
+        # sampled cell into an obstacle. The ratio is overlap area / cell area.
         indices = (
             self.iter_indices_in_polygon(shape)
             if isinstance(shape, Polygon)
             else self.iter_indices_in_rect(shape)
+        )
+        for row, col in indices:
+            cell = self.cell_rect(row, col)
+            if _shape_cell_coverage_ratio(shape, cell) >= min_coverage:
+                yield row, col
+
+    def mark_occupied(self, object_id: str, shape: Rect | Polygon) -> None:
+        indices = self.iter_indices_covered_by_shape(
+            shape,
+            min_coverage=OCCUPIED_CELL_COVERAGE_THRESHOLD,
         )
         for row, col in indices:
             self.cells[row][col].occupied_by.add(object_id)
@@ -270,3 +289,100 @@ def _rect_intersects_polygon(rect: Rect, polygon: Polygon) -> bool:
         for poly_a, poly_b in _polygon_edges(polygon)
         for rect_a, rect_b in _rect_edges(rect)
     )
+
+
+def _shape_cell_coverage_ratio(shape: Rect | Polygon, cell: Rect) -> float:
+    if cell.area <= 0:
+        return 0.0
+    if isinstance(shape, Rect):
+        return _rect_overlap_area(shape, cell) / cell.area
+    return _polygon_rect_overlap_area(shape, cell) / cell.area
+
+
+def _rect_overlap_area(left: Rect, right: Rect) -> float:
+    x1 = max(left.left, right.left)
+    x2 = min(left.right, right.right)
+    y1 = max(left.top, right.top)
+    y2 = min(left.bottom, right.bottom)
+    if x1 >= x2 or y1 >= y2:
+        return 0.0
+    return (x2 - x1) * (y2 - y1)
+
+
+def _polygon_rect_overlap_area(polygon: Polygon, rect: Rect) -> float:
+    clipped = list(polygon.points)
+    # Clip polygon to the sampled cell rectangle. This gives actual occupied
+    # area for rotated furniture without introducing a geometry dependency.
+    for boundary in (
+        ("left", rect.left),
+        ("right", rect.right),
+        ("top", rect.top),
+        ("bottom", rect.bottom),
+    ):
+        clipped = _clip_polygon_to_rect_boundary(clipped, boundary)
+        if len(clipped) < 3:
+            return 0.0
+    return abs(_polygon_area(tuple(clipped)))
+
+
+def _clip_polygon_to_rect_boundary(
+    points: list[tuple[float, float]],
+    boundary: tuple[str, float],
+) -> list[tuple[float, float]]:
+    if not points:
+        return []
+    result: list[tuple[float, float]] = []
+    previous = points[-1]
+    previous_inside = _inside_boundary(previous, boundary)
+    for current in points:
+        current_inside = _inside_boundary(current, boundary)
+        if current_inside:
+            if not previous_inside:
+                result.append(_line_boundary_intersection(previous, current, boundary))
+            result.append(current)
+        elif previous_inside:
+            result.append(_line_boundary_intersection(previous, current, boundary))
+        previous = current
+        previous_inside = current_inside
+    return result
+
+
+def _inside_boundary(point: tuple[float, float], boundary: tuple[str, float]) -> bool:
+    kind, value = boundary
+    epsilon = 1e-9
+    if kind == "left":
+        return point[0] >= value - epsilon
+    if kind == "right":
+        return point[0] <= value + epsilon
+    if kind == "top":
+        return point[1] >= value - epsilon
+    if kind == "bottom":
+        return point[1] <= value + epsilon
+    return False
+
+
+def _line_boundary_intersection(
+    start: tuple[float, float],
+    end: tuple[float, float],
+    boundary: tuple[str, float],
+) -> tuple[float, float]:
+    kind, value = boundary
+    x1, y1 = start
+    x2, y2 = end
+    if kind in {"left", "right"}:
+        if abs(x2 - x1) <= 1e-12:
+            return value, y1
+        t = (value - x1) / (x2 - x1)
+        return value, y1 + t * (y2 - y1)
+    if abs(y2 - y1) <= 1e-12:
+        return x1, value
+    t = (value - y1) / (y2 - y1)
+    return x1 + t * (x2 - x1), value
+
+
+def _polygon_area(points: tuple[tuple[float, float], ...]) -> float:
+    area = 0.0
+    for index, (x1, y1) in enumerate(points):
+        x2, y2 = points[(index + 1) % len(points)]
+        area += x1 * y2 - x2 * y1
+    return area / 2

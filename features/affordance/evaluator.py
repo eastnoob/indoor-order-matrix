@@ -5,7 +5,7 @@ from statistics import mean
 
 from .continuous_conflict import ContinuousConflictEvaluator, sample_overlap_cells
 from .geometry import build_affordance_polygon
-from .grid_backend import SpatialGridBackend
+from .grid_backend import OCCUPIED_CELL_COVERAGE_THRESHOLD, SpatialGridBackend
 from .models import Rect, SceneModel, SpatialEntity
 from .profiles import AffordanceProfile, resolve_affordance_profile, resolve_aisle_profile
 
@@ -447,9 +447,19 @@ class AisleEvaluator:
         halo = entity.rect.expanded(left=width, right=width, top=width, bottom=width)
         raw_cells = set(grid.iter_indices_in_rect(halo))
         if entity.footprint is not None:
-            body_cells = set(grid.iter_indices_in_polygon(entity.footprint))
+            body_cells = set(
+                grid.iter_indices_covered_by_shape(
+                    entity.footprint,
+                    min_coverage=OCCUPIED_CELL_COVERAGE_THRESHOLD,
+                )
+            )
         else:
-            body_cells = set(grid.iter_indices_in_rect(entity.rect))
+            body_cells = set(
+                grid.iter_indices_covered_by_shape(
+                    entity.rect,
+                    min_coverage=OCCUPIED_CELL_COVERAGE_THRESHOLD,
+                )
+            )
         aisle_cells = raw_cells - body_cells
         blocked_cells = set()
 

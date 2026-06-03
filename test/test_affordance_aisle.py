@@ -211,6 +211,24 @@ def test_spatial_grid_samples_rect_by_cell_area_intersection():
     assert (0, 12) in cells
 
 
+def test_spatial_grid_marks_occupied_only_when_shape_covers_half_the_cell():
+    grid = SpatialGridBackend(width=360, height=360, resolution=20)
+    table = Polygon.from_local_rect(
+        cx=208,
+        cy=60,
+        width=64,
+        height=44,
+    )
+
+    grid.mark_occupied("t12", table)
+
+    assert "t12" not in grid.cells[1][8].occupied_by  # 2% sliver
+    assert "t12" not in grid.cells[2][8].occupied_by  # 20% edge strip
+    assert "t12" in grid.cells[2][9].occupied_by  # full table body
+    assert "t12" in grid.cells[3][11].occupied_by
+    assert "t12" not in grid.cells[4][11].occupied_by  # 10% bottom strip
+
+
 def test_spatial_grid_detects_conflicted_affordance_cells():
     grid = SpatialGridBackend(width=100, height=100, resolution=10)
     table_rect = Rect(cx=50, cy=50, width=20, height=20)
