@@ -1,0 +1,30 @@
+[workspace]
+authors = ["Eastnoob <61303573+eastnoob@users.noreply.github.com>"]
+channels = ["conda-forge"]
+name = "OCTA_toolbox-master"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = ">=3.12,<3.13"
+svgwrite = ">=1.4.3,<2"
+svgutils = ">=0.3.4,<0.4"
+jsonpickle = ">=4.1.1,<5"
+pandas = ">=3.0.2,<4"
+pillow = ">=12.2.0,<13"
+html2image = ">=2.0.7,<3"
+svglib = ">=1.6.0,<2"
+reportlab = ">=4.5.0,<5"
+ipython = ">=9.13.0,<10"
+svgpathtools = ">=1.7.2,<2"
+colour = ">=0.1.5,<0.2"
+ipykernel = ">=7.2.0,<8"
+pytest = ">=9.0.3,<10"
+nbformat = ">=5.10.4,<6"
+nbclient = ">=0.10.4,<0.11"
+
+[pypi-dependencies]
+ipykernel = "*"
+numpy = "*"

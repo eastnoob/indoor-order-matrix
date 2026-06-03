@@ -1,0 +1,13 @@
+OCTA_toolbox-master/
+
+# Local environments and caches
+.pixi/
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+*.pyc
+
+# Editor-local settings
+.vscode/
+.claude/
+.superpowers/
