@@ -109,15 +109,20 @@ debug grid 仍可显示 sampled conflict cells，但这些 cells 来自连续冲
 - `SpatialGridBackend` 仍保留 BFS reachability、sampled affordance/road/clearance layers 与 notebook heatmap。
 - `occupied` 阻挡采样使用 50% 面积覆盖阈值，避免旋转家具小面积擦边导致 BFS 误阻断。
 
-## 5.2 下一阶段：Continuous Affordance Coverage
+## 5.2 已落地：Continuous Affordance Coverage
 
-当前剩余边界是 `affordance.coverage` 仍主要按 sampled cells 计算。下一阶段应把 coverage 也转为连续面积口径：
+`affordance.coverage` 已从 sampled cells 切换为连续面积口径：
 
 - `required_area`：AffordanceBand polygon 的连续面积。
 - `blocked_area`：其他 furniture footprint、RoadBand / ClearanceBand conflict 与 obstacle 对可供区的连续 overlap 面积。
 - `effective_area = required_area - blocked_area`，后续可按 profile 配置 cap / priority / hard-soft 权重。
 - sampled affordance cells 继续作为浅黄色 debug layer，但不再决定 coverage score。
 - `resolution=20` 与 `resolution=10` 可以显示不同 sampled cells，但 continuous coverage ratio 应保持稳定或只因显示四舍五入变化。
+
+后续剩余边界：
+
+- 多个 blocker 重叠同一 affordance 子区域时，当前首批实现按 overlap 面积累加并 cap 到 `required_area`；后续可升级为 continuous union。
+- 圆桌、复杂 SVG/path 与非凸区域仍需要 PolygonBackend / HybridBackend 扩展。
 
 ## 6. Test / Acceptance
 
@@ -136,7 +141,7 @@ debug grid 仍可显示 sampled conflict cells，但这些 cells 来自连续冲
 - road-road overlap 不出现在 `affordance.violations` 或 `aisle.bottlenecks` 中。
 - notebook 同时展示 continuous conflict source 与 sampled explanation。
 
-下一阶段验收：
+Continuous Affordance Coverage 验收：
 
 - 同一场景在 `resolution=20` 与 `resolution=10` 下，`affordance.coverage_ratio` 基于连续面积保持一致。
 - 浅黄色 sampled affordance cells 数量可随 resolution 改变，但不改变 coverage score 的本体判断。

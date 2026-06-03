@@ -3,7 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from statistics import mean
 
-from .continuous_conflict import ContinuousConflictEvaluator, sample_overlap_cells
+from .continuous_conflict import (
+    ContinuousConflictEvaluator,
+    geometry_intersection_polygon,
+    sample_overlap_cells,
+)
 from .geometry import build_affordance_polygon
 from .grid_backend import OCCUPIED_CELL_COVERAGE_THRESHOLD, SpatialGridBackend
 from .models import Rect, SceneModel, SpatialEntity
@@ -78,13 +82,18 @@ class _EdgeCoverage:
     edge: str
     required_cells: set[tuple[int, int]]
     conflict_cells: set[tuple[int, int]]
+    required_area: float
+    blocked_area: float
 
     @property
     def coverage(self) -> float:
-        if not self.required_cells:
+        if self.required_area <= 0:
             return 1.0
-        effective_count = len(self.required_cells - self.conflict_cells)
-        return effective_count / len(self.required_cells)
+        return max(0.0, self.required_area - self.blocked_area) / self.required_area
+
+    @property
+    def effective_area(self) -> float:
+        return max(0.0, self.required_area - self.blocked_area)
 
 
 class AffordanceEvaluator:
@@ -108,7 +117,7 @@ class AffordanceEvaluator:
 
         for entity in scene.entities:
             profile = resolve_affordance_profile(entity.type_id, entity.affordance)
-            edge_coverages = self._mark_entity_affordance(grid, entity, profile)
+            edge_coverages = self._mark_entity_affordance(grid, scene, entity, profile)
 
             required_cells = set().union(
                 *(edge.required_cells for edge in edge_coverages)
@@ -116,26 +125,27 @@ class AffordanceEvaluator:
             conflict_cells = set().union(
                 *(edge.conflict_cells for edge in edge_coverages)
             ) if edge_coverages else set()
-            coverage = (
-                len(required_cells - conflict_cells) / len(required_cells)
-                if required_cells
-                else 1.0
+            required_area = sum(edge.required_area for edge in edge_coverages)
+            blocked_area = min(
+                required_area,
+                sum(edge.blocked_area for edge in edge_coverages),
             )
+            effective_area = max(0.0, required_area - blocked_area)
+            coverage = effective_area / required_area if required_area > 0 else 1.0
             blocked_edges = [
                 edge.edge
                 for edge in edge_coverages
-                if edge.required_cells and edge.coverage < 1.0
+                if edge.required_area > 0 and edge.coverage < 1.0
             ]
 
             objects[entity.id] = {
                 "coverage": round(coverage, 4),
+                "coverage_backend": "continuous",
                 "required_cells": len(required_cells),
                 "effective_cells": len(required_cells - conflict_cells),
-                "required_area": round(len(required_cells) * grid.resolution**2, 4),
-                "effective_area": round(
-                    len(required_cells - conflict_cells) * grid.resolution**2,
-                    4,
-                ),
+                "required_area": round(required_area, 4),
+                "blocked_area": round(blocked_area, 4),
+                "effective_area": round(effective_area, 4),
                 "blocked_edges": blocked_edges,
             }
             coverages.append(coverage)
@@ -158,7 +168,7 @@ class AffordanceEvaluator:
 
         return {
             "enabled": True,
-            "backend": "grid",
+            "backend": "continuous",
             "score": round(mean(coverages), 4) if coverages else 1.0,
             "objects": objects,
             "violations": violations,
@@ -177,6 +187,7 @@ class AffordanceEvaluator:
     def _mark_entity_affordance(
         self,
         grid: SpatialGridBackend,
+        scene: SceneModel,
         entity: SpatialEntity,
         profile: AffordanceProfile,
     ) -> list[_EdgeCoverage]:
@@ -192,14 +203,54 @@ class AffordanceEvaluator:
             grid.mark_affordance(entity.id, band)
             grid.mark_conflicts()
             conflict_cells = set(grid.cells_with("conflict_for", entity.id))
+            required_area = band.area
+            # Continuous area is the scoring source of truth. The sampled cells
+            # above remain only as notebook/debug explanation.
+            blocked_area = min(
+                required_area,
+                self._continuous_blocked_area(scene, entity, band),
+            )
             edge_coverages.append(
                 _EdgeCoverage(
                     edge=edge,
                     required_cells=required_cells,
                     conflict_cells=required_cells & conflict_cells,
+                    required_area=required_area,
+                    blocked_area=blocked_area,
                 )
             )
         return edge_coverages
+
+    def _continuous_blocked_area(
+        self,
+        scene: SceneModel,
+        owner: SpatialEntity,
+        affordance_shape,
+    ) -> float:
+        blocked_area = 0.0
+        for entity in scene.entities:
+            # A furniture body should not block its own affordance band.
+            if entity.id == owner.id:
+                continue
+            overlap = geometry_intersection_polygon(
+                affordance_shape,
+                entity.footprint or entity.rect,
+            )
+            if overlap is not None:
+                blocked_area += overlap.area
+
+        # Clearance is the stricter circulation requirement; if it exists,
+        # prefer it over RoadBand so the same corridor is not double counted.
+        corridor_shapes = (
+            [band.rect for band in scene.clearance_bands]
+            if scene.clearance_bands
+            else [band.rect for band in scene.road_bands]
+        )
+        for corridor in corridor_shapes:
+            overlap = geometry_intersection_polygon(affordance_shape, corridor)
+            if overlap is not None:
+                blocked_area += overlap.area
+        return blocked_area
 
 
 class AisleEvaluator:

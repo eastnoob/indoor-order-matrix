@@ -142,7 +142,7 @@
 - [x] 引入 Road 用户语义对象，并在内部生成 RoadBand / ClearanceBand 连续几何
 - [x] 引入 RoadNetwork 轴网级道路系统：每根 semantic grid line 都有 road 属性，并自动合并 road-road overlap
 - [x] 引入 ContinuousConflictEvaluator，用连续几何判定 furniture / affordance / road / clearance 的核心冲突
-- [ ] 引入连续面积口径的 Affordance Coverage，让 coverage 评分不再依赖 sampled cell 数量
+- [x] 引入连续面积口径的 Affordance Coverage，让 coverage 评分不再依赖 sampled cell 数量
 
 ### 6.4 暂缓（不阻塞）
 
@@ -535,3 +535,22 @@
 - 下一步
   - 引入连续面积口径的 Affordance Coverage：用连续可供区域面积、连续 blocker / conflict 面积计算 coverage 与扣分。
   - sampled affordance cells 保留为浅黄色解释图层，但不再作为 coverage 评分本体。
+
+### 2026-06-03（Continuous Affordance Coverage 完成）
+
+- 完成内容
+  - `Polygon` 新增连续面积计算，旋转家具与旋转 affordance band 的面积不再依赖采样格。
+  - `AffordanceEvaluator` 将 `coverage`、`required_area`、`blocked_area`、`effective_area` 切换为 continuous-area 口径。
+  - `affordance.backend` 更新为 `continuous`，并在对象结果中输出 `coverage_backend="continuous"`。
+  - sampled affordance cells 继续作为 notebook/debug explanation；`resolution` 只影响显示颗粒度，不再决定 coverage score。
+  - notebook 新增 `affordance.objects.t12/t33` 面积字段与 r=20/r=10 coverage 稳定性输出。
+- 验证
+  - 运行 `pixi run pytest test/test_order_analyzer_mvp.py test/test_affordance_aisle.py -q`
+  - 结果：66 passed
+  - 使用 `nbformat/nbclient` 顺序执行并保存 `test/simple_3x3_table_affordance_demo.ipynb`
+- 当前状态
+  - road/clearance/furniture/affordance 的冲突存在性与 affordance coverage 评分都已回到连续几何本体。
+  - `SpatialGridBackend` 继续负责 sampled explanation、debug heatmap 与 BFS reachability。
+- 下一步
+  - 评估是否引入显式 `Entry / AccessPoint`，替代当前左边界默认入口 MVP。
+  - 或继续推进连续 geometry backend 的面积 union / blocker 去重，避免多个 blocker overlap 同一区域时只靠 cap 处理。

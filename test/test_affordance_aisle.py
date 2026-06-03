@@ -79,6 +79,26 @@ def test_polygon_contains_point_and_bounds_for_rotated_rect():
     assert polygon.bounds.height > 20
 
 
+def test_polygon_area_is_stable_for_rotated_rect():
+    axis_aligned = Polygon.from_local_rect(
+        cx=100,
+        cy=100,
+        width=40,
+        height=20,
+        orientation=0,
+    )
+    rotated = Polygon.from_local_rect(
+        cx=100,
+        cy=100,
+        width=40,
+        height=20,
+        orientation=45,
+    )
+
+    assert axis_aligned.area == pytest.approx(800)
+    assert rotated.area == pytest.approx(800)
+
+
 def test_continuous_geometry_overlap_helpers_ignore_edge_touch_and_handle_rotation():
     touching_left = Rect(cx=10, cy=10, width=20, height=20)
     touching_right = Rect(cx=30, cy=10, width=20, height=20)
@@ -286,13 +306,90 @@ def test_affordance_evaluator_reports_low_coverage_when_blocked():
     result = AffordanceEvaluator(width=300, height=200, resolution=25).evaluate(scene)
 
     assert result["enabled"] is True
-    assert result["backend"] == "grid"
+    assert result["backend"] == "continuous"
     assert result["score"] < 1.0
     assert result["objects"]["table_1"]["coverage"] < 1.0
+    assert result["objects"]["table_1"]["coverage_backend"] == "continuous"
+    assert result["objects"]["table_1"]["blocked_area"] > 0
     assert result["objects"]["table_1"]["blocked_edges"] == ["right"]
     assert result["violations"]
     assert result["violations"][0]["type"] == "affordance_coverage_low"
     assert result["violations"][0]["suggestion_hint"] == "increase_clearance"
+
+
+def test_affordance_coverage_uses_continuous_area_not_sampled_cell_count():
+    table = Furniture(
+        id="table_1",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=100, cy=100, width=100, height=50),
+        affordance={"usable_edges": ("right",), "edge_depth": {"right": 50}},
+    )
+    blocker = Furniture(
+        id="blocker_1",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=165, cy=100, width=30, height=50),
+    )
+    scene = SceneModel(entities=[table, blocker])
+
+    coarse = AffordanceEvaluator(width=300, height=200, resolution=25).evaluate(scene)
+    fine = AffordanceEvaluator(width=300, height=200, resolution=10).evaluate(scene)
+
+    coarse_object = coarse["objects"]["table_1"]
+    fine_object = fine["objects"]["table_1"]
+
+    assert coarse["backend"] == "continuous"
+    assert coarse_object["coverage_backend"] == "continuous"
+    assert coarse_object["required_area"] == pytest.approx(2500)
+    assert coarse_object["blocked_area"] == pytest.approx(1500)
+    assert coarse_object["effective_area"] == pytest.approx(1000)
+    assert coarse_object["coverage"] == pytest.approx(0.4)
+    assert fine_object["coverage"] == pytest.approx(coarse_object["coverage"])
+    assert fine_object["required_area"] == pytest.approx(coarse_object["required_area"])
+    assert fine_object["blocked_area"] == pytest.approx(coarse_object["blocked_area"])
+    assert fine_object["required_cells"] != coarse_object["required_cells"]
+
+
+def test_affordance_coverage_counts_clearance_overlap_as_continuous_blocked_area():
+    table = Furniture(
+        id="table_1",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=100, cy=100, width=100, height=50),
+        affordance={"usable_edges": ("right",), "edge_depth": {"right": 50}},
+    )
+    profile = resolve_affordance_profile(table.type_id, table.affordance)
+    band = build_affordance_band(table, profile, "right")
+    assert band is not None
+    scene = SceneModel(
+        entities=[table],
+        affordance_bands=[band],
+        clearance_bands=[
+            ClearanceBand(
+                id="road.vertical.1.clearance",
+                road_id="road.vertical.1",
+                rect=Rect(cx=160, cy=100, width=20, height=50),
+                required_width=20,
+            )
+        ],
+    )
+
+    result = evaluate_spatial_access(
+        scene,
+        width=300,
+        height=200,
+        resolution=25,
+    )
+    table_result = result["affordance"]["objects"]["table_1"]
+
+    assert table_result["required_area"] == pytest.approx(2500)
+    assert table_result["blocked_area"] == pytest.approx(1000)
+    assert table_result["coverage"] == pytest.approx(0.6)
+    assert any(
+        item["type"] == "road_affordance_conflict"
+        for item in result["aisle"]["debug"]["continuous_conflicts"]
+    )
 
 
 def test_affordance_evaluator_uses_external_edge_band_not_furniture_body():
@@ -425,8 +522,9 @@ def test_order_analyzer_report_includes_affordance_and_aisle_when_enabled():
     )
 
     assert report["affordance"]["enabled"] is True
-    assert report["affordance"]["backend"] == "grid"
+    assert report["affordance"]["backend"] == "continuous"
     assert "table_1" in report["affordance"]["objects"]
+    assert report["affordance"]["objects"]["table_1"]["coverage_backend"] == "continuous"
     assert report["aisle"]["enabled"] is True
     assert report["schema"]["defaults"]["id"] == ""
     assert report["schema"]["defaults"]["type_id"] == ""

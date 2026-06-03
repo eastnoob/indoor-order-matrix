@@ -71,6 +71,16 @@ class Polygon:
     points: tuple[tuple[float, float], ...]
 
     @property
+    def area(self) -> float:
+        # Shoelace area works for the convex rectangle/polygon MVP and is
+        # invariant under rotation, which is what affordance coverage needs.
+        total = 0.0
+        for index, (x1, y1) in enumerate(self.points):
+            x2, y2 = self.points[(index + 1) % len(self.points)]
+            total += x1 * y2 - x2 * y1
+        return abs(total) / 2
+
+    @property
     def bounds(self) -> Rect:
         xs = [point[0] for point in self.points]
         ys = [point[1] for point in self.points]
