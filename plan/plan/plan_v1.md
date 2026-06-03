@@ -141,7 +141,8 @@
 - [x] 实现 SVG/OCTA 图形与采样评价网格的兼容桥接和 overlay 可视化
 - [x] 引入 Road 用户语义对象，并在内部生成 RoadBand / ClearanceBand 连续几何
 - [x] 引入 RoadNetwork 轴网级道路系统：每根 semantic grid line 都有 road 属性，并自动合并 road-road overlap
-- [ ] 引入 ContinuousConflictEvaluator，用连续几何判定 furniture / affordance / road / clearance 的核心冲突
+- [x] 引入 ContinuousConflictEvaluator，用连续几何判定 furniture / affordance / road / clearance 的核心冲突
+- [ ] 引入连续面积口径的 Affordance Coverage，让 coverage 评分不再依赖 sampled cell 数量
 
 ### 6.4 暂缓（不阻塞）
 
@@ -514,3 +515,23 @@
   - 新增 `plan/plan/plan_v2_continuous_conflict_evaluator.md`。
   - 引入 `ContinuousConflictEvaluator`：用连续几何先判定 `Furniture footprint Polygon`、`AffordanceBand Polygon`、`RoadBand / ClearanceBand` 之间的核心冲突。
   - `SpatialGridBackend` 保留为 notebook overlay、debug heatmap、BFS reachability 与 sampled explanation 工具。
+
+### 2026-06-03（ContinuousConflictEvaluator MVP 完成）
+
+- 完成内容
+  - 新增 `features/affordance/continuous_conflict.py`，用连续几何判断 `Furniture footprint Polygon`、`AffordanceBand Polygon`、`RoadBand / ClearanceBand` 的核心 overlap。
+  - `evaluate_spatial_access()` 先运行 continuous conflict，再把结果合并回既有 `affordance.violations`、`aisle.bottlenecks` 与 debug 结构。
+  - overlay 中玫瑰红冲突图形来自 continuous overlap polygon；sampled conflict cells 只作为 notebook/debug 解释。
+  - 增加入口标记：当前 reachability 入口仍是左边界 MVP，不是 RoadNetwork 本体。
+  - sampled occupied 阻挡改为 50% 面积覆盖阈值，避免旋转家具擦边时把整格错误阻断。
+  - 补充关键注释，明确 continuous conflict、sampled debug layers、entry/reachability 与 occupancy threshold 的边界。
+- 验证
+  - 运行 `pixi run pytest test/test_order_analyzer_mvp.py test/test_affordance_aisle.py -q`
+  - 结果：63 passed
+- 当前状态
+  - road-affordance / clearance-furniture / affordance-furniture 的“是否冲突”已不再由 sampled grid 决定。
+  - `SpatialGridBackend` 继续服务 notebook overlay、BFS reachability、debug heatmap 与 sampled explanation。
+  - 仍待收敛：`affordance.coverage` 目前还有 sampled-cell 口径，应在下一步转向 continuous area coverage。
+- 下一步
+  - 引入连续面积口径的 Affordance Coverage：用连续可供区域面积、连续 blocker / conflict 面积计算 coverage 与扣分。
+  - sampled affordance cells 保留为浅黄色解释图层，但不再作为 coverage 评分本体。

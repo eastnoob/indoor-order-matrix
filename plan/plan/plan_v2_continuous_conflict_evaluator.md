@@ -85,6 +85,8 @@ debug grid 仍可显示 sampled conflict cells，但这些 cells 来自连续冲
 
 ## 5. Implementation Steps
 
+当前状态：以下 MVP 已落地；本节保留为实现记录与后续维护索引。
+
 1. 新增 `features/affordance/continuous_conflict.py`
    - 定义 `ContinuousConflictEvaluator`。
    - 暴露小型 public helper，例如 `geometry_overlaps(a, b)`。
@@ -98,6 +100,24 @@ debug grid 仍可显示 sampled conflict cells，但这些 cells 来自连续冲
 3. 保持 notebook 解释
    - overlay 同时画 continuous geometry source 与 sampled explanation cells。
    - 对 r=20 / r=10 做对比：continuous conflict count 不变，sampled cells 数量可变。
+
+## 5.1 已落地状态
+
+- `ContinuousConflictEvaluator` 已成为 road/clearance/furniture/affordance 冲突是否存在的 source of truth。
+- `debug.continuous_conflicts` 记录连续冲突来源；玫瑰红 overlay 优先画 continuous overlap polygon。
+- `clearance_conflict` 等 sampled debug matrix 来自 continuous conflict rasterize，只用于解释和高亮。
+- `SpatialGridBackend` 仍保留 BFS reachability、sampled affordance/road/clearance layers 与 notebook heatmap。
+- `occupied` 阻挡采样使用 50% 面积覆盖阈值，避免旋转家具小面积擦边导致 BFS 误阻断。
+
+## 5.2 下一阶段：Continuous Affordance Coverage
+
+当前剩余边界是 `affordance.coverage` 仍主要按 sampled cells 计算。下一阶段应把 coverage 也转为连续面积口径：
+
+- `required_area`：AffordanceBand polygon 的连续面积。
+- `blocked_area`：其他 furniture footprint、RoadBand / ClearanceBand conflict 与 obstacle 对可供区的连续 overlap 面积。
+- `effective_area = required_area - blocked_area`，后续可按 profile 配置 cap / priority / hard-soft 权重。
+- sampled affordance cells 继续作为浅黄色 debug layer，但不再决定 coverage score。
+- `resolution=20` 与 `resolution=10` 可以显示不同 sampled cells，但 continuous coverage ratio 应保持稳定或只因显示四舍五入变化。
 
 ## 6. Test / Acceptance
 
@@ -116,9 +136,16 @@ debug grid 仍可显示 sampled conflict cells，但这些 cells 来自连续冲
 - road-road overlap 不出现在 `affordance.violations` 或 `aisle.bottlenecks` 中。
 - notebook 同时展示 continuous conflict source 与 sampled explanation。
 
+下一阶段验收：
+
+- 同一场景在 `resolution=20` 与 `resolution=10` 下，`affordance.coverage_ratio` 基于连续面积保持一致。
+- 浅黄色 sampled affordance cells 数量可随 resolution 改变，但不改变 coverage score 的本体判断。
+- 旋转家具的 local affordance band 面积与 blocker overlap 面积按 polygon 计算。
+- notebook 同时打印 continuous coverage 数值与 sampled debug cell 数，避免用户误以为浅黄色格子就是评分本体。
+
 ## Assumptions
 
 - 本阶段不引入外部几何依赖。
 - `RoadBand / ClearanceBand` 首批仍是 axis-aligned `Rect`。
 - sampled area-intersection grid 先保留，作为比 center-point 更合理的解释层。
-- Continuous conflict 先解决“是否冲突”的稳定性；冲突面积、扣分曲线和权重校准后续再细化。
+- Continuous conflict 已先解决“是否冲突”的稳定性；冲突面积、coverage 面积口径、扣分曲线和权重校准后续再细化。
