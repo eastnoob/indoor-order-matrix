@@ -4,6 +4,8 @@ from html import escape
 from math import ceil
 from typing import Any
 
+from .continuous_conflict import geometry_intersection_polygon
+from .models import Polygon, Rect
 from .models import SceneModel
 
 
@@ -99,6 +101,80 @@ def _draw_marker_layer(
                 f'width="{_fmt(marker_w)}" height="{_fmt(marker_h)}" '
                 f'fill="{fill}" opacity="{opacity}" stroke="#881337" stroke-width="0.8"/>'
             )
+
+
+def _continuous_conflict_items(report: dict[str, Any]) -> list[dict[str, Any]]:
+    """Merge continuous conflict debug entries from report sections without duplicates."""
+    items: list[dict[str, Any]] = []
+    seen = set()
+    for section in ("aisle", "affordance"):
+        for item in report.get(section, {}).get("debug", {}).get("continuous_conflicts", []):
+            key = (
+                item.get("type"),
+                item.get("source_id"),
+                item.get("target_id"),
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            items.append(item)
+    return items
+
+
+def _shape_from_conflict_ref(
+    scene: SceneModel,
+    *,
+    kind: str,
+    object_id: str,
+) -> Rect | Polygon | None:
+    """Resolve report debug IDs back to continuous SceneModel geometry."""
+    if kind == "clearance":
+        band = scene.clearance_band_by_id.get(object_id)
+        return band.rect if band is not None else None
+    if kind == "road":
+        band = scene.road_band_by_id.get(object_id)
+        return band.rect if band is not None else None
+    if kind == "affordance":
+        band = scene.affordance_band_by_id.get(object_id)
+        return (band.polygon or band.rect) if band is not None else None
+    if kind == "furniture":
+        entity = scene.entity_by_id.get(object_id)
+        return (entity.footprint or entity.rect) if entity is not None else None
+    return None
+
+
+def _draw_continuous_conflict_layer(
+    *,
+    parts: list[str],
+    scene: SceneModel,
+    report: dict[str, Any],
+) -> None:
+    """Draw the true continuous overlap area, not the sampled-grid marker."""
+    for item in _continuous_conflict_items(report):
+        source_shape = _shape_from_conflict_ref(
+            scene,
+            kind=item.get("source_kind", ""),
+            object_id=item.get("source_id", ""),
+        )
+        target_shape = _shape_from_conflict_ref(
+            scene,
+            kind=item.get("target_kind", ""),
+            object_id=item.get("target_id", ""),
+        )
+        if source_shape is None or target_shape is None:
+            continue
+        overlap = geometry_intersection_polygon(source_shape, target_shape)
+        if overlap is None:
+            continue
+        parts.append(
+            f'<polygon data-layer="continuous-conflict" '
+            f'data-conflict-type="{escape(str(item.get("type", "")))}" '
+            f'data-source="{escape(str(item.get("source_id", "")))}" '
+            f'data-target="{escape(str(item.get("target_id", "")))}" '
+            f'points="{_points_attr(overlap.points)}" '
+            f'fill="#e11d48" fill-opacity="0.72" '
+            f'stroke="#881337" stroke-width="1.2"/>'
+        )
 
 
 def scene_grid_overlay_svg(
@@ -233,16 +309,17 @@ def scene_grid_overlay_svg(
         fill="#e11d48",
         opacity=0.90,
     )
-    _draw_marker_layer(
-        parts=parts,
-        matrix=_matrix_from_report(report, "aisle", "clearance_conflict"),
-        layer="clearance_conflict",
-        resolution=resolution,
-        width=width,
-        height=height,
-        fill="#e11d48",
-        opacity=0.88,
-    )
+    if not _continuous_conflict_items(report):
+        _draw_marker_layer(
+            parts=parts,
+            matrix=_matrix_from_report(report, "aisle", "clearance_conflict"),
+            layer="clearance_conflict",
+            resolution=resolution,
+            width=width,
+            height=height,
+            fill="#e11d48",
+            opacity=0.88,
+        )
     parts.append(
         '<text data-layer="legend" data-kind="affordance_aisle_conflict" x="0" y="-12" font-size="11" '
         'font-family="Arial" fill="#be123c">yellow cells = affordance; rose markers = conflict</text>'
@@ -297,6 +374,8 @@ def scene_grid_overlay_svg(
                 f'width="{_fmt(rect.width)}" height="{_fmt(rect.height)}" '
                 f'fill="#fde047" fill-opacity="0.70" stroke="#ca8a04" stroke-width="1.4"/>'
             )
+
+    _draw_continuous_conflict_layer(parts=parts, scene=scene, report=report)
 
     # SceneModel bbox is the continuous geometry bridge between OCTA and grid.
     for entity in scene.entities:

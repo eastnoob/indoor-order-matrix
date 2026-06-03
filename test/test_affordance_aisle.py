@@ -25,7 +25,11 @@ from features.affordance import (
     resolve_affordance_profile,
     resolve_aisle_profile,
 )
-from features.affordance.continuous_conflict import geometry_overlaps, sample_overlap_cells
+from features.affordance.continuous_conflict import (
+    geometry_intersection_polygon,
+    geometry_overlaps,
+    sample_overlap_cells,
+)
 from features.affordance.evaluator import (
     AffordanceEvaluator,
     AisleEvaluator,
@@ -98,6 +102,30 @@ def test_continuous_geometry_overlap_helpers_ignore_edge_touch_and_handle_rotati
     assert coarse_cells
     assert fine_cells
     assert coarse_cells != fine_cells
+
+
+def test_continuous_geometry_intersection_polygon_represents_real_overlap_area():
+    clearance = Rect(cx=100, cy=100, width=40, height=120)
+    affordance = Rect(cx=125, cy=100, width=30, height=40)
+    rotated = Polygon.from_local_rect(
+        cx=120,
+        cy=100,
+        width=40,
+        height=20,
+        orientation=45,
+    )
+
+    rect_overlap = geometry_intersection_polygon(clearance, affordance)
+    rotated_overlap = geometry_intersection_polygon(clearance, rotated)
+
+    assert rect_overlap is not None
+    assert rect_overlap.bounds.left == pytest.approx(110)
+    assert rect_overlap.bounds.right == pytest.approx(120)
+    assert rect_overlap.bounds.top == pytest.approx(80)
+    assert rect_overlap.bounds.bottom == pytest.approx(120)
+    assert rotated_overlap is not None
+    assert rotated_overlap.bounds.width < rotated.bounds.width
+    assert rotated_overlap.bounds.height <= rotated.bounds.height
 
 
 def test_scene_model_indexes_furniture_entities():
@@ -886,6 +914,42 @@ def test_continuous_road_affordance_conflict_is_resolution_stable():
     assert sampled_20 > 0
     assert sampled_10 > 0
     assert sampled_20 != sampled_10
+
+
+def test_overlay_draws_continuous_conflict_shape_from_geometry_source():
+    template = TableTemplate(
+        size=(64, 44),
+        affordance={"usable_edges": ("right",), "edge_depth": {"right": 18}},
+        aisle={"min_width": 80},
+    )
+    grid = TableGrid(3, 3, fill=template)
+    grid.place(0, 1, align="right")
+    grid.enable_road_network(width=12, min_clearance=12)
+    grid.road(axis="vertical", index=1, width=16, min_clearance=16)
+    grid.road(axis="horizontal", index=2, enabled=False)
+
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=TableGrid(3, 3, fill=template).to_layout(),
+        layout_size=(360, 360),
+        fit_to_layout=True,
+    )
+    scene = analyzer._build_scene_model()
+    report = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 360, "height": 360, "resolution": 20},
+    )
+    svg = scene_grid_overlay_svg(
+        scene=scene,
+        report=report,
+        layout_size=(360, 360),
+        resolution=20,
+    )
+
+    assert 'data-layer="continuous-conflict"' in svg
+    assert 'data-conflict-type="road_affordance_conflict"' in svg
+    assert 'data-source="road.vertical.2.clearance"' in svg
 
 
 def test_continuous_affordance_blocker_reports_violation_without_grid_source_of_truth():

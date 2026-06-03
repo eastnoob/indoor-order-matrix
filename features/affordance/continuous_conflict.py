@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import atan2
 from typing import Any, Iterable
 
 from .grid_backend import SpatialGridBackend
@@ -65,6 +66,47 @@ def sample_overlap_cells(
         if geometry_overlaps(cell, left) and geometry_overlaps(cell, right):
             cells.add((row, col))
     return cells
+
+
+def geometry_intersection_polygon(left: Geometry, right: Geometry) -> Polygon | None:
+    """Return the continuous positive-area overlap polygon for debug drawing.
+
+    The current geometry MVP is convex rectangles/polygons. We collect vertices
+    and edge intersections, then sort them around the centroid to form the
+    overlap polygon.
+    """
+    if not geometry_overlaps(left, right):
+        return None
+    left_polygon = _as_polygon(left)
+    right_polygon = _as_polygon(right)
+    points: list[tuple[float, float]] = []
+
+    for point in left_polygon.points:
+        if right_polygon.contains_point(point[0], point[1]):
+            points.append(point)
+    for point in right_polygon.points:
+        if left_polygon.contains_point(point[0], point[1]):
+            points.append(point)
+    for edge_a in _polygon_edges(left_polygon):
+        for edge_b in _polygon_edges(right_polygon):
+            intersection = _segment_intersection_point(edge_a, edge_b)
+            if intersection is not None:
+                points.append(intersection)
+
+    unique_points = _unique_points(points)
+    if len(unique_points) < 3:
+        return None
+    cx = sum(point[0] for point in unique_points) / len(unique_points)
+    cy = sum(point[1] for point in unique_points) / len(unique_points)
+    ordered = tuple(
+        sorted(
+            unique_points,
+            key=lambda point: atan2(point[1] - cy, point[0] - cx),
+        )
+    )
+    if abs(_signed_area(ordered)) <= 1e-6:
+        return None
+    return Polygon(points=ordered)
 
 
 class ContinuousConflictEvaluator:
@@ -325,6 +367,59 @@ def _point_on_segment(
         min(start[0], end[0]) - epsilon <= x <= max(start[0], end[0]) + epsilon
         and min(start[1], end[1]) - epsilon <= y <= max(start[1], end[1]) + epsilon
     )
+
+
+def _segment_intersection_point(
+    left: tuple[tuple[float, float], tuple[float, float]],
+    right: tuple[tuple[float, float], tuple[float, float]],
+    *,
+    epsilon: float = 1e-9,
+) -> tuple[float, float] | None:
+    (x1, y1), (x2, y2) = left
+    (x3, y3), (x4, y4) = right
+    denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+    if abs(denominator) <= epsilon:
+        return None
+    px = (
+        (x1 * y2 - y1 * x2) * (x3 - x4)
+        - (x1 - x2) * (x3 * y4 - y3 * x4)
+    ) / denominator
+    py = (
+        (x1 * y2 - y1 * x2) * (y3 - y4)
+        - (y1 - y2) * (x3 * y4 - y3 * x4)
+    ) / denominator
+    if _point_on_segment(px, py, left[0], left[1]) and _point_on_segment(
+        px,
+        py,
+        right[0],
+        right[1],
+    ):
+        return px, py
+    return None
+
+
+def _unique_points(
+    points: Iterable[tuple[float, float]],
+    *,
+    precision: int = 6,
+) -> list[tuple[float, float]]:
+    seen = set()
+    unique = []
+    for x, y in points:
+        key = (round(x, precision), round(y, precision))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append((float(x), float(y)))
+    return unique
+
+
+def _signed_area(points: tuple[tuple[float, float], ...]) -> float:
+    area = 0.0
+    for index, (x1, y1) in enumerate(points):
+        x2, y2 = points[(index + 1) % len(points)]
+        area += x1 * y2 - x2 * y1
+    return area / 2
 
 
 def _segments_cross(
