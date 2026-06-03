@@ -7,6 +7,8 @@ from typing import Iterable
 
 from .models import Polygon, Rect
 
+# Only furniture occupancy uses this threshold because it blocks BFS movement.
+# Road/clearance/affordance are thin semantic bands and still use intersection sampling.
 OCCUPIED_CELL_COVERAGE_THRESHOLD = 0.5
 
 
@@ -68,6 +70,8 @@ class SpatialGridBackend:
         )
 
     def iter_indices_in_rect(self, rect: Rect) -> Iterable[tuple[int, int]]:
+        # Intersection sampling is kept for thin road/clearance/affordance bands;
+        # otherwise narrow continuous geometry can disappear at coarse resolution.
         for row in range(self.n_rows):
             for col in range(self.n_cols):
                 if self.cell_rect(row, col).intersects(rect):
@@ -75,7 +79,8 @@ class SpatialGridBackend:
 
     def iter_indices_in_polygon(self, polygon: Polygon) -> Iterable[tuple[int, int]]:
         # First restrict to polygon bounds, then test cell-area intersection.
-        # This prevents thin geometry from disappearing between sample centers.
+        # This prevents thin geometry from disappearing between sample centers;
+        # furniture movement blocking applies an extra coverage threshold later.
         bounds = polygon.bounds
         for row, col in self.iter_indices_in_rect(bounds):
             if _rect_intersects_polygon(self.cell_rect(row, col), polygon):
@@ -100,6 +105,8 @@ class SpatialGridBackend:
                 yield row, col
 
     def mark_occupied(self, object_id: str, shape: Rect | Polygon) -> None:
+        # Occupied cells are a movement approximation, not the furniture body.
+        # Tiny edge slivers do not block a whole sampled cell.
         indices = self.iter_indices_covered_by_shape(
             shape,
             min_coverage=OCCUPIED_CELL_COVERAGE_THRESHOLD,
@@ -292,6 +299,8 @@ def _rect_intersects_polygon(rect: Rect, polygon: Polygon) -> bool:
 
 
 def _shape_cell_coverage_ratio(shape: Rect | Polygon, cell: Rect) -> float:
+    # Coverage ratio is only used for sampled occupancy/BFS blocking. Continuous
+    # conflict detection compares the original shapes directly.
     if cell.area <= 0:
         return 0.0
     if isinstance(shape, Rect):
@@ -313,6 +322,7 @@ def _polygon_rect_overlap_area(polygon: Polygon, rect: Rect) -> float:
     clipped = list(polygon.points)
     # Clip polygon to the sampled cell rectangle. This gives actual occupied
     # area for rotated furniture without introducing a geometry dependency.
+    # Current polygons are convex rectangles, so Sutherland-Hodgman is enough.
     for boundary in (
         ("left", rect.left),
         ("right", rect.right),

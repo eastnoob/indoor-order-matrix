@@ -49,7 +49,7 @@ def _draw_sample_layer(
     fill: str,
     opacity: float,
 ) -> None:
-    """Draw nonzero sampled cells; layer names make notebook SVG inspectable."""
+    """Draw nonzero sampled cells; these are debug explanations, not geometry."""
     for row, values in enumerate(matrix):
         for col, value in enumerate(values):
             if not value:
@@ -111,7 +111,7 @@ def _draw_entry_layer(
     width: float,
     height: float,
 ) -> None:
-    """Draw BFS entry cells as boundary arrows; these are starts, not road geometry."""
+    """Draw BFS entry cells as boundary arrows; these starts are not road geometry."""
     for row, values in enumerate(matrix):
         for col, value in enumerate(values):
             if not value:
@@ -180,7 +180,7 @@ def _draw_continuous_conflict_layer(
     scene: SceneModel,
     report: dict[str, Any],
 ) -> None:
-    """Draw the true continuous overlap area, not the sampled-grid marker."""
+    """Draw the true continuous overlap area, not sampled-grid conflict markers."""
     for item in _continuous_conflict_items(report):
         source_shape = _shape_from_conflict_ref(
             scene,
@@ -258,6 +258,8 @@ def scene_grid_overlay_svg(
                 f'stroke="#e5e7eb" stroke-width="0.4"/>'
             )
 
+    # Reachable is a BFS debug layer. It can change with resolution/occupancy
+    # threshold and should not be read as a continuous road surface.
     _draw_sample_layer(
         parts=parts,
         matrix=_matrix_from_report(report, "aisle", "reachable"),
@@ -275,6 +277,8 @@ def scene_grid_overlay_svg(
         width=width,
         height=height,
     )
+    # Road/clearance/affordance sampled layers explain how continuous bands were
+    # rasterized. They are intentionally pale so geometry remains primary.
     _draw_sample_layer(
         parts=parts,
         matrix=_matrix_from_report(report, "aisle", "aisle"),

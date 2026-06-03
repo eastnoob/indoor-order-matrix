@@ -56,7 +56,11 @@ def sample_overlap_cells(
     left: Geometry,
     right: Geometry,
 ) -> set[tuple[int, int]]:
-    """Rasterize an already-continuous overlap for debug/highlight only."""
+    """Rasterize an already-continuous overlap for debug/highlight only.
+
+    This must not be used to decide whether a conflict exists; it only tells the
+    notebook which sampled cells should explain the continuous conflict.
+    """
     bounds = _intersection_bounds(left, right)
     if bounds is None:
         return set()
@@ -74,6 +78,8 @@ def geometry_intersection_polygon(left: Geometry, right: Geometry) -> Polygon | 
     The current geometry MVP is convex rectangles/polygons. We collect vertices
     and edge intersections, then sort them around the centroid to form the
     overlap polygon.
+    This is a visualization/explanation helper: `geometry_overlaps()` decides
+    whether conflict exists; this function gives the notebook a shape to draw.
     """
     if not geometry_overlaps(left, right):
         return None
@@ -111,6 +117,8 @@ def geometry_intersection_polygon(left: Geometry, right: Geometry) -> Polygon | 
 
 class ContinuousConflictEvaluator:
     def evaluate(self, scene: SceneModel) -> dict[str, Any]:
+        # Continuous geometry is the source of truth here. We classify overlaps
+        # before any sampled grid exists; grid layers are filled later as debug.
         conflicts: list[ContinuousConflict] = []
         conflicts.extend(self._affordance_blockers(scene))
         conflicts.extend(self._clearance_blockers(scene))
@@ -146,6 +154,8 @@ class ContinuousConflictEvaluator:
         }
 
     def _affordance_blockers(self, scene: SceneModel) -> list[ContinuousConflict]:
+        # A foreign furniture footprint occupying a furniture-owned affordance
+        # band lowers affordance quality, but does not by itself block a road.
         conflicts = []
         for band in scene.affordance_bands:
             band_shape = band.polygon or band.rect
@@ -174,6 +184,8 @@ class ContinuousConflictEvaluator:
         return conflicts
 
     def _clearance_blockers(self, scene: SceneModel) -> list[ContinuousConflict]:
+        # ClearanceBand means "this continuous area must stay clear for travel".
+        # Furniture overlap is therefore a hard circulation bottleneck.
         conflicts = []
         for band in scene.clearance_bands:
             for entity in scene.entities:
@@ -197,6 +209,8 @@ class ContinuousConflictEvaluator:
         return conflicts
 
     def _road_affordance_conflicts(self, scene: SceneModel) -> list[ContinuousConflict]:
+        # Road/clearance and affordance can both be valid spaces, but overlapping
+        # them asks one area to serve incompatible uses, so it is a soft conflict.
         conflicts = []
         corridor_sources: Iterable[tuple[str, str, Rect, dict[str, Any]]]
         if scene.clearance_bands:
@@ -279,6 +293,8 @@ def _as_polygon(shape: Geometry) -> Polygon:
 
 
 def _intersection_bounds(left: Geometry, right: Geometry) -> Rect | None:
+    # A cheap AABB window for rasterizing debug cells. It is deliberately not
+    # used as the final overlap test.
     left_bounds = left.bounds if isinstance(left, Polygon) else left
     right_bounds = right.bounds if isinstance(right, Polygon) else right
     if not left_bounds.intersects(right_bounds):
@@ -326,6 +342,8 @@ def _projections_overlap_with_area(
     *,
     epsilon: float = 1e-9,
 ) -> bool:
+    # Strict projection overlap keeps edge-touching geometry from becoming a
+    # conflict. Positive width on every SAT axis means positive area for convex MVP shapes.
     left_min, left_max = _project_polygon(left, axis)
     right_min, right_max = _project_polygon(right, axis)
     return left_min < right_max - epsilon and left_max > right_min + epsilon

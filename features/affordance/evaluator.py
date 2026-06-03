@@ -64,7 +64,8 @@ def _entry_matrix(
     grid: SpatialGridBackend,
     entries: list[tuple[int, int]],
 ) -> list[list[int]]:
-    # Entries are debug-only sampled start cells for BFS reachability.
+    # Entries are debug-only sampled start cells for BFS reachability. They are
+    # not RoadNetwork geometry; the current MVP assumes the left boundary opens in.
     matrix = [[0 for _ in range(grid.n_cols)] for _ in range(grid.n_rows)]
     for row, col in entries:
         if 0 <= row < grid.n_rows and 0 <= col < grid.n_cols:
@@ -350,6 +351,7 @@ class AisleEvaluator:
         )
         # RoadNetwork conflicts use continuous geometry for stable scoring;
         # sampled cells below remain an explanation layer and may vary by resolution.
+        # This keeps r=20/r=10 from changing whether a road conflict exists.
         if continuous is not None and scene.clearance_bands:
             hard_sources = {
                 item["source_id"]
@@ -413,6 +415,7 @@ class AisleEvaluator:
 
     def _default_entries(self, grid: SpatialGridBackend) -> list[tuple[int, int]]:
         # MVP entrance assumption: circulation enters from the left boundary.
+        # Later this should become an explicit Entry/AccessPoint or RoadNetwork setting.
         return [(row, 0) for row in range(grid.n_rows)]
 
     def _entity_reachable(
@@ -546,6 +549,8 @@ class AisleEvaluator:
         continuous: dict,
         clearance_data_by_id: dict[str, dict],
     ) -> None:
+        # Convert continuous conflict sources into sampled cells for the report
+        # and notebook only. The conflict itself was already decided upstream.
         for conflict in continuous.get("conflicts", []):
             if conflict.type not in {"clearance_blocked", "road_affordance_conflict"}:
                 continue
@@ -602,6 +607,8 @@ def evaluate_spatial_access(
     height: float,
     resolution: float = 50,
 ) -> dict:
+    # ContinuousConflictEvaluator runs before grid evaluators so overlap truth
+    # comes from geometry. The existing affordance/aisle report shapes stay stable.
     continuous = ContinuousConflictEvaluator().evaluate(scene)
     affordance = AffordanceEvaluator(
         width=width,
