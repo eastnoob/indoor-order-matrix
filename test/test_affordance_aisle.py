@@ -1078,6 +1078,34 @@ def test_scene_grid_overlay_svg_exposes_geometry_and_sample_layers():
     assert svg_10.count('data-layer="sample-cell"') > svg_20.count('data-layer="sample-cell"')
 
 
+def test_scene_grid_overlay_svg_marks_default_left_boundary_entries():
+    template = TableTemplate(size=(40, 20))
+    grid = TableGrid(3, 3, fill=template)
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_matrix(),
+        ideal_matrix=grid.to_matrix(),
+        layout_size=(300, 300),
+        fit_to_layout=True,
+    )
+    scene = analyzer._build_scene_model()
+    report = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 300, "height": 300, "resolution": 20},
+    )
+    svg = scene_grid_overlay_svg(
+        scene=scene,
+        report=report,
+        layout_size=(300, 300),
+        resolution=20,
+    )
+
+    assert report["aisle"]["debug"]["entries"][0][0] == 1
+    assert report["aisle"]["debug"]["entries"][-1][0] == 1
+    assert 'data-layer="entry"' in svg
+    assert 'data-entry="left-boundary"' in svg
+
+
 def test_scene_grid_overlay_svg_rotates_oriented_entity_bbox():
     template = TableTemplate(size=(64, 44))
     grid = TableGrid(3, 3, fill=template)

@@ -60,6 +60,18 @@ def _matrix_positive_cells(matrix: list[list[int]]) -> set[tuple[int, int]]:
     }
 
 
+def _entry_matrix(
+    grid: SpatialGridBackend,
+    entries: list[tuple[int, int]],
+) -> list[list[int]]:
+    # Entries are debug-only sampled start cells for BFS reachability.
+    matrix = [[0 for _ in range(grid.n_cols)] for _ in range(grid.n_rows)]
+    for row, col in entries:
+        if 0 <= row < grid.n_rows and 0 <= col < grid.n_cols:
+            matrix[row][col] = 1
+    return matrix
+
+
 @dataclass(frozen=True)
 class _EdgeCoverage:
     edge: str
@@ -217,7 +229,8 @@ class AisleEvaluator:
         for entity in scene.entities:
             grid.mark_occupied(entity.id, entity.footprint or entity.rect)
 
-        grid.compute_reachability(self.entries or self._default_entries(grid))
+        entries = self.entries or self._default_entries(grid)
+        grid.compute_reachability(entries)
         affordance_cells = self._affordance_reference_cells(
             grid,
             scene,
@@ -382,6 +395,7 @@ class AisleEvaluator:
             "bottlenecks": bottlenecks,
             "debug": {
                 "reachable": _matrix_counts(grid.debug_matrix("reachable")),
+                "entries": _entry_matrix(grid, entries),
                 "aisle": _matrix_counts(grid.debug_matrix("aisle_for")),
                 "aisle_conflict": _matrix_counts(grid.debug_matrix("aisle_conflict_for")),
                 "road": _matrix_counts(grid.debug_matrix("road_for")),

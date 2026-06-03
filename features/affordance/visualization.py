@@ -103,6 +103,37 @@ def _draw_marker_layer(
             )
 
 
+def _draw_entry_layer(
+    *,
+    parts: list[str],
+    matrix: list[list[int]],
+    resolution: float,
+    width: float,
+    height: float,
+) -> None:
+    """Draw BFS entry cells as boundary arrows; these are starts, not road geometry."""
+    for row, values in enumerate(matrix):
+        for col, value in enumerate(values):
+            if not value:
+                continue
+            x, y, w, h = _cell_rect(
+                row=row,
+                col=col,
+                resolution=resolution,
+                width=width,
+                height=height,
+            )
+            mid_y = y + h / 2
+            parts.append(
+                f'<path data-layer="entry" data-entry="left-boundary" '
+                f'd="M {_fmt(x - 15)} {_fmt(mid_y)} L {_fmt(x - 3)} {_fmt(mid_y)} '
+                f'M {_fmt(x - 8)} {_fmt(mid_y - 5)} L {_fmt(x - 3)} {_fmt(mid_y)} '
+                f'L {_fmt(x - 8)} {_fmt(mid_y + 5)}" '
+                f'fill="none" stroke="#0f172a" stroke-width="1.6" stroke-linecap="round" '
+                f'stroke-linejoin="round"/>'
+            )
+
+
 def _continuous_conflict_items(report: dict[str, Any]) -> list[dict[str, Any]]:
     """Merge continuous conflict debug entries from report sections without duplicates."""
     items: list[dict[str, Any]] = []
@@ -236,6 +267,13 @@ def scene_grid_overlay_svg(
         height=height,
         fill="#bbf7d0",
         opacity=0.12,
+    )
+    _draw_entry_layer(
+        parts=parts,
+        matrix=_matrix_from_report(report, "aisle", "entries"),
+        resolution=resolution,
+        width=width,
+        height=height,
     )
     _draw_sample_layer(
         parts=parts,
