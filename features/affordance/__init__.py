@@ -1,3 +1,8 @@
+from .continuous_conflict import (
+    ContinuousConflictEvaluator,
+    geometry_overlaps,
+    sample_overlap_cells,
+)
 from .evaluator import AffordanceEvaluator, AisleEvaluator, evaluate_spatial_access
 from .geometry import (
     build_affordance_band,
@@ -33,6 +38,7 @@ __all__ = [
     "AisleProfile",
     "AisleEvaluator",
     "ClearanceBand",
+    "ContinuousConflictEvaluator",
     "Furniture",
     "GridCell",
     "GridFrame",
@@ -46,8 +52,10 @@ __all__ = [
     "build_affordance_bands",
     "build_affordance_polygon",
     "evaluate_spatial_access",
+    "geometry_overlaps",
     "resolution_comparison_svg",
     "resolve_affordance_profile",
     "resolve_aisle_profile",
+    "sample_overlap_cells",
     "scene_grid_overlay_svg",
 ]

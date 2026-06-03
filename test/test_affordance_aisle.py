@@ -25,7 +25,12 @@ from features.affordance import (
     resolve_affordance_profile,
     resolve_aisle_profile,
 )
-from features.affordance.evaluator import AffordanceEvaluator, AisleEvaluator
+from features.affordance.continuous_conflict import geometry_overlaps, sample_overlap_cells
+from features.affordance.evaluator import (
+    AffordanceEvaluator,
+    AisleEvaluator,
+    evaluate_spatial_access,
+)
 from features.affordance.visualization import scene_grid_overlay_svg
 from features.analyzer import OrderAnalyzer
 from features.entities import Chair, Road, Table, TableGrid, TableTemplate
@@ -68,6 +73,31 @@ def test_polygon_contains_point_and_bounds_for_rotated_rect():
     assert not polygon.contains_point(100, 70)
     assert polygon.bounds.width > 40
     assert polygon.bounds.height > 20
+
+
+def test_continuous_geometry_overlap_helpers_ignore_edge_touch_and_handle_rotation():
+    touching_left = Rect(cx=10, cy=10, width=20, height=20)
+    touching_right = Rect(cx=30, cy=10, width=20, height=20)
+    overlapping_road = Rect(cx=24, cy=10, width=12, height=40)
+    rotated_table = Polygon.from_local_rect(
+        cx=30,
+        cy=10,
+        width=28,
+        height=14,
+        orientation=45,
+    )
+
+    assert not geometry_overlaps(touching_left, touching_right)
+    assert geometry_overlaps(overlapping_road, rotated_table)
+
+    coarse_grid = SpatialGridBackend(width=80, height=80, resolution=20)
+    fine_grid = SpatialGridBackend(width=80, height=80, resolution=10)
+    coarse_cells = sample_overlap_cells(coarse_grid, overlapping_road, rotated_table)
+    fine_cells = sample_overlap_cells(fine_grid, overlapping_road, rotated_table)
+
+    assert coarse_cells
+    assert fine_cells
+    assert coarse_cells != fine_cells
 
 
 def test_scene_model_indexes_furniture_entities():
@@ -809,6 +839,93 @@ def test_road_network_clearance_conflict_survives_coarse_resolution_sampling():
     )
 
 
+def test_continuous_road_affordance_conflict_is_resolution_stable():
+    template = TableTemplate(
+        size=(64, 44),
+        affordance={"usable_edges": ("right",), "edge_depth": {"right": 18}},
+        aisle={"min_width": 80},
+    )
+    grid = TableGrid(3, 3, fill=template)
+    grid.place(0, 1, align="right")
+    grid.enable_road_network(width=12, min_clearance=12)
+    grid.road(axis="vertical", index=1, width=16, min_clearance=16)
+    grid.road(axis="horizontal", index=2, enabled=False)
+
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=TableGrid(3, 3, fill=template).to_layout(),
+        layout_size=(360, 360),
+        fit_to_layout=True,
+    )
+    report_20 = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 360, "height": 360, "resolution": 20},
+    )
+    report_10 = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 360, "height": 360, "resolution": 10},
+    )
+
+    conflicts_20 = report_20["aisle"]["debug"]["continuous_conflicts"]
+    conflicts_10 = report_10["aisle"]["debug"]["continuous_conflicts"]
+    road_conflicts_20 = [
+        item for item in conflicts_20 if item["type"] == "road_affordance_conflict"
+    ]
+    road_conflicts_10 = [
+        item for item in conflicts_10 if item["type"] == "road_affordance_conflict"
+    ]
+
+    assert road_conflicts_20
+    assert len(road_conflicts_20) == len(road_conflicts_10)
+    assert report_20["aisle"]["score"] == pytest.approx(report_10["aisle"]["score"])
+
+    sampled_20 = sum(map(sum, report_20["aisle"]["debug"]["clearance_conflict"]))
+    sampled_10 = sum(map(sum, report_10["aisle"]["debug"]["clearance_conflict"]))
+    assert sampled_20 > 0
+    assert sampled_10 > 0
+    assert sampled_20 != sampled_10
+
+
+def test_continuous_affordance_blocker_reports_violation_without_grid_source_of_truth():
+    owner = Furniture(
+        id="owner",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=100, cy=100, width=40, height=20),
+        affordance={"usable_edges": ("right",), "edge_depth": {"right": 20}},
+    )
+    blocker = Furniture(
+        id="blocker",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=132, cy=100, width=16, height=18),
+    )
+    scene = SceneModel(
+        entities=[owner, blocker],
+        affordance_bands=build_affordance_bands([owner, blocker]),
+    )
+
+    result = evaluate_spatial_access(
+        scene,
+        width=200,
+        height=200,
+        resolution=20,
+    )
+
+    violations = result["affordance"]["violations"]
+    assert any(
+        item["type"] == "affordance_blocked_by_furniture"
+        and item["object_ids"] == ["owner", "blocker"]
+        for item in violations
+    )
+    assert any(
+        item["type"] == "affordance_blocked_by_furniture"
+        for item in result["affordance"]["debug"]["continuous_conflicts"]
+    )
+
+
 def test_table_grid_matrix_feeds_order_analyzer_and_right_align_scene_model():
     template = TableTemplate(size=(40, 20), type_id="table.training")
     ideal_grid = TableGrid(3, 3, fill=template)
@@ -1012,6 +1129,7 @@ def test_simple_3x3_table_affordance_demo_notebook_is_user_facing():
     assert "resolution comparison" in source
     assert "latent_grid_svg" in source
     assert "affordance.score" in source
+    assert "continuous_conflicts" in source
     assert "deviance_cells" in source
     assert "continuous geometry bridge" in source
     assert "SpatialGridBackend" not in source

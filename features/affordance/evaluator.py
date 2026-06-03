@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from statistics import mean
 
+from .continuous_conflict import ContinuousConflictEvaluator, sample_overlap_cells
 from .geometry import build_affordance_polygon
 from .grid_backend import SpatialGridBackend
 from .models import Rect, SceneModel, SpatialEntity
@@ -79,7 +80,7 @@ class AffordanceEvaluator:
         self.height = height
         self.resolution = resolution
 
-    def evaluate(self, scene: SceneModel) -> dict:
+    def evaluate(self, scene: SceneModel, continuous: dict | None = None) -> dict:
         grid = SpatialGridBackend(
             width=self.width,
             height=self.height,
@@ -139,6 +140,9 @@ class AffordanceEvaluator:
                     }
                 )
 
+        if continuous is not None:
+            violations.extend(continuous.get("affordance_violations", []))
+
         return {
             "enabled": True,
             "backend": "grid",
@@ -149,6 +153,11 @@ class AffordanceEvaluator:
                 "occupied": _matrix_counts(grid.debug_matrix("occupied_by")),
                 "affordance": _matrix_counts(grid.debug_matrix("affordance_for")),
                 "conflict": _matrix_counts(grid.debug_matrix("conflict_for")),
+                "continuous_conflicts": (
+                    continuous.get("debug", {}).get("affordance", [])
+                    if continuous is not None
+                    else []
+                ),
             },
         }
 
@@ -194,7 +203,12 @@ class AisleEvaluator:
         self.resolution = resolution
         self.entries = entries
 
-    def evaluate(self, scene: SceneModel, affordance_debug: dict | None = None) -> dict:
+    def evaluate(
+        self,
+        scene: SceneModel,
+        affordance_debug: dict | None = None,
+        continuous: dict | None = None,
+    ) -> dict:
         grid = SpatialGridBackend(
             width=self.width,
             height=self.height,
@@ -218,6 +232,7 @@ class AisleEvaluator:
             grid,
             scene,
             affordance_cells,
+            continuous,
         )
         # Once explicit RoadBand/ClearanceBand geometry exists, circulation is
         # evaluated from that geometry. The older object-centered halo remains
@@ -283,27 +298,30 @@ class AisleEvaluator:
                     }
                 )
 
-        for band_id, data in road_data["clearance"].items():
-            if data["blocked_cells"]:
-                bottlenecks.append(
-                    {
-                        "type": "clearance_blocked",
-                        "severity": "hard",
-                        "object_ids": [band_id],
-                        "blocked_cells": len(data["blocked_cells"]),
-                        "suggestion_hint": "increase_clearance_band",
-                    }
-                )
-            if data["affordance_conflict_cells"]:
-                bottlenecks.append(
-                    {
-                        "type": "road_affordance_conflict",
-                        "severity": "soft",
-                        "object_ids": [band_id],
-                        "conflict_cells": len(data["affordance_conflict_cells"]),
-                        "suggestion_hint": "separate_road_from_affordance",
-                    }
-                )
+        if continuous is not None:
+            bottlenecks.extend(continuous.get("aisle_bottlenecks", []))
+        else:
+            for band_id, data in road_data["clearance"].items():
+                if data["blocked_cells"]:
+                    bottlenecks.append(
+                        {
+                            "type": "clearance_blocked",
+                            "severity": "hard",
+                            "object_ids": [band_id],
+                            "blocked_cells": len(data["blocked_cells"]),
+                            "suggestion_hint": "increase_clearance_band",
+                        }
+                    )
+                if data["affordance_conflict_cells"]:
+                    bottlenecks.append(
+                        {
+                            "type": "road_affordance_conflict",
+                            "severity": "soft",
+                            "object_ids": [band_id],
+                            "conflict_cells": len(data["affordance_conflict_cells"]),
+                            "suggestion_hint": "separate_road_from_affordance",
+                        }
+                    )
 
         total = len(reachable_objects) + len(unreachable_objects)
         reachable_score = len(reachable_objects) / total if total else 1.0
@@ -317,12 +335,30 @@ class AisleEvaluator:
             len(data["affordance_conflict_cells"])
             for data in road_data["clearance"].values()
         )
-        # Hard occupied blockage is weighted more than soft affordance overlap.
-        # The denominator stays at least 1 to keep empty/no-aisle scenes stable.
-        conflict_penalty = (blocked_cells + 0.5 * overlap_cells) / max(1, aisle_cells)
+        # RoadNetwork conflicts use continuous geometry for stable scoring;
+        # sampled cells below remain an explanation layer and may vary by resolution.
+        if continuous is not None and scene.clearance_bands:
+            hard_sources = {
+                item["source_id"]
+                for item in continuous.get("debug", {}).get("aisle", [])
+                if item["type"] == "clearance_blocked"
+            }
+            soft_sources = {
+                item["source_id"]
+                for item in continuous.get("debug", {}).get("aisle", [])
+                if item["type"] == "road_affordance_conflict"
+            }
+            conflict_penalty = (
+                len(hard_sources) + 0.5 * len(soft_sources)
+            ) / max(1, len(scene.clearance_bands))
+        else:
+            # Hard occupied blockage is weighted more than soft affordance overlap.
+            # The denominator stays at least 1 to keep empty/no-aisle scenes stable.
+            conflict_penalty = (blocked_cells + 0.5 * overlap_cells) / max(1, aisle_cells)
         score = max(0.0, reachable_score * (1.0 - conflict_penalty))
         grid.mark_aisle_conflicts()
-        grid.mark_clearance_conflicts()
+        if continuous is None:
+            grid.mark_clearance_conflicts()
 
         return {
             "enabled": True,
@@ -352,6 +388,11 @@ class AisleEvaluator:
                 "clearance": _matrix_counts(grid.debug_matrix("clearance_for")),
                 "clearance_conflict": _matrix_counts(
                     grid.debug_matrix("clearance_conflict_for")
+                ),
+                "continuous_conflicts": (
+                    continuous.get("debug", {}).get("aisle", [])
+                    if continuous is not None
+                    else []
                 ),
             },
         }
@@ -430,6 +471,7 @@ class AisleEvaluator:
         grid: SpatialGridBackend,
         scene: SceneModel,
         affordance_cells: set[tuple[int, int]],
+        continuous: dict | None = None,
     ) -> dict[str, dict]:
         # RoadBand/ClearanceBand are continuous geometry. This method only marks
         # their sampled cells so scoring/debug layers can explain conflicts.
@@ -444,24 +486,61 @@ class AisleEvaluator:
         for band in scene.clearance_bands:
             cells = set(grid.iter_indices_in_rect(band.rect))
             grid.mark_clearance(band.id, band.rect)
-            blocked_cells = {
-                (row, col)
-                for row, col in cells
-                if grid.cells[row][col].occupied_by
-            }
-            affordance_conflict_cells = cells & affordance_cells
-            for row, col in blocked_cells | affordance_conflict_cells:
-                grid.cells[row][col].clearance_conflict_for.add(band.id)
+            if continuous is None:
+                blocked_cells = {
+                    (row, col)
+                    for row, col in cells
+                    if grid.cells[row][col].occupied_by
+                }
+                affordance_conflict_cells = cells & affordance_cells
+                for row, col in blocked_cells | affordance_conflict_cells:
+                    grid.cells[row][col].clearance_conflict_for.add(band.id)
+            else:
+                blocked_cells = set()
+                affordance_conflict_cells = set()
             clearance_data_by_id[band.id] = {
                 "cells": cells,
                 "blocked_cells": blocked_cells,
                 "affordance_conflict_cells": affordance_conflict_cells,
             }
 
+        if continuous is not None:
+            self._rasterize_continuous_clearance_conflicts(
+                grid,
+                continuous,
+                clearance_data_by_id,
+            )
+
         return {
             "roads": road_cells_by_id,
             "clearance": clearance_data_by_id,
         }
+
+    def _rasterize_continuous_clearance_conflicts(
+        self,
+        grid: SpatialGridBackend,
+        continuous: dict,
+        clearance_data_by_id: dict[str, dict],
+    ) -> None:
+        for conflict in continuous.get("conflicts", []):
+            if conflict.type not in {"clearance_blocked", "road_affordance_conflict"}:
+                continue
+            cells = sample_overlap_cells(
+                grid,
+                conflict.source_shape,
+                conflict.target_shape,
+            )
+            if not cells:
+                continue
+            for row, col in cells:
+                grid.cells[row][col].clearance_conflict_for.add(conflict.source_id)
+            if conflict.source_id in clearance_data_by_id:
+                key = (
+                    "blocked_cells"
+                    if conflict.type == "clearance_blocked"
+                    else "affordance_conflict_cells"
+                )
+                clearance_data_by_id[conflict.source_id][key].update(cells)
 
     def _affordance_reference_cells(
         self,
@@ -499,16 +578,17 @@ def evaluate_spatial_access(
     height: float,
     resolution: float = 50,
 ) -> dict:
+    continuous = ContinuousConflictEvaluator().evaluate(scene)
     affordance = AffordanceEvaluator(
         width=width,
         height=height,
         resolution=resolution,
-    ).evaluate(scene)
+    ).evaluate(scene, continuous=continuous)
     aisle = AisleEvaluator(
         width=width,
         height=height,
         resolution=resolution,
-    ).evaluate(scene, affordance_debug=affordance.get("debug"))
+    ).evaluate(scene, affordance_debug=affordance.get("debug"), continuous=continuous)
     return {
         "affordance": affordance,
         "aisle": aisle,
