@@ -10,7 +10,7 @@ from .continuous_conflict import (
 )
 from .geometry import build_affordance_polygon
 from .grid_backend import OCCUPIED_CELL_COVERAGE_THRESHOLD, SpatialGridBackend
-from .models import Rect, SceneModel, SpatialEntity
+from .models import EntryBand, Rect, SceneModel, SpatialEntity
 from .profiles import AffordanceProfile, resolve_affordance_profile, resolve_aisle_profile
 
 
@@ -261,11 +261,13 @@ class AisleEvaluator:
         height: float,
         resolution: float = 50,
         entries: list[tuple[int, int]] | None = None,
+        entry_bands: list[EntryBand] | None = None,
     ) -> None:
         self.width = width
         self.height = height
         self.resolution = resolution
         self.entries = entries
+        self.entry_bands = list(entry_bands or [])
 
     def evaluate(
         self,
@@ -281,7 +283,7 @@ class AisleEvaluator:
         for entity in scene.entities:
             grid.mark_occupied(entity.id, entity.footprint or entity.rect)
 
-        entries = self.entries or self._default_entries(grid)
+        entries, entry_infos = self._resolve_entries(grid)
         grid.compute_reachability(entries)
         affordance_cells = self._affordance_reference_cells(
             grid,
@@ -446,6 +448,7 @@ class AisleEvaluator:
             "reachable_objects": reachable_objects,
             "unreachable_objects": unreachable_objects,
             "bottlenecks": bottlenecks,
+            "entries": entry_infos,
             "debug": {
                 "reachable": _matrix_counts(grid.debug_matrix("reachable")),
                 "entries": _entry_matrix(grid, entries),
@@ -463,6 +466,59 @@ class AisleEvaluator:
                 ),
             },
         }
+
+    def _resolve_entries(
+        self,
+        grid: SpatialGridBackend,
+    ) -> tuple[list[tuple[int, int]], list[dict]]:
+        if self.entry_bands:
+            cells: list[tuple[int, int]] = []
+            infos = []
+            seen = set()
+            for band in self.entry_bands:
+                band_cells = self._entry_cells_for_band(grid, band)
+                for cell in band_cells:
+                    if cell not in seen:
+                        seen.add(cell)
+                        cells.append(cell)
+                infos.append(
+                    {
+                        "id": band.id,
+                        "edge": band.edge,
+                        "entry_cells": len(band_cells),
+                        "source": "explicit",
+                    }
+                )
+            return cells, infos
+
+        entries = list(self.entries or self._default_entries(grid))
+        return entries, [
+            {
+                "id": "left-boundary" if self.entries is None else "custom-cells",
+                "edge": "left" if self.entries is None else "custom",
+                "entry_cells": len(entries),
+                "source": "default" if self.entries is None else "cells",
+            }
+        ]
+
+    def _entry_cells_for_band(
+        self,
+        grid: SpatialGridBackend,
+        band: EntryBand,
+    ) -> list[tuple[int, int]]:
+        cells = []
+        for row, col in grid.iter_indices_in_rect(band.rect):
+            if band.edge == "left" and col != 0:
+                continue
+            if band.edge == "right" and col != grid.n_cols - 1:
+                continue
+            if band.edge == "top" and row != 0:
+                continue
+            if band.edge == "bottom" and row != grid.n_rows - 1:
+                continue
+            if grid.free(row, col):
+                cells.append((row, col))
+        return cells
 
     def _default_entries(self, grid: SpatialGridBackend) -> list[tuple[int, int]]:
         # MVP entrance assumption: circulation enters from the left boundary.
@@ -670,6 +726,7 @@ def evaluate_spatial_access(
         width=width,
         height=height,
         resolution=resolution,
+        entry_bands=scene.entry_bands,
     ).evaluate(scene, affordance_debug=affordance.get("debug"), continuous=continuous)
     return {
         "affordance": affordance,

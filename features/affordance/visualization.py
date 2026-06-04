@@ -107,11 +107,15 @@ def _draw_entry_layer(
     *,
     parts: list[str],
     matrix: list[list[int]],
+    entries: list[dict[str, Any]],
     resolution: float,
     width: float,
     height: float,
 ) -> None:
     """Draw BFS entry cells as boundary arrows; these starts are not road geometry."""
+    entry = entries[0] if entries else {"id": "left-boundary", "edge": "left"}
+    entry_id = escape(str(entry.get("id", "left-boundary")))
+    edge = escape(str(entry.get("edge", "left")))
     for row, values in enumerate(matrix):
         for col, value in enumerate(values):
             if not value:
@@ -125,7 +129,7 @@ def _draw_entry_layer(
             )
             mid_y = y + h / 2
             parts.append(
-                f'<path data-layer="entry" data-entry="left-boundary" '
+                f'<path data-layer="entry" data-entry="{entry_id}" data-edge="{edge}" '
                 f'd="M {_fmt(x - 15)} {_fmt(mid_y)} L {_fmt(x - 3)} {_fmt(mid_y)} '
                 f'M {_fmt(x - 8)} {_fmt(mid_y - 5)} L {_fmt(x - 3)} {_fmt(mid_y)} '
                 f'L {_fmt(x - 8)} {_fmt(mid_y + 5)}" '
@@ -273,6 +277,7 @@ def scene_grid_overlay_svg(
     _draw_entry_layer(
         parts=parts,
         matrix=_matrix_from_report(report, "aisle", "entries"),
+        entries=report.get("aisle", {}).get("entries", []),
         resolution=resolution,
         width=width,
         height=height,

@@ -250,6 +250,16 @@ class ClearanceBand:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass
+class EntryBand:
+    # Continuous boundary segment used to seed sampled BFS reachability. It is
+    # not a road, furniture, or conflict object.
+    id: str
+    edge: str
+    rect: Rect
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
 class SceneModel:
     def __init__(
         self,
@@ -259,12 +269,14 @@ class SceneModel:
         affordance_bands: list[AffordanceBand] | None = None,
         road_bands: list[RoadBand] | None = None,
         clearance_bands: list[ClearanceBand] | None = None,
+        entry_bands: list[EntryBand] | None = None,
     ) -> None:
         self.entities = list(entities or [])
         self.grids = list(grids or [])
         self.affordance_bands = list(affordance_bands or [])
         self.road_bands = list(road_bands or [])
         self.clearance_bands = list(clearance_bands or [])
+        self.entry_bands = list(entry_bands or [])
         # Keep simple indexes here; richer spatial indexes can be added later
         # without changing evaluator-facing APIs.
         self.entity_by_id = {entity.id: entity for entity in self.entities}
@@ -279,6 +291,7 @@ class SceneModel:
         self.clearance_band_by_id = {
             band.id: band for band in self.clearance_bands
         }
+        self.entry_band_by_id = {band.id: band for band in self.entry_bands}
 
     def get_entity(self, entity_id: str) -> SpatialEntity | None:
         return self.entity_by_id.get(entity_id)

@@ -13,6 +13,7 @@ from features.affordance import (
     AffordanceBand,
     AisleProfile,
     ClearanceBand,
+    EntryBand,
     Furniture,
     GridFrame,
     Polygon,
@@ -37,7 +38,7 @@ from features.affordance.evaluator import (
 )
 from features.affordance.visualization import scene_grid_overlay_svg
 from features.analyzer import OrderAnalyzer
-from features.entities import Chair, Road, Table, TableGrid, TableTemplate
+from features.entities import Chair, Entry, Road, Table, TableGrid, TableTemplate
 
 
 def test_rect_geometry_helpers():
@@ -433,6 +434,36 @@ def test_aisle_evaluator_marks_unreachable_object_when_blocked_by_wall():
     assert result["bottlenecks"][0]["suggestion_hint"] == "open_aisle_path"
 
 
+def test_aisle_evaluator_filters_occupied_explicit_entry_cells():
+    wall = Furniture(
+        id="wall_1",
+        type_id="furniture.default",
+        role="obstacle",
+        rect=Rect(cx=10, cy=50, width=20, height=20),
+    )
+    scene = SceneModel(
+        entities=[wall],
+        entry_bands=[
+            EntryBand(
+                id="main_entry",
+                edge="left",
+                rect=Rect(cx=0.5, cy=50, width=1, height=100),
+            )
+        ],
+    )
+
+    result = AisleEvaluator(
+        width=100,
+        height=100,
+        resolution=20,
+        entry_bands=scene.entry_bands,
+    ).evaluate(scene)
+
+    assert result["entries"][0]["id"] == "main_entry"
+    assert result["debug"]["entries"][2][0] == 0
+    assert result["debug"]["entries"][0][0] == 1
+
+
 def test_aisle_evaluator_reports_reserved_corridor_conflicts():
     table = Furniture(
         id="table_1",
@@ -686,6 +717,25 @@ def test_road_intent_and_table_grid_layout_preserve_matrix_compatibility():
     assert layout["roads"][0]["min_clearance"] == 60.0
 
 
+def test_entry_intent_and_table_grid_layout_preserve_matrix_compatibility():
+    entry = Entry(id="main_entry", edge="left", width=120)
+    intent = entry.to_intent()
+
+    assert intent["id"] == "main_entry"
+    assert intent["edge"] == "left"
+    assert intent["width"] == 120.0
+
+    grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
+    grid.entry(edge="left", width=120, id="main_entry")
+    matrix = grid.to_matrix()
+    layout = grid.to_layout()
+
+    assert isinstance(matrix, list)
+    assert "entries" not in matrix[0][0]
+    assert layout["matrix"][0][0]["id"] == "t11"
+    assert layout["entries"] == [intent]
+
+
 def test_order_analyzer_layout_input_builds_road_and_clearance_bands():
     grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
     grid.road(axis="vertical", between=(0, 1), width=80, min_clearance=60)
@@ -705,6 +755,40 @@ def test_order_analyzer_layout_input_builds_road_and_clearance_bands():
     assert scene.clearance_bands[0].rect.right == pytest.approx(130)
     assert scene.road_band_by_id[scene.road_bands[0].id] is scene.road_bands[0]
     assert scene.clearance_band_by_id[scene.clearance_bands[0].id] is scene.clearance_bands[0]
+
+
+def test_order_analyzer_layout_input_builds_entry_band_and_report_entries():
+    grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
+    grid.entry(edge="left", width=120, id="main_entry")
+
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=grid.to_layout(),
+        layout_size=(360, 360),
+        fit_to_layout=True,
+    )
+    scene = analyzer._build_scene_model()
+
+    assert analyzer.entry_intents[0]["id"] == "main_entry"
+    assert scene.entry_bands[0].id == "main_entry"
+    assert scene.entry_bands[0].edge == "left"
+    assert scene.entry_bands[0].rect.top == pytest.approx(120)
+    assert scene.entry_bands[0].rect.bottom == pytest.approx(240)
+
+    report = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 360, "height": 360, "resolution": 20},
+    )
+    entry_rows = [
+        row_index
+        for row_index, row in enumerate(report["aisle"]["debug"]["entries"])
+        if row[0]
+    ]
+
+    assert report["aisle"]["entries"][0]["id"] == "main_entry"
+    assert report["aisle"]["entries"][0]["edge"] == "left"
+    assert entry_rows == [6, 7, 8, 9, 10, 11]
 
 
 def test_scene_model_builds_continuous_affordance_bands_from_shifted_furniture():
@@ -1222,6 +1306,33 @@ def test_scene_grid_overlay_svg_marks_default_left_boundary_entries():
     assert 'data-entry="left-boundary"' in svg
 
 
+def test_scene_grid_overlay_svg_marks_explicit_entry_id_and_edge():
+    grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
+    grid.entry(edge="left", width=120, id="main_entry")
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=grid.to_layout(),
+        layout_size=(360, 360),
+        fit_to_layout=True,
+    )
+    scene = analyzer._build_scene_model()
+    report = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 360, "height": 360, "resolution": 20},
+    )
+    svg = scene_grid_overlay_svg(
+        scene=scene,
+        report=report,
+        layout_size=(360, 360),
+        resolution=20,
+    )
+
+    assert 'data-layer="entry"' in svg
+    assert 'data-entry="main_entry"' in svg
+    assert 'data-edge="left"' in svg
+
+
 def test_scene_grid_overlay_svg_rotates_oriented_entity_bbox():
     template = TableTemplate(size=(64, 44))
     grid = TableGrid(3, 3, fill=template)
@@ -1326,6 +1437,8 @@ def test_simple_3x3_table_affordance_demo_notebook_is_user_facing():
     assert "TableGrid" in source
     assert 'grid.place(0, 1, align="right")' in source
     assert "grid.road(" in source
+    assert "grid.entry(" in source
+    assert "main_entry" in source
     assert "enable_road_network" in source
     assert "index=1" in source
     assert "enabled=False" in source
@@ -1337,6 +1450,7 @@ def test_simple_3x3_table_affordance_demo_notebook_is_user_facing():
     assert "resolution comparison" in source
     assert "latent_grid_svg" in source
     assert "affordance.score" in source
+    assert "aisle.entries" in source
     assert "continuous_conflicts" in source
     assert "deviance_cells" in source
     assert "continuous geometry bridge" in source

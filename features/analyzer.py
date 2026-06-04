@@ -36,6 +36,7 @@ from .affordance.evaluator import evaluate_spatial_access
 from .affordance.geometry import build_affordance_bands
 from .affordance.models import (
     ClearanceBand,
+    EntryBand,
     Furniture,
     Rect,
     RoadBand,
@@ -97,10 +98,14 @@ def _offset_tuple(cell):
 
 
 def _extract_layout_input(value):
-    """Accept either a legacy matrix or a layout dict with road intents."""
+    """Accept either a legacy matrix or a layout dict with spatial intents."""
     if isinstance(value, dict) and "matrix" in value:
-        return value["matrix"], [dict(road) for road in value.get("roads", [])]
-    return value, []
+        return (
+            value["matrix"],
+            [dict(road) for road in value.get("roads", [])],
+            [dict(entry) for entry in value.get("entries", [])],
+        )
+    return value, [], []
 
 
 def _has_explicit_offset(cell):
@@ -168,10 +173,12 @@ class OrderAnalyzer:
         unit_scale=1.0,
     ):
         """Initialize analyzer with actual/ideal matrices and spatial settings。"""
-        actual_matrix, actual_roads = _extract_layout_input(actual_matrix)
-        ideal_matrix, ideal_roads = _extract_layout_input(ideal_matrix)
+        actual_matrix, actual_roads, actual_entries = _extract_layout_input(actual_matrix)
+        ideal_matrix, ideal_roads, ideal_entries = _extract_layout_input(ideal_matrix)
         self.road_intents = actual_roads
         self.ideal_road_intents = ideal_roads
+        self.entry_intents = actual_entries
+        self.ideal_entry_intents = ideal_entries
 
         validate_matrix_shape(actual_matrix, "actual_matrix")
         self.actual_matrix = normalize_matrix(actual_matrix)
@@ -339,11 +346,13 @@ class OrderAnalyzer:
 
         affordance_bands = build_affordance_bands(entities)
         road_bands, clearance_bands = self._build_road_bands()
+        entry_bands = self._build_entry_bands()
         return SceneModel(
             entities=entities,
             affordance_bands=affordance_bands,
             road_bands=road_bands,
             clearance_bands=clearance_bands,
+            entry_bands=entry_bands,
         )
 
     def _affordance_edge_rect(self, rect, edge, depth):
@@ -452,6 +461,81 @@ class OrderAnalyzer:
             )
 
         return road_bands, clearance_bands
+
+    def _build_entry_bands(self):
+        """Convert Entry intents into thin continuous boundary bands for BFS starts."""
+        entry_bands = []
+        if not self.entry_intents:
+            return entry_bands
+
+        width = (
+            float(self.stim_size[0])
+            if self.stim_size is not None
+            else max(1.0, self.n_cols * self.spacing[1])
+        )
+        height = (
+            float(self.stim_size[1])
+            if self.stim_size is not None
+            else max(1.0, self.n_rows * self.spacing[0])
+        )
+        cell_w = width / self.n_cols
+        cell_h = height / self.n_rows
+        thickness = 1.0
+
+        for index, intent in enumerate(self.entry_intents):
+            edge = str(intent.get("edge", "left")).lower().strip() or "left"
+            entry_id = str(intent.get("id", "")).strip() or f"entry{index + 1}"
+            axis_length = height if edge in {"left", "right"} else width
+            cell_length = cell_h if edge in {"left", "right"} else cell_w
+
+            if "span" in intent:
+                start, end = tuple(float(value) for value in intent["span"])
+            elif "index" in intent:
+                grid_index = int(intent["index"])
+                span_width = float(intent.get("width", cell_length))
+                center = (grid_index + 0.5) * cell_length + float(intent.get("offset", 0.0))
+                start = center - span_width / 2
+                end = center + span_width / 2
+            elif "width" in intent:
+                span_width = float(intent["width"])
+                center = axis_length / 2 + float(intent.get("offset", 0.0))
+                start = center - span_width / 2
+                end = center + span_width / 2
+            else:
+                start, end = 0.0, axis_length
+
+            start = max(0.0, min(axis_length, start))
+            end = max(0.0, min(axis_length, end))
+            if start >= end:
+                continue
+
+            center = (start + end) / 2
+            span_width = end - start
+            if edge == "left":
+                rect = Rect(cx=thickness / 2, cy=center, width=thickness, height=span_width)
+            elif edge == "right":
+                rect = Rect(cx=width - thickness / 2, cy=center, width=thickness, height=span_width)
+            elif edge == "top":
+                rect = Rect(cx=center, cy=thickness / 2, width=span_width, height=thickness)
+            elif edge == "bottom":
+                rect = Rect(cx=center, cy=height - thickness / 2, width=span_width, height=thickness)
+            else:
+                continue
+
+            entry_bands.append(
+                EntryBand(
+                    id=entry_id,
+                    edge=edge,
+                    rect=rect,
+                    metadata={
+                        "source": "Entry",
+                        "index": intent.get("index"),
+                        "span": (start, end),
+                        "offset": float(intent.get("offset", 0.0)),
+                    },
+                )
+            )
+        return entry_bands
 
     def _score_relations(self, objects):
         """Score chair-table relations using distance, bearing, orientation and count."""

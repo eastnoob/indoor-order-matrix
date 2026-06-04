@@ -17,6 +17,6 @@
 """
 
 from .analyzer import OrderAnalyzer
-from .entities import Chair, Road, Table, TableGrid, TableTemplate
+from .entities import Chair, Entry, Road, Table, TableGrid, TableTemplate
 
-__all__ = ["OrderAnalyzer", "Table", "Chair", "Road", "TableTemplate", "TableGrid"]
+__all__ = ["OrderAnalyzer", "Table", "Chair", "Entry", "Road", "TableTemplate", "TableGrid"]

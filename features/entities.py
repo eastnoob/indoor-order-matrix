@@ -5,6 +5,43 @@ from copy import deepcopy
 
 
 @dataclass(frozen=True)
+class Entry:
+    """User-facing reachability start intent; geometry is built by analyzer."""
+
+    id: str = ""
+    edge: str = "left"
+    index: int | None = None
+    span: tuple[float, float] | None = None
+    offset: float = 0.0
+    width: float | None = None
+
+    def to_intent(self):
+        """Return a stable dict for TableGrid/OrderAnalyzer layout passing."""
+        edge = str(self.edge).lower().strip() or "left"
+        if edge not in {"left", "right", "top", "bottom"}:
+            raise ValueError("Entry edge must be left/right/top/bottom.")
+
+        intent = {
+            "id": str(self.id),
+            "edge": edge,
+            "offset": float(self.offset),
+        }
+        if self.index is not None:
+            intent["index"] = int(self.index)
+        if self.span is not None:
+            span = tuple(float(value) for value in self.span)
+            if len(span) != 2 or span[0] >= span[1]:
+                raise ValueError("Entry span must be (start, end) with start < end.")
+            intent["span"] = span
+        if self.width is not None:
+            width = float(self.width)
+            if width <= 0:
+                raise ValueError("Entry width must be positive.")
+            intent["width"] = width
+        return intent
+
+
+@dataclass(frozen=True)
 class Road:
     """User-facing circulation intent; geometry is built later by analyzer."""
 
@@ -140,6 +177,7 @@ class TableGrid:
         self.fill = fill if fill is not None else TableTemplate()
         self._placements = {}
         self._roads = []
+        self._entries = []
         self._road_network_defaults = None
         self._road_axis_overrides = {}
 
@@ -183,6 +221,11 @@ class TableGrid:
         self._roads.append(Road(**kwargs).to_intent())
         return self
 
+    def entry(self, **kwargs):
+        """Add a reachability entry intent without exposing sampled grid cells."""
+        self._entries.append(Entry(**kwargs).to_intent())
+        return self
+
     def _base_cell(self):
         if hasattr(self.fill, "base_cell") and callable(self.fill.base_cell):
             return self.fill.base_cell()
@@ -217,6 +260,7 @@ class TableGrid:
             "matrix": self.to_matrix(),
             # Copy each intent so callers cannot mutate TableGrid internals.
             "roads": self._expanded_roads(),
+            "entries": [dict(entry) for entry in self._entries],
         }
 
     def _expanded_roads(self):

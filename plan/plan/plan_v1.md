@@ -143,6 +143,7 @@
 - [x] 引入 RoadNetwork 轴网级道路系统：每根 semantic grid line 都有 road 属性，并自动合并 road-road overlap
 - [x] 引入 ContinuousConflictEvaluator，用连续几何判定 furniture / affordance / road / clearance 的核心冲突
 - [x] 引入连续面积口径的 Affordance Coverage，让 coverage 评分不再依赖 sampled cell 数量
+- [x] 引入显式 Entry / AccessPoint，让 reachability 起点可声明、可视化、可解释
 
 ### 6.4 暂缓（不阻塞）
 
@@ -552,5 +553,23 @@
   - road/clearance/furniture/affordance 的冲突存在性与 affordance coverage 评分都已回到连续几何本体。
   - `SpatialGridBackend` 继续负责 sampled explanation、debug heatmap 与 BFS reachability。
 - 下一步
-  - 评估是否引入显式 `Entry / AccessPoint`，替代当前左边界默认入口 MVP。
-  - 或继续推进连续 geometry backend 的面积 union / blocker 去重，避免多个 blocker overlap 同一区域时只靠 cap 处理。
+  - 评估是否继续推进连续 geometry backend 的面积 union / blocker 去重，避免多个 blocker overlap 同一区域时只靠 cap 处理。
+
+### 2026-06-04（Entry / AccessPoint MVP 完成）
+
+- 完成内容
+  - 新增用户层 `Entry` intent 与 `TableGrid.entry(...)`，`to_layout()` 可输出 `entries`。
+  - `OrderAnalyzer` 可读取 layout dict 中的 `entries`，并在 `SceneModel` 中生成连续 `EntryBand`。
+  - `AisleEvaluator` 优先使用显式 entry bands 生成 BFS start cells；未声明 entry 时继续 fallback 到左边界整列。
+  - 显式 entry 被 furniture occupied 覆盖的 sampled cells 不再作为 BFS 起点。
+  - overlay entry 箭头支持显示 entry id 与 edge，不再只写死 `left-boundary`。
+  - `test/simple_3x3_table_affordance_demo.ipynb` 新增 `grid.entry(edge="left", width=120, id="main_entry")`，并打印 `aisle.entries`。
+- 验证
+  - 运行 `pixi run pytest test/test_order_analyzer_mvp.py test/test_affordance_aisle.py -q`
+  - 结果：70 passed
+  - 使用 `nbformat/nbclient` 顺序执行并保存 `test/simple_3x3_table_affordance_demo.ipynb`
+- 当前状态
+  - reachability 的入口语义已从隐藏默认规则升级为可声明 intent。
+  - 默认左边界入口仍保留为兼容 fallback。
+- 下一步
+  - 优先评估 continuous overlap union / blocker 去重，或者将 Entry 扩展到内部道路节点与房间边界门洞。

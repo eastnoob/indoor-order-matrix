@@ -13,6 +13,7 @@ from .grid_backend import GridCell, SpatialGridBackend
 from .models import (
     AffordanceBand,
     ClearanceBand,
+    EntryBand,
     Furniture,
     GridFrame,
     Polygon,
@@ -38,6 +39,7 @@ __all__ = [
     "AisleProfile",
     "AisleEvaluator",
     "ClearanceBand",
+    "EntryBand",
     "ContinuousConflictEvaluator",
     "Furniture",
     "GridCell",
