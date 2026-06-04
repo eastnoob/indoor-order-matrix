@@ -1,6 +1,7 @@
 from .continuous_conflict import (
     ContinuousConflictEvaluator,
     geometry_overlaps,
+    geometry_union_area,
     sample_overlap_cells,
 )
 from .evaluator import AffordanceEvaluator, AisleEvaluator, evaluate_spatial_access
@@ -55,6 +56,7 @@ __all__ = [
     "build_affordance_polygon",
     "evaluate_spatial_access",
     "geometry_overlaps",
+    "geometry_union_area",
     "resolution_comparison_svg",
     "resolve_affordance_profile",
     "resolve_aisle_profile",

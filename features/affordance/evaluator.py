@@ -6,6 +6,7 @@ from statistics import mean
 from .continuous_conflict import (
     ContinuousConflictEvaluator,
     geometry_intersection_polygon,
+    geometry_union_area,
     sample_overlap_cells,
 )
 from .geometry import build_affordance_polygon
@@ -227,7 +228,7 @@ class AffordanceEvaluator:
         owner: SpatialEntity,
         affordance_shape,
     ) -> float:
-        blocked_area = 0.0
+        overlap_polygons = []
         for entity in scene.entities:
             # A furniture body should not block its own affordance band.
             if entity.id == owner.id:
@@ -237,7 +238,7 @@ class AffordanceEvaluator:
                 entity.footprint or entity.rect,
             )
             if overlap is not None:
-                blocked_area += overlap.area
+                overlap_polygons.append(overlap)
 
         # Clearance is the stricter circulation requirement; if it exists,
         # prefer it over RoadBand so the same corridor is not double counted.
@@ -249,8 +250,8 @@ class AffordanceEvaluator:
         for corridor in corridor_shapes:
             overlap = geometry_intersection_polygon(affordance_shape, corridor)
             if overlap is not None:
-                blocked_area += overlap.area
-        return blocked_area
+                overlap_polygons.append(overlap)
+        return geometry_union_area(overlap_polygons)
 
 
 class AisleEvaluator:

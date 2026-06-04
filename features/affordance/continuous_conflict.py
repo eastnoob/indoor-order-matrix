@@ -115,6 +115,45 @@ def geometry_intersection_polygon(left: Geometry, right: Geometry) -> Polygon | 
     return Polygon(points=ordered)
 
 
+def geometry_union_area(polygons: Iterable[Polygon]) -> float:
+    """Return the positive-area union of convex overlap polygons.
+
+    Current geometry is convex rectangles/polygons. A vertical slab sweep gives
+    stable de-duplicated area without adding a heavy geometry dependency.
+    """
+    shapes = [polygon for polygon in polygons if polygon.area > 1e-9]
+    if not shapes:
+        return 0.0
+
+    x_values: list[float] = []
+    for polygon in shapes:
+        x_values.extend(point[0] for point in polygon.points)
+
+    # Edge crossings can change which y-interval is on top inside a slab, so
+    # they must become breakpoints for exact convex MVP union area.
+    for left_index, left in enumerate(shapes):
+        for right in shapes[left_index + 1:]:
+            for edge_a in _polygon_edges(left):
+                for edge_b in _polygon_edges(right):
+                    intersection = _segment_intersection_point(edge_a, edge_b)
+                    if intersection is not None:
+                        x_values.append(intersection[0])
+
+    breakpoints = _unique_scalar_values(x_values)
+    area = 0.0
+    for x0, x1 in zip(breakpoints, breakpoints[1:]):
+        if x1 - x0 <= 1e-9:
+            continue
+        mid_x = (x0 + x1) / 2
+        intervals = [
+            interval
+            for polygon in shapes
+            if (interval := _vertical_interval_at_x(polygon, mid_x)) is not None
+        ]
+        area += _union_interval_length(intervals) * (x1 - x0)
+    return area
+
+
 class ContinuousConflictEvaluator:
     def evaluate(self, scene: SceneModel) -> dict[str, Any]:
         # Continuous geometry is the source of truth here. We classify overlaps
@@ -326,6 +365,54 @@ def _polygon_edges(
     points = polygon.points
     for index, point in enumerate(points):
         yield point, points[(index + 1) % len(points)]
+
+
+def _vertical_interval_at_x(
+    polygon: Polygon,
+    x: float,
+    *,
+    epsilon: float = 1e-9,
+) -> tuple[float, float] | None:
+    ys: list[float] = []
+    for start, end in _polygon_edges(polygon):
+        x1, y1 = start
+        x2, y2 = end
+        if abs(x1 - x2) <= epsilon:
+            if abs(x - x1) <= epsilon:
+                ys.extend([y1, y2])
+            continue
+        if min(x1, x2) - epsilon <= x <= max(x1, x2) + epsilon:
+            t = (x - x1) / (x2 - x1)
+            if -epsilon <= t <= 1 + epsilon:
+                ys.append(y1 + t * (y2 - y1))
+    unique = _unique_scalar_values(ys)
+    if len(unique) < 2:
+        return None
+    return min(unique), max(unique)
+
+
+def _union_interval_length(intervals: Iterable[tuple[float, float]]) -> float:
+    ordered = sorted((min(a, b), max(a, b)) for a, b in intervals if abs(b - a) > 1e-9)
+    if not ordered:
+        return 0.0
+    total = 0.0
+    current_start, current_end = ordered[0]
+    for start, end in ordered[1:]:
+        if start <= current_end:
+            current_end = max(current_end, end)
+            continue
+        total += current_end - current_start
+        current_start, current_end = start, end
+    total += current_end - current_start
+    return total
+
+
+def _unique_scalar_values(
+    values: Iterable[float],
+    *,
+    precision: int = 9,
+) -> list[float]:
+    return sorted({round(float(value), precision) for value in values})
 
 
 def _separating_axes(polygon: Polygon) -> Iterable[tuple[float, float]]:

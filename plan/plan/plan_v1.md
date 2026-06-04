@@ -144,6 +144,8 @@
 - [x] 引入 ContinuousConflictEvaluator，用连续几何判定 furniture / affordance / road / clearance 的核心冲突
 - [x] 引入连续面积口径的 Affordance Coverage，让 coverage 评分不再依赖 sampled cell 数量
 - [x] 引入显式 Entry / AccessPoint，让 reachability 起点可声明、可视化、可解释
+- [x] 引入 continuous overlap union / blocker 去重，避免多个 blocker overlap 同一区域时重复扣分
+- [x] 将 Entry 扩展为 semantic grid 边界洞口：支持 edge + index + width 的门洞入口
 
 ### 6.4 暂缓（不阻塞）
 
@@ -573,3 +575,34 @@
   - 默认左边界入口仍保留为兼容 fallback。
 - 下一步
   - 优先评估 continuous overlap union / blocker 去重，或者将 Entry 扩展到内部道路节点与房间边界门洞。
+
+### 2026-06-04（Continuous overlap union / blocker 去重完成）
+
+- 完成内容
+  - 新增 `geometry_union_area(...)`，用 vertical slab sweep 对当前 convex overlap polygons 做连续面积 union。
+  - `AffordanceEvaluator._continuous_blocked_area()` 改为收集 blocker overlap polygon，再用 union area 去重计算 `blocked_area`。
+  - 同一块 affordance overlap 被多个 furniture / road / clearance 命中时，只扣一次。
+  - 保持 report 字段不变：`required_area`、`blocked_area`、`effective_area`、`coverage`、`coverage_backend="continuous"`。
+  - notebook 保留原有面积输出，并补充 `blocked_area` 已按 continuous union 去重的说明。
+- 验证
+  - 运行 `pixi run pytest test/test_order_analyzer_mvp.py test/test_affordance_aisle.py -q`
+  - 结果：76 passed
+- 当前状态
+  - affordance coverage 已从 sampled-cell 口径推进到 continuous area + overlap union 口径。
+  - sampled grid 继续只作为 debug/explanation 与 BFS reachability 工具。
+- 下一步
+  - 可继续评估 `Entry` 扩展到内部道路节点 / 房间边界门洞，或推进更完整 PolygonBackend / HybridBackend。
+
+### 2026-07-02（Entry boundary door slot MVP 完成）
+
+- 完成内容
+  - `TableGrid.entry(edge=..., index=..., width=...)` 固定为 semantic grid 边界洞口 API。
+  - `OrderAnalyzer` 将 indexed entry intent 转成连续 `EntryBand`。
+  - `AisleEvaluator` 只把未被家具占用的 entry sampled cells 作为 BFS 起点。
+  - 未声明 entry 时继续使用左边界 fallback。
+  - notebook 改为显示 `main_door` 洞口入口。
+- 验证
+  - 运行 `pixi run pytest test/test_order_analyzer_mvp.py test/test_affordance_aisle.py -q`
+  - 用 `nbformat/nbclient` 执行 `test/simple_3x3_table_affordance_demo.ipynb`
+- 当前状态
+  - Entry 仍是 reachability 起点，不参与 furniture / affordance / road / clearance 冲突评分。

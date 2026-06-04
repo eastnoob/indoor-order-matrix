@@ -29,6 +29,7 @@ from features.affordance import (
 from features.affordance.continuous_conflict import (
     geometry_intersection_polygon,
     geometry_overlaps,
+    geometry_union_area,
     sample_overlap_cells,
 )
 from features.affordance.evaluator import (
@@ -147,6 +148,31 @@ def test_continuous_geometry_intersection_polygon_represents_real_overlap_area()
     assert rotated_overlap is not None
     assert rotated_overlap.bounds.width < rotated.bounds.width
     assert rotated_overlap.bounds.height <= rotated.bounds.height
+
+
+def test_geometry_union_area_dedupes_identical_overlap_polygons():
+    first = Polygon.from_local_rect(cx=100, cy=100, width=40, height=20)
+    second = Polygon.from_local_rect(cx=100, cy=100, width=40, height=20)
+
+    assert geometry_union_area([first, second]) == pytest.approx(800)
+
+
+def test_geometry_union_area_handles_partial_and_disjoint_rectangles():
+    left = Polygon.from_local_rect(cx=100, cy=100, width=40, height=20)
+    overlapping = Polygon.from_local_rect(cx=120, cy=100, width=40, height=20)
+    disjoint = Polygon.from_local_rect(cx=180, cy=100, width=20, height=20)
+
+    assert geometry_union_area([left, overlapping]) == pytest.approx(1200)
+    assert geometry_union_area([left, disjoint]) == pytest.approx(1200)
+
+
+def test_geometry_union_area_handles_rotated_overlap_polygon_without_double_counting():
+    rotated = Polygon.from_local_rect(cx=100, cy=100, width=40, height=20, orientation=45)
+    clip = Rect(cx=112, cy=100, width=24, height=80)
+    overlap = geometry_intersection_polygon(rotated, clip)
+    assert overlap is not None
+
+    assert geometry_union_area([overlap, overlap]) == pytest.approx(overlap.area)
 
 
 def test_scene_model_indexes_furniture_entities():
@@ -391,6 +417,105 @@ def test_affordance_coverage_counts_clearance_overlap_as_continuous_blocked_area
         item["type"] == "road_affordance_conflict"
         for item in result["aisle"]["debug"]["continuous_conflicts"]
     )
+
+
+def test_affordance_coverage_unions_duplicate_furniture_blocker_area():
+    table = Furniture(
+        id="table_1",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=100, cy=100, width=100, height=50),
+        affordance={"usable_edges": ("right",), "edge_depth": {"right": 50}},
+    )
+    blocker_a = Furniture(
+        id="blocker_a",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=165, cy=100, width=30, height=50),
+    )
+    blocker_b = Furniture(
+        id="blocker_b",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=165, cy=100, width=30, height=50),
+    )
+    scene = SceneModel(entities=[table, blocker_a, blocker_b])
+
+    result = AffordanceEvaluator(width=300, height=200, resolution=25).evaluate(scene)
+    table_result = result["objects"]["table_1"]
+
+    assert table_result["required_area"] == pytest.approx(2500)
+    assert table_result["blocked_area"] == pytest.approx(1500)
+    assert table_result["effective_area"] == pytest.approx(1000)
+    assert table_result["coverage"] == pytest.approx(0.4)
+
+
+def test_affordance_coverage_adds_disjoint_blocker_areas():
+    table = Furniture(
+        id="table_1",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=100, cy=100, width=100, height=50),
+        affordance={"usable_edges": ("right",), "edge_depth": {"right": 50}},
+    )
+    top_blocker = Furniture(
+        id="top_blocker",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=160, cy=87.5, width=20, height=25),
+    )
+    bottom_blocker = Furniture(
+        id="bottom_blocker",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=160, cy=112.5, width=20, height=25),
+    )
+    scene = SceneModel(entities=[table, top_blocker, bottom_blocker])
+
+    result = AffordanceEvaluator(width=300, height=200, resolution=25).evaluate(scene)
+    table_result = result["objects"]["table_1"]
+
+    assert table_result["required_area"] == pytest.approx(2500)
+    assert table_result["blocked_area"] == pytest.approx(1000)
+    assert table_result["coverage"] == pytest.approx(0.6)
+
+
+def test_affordance_coverage_unions_furniture_and_clearance_overlap_area():
+    table = Furniture(
+        id="table_1",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=100, cy=100, width=100, height=50),
+        affordance={"usable_edges": ("right",), "edge_depth": {"right": 50}},
+    )
+    blocker = Furniture(
+        id="blocker_1",
+        type_id="table.default",
+        role="table",
+        rect=Rect(cx=160, cy=100, width=20, height=50),
+    )
+    profile = resolve_affordance_profile(table.type_id, table.affordance)
+    band = build_affordance_band(table, profile, "right")
+    assert band is not None
+    scene = SceneModel(
+        entities=[table, blocker],
+        affordance_bands=[band],
+        clearance_bands=[
+            ClearanceBand(
+                id="road.vertical.1.clearance",
+                road_id="road.vertical.1",
+                rect=Rect(cx=160, cy=100, width=20, height=50),
+                required_width=20,
+            )
+        ],
+    )
+
+    result = evaluate_spatial_access(scene, width=300, height=200, resolution=25)
+    table_result = result["affordance"]["objects"]["table_1"]
+
+    assert table_result["required_area"] == pytest.approx(2500)
+    assert table_result["blocked_area"] == pytest.approx(1000)
+    assert table_result["coverage"] == pytest.approx(0.6)
 
 
 def test_affordance_evaluator_uses_external_edge_band_not_furniture_body():
@@ -736,6 +861,24 @@ def test_entry_intent_and_table_grid_layout_preserve_matrix_compatibility():
     assert layout["entries"] == [intent]
 
 
+def test_entry_intent_preserves_semantic_door_slot_index():
+    entry = Entry(id="main_door", edge="left", index=1, width=80, offset=10)
+    intent = entry.to_intent()
+
+    assert intent == {
+        "id": "main_door",
+        "edge": "left",
+        "offset": 10.0,
+        "index": 1,
+        "width": 80.0,
+    }
+
+    grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
+    grid.entry(edge="left", index=1, width=80, offset=10, id="main_door")
+
+    assert grid.to_layout()["entries"] == [intent]
+
+
 def test_order_analyzer_layout_input_builds_road_and_clearance_bands():
     grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
     grid.road(axis="vertical", between=(0, 1), width=80, min_clearance=60)
@@ -789,6 +932,120 @@ def test_order_analyzer_layout_input_builds_entry_band_and_report_entries():
     assert report["aisle"]["entries"][0]["id"] == "main_entry"
     assert report["aisle"]["entries"][0]["edge"] == "left"
     assert entry_rows == [6, 7, 8, 9, 10, 11]
+
+
+def test_order_analyzer_builds_indexed_left_entry_door_band():
+    grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
+    grid.entry(edge="left", index=1, width=80, id="main_door")
+
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=grid.to_layout(),
+        layout_size=(300, 300),
+        fit_to_layout=True,
+    )
+    scene = analyzer._build_scene_model()
+    band = scene.entry_bands[0]
+
+    assert band.id == "main_door"
+    assert band.edge == "left"
+    assert band.rect.left == pytest.approx(0)
+    assert band.rect.right == pytest.approx(1)
+    assert band.rect.top == pytest.approx(110)
+    assert band.rect.bottom == pytest.approx(190)
+    assert band.metadata["index"] == 1
+    assert band.metadata["span"] == pytest.approx((110, 190))
+
+
+def test_order_analyzer_builds_indexed_top_entry_door_band():
+    grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
+    grid.entry(edge="top", index=2, width=60, id="top_door")
+
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=grid.to_layout(),
+        layout_size=(300, 300),
+        fit_to_layout=True,
+    )
+    scene = analyzer._build_scene_model()
+    band = scene.entry_bands[0]
+
+    assert band.id == "top_door"
+    assert band.edge == "top"
+    assert band.rect.left == pytest.approx(220)
+    assert band.rect.right == pytest.approx(280)
+    assert band.rect.top == pytest.approx(0)
+    assert band.rect.bottom == pytest.approx(1)
+
+
+def test_indexed_entry_door_marks_only_selected_boundary_start_cells():
+    grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
+    grid.entry(edge="left", index=1, width=80, id="main_door")
+
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=grid.to_layout(),
+        layout_size=(300, 300),
+        fit_to_layout=True,
+    )
+    report = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 300, "height": 300, "resolution": 20},
+    )
+
+    entry_rows = [
+        row_index
+        for row_index, row in enumerate(report["aisle"]["debug"]["entries"])
+        if row[0]
+    ]
+
+    assert report["aisle"]["entries"] == [
+        {"id": "main_door", "edge": "left", "entry_cells": 5, "source": "explicit"}
+    ]
+    assert entry_rows == [5, 6, 7, 8, 9]
+
+
+def test_missing_entry_keeps_left_boundary_fallback():
+    grid = TableGrid(3, 3, fill=TableTemplate(size=(40, 20)))
+
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=grid.to_layout(),
+        layout_size=(300, 300),
+        fit_to_layout=True,
+    )
+    report = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 300, "height": 300, "resolution": 20},
+    )
+
+    assert report["aisle"]["entries"] == [
+        {"id": "left-boundary", "edge": "left", "entry_cells": 15, "source": "default"}
+    ]
+
+
+def test_entry_door_cells_occupied_by_furniture_are_not_bfs_starts():
+    template = TableTemplate(size=(100, 100))
+    grid = TableGrid(3, 3, fill=template)
+    grid.entry(edge="left", index=1, width=80, id="blocked_door")
+
+    analyzer = OrderAnalyzer(
+        actual_matrix=grid.to_layout(),
+        ideal_matrix=grid.to_layout(),
+        layout_size=(300, 300),
+        fit_to_layout=True,
+    )
+    report = analyzer.report(
+        features=("positions",),
+        include_affordance=True,
+        affordance_options={"width": 300, "height": 300, "resolution": 20},
+    )
+
+    assert report["aisle"]["entries"][0]["id"] == "blocked_door"
+    assert report["aisle"]["entries"][0]["entry_cells"] == 0
+    assert sum(sum(row) for row in report["aisle"]["debug"]["entries"]) == 0
 
 
 def test_scene_model_builds_continuous_affordance_bands_from_shifted_furniture():
@@ -1438,7 +1695,7 @@ def test_simple_3x3_table_affordance_demo_notebook_is_user_facing():
     assert 'grid.place(0, 1, align="right")' in source
     assert "grid.road(" in source
     assert "grid.entry(" in source
-    assert "main_entry" in source
+    assert "main_door" in source
     assert "enable_road_network" in source
     assert "index=1" in source
     assert "enabled=False" in source
@@ -1463,3 +1720,30 @@ def test_simple_3x3_table_affordance_demo_notebook_is_user_facing():
                 svg_output_count += 1
 
     assert svg_output_count >= 3
+
+
+def test_entry_door_slot_demo_notebook_is_user_facing():
+    notebook_path = Path("test/entry_door_slot_demo.ipynb")
+    assert notebook_path.exists()
+
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    source = "\n".join(
+        "".join(cell.get("source", [])) for cell in notebook.get("cells", [])
+    )
+
+    assert "Entry Door Slot Demo" in source
+    assert 'door_grid.entry(edge="left", index=1, width=80, id="main_door")' in source
+    assert "fallback entries" in source
+    assert "door entries" in source
+    assert "blocked door entries" in source
+    assert "scene_grid_overlay_svg" in source
+    assert "EntryBand" in source
+    assert "SpatialGridBackend" not in source
+
+    svg_output_count = 0
+    for cell in notebook.get("cells", []):
+        for output in cell.get("outputs", []):
+            if "image/svg+xml" in output.get("data", {}):
+                svg_output_count += 1
+
+    assert svg_output_count >= 1
