@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <defs>
+    <style>
+      .room { fill: #ffffff; stroke: #202020; stroke-width: 8; }
+      .wall { fill: none; stroke: #202020; stroke-width: 8; stroke-linecap: square; }
+      .thin-wall { fill: none; stroke: #333333; stroke-width: 5; stroke-linecap: square; }
+      .door { fill: none; stroke: #555555; stroke-width: 4; }
+      .table { fill: #f8f8f2; stroke: #9aa0a6; stroke-width: 4; }
+      .chair { fill: #fbfbf7; stroke: #9aa0a6; stroke-width: 4; }
+      .sofa { fill: #f3f5f2; stroke: #a0a7a0; stroke-width: 4; rx: 10; }
+      .fixture { fill: #f4f4f0; stroke: #9aa0a6; stroke-width: 4; }
+      .plant { fill: #1f4d2d; stroke: #183a22; stroke-width: 3; }
+      .region { fill: none; stroke: #4c78a8; stroke-width: 3; stroke-dasharray: 10 8; opacity: 0.45; }
+      .path { fill: #f6e27f; opacity: 0.24; stroke: none; }
+      .label { font: 22px Arial, sans-serif; fill: #333333; }
+    </style>
+  </defs>
+
+  <!-- Approximate room shell from the reference image. Not a CAD trace. -->
+  <path id="room_boundary" data-role="boundary" data-boundary-kind="room" data-region="room" data-walk-block="1" data-see-block="1" data-grouping-strength="1" data-thickness="8" data-ifc-guid="ifc-room-boundary" data-source-layer="A-WALL" class="room" d="M35 35 H170 V70 H915 V35 H965 V930 H35 Z" />
+  <path id="outer_wall" data-role="boundary" data-boundary-kind="wall" data-region="room" data-walk-block="1" data-see-block="1" data-grouping-strength="1" data-thickness="8" class="wall" d="M35 35 V930 H965 V35" />
+  <path id="north_short_wall" data-role="boundary" data-boundary-kind="wall" data-region="room" data-walk-block="1" data-see-block="1" data-grouping-strength="1" data-thickness="8" class="wall" d="M170 35 V88" />
+  <path id="bottom_partition" data-role="boundary" data-boundary-kind="wall" data-region="room" data-walk-block="1" data-see-block="1" data-grouping-strength="1" data-thickness="8" class="wall" d="M405 930 V700" />
+  <path id="internal_partition" data-role="boundary" data-boundary-kind="partition" data-region="room" data-walk-block="1" data-see-block="1" data-grouping-strength="1" data-thickness="5" class="thin-wall" d="M300 930 V650" />
+  <line id="glass_boundary" data-role="boundary" data-boundary-kind="glass" data-region="center_lounge" data-walk-block="1" data-see-block="0.15" data-grouping-strength="0.9" data-thickness="3" x1="690" y1="610" x2="690" y2="915" stroke="#77aadd" stroke-width="3" opacity="0.45" />
+  <rect id="rug_boundary" data-role="boundary" data-boundary-kind="rug" data-region="west_lounge" data-walk-block="0" data-see-block="0" data-grouping-strength="0.85" data-thickness="0" x="45" y="610" width="250" height="300" fill="none" stroke="#b58900" stroke-width="3" stroke-dasharray="8 6" opacity="0.45" />
+  <line id="material_boundary" data-role="boundary" data-boundary-kind="material" data-region="center_lounge" data-walk-block="0" data-see-block="0" data-grouping-strength="0.55" data-thickness="0" x1="405" y1="620" x2="685" y2="620" stroke="#7a7f2a" stroke-width="3" stroke-dasharray="5 7" opacity="0.45" />
+  <line id="diagonal_boundary" data-role="boundary" data-boundary-kind="visual" data-region="slanted_test" data-walk-block="0" data-see-block="0" data-grouping-strength="0.6" data-thickness="0" x1="635" y1="305" x2="825" y2="495" stroke="#9955aa" stroke-width="3" stroke-dasharray="7 5" opacity="0.45" />
+
+  <!-- Door openings and swing hints. -->
+  <path id="left_entry" data-role="opening" data-edge="left" data-region="room" data-walk-block="0" data-see-block="0" data-grouping-strength="0" class="door" d="M35 150 H0" />
+  <path id="bottom_entry" data-role="opening" data-edge="bottom" data-region="room" data-walk-block="0" data-see-block="0" data-grouping-strength="0" class="door" d="M410 930 A95 95 0 0 1 505 835" />
+  <path id="right_entry_arc" data-role="opening" data-edge="right" data-region="room" data-walk-block="0" data-see-block="0" data-grouping-strength="0" class="door" d="M965 735 A120 120 0 0 0 845 855" />
+  <path id="right_entry_line" data-role="opening" data-edge="right" data-region="room" data-walk-block="0" data-see-block="0" data-grouping-strength="0" class="door" d="M965 735 V610" />
+
+  <!-- Soft circulation zone: this is only a visual fixture layer. -->
+  <path id="path_placeholder" data-role="path" data-region="room" data-walk-block="0" data-see-block="0" data-grouping-strength="0.2" class="path" d="M110 565 H900 V870 H555 V720 H420 V630 H110 Z" />
+
+  <!-- Minimal column-grid reference axes for alignment testing. -->
+  <line id="column_axis_x" data-role="column_axis" data-axis-angle="0" data-region="room" x1="80" y1="120" x2="910" y2="120" stroke="none" />
+  <line id="column_axis_y" data-role="column_axis" data-axis-angle="90" data-region="room" x1="80" y1="120" x2="80" y2="910" stroke="none" />
+
+  <!-- North repeated table-chair groups. -->
+  <g id="north_tables" data-group="north_tables" data-region="north_tables" data-order-view="north_tables_order">
+    <g id="north_table_group_r1_c1" transform="translate(185 215)">
+      <rect id="north_table_r1_c1" data-role="table" data-rhino-guid="rhino-north-table-r1-c1" data-source-layer="I-FURN" class="table" x="-75" y="-28" width="150" height="56" />
+      <circle class="chair" cx="-40" cy="-72" r="20" />
+      <circle class="chair" cx="40" cy="-72" r="20" />
+      <circle class="chair" cx="-40" cy="72" r="20" />
+      <circle class="chair" cx="40" cy="72" r="20" />
+    </g>
+    <g id="north_table_group_r1_c2" transform="translate(500 215)">
+      <rect id="north_table_r1_c2" data-role="table" class="table" x="-75" y="-28" width="150" height="56" />
+      <circle class="chair" cx="-40" cy="-72" r="20" />
+      <circle class="chair" cx="40" cy="-72" r="20" />
+      <circle class="chair" cx="-40" cy="72" r="20" />
+      <circle class="chair" cx="40" cy="72" r="20" />
+    </g>
+    <g id="north_table_group_r1_c3" transform="translate(815 215)">
+      <rect id="north_table_r1_c3" data-role="table" class="table" x="-75" y="-28" width="150" height="56" />
+      <circle class="chair" cx="-40" cy="-72" r="20" />
+      <circle class="chair" cx="40" cy="-72" r="20" />
+      <circle class="chair" cx="-40" cy="72" r="20" />
+      <circle class="chair" cx="40" cy="72" r="20" />
+    </g>
+    <g id="north_table_group_r2_c1" transform="translate(185 465)">
+      <rect id="north_table_r2_c1" data-role="table" class="table" x="-75" y="-28" width="150" height="56" />
+      <circle class="chair" cx="-40" cy="-72" r="20" />
+      <circle class="chair" cx="40" cy="-72" r="20" />
+      <circle class="chair" cx="-40" cy="72" r="20" />
+      <circle class="chair" cx="40" cy="72" r="20" />
+    </g>
+    <g id="north_table_group_r2_c2" transform="translate(500 465)">
+      <rect id="north_table_r2_c2" data-role="table" class="table" x="-75" y="-28" width="150" height="56" />
+      <circle class="chair" cx="-40" cy="-72" r="20" />
+      <circle class="chair" cx="40" cy="-72" r="20" />
+      <circle class="chair" cx="-40" cy="72" r="20" />
+      <circle class="chair" cx="40" cy="72" r="20" />
+    </g>
+    <g id="north_table_group_r2_c3" transform="translate(815 465)">
+      <rect id="north_table_r2_c3" data-role="table" class="table" x="-75" y="-28" width="150" height="56" />
+      <circle class="chair" cx="-40" cy="-72" r="20" />
+      <circle class="chair" cx="40" cy="-72" r="20" />
+      <circle class="chair" cx="-40" cy="72" r="20" />
+      <circle class="chair" cx="40" cy="72" r="20" />
+    </g>
+  </g>
+
+  <!-- West lounge: two sofas and one coffee table. -->
+  <g id="west_lounge" data-group="west_lounge" data-region="west_lounge">
+    <rect id="west_sofa_1" data-role="sofa" class="sofa" x="55" y="650" width="48" height="145" />
+    <rect id="west_sofa_2" data-role="sofa" class="sofa" x="85" y="845" width="170" height="45" />
+    <rect id="west_coffee_table" data-role="coffee_table" class="table" x="150" y="735" width="55" height="80" />
+    <circle id="west_plant" data-role="plant" class="plant" cx="75" cy="680" r="22" />
+  </g>
+
+  <!-- Center lower area: two sofa groups. -->
+  <g id="center_lounge" data-group="center_lounge" data-region="center_lounge">
+    <rect id="center_sofa_upper" data-role="sofa" class="sofa" x="505" y="720" width="145" height="55" />
+    <rect id="center_coffee_table_upper" data-role="coffee_table" class="table" x="545" y="660" width="80" height="38" />
+    <rect id="center_sofa_lower" data-role="sofa" class="sofa" x="500" y="845" width="155" height="55" />
+    <rect id="center_coffee_table_lower" data-role="coffee_table" class="table" x="545" y="790" width="80" height="38" />
+  </g>
+
+  <!-- East lower area: small armchairs and a coffee table. -->
+  <g id="east_armchairs" data-group="east_armchairs" data-region="east_armchairs">
+    <rect id="east_armchair_left" data-role="armchair" class="chair" x="685" y="850" width="55" height="55" />
+    <circle id="east_coffee_table" data-role="coffee_table" class="table" cx="795" cy="875" r="32" />
+    <rect id="east_armchair_right" data-role="armchair" class="chair" x="875" y="850" width="55" height="55" />
+  </g>
+
+  <!-- East work/podium-like furniture. -->
+  <g id="east_work" data-group="east_work" data-region="east_work">
+    <rect id="east_work_table" data-role="podium" class="table" x="790" y="680" width="145" height="62" />
+    <circle id="east_work_chair" data-role="chair" class="chair" cx="870" cy="630" r="20" />
+  </g>
+
+  <!-- Miscellaneous fixtures from the source image. -->
+  <rect id="center_misc_fixture" data-role="fixture" data-group="misc" data-region="room" class="fixture" x="425" y="555" width="45" height="45" />
+  <circle id="northwest_plant" data-role="plant" data-group="misc" data-region="room" class="plant" cx="95" cy="105" r="35" />
+  <g transform="translate(115 545) rotate(-45)">
+    <line class="thin-wall" x1="-45" y1="0" x2="45" y2="0" />
+    <line class="thin-wall" x1="-45" y1="-25" x2="-45" y2="25" />
+    <line class="thin-wall" x1="45" y1="-25" x2="45" y2="25" />
+  </g>
+
+  <!-- Small north-side table shown near the upper wall. -->
+  <g id="north_small_table" data-group="north_wall" data-region="north_wall">
+    <rect id="north_small_table_rect" data-role="table" class="table" x="425" y="55" width="45" height="55" />
+  </g>
+
+  <!-- Candidate order-analysis regions for later notebooks. -->
+  <rect id="region_north_tables" data-role="region" data-region="north_tables" class="region" x="80" y="120" width="830" height="470" />
+  <rect id="region_west_lounge" data-role="region" data-region="west_lounge" class="region" x="45" y="610" width="250" height="300" />
+  <rect id="region_center_lounge" data-role="region" data-region="center_lounge" class="region" x="405" y="620" width="280" height="295" />
+  <rect id="region_east_work" data-role="region" data-region="east_work" class="region" x="760" y="600" width="190" height="320" />
+  <rect id="region_east_armchairs" data-role="region" data-region="east_armchairs" class="region" x="675" y="830" width="265" height="90" />
+  <rect id="region_north_wall" data-role="region" data-region="north_wall" class="region" x="405" y="35" width="90" height="95" />
+  <rect id="region_room_misc" data-role="region" data-region="room" data-analysis-region="false" class="region" x="35" y="35" width="930" height="895" />
+  <polygon id="region_slanted_test" data-role="region" data-region="slanted_test" class="region" points="705,180 895,280 825,405 635,305" />
+
+  <text class="label" x="90" y="115">north repeated tables</text>
+  <text class="label" x="55" y="605">west lounge</text>
+  <text class="label" x="410" y="615">center lounge</text>
+  <text class="label" x="760" y="595">east work</text>
+</svg>

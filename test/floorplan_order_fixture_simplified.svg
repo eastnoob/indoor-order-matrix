@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1000 1000" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <g id="room_boundary" transform="matrix(1,0,0,1,16.260163,-10.840108)">
+        <g transform="matrix(1,-0,-0,1,-16.260163,10.840108)">
+            <use xlink:href="#_Image1" x="46.768" y="19.667" width="939px" height="904px"/>
+        </g>
+    </g>
+    <path id="outer_wall" d="M35,35L35,930L965,930L965,35" style="fill:none;fill-rule:nonzero;stroke:rgb(32,32,32);stroke-opacity:0.24;stroke-width:8px;stroke-linecap:square;"/>
+    <path id="north_short_wall" d="M170,35L170,88" style="fill:none;fill-rule:nonzero;stroke:rgb(32,32,32);stroke-opacity:0.24;stroke-width:8px;stroke-linecap:square;"/>
+    <clipPath id="_clip2">
+        <rect id="glass_boundary" x="688.5" y="610" width="3" height="305"/>
+    </clipPath>
+    <g clip-path="url(#_clip2)">
+        <use xlink:href="#_Image3" x="688.5" y="610" width="3px" height="305px"/>
+    </g>
+    <rect id="rug_boundary" x="45" y="610" width="250" height="300" style="fill:none;stroke:rgb(181,137,0);stroke-opacity:0.45;stroke-width:3px;stroke-dasharray:8,6;"/>
+    <clipPath id="_clip4">
+        <path id="material_boundary" d="M405,621.5L405,618.5L410,618.5L410,621.5L405,621.5ZM417,621.5L417,618.5L422,618.5L422,621.5L417,621.5ZM429,621.5L429,618.5L434,618.5L434,621.5L429,621.5ZM441,621.5L441,618.5L446,618.5L446,621.5L441,621.5ZM453.001,621.5L453.001,618.5L458,618.5L458,621.5L453.001,621.5ZM465,621.5L465,618.5L470,618.5L470,621.5L465,621.5ZM477,621.5L477,618.5L482,618.5L482,621.5L477,621.5ZM489.001,621.5L489.001,618.5L494.001,618.5L494.001,621.5L489.001,621.5ZM501.001,621.5L501.001,618.5L506.001,618.5L506.001,621.5L501.001,621.5ZM513,621.5L513,618.5L518,618.5L518,621.5L513,621.5ZM525.001,621.5L525.001,618.5L530.001,618.5L530.001,621.5L525.001,621.5ZM537.001,621.5L537.001,618.5L542.001,618.5L542.001,621.5L537.001,621.5ZM549.001,621.5L549.001,618.5L554.001,618.5L554.001,621.5L549.001,621.5ZM561.001,621.5L561.001,618.5L566.001,618.5L566.001,621.5L561.001,621.5ZM573.001,621.5L573.001,618.5L578.001,618.5L578.001,621.5L573.001,621.5ZM585.001,621.5L585.001,618.5L590.001,618.5L590.001,621.5L585.001,621.5ZM597.001,621.5L597.001,618.5L602.001,618.5L602.001,621.5L597.001,621.5ZM609.001,621.5L609.001,618.5L614.001,618.5L614.001,621.5L609.001,621.5ZM621.001,621.5L621.001,618.5L626.001,618.5L626.001,621.5L621.001,621.5ZM633.001,621.5L633.001,618.5L638.001,618.5L638.001,621.5L633.001,621.5ZM645.001,621.5L645.001,618.5L650.001,618.5L650.001,621.5L645.001,621.5ZM657.001,621.5L657.001,618.5L662.001,618.5L662.001,621.5L657.001,621.5ZM669.001,621.5L669.001,618.5L674.001,618.5L674.001,621.5L669.001,621.5ZM681.001,621.5L681.001,618.5L685,618.5L685,621.5L681.001,621.5Z"/>
+    </clipPath>
+    <g clip-path="url(#_clip4)">
+        <use xlink:href="#_Image5" x="405" y="618.5" width="280px" height="3px"/>
+    </g>
+    <path id="left_entry" d="M35,150L0,150" style="fill:none;fill-rule:nonzero;stroke:rgb(85,85,85);stroke-opacity:0.24;stroke-width:4px;"/>
+    <path id="bottom_entry" d="M410,930C410,877.885 452.885,835 505,835" style="fill:none;fill-rule:nonzero;stroke:rgb(85,85,85);stroke-opacity:0.24;stroke-width:4px;"/>
+    <path id="right_entry_arc" d="M965,735C899.17,735 845,789.17 845,855" style="fill:none;fill-rule:nonzero;stroke:rgb(85,85,85);stroke-opacity:0.24;stroke-width:4px;"/>
+    <path id="right_entry_line" d="M965,735L965,610" style="fill:none;fill-rule:nonzero;stroke:rgb(85,85,85);stroke-opacity:0.24;stroke-width:4px;"/>
+    <path id="path_placeholder" d="M110,565L900,565L900,870L555,870L555,720L420,720L420,630L110,630L110,565Z" style="fill:rgb(246,226,127);fill-opacity:0.24;fill-rule:nonzero;"/>
+    <path id="column_axis_x" d="M80,120L910,120" style="fill:none;fill-rule:nonzero;"/>
+    <path id="column_axis_y" d="M80,120L80,910" style="fill:none;fill-rule:nonzero;"/>
+    <g id="north_tables">
+        <g id="north_table_group_r1_c1" transform="matrix(1,0,0,1,185,215)">
+            <rect id="north_table_r1_c1" x="-75" y="-28" width="150" height="56" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        </g>
+        <g id="north_table_group_r1_c2" transform="matrix(1,0,0,1,500,215)">
+            <rect id="north_table_r1_c2" x="-75" y="-28" width="150" height="56" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        </g>
+        <g id="north_table_group_r1_c3" transform="matrix(1,0,0,1,815,215)">
+            <rect id="north_table_r1_c3" x="-75" y="-28" width="150" height="56" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        </g>
+        <g id="north_table_group_r2_c1" transform="matrix(1,0,0,1,185,465)">
+            <rect id="north_table_r2_c1" x="-75" y="-28" width="150" height="56" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        </g>
+        <g id="north_table_group_r2_c2" transform="matrix(1,0,0,1,500,465)">
+            <rect id="north_table_r2_c2" x="-75" y="-28" width="150" height="56" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        </g>
+        <g id="north_table_group_r2_c3" transform="matrix(1,0,0,1,815,465)">
+            <rect id="north_table_r2_c3" x="-75" y="-28" width="150" height="56" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="-72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="-40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+            <circle cx="40" cy="72" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        </g>
+    </g>
+    <g id="west_lounge">
+        <rect id="west_sofa_1" x="55" y="650" width="48" height="145" style="fill:rgb(243,245,242);stroke:rgb(160,167,160);stroke-width:4px;"/>
+        <rect id="west_sofa_2" x="85" y="845" width="170" height="45" style="fill:rgb(243,245,242);stroke:rgb(160,167,160);stroke-width:4px;"/>
+        <rect id="west_coffee_table" x="150" y="735" width="55" height="80" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        <circle id="west_plant" cx="75" cy="680" r="22" style="fill:rgb(31,77,45);stroke:rgb(24,58,34);stroke-width:3px;"/>
+    </g>
+    <g id="center_lounge">
+        <rect id="center_sofa_upper" x="505" y="720" width="145" height="55" style="fill:rgb(243,245,242);stroke:rgb(160,167,160);stroke-width:4px;"/>
+        <rect id="center_coffee_table_upper" x="545" y="660" width="80" height="38" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        <rect id="center_sofa_lower" x="500" y="845" width="155" height="55" style="fill:rgb(243,245,242);stroke:rgb(160,167,160);stroke-width:4px;"/>
+        <rect id="center_coffee_table_lower" x="545" y="790" width="80" height="38" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+    </g>
+    <g id="east_armchairs">
+        <rect id="east_armchair_left" x="685" y="850" width="55" height="55" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        <circle id="east_coffee_table" cx="795" cy="875" r="32" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        <rect id="east_armchair_right" x="875" y="850" width="55" height="55" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+    </g>
+    <g id="east_work">
+        <rect id="east_work_table" x="790" y="680" width="145" height="62" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+        <circle id="east_work_chair" cx="870" cy="630" r="20" style="fill:rgb(251,251,247);stroke:rgb(154,160,166);stroke-width:4px;"/>
+    </g>
+    <rect id="center_misc_fixture" x="425" y="555" width="45" height="45" style="fill:rgb(244,244,240);stroke:rgb(154,160,166);stroke-width:4px;"/>
+    <circle id="northwest_plant" cx="95" cy="105" r="35" style="fill:rgb(31,77,45);stroke:rgb(24,58,34);stroke-width:3px;"/>
+    <g transform="matrix(0.707107,-0.707107,0.707107,0.707107,115,545)">
+        <path d="M-45,0L45,0" style="fill:none;fill-rule:nonzero;stroke:rgb(51,51,51);stroke-width:5px;stroke-linecap:square;"/>
+        <path d="M-45,-25L-45,25" style="fill:none;fill-rule:nonzero;stroke:rgb(51,51,51);stroke-width:5px;stroke-linecap:square;"/>
+        <path d="M45,-25L45,25" style="fill:none;fill-rule:nonzero;stroke:rgb(51,51,51);stroke-width:5px;stroke-linecap:square;"/>
+    </g>
+    <g id="north_small_table">
+        <rect id="north_small_table_rect" x="425" y="55" width="45" height="55" style="fill:rgb(248,248,242);stroke:rgb(154,160,166);stroke-width:4px;"/>
+    </g>
+    <rect id="region_north_tables" x="80" y="120" width="830" height="470" style="fill:none;stroke:rgb(76,120,168);stroke-opacity:0.45;stroke-width:3px;stroke-dasharray:10,8;"/>
+    <rect id="region_west_lounge" x="45" y="610" width="250" height="300" style="fill:none;stroke:rgb(76,120,168);stroke-opacity:0.45;stroke-width:3px;stroke-dasharray:10,8;"/>
+    <rect id="region_center_lounge" x="405" y="620" width="280" height="295" style="fill:none;stroke:rgb(76,120,168);stroke-opacity:0.45;stroke-width:3px;stroke-dasharray:10,8;"/>
+    <rect id="region_east_work" x="760" y="600" width="190" height="320" style="fill:none;stroke:rgb(76,120,168);stroke-opacity:0.45;stroke-width:3px;stroke-dasharray:10,8;"/>
+    <rect id="region_east_armchairs" x="675" y="830" width="265" height="90" style="fill:none;stroke:rgb(76,120,168);stroke-opacity:0.45;stroke-width:3px;stroke-dasharray:10,8;"/>
+    <rect id="region_room_misc" x="35" y="35" width="930" height="895" style="fill:none;stroke:rgb(76,120,168);stroke-opacity:0.45;stroke-width:3px;stroke-dasharray:10,8;"/>
+    <g transform="matrix(1,0,0,1,90,115)">
+        <text x="0px" y="0px" style="font-family:'ArialMT', 'Arial', sans-serif;font-size:16px;fill:rgb(51,51,51);">north repeated tables</text>
+    </g>
+    <g transform="matrix(1,0,0,1,55,605)">
+        <text x="0px" y="0px" style="font-family:'ArialMT', 'Arial', sans-serif;font-size:16px;fill:rgb(51,51,51);">west lounge</text>
+    </g>
+    <g transform="matrix(1,0,0,1,410,615)">
+        <text x="0px" y="0px" style="font-family:'ArialMT', 'Arial', sans-serif;font-size:16px;fill:rgb(51,51,51);">center lounge</text>
+    </g>
+    <g transform="matrix(1,0,0,1,760,595)">
+        <text x="0px" y="0px" style="font-family:'ArialMT', 'Arial', sans-serif;font-size:16px;fill:rgb(51,51,51);">east work</text>
+    </g>
+    <defs>
+        <image id="_Image1" width="939px" height="904px" xlink:href="data:image/png;base64,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"/>
+        <image id="_Image3" width="3px" height="305px" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAExCAYAAAC57RitAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAALElEQVRIie3HoQEAIAgAMPBkCz/5k79QCB5g3Nqyzt0xVjxERERERERE5EsaQTgE0uoheBoAAAAASUVORK5CYII="/>
+        <image id="_Image5" width="280px" height="3px" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAADCAYAAABI6BBgAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAK0lEQVRIiWOsqtcqYhgFo2AUjAIaAKaBdsAoGAWjYPiC0QJmFIyCUUAzAAD6WQGbnu375QAAAABJRU5ErkJggg=="/>
+    </defs>
+</svg>

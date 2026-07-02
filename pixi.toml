@@ -24,6 +24,8 @@ ipykernel = ">=7.2.0,<8"
 pytest = ">=9.0.3,<10"
 nbformat = ">=5.10.4,<6"
 nbclient = ">=0.10.4,<0.11"
+matplotlib = ">=3.11.0,<4"
+shapely = ">=2.1.2,<3"
 
 [pypi-dependencies]
 ipykernel = "*"

@@ -1,0 +1,80 @@
+# Indoor Layout Evaluation Matrix Prompt Coverage Audit
+
+This file is the active checklist against the original prompt. It prevents another premature completion claim.
+
+Source prompt:
+
+- `docs/indoor_layout_evaluation_matrix_original_prompt.md`
+
+Current deliverables:
+
+- `docs/indoor_layout_evaluation_matrix_spec.md`
+- `docs/indoor_layout_evaluation_matrix_notebook_test_plan.md`
+- `test/floorplan_order_matrix_demo.ipynb`
+- `test/floorplan_order_fixture.svg`
+- `docs/indoor_layout_evaluation_matrix_method_ledger.md`
+- `docs/indoor_layout_evaluation_matrix_task_status.md`
+
+## Coverage Matrix
+
+| Original Requirement | Evidence | Status | Remaining Work |
+|---|---|---|---|
+| Preserve full prompt before working | `indoor_layout_evaluation_matrix_original_prompt.md` | Covered | none |
+| Do not write an academic paper | spec section 1, operational data structures, metric cards | Covered | none |
+| Design a technical plan and operating guide | full spec + notebook plan; master execution spec in section 26 | Covered | keep updated during implementation |
+| Include furniture object layer | spec sections 2, 3.1, 18 | Covered | none |
+| Include furniture group layer | spec sections 2, 3.2, 17, 18 | Covered | none |
+| Include region layer | spec sections 2, 3.3, 17 | Covered | none |
+| Include path / route layer | spec sections 3.5, 15.8, 16 | Covered | none |
+| Include column grid layer | spec sections 3.6, 15.7 | Covered | none |
+| Include room boundary layer | spec sections 3.4, 3.3, 18 | Covered | none |
+| Include boundary system with thickness/pass/see/openings/material cue | spec sections 3.4, 15.9; structured wall/glass/rug fixture metadata | Prototype implemented | material/lighting calibration later |
+| Explain region-internal order | spec sections 5A, 15.1-15.5; slanted polygon fixture with automatic PCA region-axis evidence | Prototype implemented | minimum-OBB/local-frame axes for complex polygons later |
+| Explain path vs region split without hard threshold | spec sections 15.8, 16, 17 | Covered | none |
+| Explain region-region alignment | spec sections 5B, 15.6 | Covered | none |
+| Explain region-column-grid alignment | spec sections 5C, 15.7 | Covered | none |
+| Explain whole-space spatial force | spec sections 5D, 15.6, 19, 22 | Covered | none |
+| Explain connectivity: walk/visibility/regions/entries/dead ends/loops | spec sections 5E, 15.10 | Covered | none |
+| Avoid artificial thresholds | spec section 6, metric formulas | Covered | none |
+| Identify unavoidable parameters and decision routes | spec sections 6, 11, 19, 24; `uncertainties.uncertainty_routes` matrix row | Prototype implemented | route row is keyword triage over declared uncertainty text, not method validation |
+| Search/choose relevant theories | spec section 14, references; `indoor_layout_evaluation_matrix_method_ledger.md` | Covered | method ledger adopts OCTA/local geometry now, keeps bbox-touch graph evidence and radial isovist sampling as proxies, and defers full VGA/skeleton/Voronoi until stronger geometry exists |
+| Phase 1 2D verification | spec section 9, notebook plan, automatic fixture notebook | Prototype implemented | extend fixture cases and metric evidence |
+| Markdown + IPYNB technical note workflow | spec section 8, 9; notebook plan | Covered | none |
+| Rhino / Grasshopper / VisualARQ / BIM migration | spec sections 10, 23; `adapter_payload` neutral handoff export | Prototype expanded | live Rhino/Grasshopper/VisualARQ/BIM adapters still pending |
+| Forward and reverse design relation | spec section 21 | Covered | none |
+| Output final deliverables list | spec sections 25-26 | Covered | use section 26 as completion gate |
+| 2D fixture from current plan image | `test/floorplan_order_fixture.svg`, spec section 18 | Covered | none |
+| Notebook plan based on fixture | `indoor_layout_evaluation_matrix_notebook_test_plan.md`; executed `test/floorplan_order_matrix_demo.ipynb` | Prototype implemented | notebook must still grow into the full evaluation matrix evidence carrier |
+| Automatic structured 2D plan to evaluation matrix | `features/scene_loader.py`, `features/scene_evaluator.py`, notebook execution | Prototype expanded | current evaluator emits stable rows for order, region alignment, column alignment, whole-space force, path connectivity, boundary metrics, adapter readiness, and uncertainties; boundary weights, boundary weight metadata coverage, hosted/fallback entry-boundary association evidence, normalized adapter refs, and column axes now come from structured metadata; column rows include axis agreement, object-axis phase, region-bay fit, and object-bay local-position proxies; path rows expose bbox-touch graph evidence, `reached_region_ids`, `unreached_region_ids`, `graph_component_count`, `cycle_rank_inputs`, disconnected-entry/path evidence, walk/visibility graph namespaces, negative-space component reachability ratios, negative-space free polygon, free-space polygon graph with `free_space_polygon_graph_cycle_rank`, `free_space_polygon_graph_mean_entry_region_distance`, `free_space_polygon_graph_mean_edge_clearance_width`, `free_space_polygon_graph_mean_entry_region_min_clearance_width`, and `free_space_polygon_graph_mean_entry_region_widest_clearance_width`, overlay layers (`free-space-graph-entry-region-path`, `free-space-graph-entry-anchor`, `free-space-graph-region-anchor`), room-minus-blocker boundary-loop proxy (`negative_space_room_minus_blocker_polygon_count`, `room_minus_blocker_polygons`), Shapely room-minus-blocker polygon difference (`cad_room_minus_blocker_polygon_count`, `cad_room_minus_blocker_polygons`, `shapely_room_polygon_difference_blocker_union`) plus closure audit (`cad_room_minus_blocker_area_residual_ratio`, `shapely_room_minus_blocker_area_minus_negative_space_area`), fragmentation severity (`cad_room_minus_blocker_largest_component_area_ratio`, `shapely_largest_component_area_over_total_free_area`), and component touch/graph evidence (`cad_room_minus_blocker_entry_connected_region_ratio`, `cad_room_minus_blocker_entry_connected_area_ratio`, `cad_room_minus_blocker_entry_connected_component_ratio`, `cad_room_minus_blocker_entry_connected_region_pair_ratio`, `cad_room_minus_blocker_component_graph_edge_count`, `cad_room_minus_blocker_component_touch_evidence`, `cad_room_minus_blocker_component_graph`, `shapely_component_entry_region_touch_proxy`, `shapely_component_entry_touched_area_ratio_proxy`, `shapely_component_entry_touched_component_count_proxy`, `shapely_component_entry_connected_region_pair_proxy`, `shapely_component_entry_region_touch_graph_proxy`), shared-edge adjacency, entry-to-region free-polygon distance, and reconstructed path-length evidence, line-of-sight entry-region centerline evidence, line-of-sight graph edge ratios and unique blocker audit rows, radial isovist blocked-ray and hit-point polygon area proxy evidence (`isovist_radial_hit_polygon_area_mean`, `mean_hit_polygon_area`, `isovist_area_evidence`), room-domain-masked sampled occupancy-grid BFS proxy rows, sampled-resolution sensitivity disclosure, sampled component fragmentation rows, and `adapter_payload` neutral handoff records with `scene_records`, `external_refs`, `evidence_geometry`, and compact metric summaries; uncertainty rows now include action-route triage, while Rhino/BIM hosted topology, navmesh faces, and full visibility graph metrics remain prototype-level |
+| Avoid manual object table as the main workflow | notebook source test | Implemented for current fixture | manual constructors remain debug-only |
+| Full evaluation matrix implementation | spec sections 5, 15-17, 22, 26 | Prototype expanded | replace bbox/metadata descriptors with robust geometry, graph, visibility, and irregular column-grid evaluators; add irregular/curved/non-orthogonal-grid fixtures |
+
+## Resolved Items
+
+All previously identified document weak spots have corresponding sections now:
+
+1. Forward / reverse design互逆性: spec section 21.
+2. Rhino / Grasshopper / BIM adapter payload examples: spec section 23.
+3. Whole-space force aggregation recipe: spec section 22.
+4. Final deliverables checklist: spec section 25.
+5. Uncertainty decision routes: spec section 24.
+
+Structured SVG notebook evidence:
+
+- `test/floorplan_order_matrix_demo.ipynb` exists.
+- It was executed with `nbformat` / `nbclient`.
+- It calls `load_structured_svg_scene()`, `evaluate_scene()`, and `scene_metric_overlay_svg()`.
+- It no longer manually declares the main fixture object table.
+- The current `evaluate_scene(scene)` is a broader automated evaluator prototype, not the full evaluation matrix described in the spec.
+- It emits stable rows for all major metric families. Boundary, column, glass/rug, hosted/fallback entry-boundary, adapter-readiness, and slanted-region rows now use structured geometry/metadata; boundary rows include weight metadata coverage so default-vs-authored channel provenance is inspectable; column rows include axis agreement, object-axis phase, region-bay fit, and object-bay local-position proxies; path rows expose bbox-touch graph evidence, `reached_region_ids`, `unreached_region_ids`, `graph_component_count`, `cycle_rank_inputs`, walk/visibility graph namespaces, negative-space component reachability ratios, `negative_space_room_minus_blocker_polygon_count` / `room_minus_blocker_polygons`, `cad_room_minus_blocker_polygon_count` / `cad_room_minus_blocker_polygons` via `shapely_room_polygon_difference_blocker_union`, `cad_room_minus_blocker_area_residual_ratio` via `shapely_room_minus_blocker_area_minus_negative_space_area`, `cad_room_minus_blocker_largest_component_area_ratio` via `shapely_largest_component_area_over_total_free_area`, `cad_room_minus_blocker_entry_connected_region_ratio` and `cad_room_minus_blocker_component_touch_evidence` via `shapely_component_entry_region_touch_proxy`, `cad_room_minus_blocker_entry_connected_area_ratio` via `shapely_component_entry_touched_area_ratio_proxy`, `cad_room_minus_blocker_entry_connected_component_ratio` via `shapely_component_entry_touched_component_count_proxy`, `cad_room_minus_blocker_entry_connected_region_pair_ratio` via `shapely_component_entry_connected_region_pair_proxy`, `cad_room_minus_blocker_component_graph` and `cad_room_minus_blocker_component_graph_edge_count` via `shapely_component_entry_region_touch_graph_proxy`, free-space polygon graph with entry/region anchors, `free_space_polygon_graph_cycle_rank`, `free_space_polygon_graph_mean_entry_region_distance`, `free_space_polygon_graph_mean_edge_clearance_width`, `free_space_polygon_graph_mean_entry_region_min_clearance_width`, `free_space_polygon_graph_mean_entry_region_widest_clearance_width`, and SVG overlay layers (`free-space-graph-entry-region-path`, `free-space-graph-entry-anchor`, `free-space-graph-region-anchor`), line-of-sight entry-region centerline evidence, line-of-sight graph edge ratios, unique blocker audit rows, radial isovist blocked-ray proxy evidence plus `isovist_radial_hit_polygon_area_mean` / `mean_hit_polygon_area` / `isovist_area_evidence`, room-domain-masked sampled occupancy-grid BFS proxy rows, sampled component fragmentation rows, and `adapter_payload.evidence_geometry` neutral handoff evidence; path and whole-space rows remain intentionally weak descriptors until Rhino/BIM hosted topology, navmesh, and full graph/visibility geometry are implemented.
+
+## Completion Rule
+
+Completion evidence is acceptable only if:
+
+1. the status file records the updated evidence;
+2. no documentation requirement remains unresolved;
+3. structured SVG is automatically converted into a neutral scene;
+4. `evaluate_scene(scene)` returns the full agreed metric matrix with robust metric implementations, not only prototype/metadata rows;
+5. the notebook executes that automatic path and saves evidence outputs;
+6. audit rows for every required metric family are marked implemented or explicitly deferred by user decision.

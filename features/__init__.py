@@ -18,5 +18,18 @@
 
 from .analyzer import OrderAnalyzer
 from .entities import Chair, Entry, Road, Table, TableGrid, TableTemplate
+from .scene_evaluator import evaluate_scene, scene_metric_overlay_svg
+from .scene_loader import load_structured_svg_scene
 
-__all__ = ["OrderAnalyzer", "Table", "Chair", "Entry", "Road", "TableTemplate", "TableGrid"]
+__all__ = [
+    "OrderAnalyzer",
+    "Table",
+    "Chair",
+    "Entry",
+    "Road",
+    "TableTemplate",
+    "TableGrid",
+    "evaluate_scene",
+    "load_structured_svg_scene",
+    "scene_metric_overlay_svg",
+]
