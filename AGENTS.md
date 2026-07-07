@@ -23,6 +23,15 @@ pixi run pytest OCTA_toolbox-master/tests/
 pixi run pytest OCTA_toolbox-master/tests/test_pattern.py  # single file
 ```
 
+## Code Comments
+
+All new or modified project-owned code must include English comments at two levels:
+
+- Every function should have a docstring.
+- Important computation steps should have comments explaining why the step exists, especially inference, scoring, geometry conversion, graph construction, and adapter handoff logic.
+
+Do not add noisy comments that merely restate obvious assignments. Vendored OCTA toolbox code is exempt unless it is edited.
+
 ## Architecture
 
 This project is a **thin wrapper** (`analyzer.py`) around the embedded OCTA toolbox (`OCTA_toolbox-master/`), which is included as source rather than a package dependency.

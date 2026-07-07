@@ -23,6 +23,302 @@
 
 ## Current Task State
 
+2026-07-08, layout hierarchy/network/boundary skeleton pass:
+
+- Added focused spec: `docs/superpowers/specs/2026-07-08-layout-hierarchy-network-boundary-skeleton-design.md`.
+- Added implementation plan: `docs/superpowers/plans/2026-07-08-layout-hierarchy-network-boundary-skeleton.md`.
+- Added first-class `activity_groups` inference evidence:
+  - grouped by semantic region key;
+  - group bbox is the union envelope of member furniture affordance extents;
+  - pairwise overlap is kept as relation/conflict/common-use evidence, not as the group extent definition.
+- Added shared-schema `spatial_networks` evidence:
+  - `region_internal` networks describe member extent relationships inside activity groups;
+  - `inter_region` network describes inferred gap-path connectivity between activity region candidates;
+  - both scopes expose the same keys: `id`, `scope`, `nodes`, `edges`, `components`, and `metadata`.
+- Added `boundary_semantics` evidence from authored boundary weights and metadata:
+  - `walk_passable`;
+  - `see_passable`;
+  - `thickness`;
+  - `grouping_strength`;
+  - `opening_ids`;
+  - `surface_identity`.
+- `evaluate_scene(scene)` now exposes `activity_groups`, `spatial_networks`, and `boundary_semantics` at top level and under `adapter_payload.evidence_geometry`.
+- Added plain-dict regression tests that do not depend on SVG parsing, confirming the new skeletons belong to the inference/matrix layer rather than the SVG adapter.
+- Current verification: `pixi run pytest -q` reports `210 passed in 51.68s`.
+- Important boundary:
+  - this is an architecture skeleton and evidence contract;
+  - it does not add BIM/Rhino execution, polygon boolean group extents, navmesh routing, full visual analysis, or calibrated boundary/material scoring.
+
+2026-07-07, SVG/base-map and matrix separation pass:
+
+- Added `docs/indoor_layout_evaluation_matrix_architecture_memory.md`.
+- Architecture boundary: SVG is a neutral BIM proxy/base map; SVG does not define the evaluation matrix.
+- User-authored semantic attributes are the primary input; bbox, rect-cell, or geometric fallback algorithms are secondary stand-ins used only when explicit attributes are missing or insufficient for computation.
+- Added `features/scene_inference.py` as the Inference / Evidence Layer for affordance zones, inferred region candidates, inferred regions, inferred region gap paths, and inferred gap-path graph evidence.
+- `evaluate_scene(scene)` now calls `infer_scene_evidence(scene)` and the matrix consumes neutral scene plus inference evidence before producing rows, overlays, and adapter payloads.
+- Important boundary:
+  - `scene_loader.py` remains the SVG-to-Neutral Scene adapter;
+  - `scene_inference.py` owns derived region/path evidence;
+  - `scene_evaluator.py` owns Evaluation Matrix rows and should not depend on SVG-specific rendering or XML traversal.
+- Code comment rule recorded in architecture memory:
+  - every function should have a docstring;
+  - important computation steps should have English comments explaining intent, especially inference, scoring, geometry conversion, graph construction, and adapter handoff logic.
+  - scope: all new or modified project-owned code; vendored OCTA toolbox code is exempt unless it is edited.
+
+2026-07-07, affordance-expanded inferred region pass:
+
+- Added automatic candidate region inference for objects whose `region` key has no explicit region record.
+- The inferred region bbox is built from member furniture footprints plus per-object affordance metadata:
+  - `affordance-left`;
+  - `affordance-right`;
+  - `affordance-top`;
+  - `affordance-bottom`.
+- When no explicit per-side affordance metadata is present, inferred regions can fall back to the existing affordance profile resolver; current tested behavior uses `chair.default` and `podium.default` front-side use zones, while `armchair.default` adds a small four-side personal-use zone and explicit per-side metadata remains the override path.
+- Same-region boundary cues with positive `grouping_strength` now also expand inferred region bounds, so rugs/material/glass outline cues can participate in the automatic region envelope.
+- No-boundary-cue candidate regions now get a small spacing-derived margin only when at least two candidate regions exist; facing sides are capped by nearby candidate gaps and the result is clamped to scene bounds so inferred paths keep measurable thickness.
+- Candidate metadata, matrix evidence, and adapter payload now expose `spacing_side_margins`, so each inferred region shows which side was expanded by spacing evidence.
+- Repeated groups with at least four member footprints cap their no-cue spacing margin by internal member gaps, preventing large furniture arrays from expanding by the whole group bbox scale.
+- If a matching explicit region exists, spacing margin is accepted only when it does not reduce candidate-to-explicit IoU, so margin expansion cannot make an already-better candidate worse against current authored marks.
+- Added `matrix["inferred_regions"]`.
+- Added `matrix["inferred_region_candidates"]` for explicit-region overlap checks without adding those candidates to analysis regions.
+- Added `matrix["affordance_zones"]` as explicit use-zone records adjacent to object footprints, so furniture footprint space and usable/occupied affordance space can be audited separately.
+- Added `region_alignment.affordance_use_zone_count` with method `object_footprint_adjacent_affordance_rect_zones`.
+- Added `matrix["furniture_affordance_extents"]` and `region_alignment.furniture_affordance_extent_count` with method `object_footprint_plus_own_affordance_zone_extent`, so every furniture object has one maximum bbox envelope from its footprint plus its own affordance zones before grouped activity-region inference.
+- Inferred region metadata now records `geometry_basis=object_footprints_plus_affordance_zone_rects` and `affordance_zone_ids`, so region candidates can be traced back to separate furniture footprints and use-zone entities.
+- Added `region_alignment.inferred_region_candidate_count` with method `affordance_zone_boundary_cue_expanded_group_candidate_bounds`, so automatic region candidates remain visible even when matching explicit region records already exist.
+- Added `region_alignment.inferred_region_count` with method `affordance_zone_boundary_cue_expanded_group_bounds` (the previous `affordance_expanded_group_bounds` keyword remains the narrower footprint+affordance baseline).
+- Added `region_alignment.inferred_region_explicit_iou_mean` with method `affordance_expanded_candidate_region_to_explicit_region_iou`.
+- The explicit-region IoU evidence now also records candidate area, explicit area, missing explicit area, overflow candidate area, and `dominant_mismatch`, so low overlap can be read as underfill versus overflow instead of a single opaque score.
+- The same IoU evidence records `candidate_boundary_cue_ids` and `candidate_has_boundary_cue`, so remaining underfilled regions can be separated into "no authored cue yet" versus "cue exists but still misfits".
+- Object-region membership now checks explicit plus inferred regions, so a labeled furniture group can be evaluated without a hand-authored region rectangle.
+- Added `region_alignment.inferred_region_gap_path_count` with method `affordance_region_bbox_axis_gap_band_proxy`.
+- The gap-path row records axis-aligned thick bands between directly adjacent inferred candidate region bboxes when the candidates have a shared projection and a positive gap. A candidate pair is filtered out when the proposed gap band intersects a third candidate region, so the row no longer reports long cross-region shortcuts as direct paths. This remains available even when explicit region records already exist and no inferred region needs to be added to analysis.
+- Added `matrix["inferred_region_gap_path_graph"]` and `route_topology_handoff.inferred_gap_path_graph` with method `inferred_gap_path_region_adjacency_graph_proxy`, so adjacent thick gap bands are also available as a region adjacency graph. Graph edges now carry `clear_status`, `occupancy_ratio`, and `free_space_overlap_ratio`; graph summaries expose clear, occupied, free-space-supported, `walkable_proxy_edge_count`, `walkable_proxy_edges`, `walkable_proxy_component_count`, `walkable_proxy_components`, `walkable_proxy_min_thickness`, `walkable_proxy_mean_thickness`, and `walkable_proxy_edge_widths`. When Shapely room-minus-blocker overlap evidence exists, graph edges also carry `cad_free_space_overlap_ratio`, and graph/handoff summaries expose `cad_free_space_supported_edge_count` and `cad_free_space_supported_edges`. `walkable_proxy_edges` lists the candidate thick bands that are both clear and supported by the current free-space proxy, `walkable_proxy_components` reports region connectivity using only those usable proxy edges, and the thickness fields expose current gap-band width evidence without certifying minimum passage width.
+- Current fixture now has `7` adjacent inferred gap-path bands after the intermediate-region filter; its inferred gap-path graph has `6` nodes, `7` edges, `6` clear edges, `1` occupied edge, `7` free-space-supported edges, `6` walkable-proxy edges, `1` geometric component, and `1` walkable-proxy component. The fixture `inferred_region_gap_path_occupancy_ratio` is `0.0116`, `inferred_region_gap_path_free_space_overlap_ratio` is `0.9884`, and `inferred_region_gap_path_walkable_proxy_ratio` is `0.8571`. The authored `path_placeholder` remains a very broad reference rectangle, so `inferred_region_gap_path_explicit_path_iou_mean` is an audit signal rather than a monotonic success score.
+- Added `path_connectivity.inferred_region_gap_path_walkable_proxy_ratio` with method `clear_and_free_space_supported_inferred_gap_path_edges`, so the matrix exposes a compact score and evidence list for usable inferred thick path bands.
+- Added `path_connectivity.inferred_gap_path_width_free_space_clearance_ratio` with method `free_space_edge_clearance_width_over_inferred_gap_band_width`, so inferred gap-band width can be checked against rect-cell free-space shared-edge clearance. Current fixture score is `0.4628`, which flags that bbox gap bands are wider than the free-space clearance proxy and should not yet be read as certified route width.
+- Added `path_connectivity.inferred_region_gap_path_min_width_pass_ratio` with manual `scene.settings.required_path_width` support. When authored, the row uses `walkable_gap_band_thickness_over_manual_required_path_width` and compares inferred actual gap-band thickness against that user-set passage width; otherwise it falls back to `walkable_gap_band_thickness_over_half_sampled_grid_resolution`. `minimum_width_basis`, `minimum_width_evidence`, `width_pass_edges`, and `width_fail_edges` are also exported through `route_topology_handoff.inferred_gap_path_graph`. The evaluator does not infer wheel/chair/body demand width from the SVG; it only evaluates whether inferred gap bands meet the configured width.
+- Added `region_alignment.inferred_region_gap_path_occupancy_ratio` with method `inferred_gap_band_overlap_with_object_footprints_and_affordance_zones`, so thick inferred path bands can report object/use-zone occupation instead of being treated as automatically clear roads.
+- Added `adapter_payload.evidence_geometry.inferred_region_gap_path_occupancy` and SVG layer `inferred-gap-path-occupancy`; inferred gap-path adapter items and SVG rectangles also carry occupancy summaries (`occupied`, `occupancy_ratio`, `occupied_area`, `clear_status`, `data-occupied`, `data-occupancy-ratio`, `data-clear-status`), so handoff consumers and notebooks can inspect which object/use-zone occupies an inferred thick path band.
+- Added `region_alignment.inferred_region_gap_path_free_space_overlap_ratio` with method `inferred_gap_band_overlap_with_rect_cell_free_space_polygons` plus `adapter_payload.evidence_geometry.inferred_region_gap_path_free_space_overlap`, so inferred thick bands can be checked against the current free-space proxy before downstream route adapters treat them as route candidates.
+- Added `path_connectivity.inferred_region_gap_path_cad_free_space_overlap_ratio` with method `inferred_gap_band_overlap_with_shapely_room_minus_blocker_polygons` plus `adapter_payload.evidence_geometry.inferred_region_gap_path_cad_free_space_overlap`, so inferred thick bands can also be checked against Shapely room-minus-blocker free-space polygons instead of only rect-cell free-space proxies.
+- Added `route_topology_handoff.inferred_gap_paths`, so downstream route adapters can receive inferred thick gap-path counts, clear/occupied proxy counts, and the same gap-path summary items without rejoining evidence geometry.
+- Added `region_alignment.inferred_region_gap_path_explicit_path_iou_mean` with method `affordance_gap_band_to_explicit_path_bbox_iou`, so inferred thick gap bands can be checked against authored path rectangles.
+- Added `adapter_payload.evidence_geometry.affordance_zones`, `adapter_payload.evidence_geometry.furniture_affordance_extents`, `adapter_payload.evidence_geometry.inferred_region_candidates`, and `adapter_payload.evidence_geometry.inferred_region_gap_paths`, so neutral payload consumers can inspect automatic use-zone/furniture-extent/region/path-band evidence without re-running private evaluator helpers.
+- Added top-level and adapter-exported `score_matrix` with method `computed_unit_interval_metric_mean_by_view_id`, so computed `[0, 1]` metric rows are grouped into dimension scores plus an unweighted overall score while count/unavailable rows remain excluded until calibrated weights exist.
+- Extended `scene_metric_overlay_svg()` with:
+  - `affordance-use-zone`;
+  - `furniture-affordance-extent`;
+  - `inferred-region`;
+  - `inferred-region-candidate`;
+  - `inferred-gap-path`.
+- Added SVG and synthetic-scene regressions covering:
+  - structured SVG affordance metadata driving region inference;
+  - inferred candidate region versus explicit region IoU;
+  - inferred region overlay;
+  - inferred candidate overlay when an explicit region record already exists;
+  - inferred candidate gap paths when explicit region records already exist;
+  - inferred candidate gap path versus explicit path bbox IoU;
+  - adapter payload export of inferred candidate regions and gap paths;
+  - default chair affordance profile fallback versus explicit affordance override;
+  - oriented default chair affordance profile fallback;
+  - default armchair affordance profile fallback;
+  - default podium affordance profile fallback;
+  - thick path/gap band inference between two affordance-expanded regions.
+- Important boundary:
+  - this is candidate region and candidate path-band evidence from bbox, affordance metadata, and authored same-region boundary cues;
+  - it is not alpha-shape region discovery, semantic clustering, calibrated perception, navmesh routing, medial-axis extraction, or a Rhino/Grasshopper/BIM plugin.
+
+2026-07-07, adapter payload JSON export pass:
+
+- Added `export_adapter_payload_json(scene, target)`.
+- The helper writes `matrix["adapter_payload"]` from `evaluate_scene(scene)` to a stable UTF-8 JSON file for downstream adapter handoff checks.
+- Added `validate_adapter_payload_json(target)` as a lightweight file-level contract check for the exported handoff.
+- Added `handoff_contract = {"id": "neutral_adapter_payload", "version": 1}` to exported payloads so downstream adapters can reject incompatible file shapes.
+- Current regression writes the fixture payload and checks `source`, `record_count`, `adapter_capability_matrix.ready_handoffs`, and `notebook_audit_manifest.status`.
+- Validation regression checks required payload keys, fixture record count, ready handoff count, and notebook audit status.
+- Malformed-file regression rejects empty `adapter_capability_matrix.ready_handoffs` and a notebook status other than `ordered_clean_overlay`.
+- Contract regression rejects any `handoff_contract` id/version other than `neutral_adapter_payload` version `1`.
+- Readiness regression rejects payloads whose `adapter_capability_matrix.ready_handoffs` omit any current handoff surface.
+- Count regression rejects payloads whose `record_count` does not match `scene_records` length.
+- Identity regression rejects duplicate `scene_records` ids.
+- External-ref regression rejects `external_refs` targets that do not point to exported `scene_records` ids.
+- Reverse-ref regression rejects `scene_records.adapter_refs` that are missing from `external_refs`.
+- Stale-ref regression rejects `external_refs` entries whose target record does not declare the same adapter ref value.
+- Grasshopper regression treats `grasshopper_branches` as a required DataTree-like handoff table.
+- Branch-group regression rejects `grasshopper_branches` that lack any of the current required record, metric, or graph branch groups.
+- Important boundary:
+  - this is a file handoff for the neutral adapter payload only;
+  - it is not a live Rhino/Grasshopper/BIM plugin, Grasshopper DataTree execution, VisualARQ hosting, hosted topology, or model synchronization.
+
+2026-07-07, notebook audit manifest pass:
+
+- Added `matrix["adapter_payload"]["notebook_audit_manifest"]`.
+- The manifest records the current executable notebook display policy:
+  - section order: `1. Source Fixture`, `2. Evaluation Summary`, `3. Metric Matrix`, `4. Clean Evidence Overlay`, `5. Audit Snapshot`;
+  - default overlay call: `scene_metric_overlay_svg(scene, matrix)`;
+  - `include_free_space_paths = False` by default;
+  - optional dense layer: `free-space-graph-entry-region-path`.
+- This mirrors the existing notebook-order regression so downstream users can inspect the display policy from the evaluation payload as well as from the notebook file.
+- Important boundary:
+  - this is a notebook audit manifest only;
+  - it is not visual QA for every rendered SVG layer, a polished presentation layout, or a substitute for running the notebook.
+
+2026-07-07, adapter capability matrix pass:
+
+- Added `matrix["adapter_payload"]["adapter_capability_matrix"]`.
+- The payload now gives downstream adapter work one compact readiness index over current handoff surfaces:
+  - `host_relationships`;
+  - `route_topology_handoff`;
+  - `visual_analysis_handoff`;
+  - `material_calibration_handoff`;
+  - `column_grid_handoff`.
+- It also summarizes current uncertainty-route evidence counts for:
+  - `geometry_upgrade`;
+  - `perception_experiment`;
+  - `bim_mapping`;
+  - `method_replacement`.
+- Current fixture:
+  - all five handoff surfaces are present;
+  - each uncertainty route currently exposes `8` capped evidence row ids.
+- Important boundary:
+  - this is a handoff readiness index only;
+  - it does not prove live Rhino/GH/BIM adapter execution, hosted topology, validated CAD geometry, material calibration, full route analysis, or full visibility analysis.
+
+2026-07-07, matrix completion audit gate pass:
+
+- Added `adapter_readiness.matrix_completion_audit` with method `completion_gate_from_current_metric_family_status`.
+- The row exposes `required_metric_family_status`, `open_core_families`, and `completion_ready` so final completion cannot be claimed only from broad passing tests or a dense notebook.
+- Current open core families are:
+  - `metric_matrix_rows`;
+  - `route_topology`;
+  - `visual_analysis`;
+  - `column_grid`;
+  - `material_boundary_calibration`.
+- `live_bim_rhino_adapter` is marked `deferred_by_user_scope`, matching the user-approved scope that BIM/Rhino plugin execution can remain final-stage or incomplete.
+- Important boundary:
+  - this is a completion gate ledger inside the metric matrix;
+  - it does not implement navmesh, full isovist/VGA, calibrated materials, or irregular grid interpolation.
+
+2026-07-07, column-grid adapter handoff pass:
+
+- Added `matrix["adapter_payload"]["column_grid_handoff"]`.
+- The payload now gives downstream Rhino/BIM grid adapters one compact place to find:
+  - authored column axis ids and region-axis agreement;
+  - object-to-column-axis phase score and evidence count;
+  - region-to-column-bay fit score, evidence count, and `column_grid_handoff.region_bays.items`;
+  - object local affine position-in-bay score, evidence count, and `column_grid_handoff.object_bay_local_positions.items`.
+- Current fixture:
+  - `axis_count = 2`;
+  - `axis_ids = ["column_axis_x", "column_axis_y"]`;
+  - `region_axis_agreement = 0.9429`;
+  - `object_phase.score = 0.7001`;
+  - `region_bays.score = 0.446`;
+  - `object_bay_local_positions.score = 0.4091`.
+- Important boundary:
+  - this is a column-grid handoff summary over existing authored axis and bay proxy rows;
+  - it does not compute Rhino/BIM grid topology, structural bay validation, multi-axis grid cells, or irregular local grid interpolation.
+
+2026-07-07, material calibration adapter handoff pass:
+
+- Added `matrix["adapter_payload"]["material_calibration_handoff"]`.
+- The payload now gives downstream material/perception calibration adapters one compact place to find:
+  - boundary weight metadata coverage and missing ids;
+  - authored `walk_block`, `see_block`, `grouping_strength`, walk/see gap, and non-blocking grouping-cue means;
+  - calibration candidates for authored `glass`, `rug`, `material`, and `visual` boundary kinds with current walk/see/grouping weights and thickness metadata.
+- Current fixture:
+  - `weight_metadata.coverage = 1.0`;
+  - `missing_ids = []`;
+  - `walk_block = 0.4615`;
+  - `see_block = 0.3962`;
+  - `grouping_strength = 0.6077`;
+  - calibration candidates include `glass_boundary`, `rug_boundary`, `material_boundary`, and `diagonal_boundary`.
+- Important boundary:
+  - this is a material-calibration handoff summary over authored SVG metadata;
+  - it does not infer Rhino/BIM materials, lighting, glass transmittance, perceptual grouping thresholds, or validated calibration curves.
+
+2026-07-07, visual analysis adapter handoff pass:
+
+- Added `matrix["adapter_payload"]["visual_analysis_handoff"]`.
+- The payload now gives downstream visual-analysis adapters one compact place to find:
+  - centerline `visibility_graph` method, node count, edge count, visible/blocked edge ratios, and blocking-boundary count;
+  - radial `isovist_radial_proxy` method, status, vantage count, ray count, blocked ray count, blocked ray ratio, mean hit distance, and `mean_hit_polygon_area`.
+- Current fixture:
+  - `visibility_graph.node_count = 11`;
+  - `visibility_graph.edge_count = 28`;
+  - `visible_edge_ratio = 0.7143`;
+  - `blocked_edge_ratio = 0.2857`;
+  - `blocking_boundary_count = 3`;
+  - `isovist_radial_proxy.ray_count = 88`;
+  - `isovist_radial_proxy.blocked_ray_count = 20`;
+  - `isovist_radial_proxy.mean_hit_polygon_area = 415076.4205`.
+- Important boundary:
+  - this is a visual-analysis handoff summary over existing centerline visibility and radial ray proxies;
+  - it does not compute full isovist polygons, Visibility Graph Analysis fields, visual integration, or calibrated visual exposure.
+
+2026-07-07, route topology handoff export pass:
+
+- Added `matrix["adapter_payload"]["route_topology_handoff"]`.
+- The payload now gives downstream route/navmesh adapters one compact place to find:
+  - Shapely CAD room-minus-blocker component graph method, node count, and edge count;
+  - rect-cell `free_space_polygon_graph` method, node count, and edge count;
+  - `host_relationships` method plus hosted/fallback entry counts.
+- Added a regression using the synthetic adapter geometry fixture:
+  - `cad_component_graph.node_count = 3`;
+  - `cad_component_graph.edge_count = 2`;
+  - `free_space_polygon_graph.node_count = 8`;
+  - `free_space_polygon_graph.edge_count = 8`;
+  - fallback entry count = `1`.
+- Important boundary:
+  - this is a compact route-topology handoff summary;
+  - it does not compute navmesh faces, medial-axis routes, skeleton routes, route certification, detour quality, or code-compliant egress.
+
+2026-07-07, adapter host relationships export pass:
+
+- Added `matrix["adapter_payload"]["host_relationships"]`.
+- The payload now exposes:
+  - `entry_boundary_hosts`: the existing `entry_boundary_associations` from boundary metrics;
+  - `hosted_entry_count`;
+  - `fallback_entry_count`;
+  - method `entry_boundary_associations_from_host_metadata_or_nearest_geometry`.
+- This reuses the current `host-boundary` / `host_boundary` / `host` metadata path and nearest-geometry fallback instead of recomputing geometry in the adapter export.
+- Important boundary:
+  - this is a neutral host-relationship export for downstream Rhino/VisualARQ/BIM adapters;
+  - fallback relationships remain SVG geometry proxies and must be replaced by live hosted topology in real adapters.
+
+2026-07-07, boundary-kind adapter target hint pass:
+
+- Preserved non-empty scene record `metadata` in `matrix["adapter_payload"]["scene_records"]`.
+- Extended `adapter_targets` so authored `boundary-kind` metadata is not flattened into generic walls:
+  - `glass` -> `GlassBoundary`, Rhino `Curve|Brep|GlassMaterial`, BIM `CurtainWall|Window`;
+  - `rug` and `material` -> `BoundaryCue`, Rhino `Curve|Hatch|Surface`, BIM `SurfaceFinish|Annotation`;
+  - `visual` -> `VisualBoundaryCue`, Rhino `Curve|Annotation`, BIM `Annotation|ZoneBoundary`.
+- Added a regression covering wall, glass, rug, material, and visual boundary target hints in the neutral adapter payload.
+- Important boundary:
+  - these are target hints for downstream adapters;
+  - they are not live Rhino material assignment, VisualARQ hosted objects, IFC family validation, or BIM authoring.
+
+2026-07-07, notebook display order cleanup pass:
+
+- Kept the executable notebook ordered into five inspection sections:
+  - `1. Source Fixture`;
+  - `2. Evaluation Summary`;
+  - `3. Metric Matrix`;
+  - `4. Clean Evidence Overlay`;
+  - `5. Audit Snapshot`.
+- Added a regression that checks:
+  - the notebook section order stays stable;
+  - the default overlay cell calls `scene_metric_overlay_svg(scene, matrix)`;
+  - `include_free_space_paths=True` is not used in the notebook;
+  - the executed clean overlay output does not contain dense `free-space-graph-entry-region-path` lines.
+- Current notebook status:
+  - still executable and ordered;
+  - visually busy, but no longer unordered;
+  - dense free-space route segments remain recorded as optional evidence, not default visual clutter.
+- Remaining work after this cleanup:
+  - real Rhino / Grasshopper / VisualARQ / BIM adapters;
+  - hosted topology, navmesh / medial-axis / skeleton routing, full isovist / VGA, irregular column-grid interpolation, and material/perception calibration.
+
 2026-07-07, neutral adapter payload export pass:
 
 - Added `matrix["adapter_payload"]` to `evaluate_scene(scene)`.
@@ -32,6 +328,9 @@
   - `scene_records`: record id, role, group, region, bbox, and `adapter_refs`;
   - `external_refs`: reverse lookup from external ids such as `ifc_guid`, `rhino_guid`, and `source_layer` back to scene record ids;
   - `evidence_geometry`: proxy free-space polygon previews, room-minus-blocker boundary loops, and negative-space graph node/edge summaries;
+  - `graph_namespaces`: compact `walk_graph` and `visibility_graph` summaries for downstream adapters;
+  - `grasshopper_branches`: DataTree-like branch index strings for scene records, metric rows, and graph namespaces;
+  - `adapter_targets`: per-record neutral/Rhino/Grasshopper/BIM target hints;
   - `metric_rows`: compact `view_id`, `metric`, `score`, and `status` summaries for downstream adapter handoff.
 - Added synthetic regression:
   - a two-record scene exports table/wall scene records, reverse external refs, and an `adapter_reference_coverage` metric summary.
@@ -42,6 +341,11 @@
   - `evidence_geometry.free_space_polygon_graph.edge_count = 1426`;
   - `evidence_geometry.free_space_polygon_graph.metrics.cycle_rank = 613`;
   - `evidence_geometry.free_space_polygon_graph.entry_region_distance_evidence` count = `32`;
+  - `graph_namespaces.walk_graph.edge_count = 7`;
+  - `graph_namespaces.visibility_graph.edge_count = 28`;
+  - `grasshopper_branches` includes `{0;objects;0}`, `{0;boundaries;0}`, `{0;metrics;...}`, and `{0;graphs;...}` branches;
+  - `validate_adapter_payload_json` rejects branch tables missing the record, metric, or graph branch groups;
+  - `adapter_targets` maps fixture furniture to `FurnitureObject`, openings to `Entry`, room boundary to `Boundary`, glass to `GlassBoundary`, rug/material/visual cues to non-wall cue targets, and column axes to `ColumnGrid.axes`;
   - `evidence_geometry.room_minus_blocker_polygons.count = 1`;
   - `evidence_geometry.cad_room_minus_blocker_polygons.count = 1`;
   - `evidence_geometry.negative_space_graph.node_count = 12`;
@@ -527,6 +831,30 @@
   - this is an 8-direction radial ray sampling proxy using authored `see_block` boundaries;
   - the area row connects ordered radial hit points into a polygon area proxy;
   - it is not a full isovist polygon, Visibility Graph Analysis, visual integration, or calibrated visual exposure field.
+
+2026-07-07, visual-analysis adapter handoff detail pass:
+
+- Added existing evidence details to `matrix["adapter_payload"]["visual_analysis_handoff"]`:
+  - `visual_analysis_handoff.visibility_graph.items`;
+  - `visual_analysis_handoff.isovist_radial_proxy.ray_items`;
+  - `visual_analysis_handoff.isovist_radial_proxy.area_items`.
+- Current fixture counts:
+  - `visibility_graph.items` count = `28`;
+  - `isovist_radial_proxy.ray_items` count = `88`;
+  - `isovist_radial_proxy.area_items` count = `11`.
+- Important boundary:
+  - this only forwards existing centerline visibility and radial isovist proxy evidence;
+  - it is not a new full VGA, full isovist polygon, or calibrated visual integration algorithm.
+
+2026-07-07, route-topology adapter handoff detail pass:
+
+- Added existing graph details to `matrix["adapter_payload"]["route_topology_handoff"]`:
+  - `route_topology_handoff.cad_component_graph.items`;
+  - `route_topology_handoff.free_space_polygon_graph.items`.
+- These fields carry the current graph nodes and edges already exported in `evidence_geometry`.
+- Important boundary:
+  - this only forwards existing Shapely component graph and rect-cell free-space graph evidence;
+  - it is not a navmesh, medial axis, skeleton graph, hosted-door topology, or route solver.
 
 2026-07-06, sampled walkable-space proxy pass:
 
@@ -2149,6 +2477,19 @@
 - Important boundary:
   - this is a centroid phase proxy for region alignment;
   - it is not region overlap, not local frame containment, and not a fuzzy region-membership model.
+
+2026-07-07, region centroid trend pass:
+
+- Added independent metric row:
+  - `trend.region_centroid_trend_alignment`.
+- The row uses `region_centroid_pca_axis_cross_deviation_score`: measurable region bbox centers define a PCA trend axis, each region center reports projection and cross-axis deviation, and the score is `1 / (1 + mean_cross_axis_deviation / trend_span)`.
+- Added a synthetic regression with four regions near a diagonal sequence:
+  - `region_centroid_trend_alignment`: `0.9652`;
+  - trend axis angle: `38.8153`;
+  - evidence records per-region projection and cross-axis deviation.
+- Important boundary:
+  - this is the first standalone `trend` metric family row;
+  - it is not semantic procession, circulation intent, time-series trend, or final route topology.
 
 2026-07-06, column-grid region bay fit pass:
 
