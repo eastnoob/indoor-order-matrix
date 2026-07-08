@@ -1,3 +1,5 @@
+import ast
+import json
 from pathlib import Path
 import sys
 import xml.etree.ElementTree as ET
@@ -6,6 +8,24 @@ import xml.etree.ElementTree as ET
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 FIXTURE = Path("test/floorplan_order_fixture.svg")
+VALID_GRASSHOPPER_BRANCHES = [
+    {
+        "path": "{0;objects;0}",
+        "kind": "object_record",
+        "id": "table",
+        "role": "table",
+    },
+    {
+        "path": "{0;metrics;0}",
+        "kind": "metric_row",
+        "id": "adapter_readiness.adapter_reference_coverage",
+    },
+    {
+        "path": "{0;graphs;walk_graph}",
+        "kind": "graph_namespace",
+        "id": "walk_graph",
+    },
+]
 
 
 def _fixture_elements():
@@ -124,19 +144,511 @@ def test_load_structured_svg_scene_normalizes_adapter_references(tmp_path):
     }
 
 
+def test_structured_svg_can_drive_affordance_based_region_inference(tmp_path):
+    from features.affordance.models import Rect
+
+    svg = tmp_path / "affordance_regions.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">
+  <g id="left_group" data-group="left" data-region="left">
+    <rect id="left_table" data-role="table" x="20" y="20" width="60" height="30" />
+    <rect id="left_chair" data-role="chair" data-affordance-bottom="20"
+          x="35" y="60" width="30" height="25" />
+  </g>
+  <g id="right_group" data-group="right" data-region="right">
+    <rect id="right_table" data-role="table" x="160" y="20" width="60" height="30" />
+    <rect id="right_chair" data-role="chair" data-affordance-bottom="20"
+          x="175" y="60" width="30" height="25" />
+  </g>
+</svg>""",
+        encoding="utf-8",
+    )
+
+    matrix = evaluate_scene(load_structured_svg_scene(svg))
+
+    inferred = {region["region"]: region for region in matrix["inferred_regions"]}
+    assert inferred["left"]["rect"] == Rect(cx=50.0, cy=60.0, width=100.0, height=120.0)
+    assert inferred["left"]["metadata"]["spacing_margin"] == "21.25"
+    assert inferred["right"]["rect"] == Rect(cx=190.0, cy=60.0, width=100.0, height=120.0)
+    assert inferred["right"]["metadata"]["spacing_margin"] == "21.25"
+    assert matrix["inferred_region_gap_paths"][0]["rect"] == Rect(
+        cx=120.0,
+        cy=60.0,
+        width=40.0,
+        height=120.0,
+    )
+
+
 def test_loader_exports_public_api():
     import features
 
     assert hasattr(features, "load_structured_svg_scene")
+    assert hasattr(features, "export_adapter_payload_json")
+    assert hasattr(features, "validate_adapter_payload_json")
 
 
-from features.scene_evaluator import evaluate_scene, scene_metric_overlay_svg
+from features.scene_evaluator import (
+    evaluate_scene,
+    export_adapter_payload_json,
+    scene_metric_overlay_svg,
+    validate_adapter_payload_json,
+)
+
+
+def test_export_adapter_payload_json_writes_stable_handoff_file(tmp_path):
+    scene = load_structured_svg_scene(FIXTURE)
+    target = tmp_path / "adapter_payload.json"
+
+    payload = export_adapter_payload_json(scene, target)
+    written = json.loads(target.read_text(encoding="utf-8"))
+
+    assert payload["source"] == str(FIXTURE)
+    assert written["source"] == str(FIXTURE)
+    assert written["record_count"] == 46
+    assert written["handoff_contract"] == {
+        "id": "neutral_adapter_payload",
+        "version": 1,
+    }
+    assert written["adapter_capability_matrix"]["ready_handoffs"] == [
+        "host_relationships",
+        "route_topology_handoff",
+        "visual_analysis_handoff",
+        "material_calibration_handoff",
+        "column_grid_handoff",
+    ]
+    assert written["notebook_audit_manifest"]["status"] == "ordered_clean_overlay"
+
+
+def test_validate_adapter_payload_json_reports_handoff_contract(tmp_path):
+    scene = load_structured_svg_scene(FIXTURE)
+    target = tmp_path / "adapter_payload.json"
+    export_adapter_payload_json(scene, target)
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": True,
+        "missing_keys": [],
+        "contract_id": "neutral_adapter_payload",
+        "contract_version": 1,
+        "record_count": 46,
+        "ready_handoff_count": 5,
+        "notebook_status": "ordered_clean_overlay",
+    }
+
+
+def test_validate_adapter_payload_json_rejects_incomplete_handoff_contract(tmp_path):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+                {
+                    "scene_records": [],
+                    "external_refs": {},
+                    "metric_rows": [],
+                    "score_matrix": {},
+                    "evidence_geometry": {},
+                    "adapter_capability_matrix": {"ready_handoffs": []},
+                    "notebook_audit_manifest": {"status": "draft"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": ["handoff_contract", "grasshopper_branches"],
+        "contract_id": None,
+        "contract_version": None,
+        "record_count": 0,
+        "ready_handoff_count": 0,
+        "notebook_status": "draft",
+        "contract_errors": [
+            "handoff_contract is missing",
+            "adapter_capability_matrix.ready_handoffs is empty",
+            "notebook_audit_manifest.status is not ordered_clean_overlay",
+        ],
+    }
+
+
+def test_validate_adapter_payload_json_rejects_unsupported_contract(tmp_path):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+                {
+                    "handoff_contract": {"id": "legacy_adapter_payload", "version": 99},
+                    "scene_records": [],
+                    "external_refs": {},
+                    "grasshopper_branches": VALID_GRASSHOPPER_BRANCHES,
+                    "metric_rows": [],
+                    "score_matrix": {},
+                    "evidence_geometry": {},
+                    "adapter_capability_matrix": {
+                        "ready_handoffs": ["host_relationships"]
+                },
+                "notebook_audit_manifest": {"status": "ordered_clean_overlay"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": [],
+        "contract_id": "legacy_adapter_payload",
+        "contract_version": 99,
+        "record_count": 0,
+        "ready_handoff_count": 1,
+        "notebook_status": "ordered_clean_overlay",
+        "contract_errors": [
+            "handoff_contract is not neutral_adapter_payload version 1"
+        ],
+    }
+
+
+def test_validate_adapter_payload_json_rejects_partial_ready_handoffs(tmp_path):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+            {
+                "handoff_contract": {
+                    "id": "neutral_adapter_payload",
+                    "version": 1,
+                },
+                "scene_records": [],
+                "external_refs": {},
+                "grasshopper_branches": VALID_GRASSHOPPER_BRANCHES,
+                "metric_rows": [],
+                "score_matrix": {},
+                "evidence_geometry": {},
+                "adapter_capability_matrix": {
+                    "ready_handoffs": ["host_relationships"]
+                },
+                "notebook_audit_manifest": {"status": "ordered_clean_overlay"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": [],
+        "contract_id": "neutral_adapter_payload",
+        "contract_version": 1,
+        "record_count": 0,
+        "ready_handoff_count": 1,
+        "notebook_status": "ordered_clean_overlay",
+        "contract_errors": [
+            "adapter_capability_matrix.ready_handoffs missing: column_grid_handoff, material_calibration_handoff, route_topology_handoff, visual_analysis_handoff"
+        ],
+    }
+
+
+def test_validate_adapter_payload_json_rejects_incomplete_grasshopper_branch_groups(
+    tmp_path,
+):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+            {
+                "handoff_contract": {
+                    "id": "neutral_adapter_payload",
+                    "version": 1,
+                },
+                "record_count": 1,
+                "scene_records": [{"id": "table"}],
+                "external_refs": {},
+                "grasshopper_branches": [
+                    {
+                        "path": "{0;objects;0}",
+                        "kind": "object_record",
+                        "id": "table",
+                        "role": "table",
+                    }
+                ],
+                "metric_rows": [],
+                "score_matrix": {},
+                "evidence_geometry": {},
+                "adapter_capability_matrix": {
+                    "ready_handoffs": [
+                        "host_relationships",
+                        "route_topology_handoff",
+                        "visual_analysis_handoff",
+                        "material_calibration_handoff",
+                        "column_grid_handoff",
+                    ]
+                },
+                "notebook_audit_manifest": {"status": "ordered_clean_overlay"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": [],
+        "contract_id": "neutral_adapter_payload",
+        "contract_version": 1,
+        "record_count": 1,
+        "ready_handoff_count": 5,
+        "notebook_status": "ordered_clean_overlay",
+        "contract_errors": [
+            "grasshopper_branches missing branch groups: graphs, metrics"
+        ],
+    }
+
+
+def test_validate_adapter_payload_json_rejects_record_count_mismatch(tmp_path):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+            {
+                "handoff_contract": {
+                    "id": "neutral_adapter_payload",
+                    "version": 1,
+                },
+                "record_count": 2,
+                "scene_records": [{"id": "only_record"}],
+                "external_refs": {},
+                "grasshopper_branches": VALID_GRASSHOPPER_BRANCHES,
+                "metric_rows": [],
+                "score_matrix": {},
+                "evidence_geometry": {},
+                "adapter_capability_matrix": {
+                    "ready_handoffs": [
+                        "host_relationships",
+                        "route_topology_handoff",
+                        "visual_analysis_handoff",
+                        "material_calibration_handoff",
+                        "column_grid_handoff",
+                    ]
+                },
+                "notebook_audit_manifest": {"status": "ordered_clean_overlay"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": [],
+        "contract_id": "neutral_adapter_payload",
+        "contract_version": 1,
+        "record_count": 2,
+        "ready_handoff_count": 5,
+        "notebook_status": "ordered_clean_overlay",
+        "contract_errors": ["record_count does not match scene_records length"],
+    }
+
+
+def test_validate_adapter_payload_json_rejects_duplicate_scene_record_ids(tmp_path):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+            {
+                "handoff_contract": {
+                    "id": "neutral_adapter_payload",
+                    "version": 1,
+                },
+                "record_count": 2,
+                "scene_records": [{"id": "dup"}, {"id": "dup"}],
+                "external_refs": {},
+                "grasshopper_branches": VALID_GRASSHOPPER_BRANCHES,
+                "metric_rows": [],
+                "score_matrix": {},
+                "evidence_geometry": {},
+                "adapter_capability_matrix": {
+                    "ready_handoffs": [
+                        "host_relationships",
+                        "route_topology_handoff",
+                        "visual_analysis_handoff",
+                        "material_calibration_handoff",
+                        "column_grid_handoff",
+                    ]
+                },
+                "notebook_audit_manifest": {"status": "ordered_clean_overlay"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": [],
+        "contract_id": "neutral_adapter_payload",
+        "contract_version": 1,
+        "record_count": 2,
+        "ready_handoff_count": 5,
+        "notebook_status": "ordered_clean_overlay",
+        "contract_errors": ["scene_records duplicate ids: dup"],
+    }
+
+
+def test_validate_adapter_payload_json_rejects_orphan_external_refs(tmp_path):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+            {
+                "handoff_contract": {
+                    "id": "neutral_adapter_payload",
+                    "version": 1,
+                },
+                "record_count": 1,
+                "scene_records": [{"id": "real_record"}],
+                "external_refs": {"rhino_guid": {"rhino-missing": "missing_record"}},
+                "grasshopper_branches": VALID_GRASSHOPPER_BRANCHES,
+                "metric_rows": [],
+                "score_matrix": {},
+                "evidence_geometry": {},
+                "adapter_capability_matrix": {
+                    "ready_handoffs": [
+                        "host_relationships",
+                        "route_topology_handoff",
+                        "visual_analysis_handoff",
+                        "material_calibration_handoff",
+                        "column_grid_handoff",
+                    ]
+                },
+                "notebook_audit_manifest": {"status": "ordered_clean_overlay"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": [],
+        "contract_id": "neutral_adapter_payload",
+        "contract_version": 1,
+        "record_count": 1,
+        "ready_handoff_count": 5,
+        "notebook_status": "ordered_clean_overlay",
+        "contract_errors": ["external_refs target ids missing: missing_record"],
+    }
+
+
+def test_validate_adapter_payload_json_rejects_missing_reverse_external_refs(tmp_path):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+            {
+                "handoff_contract": {
+                    "id": "neutral_adapter_payload",
+                    "version": 1,
+                },
+                "record_count": 1,
+                "scene_records": [
+                    {
+                        "id": "real_record",
+                        "adapter_refs": {"rhino_guid": "rhino-real"},
+                    }
+                ],
+                "external_refs": {},
+                "grasshopper_branches": VALID_GRASSHOPPER_BRANCHES,
+                "metric_rows": [],
+                "score_matrix": {},
+                "evidence_geometry": {},
+                "adapter_capability_matrix": {
+                    "ready_handoffs": [
+                        "host_relationships",
+                        "route_topology_handoff",
+                        "visual_analysis_handoff",
+                        "material_calibration_handoff",
+                        "column_grid_handoff",
+                    ]
+                },
+                "notebook_audit_manifest": {"status": "ordered_clean_overlay"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": [],
+        "contract_id": "neutral_adapter_payload",
+        "contract_version": 1,
+        "record_count": 1,
+        "ready_handoff_count": 5,
+        "notebook_status": "ordered_clean_overlay",
+        "contract_errors": [
+            "external_refs missing reverse refs: rhino_guid:rhino-real->real_record"
+        ],
+    }
+
+
+def test_validate_adapter_payload_json_rejects_stale_reverse_external_refs(tmp_path):
+    target = tmp_path / "adapter_payload.json"
+    target.write_text(
+        json.dumps(
+            {
+                "handoff_contract": {
+                    "id": "neutral_adapter_payload",
+                    "version": 1,
+                },
+                "record_count": 1,
+                "scene_records": [
+                    {
+                        "id": "real_record",
+                        "adapter_refs": {"rhino_guid": "rhino-real"},
+                    }
+                ],
+                "external_refs": {"rhino_guid": {"rhino-stale": "real_record"}},
+                "grasshopper_branches": VALID_GRASSHOPPER_BRANCHES,
+                "metric_rows": [],
+                "score_matrix": {},
+                "evidence_geometry": {},
+                "adapter_capability_matrix": {
+                    "ready_handoffs": [
+                        "host_relationships",
+                        "route_topology_handoff",
+                        "visual_analysis_handoff",
+                        "material_calibration_handoff",
+                        "column_grid_handoff",
+                    ]
+                },
+                "notebook_audit_manifest": {"status": "ordered_clean_overlay"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_adapter_payload_json(target)
+
+    assert result == {
+        "valid": False,
+        "missing_keys": [],
+        "contract_id": "neutral_adapter_payload",
+        "contract_version": 1,
+        "record_count": 1,
+        "ready_handoff_count": 5,
+        "notebook_status": "ordered_clean_overlay",
+        "contract_errors": [
+            "external_refs stale reverse refs: rhino_guid:rhino-stale->real_record",
+            "external_refs missing reverse refs: rhino_guid:rhino-real->real_record",
+        ],
+    }
 
 
 def test_evaluate_scene_reports_adapter_reference_coverage():
     from features.affordance.models import Rect
 
-    def record(record_id, role, rect, *, adapter_refs=None):
+    def record(record_id, role, rect, *, adapter_refs=None, metadata=None):
         return {
             "id": record_id,
             "role": role,
@@ -149,7 +661,7 @@ def test_evaluate_scene_reports_adapter_reference_coverage():
                 "see_block": 0.0,
                 "grouping_strength": 0.0,
             },
-            "metadata": {},
+            "metadata": dict(metadata or {}),
             "adapter_refs": dict(adapter_refs or {}),
         }
 
@@ -219,7 +731,7 @@ def test_evaluate_scene_reports_adapter_reference_coverage():
 def test_evaluate_scene_exports_neutral_adapter_payload():
     from features.affordance.models import Rect
 
-    def record(record_id, role, rect, *, adapter_refs=None):
+    def record(record_id, role, rect, *, adapter_refs=None, metadata=None):
         return {
             "id": record_id,
             "role": role,
@@ -232,7 +744,7 @@ def test_evaluate_scene_exports_neutral_adapter_payload():
                 "see_block": 0.0,
                 "grouping_strength": 0.0,
             },
-            "metadata": {},
+            "metadata": dict(metadata or {}),
             "adapter_refs": dict(adapter_refs or {}),
         }
 
@@ -254,6 +766,30 @@ def test_evaluate_scene_exports_neutral_adapter_payload():
                 Rect(cx=50, cy=0, width=100, height=0),
                 adapter_refs={"ifc_guid": "ifc-wall"},
             ),
+            record(
+                "glass",
+                "boundary",
+                Rect(cx=70, cy=50, width=0, height=80),
+                metadata={"boundary-kind": "glass"},
+            ),
+            record(
+                "rug",
+                "boundary",
+                Rect(cx=50, cy=70, width=30, height=20),
+                metadata={"boundary-kind": "rug"},
+            ),
+            record(
+                "material",
+                "boundary",
+                Rect(cx=50, cy=80, width=30, height=0),
+                metadata={"boundary-kind": "material"},
+            ),
+            record(
+                "visual",
+                "boundary",
+                Rect(cx=20, cy=80, width=10, height=0),
+                metadata={"boundary-kind": "visual"},
+            ),
         ],
         "entries": [],
         "paths": [],
@@ -265,7 +801,7 @@ def test_evaluate_scene_exports_neutral_adapter_payload():
     payload = evaluate_scene(scene)["adapter_payload"]
 
     assert payload["source"] == "synthetic_adapter_payload"
-    assert payload["record_count"] == 2
+    assert payload["record_count"] == 6
     assert payload["external_refs"] == {
         "ifc_guid": {"ifc-wall": "wall"},
         "rhino_guid": {"rhino-table": "table"},
@@ -287,13 +823,142 @@ def test_evaluate_scene_exports_neutral_adapter_payload():
             "bbox": (0.0, 0.0, 100.0, 0.0),
             "adapter_refs": {"ifc_guid": "ifc-wall"},
         },
+        {
+            "id": "glass",
+            "role": "boundary",
+            "group": "global",
+            "region": "room",
+            "bbox": (70.0, 10.0, 70.0, 90.0),
+            "adapter_refs": {},
+            "metadata": {"boundary-kind": "glass"},
+        },
+        {
+            "id": "rug",
+            "role": "boundary",
+            "group": "global",
+            "region": "room",
+            "bbox": (35.0, 60.0, 65.0, 80.0),
+            "adapter_refs": {},
+            "metadata": {"boundary-kind": "rug"},
+        },
+        {
+            "id": "material",
+            "role": "boundary",
+            "group": "global",
+            "region": "room",
+            "bbox": (35.0, 80.0, 65.0, 80.0),
+            "adapter_refs": {},
+            "metadata": {"boundary-kind": "material"},
+        },
+        {
+            "id": "visual",
+            "role": "boundary",
+            "group": "global",
+            "region": "room",
+            "bbox": (15.0, 80.0, 25.0, 80.0),
+            "adapter_refs": {},
+            "metadata": {"boundary-kind": "visual"},
+        },
     ]
     assert {
         "view_id": "adapter_readiness",
         "metric": "adapter_reference_coverage",
-        "score": 1.0,
+        "score": 0.3333,
         "status": "computed",
     } in payload["metric_rows"]
+    assert payload["graph_namespaces"] == {
+        "walk_graph": {
+            "method": "boundary_weighted_bbox_touch_graph_proxy",
+            "node_count": 0,
+            "edge_count": 0,
+            "metrics": {
+                "entry_region_reachability": 0.0,
+                "component_count": 0,
+                "loop_count": 0,
+                "loop_ratio": 0.0,
+            },
+            "uncertainty": "bbox-touch modal graph for adapter handoff; not navmesh, hosted topology, or route certification",
+        },
+        "visibility_graph": {
+            "method": "line_of_sight_graph_edge_visibility_ratio",
+            "node_count": 0,
+            "edge_count": 0,
+            "metrics": {
+                "visible_edge_ratio": 0.0,
+                "blocked_edge_ratio": 0.0,
+                "blocking_boundary_count": 0,
+            },
+            "uncertainty": "centerline visibility graph for adapter handoff; not full VGA, isovist field, or calibrated visual integration",
+        },
+    }
+    assert payload["grasshopper_branches"][:2] == [
+        {
+            "path": "{0;objects;0}",
+            "kind": "object_record",
+            "id": "table",
+            "role": "table",
+        },
+        {
+            "path": "{0;boundaries;0}",
+            "kind": "boundary_record",
+            "id": "wall",
+            "role": "boundary",
+        },
+    ]
+    assert any(
+        branch["path"].startswith("{0;metrics;")
+        and branch["kind"] == "metric_row"
+        and branch["id"] == "adapter_readiness.adapter_reference_coverage"
+        for branch in payload["grasshopper_branches"]
+    )
+    assert {
+        "path": "{0;graphs;walk_graph}",
+        "kind": "graph_namespace",
+        "id": "walk_graph",
+    } in payload["grasshopper_branches"]
+    assert {
+        "path": "{0;graphs;visibility_graph}",
+        "kind": "graph_namespace",
+        "id": "visibility_graph",
+    } in payload["grasshopper_branches"]
+    assert payload["adapter_targets"] == {
+        "table": {
+            "neutral_target": "FurnitureObject",
+            "rhino_target": "ClosedCurve|Brep",
+            "grasshopper_branch": "{0;objects;0}",
+            "bim_target": "Furniture",
+        },
+        "wall": {
+            "neutral_target": "Boundary",
+            "rhino_target": "Curve|Brep",
+            "grasshopper_branch": "{0;boundaries;0}",
+            "bim_target": "Wall",
+        },
+        "glass": {
+            "neutral_target": "GlassBoundary",
+            "rhino_target": "Curve|Brep|GlassMaterial",
+            "grasshopper_branch": "{0;boundaries;1}",
+            "bim_target": "CurtainWall|Window",
+        },
+        "rug": {
+            "neutral_target": "BoundaryCue",
+            "rhino_target": "Curve|Hatch|Surface",
+            "grasshopper_branch": "{0;boundaries;2}",
+            "bim_target": "SurfaceFinish|Annotation",
+        },
+        "material": {
+            "neutral_target": "BoundaryCue",
+            "rhino_target": "Curve|Hatch|Surface",
+            "grasshopper_branch": "{0;boundaries;3}",
+            "bim_target": "SurfaceFinish|Annotation",
+        },
+        "visual": {
+            "neutral_target": "VisualBoundaryCue",
+            "rhino_target": "Curve|Annotation",
+            "grasshopper_branch": "{0;boundaries;4}",
+            "bim_target": "Annotation|ZoneBoundary",
+        },
+    }
 
 
 def test_adapter_payload_exports_proxy_geometry_evidence():
@@ -336,7 +1001,8 @@ def test_adapter_payload_exports_proxy_geometry_evidence():
         "uncertainties": [],
     }
 
-    geometry = evaluate_scene(scene)["adapter_payload"]["evidence_geometry"]
+    payload = evaluate_scene(scene)["adapter_payload"]
+    geometry = payload["evidence_geometry"]
 
     assert geometry["free_space_polygons"] == {
         "method": "room_polygon_rect_cell_free_space_polygons_proxy",
@@ -495,6 +1161,176 @@ def test_adapter_payload_exports_proxy_geometry_evidence():
         geometry["uncertainty"]
         == "proxy evidence geometry for adapter handoff; not CAD boolean topology, navmesh, or live Rhino/BIM geometry"
     )
+    route_handoff = payload["route_topology_handoff"]
+    assert route_handoff["cad_component_graph"]["items"] == {
+        "nodes": geometry["cad_room_minus_blocker_component_graph"]["nodes"],
+        "edges": geometry["cad_room_minus_blocker_component_graph"]["edges"],
+    }
+    assert route_handoff["free_space_polygon_graph"]["items"] == {
+        "nodes": geometry["free_space_polygon_graph"]["nodes"],
+        "edges": geometry["free_space_polygon_graph"]["edges"],
+    }
+    assert route_handoff == {
+        "method": "adapter_route_topology_handoff_from_existing_proxy_graphs",
+        "cad_component_graph": {
+            "method": "shapely_component_entry_region_touch_graph_proxy",
+            "node_count": 3,
+            "edge_count": 2,
+            "items": {
+                "nodes": geometry["cad_room_minus_blocker_component_graph"]["nodes"],
+                "edges": geometry["cad_room_minus_blocker_component_graph"]["edges"],
+            },
+        },
+        "free_space_polygon_graph": {
+            "method": "room_polygon_rect_cell_shared_edge_graph_proxy",
+            "node_count": 8,
+            "edge_count": 8,
+            "items": {
+                "nodes": geometry["free_space_polygon_graph"]["nodes"],
+                "edges": geometry["free_space_polygon_graph"]["edges"],
+            },
+        },
+        "inferred_gap_paths": {
+            "method": "affordance_region_bbox_axis_gap_band_proxy",
+            "count": len(
+                payload["evidence_geometry"]["inferred_region_gap_paths"]["items"]
+            ),
+            "clear_count": sum(
+                1
+                for item in payload["evidence_geometry"]["inferred_region_gap_paths"]["items"]
+                if item.get("clear_status") == "clear_proxy"
+            ),
+            "occupied_count": sum(
+                1
+                for item in payload["evidence_geometry"]["inferred_region_gap_paths"]["items"]
+                if item.get("clear_status") == "occupied_proxy"
+            ),
+            "items": payload["evidence_geometry"]["inferred_region_gap_paths"]["items"],
+        },
+        "inferred_gap_path_graph": {
+            "method": "inferred_gap_path_region_adjacency_graph_proxy",
+            "node_count": 0,
+            "edge_count": 0,
+            "clear_edge_count": 0,
+            "occupied_edge_count": 0,
+            "free_space_supported_edge_count": 0,
+            "walkable_proxy_edge_count": 0,
+            "walkable_proxy_min_thickness": None,
+            "walkable_proxy_mean_thickness": None,
+            "component_count": 0,
+            "walkable_proxy_component_count": 0,
+            "walkable_proxy_components": [],
+            "walkable_proxy_edges": [],
+            "walkable_proxy_edge_widths": [],
+            "minimum_width": 10.0,
+            "minimum_width_basis": "half_sampled_grid_resolution",
+            "minimum_width_evidence": ["center_table"],
+            "width_pass_edge_count": 0,
+            "width_fail_edge_count": 0,
+            "width_pass_edges": [],
+            "width_fail_edges": [],
+        },
+        "host_relationships": {
+            "method": "entry_boundary_associations_from_host_metadata_or_nearest_geometry",
+            "hosted_entry_count": 0,
+            "fallback_entry_count": 1,
+        },
+        "uncertainty": "route topology handoff only; replace proxy graphs with navmesh, medial-axis, skeleton, or hosted BIM topology in downstream adapters",
+    }
+
+
+def test_adapter_payload_exports_inferred_region_geometry_evidence():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_adapter_payload_inferred_regions",
+        "size": (360.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=70, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    geometry = evaluate_scene(scene)["adapter_payload"]["evidence_geometry"]
+
+    assert geometry["inferred_region_candidates"] == {
+        "count": 2,
+        "items": [
+            {
+                "id": "inferred_region_left",
+                "region": "left",
+                "bbox": (10.0, 20.0, 130.0, 140.0),
+                "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+                "member_ids": ["left_table"],
+                "affordance_zone_ids": [],
+                "boundary_cue_ids": [],
+                "spacing_side_margins": {
+                    "left": 20.0,
+                    "right": 20.0,
+                    "top": 20.0,
+                    "bottom": 20.0,
+                },
+            },
+            {
+                "id": "inferred_region_right",
+                "region": "right",
+                "bbox": (230.0, 20.0, 350.0, 140.0),
+                "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+                "member_ids": ["right_table"],
+                "affordance_zone_ids": [],
+                "boundary_cue_ids": [],
+                "spacing_side_margins": {
+                    "left": 20.0,
+                    "right": 20.0,
+                    "top": 20.0,
+                    "bottom": 20.0,
+                },
+            },
+        ],
+    }
+    assert geometry["inferred_region_gap_paths"] == {
+        "count": 1,
+        "items": [
+            {
+                "id": "inferred_gap_path_left__right",
+                "region_a": "inferred_region_left",
+                "region_b": "inferred_region_right",
+                "orientation": "vertical",
+                "bbox": (130.0, 20.0, 230.0, 140.0),
+                "thickness": 100.0,
+                "overlap_span": 120.0,
+                "occupied": False,
+                "occupancy_ratio": 0.0,
+                "occupied_area": 0,
+                "clear_status": "clear_proxy",
+                "free_space_overlap_ratio": 1.0,
+                "free_space_overlap_area": 12000.0,
+            }
+        ],
+    }
+
 
 def test_boundary_metrics_report_weight_metadata_coverage():
     from features.affordance.models import Rect
@@ -593,7 +1429,7 @@ def test_boundary_metrics_report_weight_metadata_coverage():
     }
 
 
-def test_region_membership_coverage_scores_objects_against_authored_regions():
+def test_region_membership_coverage_scores_objects_against_authored_and_inferred_regions():
     from features.affordance.models import Rect
 
     def record(record_id, role, region, rect):
@@ -637,7 +1473,7 @@ def test_region_membership_coverage_scores_objects_against_authored_regions():
         if row["metric"] == "object_region_membership_coverage"
     ][0]
 
-    assert row["score"] == 0.75
+    assert row["score"] == 0.8333
     assert row["method"] == "object_region_rect_or_polygon_overlap_area_ratio"
     assert row["object_region_membership_evidence"] == [
         {
@@ -654,18 +1490,1069 @@ def test_region_membership_coverage_scores_objects_against_authored_regions():
             "object_area": 5000,
             "score": 0.5,
         },
+        {
+            "object_id": "missing_region_table",
+            "region_id": "inferred_region_zone_missing",
+            "overlap_area": 2500,
+            "object_area": 2500,
+            "score": 1.0,
+        },
     ]
-    assert row["missing_region_evidence"] == ["missing_region_table"]
+    assert row["missing_region_evidence"] == []
     assignment = [
         row
         for row in matrix["rows"]
         if row["metric"] == "object_region_assignment_coverage"
     ][0]
-    assert assignment["score"] == 0.6667
+    assert assignment["score"] == 1.0
     assert assignment["method"] == "objects_with_matching_region_records_ratio"
-    assert assignment["matched_object_count"] == 2
+    assert assignment["matched_object_count"] == 3
     assert assignment["total_object_count"] == 3
-    assert assignment["missing_region_evidence"] == ["missing_region_table"]
+    assert assignment["missing_region_evidence"] == []
+
+
+def test_evaluate_scene_infers_regions_from_affordance_expanded_group_bounds():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, affordance=None, region=None):
+        metadata = {"role": role, "region": group}
+        if affordance:
+            metadata.update(
+                {
+                    "affordance-left": str(affordance.get("left", 0.0)),
+                    "affordance-right": str(affordance.get("right", 0.0)),
+                    "affordance-top": str(affordance.get("top", 0.0)),
+                    "affordance-bottom": str(affordance.get("bottom", 0.0)),
+                }
+            )
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": region or group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_affordance_inferred_regions",
+        "size": (420.0, 180.0),
+        "objects": [
+            record(
+                "west_table",
+                "table",
+                "west_lounge",
+                Rect(cx=70, cy=80, width=80, height=50),
+            ),
+            record(
+                "west_chair",
+                "chair",
+                "west_lounge",
+                Rect(cx=70, cy=135, width=40, height=30),
+                affordance={"bottom": 25},
+            ),
+            record(
+                "east_table",
+                "table",
+                "east_lounge",
+                Rect(cx=310, cy=80, width=80, height=50),
+            ),
+            record(
+                "east_chair",
+                "chair",
+                "east_lounge",
+                Rect(cx=310, cy=135, width=40, height=30),
+                affordance={"bottom": 25},
+            ),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    assert matrix["inferred_regions"] == [
+        {
+            "id": "inferred_region_east_lounge",
+            "role": "region",
+            "group": "east_lounge",
+            "region": "east_lounge",
+            "rect": Rect(cx=310.0, cy=102.5, width=140.0, height=155.0),
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+                "metadata": {
+                    "inferred": "true",
+                    "level": "activity_region_candidate",
+                    "source": "affordance_zone_boundary_cue_expanded_group_bounds",
+                    "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+                    "member_ids": "east_chair,east_table",
+                    "child_extent_ids": (
+                        "furniture_affordance_extent_east_chair,"
+                        "furniture_affordance_extent_east_table"
+                    ),
+                    "affordance_zone_ids": "affordance_zone_east_chair_bottom",
+                    "boundary_cue_ids": "",
+                    "spacing_margin": "30.0",
+                "spacing_side_margins": "left:30.0,right:30.0,top:30.0,bottom:5.0",
+            },
+            "adapter_refs": {},
+        },
+        {
+            "id": "inferred_region_west_lounge",
+            "role": "region",
+            "group": "west_lounge",
+            "region": "west_lounge",
+            "rect": Rect(cx=70.0, cy=102.5, width=140.0, height=155.0),
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+                "metadata": {
+                    "inferred": "true",
+                    "level": "activity_region_candidate",
+                    "source": "affordance_zone_boundary_cue_expanded_group_bounds",
+                    "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+                    "member_ids": "west_chair,west_table",
+                    "child_extent_ids": (
+                        "furniture_affordance_extent_west_chair,"
+                        "furniture_affordance_extent_west_table"
+                    ),
+                    "affordance_zone_ids": "affordance_zone_west_chair_bottom",
+                    "boundary_cue_ids": "",
+                    "spacing_margin": "30.0",
+                "spacing_side_margins": "left:30.0,right:30.0,top:30.0,bottom:5.0",
+            },
+            "adapter_refs": {},
+        },
+    ]
+
+    inference_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_count"
+    ][0]
+    assert inference_row == {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_count",
+        "score": 2,
+        "status": "computed",
+        "method": "affordance_zone_boundary_cue_expanded_group_bounds",
+        "evidence": [
+            "inferred_region_east_lounge",
+            "inferred_region_west_lounge",
+        ],
+        "inferred_region_evidence": [
+            {
+                "region": "east_lounge",
+                "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+                "member_ids": ["east_chair", "east_table"],
+                "affordance_zone_ids": ["affordance_zone_east_chair_bottom"],
+                "boundary_cue_ids": [],
+                "spacing_side_margins": {
+                    "left": 30.0,
+                    "right": 30.0,
+                    "top": 30.0,
+                    "bottom": 5.0,
+                },
+                "bbox": (240.0, 25.0, 380.0, 180.0),
+            },
+            {
+                "region": "west_lounge",
+                "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+                "member_ids": ["west_chair", "west_table"],
+                "affordance_zone_ids": ["affordance_zone_west_chair_bottom"],
+                "boundary_cue_ids": [],
+                "spacing_side_margins": {
+                    "left": 30.0,
+                    "right": 30.0,
+                    "top": 30.0,
+                    "bottom": 5.0,
+                },
+                "bbox": (0.0, 25.0, 140.0, 180.0),
+            },
+        ],
+        "uncertainty": "candidate regions inferred from furniture footprint, affordance extents, and same-region boundary cues; bbox proxy, not alpha-shape or perception-calibrated region discovery",
+    }
+
+    membership = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "object_region_membership_coverage"
+    ][0]
+    assert membership["score"] == 1.0
+    assert membership["missing_region_evidence"] == []
+
+
+def test_evaluate_scene_exposes_affordance_use_zones_separate_from_footprints():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, affordance=None, region=None):
+        metadata = {"role": role, "region": group}
+        if affordance:
+            for side, value in affordance.items():
+                metadata[f"affordance-{side}"] = str(value)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": region or group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_affordance_use_zones",
+        "size": (160.0, 180.0),
+        "objects": [
+            record("table", "table", "lounge", Rect(cx=80, cy=60, width=80, height=40)),
+            record(
+                "chair",
+                "chair",
+                "lounge",
+                Rect(cx=80, cy=115, width=40, height=30),
+                affordance={"bottom": 25},
+            ),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "affordance_use_zone_count"
+    ][0]
+
+    assert matrix["affordance_zones"] == [
+        {
+            "id": "affordance_zone_chair_bottom",
+            "object_id": "chair",
+            "region": "lounge",
+            "side": "bottom",
+            "depth": 25.0,
+            "source": "explicit_affordance_metadata",
+            "rect": Rect(cx=80.0, cy=142.5, width=40.0, height=25.0),
+            "footprint_rect": Rect(cx=80, cy=115, width=40, height=30),
+        }
+    ]
+    candidate = matrix["inferred_region_candidates"][0]
+    assert candidate["metadata"]["affordance_zone_ids"] == "affordance_zone_chair_bottom"
+    assert candidate["metadata"]["source"] == "affordance_zone_boundary_cue_expanded_group_bounds"
+    assert candidate["metadata"]["geometry_basis"] == "object_footprints_plus_affordance_zone_rects"
+    assert row == {
+        "view_id": "region_alignment",
+        "metric": "affordance_use_zone_count",
+        "score": 1,
+        "status": "computed",
+        "method": "object_footprint_adjacent_affordance_rect_zones",
+        "evidence": ["affordance_zone_chair_bottom"],
+        "affordance_use_zone_evidence": [
+            {
+                "id": "affordance_zone_chair_bottom",
+                "object_id": "chair",
+                "region": "lounge",
+                "side": "bottom",
+                "depth": 25.0,
+                "source": "explicit_affordance_metadata",
+                "zone_bbox": (60.0, 130.0, 100.0, 155.0),
+                "footprint_bbox": (60, 100, 100, 130),
+            }
+        ],
+        "uncertainty": "axis-aligned affordance use zones separate furniture footprints from occupied/use space; proxy, not posture simulation or swept human motion",
+    }
+    geometry = matrix["adapter_payload"]["evidence_geometry"]
+    assert geometry["affordance_zones"] == {
+        "count": 1,
+        "items": [
+            {
+                "id": "affordance_zone_chair_bottom",
+                "object_id": "chair",
+                "region": "lounge",
+                "side": "bottom",
+                "depth": 25.0,
+                "source": "explicit_affordance_metadata",
+                "zone_bbox": (60.0, 130.0, 100.0, 155.0),
+                "footprint_bbox": (60, 100, 100, 130),
+            }
+        ],
+    }
+    svg = scene_metric_overlay_svg(scene, matrix)
+    assert 'data-layer="affordance-use-zone"' in svg
+    assert 'data-affordance-zone="affordance_zone_chair_bottom"' in svg
+    assert 'data-object="chair"' in svg
+
+
+def test_evaluate_scene_exposes_furniture_affordance_extents_to_matrix_payload_and_overlay():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, affordance=None):
+        metadata = {"role": role, "region": group}
+        if affordance:
+            metadata.update(affordance)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_furniture_extent_outputs",
+        "size": (160.0, 180.0),
+        "objects": [
+            record("table", "table", "lounge", Rect(cx=80, cy=60, width=80, height=40)),
+            record(
+                "chair",
+                "chair",
+                "lounge",
+                Rect(cx=80, cy=115, width=40, height=30),
+                affordance={"affordance-bottom": "25"},
+            ),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "furniture_affordance_extent_count"
+    ][0]
+    geometry = matrix["adapter_payload"]["evidence_geometry"]
+    svg = scene_metric_overlay_svg(scene, matrix)
+
+    assert matrix["furniture_affordance_extents"][0]["id"] == (
+        "furniture_affordance_extent_chair"
+    )
+    assert row["furniture_affordance_extent_evidence"][0] == {
+        "id": "furniture_affordance_extent_chair",
+        "object_id": "chair",
+        "region": "lounge",
+        "bbox": (60.0, 100, 100.0, 155.0),
+        "footprint_bbox": (60, 100, 100, 130),
+        "affordance_zone_ids": ["affordance_zone_chair_bottom"],
+    }
+    assert geometry["furniture_affordance_extents"]["items"][0] == (
+        row["furniture_affordance_extent_evidence"][0]
+    )
+    assert 'data-layer="furniture-affordance-extent"' in svg
+    assert 'data-extent="furniture_affordance_extent_chair"' in svg
+    assert 'data-object="chair"' in svg
+
+
+def test_evaluate_scene_uses_default_affordance_profile_for_inferred_regions():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, type_id=None, affordance_bottom=None):
+        metadata = {"role": role, "region": group}
+        if type_id:
+            metadata["type_id"] = type_id
+        if affordance_bottom is not None:
+            metadata["affordance-bottom"] = str(affordance_bottom)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    base_scene = {
+        "source": "synthetic_profile_affordance_inferred_region",
+        "size": (180.0, 200.0),
+        "objects": [
+            record("table", "table", "dining", Rect(cx=80, cy=60, width=80, height=40)),
+            record(
+                "chair",
+                "chair",
+                "dining",
+                Rect(cx=80, cy=115, width=40, height=30),
+                type_id="chair.default",
+            ),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(base_scene)
+
+    assert matrix["inferred_regions"][0]["rect"] == Rect(
+        cx=80.0,
+        cy=105.0,
+        width=80.0,
+        height=130.0,
+    )
+
+    override_scene = {
+        **base_scene,
+        "objects": [
+            base_scene["objects"][0],
+            record(
+                "chair",
+                "chair",
+                "dining",
+                Rect(cx=80, cy=115, width=40, height=30),
+                type_id="chair.default",
+                affordance_bottom=20,
+            ),
+        ],
+    }
+    matrix = evaluate_scene(override_scene)
+
+    assert matrix["inferred_regions"][0]["rect"] == Rect(
+        cx=80.0,
+        cy=95.0,
+        width=80.0,
+        height=110.0,
+    )
+
+
+def test_evaluate_scene_orients_default_chair_affordance_for_inferred_regions():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, orientation=0.0):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {
+                "role": role,
+                "region": group,
+                "type_id": "chair.default" if role == "chair" else "furniture.default",
+                "orientation": str(orientation),
+            },
+        }
+
+    scene = {
+        "source": "synthetic_oriented_profile_affordance_inferred_region",
+        "size": (220.0, 180.0),
+        "objects": [
+            record("chair", "chair", "reading", Rect(cx=80, cy=80, width=40, height=30), orientation=90),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    assert matrix["inferred_regions"][0]["rect"] == Rect(
+        cx=100.0,
+        cy=80.0,
+        width=80.0,
+        height=30.0,
+    )
+
+
+def test_evaluate_scene_uses_armchair_profile_for_armchair_regions():
+    from features.affordance.models import Rect
+
+    scene = {
+        "source": "synthetic_armchair_profile_affordance_inferred_region",
+        "size": (180.0, 180.0),
+        "objects": [
+            {
+                "id": "armchair",
+                "role": "armchair",
+                "group": "reading",
+                "region": "reading",
+                "rect": Rect(cx=80, cy=80, width=50, height=40),
+                "points": [],
+                "weights": {
+                    "walk_block": 0.0,
+                    "see_block": 0.0,
+                    "grouping_strength": 0.0,
+                },
+                "metadata": {"role": "armchair", "region": "reading"},
+            }
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    assert [
+        (zone["id"], zone["side"], zone["depth"], zone["source"])
+        for zone in matrix["affordance_zones"]
+    ] == [
+        ("affordance_zone_armchair_left", "left", 15.0, "affordance_profile"),
+        ("affordance_zone_armchair_right", "right", 15.0, "affordance_profile"),
+        ("affordance_zone_armchair_top", "top", 15.0, "affordance_profile"),
+        ("affordance_zone_armchair_bottom", "bottom", 15.0, "affordance_profile"),
+    ]
+    assert matrix["inferred_regions"][0]["rect"] == Rect(
+        cx=80.0,
+        cy=80.0,
+        width=80.0,
+        height=70.0,
+    )
+
+
+def test_evaluate_scene_uses_podium_profile_for_work_regions():
+    from features.affordance.models import Rect
+
+    scene = {
+        "source": "synthetic_podium_profile_affordance_inferred_region",
+        "size": (240.0, 260.0),
+        "objects": [
+            {
+                "id": "podium",
+                "role": "podium",
+                "group": "work",
+                "region": "work",
+                "rect": Rect(cx=120, cy=120, width=100, height=50),
+                "points": [],
+                "weights": {
+                    "walk_block": 0.0,
+                    "see_block": 0.0,
+                    "grouping_strength": 0.0,
+                },
+                "metadata": {"role": "podium", "region": "work"},
+            }
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    assert matrix["affordance_zones"] == [
+        {
+            "id": "affordance_zone_podium_bottom",
+            "object_id": "podium",
+            "region": "work",
+            "side": "bottom",
+            "depth": 80.0,
+            "source": "affordance_profile",
+            "rect": Rect(cx=120.0, cy=185.0, width=100.0, height=80.0),
+            "footprint_rect": Rect(cx=120, cy=120, width=100, height=50),
+        }
+    ]
+    assert matrix["inferred_regions"][0]["rect"] == Rect(
+        cx=120.0,
+        cy=160.0,
+        width=100.0,
+        height=130.0,
+    )
+
+
+def test_evaluate_scene_expands_inferred_region_with_same_region_boundary_cues():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, region, rect, *, affordance_bottom=0.0, grouping_strength=0.0):
+        metadata = {"role": role, "region": region}
+        if affordance_bottom:
+            metadata["affordance-bottom"] = str(affordance_bottom)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": region,
+            "region": region,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": grouping_strength,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_boundary_cue_inferred_region",
+        "size": (220.0, 220.0),
+        "objects": [
+            record("table", "table", "lounge", Rect(cx=100, cy=80, width=60, height=40)),
+            record(
+                "chair",
+                "chair",
+                "lounge",
+                Rect(cx=100, cy=130, width=40, height=30),
+                affordance_bottom=20,
+            ),
+        ],
+        "regions": [],
+        "boundaries": [
+            record(
+                "rug_edge",
+                "boundary",
+                "lounge",
+                Rect(cx=100, cy=105, width=120, height=140),
+                grouping_strength=0.8,
+            ),
+            record(
+                "room_edge",
+                "boundary",
+                "room",
+                Rect(cx=110, cy=110, width=220, height=220),
+                grouping_strength=1.0,
+            ),
+        ],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    assert matrix["inferred_regions"][0]["rect"] == Rect(
+        cx=100.0,
+        cy=105.0,
+        width=120.0,
+        height=140.0,
+    )
+    assert matrix["inferred_regions"][0]["metadata"]["boundary_cue_ids"] == "rug_edge"
+    inference_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_count"
+    ][0]
+    assert inference_row["inferred_region_evidence"] == [
+        {
+            "region": "lounge",
+            "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+            "member_ids": ["chair", "table"],
+            "affordance_zone_ids": ["affordance_zone_chair_bottom"],
+            "boundary_cue_ids": ["rug_edge"],
+            "bbox": (40.0, 35.0, 160.0, 175.0),
+        }
+    ]
+
+
+def test_evaluate_scene_adds_no_cue_spacing_margin_without_swallowing_gap_path():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_spacing_margin_inferred_regions",
+        "size": (360.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=70, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    inferred = {region["region"]: region for region in matrix["inferred_regions"]}
+
+    assert inferred["left"]["rect"] == Rect(cx=70.0, cy=80.0, width=120.0, height=120.0)
+    assert inferred["left"]["metadata"]["spacing_margin"] == "20.0"
+    assert inferred["left"]["metadata"]["spacing_side_margins"] == (
+        "left:20.0,right:20.0,top:20.0,bottom:20.0"
+    )
+    assert inferred["right"]["rect"] == Rect(cx=290.0, cy=80.0, width=120.0, height=120.0)
+    assert inferred["right"]["metadata"]["spacing_margin"] == "20.0"
+    assert inferred["right"]["metadata"]["spacing_side_margins"] == (
+        "left:20.0,right:20.0,top:20.0,bottom:20.0"
+    )
+
+    gap_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_count"
+    ][0]
+    assert gap_row["inferred_region_gap_path_evidence"] == [
+        {
+            "id": "inferred_gap_path_left__right",
+            "region_a": "inferred_region_left",
+            "region_b": "inferred_region_right",
+            "orientation": "vertical",
+            "bbox": (130.0, 20.0, 230.0, 140.0),
+            "thickness": 100.0,
+            "overlap_span": 120.0,
+        }
+    ]
+
+
+def test_evaluate_scene_uses_member_spacing_margin_for_large_repeated_groups():
+    from features.affordance.models import Rect
+
+    def record(record_id, group, rect):
+        return {
+            "id": record_id,
+            "role": "table",
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": "table", "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_large_repeated_group_spacing_margin",
+        "size": (1000.0, 700.0),
+        "objects": [
+            record("r1_c1", "north_tables", Rect(cx=185, cy=215, width=150, height=56)),
+            record("r1_c2", "north_tables", Rect(cx=500, cy=215, width=150, height=56)),
+            record("r1_c3", "north_tables", Rect(cx=815, cy=215, width=150, height=56)),
+            record("r2_c1", "north_tables", Rect(cx=185, cy=465, width=150, height=56)),
+            record("r2_c2", "north_tables", Rect(cx=500, cy=465, width=150, height=56)),
+            record("r2_c3", "north_tables", Rect(cx=815, cy=465, width=150, height=56)),
+            record("south_table", "south", Rect(cx=950, cy=650, width=40, height=40)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    region = {item["region"]: item for item in matrix["inferred_regions"]}["north_tables"]
+
+    assert region["metadata"]["spacing_margin"] == "41.25"
+    assert region["metadata"]["spacing_side_margins"] == (
+        "left:41.25,right:41.25,top:41.25,bottom:41.25"
+    )
+    assert region["rect"] == Rect(cx=500.0, cy=340.0, width=862.5, height=388.5)
+
+
+def test_evaluate_scene_clamps_spacing_margin_to_scene_bounds():
+    from features.affordance.models import Rect
+
+    def record(record_id, group, rect):
+        return {
+            "id": record_id,
+            "role": "table",
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": "table", "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_spacing_margin_scene_bounds",
+        "size": (200.0, 100.0),
+        "objects": [
+            record("left_table", "left", Rect(cx=20, cy=50, width=40, height=40)),
+            record("right_table", "right", Rect(cx=160, cy=50, width=40, height=40)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    inferred = {region["region"]: region for region in matrix["inferred_regions"]}
+
+    assert inferred["left"]["rect"].left == 0.0
+    assert inferred["left"]["metadata"]["spacing_side_margins"] == (
+        "left:0.0,right:10.0,top:10.0,bottom:10.0"
+    )
+    assert inferred["right"]["rect"].right == 190.0
+    assert inferred["right"]["metadata"]["spacing_side_margins"] == (
+        "left:10.0,right:10.0,top:10.0,bottom:10.0"
+    )
+
+
+def test_evaluate_scene_keeps_base_candidate_when_spacing_margin_worsens_explicit_iou():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_spacing_margin_iou_guard",
+        "size": (240.0, 120.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=60, cy=60, width=60, height=60)),
+            record("right_table", "table", "right", Rect(cx=180, cy=60, width=60, height=60)),
+        ],
+        "regions": [
+            record("region_left", "region", "left", Rect(cx=60, cy=60, width=60, height=60)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    candidates = {region["region"]: region for region in matrix["inferred_region_candidates"]}
+
+    assert candidates["left"]["rect"] == Rect(cx=60.0, cy=60.0, width=60.0, height=60.0)
+    assert "spacing_margin" not in candidates["left"]["metadata"]
+    assert candidates["right"]["rect"] == Rect(cx=180.0, cy=60.0, width=90.0, height=90.0)
+
+
+def test_evaluate_scene_compares_inferred_region_candidates_to_explicit_regions():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, region, rect, *, affordance_bottom=0.0):
+        metadata = {"role": role, "region": region}
+        if affordance_bottom:
+            metadata["affordance-bottom"] = str(affordance_bottom)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": region,
+            "region": region,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_explicit_region_alignment",
+        "size": (160.0, 160.0),
+        "objects": [
+            record("table", "table", "lounge", Rect(cx=80, cy=60, width=80, height=40)),
+            record(
+                "chair",
+                "chair",
+                "lounge",
+                Rect(cx=80, cy=115, width=40, height=30),
+                affordance_bottom=25,
+            ),
+        ],
+        "regions": [
+            record("region_lounge", "region", "lounge", Rect(cx=80, cy=97.5, width=80, height=115)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    alignment = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_explicit_iou_mean"
+    ][0]
+    assert alignment == {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_explicit_iou_mean",
+        "score": 1.0,
+        "status": "computed",
+        "method": "affordance_expanded_candidate_region_to_explicit_region_iou",
+        "evidence": ["lounge"],
+        "inferred_region_explicit_iou_evidence": [
+            {
+                "region": "lounge",
+                "explicit_region_id": "region_lounge",
+                "candidate_bbox": (40.0, 40.0, 120.0, 155.0),
+                "explicit_bbox": (40.0, 40.0, 120.0, 155.0),
+                "candidate_boundary_cue_ids": [],
+                "candidate_has_boundary_cue": False,
+                "candidate_area": 9200.0,
+                "explicit_area": 9200.0,
+                "intersection_area": 9200.0,
+                "union_area": 9200.0,
+                "iou": 1.0,
+                "missing_explicit_area": 0.0,
+                "overflow_candidate_area": 0.0,
+                "missing_explicit_area_ratio": 0.0,
+                "overflow_candidate_area_ratio": 0.0,
+                "dominant_mismatch": "aligned",
+            }
+        ],
+        "uncertainty": "compares affordance-expanded candidate bbox with explicit region geometry; bbox IoU proxy, not semantic region validation",
+    }
+
+
+def test_evaluate_scene_explains_inferred_region_explicit_mismatch():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, region, rect, *, affordance_bottom=0.0):
+        metadata = {"role": role, "region": region}
+        if affordance_bottom:
+            metadata["affordance-bottom"] = str(affordance_bottom)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": region,
+            "region": region,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_explicit_region_mismatch",
+        "size": (180.0, 180.0),
+        "objects": [
+            record("table", "table", "lounge", Rect(cx=80, cy=60, width=80, height=40)),
+            record(
+                "chair",
+                "chair",
+                "lounge",
+                Rect(cx=80, cy=115, width=40, height=30),
+                affordance_bottom=25,
+            ),
+        ],
+        "regions": [
+            record("region_lounge", "region", "lounge", Rect(cx=80, cy=100, width=120, height=140)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    alignment = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_explicit_iou_mean"
+    ][0]
+    assert alignment["score"] == 0.5476
+    assert alignment["inferred_region_explicit_iou_evidence"] == [
+        {
+            "region": "lounge",
+            "explicit_region_id": "region_lounge",
+            "candidate_bbox": (40.0, 40.0, 120.0, 155.0),
+            "explicit_bbox": (20.0, 30.0, 140.0, 170.0),
+            "candidate_boundary_cue_ids": [],
+            "candidate_has_boundary_cue": False,
+            "candidate_area": 9200.0,
+            "explicit_area": 16800.0,
+            "intersection_area": 9200.0,
+            "union_area": 16800.0,
+            "iou": 0.5476,
+            "missing_explicit_area": 7600.0,
+            "overflow_candidate_area": 0.0,
+            "missing_explicit_area_ratio": 0.4524,
+            "overflow_candidate_area_ratio": 0.0,
+            "dominant_mismatch": "candidate_underfills_explicit",
+        }
+    ]
 
 
 def test_scene_metric_overlay_marks_objects_with_missing_region_records():
@@ -679,7 +2566,7 @@ def test_scene_metric_overlay_marks_objects_with_missing_region_records():
                 "id": "orphan_table",
                 "role": "table",
                 "group": "orphan",
-                "region": "orphan_region",
+                "region": "",
                 "rect": Rect(cx=25, cy=25, width=20, height=20),
                 "points": [],
                 "weights": {
@@ -687,7 +2574,7 @@ def test_scene_metric_overlay_marks_objects_with_missing_region_records():
                     "see_block": 0.0,
                     "grouping_strength": 0.0,
                 },
-                "metadata": {"role": "table", "region": "orphan_region"},
+                "metadata": {"role": "table", "region": ""},
             }
         ],
         "regions": [],
@@ -703,7 +2590,1450 @@ def test_scene_metric_overlay_marks_objects_with_missing_region_records():
 
     assert 'data-layer="object-missing-region"' in svg
     assert 'data-object="orphan_table"' in svg
-    assert 'data-region-key="orphan_region"' in svg
+    assert 'data-region-key=""' in svg
+
+
+def test_scene_metric_overlay_draws_inferred_regions():
+    from features.affordance.models import Rect
+
+    scene = {
+        "source": "synthetic_inferred_region_overlay",
+        "size": (120.0, 100.0),
+        "objects": [
+            {
+                "id": "chair",
+                "role": "chair",
+                "group": "lounge",
+                "region": "lounge",
+                "rect": Rect(cx=50, cy=50, width=20, height=20),
+                "points": [],
+                "weights": {
+                    "walk_block": 0.0,
+                    "see_block": 0.0,
+                    "grouping_strength": 0.0,
+                },
+                "metadata": {
+                    "region": "lounge",
+                    "affordance-bottom": "20",
+                },
+            }
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    svg = scene_metric_overlay_svg(scene, matrix)
+
+    assert 'data-layer="inferred-region"' in svg
+    assert 'data-region="lounge"' in svg
+    assert 'data-source="affordance_zone_boundary_cue_expanded_group_bounds"' in svg
+
+
+def test_scene_metric_overlay_draws_inferred_region_candidates_with_explicit_regions():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, region, rect, *, affordance_bottom=0.0):
+        metadata = {"role": role, "region": region}
+        if affordance_bottom:
+            metadata["affordance-bottom"] = str(affordance_bottom)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": region,
+            "region": region,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_inferred_region_candidate_overlay",
+        "size": (160.0, 160.0),
+        "objects": [
+            record("table", "table", "lounge", Rect(cx=80, cy=60, width=80, height=40)),
+            record(
+                "chair",
+                "chair",
+                "lounge",
+                Rect(cx=80, cy=115, width=40, height=30),
+                affordance_bottom=25,
+            ),
+        ],
+        "regions": [
+            record("region_lounge", "region", "lounge", Rect(cx=80, cy=97.5, width=80, height=115)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    svg = scene_metric_overlay_svg(scene, matrix)
+
+    assert matrix["inferred_regions"] == []
+    candidate_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_candidate_count"
+    ][0]
+    assert candidate_row == {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_candidate_count",
+        "score": 1,
+        "status": "computed",
+        "method": "affordance_zone_boundary_cue_expanded_group_candidate_bounds",
+        "evidence": ["inferred_region_lounge"],
+        "inferred_region_candidate_evidence": [
+            {
+                "region": "lounge",
+                "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+                "member_ids": ["chair", "table"],
+                "affordance_zone_ids": ["affordance_zone_chair_bottom"],
+                "boundary_cue_ids": [],
+                "bbox": (40.0, 40.0, 120.0, 155.0),
+            }
+        ],
+        "uncertainty": "candidate regions inferred from furniture footprint, affordance extents, same-region boundary cues, and spacing margins; bbox proxy, not alpha-shape or perception-calibrated region discovery",
+    }
+    assert 'data-layer="inferred-region-candidate"' in svg
+    assert 'data-region="lounge"' in svg
+    assert 'data-candidate="inferred_region_lounge"' in svg
+
+
+def test_evaluate_scene_infers_thick_gap_path_between_affordance_regions():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, affordance=None):
+        metadata = {"role": role, "region": group}
+        if affordance:
+            for side, value in affordance.items():
+                metadata[f"affordance-{side}"] = str(value)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_affordance_gap_path",
+        "size": (260.0, 180.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=60, cy=70, width=60, height=40)),
+            record(
+                "left_chair",
+                "chair",
+                "left",
+                Rect(cx=60, cy=120, width=40, height=30),
+                affordance={"bottom": 20},
+            ),
+            record("right_table", "table", "right", Rect(cx=200, cy=70, width=60, height=40)),
+            record(
+                "right_chair",
+                "chair",
+                "right",
+                Rect(cx=200, cy=120, width=40, height=30),
+                affordance={"bottom": 20},
+            ),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    gap_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_count"
+    ][0]
+    assert gap_row == {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_gap_path_count",
+        "score": 1,
+        "status": "computed",
+        "method": "affordance_region_bbox_axis_gap_band_proxy",
+        "evidence": ["inferred_gap_path_left__right"],
+        "inferred_region_gap_path_evidence": [
+                {
+                    "id": "inferred_gap_path_left__right",
+                    "region_a": "inferred_region_left",
+                    "region_b": "inferred_region_right",
+                    "orientation": "vertical",
+                    "bbox": (110.0, 23.75, 150.0, 180.0),
+                    "thickness": 40.0,
+                    "overlap_span": 156.25,
+                }
+            ],
+            "uncertainty": "candidate path bands inferred from gaps between affordance-expanded region bboxes; proxy, not navmesh, medial axis, or route certification",
+        }
+
+    svg = scene_metric_overlay_svg(scene, matrix)
+    assert 'data-layer="inferred-gap-path"' in svg
+    assert 'data-gap-path="inferred_gap_path_left__right"' in svg
+    assert 'data-thickness="40.0000"' in svg
+
+
+def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extents():
+    """Activity groups expose union envelopes plus separate overlap evidence."""
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, affordance=None):
+        """Create a minimal neutral object record for activity group tests."""
+        metadata = {"role": role, "region": group}
+        if affordance:
+            for side, value in affordance.items():
+                metadata[f"affordance-{side}"] = str(value)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_activity_group_skeleton",
+        "size": (220.0, 180.0),
+        "objects": [
+            record("table", "table", "dining", Rect(cx=90, cy=70, width=80, height=40)),
+            record(
+                "chair",
+                "chair",
+                "dining",
+                Rect(cx=90, cy=115, width=40, height=30),
+                affordance={"bottom": 20},
+            ),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    activity_groups = matrix["adapter_payload"]["evidence_geometry"]["activity_groups"]["items"]
+
+    assert activity_groups == [
+        {
+            "id": "activity_group_dining",
+            "region": "dining",
+            "member_ids": ["chair", "table"],
+            "furniture_affordance_extent_ids": [
+                "furniture_affordance_extent_chair",
+                "furniture_affordance_extent_table",
+            ],
+            "bbox": (50.0, 50.0, 130.0, 150.0),
+            "overlap_evidence": [
+                {
+                    "a": "furniture_affordance_extent_chair",
+                    "b": "furniture_affordance_extent_table",
+                    "overlap_area": 0.0,
+                }
+            ],
+            "metadata": {
+                "level": "activity_group",
+                "source": "semantic_region_grouped_furniture_affordance_extents",
+                "geometry_basis": "union_envelope_of_member_furniture_affordance_extents",
+            },
+        }
+    ]
+    assert matrix["adapter_payload"]["evidence_geometry"]["activity_groups"] == {
+        "count": 1,
+        "items": activity_groups,
+    }
+
+
+def test_evaluate_scene_exposes_shared_spatial_network_schema():
+    """Internal and inter-region networks use one shared evidence schema."""
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect):
+        """Create a minimal neutral object record for spatial network tests."""
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_spatial_network_skeleton",
+        "size": (260.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=60, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=200, cy=80, width=80, height=80)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    networks = matrix["spatial_networks"]
+    schema_keys = {"id", "scope", "nodes", "edges", "components", "metadata"}
+
+    assert [network["scope"] for network in networks] == [
+        "region_internal",
+        "region_internal",
+        "inter_region",
+    ]
+    assert all(set(network) == schema_keys for network in networks)
+    assert networks[-1]["edges"] == [
+        {
+            "id": "inferred_gap_path_left__right",
+            "a": "inferred_region_left",
+            "b": "inferred_region_right",
+            "kind": "gap_path",
+            "thickness": 30.0,
+        }
+    ]
+    assert matrix["adapter_payload"]["evidence_geometry"]["spatial_networks"] == {
+        "count": 3,
+        "items": networks,
+    }
+
+
+def test_evaluate_scene_exposes_boundary_semantic_profiles():
+    """Boundary semantics normalize walk, visibility, thickness, and openings."""
+    from features.affordance.models import Rect
+
+    def boundary(record_id, kind, rect, *, walk, see, grouping, thickness):
+        """Create a minimal neutral boundary record for semantic profile tests."""
+        return {
+            "id": record_id,
+            "role": "boundary",
+            "group": "global",
+            "region": "global",
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": walk,
+                "see_block": see,
+                "grouping_strength": grouping,
+            },
+            "metadata": {
+                "role": "boundary",
+                "boundary-kind": kind,
+                "thickness": str(thickness),
+            },
+        }
+
+    scene = {
+        "source": "synthetic_boundary_semantics",
+        "size": (220.0, 140.0),
+        "objects": [],
+        "regions": [],
+        "boundaries": [
+            boundary("rug_edge", "rug", Rect(cx=60, cy=60, width=80, height=0), walk=0.0, see=0.0, grouping=0.85, thickness=0),
+            boundary("low_cabinet", "cabinet", Rect(cx=120, cy=60, width=80, height=20), walk=1.0, see=0.35, grouping=0.65, thickness=20),
+            boundary("glass_wall", "glass", Rect(cx=180, cy=60, width=80, height=3), walk=1.0, see=0.15, grouping=0.4, thickness=3),
+        ],
+        "entries": [
+            {
+                "id": "cabinet_opening",
+                "role": "opening",
+                "group": "global",
+                "region": "global",
+                "rect": Rect(cx=120, cy=60, width=30, height=20),
+                "points": [],
+                "weights": {
+                    "walk_block": 0.0,
+                    "see_block": 0.0,
+                    "grouping_strength": 0.0,
+                },
+                "metadata": {
+                    "role": "opening",
+                    "host-boundary": "low_cabinet",
+                },
+            }
+        ],
+        "paths": [],
+        "column_axes": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    semantics = {item["id"]: item for item in matrix["boundary_semantics"]}
+
+    assert semantics["rug_edge"] == {
+        "id": "rug_edge",
+        "kind": "rug",
+        "walk_passable": True,
+        "see_passable": True,
+        "thickness": 0.0,
+        "grouping_strength": 0.85,
+        "opening_ids": [],
+        "surface_identity": True,
+        "metadata": {
+            "source": "authored_boundary_weights_and_metadata",
+        },
+    }
+    assert semantics["low_cabinet"]["walk_passable"] is False
+    assert semantics["low_cabinet"]["see_passable"] is True
+    assert semantics["low_cabinet"]["opening_ids"] == ["cabinet_opening"]
+    assert semantics["glass_wall"]["walk_passable"] is False
+    assert semantics["glass_wall"]["see_passable"] is True
+    assert matrix["adapter_payload"]["evidence_geometry"]["boundary_semantics"] == {
+        "count": 3,
+        "items": matrix["boundary_semantics"],
+    }
+
+
+def test_evaluate_scene_infers_gap_paths_from_candidates_with_explicit_regions():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_candidate_gap_path_with_explicit_regions",
+        "size": (360.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=70, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "regions": [
+            record("region_left", "region", "left", Rect(cx=70, cy=80, width=120, height=120)),
+            record("region_right", "region", "right", Rect(cx=290, cy=80, width=120, height=120)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    gap_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_count"
+    ][0]
+
+    assert matrix["inferred_regions"] == []
+    assert gap_row["score"] == 1
+    assert gap_row["inferred_region_gap_path_evidence"] == [
+        {
+            "id": "inferred_gap_path_left__right",
+            "region_a": "inferred_region_left",
+            "region_b": "inferred_region_right",
+            "orientation": "vertical",
+            "bbox": (130.0, 20.0, 230.0, 140.0),
+            "thickness": 100.0,
+            "overlap_span": 120.0,
+        }
+    ]
+
+
+def test_evaluate_scene_filters_gap_paths_blocked_by_intermediate_regions():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_intermediate_region_gap_filter",
+        "size": (360.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=50, cy=80, width=80, height=80)),
+            record("middle_table", "table", "middle", Rect(cx=170, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "regions": [
+            record("region_left", "region", "left", Rect(cx=50, cy=80, width=80, height=80)),
+            record("region_middle", "region", "middle", Rect(cx=170, cy=80, width=80, height=80)),
+            record("region_right", "region", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    gap_ids = [path["id"] for path in matrix["inferred_region_gap_paths"]]
+
+    assert gap_ids == [
+        "inferred_gap_path_left__middle",
+        "inferred_gap_path_middle__right",
+    ]
+    assert matrix["inferred_region_gap_path_graph"] == {
+        "method": "inferred_gap_path_region_adjacency_graph_proxy",
+        "node_count": 3,
+        "edge_count": 2,
+        "clear_edge_count": 2,
+        "occupied_edge_count": 0,
+        "free_space_supported_edge_count": 2,
+        "walkable_proxy_edge_count": 2,
+        "walkable_proxy_min_thickness": 40.0,
+        "walkable_proxy_mean_thickness": 40.0,
+        "component_count": 1,
+        "walkable_proxy_component_count": 1,
+        "components": [
+            [
+                "inferred_region_left",
+                "inferred_region_middle",
+                "inferred_region_right",
+            ]
+        ],
+        "walkable_proxy_components": [
+            [
+                "inferred_region_left",
+                "inferred_region_middle",
+                "inferred_region_right",
+            ]
+        ],
+        "nodes": [
+            {"id": "inferred_region_left", "region": "left"},
+            {"id": "inferred_region_middle", "region": "middle"},
+            {"id": "inferred_region_right", "region": "right"},
+        ],
+        "edges": [
+            {
+                "id": "inferred_gap_path_left__middle",
+                "a": "inferred_region_left",
+                "b": "inferred_region_middle",
+                "orientation": "vertical",
+                "thickness": 40.0,
+                "overlap_span": 80.0,
+                "clear_status": "clear_proxy",
+                "occupancy_ratio": 0.0,
+                "free_space_overlap_ratio": 1.0,
+            },
+            {
+                "id": "inferred_gap_path_middle__right",
+                "a": "inferred_region_middle",
+                "b": "inferred_region_right",
+                "orientation": "vertical",
+                "thickness": 40.0,
+                "overlap_span": 80.0,
+                "clear_status": "clear_proxy",
+                "occupancy_ratio": 0.0,
+                "free_space_overlap_ratio": 1.0,
+            },
+        ],
+        "walkable_proxy_edges": [
+            "inferred_gap_path_left__middle",
+            "inferred_gap_path_middle__right",
+        ],
+        "walkable_proxy_edge_widths": [
+            {
+                "id": "inferred_gap_path_left__middle",
+                "thickness": 40.0,
+                "overlap_span": 80.0,
+            },
+            {
+                "id": "inferred_gap_path_middle__right",
+                "thickness": 40.0,
+                "overlap_span": 80.0,
+            },
+        ],
+        "minimum_width": 40.0,
+        "minimum_width_basis": "half_sampled_grid_resolution",
+        "minimum_width_evidence": ["left_table", "middle_table", "right_table"],
+        "width_pass_edge_count": 2,
+        "width_fail_edge_count": 0,
+        "width_pass_edges": [
+            "inferred_gap_path_left__middle",
+            "inferred_gap_path_middle__right",
+        ],
+        "width_fail_edges": [],
+        "width_evidence": [
+            {
+                "id": "inferred_gap_path_left__middle",
+                "thickness": 40.0,
+                "minimum_width": 40.0,
+                "passes": True,
+            },
+            {
+                "id": "inferred_gap_path_middle__right",
+                "thickness": 40.0,
+                "minimum_width": 40.0,
+                "passes": True,
+            },
+        ],
+    }
+    assert (
+        matrix["adapter_payload"]["route_topology_handoff"][
+            "inferred_gap_path_graph"
+        ]
+        == {
+            "method": "inferred_gap_path_region_adjacency_graph_proxy",
+            "node_count": 3,
+            "edge_count": 2,
+            "clear_edge_count": 2,
+            "occupied_edge_count": 0,
+            "free_space_supported_edge_count": 2,
+            "walkable_proxy_edge_count": 2,
+            "walkable_proxy_min_thickness": 40.0,
+            "walkable_proxy_mean_thickness": 40.0,
+            "component_count": 1,
+            "walkable_proxy_component_count": 1,
+            "walkable_proxy_components": [
+                [
+                    "inferred_region_left",
+                    "inferred_region_middle",
+                    "inferred_region_right",
+                ]
+            ],
+            "walkable_proxy_edges": [
+                "inferred_gap_path_left__middle",
+                "inferred_gap_path_middle__right",
+            ],
+            "walkable_proxy_edge_widths": [
+                {
+                    "id": "inferred_gap_path_left__middle",
+                    "thickness": 40.0,
+                    "overlap_span": 80.0,
+                },
+                {
+                    "id": "inferred_gap_path_middle__right",
+                    "thickness": 40.0,
+                    "overlap_span": 80.0,
+                },
+            ],
+            "minimum_width": 40.0,
+            "minimum_width_basis": "half_sampled_grid_resolution",
+            "minimum_width_evidence": ["left_table", "middle_table", "right_table"],
+            "width_pass_edge_count": 2,
+            "width_fail_edge_count": 0,
+            "width_pass_edges": [
+                "inferred_gap_path_left__middle",
+                "inferred_gap_path_middle__right",
+            ],
+            "width_fail_edges": [],
+        }
+    )
+    walkable_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_walkable_proxy_ratio"
+    ][0]
+    assert walkable_row == {
+        "view_id": "path_connectivity",
+        "metric": "inferred_region_gap_path_walkable_proxy_ratio",
+        "score": 1.0,
+        "status": "computed",
+        "method": "clear_and_free_space_supported_inferred_gap_path_edges",
+        "evidence": [
+            "inferred_gap_path_left__middle",
+            "inferred_gap_path_middle__right",
+        ],
+        "walkable_proxy_edge_count": 2,
+        "walkable_proxy_component_count": 1,
+        "walkable_proxy_min_thickness": 40.0,
+        "walkable_proxy_mean_thickness": 40.0,
+        "total_gap_path_edge_count": 2,
+        "walkable_proxy_edges": [
+            "inferred_gap_path_left__middle",
+            "inferred_gap_path_middle__right",
+        ],
+        "walkable_proxy_components": [
+            [
+                "inferred_region_left",
+                "inferred_region_middle",
+                "inferred_region_right",
+            ]
+        ],
+        "walkable_proxy_edge_widths": [
+            {
+                "id": "inferred_gap_path_left__middle",
+                "thickness": 40.0,
+                "overlap_span": 80.0,
+            },
+            {
+                "id": "inferred_gap_path_middle__right",
+                "thickness": 40.0,
+                "overlap_span": 80.0,
+            },
+        ],
+        "uncertainty": "clear inferred gap bands with positive free-space overlap; proxy, not navmesh route certification or minimum-width guarantee",
+    }
+    width_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_min_width_pass_ratio"
+    ][0]
+    assert width_row == {
+        "view_id": "path_connectivity",
+        "metric": "inferred_region_gap_path_min_width_pass_ratio",
+        "score": 1.0,
+        "status": "computed",
+        "method": "walkable_gap_band_thickness_over_half_sampled_grid_resolution",
+        "evidence": [
+            "inferred_gap_path_left__middle",
+            "inferred_gap_path_middle__right",
+        ],
+        "minimum_width": 40.0,
+        "minimum_width_basis": "half_sampled_grid_resolution",
+        "minimum_width_evidence": ["left_table", "middle_table", "right_table"],
+        "passing_edge_count": 2,
+        "walkable_proxy_edge_count": 2,
+        "width_pass_edges": [
+            "inferred_gap_path_left__middle",
+            "inferred_gap_path_middle__right",
+        ],
+        "width_fail_edges": [],
+        "width_evidence": [
+            {
+                "id": "inferred_gap_path_left__middle",
+                "thickness": 40.0,
+                "minimum_width": 40.0,
+                "passes": True,
+            },
+            {
+                "id": "inferred_gap_path_middle__right",
+                "thickness": 40.0,
+                "minimum_width": 40.0,
+                "passes": True,
+            },
+        ],
+        "uncertainty": "minimum width uses half the sampled grid resolution as a scene-scale proxy; not code-compliant egress width, human-body calibration, or navmesh clearance",
+    }
+    consistency_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_gap_path_width_free_space_clearance_ratio"
+    ][0]
+    assert consistency_row == {
+        "view_id": "path_connectivity",
+        "metric": "inferred_gap_path_width_free_space_clearance_ratio",
+        "score": 0.9,
+        "status": "computed",
+        "method": "free_space_edge_clearance_width_over_inferred_gap_band_width",
+        "evidence": {
+            "free_space_mean_edge_clearance_width": 36.0,
+            "walkable_proxy_mean_thickness": 40.0,
+            "walkable_proxy_min_thickness": 40.0,
+            "walkable_proxy_edge_count": 2,
+        },
+        "uncertainty": "ratio between rect-cell free-space shared-edge width and inferred gap-band width; proxy consistency check, not route certification",
+    }
+
+
+def test_evaluate_scene_uses_manual_required_path_width_for_inferred_gap_paths():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_manual_required_path_width",
+        "size": (360.0, 160.0),
+        "settings": {"required_path_width": 45.0},
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=50, cy=80, width=80, height=80)),
+            record("middle_table", "table", "middle", Rect(cx=170, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "regions": [
+            record("region_left", "region", "left", Rect(cx=50, cy=80, width=80, height=80)),
+            record("region_middle", "region", "middle", Rect(cx=170, cy=80, width=80, height=80)),
+            record("region_right", "region", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    width_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_min_width_pass_ratio"
+    ][0]
+
+    assert width_row["score"] == 0.0
+    assert width_row["method"] == "walkable_gap_band_thickness_over_manual_required_path_width"
+    assert width_row["minimum_width"] == 45.0
+    assert width_row["minimum_width_basis"] == "manual_required_path_width"
+    assert width_row["minimum_width_evidence"] == ["scene.settings.required_path_width"]
+    assert width_row["width_pass_edges"] == []
+    assert width_row["width_fail_edges"] == [
+        "inferred_gap_path_left__middle",
+        "inferred_gap_path_middle__right",
+    ]
+    assert matrix["adapter_payload"]["route_topology_handoff"]["inferred_gap_path_graph"][
+        "minimum_width_basis"
+    ] == "manual_required_path_width"
+
+
+def test_scene_inference_layer_derives_evidence_from_neutral_scene_not_svg():
+    from features.affordance.models import Rect
+    from features.scene_inference import infer_scene_evidence
+
+    def record(record_id, role, group, rect, *, affordance=None):
+        metadata = {"role": role, "region": group}
+        if affordance:
+            metadata.update(affordance)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "neutral_dict_not_svg",
+        "size": (260.0, 140.0),
+        "settings": {"required_path_width": 45.0},
+        "objects": [
+            record(
+                "left_chair",
+                "chair",
+                "left",
+                Rect(cx=50, cy=70, width=40, height=40),
+                affordance={"affordance-right": "20"},
+            ),
+            record("right_table", "table", "right", Rect(cx=190, cy=70, width=40, height=40)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    evidence = infer_scene_evidence(scene)
+    matrix = evaluate_scene(scene)
+
+    assert evidence["affordance_zones"][0]["id"] == "affordance_zone_left_chair_right"
+    assert evidence["inferred_region_candidates"][0]["metadata"]["member_ids"] == "left_chair"
+    assert evidence["inferred_region_gap_paths"][0]["id"] == "inferred_gap_path_left__right"
+    assert evidence["inferred_region_gap_path_graph"]["minimum_width_basis"] == (
+        "manual_required_path_width"
+    )
+    assert matrix["inferred_region_gap_paths"] == evidence["inferred_region_gap_paths"]
+
+
+def test_scene_inference_builds_furniture_extents_before_group_regions():
+    from features.affordance.models import Rect
+    from features.scene_inference import infer_scene_evidence
+
+    def record(record_id, role, group, rect, *, affordance=None):
+        metadata = {"role": role, "region": group}
+        if affordance:
+            metadata.update(affordance)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_hierarchical_region_inference",
+        "size": (260, 160),
+        "settings": {"required_path_width": 30},
+        "objects": [
+            record(
+                "north_table",
+                "table",
+                "north_repeated_tables",
+                Rect(cx=70, cy=60, width=40, height=30),
+            ),
+            record(
+                "north_chair",
+                "chair",
+                "north_repeated_tables",
+                Rect(cx=70, cy=110, width=30, height=30),
+                affordance={"affordance-top": "20"},
+            ),
+            record(
+                "south_table",
+                "table",
+                "south_repeated_tables",
+                Rect(cx=190, cy=60, width=40, height=30),
+            ),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    evidence = infer_scene_evidence(scene)
+
+    assert evidence["furniture_affordance_extents"][0] == {
+        "id": "furniture_affordance_extent_north_chair",
+        "object_id": "north_chair",
+        "region": "north_repeated_tables",
+        "rect": Rect(cx=70, cy=100, width=30, height=50),
+        "footprint_rect": Rect(cx=70, cy=110, width=30, height=30),
+        "affordance_zone_ids": ["affordance_zone_north_chair_top"],
+        "metadata": {
+            "level": "furniture_affordance_extent",
+            "source": "object_footprint_plus_affordance_zones",
+            "geometry_basis": "object_footprint_plus_own_affordance_zone_rects",
+        },
+    }
+    north_region = [
+        item
+        for item in evidence["inferred_region_candidates"]
+        if item["region"] == "north_repeated_tables"
+    ][0]
+    assert north_region["metadata"]["level"] == "activity_region_candidate"
+    assert north_region["metadata"]["child_extent_ids"] == (
+        "furniture_affordance_extent_north_chair,"
+        "furniture_affordance_extent_north_table"
+    )
+    assert evidence["inferred_region_gap_paths"][0]["metadata"]["path_between"] == (
+        "activity_region_candidate"
+    )
+
+
+def test_evaluator_entrypoint_uses_scene_inference_layer():
+    source = Path("features/scene_evaluator.py").read_text(encoding="utf-8")
+    inference_source = Path("features/scene_inference.py").read_text(encoding="utf-8")
+    entrypoint = source[source.index("def evaluate_scene"):source.index("def export_adapter_payload_json")]
+
+    assert "infer_scene_evidence(scene)" in entrypoint
+    assert "_inferred_region_candidates(scene)" not in entrypoint
+    assert "_inferred_region_gap_paths(" not in entrypoint
+    assert "_affordance_zones(scene)" not in entrypoint
+    assert "def _inferred_region_candidates" not in source
+    assert "def _inferred_region_gap_path_graph" not in source
+    assert "def _affordance_margins" not in source
+    assert "scene_loader" not in inference_source
+    assert "scene_evaluator" not in inference_source
+    assert "xml.etree" not in inference_source
+
+
+def test_architecture_memory_records_svg_as_base_map_not_matrix_framework():
+    memory = Path(
+        "docs/indoor_layout_evaluation_matrix_architecture_memory.md"
+    ).read_text(encoding="utf-8")
+    status = Path("docs/indoor_layout_evaluation_matrix_task_status.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "SVG is a neutral BIM proxy/base map" in memory
+    assert "SVG does not define the evaluation matrix" in memory
+    assert "Neutral Scene" in memory
+    assert "Inference / Evidence Layer" in memory
+    assert "Evaluation Matrix" in memory
+    assert "matrix consumes neutral scene plus inference evidence" in memory
+    assert "User-authored semantic attributes are the primary input" in memory
+    assert "bbox, rect-cell, or geometric fallback algorithms are secondary" in memory
+    assert "object footprint -> furniture affordance extent" in memory
+    assert "activity region candidate -> inter-region gap path" in memory
+    assert "required width read from scene settings" in memory
+    assert "All new or modified project-owned code should follow this rule" in memory
+    assert "Vendored OCTA toolbox code is exempt unless it is edited" in memory
+    assert "Every function should have a docstring" in memory
+    assert "Important computation steps should have comments" in memory
+    assert "scene_inference.py" in status
+    assert "SVG is a neutral BIM proxy/base map" in status
+    assert "User-authored semantic attributes are the primary input" in status
+
+
+def test_scene_inference_functions_have_docstrings_and_key_step_comments():
+    source = Path("features/scene_inference.py").read_text(encoding="utf-8")
+    module = ast.parse(source)
+    functions = [
+        node
+        for node in ast.walk(module)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
+    missing_docstrings = [
+        node.name for node in functions if not ast.get_docstring(node)
+    ]
+
+    assert missing_docstrings == []
+    assert "# Group objects by neutral region keys" in source
+    assert "# Expand candidates just enough to represent repeated-group spacing" in source
+    assert "# A gap band is usable only when it is clear and supported by free space" in source
+    assert "# Manual path width is a demand parameter, not an inferred SVG feature" in source
+    assert "# Profile defaults turn object roles into usable-side extents" in source
+
+
+def test_evaluate_scene_reports_inferred_gap_path_occupancy_by_objects_and_affordances():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, affordance=None, region=None):
+        metadata = {"role": role, "region": group}
+        if affordance:
+            for side, value in affordance.items():
+                metadata[f"affordance-{side}"] = str(value)
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": region or group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_inferred_gap_path_occupancy",
+        "size": (360.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=70, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+            record(
+                "center_stool",
+                "stool",
+                "misc",
+                Rect(cx=180, cy=80, width=20, height=40),
+                affordance={"left": 10},
+                region="room",
+            ),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_occupancy_ratio"
+    ][0]
+
+    assert row == {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_gap_path_occupancy_ratio",
+        "score": 0.1,
+        "status": "computed",
+        "method": "inferred_gap_band_overlap_with_object_footprints_and_affordance_zones",
+        "evidence": ["inferred_gap_path_left__right"],
+        "inferred_region_gap_path_occupancy_evidence": [
+            {
+                "gap_path_id": "inferred_gap_path_left__right",
+                "gap_bbox": (130.0, 20.0, 230.0, 140.0),
+                "gap_area": 12000.0,
+                "occupied_area": 1200,
+                "occupancy_ratio": 0.1,
+                "occupiers": [
+                    {
+                        "id": "center_stool",
+                        "kind": "object_footprint",
+                        "overlap_area": 800,
+                    },
+                    {
+                        "id": "affordance_zone_center_stool_left",
+                        "kind": "affordance_zone",
+                        "object_id": "center_stool",
+                        "overlap_area": 400,
+                    },
+                ],
+            }
+        ],
+        "uncertainty": "overlap of inferred gap bands with object footprints and affordance zones; bbox union proxy, not navmesh clearance certification",
+    }
+    geometry = matrix["adapter_payload"]["evidence_geometry"]
+    assert geometry["inferred_region_gap_path_occupancy"] == {
+        "count": 1,
+        "items": row["inferred_region_gap_path_occupancy_evidence"],
+    }
+    assert geometry["inferred_region_gap_paths"]["items"] == [
+        {
+            "id": "inferred_gap_path_left__right",
+            "region_a": "inferred_region_left",
+            "region_b": "inferred_region_right",
+            "orientation": "vertical",
+            "bbox": (130.0, 20.0, 230.0, 140.0),
+            "thickness": 100.0,
+            "overlap_span": 120.0,
+            "occupied": True,
+            "occupancy_ratio": 0.1,
+            "occupied_area": 1200,
+            "clear_status": "occupied_proxy",
+            "free_space_overlap_ratio": 0.9333,
+            "free_space_overlap_area": 11200.0,
+        }
+    ]
+    svg = scene_metric_overlay_svg(scene, matrix)
+    assert 'data-layer="inferred-gap-path-occupancy"' in svg
+    assert 'data-gap-path="inferred_gap_path_left__right"' in svg
+    assert 'data-occupier="center_stool"' in svg
+    assert 'data-occupancy-ratio="0.1000"' in svg
+    root = ET.fromstring(svg)
+    gap_rect = next(
+        element
+        for element in root.iter()
+        if element.attrib.get("data-layer") == "inferred-gap-path"
+        and element.attrib.get("data-gap-path") == "inferred_gap_path_left__right"
+    )
+    assert gap_rect.attrib["data-occupied"] == "true"
+    assert gap_rect.attrib["data-occupancy-ratio"] == "0.1000"
+    assert gap_rect.attrib["data-clear-status"] == "occupied_proxy"
+    assert matrix["inferred_region_gap_path_graph"]["walkable_proxy_edge_count"] == 0
+    assert matrix["inferred_region_gap_path_graph"]["walkable_proxy_edges"] == []
+    assert matrix["inferred_region_gap_path_graph"]["walkable_proxy_component_count"] == 2
+    assert matrix["inferred_region_gap_path_graph"]["walkable_proxy_components"] == [
+        ["inferred_region_left"],
+        ["inferred_region_right"],
+    ]
+    walkable_row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_walkable_proxy_ratio"
+    ][0]
+    assert walkable_row["score"] == 0.0
+    assert walkable_row["walkable_proxy_edge_count"] == 0
+    assert walkable_row["walkable_proxy_component_count"] == 2
+    assert walkable_row["total_gap_path_edge_count"] == 1
+
+
+def test_evaluate_scene_reports_inferred_gap_path_free_space_overlap():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, kind=None, walk_block=0.0):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": walk_block,
+                "see_block": walk_block,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"boundary-kind": kind} if kind else {"role": role, "region": group},
+        }
+
+    room = record(
+        "room_boundary",
+        "boundary",
+        "room",
+        Rect(cx=180, cy=80, width=360, height=160),
+        kind="room",
+        walk_block=1.0,
+    )
+    room["points"] = [(0, 0), (360, 0), (360, 160), (0, 160), (0, 0)]
+    scene = {
+        "source": "synthetic_gap_path_free_space_overlap",
+        "size": (360.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=70, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "regions": [],
+        "boundaries": [room],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_free_space_overlap_ratio"
+    ][0]
+
+    assert row == {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_gap_path_free_space_overlap_ratio",
+        "score": 1.0,
+        "status": "computed",
+        "method": "inferred_gap_band_overlap_with_rect_cell_free_space_polygons",
+        "evidence": ["inferred_gap_path_left__right"],
+        "inferred_region_gap_path_free_space_overlap_evidence": [
+            {
+                "gap_path_id": "inferred_gap_path_left__right",
+                "gap_bbox": (130.0, 20.0, 230.0, 140.0),
+                "gap_area": 12000.0,
+                "free_space_overlap_area": 12000.0,
+                "free_space_overlap_ratio": 1.0,
+                "overlap_cell_ids": [
+                    "component_0_cell_5",
+                    "component_0_cell_6",
+                    "component_0_cell_7",
+                ],
+            }
+        ],
+        "uncertainty": "overlap of inferred gap bands with rect-cell free-space polygons; proxy, not navmesh or route certification",
+    }
+    geometry = matrix["adapter_payload"]["evidence_geometry"]
+    assert geometry["inferred_region_gap_path_free_space_overlap"] == {
+        "count": 1,
+        "items": row["inferred_region_gap_path_free_space_overlap_evidence"],
+    }
+    assert geometry["inferred_region_gap_paths"]["items"][0][
+        "free_space_overlap_ratio"
+    ] == 1.0
+
+
+def test_evaluate_scene_reports_inferred_gap_path_cad_free_space_overlap():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect, *, kind=None, walk_block=0.0):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": walk_block,
+                "see_block": walk_block,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"boundary-kind": kind} if kind else {"role": role, "region": group},
+        }
+
+    room = record(
+        "room_boundary",
+        "boundary",
+        "room",
+        Rect(cx=180, cy=80, width=360, height=160),
+        kind="room",
+        walk_block=1.0,
+    )
+    room["points"] = [(0, 0), (360, 0), (360, 160), (0, 160), (0, 0)]
+    blocker = record(
+        "middle_partition",
+        "boundary",
+        "room",
+        Rect(cx=180, cy=80, width=20, height=120),
+        kind="wall",
+        walk_block=1.0,
+    )
+    scene = {
+        "source": "synthetic_gap_path_cad_free_space_overlap",
+        "size": (360.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=70, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "regions": [],
+        "boundaries": [room, blocker],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_cad_free_space_overlap_ratio"
+    ][0]
+
+    assert row == {
+        "view_id": "path_connectivity",
+        "metric": "inferred_region_gap_path_cad_free_space_overlap_ratio",
+        "score": 0.8,
+        "status": "computed",
+        "method": "inferred_gap_band_overlap_with_shapely_room_minus_blocker_polygons",
+        "evidence": ["inferred_gap_path_left__right"],
+        "inferred_region_gap_path_cad_free_space_overlap_evidence": [
+            {
+                "gap_path_id": "inferred_gap_path_left__right",
+                "gap_bbox": (130.0, 20.0, 230.0, 140.0),
+                "gap_area": 12000.0,
+                "cad_free_space_overlap_area": 9600.0,
+                "cad_free_space_overlap_ratio": 0.8,
+                "overlap_component_ids": ["component_0"],
+            }
+        ],
+        "uncertainty": "overlap of inferred gap bands with Shapely room-minus-blocker polygons; stronger than rect-cell proxy but still not navmesh route certification",
+    }
+    geometry = matrix["adapter_payload"]["evidence_geometry"]
+    assert geometry["inferred_region_gap_path_cad_free_space_overlap"] == {
+        "count": 1,
+        "items": row["inferred_region_gap_path_cad_free_space_overlap_evidence"],
+    }
+    assert geometry["inferred_region_gap_paths"]["items"][0][
+        "cad_free_space_overlap_ratio"
+    ] == 0.8
+    graph = matrix["inferred_region_gap_path_graph"]
+    assert graph["cad_free_space_supported_edge_count"] == 1
+    assert graph["cad_free_space_supported_edges"] == ["inferred_gap_path_left__right"]
+    assert graph["edges"][0]["cad_free_space_overlap_ratio"] == 0.8
+    handoff_graph = matrix["adapter_payload"]["route_topology_handoff"][
+        "inferred_gap_path_graph"
+    ]
+    assert handoff_graph["cad_free_space_supported_edge_count"] == 1
+    assert handoff_graph["cad_free_space_supported_edges"] == [
+        "inferred_gap_path_left__right"
+    ]
+
+
+def test_evaluate_scene_compares_inferred_gap_paths_to_explicit_paths():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, group, rect):
+        return {
+            "id": record_id,
+            "role": role,
+            "group": group,
+            "region": group,
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": group},
+        }
+
+    scene = {
+        "source": "synthetic_gap_path_explicit_path_iou",
+        "size": (360.0, 160.0),
+        "objects": [
+            record("left_table", "table", "left", Rect(cx=70, cy=80, width=80, height=80)),
+            record("right_table", "table", "right", Rect(cx=290, cy=80, width=80, height=80)),
+        ],
+        "regions": [
+            record("region_left", "region", "left", Rect(cx=70, cy=80, width=120, height=120)),
+            record("region_right", "region", "right", Rect(cx=290, cy=80, width=120, height=120)),
+        ],
+        "paths": [
+            record("middle_path", "path", "circulation", Rect(cx=180, cy=80, width=100, height=120)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    row = [
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_explicit_path_iou_mean"
+    ][0]
+
+    assert row == {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_gap_path_explicit_path_iou_mean",
+        "score": 1.0,
+        "status": "computed",
+        "method": "affordance_gap_band_to_explicit_path_bbox_iou",
+        "evidence": ["inferred_gap_path_left__right"],
+        "inferred_region_gap_path_explicit_path_iou_evidence": [
+            {
+                "gap_path_id": "inferred_gap_path_left__right",
+                "best_path_id": "middle_path",
+                "gap_bbox": (130.0, 20.0, 230.0, 140.0),
+                "path_bbox": (130.0, 20.0, 230.0, 140.0),
+                "iou": 1.0,
+            }
+        ],
+        "uncertainty": "compares inferred gap bands with authored path bboxes; bbox IoU proxy, not route validation or navmesh alignment",
+    }
 
 
 def test_sampled_path_reachable_region_ratio_requires_path_contact():
@@ -1300,6 +4630,20 @@ def test_negative_space_exports_free_space_polygon_graph():
         "method": "room_polygon_rect_cell_shared_edge_path_bottleneck_width_proxy",
         "evidence": graph["entry_region_distance_evidence"],
         "uncertainty": "minimum shared-edge width along rect-cell entry-region paths; proxy, not medial-axis clearance, navmesh portal bottleneck, or egress capacity",
+    }
+    assert path_rows["inferred_gap_path_width_free_space_clearance_ratio"] == {
+        "view_id": "path_connectivity",
+        "metric": "inferred_gap_path_width_free_space_clearance_ratio",
+        "score": None,
+        "status": "not_available",
+        "method": "free_space_edge_clearance_width_over_inferred_gap_band_width",
+        "evidence": {
+            "free_space_mean_edge_clearance_width": 40.0,
+            "walkable_proxy_mean_thickness": None,
+            "walkable_proxy_min_thickness": None,
+            "walkable_proxy_edge_count": 0,
+        },
+        "uncertainty": "ratio between rect-cell free-space shared-edge width and inferred gap-band width; proxy consistency check, not route certification",
     }
 
 
@@ -4052,9 +7396,10 @@ def test_boundary_metrics_prefers_hosted_entry_boundary_metadata():
         "uncertainties": [],
     }
 
+    matrix = evaluate_scene(scene)
     boundary_rows = {
         row["metric"]: row
-        for row in evaluate_scene(scene)["rows"]
+        for row in matrix["rows"]
         if row["view_id"] == "boundary_metrics"
     }
 
@@ -4142,9 +7487,10 @@ def test_boundary_metrics_reports_fallback_entry_boundary_ratio():
         "uncertainties": [],
     }
 
+    matrix = evaluate_scene(scene)
     boundary_rows = {
         row["metric"]: row
-        for row in evaluate_scene(scene)["rows"]
+        for row in matrix["rows"]
         if row["view_id"] == "boundary_metrics"
     }
 
@@ -4157,6 +7503,13 @@ def test_boundary_metrics_reports_fallback_entry_boundary_ratio():
         "evidence": ["fallback_door"],
         "entry_boundary_associations": boundary_rows["entry_nearest_boundary_gap_mean"]["entry_boundary_associations"],
         "uncertainty": "nearest-geometry opening association is an SVG fallback; Rhino/BIM adapters should prefer hosted opening topology",
+    }
+    assert matrix["adapter_payload"]["host_relationships"] == {
+        "method": "entry_boundary_associations_from_host_metadata_or_nearest_geometry",
+        "entry_boundary_hosts": boundary_rows["entry_nearest_boundary_gap_mean"]["entry_boundary_associations"],
+        "hosted_entry_count": 1,
+        "fallback_entry_count": 1,
+        "uncertainty": "neutral host relationship export only; Rhino/VisualARQ/BIM adapters must replace fallback geometry with live hosted topology",
     }
 
 
@@ -4938,6 +8291,12 @@ def test_isovist_radial_proxy_reports_blocked_rays():
         "hit_boundary_kind": "screen",
         "blocked_by_see_block": True,
     }
+    visual_handoff = matrix["adapter_payload"]["visual_analysis_handoff"]
+    assert visual_handoff["visibility_graph"]["items"] == matrix["line_of_sight_graph"]["edges"]
+    assert visual_handoff["isovist_radial_proxy"]["ray_items"] == isovist["ray_evidence"]
+    assert visual_handoff["isovist_radial_proxy"]["area_items"] == isovist[
+        "isovist_area_evidence"
+    ]
 
     path_rows = {
         row["metric"]: row
@@ -5388,6 +8747,91 @@ def test_column_alignment_reports_object_local_position_in_slanted_bay():
     }
 
 
+def test_column_grid_handoff_exports_bay_and_local_position_items():
+    from features.affordance.models import Rect
+
+    def record(record_id, role, rect, points=None):
+        region = "left_region" if role != "region" else record_id
+        return {
+            "id": record_id,
+            "role": role,
+            "group": region,
+            "region": region,
+            "rect": rect,
+            "points": points or [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {},
+        }
+
+    scene = {
+        "source": "synthetic_column_grid_handoff_items",
+        "size": (200.0, 100.0),
+        "objects": [
+            record("inside_table", "table", Rect(cx=50, cy=50, width=10, height=10)),
+            record("outside_table", "table", Rect(cx=150, cy=50, width=10, height=10)),
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            record("left_region", "region", Rect(cx=50, cy=50, width=100, height=100)),
+        ],
+        "column_axes": [
+            record(
+                "column_axis_left",
+                "column_axis",
+                Rect(cx=0, cy=50, width=0, height=100),
+                [(0, 0), (0, 100)],
+            ),
+            record(
+                "column_axis_right",
+                "column_axis",
+                Rect(cx=100, cy=50, width=0, height=100),
+                [(100, 0), (100, 100)],
+            ),
+        ],
+        "uncertainties": [],
+    }
+
+    handoff = evaluate_scene(scene)["adapter_payload"]["column_grid_handoff"]
+
+    assert handoff["axes"]["items"] == [
+        {"id": "column_axis_left", "angle": 90.0, "basis": "polygon_longest_edge"},
+        {"id": "column_axis_right", "angle": 90.0, "basis": "polygon_longest_edge"},
+    ]
+    assert handoff["region_bays"]["items"] == [
+        {
+            "region_id": "left_region",
+            "bay_id": "column_axis_left__column_axis_right",
+            "overlap_area": 10000,
+            "region_area": 10000,
+            "score": 1.0,
+        }
+    ]
+    assert handoff["object_bay_local_positions"]["items"] == [
+        {
+            "object_id": "inside_table",
+            "bay_id": "column_axis_left__column_axis_right",
+            "local_u": 0.5,
+            "local_v": 0.5,
+            "inside_bay": True,
+            "score": 1.0,
+        },
+        {
+            "object_id": "outside_table",
+            "bay_id": "column_axis_left__column_axis_right",
+            "local_u": 1.5,
+            "local_v": 0.5,
+            "inside_bay": False,
+            "score": 0.0,
+        },
+    ]
+
+
 def test_region_alignment_reports_centroid_phase_score():
     from features.affordance.models import Rect
 
@@ -5438,6 +8882,198 @@ def test_region_alignment_reports_centroid_phase_score():
         {"region_id": "region_b", "projection": 100.0},
         {"region_id": "region_c", "projection": 300.0},
     ]
+
+
+def test_trend_reports_region_centroid_trend_alignment():
+    from features.affordance.models import Rect
+
+    def region(record_id, cx, cy):
+        return {
+            "id": record_id,
+            "role": "region",
+            "group": "global",
+            "region": record_id,
+            "rect": Rect(cx=cx, cy=cy, width=20, height=20),
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {},
+        }
+
+    scene = {
+        "source": "synthetic_region_trend",
+        "size": (400.0, 220.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            region("region_a", 0, 0),
+            region("region_b", 100, 100),
+            region("region_c", 200, 200),
+            region("region_d", 300, 230),
+        ],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    rows = {
+        row["metric"]: row
+        for row in evaluate_scene(scene)["rows"]
+        if row["view_id"] == "trend"
+    }
+    trend = rows["region_centroid_trend_alignment"]
+
+    assert trend == {
+        "view_id": "trend",
+        "metric": "region_centroid_trend_alignment",
+        "score": 0.9652,
+        "status": "computed",
+        "method": "region_centroid_pca_axis_cross_deviation_score",
+        "evidence": ["region_a", "region_b", "region_c", "region_d"],
+        "trend_axis": {
+            "angle": 38.8153,
+            "basis": "region_centroid_pca_axis",
+            "region_count": 4,
+            "span": 377.9179,
+            "mean_cross_axis_deviation": 13.6355,
+        },
+        "region_centroid_trend_evidence": [
+            {
+                "region_id": "region_a",
+                "projection": -199.9282,
+                "cross_axis_deviation": 9.2183,
+            },
+            {
+                "region_id": "region_b",
+                "projection": -59.3299,
+                "cross_axis_deviation": 6.0176,
+            },
+            {
+                "region_id": "region_c",
+                "projection": 81.2683,
+                "cross_axis_deviation": 21.2534,
+            },
+            {
+                "region_id": "region_d",
+                "projection": 177.9897,
+                "cross_axis_deviation": 18.0527,
+            },
+        ],
+        "uncertainty": "PCA trend over region bbox centers; proxy for dominant layout direction, not semantic procession, circulation intent, or time-series trend",
+    }
+
+
+def test_evaluate_scene_returns_score_matrix_summary():
+    from features.affordance.models import Rect
+
+    def region(record_id, cx):
+        return {
+            "id": record_id,
+            "role": "region",
+            "group": "global",
+            "region": record_id,
+            "rect": Rect(cx=cx, cy=50, width=20, height=20),
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"axis-angle": "0"},
+        }
+
+    scene = {
+        "source": "synthetic_score_matrix",
+        "size": (400.0, 120.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            region("region_a", 0),
+            region("region_b", 100),
+            region("region_c", 300),
+        ],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+
+    assert matrix["score_matrix"] == {
+        "method": "computed_unit_interval_metric_mean_by_view_id",
+        "overall_score": 0.4688,
+        "dimension_scores": [
+            {
+                "view_id": "adapter_readiness",
+                "score": 0.0,
+                "metric_count": 1,
+                "metrics": ["adapter_reference_coverage"],
+            },
+            {
+                "view_id": "boundary_metrics",
+                "score": 0.0,
+                "metric_count": 2,
+                "metrics": [
+                    "closed_blocking_boundary_ratio",
+                    "opening_ratio",
+                ],
+            },
+            {
+                "view_id": "region_alignment",
+                "score": 0.875,
+                "metric_count": 2,
+                "metrics": [
+                    "region_axis_agreement",
+                    "region_centroid_phase_alignment",
+                ],
+            },
+            {
+                "view_id": "trend",
+                "score": 1.0,
+                "metric_count": 1,
+                "metrics": ["region_centroid_trend_alignment"],
+            },
+        ],
+        "excluded_metrics": [
+            "boundary_connectivity.opening_count",
+            "uncertainties.open_items",
+            "uncertainties.uncertainty_routes",
+        ],
+        "uncertainty": "dimension scores average computed 0..1 scalar metrics only; counts, unavailable rows, and domain-specific weights are excluded until calibrated",
+    }
+    assert matrix["adapter_payload"]["score_matrix"] == matrix["score_matrix"]
+
+
+def test_evaluate_scene_reports_matrix_completion_audit_gate():
+    scene = load_structured_svg_scene(FIXTURE)
+    matrix = evaluate_scene(scene)
+    adapter_rows = {
+        row["metric"]: row
+        for row in matrix["rows"]
+        if row["view_id"] == "adapter_readiness"
+    }
+
+    audit = adapter_rows["matrix_completion_audit"]
+    family_status = {
+        item["family"]: item
+        for item in audit["required_metric_family_status"]
+    }
+
+    assert audit["score"] is None
+    assert audit["status"] == "computed"
+    assert audit["method"] == "completion_gate_from_current_metric_family_status"
+    assert audit["completion_ready"] is False
+    assert "route_topology" in audit["open_core_families"]
+    assert "visual_analysis" in audit["open_core_families"]
+    assert "live_bim_rhino_adapter" not in audit["open_core_families"]
+    assert family_status["route_topology"]["status"] == "prototype_proxy"
+    assert family_status["visual_analysis"]["status"] == "prototype_proxy"
+    assert family_status["live_bim_rhino_adapter"]["status"] == "deferred_by_user_scope"
 
 
 def test_evaluate_scene_returns_stable_metric_rows():
@@ -5537,6 +9173,20 @@ def test_evaluate_scene_returns_stable_metric_rows():
         ]["score"]
         == 57.2609
     )
+    assert path_rows["inferred_gap_path_width_free_space_clearance_ratio"] == {
+        "view_id": "path_connectivity",
+        "metric": "inferred_gap_path_width_free_space_clearance_ratio",
+        "score": 0.4628,
+        "status": "computed",
+        "method": "free_space_edge_clearance_width_over_inferred_gap_band_width",
+        "evidence": {
+            "free_space_mean_edge_clearance_width": 29.6985,
+            "walkable_proxy_mean_thickness": 64.1667,
+            "walkable_proxy_min_thickness": 9.75,
+            "walkable_proxy_edge_count": 6,
+        },
+        "uncertainty": "ratio between rect-cell free-space shared-edge width and inferred gap-band width; proxy consistency check, not route certification",
+    }
     assert (
         len(path_rows["free_space_polygon_graph_mean_edge_clearance_width"]["evidence"])
         == 1426
@@ -5722,6 +9372,28 @@ def test_evaluate_scene_returns_stable_metric_rows():
     assert region_phase["score"] == 0.6508
     assert region_phase["method"] == "region_centroid_projection_gap_cv_score"
     assert len(region_phase["region_centroid_phase_evidence"]) == 7
+    inferred_iou = [
+        row
+        for row in full_family_rows
+        if row["view_id"] == "region_alignment"
+        and row["metric"] == "inferred_region_explicit_iou_mean"
+    ][0]
+    assert inferred_iou["score"] == 0.81
+    assert [
+        (item["region"], item["iou"])
+        for item in inferred_iou["inferred_region_explicit_iou_evidence"][:3]
+    ] == [
+        ("east_work", 0.5658),
+        ("north_wall", 0.6996),
+        ("north_tables", 0.7326),
+    ]
+    assert [
+        (item["region"], item["iou"], item["dominant_mismatch"])
+        for item in inferred_iou["inferred_region_explicit_iou_evidence"][-2:]
+    ] == [
+        ("center_lounge", 0.9502, "candidate_overflows_explicit"),
+        ("west_lounge", 1.0, "aligned"),
+    ]
     membership = [
         row
         for row in full_family_rows
@@ -5730,18 +9402,24 @@ def test_evaluate_scene_returns_stable_metric_rows():
     ][0]
     assert membership["score"] == 1.0
     assert membership["method"] == "object_region_rect_or_polygon_overlap_area_ratio"
-    assert len(membership["object_region_membership_evidence"]) == 22
-    assert membership["missing_region_evidence"] == []
+    assert len(membership["object_region_membership_evidence"]) == 20
+    assert membership["missing_region_evidence"] == [
+        "center_misc_fixture",
+        "northwest_plant",
+    ]
     assignment = [
         row
         for row in full_family_rows
         if row["view_id"] == "region_alignment"
         and row["metric"] == "object_region_assignment_coverage"
     ][0]
-    assert assignment["score"] == 1.0
-    assert assignment["matched_object_count"] == 22
+    assert assignment["score"] == 0.9091
+    assert assignment["matched_object_count"] == 20
     assert assignment["total_object_count"] == 22
-    assert assignment["missing_region_evidence"] == []
+    assert assignment["missing_region_evidence"] == [
+        "center_misc_fixture",
+        "northwest_plant",
+    ]
     region_boundary = [
         row
         for row in full_family_rows
@@ -6096,6 +9774,202 @@ def test_evaluate_scene_returns_stable_metric_rows():
     assert matrix["isovist_radial_proxy"]["metrics"]["ray_count"] == 88
     assert matrix["isovist_radial_proxy"]["metrics"]["blocked_ray_count"] == 20
     assert matrix["isovist_radial_proxy"]["metrics"]["mean_hit_distance"] == 332.0904
+    visual_handoff = payload["visual_analysis_handoff"]
+    assert len(visual_handoff["visibility_graph"]["items"]) == 28
+    assert len(visual_handoff["isovist_radial_proxy"]["ray_items"]) == 88
+    assert len(visual_handoff["isovist_radial_proxy"]["area_items"]) == 11
+    assert {
+        **visual_handoff,
+        "visibility_graph": {
+            key: value
+            for key, value in visual_handoff["visibility_graph"].items()
+            if key != "items"
+        },
+        "isovist_radial_proxy": {
+            key: value
+            for key, value in visual_handoff["isovist_radial_proxy"].items()
+            if key not in {"ray_items", "area_items"}
+        },
+    } == {
+        "method": "adapter_visual_analysis_handoff_from_existing_visibility_proxies",
+        "visibility_graph": {
+            "method": "line_of_sight_graph_edge_visibility_ratio",
+            "node_count": 11,
+            "edge_count": 28,
+            "visible_edge_ratio": 0.7143,
+            "blocked_edge_ratio": 0.2857,
+            "blocking_boundary_count": 3,
+        },
+        "isovist_radial_proxy": {
+            "method": "radial_isovist_see_block_ray_intersection_proxy",
+            "status": "computed",
+            "vantage_count": 11,
+            "ray_count": 88,
+            "blocked_ray_count": 20,
+            "blocked_ray_ratio": 0.2273,
+            "mean_hit_distance": 332.0904,
+            "mean_hit_polygon_area": 415076.4205,
+        },
+        "uncertainty": "visual analysis handoff only; replace centerline visibility and radial ray proxies with full isovist polygons, VGA, or calibrated visual integration downstream",
+    }
+    assert payload["material_calibration_handoff"] == {
+        "method": "adapter_material_calibration_handoff_from_authored_boundary_weights",
+        "weight_metadata": {
+            "method": "records_with_explicit_walk_see_grouping_weights_over_weighted_boundary_records",
+            "coverage": 1.0,
+            "missing_ids": [],
+        },
+        "channel_means": {
+            "walk_block": 0.4615,
+            "see_block": 0.3962,
+            "grouping_strength": 0.6077,
+            "walk_see_block_gap": 0.0654,
+            "non_blocking_grouping_cue": 0.1538,
+        },
+        "calibration_candidates": [
+            {
+                "id": "glass_boundary",
+                "kind": "glass",
+                "walk_block": 1.0,
+                "see_block": 0.15,
+                "grouping_strength": 0.9,
+                "thickness": 3.0,
+            },
+            {
+                "id": "rug_boundary",
+                "kind": "rug",
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.85,
+                "thickness": 0.0,
+            },
+            {
+                "id": "material_boundary",
+                "kind": "material",
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.55,
+                "thickness": 0.0,
+            },
+            {
+                "id": "diagonal_boundary",
+                "kind": "visual",
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.6,
+                "thickness": 0.0,
+            },
+        ],
+        "uncertainty": "material calibration handoff only; authored walk/see/grouping weights and thickness metadata must be replaced or calibrated from Rhino/BIM materials, lighting, and perception data downstream",
+    }
+    column_grid_handoff = payload["column_grid_handoff"]
+    assert len(column_grid_handoff["axes"]["items"]) == 2
+    assert len(column_grid_handoff["region_bays"]["items"]) == 7
+    assert len(column_grid_handoff["object_bay_local_positions"]["items"]) == 22
+    assert {
+        **column_grid_handoff,
+        "axes": {
+            key: value
+            for key, value in column_grid_handoff["axes"].items()
+            if key != "items"
+        },
+        "region_bays": {
+            key: value
+            for key, value in column_grid_handoff["region_bays"].items()
+            if key != "items"
+        },
+        "object_bay_local_positions": {
+            key: value
+            for key, value in column_grid_handoff["object_bay_local_positions"].items()
+            if key != "items"
+        },
+    } == {
+        "method": "adapter_column_grid_handoff_from_existing_column_alignment_rows",
+        "axes": {
+            "method": "region_bbox_axis_to_column_axis_similarity",
+            "axis_count": 2,
+            "axis_ids": ["column_axis_x", "column_axis_y"],
+            "region_axis_agreement": 0.9429,
+        },
+        "object_phase": {
+            "method": "object_center_to_nearest_column_axis_distance_kernel",
+            "score": 0.7001,
+            "evidence_count": 22,
+        },
+        "region_bays": {
+            "method": "region_bbox_overlap_with_adjacent_column_axis_bay",
+            "score": 0.446,
+            "evidence_count": 7,
+        },
+        "object_bay_local_positions": {
+            "method": "object_center_affine_position_in_nearest_column_bay",
+            "score": 0.4091,
+            "evidence_count": 22,
+        },
+        "uncertainty": "column-grid handoff only; authored axis and bay proxies must be replaced by Rhino/BIM grid topology or irregular local grid interpolation downstream",
+    }
+    assert payload["adapter_capability_matrix"] == {
+        "method": "adapter_capability_matrix_from_current_payload_handoffs",
+        "ready_handoffs": [
+            "host_relationships",
+            "route_topology_handoff",
+            "visual_analysis_handoff",
+            "material_calibration_handoff",
+            "column_grid_handoff",
+        ],
+        "capabilities": [
+            {
+                "name": "host_relationships",
+                "status": "proxy_handoff",
+                "replacement": "live Rhino/VisualARQ/BIM hosted opening topology",
+            },
+            {
+                "name": "route_topology_handoff",
+                "status": "proxy_handoff",
+                "replacement": "navmesh, medial-axis, skeleton, or hosted BIM topology",
+            },
+            {
+                "name": "visual_analysis_handoff",
+                "status": "proxy_handoff",
+                "replacement": "full isovist polygons, VGA, or calibrated visual integration",
+            },
+            {
+                "name": "material_calibration_handoff",
+                "status": "metadata_handoff",
+                "replacement": "Rhino/BIM materials, lighting, and perception calibration",
+            },
+            {
+                "name": "column_grid_handoff",
+                "status": "proxy_handoff",
+                "replacement": "Rhino/BIM grid topology or irregular local grid interpolation",
+            },
+        ],
+        "open_uncertainty_routes": {
+            "geometry_upgrade": 8,
+            "perception_experiment": 8,
+            "bim_mapping": 8,
+            "method_replacement": 8,
+        },
+        "uncertainty": "capability matrix is a handoff readiness index only; it does not prove live adapter execution, hosted topology, validated geometry, material calibration, or final route/visibility analysis",
+    }
+    assert payload["notebook_audit_manifest"] == {
+        "method": "notebook_audit_manifest_for_clean_ordered_evidence_overlay",
+        "section_order": [
+            "1. Source Fixture",
+            "2. Evaluation Summary",
+            "3. Metric Matrix",
+            "4. Clean Evidence Overlay",
+            "5. Audit Snapshot",
+        ],
+        "default_overlay": {
+            "function": "scene_metric_overlay_svg(scene, matrix)",
+            "include_free_space_paths": False,
+            "dense_free_space_paths_layer": "free-space-graph-entry-region-path",
+        },
+        "optional_dense_layers": ["free-space-graph-entry-region-path"],
+        "status": "ordered_clean_overlay",
+        "uncertainty": "notebook audit manifest describes current executable notebook display policy only; it is not visual QA for every rendered layer or a final presentation layout",
+    }
     assert path_rows["isovist_radial_blocked_ray_ratio"]["score"] == 0.2273
     assert path_rows["entry_to_region_reachability"]["score"] == 0.3571
     assert path_rows["line_of_sight_entry_region_ratio"]["score"] == 1.0
@@ -6432,12 +10306,13 @@ def test_evaluate_scene_returns_stable_metric_rows():
         "isovist_radial_blocked_ray_ratio"
         in route_row["route_evidence"]["perception_experiment"]
     )
-    assert "glass_walk_see_gap" in route_row["route_evidence"]["perception_experiment"]
+    assert "inferred_region_count" in route_row["route_evidence"]["perception_experiment"]
+    assert "glass_walk_see_gap" in boundary_rows
     assert (
         "thickness_weighted_boundary_axis_concentration"
         in route_row["route_evidence"]["bim_mapping"]
     )
-    assert "region_column_bay_fit" in route_row["route_evidence"]["method_replacement"]
+    assert "inferred_region_explicit_iou_mean" in route_row["route_evidence"]["method_replacement"]
     assert (
         route_row["uncertainty"]
         == "routes are keyword summaries of declared metric uncertainty text, not a substitute for method validation"
@@ -7181,14 +11056,14 @@ def test_scene_metric_overlay_svg_contains_source_ids_and_metric_layers():
     assert 'data-layer="negative-space-graph-node"' in svg
     assert 'data-layer="negative-space-graph-edge"' in svg
     assert 'data-layer="negative-space-component"' in svg
-    assert 'data-layer="free-space-graph-entry-region-path"' in svg
     assert 'data-layer="free-space-graph-entry-anchor"' in svg
     assert 'data-layer="free-space-graph-region-anchor"' in svg
-    assert 'data-from-cell="component_0_cell_' in svg
-    assert 'data-to-cell="component_0_cell_' in svg
     assert 'data-entry="left_entry"' in svg
     assert 'data-region="region_north_tables"' in svg
     assert 'data-component="0"' in svg
+    assert 'data-layer="free-space-graph-entry-region-path"' not in svg
+    assert 'data-from-cell="component_0_cell_' not in svg
+    assert 'data-to-cell="component_0_cell_' not in svg
     assert 'data-cell-count="' in svg
     assert 'data-bbox-left="' in svg
     assert 'data-layer="line-of-sight-blocker-hit"' in svg
@@ -7237,6 +11112,64 @@ def test_scene_metric_overlay_svg_contains_source_ids_and_metric_layers():
     assert 'data-blocker="east_work_table"' in svg
     assert "edge_entry_path_touch_bottom_entry_path_placeholder" in svg
     assert "center_misc_fixture" in svg
+
+
+def test_scene_metric_overlay_svg_can_include_dense_free_space_paths():
+    from features.affordance.models import Rect
+
+    scene = {
+        "source": "synthetic_overlay",
+        "size": (100.0, 100.0),
+        "objects": [
+            {
+                "id": "table",
+                "role": "table",
+                "group": "global",
+                "region": "room",
+                "rect": Rect(cx=10, cy=10, width=10, height=10),
+                "points": [],
+                "weights": {},
+                "metadata": {},
+                "adapter_refs": {},
+            }
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+    matrix = {
+        "rows": [],
+        "graph": {"nodes": [], "edges": []},
+        "negative_space_graph": {"nodes": [], "edges": []},
+        "negative_space": {
+            "free_space_polygon_graph": {
+                "nodes": [
+                    {"id": "component_0_cell_a", "point": (0.0, 0.0)},
+                    {"id": "component_0_cell_b", "point": (10.0, 0.0)},
+                ],
+                "entry_region_distance_evidence": [
+                    {
+                        "entry_id": "entry",
+                        "region_id": "region",
+                        "component_index": 0,
+                        "path_cell_ids": [
+                            "component_0_cell_a",
+                            "component_0_cell_b",
+                        ],
+                    }
+                ],
+                "anchors": {"entries": [], "regions": []},
+            }
+        },
+    }
+    svg = scene_metric_overlay_svg(scene, matrix, include_free_space_paths=True)
+
+    assert 'data-layer="free-space-graph-entry-region-path"' in svg
+    assert 'data-from-cell="component_0_cell_' in svg
+    assert 'data-to-cell="component_0_cell_' in svg
 
 
 import nbformat
@@ -7316,6 +11249,44 @@ def test_floorplan_notebook_uses_automatic_scene_loader():
     assert "objects = [" not in source
 
 
+def test_floorplan_notebook_keeps_display_order_and_dense_paths_optional():
+    nb = nbformat.read("test/floorplan_order_matrix_demo.ipynb", as_version=4)
+    headings = [
+        cell.source.strip()
+        for cell in nb.cells
+        if cell.cell_type == "markdown" and cell.source.strip().startswith("## ")
+    ]
+    code_sources = [
+        cell.source
+        for cell in nb.cells
+        if cell.cell_type == "code"
+    ]
+    overlay_cells = [
+        cell
+        for cell in nb.cells
+        if cell.cell_type == "code"
+        and "display(SVG(data=scene_metric_overlay_svg(scene, matrix)))" in cell.source
+    ]
+
+    assert headings == [
+        "## 1. Source Fixture",
+        "## 2. Evaluation Summary",
+        "## 3. Metric Matrix",
+        "## 4. Clean Evidence Overlay",
+        "## 5. Audit Snapshot",
+    ]
+    assert "display(SVG(data=scene_metric_overlay_svg(scene, matrix)))" in code_sources[3]
+    assert "include_free_space_paths=True" not in "\n".join(code_sources)
+    assert len(overlay_cells) == 1
+
+    overlay_output = "".join(
+        "".join(data)
+        for output in overlay_cells[0].outputs
+        for data in output.get("data", {}).get("image/svg+xml", [])
+    )
+    assert "free-space-graph-entry-region-path" not in overlay_output
+
+
 def test_docs_do_not_describe_current_notebook_as_manual_object_table():
     spec = Path("docs/indoor_layout_evaluation_matrix_spec.md").read_text(
         encoding="utf-8"
@@ -7347,6 +11318,7 @@ def test_audit_records_automatic_svg_path_as_implemented_after_work():
     assert "Full evaluation matrix implementation" in audit
     assert "load_structured_svg_scene" in status
     assert "evaluate_scene(scene)" in status
+    assert "export_adapter_payload_json" in status
     assert "computed region-axis-to-column-axis similarity score" in status
     assert "explicit path graph evidence proxy" in status
     assert "path polygon-to-blocker clearance proxy" in status
@@ -7370,19 +11342,49 @@ def test_audit_records_automatic_svg_path_as_implemented_after_work():
     assert "closed_blocking_boundary_ratio" in status
     assert "hosted_entry_boundary_ratio" in status
     assert "fallback_entry_boundary_ratio" in status
+    assert "host_relationships" in status
+    assert "route_topology_handoff" in status
+    assert "route_topology_handoff.inferred_gap_paths" in status
+    assert "route_topology_handoff.cad_component_graph.items" in status
+    assert "route_topology_handoff.free_space_polygon_graph.items" in status
+    assert "visual_analysis_handoff" in status
+    assert "visual_analysis_handoff.visibility_graph.items" in status
+    assert "visual_analysis_handoff.isovist_radial_proxy.ray_items" in status
+    assert "visual_analysis_handoff.isovist_radial_proxy.area_items" in status
+    assert "material_calibration_handoff" in status
+    assert "column_grid_handoff" in status
+    assert "adapter_capability_matrix" in status
+    assert "matrix_completion_audit" in status
+    assert "completion_gate_from_current_metric_family_status" in status
+    assert "notebook_audit_manifest" in status
     assert "boundary_weight_metadata_coverage" in status
     assert "records_with_explicit_walk_see_grouping_weights_over_weighted_boundary_records" in status
     assert "path_disconnected_opening_ids" in status
     assert "adapter_refs" in status
     assert "neutral adapter payload" in status
     assert "adapter_payload" in status
+    assert "score_matrix" in status
+    assert "computed_unit_interval_metric_mean_by_view_id" in status
     assert "evidence_geometry" in status
+    assert "adapter_payload.evidence_geometry.affordance_zones" in status
+    assert "adapter_payload.evidence_geometry.furniture_affordance_extents" in status
+    assert "adapter_payload.evidence_geometry.inferred_region_candidates" in status
+    assert "adapter_payload.evidence_geometry.inferred_region_gap_paths" in status
+    assert "adapter_payload.evidence_geometry.inferred_region_gap_path_occupancy" in status
+    assert "adapter_payload.evidence_geometry.inferred_region_gap_path_free_space_overlap" in status
+    assert "inferred_region_gap_path_cad_free_space_overlap_ratio" in status
+    assert "inferred_gap_band_overlap_with_shapely_room_minus_blocker_polygons" in status
+    assert "cad_free_space_supported_edge_count" in status
+    assert "cad_free_space_supported_edges" in status
+    assert "adapter_payload.evidence_geometry.inferred_region_gap_path_cad_free_space_overlap" in status
     assert "free_space_polygon_graph" in status
     assert "free_space_polygon_graph_cycle_rank" in status
     assert "free_space_polygon_graph_mean_entry_region_distance" in status
     assert "free_space_polygon_graph_mean_edge_clearance_width" in status
     assert "free_space_polygon_graph_mean_entry_region_min_clearance_width" in status
     assert "free_space_polygon_graph_mean_entry_region_widest_clearance_width" in status
+    assert "inferred_gap_path_width_free_space_clearance_ratio" in status
+    assert "free_space_edge_clearance_width_over_inferred_gap_band_width" in status
     assert "free-space-graph-entry-region-path" in status
     assert "adapter_reference_coverage" in status
     assert "adapter_reference_role_coverage" in status
@@ -7487,11 +11489,57 @@ def test_audit_records_automatic_svg_path_as_implemented_after_work():
     assert "negative_space_entry_connected_region_area_coverage_ratio" in status
     assert "object_column_axis_phase_alignment" in status
     assert "region_centroid_phase_alignment" in status
+    assert "region_centroid_trend_alignment" in status
+    assert "region_centroid_pca_axis_cross_deviation_score" in status
+    assert "affordance_use_zone_count" in status
+    assert "object_footprint_adjacent_affordance_rect_zones" in status
+    assert "furniture_affordance_extent_count" in status
+    assert "object_footprint_plus_own_affordance_zone_extent" in status
+    assert "furniture-affordance-extent" in status
+    assert "geometry_basis=object_footprints_plus_affordance_zone_rects" in status
+    assert "affordance_zone_ids" in status
+    assert "affordance-use-zone" in status
+    assert "inferred_region_candidate_count" in status
+    assert "affordance_zone_boundary_cue_expanded_group_candidate_bounds" in status
+    assert "inferred_region_count" in status
+    assert "affordance_expanded_group_bounds" in status
+    assert "inferred_region_explicit_iou_mean" in status
+    assert "affordance_expanded_candidate_region_to_explicit_region_iou" in status
+    assert "inferred_region_gap_path_count" in status
+    assert "affordance_region_bbox_axis_gap_band_proxy" in status
+    assert "inferred_region_gap_path_occupancy_ratio" in status
+    assert "inferred_gap_band_overlap_with_object_footprints_and_affordance_zones" in status
+    assert "inferred_region_gap_path_free_space_overlap_ratio" in status
+    assert "inferred_gap_band_overlap_with_rect_cell_free_space_polygons" in status
+    assert "inferred_region_gap_path_walkable_proxy_ratio" in status
+    assert "clear_and_free_space_supported_inferred_gap_path_edges" in status
+    assert "walkable_proxy_component_count" in status
+    assert "walkable_proxy_components" in status
+    assert "walkable_proxy_min_thickness" in status
+    assert "walkable_proxy_mean_thickness" in status
+    assert "walkable_proxy_edge_widths" in status
+    assert "inferred_region_gap_path_min_width_pass_ratio" in status
+    assert "scene.settings.required_path_width" in status
+    assert "walkable_gap_band_thickness_over_manual_required_path_width" in status
+    assert "walkable_gap_band_thickness_over_half_sampled_grid_resolution" in status
+    assert "minimum_width_basis" in status
+    assert "width_pass_edges" in status
+    assert "width_fail_edges" in status
+    assert "inferred-gap-path-occupancy" in status
+    assert "occupied_area" in status
+    assert "clear_status" in status
+    assert "data-occupied" in status
+    assert "data-occupancy-ratio" in status
+    assert "data-clear-status" in status
+    assert "inferred_region_gap_path_explicit_path_iou_mean" in status
+    assert "affordance_gap_band_to_explicit_path_bbox_iou" in status
     assert "object_region_membership_coverage" in status
     assert "object_region_assignment_coverage" in status
     assert "region_column_bay_fit" in status
     assert "object_column_bay_local_position_coverage" in status
     assert "object_center_affine_position_in_nearest_column_bay" in status
+    assert "column_grid_handoff.region_bays.items" in status
+    assert "column_grid_handoff.object_bay_local_positions.items" in status
     assert "negative-space component bbox overlay evidence pass" in status
     assert "data-bbox-left" in status
     assert "column-grid overlay evidence pass" in status
@@ -7525,6 +11573,9 @@ def test_audit_records_automatic_svg_path_as_implemented_after_work():
     assert "sampled_widest_clearance_over_entry_region_distance_proxy" in status
     assert "not medial-axis width field or navmesh clearance" in status
     assert "bbox-touch graph evidence" in audit
+    assert "furniture_affordance_extent_count" in audit
+    assert "adapter_payload.evidence_geometry.furniture_affordance_extents" in audit
+    assert "furniture-affordance-extent" in audit
     assert "cad_room_minus_blocker_polygon_count" in audit
     assert "cad_room_minus_blocker_largest_component_area_ratio" in audit
     assert "shapely_largest_component_area_over_total_free_area" in audit
@@ -7574,19 +11625,43 @@ def test_method_ledger_records_source_backed_method_decisions():
     assert "closed_blocking_boundary_ratio" in text
     assert "hosted_entry_boundary_ratio" in text
     assert "fallback_entry_boundary_ratio" in text
+    assert "host_relationships" in text
+    assert "route_topology_handoff" in text
+    assert "inferred gap-path clear/occupied proxies" in text
+    assert "route_topology_handoff.cad_component_graph.items" in text
+    assert "route_topology_handoff.free_space_polygon_graph.items" in text
+    assert "visual_analysis_handoff" in text
+    assert "visual_analysis_handoff.visibility_graph.items" in text
+    assert "visual_analysis_handoff.isovist_radial_proxy.ray_items" in text
+    assert "visual_analysis_handoff.isovist_radial_proxy.area_items" in text
+    assert "material_calibration_handoff" in text
+    assert "column_grid_handoff" in text
+    assert "adapter_capability_matrix" in text
+    assert "matrix_completion_audit" in text
+    assert "completion_gate_from_current_metric_family_status" in text
+    assert "notebook_audit_manifest" in text
     assert "boundary_weight_metadata_coverage" in text
     assert "records_with_explicit_walk_see_grouping_weights_over_weighted_boundary_records" in text
     assert "path_disconnected_opening_ids" in text
     assert "adapter_reference_coverage" in text
     assert "adapter_reference_role_coverage" in text
     assert "adapter_payload" in text
+    assert "export_adapter_payload_json" in text
+    assert "score_matrix" in text
+    assert "computed_unit_interval_metric_mean_by_view_id" in text
     assert "evidence_geometry" in text
+    assert "inferred candidate regions/gap paths" in text
+    assert "furniture_affordance_extent_count" in text
+    assert "object_footprint_plus_own_affordance_zone_extent" in text
+    assert "adapter_payload.evidence_geometry.furniture_affordance_extents" in text
     assert "free_space_polygon_graph" in text
     assert "free_space_polygon_graph_cycle_rank" in text
     assert "free_space_polygon_graph_mean_entry_region_distance" in text
     assert "free_space_polygon_graph_mean_edge_clearance_width" in text
     assert "free_space_polygon_graph_mean_entry_region_min_clearance_width" in text
     assert "free_space_polygon_graph_mean_entry_region_widest_clearance_width" in text
+    assert "inferred_gap_path_width_free_space_clearance_ratio" in text
+    assert "free_space_edge_clearance_width_over_inferred_gap_band_width" in text
     assert "free-space-graph-entry-region-path" in text
     assert "neutral_adapter_payload_export" in text
     assert "opening_width_metadata_or_rect_max_dimension_mean" in text
@@ -7692,8 +11767,56 @@ def test_method_ledger_records_source_backed_method_decisions():
     assert "negative_space_entry_connected_region_area_coverage_ratio" in text
     assert "object_column_axis_phase_alignment" in text
     assert "region_centroid_phase_alignment" in text
+    assert "region_centroid_trend_alignment" in text
+    assert "region_centroid_pca_axis_cross_deviation_score" in text
+    assert "affordance_use_zone_count" in text
+    assert "object_footprint_adjacent_affordance_rect_zones" in text
+    assert "furniture-affordance-extent" in text
+    assert "geometry_basis=object_footprints_plus_affordance_zone_rects" in text
+    assert "affordance_zone_ids" in text
+    assert "inferred_region_candidate_count" in text
+    assert "affordance_zone_boundary_cue_expanded_group_candidate_bounds" in text
+    assert "inferred_region_count" in text
+    assert "affordance_expanded_group_bounds" in text
+    assert "inferred_region_explicit_iou_mean" in text
+    assert "affordance_expanded_candidate_region_to_explicit_region_iou" in text
+    assert "inferred_region_gap_path_count" in text
+    assert "affordance_region_bbox_axis_gap_band_proxy" in text
+    assert "inferred_region_gap_path_occupancy_ratio" in text
+    assert "inferred_gap_band_overlap_with_object_footprints_and_affordance_zones" in text
+    assert "inferred_region_gap_path_free_space_overlap_ratio" in text
+    assert "inferred_gap_band_overlap_with_rect_cell_free_space_polygons" in text
+    assert "inferred_region_gap_path_cad_free_space_overlap_ratio" in text
+    assert "inferred_gap_band_overlap_with_shapely_room_minus_blocker_polygons" in text
+    assert "cad_free_space_supported_edge_count" in text
+    assert "cad_free_space_supported_edges" in text
+    assert "adapter_payload.evidence_geometry.inferred_region_gap_path_cad_free_space_overlap" in text
+    assert "inferred_region_gap_path_walkable_proxy_ratio" in text
+    assert "clear_and_free_space_supported_inferred_gap_path_edges" in text
+    assert "walkable_proxy_component_count" in text
+    assert "walkable_proxy_components" in text
+    assert "walkable_proxy_min_thickness" in text
+    assert "walkable_proxy_mean_thickness" in text
+    assert "walkable_proxy_edge_widths" in text
+    assert "inferred_region_gap_path_min_width_pass_ratio" in text
+    assert "scene.settings.required_path_width" in text
+    assert "walkable_gap_band_thickness_over_manual_required_path_width" in text
+    assert "walkable_gap_band_thickness_over_half_sampled_grid_resolution" in text
+    assert "minimum_width_basis" in text
+    assert "width_pass_edges" in text
+    assert "width_fail_edges" in text
+    assert "inferred-gap-path-occupancy" in text
+    assert "occupied_area" in text
+    assert "clear_status" in text
+    assert "data-occupied" in text
+    assert "data-occupancy-ratio" in text
+    assert "data-clear-status" in text
+    assert "inferred_region_gap_path_explicit_path_iou_mean" in text
+    assert "affordance_gap_band_to_explicit_path_bbox_iou" in text
     assert "object_region_membership_coverage" in text
     assert "object_region_assignment_coverage" in text
     assert "region_column_bay_fit" in text
     assert "object_column_bay_local_position_coverage" in text
+    assert "column_grid_handoff.region_bays.items" in text
+    assert "column_grid_handoff.object_bay_local_positions.items" in text
     assert "local-frame containment proxy" in text
