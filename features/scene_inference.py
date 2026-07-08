@@ -1,0 +1,975 @@
+from __future__ import annotations
+
+from itertools import combinations
+from statistics import mean
+
+from .affordance.models import Rect
+from .affordance.profiles import resolve_affordance_profile
+
+
+def infer_scene_evidence(scene: dict) -> dict:
+    """Infer analysis evidence from a neutral scene, independent of SVG loading."""
+    zones = affordance_zones(scene)
+    extents = furniture_affordance_extents(scene)
+    groups = activity_groups(scene, extents)
+    candidates = inferred_region_candidates(scene)
+    regions = inferred_regions(scene, candidates)
+    gap_paths = inferred_region_gap_paths(candidates)
+    networks = spatial_networks(groups, gap_paths)
+    boundaries = boundary_semantics(scene)
+    return {
+        "affordance_zones": zones,
+        "furniture_affordance_extents": extents,
+        "activity_groups": groups,
+        "inferred_region_candidates": candidates,
+        "inferred_regions": regions,
+        "inferred_region_gap_paths": gap_paths,
+        "spatial_networks": networks,
+        "boundary_semantics": boundaries,
+        "inferred_region_gap_path_graph": build_inferred_region_gap_path_graph(
+            candidates,
+            gap_paths,
+            scene=scene,
+        ),
+    }
+
+
+def affordance_zones(scene: dict) -> list[dict]:
+    """Collect all furniture affordance zones in a neutral scene."""
+    return [
+        zone
+        for obj in scene.get("objects", [])
+        for zone in record_affordance_zones(obj)
+    ]
+
+
+def furniture_affordance_extents(scene: dict) -> list[dict]:
+    """Infer one maximum affordance extent for each furniture object."""
+    return sorted(
+        [
+            _furniture_affordance_extent_record(obj)
+            for obj in scene.get("objects", [])
+        ],
+        key=lambda item: item["id"],
+    )
+
+
+def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict]:
+    """Build activity groups from semantic region keys and furniture extents."""
+    extents = extents if extents is not None else furniture_affordance_extents(scene)
+    fallback_region_keys = {"", "global", "room"}
+    extents_by_region: dict[str, list[dict]] = {}
+    for extent in extents:
+        region = extent.get("region", "")
+        if region in fallback_region_keys:
+            continue
+        extents_by_region.setdefault(region, []).append(extent)
+    groups = []
+    for region, region_extents in sorted(extents_by_region.items()):
+        sorted_extents = sorted(region_extents, key=lambda item: item["id"])
+        # The group extent is the union envelope; overlaps are relation evidence,
+        # not a replacement for the group's full maximum affordance extent.
+        group_rect = _bounds(sorted_extents)
+        groups.append(
+            {
+                "id": f"activity_group_{region}",
+                "region": region,
+                "member_ids": sorted(extent["object_id"] for extent in sorted_extents),
+                "furniture_affordance_extent_ids": [
+                    extent["id"] for extent in sorted_extents
+                ],
+                "rect": group_rect,
+                "bbox": _rect_bbox(group_rect),
+                "overlap_evidence": _extent_overlap_evidence(sorted_extents),
+                "metadata": {
+                    "level": "activity_group",
+                    "source": "semantic_region_grouped_furniture_affordance_extents",
+                    "geometry_basis": "union_envelope_of_member_furniture_affordance_extents",
+                },
+            }
+        )
+    return groups
+
+
+def spatial_networks(activity_groups: list[dict], gap_paths: list[dict]) -> list[dict]:
+    """Build shared-schema spatial networks for internal and inter-region scopes."""
+    networks = [
+        {
+            "id": f"spatial_network_region_internal_{group['region']}",
+            "scope": "region_internal",
+            "nodes": [
+                {
+                    "id": extent_id,
+                    "kind": "furniture_affordance_extent",
+                }
+                for extent_id in group["furniture_affordance_extent_ids"]
+            ],
+            "edges": _activity_group_internal_edges(group),
+            "components": [[extent_id] for extent_id in group["furniture_affordance_extent_ids"]],
+            "metadata": {
+                "method": "activity_group_member_extent_network_skeleton",
+                "activity_group_id": group["id"],
+            },
+        }
+        for group in activity_groups
+    ]
+    region_node_ids = sorted(
+        {
+            region_id
+            for path in gap_paths
+            for region_id in (path["region_a"], path["region_b"])
+        }
+    )
+    adjacency = {region_id: set() for region_id in region_node_ids}
+    for path in gap_paths:
+        adjacency.setdefault(path["region_a"], set()).add(path["region_b"])
+        adjacency.setdefault(path["region_b"], set()).add(path["region_a"])
+    networks.append(
+        {
+            "id": "spatial_network_inter_region_gap_paths",
+            "scope": "inter_region",
+            "nodes": [
+                {
+                    "id": region_id,
+                    "kind": "activity_region_candidate",
+                }
+                for region_id in region_node_ids
+            ],
+            "edges": [
+                {
+                    "id": path["id"],
+                    "a": path["region_a"],
+                    "b": path["region_b"],
+                    "kind": "gap_path",
+                    "thickness": round(path["thickness"], 4),
+                }
+                for path in sorted(gap_paths, key=lambda item: item["id"])
+            ],
+            "components": _components({region_id: {} for region_id in region_node_ids}, adjacency)
+            if region_node_ids
+            else [],
+            "metadata": {
+                "method": "shared_spatial_network_schema_from_activity_groups_and_gap_paths",
+            },
+        }
+    )
+    return networks
+
+
+def boundary_semantics(scene: dict) -> list[dict]:
+    """Normalize boundary-like records into walk/see/grouping semantic profiles."""
+    openings_by_boundary: dict[str, list[str]] = {}
+    for entry in scene.get("entries", []):
+        host = entry.get("metadata", {}).get("host-boundary")
+        if host:
+            openings_by_boundary.setdefault(host, []).append(entry["id"])
+    semantics = []
+    for boundary in sorted(scene.get("boundaries", []), key=lambda item: item["id"]):
+        weights = boundary.get("weights", {})
+        metadata = boundary.get("metadata", {})
+        thickness = _float_metadata(metadata, "thickness")
+        grouping_strength = round(float(weights.get("grouping_strength", 0.0)), 4)
+        semantics.append(
+            {
+                "id": boundary["id"],
+                "kind": metadata.get("boundary-kind", boundary.get("role", "boundary")),
+                "walk_passable": float(weights.get("walk_block", 0.0)) < 0.5,
+                "see_passable": float(weights.get("see_block", 0.0)) < 0.5,
+                "thickness": round(thickness, 4),
+                "grouping_strength": grouping_strength,
+                "opening_ids": sorted(openings_by_boundary.get(boundary["id"], [])),
+                "surface_identity": thickness == 0.0 and grouping_strength > 0.0,
+                "metadata": {
+                    "source": "authored_boundary_weights_and_metadata",
+                },
+            }
+        )
+    return semantics
+
+
+def inferred_region_candidates(scene: dict) -> list[dict]:
+    """Infer candidate activity regions from objects, affordances, and boundary cues."""
+    return _spacing_margin_expanded_candidates(
+        _raw_inferred_region_candidates(scene),
+        scene.get("size", (0.0, 0.0)),
+        scene,
+    )
+
+
+def inferred_regions(scene: dict, candidates: list[dict]) -> list[dict]:
+    """Return inferred candidates that are not already explicit scene regions."""
+    existing_region_keys = {
+        region.get("region") for region in scene.get("regions", [])
+    }
+    return [
+        candidate
+        for candidate in candidates
+        if candidate.get("region") not in existing_region_keys
+    ]
+
+
+def inferred_region_gap_paths(inferred_regions: list[dict]) -> list[dict]:
+    """Infer axis-aligned gap bands between region bounding boxes."""
+    gap_paths = []
+    for region_a, region_b in combinations(inferred_regions, 2):
+        rect_a = region_a["rect"]
+        rect_b = region_b["rect"]
+        top = max(rect_a.top, rect_b.top)
+        bottom = min(rect_a.bottom, rect_b.bottom)
+        if bottom > top:
+            left_region, right_region = sorted(
+                (region_a, region_b),
+                key=lambda region: region["rect"].cx,
+            )
+            left = left_region["rect"].right
+            right = right_region["rect"].left
+            if right > left:
+                gap_rect = Rect(
+                    cx=(left + right) / 2,
+                    cy=(top + bottom) / 2,
+                    width=right - left,
+                    height=bottom - top,
+                )
+                if not _gap_path_blocked_by_intermediate_region(
+                    gap_rect,
+                    (left_region, right_region),
+                    inferred_regions,
+                ):
+                    gap_paths.append(
+                        _inferred_region_gap_path(
+                            left_region,
+                            right_region,
+                            gap_rect,
+                            "vertical",
+                        )
+                    )
+        left = max(rect_a.left, rect_b.left)
+        right = min(rect_a.right, rect_b.right)
+        if right > left:
+            top_region, bottom_region = sorted(
+                (region_a, region_b),
+                key=lambda region: region["rect"].cy,
+            )
+            top_edge = top_region["rect"].bottom
+            bottom_edge = bottom_region["rect"].top
+            if bottom_edge > top_edge:
+                gap_rect = Rect(
+                    cx=(left + right) / 2,
+                    cy=(top_edge + bottom_edge) / 2,
+                    width=right - left,
+                    height=bottom_edge - top_edge,
+                )
+                if not _gap_path_blocked_by_intermediate_region(
+                    gap_rect,
+                    (top_region, bottom_region),
+                    inferred_regions,
+                ):
+                    gap_paths.append(
+                        _inferred_region_gap_path(
+                            top_region,
+                            bottom_region,
+                            gap_rect,
+                            "horizontal",
+                        )
+                    )
+    return sorted(gap_paths, key=lambda item: item["id"])
+
+
+def build_inferred_region_gap_path_graph(
+    inferred_regions: list[dict],
+    gap_paths: list[dict],
+    sampled_walkable_space: dict | None = None,
+    gap_path_occupancy: list[dict] | None = None,
+    gap_path_free_space_overlap: list[dict] | None = None,
+    gap_path_cad_free_space_overlap: list[dict] | None = None,
+    *,
+    scene: dict | None = None,
+) -> dict:
+    """Build graph evidence that connects inferred regions through usable gap bands."""
+    occupancy_by_gap_path = {
+        item["gap_path_id"]: item
+        for item in gap_path_occupancy or []
+    }
+    free_space_overlap_by_gap_path = {
+        item["gap_path_id"]: item
+        for item in gap_path_free_space_overlap or []
+    }
+    cad_free_space_overlap_by_gap_path = {
+        item["gap_path_id"]: item
+        for item in gap_path_cad_free_space_overlap or []
+    }
+    has_cad_free_space_overlap = bool(cad_free_space_overlap_by_gap_path)
+    nodes = [
+        {
+            "id": region["id"],
+            "region": region["region"],
+        }
+        for region in sorted(inferred_regions, key=lambda region: region["id"])
+    ]
+    edges = []
+    for path in gap_paths:
+        occupancy = occupancy_by_gap_path.get(path["id"], {})
+        free_space_overlap = free_space_overlap_by_gap_path.get(path["id"], {})
+        cad_free_space_overlap = cad_free_space_overlap_by_gap_path.get(path["id"], {})
+        occupancy_ratio = occupancy.get("occupancy_ratio", 0.0)
+        edge = {
+            "id": path["id"],
+            "a": path["region_a"],
+            "b": path["region_b"],
+            "orientation": path["orientation"],
+            "thickness": round(path["thickness"], 4),
+            "overlap_span": round(path["overlap_span"], 4),
+            "clear_status": gap_path_clear_status(occupancy_ratio),
+            "occupancy_ratio": occupancy_ratio,
+            "free_space_overlap_ratio": free_space_overlap.get(
+                "free_space_overlap_ratio",
+                0.0,
+            ),
+        }
+        if has_cad_free_space_overlap:
+            # CAD overlap is stronger support evidence, but it stays additive here.
+            edge["cad_free_space_overlap_ratio"] = cad_free_space_overlap.get(
+                "cad_free_space_overlap_ratio",
+                0.0,
+            )
+        edges.append(edge)
+    adjacency = {node["id"]: set() for node in nodes}
+    for edge in edges:
+        adjacency.setdefault(edge["a"], set()).add(edge["b"])
+        adjacency.setdefault(edge["b"], set()).add(edge["a"])
+    node_map = {node["id"]: node for node in nodes}
+    components = _components(node_map, adjacency) if node_map else []
+    # A gap band is usable only when it is clear and supported by free space
+    walkable_proxy_edges = [
+        edge["id"]
+        for edge in edges
+        if edge["clear_status"] == "clear_proxy"
+        and edge["free_space_overlap_ratio"] > 0
+    ]
+    walkable_proxy_edge_widths = [
+        {
+            "id": edge["id"],
+            "thickness": edge["thickness"],
+            "overlap_span": edge["overlap_span"],
+        }
+        for edge in edges
+        if edge["id"] in walkable_proxy_edges
+    ]
+    # Manual path width is a demand parameter, not an inferred SVG feature
+    required_path_width = _required_path_width(scene or {})
+    minimum_width = (
+        required_path_width
+        if required_path_width is not None
+        else round(sampled_walkable_space["resolution"] / 2, 4)
+        if sampled_walkable_space
+        else None
+    )
+    minimum_width_basis = (
+        "manual_required_path_width"
+        if required_path_width is not None
+        else "half_sampled_grid_resolution"
+        if minimum_width is not None
+        else None
+    )
+    minimum_width_evidence = (
+        ["scene.settings.required_path_width"]
+        if required_path_width is not None
+        else sampled_walkable_space.get("resolution_evidence", [])
+        if sampled_walkable_space
+        else []
+    )
+    width_evidence = [
+        {
+            "id": item["id"],
+            "thickness": item["thickness"],
+            "minimum_width": minimum_width,
+            "passes": item["thickness"] >= minimum_width,
+        }
+        for item in walkable_proxy_edge_widths
+        if minimum_width is not None
+    ]
+    width_pass_edges = [item["id"] for item in width_evidence if item["passes"]]
+    width_fail_edges = [item["id"] for item in width_evidence if not item["passes"]]
+    walkable_proxy_adjacency = {node["id"]: set() for node in nodes}
+    for edge in edges:
+        if edge["id"] not in walkable_proxy_edges:
+            continue
+        walkable_proxy_adjacency.setdefault(edge["a"], set()).add(edge["b"])
+        walkable_proxy_adjacency.setdefault(edge["b"], set()).add(edge["a"])
+    walkable_proxy_components = (
+        _components(node_map, walkable_proxy_adjacency) if node_map else []
+    )
+    graph = {
+        "method": "inferred_gap_path_region_adjacency_graph_proxy",
+        "node_count": len(nodes),
+        "edge_count": len(edges),
+        "clear_edge_count": sum(
+            1 for edge in edges if edge["clear_status"] == "clear_proxy"
+        ),
+        "occupied_edge_count": sum(
+            1 for edge in edges if edge["clear_status"] == "occupied_proxy"
+        ),
+        "free_space_supported_edge_count": sum(
+            1 for edge in edges if edge["free_space_overlap_ratio"] > 0
+        ),
+        "walkable_proxy_edge_count": len(walkable_proxy_edges),
+        "walkable_proxy_min_thickness": min(
+            (item["thickness"] for item in walkable_proxy_edge_widths),
+            default=None,
+        ),
+        "walkable_proxy_mean_thickness": round(
+            mean(item["thickness"] for item in walkable_proxy_edge_widths),
+            4,
+        )
+        if walkable_proxy_edge_widths
+        else None,
+        "component_count": len(components),
+        "walkable_proxy_component_count": len(walkable_proxy_components),
+        "components": components,
+        "walkable_proxy_components": walkable_proxy_components,
+        "nodes": nodes,
+        "edges": edges,
+        "walkable_proxy_edges": walkable_proxy_edges,
+        "walkable_proxy_edge_widths": walkable_proxy_edge_widths,
+        "minimum_width": minimum_width,
+        "minimum_width_basis": minimum_width_basis,
+        "minimum_width_evidence": minimum_width_evidence,
+        "width_pass_edge_count": len(width_pass_edges),
+        "width_fail_edge_count": len(width_fail_edges),
+        "width_pass_edges": width_pass_edges,
+        "width_fail_edges": width_fail_edges,
+        "width_evidence": width_evidence,
+    }
+    if has_cad_free_space_overlap:
+        cad_free_space_supported_edges = [
+            edge["id"]
+            for edge in edges
+            if edge.get("cad_free_space_overlap_ratio", 0.0) > 0
+        ]
+        graph.update(
+            {
+                "cad_free_space_supported_edge_count": (
+                    len(cad_free_space_supported_edges)
+                ),
+                "cad_free_space_supported_edges": cad_free_space_supported_edges,
+            }
+        )
+    return graph
+
+
+def record_affordance_zones(record: dict) -> list[dict]:
+    """Convert one object record into side-specific affordance rectangles."""
+    zones = []
+    for side, depth in _affordance_margins(record).items():
+        if depth <= 0:
+            continue
+        zones.append(
+            {
+                "id": f"affordance_zone_{record['id']}_{side}",
+                "object_id": record["id"],
+                "region": record.get("region", record.get("group", "")),
+                "side": side,
+                "depth": round(depth, 4),
+                "source": _affordance_margin_source(record, side),
+                "rect": _affordance_zone_rect(record["rect"], side, depth),
+                "footprint_rect": record["rect"],
+            }
+        )
+    return zones
+
+
+def gap_path_clear_status(occupancy_ratio: float) -> str:
+    """Classify a gap path as clear or occupied from proxy occupancy evidence."""
+    return "occupied_proxy" if occupancy_ratio > 0 else "clear_proxy"
+
+
+def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
+    """Create unexpanded region candidates from neutral object region keys."""
+    fallback_region_keys = {"", "global", "room"}
+    # Group objects by neutral region keys
+    region_keys = sorted(
+        {
+            obj.get("region")
+            for obj in scene.get("objects", [])
+            if obj.get("region")
+            and obj.get("region") not in fallback_region_keys
+        }
+    )
+    candidates = []
+    for region_key in region_keys:
+        members = [
+            obj
+            for obj in scene.get("objects", [])
+            if obj.get("region") == region_key
+        ]
+        if not members:
+            continue
+        extents = [_furniture_affordance_extent_record(obj) for obj in members]
+        # Activity regions are composed from per-furniture maximum affordance extents
+        rects = [
+            extent["rect"]
+            for extent in extents
+        ]
+        boundary_cues = [
+            boundary
+            for boundary in scene.get("boundaries", [])
+            if boundary.get("region") == region_key
+            and boundary.get("weights", {}).get("grouping_strength", 0.0) > 0.0
+        ]
+        rects.extend(boundary["rect"] for boundary in boundary_cues)
+        region_rect = _bounds([{"rect": rect} for rect in rects])
+        member_ids = sorted(obj["id"] for obj in members)
+        child_extent_ids = sorted(extent["id"] for extent in extents)
+        affordance_zone_ids = [
+            zone_id
+            for extent in extents
+            for zone_id in extent["affordance_zone_ids"]
+        ]
+        boundary_cue_ids = sorted(boundary["id"] for boundary in boundary_cues)
+        candidates.append(
+            _inferred_region_record(
+                region_key,
+                region_rect,
+                member_ids,
+                child_extent_ids,
+                affordance_zone_ids,
+                boundary_cue_ids,
+            )
+        )
+    return candidates
+
+
+def _inferred_region_record(
+    region_key: str,
+    region_rect: Rect,
+    member_ids: list[str],
+    child_extent_ids: list[str],
+    affordance_zone_ids: list[str],
+    boundary_cue_ids: list[str],
+) -> dict:
+    """Create the neutral record used for an inferred activity region."""
+    return {
+        "id": f"inferred_region_{region_key}",
+        "role": "region",
+        "group": region_key,
+        "region": region_key,
+        "rect": region_rect,
+        "points": [],
+        "weights": {
+            "walk_block": 0.0,
+            "see_block": 0.0,
+            "grouping_strength": 0.0,
+        },
+        "metadata": {
+            "inferred": "true",
+            "level": "activity_region_candidate",
+            "source": "affordance_zone_boundary_cue_expanded_group_bounds",
+            "geometry_basis": "object_footprints_plus_affordance_zone_rects",
+            "member_ids": ",".join(member_ids),
+            "child_extent_ids": ",".join(child_extent_ids),
+            "affordance_zone_ids": ",".join(sorted(affordance_zone_ids)),
+            "boundary_cue_ids": ",".join(boundary_cue_ids),
+        },
+        "adapter_refs": {},
+    }
+
+
+def _candidate_member_rects(scene: dict, candidate: dict) -> list[Rect]:
+    """Look up footprint rectangles for the objects named by a candidate."""
+    member_ids = {
+        item
+        for item in candidate["metadata"].get("member_ids", "").split(",")
+        if item
+    }
+    return [
+        obj["rect"]
+        for obj in scene.get("objects", [])
+        if obj["id"] in member_ids
+    ]
+
+
+def _member_spacing_margin(rects: list[Rect]) -> float:
+    """Estimate a small expansion margin from nearest positive member spacing."""
+    if len(rects) < 4:
+        return float("inf")
+    gaps = []
+    for a, b in combinations(rects, 2):
+        if min(a.bottom, b.bottom) > max(a.top, b.top):
+            gaps.append(max(a.left, b.left) - min(a.right, b.right))
+        if min(a.right, b.right) > max(a.left, b.left):
+            gaps.append(max(a.top, b.top) - min(a.bottom, b.bottom))
+    positive_gaps = [gap for gap in gaps if gap > 0]
+    if not positive_gaps:
+        return float("inf")
+    return min(positive_gaps) * 0.25
+
+
+def _spacing_margin_expanded_candidates(
+    candidates: list[dict],
+    scene_size: tuple[float, float],
+    scene: dict,
+) -> list[dict]:
+    """Expand inferred region candidates using local spacing between groups."""
+    if len(candidates) < 2:
+        return candidates
+    explicit_by_region = {
+        region["region"]: region
+        for region in scene.get("regions", [])
+        if region.get("metadata", {}).get("analysis-region") != "false"
+    }
+    expanded = []
+    for candidate in candidates:
+        # Expand candidates just enough to represent repeated-group spacing
+        boundary_cue_ids = [
+            cue_id
+            for cue_id in candidate["metadata"].get("boundary_cue_ids", "").split(",")
+            if cue_id
+        ]
+        if boundary_cue_ids:
+            expanded.append(candidate)
+            continue
+        rect = candidate["rect"]
+        member_rects = _candidate_member_rects(scene, candidate)
+        margin = round(
+            min(
+                max(rect.width, rect.height) * 0.25,
+                _member_spacing_margin(member_rects),
+            ),
+            4,
+        )
+        side_margins = {
+            "left": margin,
+            "right": margin,
+            "top": margin,
+            "bottom": margin,
+        }
+        for other in candidates:
+            if other is candidate:
+                continue
+            other_rect = other["rect"]
+            if min(rect.bottom, other_rect.bottom) > max(rect.top, other_rect.top):
+                if other_rect.left >= rect.right:
+                    side_margins["right"] = min(
+                        side_margins["right"],
+                        max(0.0, (other_rect.left - rect.right) * 0.25),
+                    )
+                elif rect.left >= other_rect.right:
+                    side_margins["left"] = min(
+                        side_margins["left"],
+                        max(0.0, (rect.left - other_rect.right) * 0.25),
+                    )
+            if min(rect.right, other_rect.right) > max(rect.left, other_rect.left):
+                if other_rect.top >= rect.bottom:
+                    side_margins["bottom"] = min(
+                        side_margins["bottom"],
+                        max(0.0, (other_rect.top - rect.bottom) * 0.25),
+                    )
+                elif rect.top >= other_rect.bottom:
+                    side_margins["top"] = min(
+                        side_margins["top"],
+                        max(0.0, (rect.top - other_rect.bottom) * 0.25),
+                    )
+        if not all(value > 0 and value != float("inf") for value in side_margins.values()):
+            expanded.append(candidate)
+            continue
+        candidate_rect = _clamp_rect_to_scene_size(
+            Rect(
+                cx=(rect.left - side_margins["left"] + rect.right + side_margins["right"]) / 2,
+                cy=(rect.top - side_margins["top"] + rect.bottom + side_margins["bottom"]) / 2,
+                width=rect.width + side_margins["left"] + side_margins["right"],
+                height=rect.height + side_margins["top"] + side_margins["bottom"],
+            ),
+            scene_size,
+        )
+        explicit = explicit_by_region.get(candidate["region"])
+        if explicit and _rect_iou(candidate_rect, explicit["rect"]) < _rect_iou(
+            candidate["rect"],
+            explicit["rect"],
+        ):
+            expanded.append(candidate)
+            continue
+        widened = dict(candidate)
+        metadata = dict(candidate["metadata"])
+        metadata["source"] = "affordance_zone_boundary_cue_expanded_group_bounds"
+        metadata["spacing_margin"] = str(margin)
+        metadata["spacing_side_margins"] = ",".join(
+            f"{side}:{value}"
+            for side, value in {
+                "left": round(rect.left - candidate_rect.left, 4),
+                "right": round(candidate_rect.right - rect.right, 4),
+                "top": round(rect.top - candidate_rect.top, 4),
+                "bottom": round(candidate_rect.bottom - rect.bottom, 4),
+            }.items()
+        )
+        widened["metadata"] = metadata
+        widened["rect"] = candidate_rect
+        expanded.append(widened)
+    return expanded
+
+
+def _gap_path_blocked_by_intermediate_region(
+    gap_rect: Rect,
+    source_regions: tuple[dict, dict],
+    regions: list[dict],
+) -> bool:
+    """Report whether another region intersects the candidate gap band."""
+    source_ids = {region["id"] for region in source_regions}
+    return any(
+        region["id"] not in source_ids and gap_rect.intersects(region["rect"])
+        for region in regions
+    )
+
+
+def _inferred_region_gap_path(region_a: dict, region_b: dict, rect: Rect, orientation: str) -> dict:
+    """Create a neutral gap-path record between two inferred regions."""
+    region_a_key = region_a["region"]
+    region_b_key = region_b["region"]
+    return {
+        "id": f"inferred_gap_path_{region_a_key}__{region_b_key}",
+        "region_a": region_a["id"],
+        "region_b": region_b["id"],
+        "rect": rect,
+        "orientation": orientation,
+        "thickness": rect.width if orientation == "vertical" else rect.height,
+        "overlap_span": rect.height if orientation == "vertical" else rect.width,
+        "metadata": {
+            "source": "affordance_region_bbox_axis_gap_band_proxy",
+            "path_between": "activity_region_candidate",
+        },
+    }
+
+
+def _furniture_affordance_extent_record(record: dict) -> dict:
+    """Create one maximum extent from a furniture footprint and its own affordances."""
+    zones = record_affordance_zones(record)
+    rect = _bounds([{"rect": item} for item in [record["rect"], *[zone["rect"] for zone in zones]]])
+    return {
+        "id": f"furniture_affordance_extent_{record['id']}",
+        "object_id": record["id"],
+        "region": record.get("region", record.get("group", "")),
+        "rect": rect,
+        "footprint_rect": record["rect"],
+        "affordance_zone_ids": sorted(zone["id"] for zone in zones),
+        "metadata": {
+            "level": "furniture_affordance_extent",
+            "source": "object_footprint_plus_affordance_zones",
+            "geometry_basis": "object_footprint_plus_own_affordance_zone_rects",
+        },
+    }
+
+
+def _required_path_width(scene: dict) -> float | None:
+    """Read the manually configured required path width from scene settings."""
+    value = scene.get("settings", {}).get("required_path_width")
+    if value is None:
+        return None
+    width = float(value)
+    return round(width, 4) if width > 0 else None
+
+
+def _extent_overlap_evidence(extents: list[dict]) -> list[dict]:
+    """Describe pairwise extent overlaps without using them as group extents."""
+    return [
+        {
+            "a": extent_a["id"],
+            "b": extent_b["id"],
+            "overlap_area": round(_rect_overlap_area(extent_a["rect"], extent_b["rect"]), 4),
+        }
+        for extent_a, extent_b in combinations(extents, 2)
+    ]
+
+
+def _activity_group_internal_edges(group: dict) -> list[dict]:
+    """Connect member extents that have non-zero relation overlap evidence."""
+    return [
+        {
+            "id": f"internal_relation_{item['a']}__{item['b']}",
+            "a": item["a"],
+            "b": item["b"],
+            "kind": "member_extent_overlap",
+            "overlap_area": item["overlap_area"],
+        }
+        for item in group["overlap_evidence"]
+        if item["overlap_area"] > 0
+    ]
+
+
+def _rect_bbox(rect: Rect) -> tuple[float, float, float, float]:
+    """Return a stable rounded bbox tuple for evidence records."""
+    return (
+        round(rect.left, 4),
+        round(rect.top, 4),
+        round(rect.right, 4),
+        round(rect.bottom, 4),
+    )
+
+
+def _affordance_zone_rect(rect: Rect, side: str, depth: float) -> Rect:
+    """Build the affordance rectangle extending from one side of a footprint."""
+    if side == "left":
+        return Rect(cx=rect.left - depth / 2, cy=rect.cy, width=depth, height=rect.height)
+    if side == "right":
+        return Rect(cx=rect.right + depth / 2, cy=rect.cy, width=depth, height=rect.height)
+    if side == "top":
+        return Rect(cx=rect.cx, cy=rect.top - depth / 2, width=rect.width, height=depth)
+    return Rect(cx=rect.cx, cy=rect.bottom + depth / 2, width=rect.width, height=depth)
+
+
+def _affordance_margins(record: dict) -> dict[str, float]:
+    """Resolve explicit or profile-derived affordance depth for each side."""
+    metadata = record.get("metadata", {})
+    explicit_keys = (
+        "affordance-left",
+        "affordance-right",
+        "affordance-top",
+        "affordance-bottom",
+    )
+    if not any(key in metadata for key in explicit_keys):
+        return _profile_affordance_margins(record)
+    return {
+        "left": _float_metadata(metadata, "affordance-left"),
+        "right": _float_metadata(metadata, "affordance-right"),
+        "top": _float_metadata(metadata, "affordance-top"),
+        "bottom": _float_metadata(metadata, "affordance-bottom"),
+    }
+
+
+def _affordance_margin_source(record: dict, side: str) -> str:
+    """Name the evidence source used for one side's affordance depth."""
+    metadata = record.get("metadata", {})
+    if f"affordance-{side}" in metadata:
+        return "explicit_affordance_metadata"
+    return "affordance_profile"
+
+
+def _profile_affordance_margins(record: dict) -> dict[str, float]:
+    """Resolve affordance margins from a role/type profile."""
+    type_id = _record_affordance_type_id(record)
+    if not type_id:
+        return {"left": 0.0, "right": 0.0, "top": 0.0, "bottom": 0.0}
+    profile = resolve_affordance_profile(type_id, record.get("affordance"))
+    margins = {"left": 0.0, "right": 0.0, "top": 0.0, "bottom": 0.0}
+    # Profile defaults turn object roles into usable-side extents
+    for edge in profile.usable_edges:
+        side = _profile_edge_side(edge, record)
+        if side in margins:
+            margins[side] = max(margins[side], profile.depth_for(edge))
+    return margins
+
+
+def _profile_edge_side(edge: str, record: dict) -> str:
+    """Map a profile edge name onto the scene side after object orientation."""
+    if edge != "front":
+        return edge
+    sides = ("bottom", "right", "top", "left")
+    index = round(_record_orientation(record) / 90.0) % len(sides)
+    return sides[index]
+
+
+def _record_orientation(record: dict) -> float:
+    """Return object orientation in degrees, defaulting invalid values to zero."""
+    metadata = record.get("metadata", {})
+    try:
+        return float(record.get("orientation", metadata.get("orientation", 0.0)) or 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _record_affordance_type_id(record: dict) -> str:
+    """Resolve the profile type id from explicit fields or role defaults."""
+    metadata = record.get("metadata", {})
+    role = record.get("role")
+    role_defaults = {
+        "chair": "chair.default",
+        "armchair": "armchair.default",
+        "podium": "podium.default",
+    }
+    return (
+        record.get("type_id")
+        or metadata.get("type_id")
+        or metadata.get("type-id")
+        or role_defaults.get(role, "")
+    )
+
+
+def _float_metadata(metadata: dict, key: str) -> float:
+    """Parse one numeric metadata value with zero as the safe fallback."""
+    try:
+        return float(metadata.get(key, 0.0) or 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _rect_iou(a: Rect, b: Rect) -> float:
+    """Return intersection-over-union for two rectangles."""
+    intersection = _rect_overlap_area(a, b)
+    union = a.area + b.area - intersection
+    if union <= 1e-9:
+        return 0.0
+    return intersection / union
+
+
+def _clamp_rect_to_scene_size(rect: Rect, scene_size: tuple[float, float]) -> Rect:
+    """Clamp a rectangle to scene bounds when the scene size is valid."""
+    width, height = scene_size
+    if width <= 0 or height <= 0:
+        return rect
+    left = max(0.0, rect.left)
+    right = min(width, rect.right)
+    top = max(0.0, rect.top)
+    bottom = min(height, rect.bottom)
+    if right <= left or bottom <= top:
+        return rect
+    return Rect(
+        cx=(left + right) / 2,
+        cy=(top + bottom) / 2,
+        width=right - left,
+        height=bottom - top,
+    )
+
+
+def _bounds(objects: list[dict]):
+    """Return the bounding rectangle around object-like records with rect fields."""
+    left = min(obj["rect"].left for obj in objects)
+    right = max(obj["rect"].right for obj in objects)
+    top = min(obj["rect"].top for obj in objects)
+    bottom = max(obj["rect"].bottom for obj in objects)
+    rect = objects[0]["rect"]
+    return type(rect)(
+        cx=(left + right) / 2,
+        cy=(top + bottom) / 2,
+        width=right - left,
+        height=bottom - top,
+    )
+
+
+def _rect_overlap_area(a, b) -> float:
+    """Return the overlap area shared by two rectangle-like objects."""
+    left = max(a.left, b.left)
+    right = min(a.right, b.right)
+    top = max(a.top, b.top)
+    bottom = min(a.bottom, b.bottom)
+    if right <= left or bottom <= top:
+        return 0.0
+    return (right - left) * (bottom - top)
+
+
+def _components(nodes: dict, adjacency: dict[str, set[str]]) -> list[list[str]]:
+    """Return sorted connected components for a simple undirected graph."""
+    remaining = set(nodes)
+    components = []
+    while remaining:
+        start = min(remaining)
+        stack = [start]
+        component = []
+        remaining.remove(start)
+        while stack:
+            node = stack.pop()
+            component.append(node)
+            for neighbor in sorted(adjacency.get(node, set()), reverse=True):
+                if neighbor not in remaining:
+                    continue
+                remaining.remove(neighbor)
+                stack.append(neighbor)
+        components.append(sorted(component))
+    return components

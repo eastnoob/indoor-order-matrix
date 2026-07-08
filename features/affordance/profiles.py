@@ -46,12 +46,20 @@ DEFAULT_AFFORDANCE_PROFILES = {
         edge_depth={"front": 40.0},
         min_clearance=0.0,
     ),
+    "armchair.default": AffordanceProfile(edge_depth=15.0, min_clearance=0.0),
+    "podium.default": AffordanceProfile(
+        usable_edges=("front",),
+        edge_depth={"front": 80.0},
+        min_clearance=0.0,
+    ),
 }
 
 DEFAULT_AISLE_PROFILES = {
     "furniture.default": AisleProfile(min_width=60.0),
     "table.default": AisleProfile(min_width=80.0),
     "chair.default": AisleProfile(min_width=60.0),
+    "armchair.default": AisleProfile(min_width=60.0),
+    "podium.default": AisleProfile(min_width=80.0),
 }
 
 

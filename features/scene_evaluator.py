@@ -1,22 +1,49 @@
 from __future__ import annotations
 
+import json
 from collections import deque
 from heapq import heappop, heappush
 from html import escape
 from itertools import combinations
 from math import atan2, cos, degrees, hypot, radians, sin
+from pathlib import Path
 from statistics import mean, pstdev
 
 from .affordance.grid_backend import SpatialGridBackend
 from .affordance.grid_backend import _polygon_rect_overlap_area
 from .affordance.models import Polygon, Rect
 from .analyzer import OrderAnalyzer
+from .scene_inference import build_inferred_region_gap_path_graph
+from .scene_inference import gap_path_clear_status
+from .scene_inference import infer_scene_evidence
+from .scene_inference import inferred_region_candidates as infer_region_candidates
+
+ADAPTER_PAYLOAD_CONTRACT = {
+    "id": "neutral_adapter_payload",
+    "version": 1,
+}
+ADAPTER_READY_HANDOFFS = [
+    "host_relationships",
+    "route_topology_handoff",
+    "visual_analysis_handoff",
+    "material_calibration_handoff",
+    "column_grid_handoff",
+]
 
 
 def evaluate_scene(scene: dict) -> dict:
     """Evaluate a parsed layout scene into stable, notebook-friendly rows."""
     objects = scene["objects"]
-    analysis_scene = _analysis_scene(scene)
+    inference = infer_scene_evidence(scene)
+    affordance_zones = inference["affordance_zones"]
+    furniture_affordance_extents = inference["furniture_affordance_extents"]
+    activity_groups = inference["activity_groups"]
+    inferred_region_candidates = inference["inferred_region_candidates"]
+    inferred_regions = inference["inferred_regions"]
+    inferred_region_gap_paths = inference["inferred_region_gap_paths"]
+    spatial_networks = inference["spatial_networks"]
+    boundary_semantics = inference["boundary_semantics"]
+    analysis_scene = _analysis_scene(scene, inferred_regions=inferred_regions)
     graph = _path_graph(analysis_scene)
     graphs = _modal_path_graphs(analysis_scene, graph)
     path_geometry = _path_geometry(scene)
@@ -33,11 +60,57 @@ def evaluate_scene(scene: dict) -> dict:
     rows.extend(_group_geometry_rows(objects))
     rows.append(_region_alignment_row(analysis_scene))
     rows.append(_region_centroid_phase_row(analysis_scene))
+    rows.append(_region_centroid_trend_row(analysis_scene))
     rows.append(_region_boundary_alignment_row(analysis_scene))
     rows.append(_region_source_boundary_alignment_row(analysis_scene))
     rows.append(_region_source_boundary_weighted_alignment_row(analysis_scene))
     rows.append(_region_source_boundary_proximity_row(analysis_scene))
-    rows.extend(_object_region_membership_rows(scene))
+    rows.append(_affordance_use_zone_row(affordance_zones))
+    rows.append(_furniture_affordance_extent_row(furniture_affordance_extents))
+    rows.append(_inferred_region_candidate_row(inferred_region_candidates))
+    rows.append(_inferred_region_row(inferred_regions))
+    rows.append(_inferred_region_explicit_iou_row(scene, inferred_region_candidates))
+    rows.append(_inferred_region_gap_path_row(inferred_region_gap_paths))
+    gap_path_occupancy_row = _inferred_region_gap_path_occupancy_row(
+        scene,
+        affordance_zones,
+        inferred_region_gap_paths,
+    )
+    rows.append(gap_path_occupancy_row)
+    gap_path_free_space_overlap_row = _inferred_region_gap_path_free_space_overlap_row(
+        inferred_region_gap_paths,
+        negative_space,
+    )
+    rows.append(gap_path_free_space_overlap_row)
+    gap_path_cad_free_space_overlap_row = (
+        _inferred_region_gap_path_cad_free_space_overlap_row(
+            inferred_region_gap_paths,
+            negative_space,
+        )
+    )
+    inferred_region_gap_path_graph = build_inferred_region_gap_path_graph(
+        inferred_region_candidates,
+        inferred_region_gap_paths,
+        sampled_walkable_space,
+        gap_path_occupancy_row.get(
+            "inferred_region_gap_path_occupancy_evidence",
+            [],
+        ),
+        gap_path_free_space_overlap_row.get(
+            "inferred_region_gap_path_free_space_overlap_evidence",
+            [],
+        ),
+        gap_path_cad_free_space_overlap_row.get(
+            "inferred_region_gap_path_cad_free_space_overlap_evidence",
+            [],
+        ),
+        scene=scene,
+    )
+    rows.append(_inferred_region_gap_path_walkable_proxy_row(inferred_region_gap_path_graph))
+    rows.append(_inferred_region_gap_path_min_width_row(inferred_region_gap_path_graph))
+    rows.append(gap_path_cad_free_space_overlap_row)
+    rows.append(_inferred_region_gap_path_explicit_path_iou_row(scene, inferred_region_gap_paths))
+    rows.extend(_object_region_membership_rows(analysis_scene))
     rows.extend(_column_alignment_rows(analysis_scene))
     rows.extend(_whole_space_force_rows(scene))
     rows.extend(
@@ -53,19 +126,44 @@ def evaluate_scene(scene: dict) -> dict:
             isovist_radial_proxy,
         )
     )
+    rows.append(_inferred_gap_path_width_free_space_clearance_row(rows, negative_space))
     rows.append(_boundary_connectivity_row(scene))
     rows.extend(_boundary_metrics_rows(scene, graph))
     rows.append(_adapter_reference_row(scene))
     rows.append(_uncertainty_row(scene))
     rows.append(_uncertainty_route_row(rows))
+    rows.append(_matrix_completion_audit_row())
+    score_matrix = _score_matrix(rows)
     return {
         "source": scene["source"],
         "rows": rows,
+        "score_matrix": score_matrix,
+        "affordance_zones": affordance_zones,
+        "furniture_affordance_extents": furniture_affordance_extents,
+        "activity_groups": activity_groups,
+        "inferred_region_candidates": inferred_region_candidates,
+        "inferred_regions": inferred_regions,
+        "inferred_region_gap_paths": inferred_region_gap_paths,
+        "spatial_networks": spatial_networks,
+        "boundary_semantics": boundary_semantics,
+        "inferred_region_gap_path_graph": inferred_region_gap_path_graph,
         "adapter_payload": _adapter_payload(
-            scene,
+            _adapter_scene(scene, inferred_regions=inferred_regions),
             rows,
+            graphs,
             negative_space,
             negative_space_graph,
+            line_of_sight_graph,
+            isovist_radial_proxy,
+            affordance_zones,
+            furniture_affordance_extents,
+            activity_groups,
+            inferred_region_candidates,
+            inferred_region_gap_paths,
+            spatial_networks,
+            boundary_semantics,
+            inferred_region_gap_path_graph,
+            score_matrix,
         ),
         "graph": graph,
         "graphs": graphs,
@@ -78,17 +176,239 @@ def evaluate_scene(scene: dict) -> dict:
     }
 
 
-def _analysis_scene(scene: dict) -> dict:
+def export_adapter_payload_json(scene: dict, target: str | Path) -> dict:
+    """Write the neutral adapter payload as JSON and return it."""
+    payload = evaluate_scene(scene)["adapter_payload"]
+    Path(target).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return payload
+
+
+def validate_adapter_payload_json(target: str | Path) -> dict:
+    """Summarize whether an exported adapter payload has the handoff keys."""
+    payload = json.loads(Path(target).read_text(encoding="utf-8"))
+    required = [
+        "handoff_contract",
+        "scene_records",
+        "external_refs",
+        "grasshopper_branches",
+        "metric_rows",
+        "score_matrix",
+        "evidence_geometry",
+        "adapter_capability_matrix",
+        "notebook_audit_manifest",
+    ]
+    missing = [key for key in required if key not in payload]
+    handoff_contract = payload.get("handoff_contract", {})
+    scene_records = payload.get("scene_records", [])
+    external_refs = payload.get("external_refs", {})
+    grasshopper_branches = payload.get("grasshopper_branches", [])
+    ready_handoffs = payload.get("adapter_capability_matrix", {}).get(
+        "ready_handoffs", []
+    )
+    notebook_status = payload.get("notebook_audit_manifest", {}).get("status")
+    contract_errors = []
+    if "handoff_contract" in missing:
+        contract_errors.append("handoff_contract is missing")
+    elif handoff_contract != ADAPTER_PAYLOAD_CONTRACT:
+        contract_errors.append("handoff_contract is not neutral_adapter_payload version 1")
+    if not ready_handoffs:
+        contract_errors.append("adapter_capability_matrix.ready_handoffs is empty")
+    elif handoff_contract == ADAPTER_PAYLOAD_CONTRACT:
+        missing_handoffs = [
+            handoff for handoff in ADAPTER_READY_HANDOFFS if handoff not in ready_handoffs
+        ]
+        if missing_handoffs:
+            contract_errors.append(
+                "adapter_capability_matrix.ready_handoffs missing: "
+                + ", ".join(sorted(missing_handoffs))
+            )
+    if notebook_status != "ordered_clean_overlay":
+        contract_errors.append(
+            "notebook_audit_manifest.status is not ordered_clean_overlay"
+        )
+    if "grasshopper_branches" not in missing and isinstance(
+        grasshopper_branches,
+        list,
+    ):
+        branch_paths = [
+            branch.get("path")
+            for branch in grasshopper_branches
+            if isinstance(branch, dict)
+        ]
+        branch_groups = {
+            "records": any(
+                isinstance(path, str)
+                and path.startswith(
+                    (
+                        "{0;objects;",
+                        "{0;boundaries;",
+                        "{0;entries;",
+                        "{0;paths;",
+                        "{0;regions;",
+                        "{0;column_grid;",
+                    )
+                )
+                for path in branch_paths
+            ),
+            "metrics": any(
+                isinstance(path, str) and path.startswith("{0;metrics;")
+                for path in branch_paths
+            ),
+            "graphs": any(
+                isinstance(path, str) and path.startswith("{0;graphs;")
+                for path in branch_paths
+            ),
+        }
+        missing_branch_groups = sorted(
+            group for group, present in branch_groups.items() if not present
+        )
+        if missing_branch_groups:
+            contract_errors.append(
+                "grasshopper_branches missing branch groups: "
+                + ", ".join(missing_branch_groups)
+            )
+    if isinstance(scene_records, list) and payload.get("record_count", 0) != len(
+        scene_records
+    ):
+        contract_errors.append("record_count does not match scene_records length")
+    if isinstance(scene_records, list):
+        record_ids = [
+            record.get("id") for record in scene_records if isinstance(record, dict)
+        ]
+        duplicate_ids = sorted(
+            {
+                record_id
+                for record_id in record_ids
+                if record_id is not None and record_ids.count(record_id) > 1
+            }
+        )
+        if duplicate_ids:
+            contract_errors.append(
+                "scene_records duplicate ids: " + ", ".join(duplicate_ids)
+            )
+        if isinstance(external_refs, dict):
+            record_id_set = {record_id for record_id in record_ids if record_id}
+            records_by_id = {
+                record.get("id"): record
+                for record in scene_records
+                if isinstance(record, dict) and record.get("id")
+            }
+            ref_target_ids = []
+            stale_reverse_refs = []
+            for refs_by_value in external_refs.values():
+                if not isinstance(refs_by_value, dict):
+                    continue
+                for target in refs_by_value.values():
+                    if isinstance(target, list):
+                        ref_target_ids.extend(target)
+                    else:
+                        ref_target_ids.append(target)
+            missing_ref_targets = sorted(
+                {
+                    target
+                    for target in ref_target_ids
+                    if target not in record_id_set
+                }
+            )
+            if missing_ref_targets:
+                contract_errors.append(
+                    "external_refs target ids missing: "
+                    + ", ".join(missing_ref_targets)
+                )
+            for ref_key, refs_by_value in external_refs.items():
+                if not isinstance(refs_by_value, dict):
+                    continue
+                for ref_value, target in refs_by_value.items():
+                    targets = target if isinstance(target, list) else [target]
+                    for target_id in targets:
+                        if target_id not in records_by_id:
+                            continue
+                        record = records_by_id.get(target_id, {})
+                        adapter_refs = record.get("adapter_refs", {})
+                        if (
+                            isinstance(adapter_refs, dict)
+                            and adapter_refs.get(ref_key) != ref_value
+                        ):
+                            stale_reverse_refs.append(
+                                f"{ref_key}:{ref_value}->{target_id}"
+                            )
+            if stale_reverse_refs:
+                contract_errors.append(
+                    "external_refs stale reverse refs: "
+                    + ", ".join(sorted(stale_reverse_refs))
+                )
+            missing_reverse_refs = []
+            for record in scene_records:
+                if not isinstance(record, dict):
+                    continue
+                record_id = record.get("id")
+                adapter_refs = record.get("adapter_refs", {})
+                if not isinstance(adapter_refs, dict):
+                    continue
+                for ref_key, ref_value in adapter_refs.items():
+                    reverse_target = external_refs.get(ref_key, {}).get(ref_value)
+                    targets = (
+                        reverse_target
+                        if isinstance(reverse_target, list)
+                        else [reverse_target]
+                    )
+                    if record_id not in targets:
+                        missing_reverse_refs.append(
+                            f"{ref_key}:{ref_value}->{record_id}"
+                        )
+            if missing_reverse_refs:
+                contract_errors.append(
+                    "external_refs missing reverse refs: "
+                    + ", ".join(sorted(missing_reverse_refs))
+                )
+    result = {
+        "valid": not missing and not contract_errors,
+        "missing_keys": missing,
+        "contract_id": handoff_contract.get("id"),
+        "contract_version": handoff_contract.get("version"),
+        "record_count": payload.get("record_count", 0),
+        "ready_handoff_count": len(ready_handoffs),
+        "notebook_status": notebook_status,
+    }
+    if contract_errors:
+        result["contract_errors"] = contract_errors
+    return result
+
+
+def _analysis_scene(scene: dict, *, inferred_regions: list[dict] | None = None) -> dict:
     filtered = dict(scene)
+    inferred_regions = list(inferred_regions or [])
     filtered["regions"] = [
         region
-        for region in scene.get("regions", [])
+        for region in scene.get("regions", []) + inferred_regions
         if region.get("metadata", {}).get("analysis-region") != "false"
     ]
     return filtered
 
 
-def scene_metric_overlay_svg(scene: dict, matrix: dict) -> str:
+def _adapter_scene(scene: dict, *, inferred_regions: list[dict] | None = None) -> dict:
+    exported = dict(scene)
+    exported["regions"] = scene.get("regions", []) + list(inferred_regions or [])
+    return exported
+
+
+def _rect_iou(a: Rect, b: Rect) -> float:
+    intersection = _rect_overlap_area(a, b)
+    union = a.area + b.area - intersection
+    if union <= 1e-9:
+        return 0.0
+    return intersection / union
+
+
+def scene_metric_overlay_svg(
+    scene: dict,
+    matrix: dict,
+    *,
+    include_free_space_paths: bool = False,
+) -> str:
     """Draw parsed source ids and group boxes as metric evidence."""
     analysis_scene = _analysis_scene(scene)
     labels = []
@@ -225,30 +545,31 @@ def scene_metric_overlay_svg(scene: dict, matrix: dict) -> str:
     free_space_nodes = {
         node["id"]: node for node in free_space_graph.get("nodes", [])
     }
-    for item in free_space_graph.get("entry_region_distance_evidence", []):
-        path_cell_ids = item.get("path_cell_ids", [])
-        for index, (from_cell_id, to_cell_id) in enumerate(
-            zip(path_cell_ids, path_cell_ids[1:])
-        ):
-            from_node = free_space_nodes.get(from_cell_id)
-            to_node = free_space_nodes.get(to_cell_id)
-            if not from_node or not to_node:
-                continue
-            ax, ay = from_node["point"]
-            bx, by = to_node["point"]
-            negative_space_layers.append(
-                f'<line data-layer="free-space-graph-entry-region-path" '
-                f'data-entry="{escape(item["entry_id"])}" '
-                f'data-region="{escape(item["region_id"])}" '
-                f'data-component="{item["component_index"]}" '
-                f'data-segment-index="{index}" '
-                f'data-from-cell="{escape(from_cell_id)}" '
-                f'data-to-cell="{escape(to_cell_id)}" '
-                f'x1="{ax:.1f}" y1="{ay:.1f}" x2="{bx:.1f}" y2="{by:.1f}" '
-                f'stroke="#f59e0b" stroke-width="2.4" opacity="0.7">'
-                f'<title>{escape(item["entry_id"])} to '
-                f'{escape(item["region_id"])}</title></line>'
-            )
+    if include_free_space_paths:
+        for item in free_space_graph.get("entry_region_distance_evidence", []):
+            path_cell_ids = item.get("path_cell_ids", [])
+            for index, (from_cell_id, to_cell_id) in enumerate(
+                zip(path_cell_ids, path_cell_ids[1:])
+            ):
+                from_node = free_space_nodes.get(from_cell_id)
+                to_node = free_space_nodes.get(to_cell_id)
+                if not from_node or not to_node:
+                    continue
+                ax, ay = from_node["point"]
+                bx, by = to_node["point"]
+                negative_space_layers.append(
+                    f'<line data-layer="free-space-graph-entry-region-path" '
+                    f'data-entry="{escape(item["entry_id"])}" '
+                    f'data-region="{escape(item["region_id"])}" '
+                    f'data-component="{item["component_index"]}" '
+                    f'data-segment-index="{index}" '
+                    f'data-from-cell="{escape(from_cell_id)}" '
+                    f'data-to-cell="{escape(to_cell_id)}" '
+                    f'x1="{ax:.1f}" y1="{ay:.1f}" x2="{bx:.1f}" y2="{by:.1f}" '
+                    f'stroke="#f59e0b" stroke-width="2.4" opacity="0.7">'
+                    f'<title>{escape(item["entry_id"])} to '
+                    f'{escape(item["region_id"])}</title></line>'
+                )
     for anchor in free_space_graph.get("anchors", {}).get("entries", []):
         for cell_id in anchor.get("cell_ids", []):
             node = free_space_nodes.get(cell_id)
@@ -342,6 +663,132 @@ def scene_metric_overlay_svg(scene: dict, matrix: dict) -> str:
             f'stroke="#f97316" stroke-width="2.5" opacity="0.74">'
             f'<title>{escape(region["id"])} {axis["angle"]:.4f}</title></line>'
         )
+    for zone in matrix.get("affordance_zones", []):
+        rect = zone["rect"]
+        region_layers.append(
+            f'<rect data-layer="affordance-use-zone" '
+            f'data-affordance-zone="{escape(zone["id"])}" '
+            f'data-object="{escape(zone["object_id"])}" '
+            f'data-region="{escape(zone["region"])}" '
+            f'data-side="{escape(zone["side"])}" '
+            f'data-depth="{zone["depth"]:.4f}" '
+            f'data-source="{escape(zone["source"])}" '
+            f'x="{rect.left:.1f}" y="{rect.top:.1f}" '
+            f'width="{rect.width:.1f}" height="{rect.height:.1f}" '
+            f'fill="#22c55e" opacity="0.12" stroke="#16a34a" '
+            f'stroke-width="1.8" stroke-dasharray="5 4">'
+            f'<title>{escape(zone["id"])}</title></rect>'
+        )
+    for extent in matrix.get("furniture_affordance_extents", []):
+        rect = extent["rect"]
+        region_layers.append(
+            f'<rect data-layer="furniture-affordance-extent" '
+            f'data-extent="{escape(extent["id"])}" '
+            f'data-object="{escape(extent["object_id"])}" '
+            f'data-region="{escape(extent["region"])}" '
+            f'x="{rect.left:.1f}" y="{rect.top:.1f}" '
+            f'width="{rect.width:.1f}" height="{rect.height:.1f}" '
+            f'fill="none" stroke="#059669" stroke-width="2.0" '
+            f'stroke-dasharray="2 4" opacity="0.72">'
+            f'<title>{escape(extent["id"])}</title></rect>'
+        )
+    inferred_region_ids = {
+        region["id"] for region in matrix.get("inferred_regions", [])
+    }
+    for region in matrix.get("inferred_region_candidates", []):
+        if region["id"] in inferred_region_ids:
+            continue
+        rect = region["rect"]
+        region_layers.append(
+            f'<rect data-layer="inferred-region-candidate" '
+            f'data-candidate="{escape(region["id"])}" '
+            f'data-region="{escape(region["region"])}" '
+            f'x="{rect.left:.1f}" y="{rect.top:.1f}" '
+            f'width="{rect.width:.1f}" height="{rect.height:.1f}" '
+            f'fill="none" stroke="#a855f7" stroke-width="2.2" '
+            f'stroke-dasharray="10 6" opacity="0.82">'
+            f'<title>{escape(region["id"])}</title></rect>'
+        )
+    for region in matrix.get("inferred_regions", []):
+        rect = region["rect"]
+        region_layers.append(
+            f'<rect data-layer="inferred-region" '
+            f'data-region="{escape(region["region"])}" '
+            f'data-source="{escape(region["metadata"]["source"])}" '
+            f'x="{rect.left:.1f}" y="{rect.top:.1f}" '
+            f'width="{rect.width:.1f}" height="{rect.height:.1f}" '
+            f'fill="#38bdf8" opacity="0.08" stroke="#0284c7" '
+            f'stroke-width="2.4" stroke-dasharray="8 5">'
+            f'<title>{escape(region["id"])}</title></rect>'
+        )
+    occupancy_by_gap_path = {
+        item["gap_path_id"]: item
+        for row in matrix.get("rows", [])
+        if row.get("metric") == "inferred_region_gap_path_occupancy_ratio"
+        for item in row.get("inferred_region_gap_path_occupancy_evidence", [])
+    }
+    for path in matrix.get("inferred_region_gap_paths", []):
+        rect = path["rect"]
+        occupancy = occupancy_by_gap_path.get(path["id"], {})
+        occupancy_ratio = occupancy.get("occupancy_ratio", 0.0)
+        occupied = bool(occupancy.get("occupiers"))
+        clear_status = gap_path_clear_status(occupancy_ratio)
+        region_layers.append(
+            f'<rect data-layer="inferred-gap-path" '
+            f'data-gap-path="{escape(path["id"])}" '
+            f'data-region-a="{escape(path["region_a"])}" '
+            f'data-region-b="{escape(path["region_b"])}" '
+            f'data-orientation="{escape(path["orientation"])}" '
+            f'data-thickness="{path["thickness"]:.4f}" '
+            f'data-occupied="{str(occupied).lower()}" '
+            f'data-occupancy-ratio="{occupancy_ratio:.4f}" '
+            f'data-clear-status="{clear_status}" '
+            f'x="{rect.left:.1f}" y="{rect.top:.1f}" '
+            f'width="{rect.width:.1f}" height="{rect.height:.1f}" '
+            f'fill="#a78bfa" opacity="0.14" stroke="#7c3aed" '
+            f'stroke-width="2.2">'
+            f'<title>{escape(path["id"])}</title></rect>'
+        )
+    gap_rects_by_id = {
+        path["id"]: path["rect"]
+        for path in matrix.get("inferred_region_gap_paths", [])
+    }
+    affordance_zone_rects = {
+        zone["id"]: zone["rect"]
+        for zone in matrix.get("affordance_zones", [])
+    }
+    object_rects = {
+        obj["id"]: obj["rect"]
+        for obj in scene.get("objects", [])
+    }
+    for row in matrix.get("rows", []):
+        if row.get("metric") != "inferred_region_gap_path_occupancy_ratio":
+            continue
+        for item in row.get("inferred_region_gap_path_occupancy_evidence", []):
+            gap_rect = gap_rects_by_id.get(item["gap_path_id"])
+            if not gap_rect:
+                continue
+            for occupier in item.get("occupiers", []):
+                occupier_rect = (
+                    affordance_zone_rects.get(occupier["id"])
+                    if occupier.get("kind") == "affordance_zone"
+                    else object_rects.get(occupier["id"])
+                )
+                if not occupier_rect:
+                    continue
+                region_layers.append(
+                    f'<line data-layer="inferred-gap-path-occupancy" '
+                    f'data-gap-path="{escape(item["gap_path_id"])}" '
+                    f'data-occupier="{escape(occupier["id"])}" '
+                    f'data-kind="{escape(occupier["kind"])}" '
+                    f'data-overlap-area="{occupier["overlap_area"]:.4f}" '
+                    f'data-occupancy-ratio="{item["occupancy_ratio"]:.4f}" '
+                    f'x1="{gap_rect.cx:.1f}" y1="{gap_rect.cy:.1f}" '
+                    f'x2="{occupier_rect.cx:.1f}" y2="{occupier_rect.cy:.1f}" '
+                    f'stroke="#dc2626" stroke-width="2.2" stroke-dasharray="3 4" '
+                    f'opacity="0.68"><title>{escape(item["gap_path_id"])} occupied by '
+                    f'{escape(occupier["id"])}</title></line>'
+                )
 
     for boundary in scene.get("boundaries", []):
         rect = boundary["rect"]
@@ -696,6 +1143,64 @@ def _projection_phase_score(projections: list[dict]) -> float:
     return _cv_score([b - a for a, b in zip(coords, coords[1:])])
 
 
+def _region_centroid_trend_row(scene: dict) -> dict:
+    regions = [
+        region
+        for region in scene["regions"]
+        if region["rect"].width > 0 and region["rect"].height > 0
+    ]
+    if len(regions) < 3:
+        return _not_available(
+            "trend",
+            "region_centroid_trend_alignment",
+            "needs at least three measurable regions",
+        )
+    points = [(region["rect"].cx, region["rect"].cy, region["id"]) for region in regions]
+    cx = mean(point[0] for point in points)
+    cy = mean(point[1] for point in points)
+    xx = mean((x - cx) ** 2 for x, _, _ in points)
+    yy = mean((y - cy) ** 2 for _, y, _ in points)
+    xy = mean((x - cx) * (y - cy) for x, y, _ in points)
+    axis = (degrees(0.5 * atan2(2 * xy, xx - yy)) + 180) % 180
+    if abs(axis - 180) < 1e-9:
+        axis = 0.0
+    axis_rad = radians(axis)
+    ux, uy = cos(axis_rad), sin(axis_rad)
+    evidence = []
+    projections = []
+    for x, y, region_id in sorted(points, key=lambda item: item[2]):
+        dx, dy = x - cx, y - cy
+        projection = dx * ux + dy * uy
+        cross = abs(-uy * dx + ux * dy)
+        projections.append(projection)
+        evidence.append(
+            {
+                "region_id": region_id,
+                "projection": round(projection, 4),
+                "cross_axis_deviation": round(cross, 4),
+            }
+        )
+    span = max(projections) - min(projections)
+    mean_deviation = mean(item["cross_axis_deviation"] for item in evidence)
+    return {
+        "view_id": "trend",
+        "metric": "region_centroid_trend_alignment",
+        "score": round(1 / (1 + mean_deviation / max(span, 1e-9)), 4),
+        "status": "computed",
+        "method": "region_centroid_pca_axis_cross_deviation_score",
+        "evidence": [item["region_id"] for item in evidence],
+        "trend_axis": {
+            "angle": round(axis, 4),
+            "basis": "region_centroid_pca_axis",
+            "region_count": len(regions),
+            "span": round(span, 4),
+            "mean_cross_axis_deviation": round(mean_deviation, 4),
+        },
+        "region_centroid_trend_evidence": evidence,
+        "uncertainty": "PCA trend over region bbox centers; proxy for dominant layout direction, not semantic procession, circulation intent, or time-series trend",
+    }
+
+
 def _region_boundary_alignment_row(scene: dict) -> dict:
     region_axis_descriptors = [
         _record_axis_descriptor(region)
@@ -925,6 +1430,596 @@ def _region_source_boundary_proximity_row(scene: dict) -> dict:
         "evidence": [item["region_id"] for item in matches],
         "region_boundary_proximity": matches,
         "uncertainty": "bbox gap proximity proxy; replace with curve/polygon distance and containment in Rhino/BIM",
+    }
+
+
+def _inferred_region_row(inferred_regions: list[dict]) -> dict:
+    evidence = _inferred_region_evidence(inferred_regions)
+    return {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_count",
+        "score": len(inferred_regions),
+        "status": "computed" if inferred_regions else "not_available",
+        "method": "affordance_zone_boundary_cue_expanded_group_bounds",
+        "evidence": [region["id"] for region in inferred_regions],
+        "inferred_region_evidence": evidence,
+        "uncertainty": "candidate regions inferred from furniture footprint, affordance extents, and same-region boundary cues; bbox proxy, not alpha-shape or perception-calibrated region discovery",
+    }
+
+
+def _affordance_use_zone_row(zones: list[dict]) -> dict:
+    evidence = [
+        {
+            "id": zone["id"],
+            "object_id": zone["object_id"],
+            "region": zone["region"],
+            "side": zone["side"],
+            "depth": zone["depth"],
+            "source": zone["source"],
+            "zone_bbox": _rect_bbox(zone["rect"]),
+            "footprint_bbox": _rect_bbox(zone["footprint_rect"]),
+        }
+        for zone in zones
+    ]
+    return {
+        "view_id": "region_alignment",
+        "metric": "affordance_use_zone_count",
+        "score": len(zones),
+        "status": "computed" if zones else "not_available",
+        "method": "object_footprint_adjacent_affordance_rect_zones",
+        "evidence": [zone["id"] for zone in zones],
+        "affordance_use_zone_evidence": evidence,
+        "uncertainty": "axis-aligned affordance use zones separate furniture footprints from occupied/use space; proxy, not posture simulation or swept human motion",
+    }
+
+
+def _furniture_affordance_extent_row(extents: list[dict]) -> dict:
+    evidence = [
+        _furniture_affordance_extent_evidence(extent)
+        for extent in extents
+    ]
+    return {
+        "view_id": "region_alignment",
+        "metric": "furniture_affordance_extent_count",
+        "score": len(extents),
+        "status": "computed" if extents else "not_available",
+        "method": "object_footprint_plus_own_affordance_zone_extent",
+        "evidence": [extent["id"] for extent in extents],
+        "furniture_affordance_extent_evidence": evidence,
+        "uncertainty": "per-object affordance extents are bbox envelopes of footprint plus own use zones; proxy, not swept posture or motion simulation",
+    }
+
+
+def _furniture_affordance_extent_evidence(extent: dict) -> dict:
+    return {
+        "id": extent["id"],
+        "object_id": extent["object_id"],
+        "region": extent["region"],
+        "bbox": _rect_bbox(extent["rect"]),
+        "footprint_bbox": _rect_bbox(extent["footprint_rect"]),
+        "affordance_zone_ids": list(extent["affordance_zone_ids"]),
+    }
+
+
+def _activity_group_evidence(group: dict) -> dict:
+    """Return adapter-safe activity group evidence without Rect objects."""
+    return {
+        "id": group["id"],
+        "region": group["region"],
+        "member_ids": list(group["member_ids"]),
+        "furniture_affordance_extent_ids": list(group["furniture_affordance_extent_ids"]),
+        "bbox": _rect_bbox(group["rect"]),
+        "overlap_evidence": list(group["overlap_evidence"]),
+        "metadata": dict(group["metadata"]),
+    }
+
+
+def _inferred_region_candidate_row(candidates: list[dict]) -> dict:
+    evidence = _inferred_region_evidence(candidates)
+    return {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_candidate_count",
+        "score": len(candidates),
+        "status": "computed" if candidates else "not_available",
+        "method": "affordance_zone_boundary_cue_expanded_group_candidate_bounds",
+        "evidence": [region["id"] for region in candidates],
+        "inferred_region_candidate_evidence": evidence,
+        "uncertainty": "candidate regions inferred from furniture footprint, affordance extents, same-region boundary cues, and spacing margins; bbox proxy, not alpha-shape or perception-calibrated region discovery",
+    }
+
+
+def _inferred_region_evidence(regions: list[dict]) -> list[dict]:
+    evidence = []
+    for region in regions:
+        item = {
+            "region": region["region"],
+            "geometry_basis": region["metadata"].get("geometry_basis"),
+            "member_ids": region["metadata"]["member_ids"].split(","),
+            "affordance_zone_ids": [
+                zone_id
+                for zone_id in region["metadata"].get("affordance_zone_ids", "").split(",")
+                if zone_id
+            ],
+            "boundary_cue_ids": [
+                cue_id
+                for cue_id in region["metadata"].get("boundary_cue_ids", "").split(",")
+                if cue_id
+            ],
+            "bbox": (
+                round(region["rect"].left, 4),
+                round(region["rect"].top, 4),
+                round(region["rect"].right, 4),
+                round(region["rect"].bottom, 4),
+            ),
+        }
+        spacing_side_margins = _spacing_side_margins(region)
+        if spacing_side_margins:
+            item["spacing_side_margins"] = spacing_side_margins
+        evidence.append(item)
+    return evidence
+
+
+def _inferred_region_explicit_iou_row(scene: dict, candidates: list[dict]) -> dict:
+    explicit_by_region = {
+        region["region"]: region
+        for region in scene.get("regions", [])
+        if region.get("metadata", {}).get("analysis-region") != "false"
+    }
+    evidence = []
+    for candidate in candidates:
+        explicit = explicit_by_region.get(candidate["region"])
+        if explicit is None:
+            continue
+        intersection = _region_record_overlap_area(explicit, candidate["rect"])
+        candidate_area = candidate["rect"].area
+        explicit_area = explicit["rect"].area
+        union = explicit_area + candidate_area - intersection
+        if union <= 1e-9:
+            continue
+        missing_explicit_area = max(0.0, explicit_area - intersection)
+        overflow_candidate_area = max(0.0, candidate_area - intersection)
+        boundary_cue_ids = [
+            cue_id
+            for cue_id in candidate["metadata"].get("boundary_cue_ids", "").split(",")
+            if cue_id
+        ]
+        evidence.append(
+            {
+                "region": candidate["region"],
+                "explicit_region_id": explicit["id"],
+                "candidate_bbox": (
+                    round(candidate["rect"].left, 4),
+                    round(candidate["rect"].top, 4),
+                    round(candidate["rect"].right, 4),
+                    round(candidate["rect"].bottom, 4),
+                ),
+                "explicit_bbox": (
+                    round(explicit["rect"].left, 4),
+                    round(explicit["rect"].top, 4),
+                    round(explicit["rect"].right, 4),
+                    round(explicit["rect"].bottom, 4),
+                ),
+                "candidate_boundary_cue_ids": boundary_cue_ids,
+                "candidate_has_boundary_cue": bool(boundary_cue_ids),
+                "candidate_area": round(candidate_area, 4),
+                "explicit_area": round(explicit_area, 4),
+                "intersection_area": round(intersection, 4),
+                "union_area": round(union, 4),
+                "iou": round(intersection / union, 4),
+                "missing_explicit_area": round(missing_explicit_area, 4),
+                "overflow_candidate_area": round(overflow_candidate_area, 4),
+                "missing_explicit_area_ratio": round(
+                    missing_explicit_area / max(explicit_area, 1e-9),
+                    4,
+                ),
+                "overflow_candidate_area_ratio": round(
+                    overflow_candidate_area / max(candidate_area, 1e-9),
+                    4,
+                ),
+                "dominant_mismatch": _dominant_region_iou_mismatch(
+                    missing_explicit_area,
+                    overflow_candidate_area,
+                ),
+            }
+        )
+    evidence = sorted(evidence, key=lambda item: (item["iou"], item["region"]))
+    return {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_explicit_iou_mean",
+        "score": round(mean(item["iou"] for item in evidence), 4)
+        if evidence
+        else None,
+        "status": "computed" if evidence else "not_available",
+        "method": "affordance_expanded_candidate_region_to_explicit_region_iou",
+        "evidence": [item["region"] for item in evidence],
+        "inferred_region_explicit_iou_evidence": evidence,
+        "uncertainty": "compares affordance-expanded candidate bbox with explicit region geometry; bbox IoU proxy, not semantic region validation",
+    }
+
+
+def _dominant_region_iou_mismatch(
+    missing_explicit_area: float,
+    overflow_candidate_area: float,
+) -> str:
+    if max(missing_explicit_area, overflow_candidate_area) <= 1e-9:
+        return "aligned"
+    if missing_explicit_area > overflow_candidate_area:
+        return "candidate_underfills_explicit"
+    if overflow_candidate_area > missing_explicit_area:
+        return "candidate_overflows_explicit"
+    return "mixed"
+
+
+def _inferred_region_gap_path_row(gap_paths: list[dict]) -> dict:
+    evidence = [
+        {
+            "id": path["id"],
+            "region_a": path["region_a"],
+            "region_b": path["region_b"],
+            "orientation": path["orientation"],
+            "bbox": (
+                round(path["rect"].left, 4),
+                round(path["rect"].top, 4),
+                round(path["rect"].right, 4),
+                round(path["rect"].bottom, 4),
+            ),
+            "thickness": round(path["thickness"], 4),
+            "overlap_span": round(path["overlap_span"], 4),
+        }
+        for path in gap_paths
+    ]
+    return {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_gap_path_count",
+        "score": len(gap_paths),
+        "status": "computed" if gap_paths else "not_available",
+        "method": "affordance_region_bbox_axis_gap_band_proxy",
+        "evidence": [path["id"] for path in gap_paths],
+        "inferred_region_gap_path_evidence": evidence,
+        "uncertainty": "candidate path bands inferred from gaps between affordance-expanded region bboxes; proxy, not navmesh, medial axis, or route certification",
+    }
+
+
+def _inferred_region_gap_path_occupancy_row(
+    scene: dict,
+    affordance_zones: list[dict],
+    gap_paths: list[dict],
+) -> dict:
+    candidates_by_id = {
+        candidate["id"]: candidate
+        for candidate in infer_region_candidates(scene)
+    }
+    evidence = []
+    for gap_path in gap_paths:
+        source_member_ids = set()
+        source_zone_ids = set()
+        for region_id in (gap_path["region_a"], gap_path["region_b"]):
+            candidate = candidates_by_id.get(region_id, {})
+            metadata = candidate.get("metadata", {})
+            source_member_ids.update(
+                item
+                for item in metadata.get("member_ids", "").split(",")
+                if item
+            )
+            source_zone_ids.update(
+                item
+                for item in metadata.get("affordance_zone_ids", "").split(",")
+                if item
+            )
+        occupiers = []
+        for obj in scene.get("objects", []):
+            if obj["id"] in source_member_ids:
+                continue
+            overlap = _rect_overlap_area(gap_path["rect"], obj["rect"])
+            if overlap > 0:
+                occupiers.append(
+                    {
+                        "id": obj["id"],
+                        "kind": "object_footprint",
+                        "overlap_area": round(overlap, 4),
+                    }
+                )
+        for zone in affordance_zones:
+            if zone["id"] in source_zone_ids:
+                continue
+            overlap = _rect_overlap_area(gap_path["rect"], zone["rect"])
+            if overlap > 0:
+                occupiers.append(
+                    {
+                        "id": zone["id"],
+                        "kind": "affordance_zone",
+                        "object_id": zone["object_id"],
+                        "overlap_area": round(overlap, 4),
+                    }
+                )
+        occupied_area = sum(item["overlap_area"] for item in occupiers)
+        gap_area = gap_path["rect"].area
+        evidence.append(
+            {
+                "gap_path_id": gap_path["id"],
+                "gap_bbox": _rect_bbox(gap_path["rect"]),
+                "gap_area": round(gap_area, 4),
+                "occupied_area": round(occupied_area, 4),
+                "occupancy_ratio": round(occupied_area / max(gap_area, 1e-9), 4),
+                "occupiers": occupiers,
+            }
+        )
+    return {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_gap_path_occupancy_ratio",
+        "score": round(mean(item["occupancy_ratio"] for item in evidence), 4)
+        if evidence
+        else None,
+        "status": "computed" if evidence else "not_available",
+        "method": "inferred_gap_band_overlap_with_object_footprints_and_affordance_zones",
+        "evidence": [item["gap_path_id"] for item in evidence],
+        "inferred_region_gap_path_occupancy_evidence": evidence,
+        "uncertainty": "overlap of inferred gap bands with object footprints and affordance zones; bbox union proxy, not navmesh clearance certification",
+    }
+
+
+def _inferred_region_gap_path_free_space_overlap_row(
+    gap_paths: list[dict],
+    negative_space: dict,
+) -> dict:
+    free_cells = [
+        {
+            "id": f"component_{item['component_index']}_cell_{item['cell_index']}",
+            "rect": _rect_from_points(item["points"]),
+        }
+        for item in negative_space.get("free_space_polygons", [])
+    ]
+    evidence = []
+    for gap_path in gap_paths:
+        overlaps = [
+            (cell["id"], _rect_overlap_area(gap_path["rect"], cell["rect"]))
+            for cell in free_cells
+        ]
+        overlaps = [(cell_id, area) for cell_id, area in overlaps if area > 1e-9]
+        overlap_area = sum(area for _, area in overlaps)
+        gap_area = gap_path["rect"].area
+        evidence.append(
+            {
+                "gap_path_id": gap_path["id"],
+                "gap_bbox": _rect_bbox(gap_path["rect"]),
+                "gap_area": round(gap_area, 4),
+                "free_space_overlap_area": round(overlap_area, 4),
+                "free_space_overlap_ratio": round(overlap_area / max(gap_area, 1e-9), 4),
+                "overlap_cell_ids": [cell_id for cell_id, _ in overlaps],
+            }
+        )
+    return {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_gap_path_free_space_overlap_ratio",
+        "score": round(mean(item["free_space_overlap_ratio"] for item in evidence), 4)
+        if evidence
+        else None,
+        "status": "computed" if evidence else "not_available",
+        "method": "inferred_gap_band_overlap_with_rect_cell_free_space_polygons",
+        "evidence": [item["gap_path_id"] for item in evidence],
+        "inferred_region_gap_path_free_space_overlap_evidence": evidence,
+        "uncertainty": "overlap of inferred gap bands with rect-cell free-space polygons; proxy, not navmesh or route certification",
+    }
+
+
+def _inferred_region_gap_path_walkable_proxy_row(gap_path_graph: dict) -> dict:
+    edge_count = gap_path_graph.get("edge_count", 0)
+    walkable_edges = gap_path_graph.get("walkable_proxy_edges", [])
+    return {
+        "view_id": "path_connectivity",
+        "metric": "inferred_region_gap_path_walkable_proxy_ratio",
+        "score": round(len(walkable_edges) / max(1, edge_count), 4)
+        if edge_count
+        else None,
+        "status": "computed" if edge_count else "not_available",
+        "method": "clear_and_free_space_supported_inferred_gap_path_edges",
+        "evidence": walkable_edges,
+        "walkable_proxy_edge_count": len(walkable_edges),
+        "walkable_proxy_component_count": gap_path_graph.get(
+            "walkable_proxy_component_count",
+            0,
+        ),
+        "walkable_proxy_min_thickness": gap_path_graph.get(
+            "walkable_proxy_min_thickness",
+        ),
+        "walkable_proxy_mean_thickness": gap_path_graph.get(
+            "walkable_proxy_mean_thickness",
+        ),
+        "total_gap_path_edge_count": edge_count,
+        "walkable_proxy_edges": walkable_edges,
+        "walkable_proxy_components": gap_path_graph.get(
+            "walkable_proxy_components",
+            [],
+        ),
+        "walkable_proxy_edge_widths": gap_path_graph.get(
+            "walkable_proxy_edge_widths",
+            [],
+        ),
+        "uncertainty": "clear inferred gap bands with positive free-space overlap; proxy, not navmesh route certification or minimum-width guarantee",
+    }
+
+
+def _inferred_region_gap_path_min_width_row(gap_path_graph: dict) -> dict:
+    walkable_count = gap_path_graph.get("walkable_proxy_edge_count", 0)
+    passing_edges = gap_path_graph.get("width_pass_edges", [])
+    method = (
+        "walkable_gap_band_thickness_over_manual_required_path_width"
+        if gap_path_graph.get("minimum_width_basis") == "manual_required_path_width"
+        else "walkable_gap_band_thickness_over_half_sampled_grid_resolution"
+    )
+    return {
+        "view_id": "path_connectivity",
+        "metric": "inferred_region_gap_path_min_width_pass_ratio",
+        "score": round(len(passing_edges) / max(1, walkable_count), 4)
+        if walkable_count
+        else None,
+        "status": "computed" if walkable_count else "not_available",
+        "method": method,
+        "evidence": passing_edges,
+        "minimum_width": gap_path_graph.get("minimum_width"),
+        "minimum_width_basis": gap_path_graph.get("minimum_width_basis"),
+        "minimum_width_evidence": gap_path_graph.get("minimum_width_evidence", []),
+        "passing_edge_count": len(passing_edges),
+        "walkable_proxy_edge_count": walkable_count,
+        "width_pass_edges": passing_edges,
+        "width_fail_edges": gap_path_graph.get("width_fail_edges", []),
+        "width_evidence": gap_path_graph.get("width_evidence", []),
+        "uncertainty": "minimum width uses half the sampled grid resolution as a scene-scale proxy; not code-compliant egress width, human-body calibration, or navmesh clearance",
+    }
+
+
+def _inferred_region_gap_path_cad_free_space_overlap_row(
+    gap_paths: list[dict],
+    negative_space: dict,
+) -> dict:
+    """Compare inferred gap bands with Shapely room-minus-blocker free space."""
+    cad_polygons = negative_space.get("cad_room_minus_blocker_polygons", [])
+    cad_shapes = [
+        (f"component_{item['component_index']}", _cad_evidence_to_shapely_polygon(item))
+        for item in cad_polygons
+    ]
+    if not gap_paths or not cad_shapes:
+        return {
+            "view_id": "path_connectivity",
+            "metric": "inferred_region_gap_path_cad_free_space_overlap_ratio",
+            "score": None,
+            "status": "not_available",
+            "method": "inferred_gap_band_overlap_with_shapely_room_minus_blocker_polygons",
+            "evidence": [],
+            "inferred_region_gap_path_cad_free_space_overlap_evidence": [],
+            "uncertainty": "overlap of inferred gap bands with Shapely room-minus-blocker polygons; stronger than rect-cell proxy but still not navmesh route certification",
+        }
+    evidence = []
+    for gap_path in gap_paths:
+        gap_shape = _shape_to_shapely_polygon(gap_path["rect"])
+        # Intersect each gap band with CAD free-space components, not rect-cell proxies.
+        overlaps = [
+            (component_id, gap_shape.intersection(cad_shape).area)
+            for component_id, cad_shape in cad_shapes
+        ]
+        overlaps = [
+            (component_id, area)
+            for component_id, area in overlaps
+            if area > 1e-9
+        ]
+        overlap_area = sum(area for _, area in overlaps)
+        gap_area = gap_path["rect"].area
+        evidence.append(
+            {
+                "gap_path_id": gap_path["id"],
+                "gap_bbox": _rect_bbox(gap_path["rect"]),
+                "gap_area": round(gap_area, 4),
+                "cad_free_space_overlap_area": round(overlap_area, 4),
+                "cad_free_space_overlap_ratio": round(
+                    overlap_area / max(gap_area, 1e-9),
+                    4,
+                ),
+                "overlap_component_ids": [
+                    component_id for component_id, _ in overlaps
+                ],
+            }
+        )
+    return {
+        "view_id": "path_connectivity",
+        "metric": "inferred_region_gap_path_cad_free_space_overlap_ratio",
+        "score": round(mean(item["cad_free_space_overlap_ratio"] for item in evidence), 4)
+        if evidence
+        else None,
+        "status": "computed" if evidence and cad_shapes else "not_available",
+        "method": "inferred_gap_band_overlap_with_shapely_room_minus_blocker_polygons",
+        "evidence": [item["gap_path_id"] for item in evidence],
+        "inferred_region_gap_path_cad_free_space_overlap_evidence": evidence,
+        "uncertainty": "overlap of inferred gap bands with Shapely room-minus-blocker polygons; stronger than rect-cell proxy but still not navmesh route certification",
+    }
+
+
+def _inferred_gap_path_width_free_space_clearance_row(
+    rows: list[dict],
+    negative_space: dict,
+) -> dict:
+    row_by_metric = {row.get("metric"): row for row in rows}
+    free_space_width = row_by_metric.get(
+        "free_space_polygon_graph_mean_edge_clearance_width",
+        {},
+    ).get("score")
+    if free_space_width is None:
+        free_space_edges = negative_space.get("free_space_polygon_graph", {}).get(
+            "edges",
+            [],
+        )
+        free_space_width = (
+            round(mean(edge["clearance_width"] for edge in free_space_edges), 4)
+            if free_space_edges
+            else None
+        )
+    walkable_row = row_by_metric.get(
+        "inferred_region_gap_path_walkable_proxy_ratio",
+        {},
+    )
+    walkable_width = walkable_row.get("walkable_proxy_mean_thickness")
+    evidence = {
+        "free_space_mean_edge_clearance_width": free_space_width,
+        "walkable_proxy_mean_thickness": walkable_width,
+        "walkable_proxy_min_thickness": walkable_row.get(
+            "walkable_proxy_min_thickness"
+        ),
+        "walkable_proxy_edge_count": walkable_row.get("walkable_proxy_edge_count", 0),
+    }
+    computed = free_space_width is not None and walkable_width not in (None, 0)
+    return {
+        "view_id": "path_connectivity",
+        "metric": "inferred_gap_path_width_free_space_clearance_ratio",
+        "score": round(free_space_width / walkable_width, 4) if computed else None,
+        "status": "computed" if computed else "not_available",
+        "method": "free_space_edge_clearance_width_over_inferred_gap_band_width",
+        "evidence": evidence,
+        "uncertainty": "ratio between rect-cell free-space shared-edge width and inferred gap-band width; proxy consistency check, not route certification",
+    }
+
+
+def _inferred_region_gap_path_explicit_path_iou_row(
+    scene: dict,
+    gap_paths: list[dict],
+) -> dict:
+    explicit_paths = scene.get("paths", [])
+    evidence = []
+    for gap_path in gap_paths:
+        if not explicit_paths:
+            continue
+        best_path = max(
+            explicit_paths,
+            key=lambda path: _rect_iou(gap_path["rect"], path["rect"]),
+        )
+        evidence.append(
+            {
+                "gap_path_id": gap_path["id"],
+                "best_path_id": best_path["id"],
+                "gap_bbox": (
+                    round(gap_path["rect"].left, 4),
+                    round(gap_path["rect"].top, 4),
+                    round(gap_path["rect"].right, 4),
+                    round(gap_path["rect"].bottom, 4),
+                ),
+                "path_bbox": (
+                    round(best_path["rect"].left, 4),
+                    round(best_path["rect"].top, 4),
+                    round(best_path["rect"].right, 4),
+                    round(best_path["rect"].bottom, 4),
+                ),
+                "iou": round(_rect_iou(gap_path["rect"], best_path["rect"]), 4),
+            }
+        )
+    return {
+        "view_id": "region_alignment",
+        "metric": "inferred_region_gap_path_explicit_path_iou_mean",
+        "score": round(mean(item["iou"] for item in evidence), 4)
+        if evidence
+        else None,
+        "status": "computed" if evidence else "not_available",
+        "method": "affordance_gap_band_to_explicit_path_bbox_iou",
+        "evidence": [item["gap_path_id"] for item in evidence],
+        "inferred_region_gap_path_explicit_path_iou_evidence": evidence,
+        "uncertainty": "compares inferred gap bands with authored path bboxes; bbox IoU proxy, not route validation or navmesh alignment",
     }
 
 
@@ -7034,11 +8129,142 @@ def _adapter_reference_row(scene: dict) -> dict:
     }
 
 
+def _matrix_completion_audit_row() -> dict:
+    """Expose the current full-matrix completion gate as machine-readable evidence."""
+    required_family_status = [
+        {
+            "family": "automatic_neutral_scene",
+            "status": "implemented",
+            "evidence": ["load_structured_svg_scene", "infer_scene_evidence"],
+        },
+        {
+            "family": "metric_matrix_rows",
+            "status": "prototype_expanded",
+            "evidence": ["evaluate_scene", "score_matrix"],
+        },
+        {
+            "family": "route_topology",
+            "status": "prototype_proxy",
+            "evidence": [
+                "inferred_region_gap_path_graph",
+                "free_space_polygon_graph",
+                "cad_room_minus_blocker_component_graph",
+            ],
+        },
+        {
+            "family": "visual_analysis",
+            "status": "prototype_proxy",
+            "evidence": ["line_of_sight_graph", "isovist_radial_proxy"],
+        },
+        {
+            "family": "column_grid",
+            "status": "prototype_proxy",
+            "evidence": [
+                "region_column_bay_fit",
+                "object_column_bay_local_position_coverage",
+            ],
+        },
+        {
+            "family": "material_boundary_calibration",
+            "status": "metadata_handoff",
+            "evidence": ["material_calibration_handoff"],
+        },
+        {
+            "family": "notebook_evidence",
+            "status": "implemented",
+            "evidence": ["floorplan_order_matrix_demo.ipynb"],
+        },
+        {
+            "family": "live_bim_rhino_adapter",
+            "status": "deferred_by_user_scope",
+            "evidence": ["neutral_adapter_payload"],
+        },
+    ]
+    open_statuses = {"prototype_expanded", "prototype_proxy", "metadata_handoff"}
+    # Keep the gate explicit so a completion claim cannot rely on broad green tests alone.
+    open_core_families = [
+        item["family"]
+        for item in required_family_status
+        if item["status"] in open_statuses
+    ]
+    return {
+        "view_id": "adapter_readiness",
+        "metric": "matrix_completion_audit",
+        "score": None,
+        "status": "computed",
+        "method": "completion_gate_from_current_metric_family_status",
+        "evidence": open_core_families,
+        "completion_ready": not open_core_families,
+        "open_core_families": open_core_families,
+        "required_metric_family_status": required_family_status,
+        "uncertainty": "completion gate only; proxy or metadata handoff families must be implemented or explicitly deferred before a final completion claim",
+    }
+
+
+def _score_matrix(rows: list[dict]) -> dict:
+    included = {}
+    excluded = []
+    for row in rows:
+        score = row.get("score")
+        if (
+            row.get("status") == "computed"
+            and isinstance(score, (int, float))
+            and 0.0 <= score <= 1.0
+            and not _score_matrix_excluded_metric(row)
+        ):
+            included.setdefault(row["view_id"], []).append(row)
+        elif row.get("status") == "computed" and isinstance(score, (int, float)):
+            excluded.append(f"{row['view_id']}.{row['metric']}")
+    dimension_scores = [
+        {
+            "view_id": view_id,
+            "score": round(mean(row["score"] for row in view_rows), 4),
+            "metric_count": len(view_rows),
+            "metrics": sorted(row["metric"] for row in view_rows),
+        }
+        for view_id, view_rows in sorted(included.items())
+    ]
+    return {
+        "method": "computed_unit_interval_metric_mean_by_view_id",
+        "overall_score": round(
+            mean(item["score"] for item in dimension_scores),
+            4,
+        )
+        if dimension_scores
+        else None,
+        "dimension_scores": dimension_scores,
+        "excluded_metrics": sorted(excluded),
+        "uncertainty": "dimension scores average computed 0..1 scalar metrics only; counts, unavailable rows, and domain-specific weights are excluded until calibrated",
+    }
+
+
+def _score_matrix_excluded_metric(row: dict) -> bool:
+    metric = row["metric"]
+    return (
+        row["view_id"] in {"boundary_connectivity", "uncertainties"}
+        or metric.endswith("_count")
+        or metric.endswith("_count_mean")
+        or "count" in metric
+    )
+
+
 def _adapter_payload(
     scene: dict,
     rows: list[dict],
+    graphs: dict,
     negative_space: dict,
     negative_space_graph: dict,
+    line_of_sight_graph: dict,
+    isovist_radial_proxy: dict,
+    affordance_zones: list[dict],
+    furniture_affordance_extents: list[dict],
+    activity_groups: list[dict],
+    inferred_region_candidates: list[dict],
+    inferred_region_gap_paths: list[dict],
+    spatial_networks: list[dict],
+    boundary_semantics: list[dict],
+    inferred_region_gap_path_graph: dict,
+    score_matrix: dict,
 ) -> dict:
     records = _adapter_scene_records(scene)
     scene_records = []
@@ -7046,21 +8272,23 @@ def _adapter_payload(
     for record in records:
         rect = record["rect"]
         adapter_refs = dict(record.get("adapter_refs", {}))
-        scene_records.append(
-            {
-                "id": record["id"],
-                "role": record["role"],
-                "group": record.get("group", "global"),
-                "region": record.get("region", record.get("group", "global")),
-                "bbox": (
-                    float(rect.left),
-                    float(rect.top),
-                    float(rect.right),
-                    float(rect.bottom),
-                ),
-                "adapter_refs": adapter_refs,
-            }
-        )
+        scene_record = {
+            "id": record["id"],
+            "role": record["role"],
+            "group": record.get("group", "global"),
+            "region": record.get("region", record.get("group", "global")),
+            "bbox": (
+                float(rect.left),
+                float(rect.top),
+                float(rect.right),
+                float(rect.bottom),
+            ),
+            "adapter_refs": adapter_refs,
+        }
+        metadata = dict(record.get("metadata", {}))
+        if metadata:
+            scene_record["metadata"] = metadata
+        scene_records.append(scene_record)
         for key, value in adapter_refs.items():
             refs_for_key = external_refs.setdefault(key, {})
             current = refs_for_key.get(value)
@@ -7070,33 +8298,836 @@ def _adapter_payload(
                 current.append(record["id"])
             else:
                 refs_for_key[value] = [current, record["id"]]
+    graph_namespaces = _adapter_graph_namespaces(
+        graphs,
+        line_of_sight_graph,
+    )
+    metric_rows = [
+        {
+            "view_id": row["view_id"],
+            "metric": row["metric"],
+            "score": row.get("score"),
+            "status": row.get("status"),
+        }
+        for row in rows
+    ]
+    grasshopper_branches = _adapter_grasshopper_branches(
+        scene_records,
+        metric_rows,
+        graph_namespaces,
+    )
+    evidence_geometry = _adapter_evidence_geometry(
+        rows,
+        negative_space,
+        negative_space_graph,
+        affordance_zones,
+        furniture_affordance_extents,
+        activity_groups,
+        inferred_region_candidates,
+        inferred_region_gap_paths,
+        spatial_networks,
+        boundary_semantics,
+    )
+    host_relationships = _adapter_host_relationships(rows)
+    route_handoff = _adapter_route_topology_handoff(
+        evidence_geometry,
+        host_relationships,
+        inferred_region_gap_path_graph,
+    )
+    visual_handoff = _adapter_visual_analysis_handoff(
+        line_of_sight_graph,
+        isovist_radial_proxy,
+    )
+    material_handoff = _adapter_material_calibration_handoff(scene, rows)
+    column_handoff = _adapter_column_grid_handoff(rows)
     return {
         "source": scene["source"],
+        "handoff_contract": dict(ADAPTER_PAYLOAD_CONTRACT),
         "record_count": len(scene_records),
         "external_refs": external_refs,
         "scene_records": scene_records,
-        "evidence_geometry": _adapter_evidence_geometry(
-            negative_space,
-            negative_space_graph,
+        "evidence_geometry": evidence_geometry,
+        "graph_namespaces": graph_namespaces,
+        "grasshopper_branches": grasshopper_branches,
+        "adapter_targets": _adapter_targets(
+            scene_records,
+            grasshopper_branches,
         ),
-        "metric_rows": [
-            {
-                "view_id": row["view_id"],
-                "metric": row["metric"],
-                "score": row.get("score"),
-                "status": row.get("status"),
-            }
-            for row in rows
-        ],
+        "host_relationships": host_relationships,
+        "route_topology_handoff": route_handoff,
+        "visual_analysis_handoff": visual_handoff,
+        "material_calibration_handoff": material_handoff,
+        "column_grid_handoff": column_handoff,
+        "adapter_capability_matrix": _adapter_capability_matrix(rows),
+        "notebook_audit_manifest": _notebook_audit_manifest(),
+        "score_matrix": score_matrix,
+        "metric_rows": metric_rows,
         "uncertainty": "neutral handoff payload only; Rhino/Grasshopper/VisualARQ/BIM adapters still need live geometry and host-object mapping",
     }
 
 
+def _notebook_audit_manifest() -> dict:
+    return {
+        "method": "notebook_audit_manifest_for_clean_ordered_evidence_overlay",
+        "section_order": [
+            "1. Source Fixture",
+            "2. Evaluation Summary",
+            "3. Metric Matrix",
+            "4. Clean Evidence Overlay",
+            "5. Audit Snapshot",
+        ],
+        "default_overlay": {
+            "function": "scene_metric_overlay_svg(scene, matrix)",
+            "include_free_space_paths": False,
+            "dense_free_space_paths_layer": "free-space-graph-entry-region-path",
+        },
+        "optional_dense_layers": ["free-space-graph-entry-region-path"],
+        "status": "ordered_clean_overlay",
+        "uncertainty": "notebook audit manifest describes current executable notebook display policy only; it is not visual QA for every rendered layer or a final presentation layout",
+    }
+
+
+def _adapter_capability_matrix(rows: list[dict]) -> dict:
+    ready_handoffs = list(ADAPTER_READY_HANDOFFS)
+    uncertainty_route = next(
+        (
+            row
+            for row in rows
+            if row.get("view_id") == "uncertainties"
+            and row.get("metric") == "uncertainty_routes"
+        ),
+        {},
+    )
+    route_evidence = uncertainty_route.get("route_evidence", {})
+    return {
+        "method": "adapter_capability_matrix_from_current_payload_handoffs",
+        "ready_handoffs": ready_handoffs,
+        "capabilities": [
+            {
+                "name": "host_relationships",
+                "status": "proxy_handoff",
+                "replacement": "live Rhino/VisualARQ/BIM hosted opening topology",
+            },
+            {
+                "name": "route_topology_handoff",
+                "status": "proxy_handoff",
+                "replacement": "navmesh, medial-axis, skeleton, or hosted BIM topology",
+            },
+            {
+                "name": "visual_analysis_handoff",
+                "status": "proxy_handoff",
+                "replacement": "full isovist polygons, VGA, or calibrated visual integration",
+            },
+            {
+                "name": "material_calibration_handoff",
+                "status": "metadata_handoff",
+                "replacement": "Rhino/BIM materials, lighting, and perception calibration",
+            },
+            {
+                "name": "column_grid_handoff",
+                "status": "proxy_handoff",
+                "replacement": "Rhino/BIM grid topology or irregular local grid interpolation",
+            },
+        ],
+        "open_uncertainty_routes": {
+            key: len(route_evidence.get(key, []))
+            for key in (
+                "geometry_upgrade",
+                "perception_experiment",
+                "bim_mapping",
+                "method_replacement",
+            )
+        },
+        "uncertainty": "capability matrix is a handoff readiness index only; it does not prove live adapter execution, hosted topology, validated geometry, material calibration, or final route/visibility analysis",
+    }
+
+
+def _adapter_column_grid_handoff(rows: list[dict]) -> dict:
+    """Build the compact column-grid payload for downstream BIM adapters."""
+    column_rows = {
+        row["metric"]: row
+        for row in rows
+        if row.get("view_id") == "column_alignment"
+    }
+    axis_row = column_rows.get("region_column_axis_agreement", {})
+    axis_evidence = axis_row.get("column_axis_evidence", [])
+    phase_row = column_rows.get("object_column_axis_phase_alignment", {})
+    bay_row = column_rows.get("region_column_bay_fit", {})
+    local_row = column_rows.get("object_column_bay_local_position_coverage", {})
+    return {
+        "method": "adapter_column_grid_handoff_from_existing_column_alignment_rows",
+        "axes": {
+            "method": axis_row.get("method"),
+            "axis_count": len(axis_evidence),
+            "axis_ids": [item["id"] for item in axis_evidence],
+            "region_axis_agreement": axis_row.get("score"),
+            "items": axis_evidence,
+        },
+        "object_phase": {
+            "method": phase_row.get("method"),
+            "score": phase_row.get("score"),
+            "evidence_count": len(phase_row.get("object_axis_phase_evidence", [])),
+        },
+        "region_bays": {
+            "method": bay_row.get("method"),
+            "score": bay_row.get("score"),
+            "evidence_count": len(bay_row.get("region_bay_fit_evidence", [])),
+            # Handoff consumers need per-region bay ids, not only aggregate counts.
+            "items": bay_row.get("region_bay_fit_evidence", []),
+        },
+        "object_bay_local_positions": {
+            "method": local_row.get("method"),
+            "score": local_row.get("score"),
+            "evidence_count": len(
+                local_row.get("object_bay_local_position_evidence", [])
+            ),
+            # Local coordinates are the current adapter-readable bay placement proxy.
+            "items": local_row.get("object_bay_local_position_evidence", []),
+        },
+        "uncertainty": "column-grid handoff only; authored axis and bay proxies must be replaced by Rhino/BIM grid topology or irregular local grid interpolation downstream",
+    }
+
+
+def _adapter_material_calibration_handoff(scene: dict, rows: list[dict]) -> dict:
+    boundary_rows = {
+        row["metric"]: row
+        for row in rows
+        if row.get("view_id") == "boundary_metrics"
+    }
+    thickness_by_id = {
+        item["id"]: item["thickness"]
+        for item in (
+            _boundary_thickness_descriptor(boundary)
+            for boundary in scene.get("boundaries", [])
+        )
+        if item is not None
+    }
+    return {
+        "method": "adapter_material_calibration_handoff_from_authored_boundary_weights",
+        "weight_metadata": {
+            "method": "records_with_explicit_walk_see_grouping_weights_over_weighted_boundary_records",
+            "coverage": boundary_rows.get(
+                "boundary_weight_metadata_coverage",
+                {},
+            ).get("score"),
+            "missing_ids": boundary_rows.get(
+                "boundary_weight_metadata_coverage",
+                {},
+            ).get("missing_weight_metadata_ids", []),
+        },
+        "channel_means": {
+            "walk_block": boundary_rows.get("walk_block_mean", {}).get("score"),
+            "see_block": boundary_rows.get("see_block_mean", {}).get("score"),
+            "grouping_strength": boundary_rows.get(
+                "grouping_strength_mean",
+                {},
+            ).get("score"),
+            "walk_see_block_gap": boundary_rows.get(
+                "walk_see_block_gap_mean",
+                {},
+            ).get("score"),
+            "non_blocking_grouping_cue": boundary_rows.get(
+                "non_blocking_grouping_cue_mean",
+                {},
+            ).get("score"),
+        },
+        "calibration_candidates": [
+            {
+                "id": boundary["id"],
+                "kind": boundary.get("metadata", {}).get("boundary-kind"),
+                "walk_block": boundary["weights"]["walk_block"],
+                "see_block": boundary["weights"]["see_block"],
+                "grouping_strength": boundary["weights"]["grouping_strength"],
+                "thickness": thickness_by_id.get(boundary["id"]),
+            }
+            for boundary in scene.get("boundaries", [])
+            if boundary.get("metadata", {}).get("boundary-kind")
+            in {"glass", "rug", "material", "visual"}
+        ],
+        "uncertainty": "material calibration handoff only; authored walk/see/grouping weights and thickness metadata must be replaced or calibrated from Rhino/BIM materials, lighting, and perception data downstream",
+    }
+
+
+def _adapter_visual_analysis_handoff(
+    line_of_sight_graph: dict,
+    isovist_radial_proxy: dict,
+) -> dict:
+    """Build the compact visual-analysis payload for downstream BIM adapters."""
+    sight_metrics = line_of_sight_graph.get("metrics", {})
+    isovist_metrics = isovist_radial_proxy.get("metrics", {})
+    return {
+        "method": "adapter_visual_analysis_handoff_from_existing_visibility_proxies",
+        "visibility_graph": {
+            "method": "line_of_sight_graph_edge_visibility_ratio",
+            "node_count": len(line_of_sight_graph.get("nodes", [])),
+            "edge_count": len(line_of_sight_graph.get("edges", [])),
+            "visible_edge_ratio": sight_metrics.get("visible_edge_ratio", 0.0),
+            "blocked_edge_ratio": sight_metrics.get("blocked_edge_ratio", 0.0),
+            "blocking_boundary_count": len(
+                sight_metrics.get("blocking_boundary_ids", [])
+            ),
+            # Carry graph-shaped evidence so adapters can inspect each sight edge.
+            "items": line_of_sight_graph.get("edges", []),
+        },
+        "isovist_radial_proxy": {
+            "method": isovist_radial_proxy.get("method"),
+            "status": isovist_radial_proxy.get("status"),
+            "vantage_count": isovist_metrics.get("vantage_count", 0),
+            "ray_count": isovist_metrics.get("ray_count", 0),
+            "blocked_ray_count": isovist_metrics.get("blocked_ray_count", 0),
+            "blocked_ray_ratio": isovist_metrics.get("blocked_ray_ratio"),
+            "mean_hit_distance": isovist_metrics.get("mean_hit_distance"),
+            "mean_hit_polygon_area": isovist_metrics.get("mean_hit_polygon_area"),
+            # Keep ray and hit-polygon details available without inventing a new algorithm.
+            "ray_items": isovist_radial_proxy.get("ray_evidence", []),
+            "area_items": isovist_radial_proxy.get("isovist_area_evidence", []),
+        },
+        "uncertainty": "visual analysis handoff only; replace centerline visibility and radial ray proxies with full isovist polygons, VGA, or calibrated visual integration downstream",
+    }
+
+
+def _adapter_route_topology_handoff(
+    evidence_geometry: dict,
+    host_relationships: dict,
+    inferred_region_gap_path_graph: dict | None = None,
+) -> dict:
+    """Build the compact route-topology payload for downstream BIM adapters."""
+    cad_graph = evidence_geometry.get("cad_room_minus_blocker_component_graph", {})
+    free_graph = evidence_geometry.get("free_space_polygon_graph", {})
+    inferred_gap_paths = evidence_geometry.get("inferred_region_gap_paths", {}).get(
+        "items",
+        [],
+    )
+    inferred_graph = inferred_region_gap_path_graph or {}
+    inferred_graph_handoff = {
+        "method": inferred_graph.get(
+            "method",
+            "inferred_gap_path_region_adjacency_graph_proxy",
+        ),
+        "node_count": inferred_graph.get(
+            "node_count",
+            0,
+        ),
+        "edge_count": inferred_graph.get(
+            "edge_count",
+            0,
+        ),
+        "clear_edge_count": inferred_graph.get(
+            "clear_edge_count",
+            0,
+        ),
+        "occupied_edge_count": inferred_graph.get(
+            "occupied_edge_count",
+            0,
+        ),
+        "free_space_supported_edge_count": inferred_graph.get(
+            "free_space_supported_edge_count",
+            0,
+        ),
+        "walkable_proxy_edge_count": inferred_graph.get(
+            "walkable_proxy_edge_count",
+            0,
+        ),
+        "walkable_proxy_min_thickness": inferred_graph.get(
+            "walkable_proxy_min_thickness",
+        ),
+        "walkable_proxy_mean_thickness": inferred_graph.get(
+            "walkable_proxy_mean_thickness",
+        ),
+        "component_count": inferred_graph.get(
+            "component_count",
+            0,
+        ),
+        "walkable_proxy_component_count": inferred_graph.get(
+            "walkable_proxy_component_count",
+            0,
+        ),
+        "walkable_proxy_components": inferred_graph.get(
+            "walkable_proxy_components",
+            [],
+        ),
+        "walkable_proxy_edges": inferred_graph.get(
+            "walkable_proxy_edges",
+            [],
+        ),
+        "walkable_proxy_edge_widths": inferred_graph.get(
+            "walkable_proxy_edge_widths",
+            [],
+        ),
+        "minimum_width": inferred_graph.get("minimum_width"),
+        "minimum_width_basis": inferred_graph.get("minimum_width_basis"),
+        "minimum_width_evidence": inferred_graph.get(
+            "minimum_width_evidence",
+            [],
+        ),
+        "width_pass_edge_count": inferred_graph.get(
+            "width_pass_edge_count",
+            0,
+        ),
+        "width_fail_edge_count": inferred_graph.get(
+            "width_fail_edge_count",
+            0,
+        ),
+        "width_pass_edges": inferred_graph.get(
+            "width_pass_edges",
+            [],
+        ),
+        "width_fail_edges": inferred_graph.get(
+            "width_fail_edges",
+            [],
+        ),
+    }
+    if "cad_free_space_supported_edge_count" in inferred_graph:
+        # Forward CAD support only when Shapely room-minus-blocker evidence exists.
+        inferred_graph_handoff.update(
+            {
+                "cad_free_space_supported_edge_count": inferred_graph.get(
+                    "cad_free_space_supported_edge_count",
+                    0,
+                ),
+                "cad_free_space_supported_edges": inferred_graph.get(
+                    "cad_free_space_supported_edges",
+                    [],
+                ),
+            }
+        )
+    return {
+        "method": "adapter_route_topology_handoff_from_existing_proxy_graphs",
+        "cad_component_graph": {
+            "method": cad_graph.get("method"),
+            "node_count": cad_graph.get("node_count", 0),
+            "edge_count": cad_graph.get("edge_count", 0),
+            # Forward existing graph details for adapters without changing route logic.
+            "items": {
+                "nodes": cad_graph.get("nodes", []),
+                "edges": cad_graph.get("edges", []),
+            },
+        },
+        "free_space_polygon_graph": {
+            "method": free_graph.get("method"),
+            "node_count": free_graph.get("node_count", 0),
+            "edge_count": free_graph.get("edge_count", 0),
+            # Keep the rect-cell graph inspectable until a navmesh/skeleton replaces it.
+            "items": {
+                "nodes": free_graph.get("nodes", []),
+                "edges": free_graph.get("edges", []),
+            },
+        },
+        "inferred_gap_paths": {
+            "method": "affordance_region_bbox_axis_gap_band_proxy",
+            "count": len(inferred_gap_paths),
+            "clear_count": sum(
+                1
+                for item in inferred_gap_paths
+                if item.get("clear_status") == "clear_proxy"
+            ),
+            "occupied_count": sum(
+                1
+                for item in inferred_gap_paths
+                if item.get("clear_status") == "occupied_proxy"
+            ),
+            "items": inferred_gap_paths,
+        },
+        "inferred_gap_path_graph": inferred_graph_handoff,
+        "host_relationships": {
+            "method": host_relationships.get("method"),
+            "hosted_entry_count": host_relationships.get("hosted_entry_count", 0),
+            "fallback_entry_count": host_relationships.get("fallback_entry_count", 0),
+        },
+        "uncertainty": "route topology handoff only; replace proxy graphs with navmesh, medial-axis, skeleton, or hosted BIM topology in downstream adapters",
+    }
+
+
+def _adapter_host_relationships(rows: list[dict]) -> dict:
+    associations = []
+    for row in rows:
+        if (
+            row.get("view_id") == "boundary_metrics"
+            and row.get("metric") == "entry_nearest_boundary_gap_mean"
+        ):
+            associations = list(row.get("entry_boundary_associations", []))
+            break
+    return {
+        "method": "entry_boundary_associations_from_host_metadata_or_nearest_geometry",
+        "entry_boundary_hosts": associations,
+        "hosted_entry_count": sum(
+            1
+            for item in associations
+            if item.get("association_method") == "host_boundary_metadata"
+        ),
+        "fallback_entry_count": sum(
+            1
+            for item in associations
+            if item.get("association_method") == "nearest_boundary_geometry"
+        ),
+        "uncertainty": "neutral host relationship export only; Rhino/VisualARQ/BIM adapters must replace fallback geometry with live hosted topology",
+    }
+
+
+def _adapter_targets(
+    scene_records: list[dict],
+    grasshopper_branches: list[dict],
+) -> dict:
+    branches_by_id = {
+        branch["id"]: branch["path"]
+        for branch in grasshopper_branches
+        if branch["kind"].endswith("_record")
+    }
+    target_by_role = {
+        "boundary": ("Boundary", "Curve|Brep", "Wall"),
+        "opening": ("Entry", "Curve|Brep", "Door"),
+        "path": ("PathNetwork", "Curve|Brep", "Space"),
+        "region": ("Region", "ClosedCurve|Brep", "Space|Room"),
+        "column_axis": ("ColumnGrid.axes", "Curve", "GridAxis"),
+        "column": ("ColumnGrid.columns", "Point|Brep", "Column"),
+        "column_grid": ("ColumnGrid", "Curve|Point|Brep", "Grid"),
+    }
+    target_by_boundary_kind = {
+        "glass": ("GlassBoundary", "Curve|Brep|GlassMaterial", "CurtainWall|Window"),
+        "rug": ("BoundaryCue", "Curve|Hatch|Surface", "SurfaceFinish|Annotation"),
+        "material": ("BoundaryCue", "Curve|Hatch|Surface", "SurfaceFinish|Annotation"),
+        "visual": ("VisualBoundaryCue", "Curve|Annotation", "Annotation|ZoneBoundary"),
+    }
+    return {
+        record["id"]: {
+            "neutral_target": target[0],
+            "rhino_target": target[1],
+            "grasshopper_branch": branches_by_id.get(record["id"]),
+            "bim_target": target[2],
+        }
+        for record in scene_records
+        for target in [
+            target_by_boundary_kind.get(
+                record.get("metadata", {}).get("boundary-kind"),
+            )
+            if record["role"] == "boundary"
+            else None
+        ]
+        for target in [
+            target
+            or target_by_role.get(
+                record["role"],
+                ("FurnitureObject", "ClosedCurve|Brep", "Furniture"),
+            )
+        ]
+    }
+
+
+def _adapter_grasshopper_branches(
+    scene_records: list[dict],
+    metric_rows: list[dict],
+    graph_namespaces: dict,
+) -> list[dict]:
+    branches = []
+    branch_names = {
+        "boundary": "boundaries",
+        "opening": "entries",
+        "path": "paths",
+        "region": "regions",
+        "column_axis": "column_grid",
+    }
+    counters = {}
+    for record in scene_records:
+        branch = branch_names.get(record["role"], "objects")
+        index = counters.get(branch, 0)
+        counters[branch] = index + 1
+        branches.append(
+            {
+                "path": f"{{0;{branch};{index}}}",
+                "kind": "boundary_record"
+                if record["role"] == "boundary"
+                else "object_record"
+                if branch == "objects"
+                else f"{record['role']}_record",
+                "id": record["id"],
+                "role": record["role"],
+            }
+        )
+    branches.extend(
+        {
+            "path": f"{{0;metrics;{index}}}",
+            "kind": "metric_row",
+            "id": f"{row['view_id']}.{row['metric']}",
+        }
+        for index, row in enumerate(metric_rows)
+    )
+    branches.extend(
+        {
+            "path": f"{{0;graphs;{name}}}",
+            "kind": "graph_namespace",
+            "id": name,
+        }
+        for name in graph_namespaces
+    )
+    return branches
+
+
+def _adapter_graph_namespaces(graphs: dict, line_of_sight_graph: dict) -> dict:
+    walk_metrics = graphs.get("walk", {}).get("metrics", {})
+    sight_metrics = line_of_sight_graph.get("metrics", {})
+    return {
+        "walk_graph": {
+            "method": "boundary_weighted_bbox_touch_graph_proxy",
+            "node_count": len(graphs.get("walk", {}).get("nodes", [])),
+            "edge_count": len(graphs.get("walk", {}).get("edges", [])),
+            "metrics": {
+                "entry_region_reachability": walk_metrics.get(
+                    "entry_region_reachability",
+                    0.0,
+                ),
+                "component_count": walk_metrics.get("component_count", 0),
+                "loop_count": walk_metrics.get("loop_count", 0),
+                "loop_ratio": walk_metrics.get("loop_ratio", 0.0),
+            },
+            "uncertainty": "bbox-touch modal graph for adapter handoff; not navmesh, hosted topology, or route certification",
+        },
+        "visibility_graph": {
+            "method": "line_of_sight_graph_edge_visibility_ratio",
+            "node_count": len(line_of_sight_graph.get("nodes", [])),
+            "edge_count": len(line_of_sight_graph.get("edges", [])),
+            "metrics": {
+                "visible_edge_ratio": sight_metrics.get("visible_edge_ratio", 0.0),
+                "blocked_edge_ratio": sight_metrics.get("blocked_edge_ratio", 0.0),
+                "blocking_boundary_count": len(
+                    sight_metrics.get("blocking_boundary_ids", [])
+                ),
+            },
+            "uncertainty": "centerline visibility graph for adapter handoff; not full VGA, isovist field, or calibrated visual integration",
+        },
+    }
+
+
+def _rect_bbox(rect: Rect) -> tuple[float, float, float, float]:
+    return (
+        round(rect.left, 4),
+        round(rect.top, 4),
+        round(rect.right, 4),
+        round(rect.bottom, 4),
+    )
+
+
+def _rect_from_points(points: tuple[tuple[float, float], ...]) -> Rect:
+    xs = [point[0] for point in points]
+    ys = [point[1] for point in points]
+    left, right = min(xs), max(xs)
+    top, bottom = min(ys), max(ys)
+    return Rect(
+        cx=(left + right) / 2,
+        cy=(top + bottom) / 2,
+        width=right - left,
+        height=bottom - top,
+    )
+
+
+def _spacing_side_margins(region: dict) -> dict[str, float]:
+    raw = region["metadata"].get("spacing_side_margins", "")
+    margins = {}
+    for part in raw.split(","):
+        if ":" not in part:
+            continue
+        side, value = part.split(":", 1)
+        margins[side] = round(float(value), 4)
+    return margins
+
+
 def _adapter_evidence_geometry(
+    rows: list[dict],
     negative_space: dict,
     negative_space_graph: dict,
+    affordance_zones: list[dict],
+    furniture_affordance_extents: list[dict],
+    activity_groups: list[dict],
+    inferred_region_candidates: list[dict],
+    inferred_region_gap_paths: list[dict],
+    spatial_networks: list[dict],
+    boundary_semantics: list[dict],
 ) -> dict:
+    gap_path_occupancy = next(
+        (
+            row.get("inferred_region_gap_path_occupancy_evidence", [])
+            for row in rows
+            if row.get("metric") == "inferred_region_gap_path_occupancy_ratio"
+        ),
+        [],
+    )
+    occupancy_by_gap_path = {
+        item["gap_path_id"]: item
+        for item in gap_path_occupancy
+    }
+    gap_path_free_space_overlap = next(
+        (
+            row.get("inferred_region_gap_path_free_space_overlap_evidence", [])
+            for row in rows
+            if row.get("metric")
+            == "inferred_region_gap_path_free_space_overlap_ratio"
+        ),
+        [],
+    )
+    free_space_overlap_by_gap_path = {
+        item["gap_path_id"]: item
+        for item in gap_path_free_space_overlap
+    }
+    gap_path_cad_free_space_overlap = next(
+        (
+            row.get("inferred_region_gap_path_cad_free_space_overlap_evidence", [])
+            for row in rows
+            if row.get("metric")
+            == "inferred_region_gap_path_cad_free_space_overlap_ratio"
+        ),
+        [],
+    )
+    cad_free_space_overlap_by_gap_path = {
+        item["gap_path_id"]: item
+        for item in gap_path_cad_free_space_overlap
+    }
     return {
+        "affordance_zones": {
+            "count": len(affordance_zones),
+            "items": [
+                {
+                    "id": zone["id"],
+                    "object_id": zone["object_id"],
+                    "region": zone["region"],
+                    "side": zone["side"],
+                    "depth": zone["depth"],
+                    "source": zone["source"],
+                    "zone_bbox": _rect_bbox(zone["rect"]),
+                    "footprint_bbox": _rect_bbox(zone["footprint_rect"]),
+                }
+                for zone in affordance_zones
+            ],
+        },
+        "furniture_affordance_extents": {
+            "count": len(furniture_affordance_extents),
+            "items": [
+                _furniture_affordance_extent_evidence(extent)
+                for extent in furniture_affordance_extents
+            ],
+        },
+        "activity_groups": {
+            "count": len(activity_groups),
+            "items": [
+                _activity_group_evidence(group)
+                for group in activity_groups
+            ],
+        },
+        "inferred_region_candidates": {
+            "count": len(inferred_region_candidates),
+            "items": [
+                {
+                    "id": region["id"],
+                    "region": region["region"],
+                    "bbox": _rect_bbox(region["rect"]),
+                    "geometry_basis": region["metadata"].get("geometry_basis"),
+                    "member_ids": [
+                        member_id
+                        for member_id in region["metadata"].get("member_ids", "").split(",")
+                        if member_id
+                    ],
+                    "affordance_zone_ids": [
+                        zone_id
+                        for zone_id in region["metadata"].get("affordance_zone_ids", "").split(",")
+                        if zone_id
+                    ],
+                    "boundary_cue_ids": [
+                        cue_id
+                        for cue_id in region["metadata"].get("boundary_cue_ids", "").split(",")
+                        if cue_id
+                    ],
+                    **(
+                        {"spacing_side_margins": spacing_side_margins}
+                        if (
+                            spacing_side_margins := _spacing_side_margins(region)
+                        )
+                        else {}
+                    ),
+                }
+                for region in inferred_region_candidates
+            ],
+        },
+        "inferred_region_gap_paths": {
+            "count": len(inferred_region_gap_paths),
+            "items": [
+                {
+                    "id": path["id"],
+                    "region_a": path["region_a"],
+                    "region_b": path["region_b"],
+                    "orientation": path["orientation"],
+                    "bbox": _rect_bbox(path["rect"]),
+                    "thickness": round(path["thickness"], 4),
+                    "overlap_span": round(path["overlap_span"], 4),
+                    **(
+                        {
+                            "occupied": bool(occupancy.get("occupiers")),
+                            "occupancy_ratio": occupancy.get("occupancy_ratio", 0.0),
+                            "occupied_area": occupancy.get("occupied_area", 0.0),
+                            "clear_status": gap_path_clear_status(
+                                occupancy.get("occupancy_ratio", 0.0)
+                            ),
+                        }
+                        if (occupancy := occupancy_by_gap_path.get(path["id"]))
+                        else {}
+                    ),
+                    **(
+                        {
+                            "free_space_overlap_ratio": free_space_overlap.get(
+                                "free_space_overlap_ratio",
+                                0.0,
+                            ),
+                            "free_space_overlap_area": free_space_overlap.get(
+                                "free_space_overlap_area",
+                                0.0,
+                            ),
+                        }
+                        if (
+                            free_space_overlap := free_space_overlap_by_gap_path.get(
+                                path["id"]
+                            )
+                        )
+                        else {}
+                    ),
+                    **(
+                        {
+                            "cad_free_space_overlap_ratio": cad_overlap.get(
+                                "cad_free_space_overlap_ratio",
+                                0.0,
+                            ),
+                            "cad_free_space_overlap_area": cad_overlap.get(
+                                "cad_free_space_overlap_area",
+                                0.0,
+                            ),
+                        }
+                        if (
+                            cad_overlap := cad_free_space_overlap_by_gap_path.get(
+                                path["id"]
+                            )
+                        )
+                        else {}
+                    ),
+                }
+                for path in inferred_region_gap_paths
+            ],
+        },
+        "spatial_networks": {
+            "count": len(spatial_networks),
+            "items": spatial_networks,
+        },
+        "boundary_semantics": {
+            "count": len(boundary_semantics),
+            "items": boundary_semantics,
+        },
+        "inferred_region_gap_path_occupancy": {
+            "count": len(gap_path_occupancy),
+            "items": gap_path_occupancy,
+        },
+        "inferred_region_gap_path_free_space_overlap": {
+            "count": len(gap_path_free_space_overlap),
+            "items": gap_path_free_space_overlap,
+        },
+        "inferred_region_gap_path_cad_free_space_overlap": {
+            "count": len(gap_path_cad_free_space_overlap),
+            "items": gap_path_cad_free_space_overlap,
+        },
         "free_space_polygons": {
             "method": "room_polygon_rect_cell_free_space_polygons_proxy",
             "count": len(negative_space.get("free_space_polygons", [])),
@@ -7310,7 +9341,15 @@ def _uncertainty_route_row(rows: list[dict]) -> dict:
             lowered = text.lower()
             if any(keyword in lowered for keyword in keywords):
                 matches.append(row["metric"])
-        route_evidence[route] = list(dict.fromkeys(matches))[:8]
+        unique_matches = list(dict.fromkeys(matches))
+        if route == "method_replacement":
+            # Prefer diagnostic metrics over count-only rows when the route list is capped.
+            unique_matches = [
+                metric for metric in unique_matches if not metric.endswith("_count")
+            ] + [
+                metric for metric in unique_matches if metric.endswith("_count")
+            ]
+        route_evidence[route] = unique_matches[:8]
     active_routes = [
         route for route, evidence in route_evidence.items()
         if evidence
