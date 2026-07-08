@@ -722,8 +722,7 @@ def _attach_region_axis_metadata(
     rects: list[Rect],
     scene_size: tuple[float, float],
 ) -> dict:
-    """Add member-orientation trend evidence and an oriented polygon to a candidate."""
-    stats = _axis_orientation_stats(members)
+    """Add affordance-point PCA frame evidence and an oriented polygon."""
     # Region shape must include affordance extents while retaining true member
     # points when the adapter provides rotated footprint geometry.
     points = [
@@ -736,51 +735,116 @@ def _attach_region_axis_metadata(
         for member in members
         for point in _record_points(member)
     )
-    rect, polygon_points = _oriented_envelope(points, stats["angle"], scene_size)
+    stats = _pca_frame_stats(points)
+    member_alignment = _member_frame_alignment(members)
+    strength = stats["clarity"] * member_alignment
+    _rect, polygon_points = _oriented_envelope(points, stats["angle"], scene_size)
     enriched = dict(candidate)
     metadata = dict(candidate["metadata"])
     metadata.update(
         {
             "axis-angle": str(round(stats["angle"], 4)),
-            "axis-strength": str(round(stats["strength"], 4)),
-            "axis-basis": "member_orientation_axis_mean",
+            "axis-strength": str(round(strength, 4)),
+            "axis-basis": "affordance_point_pca_frame",
             "secondary-axis-angle": str(round((stats["angle"] + 90.0) % 180.0, 4)),
-            "axis-member-count": str(stats["count"]),
+            "axis-primary-extent": str(round(stats["primary_extent"], 4)),
+            "axis-secondary-extent": str(round(stats["secondary_extent"], 4)),
+            "axis-clarity": str(round(stats["clarity"], 4)),
+            "axis-member-alignment": str(round(member_alignment, 4)),
+            "axis-member-count": str(len(members)),
         }
     )
     enriched["metadata"] = metadata
-    enriched["rect"] = rect
+    # Keep the existing axis-aligned candidate bbox stable for downstream path,
+    # occupancy, and adapter metrics; the oriented frame lives in points/metadata.
+    enriched["rect"] = candidate["rect"]
     enriched["points"] = polygon_points
     return enriched
 
 
-def _axis_orientation_stats(records: list[dict]) -> dict:
-    """Compute mean axis orientation and strength from member furniture records."""
+def _pca_frame_stats(points: list[tuple[float, float]]) -> dict:
+    """Compute a deterministic two-axis frame from affordance geometry points."""
+    if len(points) < 2:
+        return _empty_frame_stats()
+    cx = mean(x for x, _y in points)
+    cy = mean(y for _x, y in points)
+    centered = [(x - cx, y - cy) for x, y in points]
+    # The covariance matrix captures how the whole furniture-group extent spreads,
+    # independent of individual object orientation labels.
+    cov_xx = mean(x * x for x, _y in centered)
+    cov_yy = mean(y * y for _x, y in centered)
+    cov_xy = mean(x * y for x, y in centered)
+    total = cov_xx + cov_yy
+    if total <= 1e-9:
+        return _empty_frame_stats()
+    delta = sqrt((cov_xx - cov_yy) ** 2 + 4.0 * cov_xy * cov_xy)
+    primary_variance = (total + delta) / 2.0
+    secondary_variance = (total - delta) / 2.0
+    # Closed-form 2D PCA angle for the major eigenvector.
+    angle = (degrees(0.5 * atan2(2.0 * cov_xy, cov_xx - cov_yy))) % 180.0
+    primary_extent, secondary_extent = _frame_extents(points, angle)
+    clarity = max(0.0, min(1.0, (primary_variance - secondary_variance) / total))
+    return {
+        "angle": angle,
+        "strength": clarity,
+        "clarity": clarity,
+        "primary_extent": primary_extent,
+        "secondary_extent": secondary_extent,
+    }
+
+
+def _empty_frame_stats() -> dict:
+    """Return zero-strength frame metadata for degenerate point clouds."""
+    return {
+        "angle": 0.0,
+        "strength": 0.0,
+        "clarity": 0.0,
+        "primary_extent": 0.0,
+        "secondary_extent": 0.0,
+    }
+
+
+def _frame_extents(points: list[tuple[float, float]], angle: float) -> tuple[float, float]:
+    """Return point-cloud ranges along the PCA primary and secondary axes."""
+    theta = radians(angle)
+    c = cos(theta)
+    s = sin(theta)
+    # Projection ranges are kept separate from normalized clarity so visual
+    # overlays can show both real geometry scale and confidence.
+    primary = [x * c + y * s for x, y in points]
+    secondary = [-x * s + y * c for x, y in points]
+    return max(primary) - min(primary), max(secondary) - min(secondary)
+
+
+def _member_frame_alignment(records: list[dict]) -> float:
+    """Score whether member affordance frames follow the group frame."""
     weighted_x = 0.0
     weighted_y = 0.0
     total_weight = 0.0
-    count = 0
     for record in records:
-        weight = _orientation_weight(record)
+        angle = _record_frame_angle(record)
+        weight = _record_frame_weight(record)
         if weight <= 0:
             continue
-        angle = _record_orientation(record) % 180.0
-        theta = radians(angle * 2.0)
+        # Four-angle averaging treats a 90 degree rotation as the same frame,
+        # which matches table groups rotated from horizontal to vertical. This
+        # measures member-to-member agreement, not obedience to the PCA axis.
+        theta = radians(angle * 4.0)
         weighted_x += weight * cos(theta)
         weighted_y += weight * sin(theta)
         total_weight += weight
-        count += 1
     if total_weight <= 0:
-        return {"angle": 0.0, "strength": 0.0, "count": 0}
-    mean_x = weighted_x / total_weight
-    mean_y = weighted_y / total_weight
-    angle = (degrees(atan2(mean_y, mean_x)) / 2.0) % 180.0
-    strength = min(1.0, sqrt(mean_x * mean_x + mean_y * mean_y))
-    return {"angle": angle, "strength": strength, "count": count}
+        return 0.0
+    return min(1.0, sqrt(weighted_x * weighted_x + weighted_y * weighted_y) / total_weight)
 
 
-def _orientation_weight(record: dict) -> float:
-    """Weight directional evidence by elongation so round objects do not dominate."""
+def _record_frame_angle(record: dict) -> float:
+    """Return the local frame angle for one furniture affordance record."""
+    return _record_orientation(record) % 180.0
+
+
+def _record_frame_weight(record: dict) -> float:
+    """Weight member-frame evidence by its own geometric clarity."""
     rect = record["rect"]
     short = max(min(rect.width, rect.height), 1e-9)
     aspect = max(rect.width, rect.height) / short

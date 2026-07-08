@@ -170,8 +170,8 @@ def test_svg_id_fixtures_infer_regions_and_gap_paths_without_manual_markers():
         )
 
 
-def test_inferred_oblique_region_uses_member_orientation_trend():
-    """Inferred regions should carry member-based trend evidence for rotated groups."""
+def test_inferred_oblique_region_uses_affordance_pca_frame_trend():
+    """Inferred regions should carry PCA frame evidence for rotated affordance groups."""
     scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
     evidence = infer_scene_evidence(scene)
     candidates = {
@@ -182,9 +182,68 @@ def test_inferred_oblique_region_uses_member_orientation_trend():
     center = candidates["center_lounge"]
 
     assert len(center["points"]) == 5
-    assert center["metadata"]["axis-basis"] == "member_orientation_axis_mean"
-    assert float(center["metadata"]["axis-strength"]) > 0.9
-    assert 80.0 <= float(center["metadata"]["axis-angle"]) <= 100.0
+    assert center["metadata"]["axis-basis"] == "affordance_point_pca_frame"
+    assert float(center["metadata"]["axis-strength"]) > 0.0
+    assert float(center["metadata"]["axis-primary-extent"]) > 150.0
+    assert float(center["metadata"]["axis-secondary-extent"]) > 100.0
+    assert 0.0 <= float(center["metadata"]["axis-angle"]) <= 20.0
+
+
+def test_horizontal_and_vertical_groups_have_clear_pca_frames():
+    """Furniture-group frame clarity should not punish horizontal versus vertical layout."""
+    from features.scene_evaluator import evaluate_scene
+    from features.affordance.models import Rect
+
+    def record(record_id, region, cx, cy, width, height):
+        return {
+            "id": record_id,
+            "role": "table",
+            "group": region,
+            "region": region,
+            "rect": Rect(cx=cx, cy=cy, width=width, height=height),
+            "points": [],
+            "orientation": 0.0,
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": "table", "region": region},
+        }
+
+    scene = {
+        "source": "synthetic_pca_frame_equivalence",
+        "size": (600.0, 600.0),
+        "objects": [
+            record("h1", "horizontal", 120, 120, 80, 30),
+            record("h2", "horizontal", 240, 120, 80, 30),
+            record("h3", "horizontal", 360, 120, 80, 30),
+            record("v1", "vertical", 120, 300, 30, 80),
+            record("v2", "vertical", 120, 420, 30, 80),
+            record("v3", "vertical", 120, 540, 30, 80),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    candidates = {
+        candidate["region"]: candidate
+        for candidate in matrix["inferred_region_candidates"]
+    }
+
+    assert candidates["horizontal"]["metadata"]["axis-basis"] == (
+        "affordance_point_pca_frame"
+    )
+    assert candidates["vertical"]["metadata"]["axis-basis"] == (
+        "affordance_point_pca_frame"
+    )
+    assert float(candidates["horizontal"]["metadata"]["axis-strength"]) > 0.8
+    assert float(candidates["vertical"]["metadata"]["axis-strength"]) > 0.8
 
 
 def test_chaotic_probe_has_weaker_north_table_trend_than_baseline():
@@ -1677,7 +1736,7 @@ def test_evaluate_scene_infers_regions_from_affordance_expanded_group_bounds():
         assert region["rect"] == expected_rect
         assert len(region["points"]) == 5
         assert region["metadata"]["geometry_basis"] == "object_footprints_plus_affordance_zone_rects"
-        assert region["metadata"]["axis-basis"] == "member_orientation_axis_mean"
+        assert region["metadata"]["axis-basis"] == "affordance_point_pca_frame"
         assert region["metadata"]["spacing_margin"] == "30.0"
 
     inference_row = [
