@@ -52,6 +52,7 @@ def test_floorplan_fixture_has_structured_metadata():
 
 
 from features.scene_loader import load_structured_svg_scene
+from features.scene_inference import infer_scene_evidence
 
 
 def test_load_structured_svg_scene_returns_expected_scene_records():
@@ -120,6 +121,40 @@ def test_load_structured_svg_scene_returns_expected_scene_records():
     ]
     assert len(north_tables) == 6
     assert all(obj["rect"].width > 0 and obj["rect"].height > 0 for obj in north_tables)
+
+
+def test_svg_id_fixture_without_manual_regions_loads_semantic_proxy_records():
+    """ID-only SVG fixtures should still become neutral scene records."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+
+    assert len(scene["objects"]) >= 20
+    assert len(scene["regions"]) == 0
+    assert len(scene["paths"]) == 0
+    assert len(scene["entries"]) >= 2
+    assert len(scene["column_axes"]) >= 2
+
+    objects = {obj["id"]: obj for obj in scene["objects"]}
+    assert objects["north_table_r1_c1"]["role"] == "table"
+    assert objects["north_table_r1_c1"]["group"] == "north_tables"
+    assert objects["west_sofa_1"]["role"] == "sofa"
+    assert objects["east_work_chair"]["role"] == "chair"
+
+
+def test_svg_id_fixtures_infer_regions_and_gap_paths_without_manual_markers():
+    """The current framework should infer structure after manual region/path marks are removed."""
+    for path in sorted(Path("test").glob("SVG*.svg")):
+        scene = load_structured_svg_scene(path)
+        evidence = infer_scene_evidence(scene)
+
+        assert scene["regions"] == []
+        assert scene["paths"] == []
+        assert len(evidence["activity_groups"]) >= 5
+        assert len(evidence["inferred_region_candidates"]) >= 5
+        assert evidence["inferred_region_gap_paths"]
+        assert any(
+            network["scope"] == "inter_region" and network["edges"]
+            for network in evidence["spatial_networks"]
+        )
 
 
 def test_load_structured_svg_scene_normalizes_adapter_references(tmp_path):
@@ -11285,6 +11320,30 @@ def test_floorplan_notebook_keeps_display_order_and_dense_paths_optional():
         for data in output.get("data", {}).get("image/svg+xml", [])
     )
     assert "free-space-graph-entry-region-path" not in overlay_output
+
+
+def test_svg_id_inference_notebook_presents_three_auto_inference_fixtures():
+    """The ID-only SVG inference notebook should focus on the three probe SVGs."""
+    nb = nbformat.read("test/svg_id_inference_demo.ipynb", as_version=4)
+    source = "\n".join(cell.source for cell in nb.cells)
+    headings = [
+        cell.source.strip()
+        for cell in nb.cells
+        if cell.cell_type == "markdown" and cell.source.strip().startswith("## ")
+    ]
+
+    assert headings == [
+        "## 1. Probe SVGs",
+        "## 2. Automatic Inference Summary",
+        "## 3. Inference Overlays",
+    ]
+    assert 'glob("SVG*.svg")' in source
+    assert "infer_scene_evidence" in source
+    assert "_inference_overlay_html" in source
+    assert "region-trend" in source
+    assert "manual_regions" in source
+    assert "manual_paths" in source
+    assert "evaluate_scene(" not in source
 
 
 def test_docs_do_not_describe_current_notebook_as_manual_object_table():

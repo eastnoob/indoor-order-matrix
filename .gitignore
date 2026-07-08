@@ -5,6 +5,7 @@ OCTA_toolbox-master/
 __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
+test/output/
 *.pyc
 
 # Editor-local settings
