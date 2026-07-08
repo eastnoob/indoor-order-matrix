@@ -5,7 +5,6 @@ from math import atan2, cos, degrees, radians, sin, sqrt
 from statistics import mean
 
 from .affordance.models import Rect
-from .affordance.profiles import resolve_affordance_profile
 
 
 def infer_scene_evidence(scene: dict) -> dict:
@@ -1411,22 +1410,21 @@ def _affordance_zone_rect(rect: Rect, side: str, depth: float) -> Rect:
 
 
 def _affordance_margins(record: dict) -> dict[str, float]:
-    """Resolve explicit or profile-derived affordance depth for each side."""
+    """Resolve authored affordance depth for each scene side."""
     metadata = record.get("metadata", {})
-    explicit_keys = (
-        "affordance-left",
-        "affordance-right",
-        "affordance-top",
-        "affordance-bottom",
-    )
-    if not any(key in metadata for key in explicit_keys):
-        return _profile_affordance_margins(record)
-    return {
+    margins = {
         "left": _float_metadata(metadata, "affordance-left"),
         "right": _float_metadata(metadata, "affordance-right"),
         "top": _float_metadata(metadata, "affordance-top"),
         "bottom": _float_metadata(metadata, "affordance-bottom"),
     }
+    # Explicit front affordance is still authored input; this only maps it from
+    # local furniture orientation into scene coordinates.
+    front = _float_metadata(metadata, "affordance-front")
+    if front > 0:
+        side = _profile_edge_side("front", record)
+        margins[side] = max(margins[side], front)
+    return margins
 
 
 def _affordance_margin_source(record: dict, side: str) -> str:
@@ -1434,22 +1432,9 @@ def _affordance_margin_source(record: dict, side: str) -> str:
     metadata = record.get("metadata", {})
     if f"affordance-{side}" in metadata:
         return "explicit_affordance_metadata"
-    return "affordance_profile"
-
-
-def _profile_affordance_margins(record: dict) -> dict[str, float]:
-    """Resolve affordance margins from a role/type profile."""
-    type_id = _record_affordance_type_id(record)
-    if not type_id:
-        return {"left": 0.0, "right": 0.0, "top": 0.0, "bottom": 0.0}
-    profile = resolve_affordance_profile(type_id, record.get("affordance"))
-    margins = {"left": 0.0, "right": 0.0, "top": 0.0, "bottom": 0.0}
-    # Profile defaults turn object roles into usable-side extents
-    for edge in profile.usable_edges:
-        side = _profile_edge_side(edge, record)
-        if side in margins:
-            margins[side] = max(margins[side], profile.depth_for(edge))
-    return margins
+    if metadata.get("affordance-front") and _profile_edge_side("front", record) == side:
+        return "explicit_affordance_metadata"
+    return "none"
 
 
 def _profile_edge_side(edge: str, record: dict) -> str:

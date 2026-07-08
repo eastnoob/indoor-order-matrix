@@ -388,6 +388,27 @@ def test_structured_svg_can_drive_affordance_based_region_inference(tmp_path):
     )
 
 
+def test_svg_affordance_baker_writes_profile_values_as_explicit_metadata(tmp_path):
+    from features.svg_affordance_baker import bake_svg_affordance_metadata
+
+    source = tmp_path / "source.svg"
+    target = tmp_path / "baked.svg"
+    source.write_text(
+        """<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+  <rect id="chair" data-role="chair" x="10" y="10" width="20" height="20" />
+  <rect id="table" data-role="table" data-affordance-bottom="12" x="50" y="10" width="40" height="20" />
+</svg>""",
+        encoding="utf-8",
+    )
+
+    bake_svg_affordance_metadata(source, target)
+    baked = target.read_text(encoding="utf-8")
+
+    assert 'data-affordance-front="40"' in baked
+    assert 'data-affordance-bottom="12"' in baked
+    assert 'data-affordance-top="60"' not in baked
+
+
 def test_loader_exports_public_api():
     import features
 
@@ -2040,10 +2061,11 @@ def test_evaluate_scene_exposes_furniture_affordance_extents_to_matrix_payload_a
     assert 'data-object="chair"' in svg
 
 
-def test_evaluate_scene_uses_default_affordance_profile_for_inferred_regions():
+def test_evaluate_scene_requires_explicit_affordance_for_inferred_regions():
     from features.affordance.models import Rect
 
     def record(record_id, role, group, rect, *, type_id=None, affordance_bottom=None):
+        """Build one neutral scene object with optional explicit affordance input."""
         metadata = {"role": role, "region": group}
         if type_id:
             metadata["type_id"] = type_id
@@ -2089,10 +2111,11 @@ def test_evaluate_scene_uses_default_affordance_profile_for_inferred_regions():
 
     assert matrix["inferred_regions"][0]["rect"] == Rect(
         cx=80.0,
-        cy=105.0,
+        cy=85.0,
         width=80.0,
-        height=130.0,
+        height=90.0,
     )
+    assert matrix["affordance_zones"] == []
 
     override_scene = {
         **base_scene,
@@ -2118,10 +2141,11 @@ def test_evaluate_scene_uses_default_affordance_profile_for_inferred_regions():
     )
 
 
-def test_evaluate_scene_orients_default_chair_affordance_for_inferred_regions():
+def test_evaluate_scene_orients_explicit_chair_affordance_for_inferred_regions():
     from features.affordance.models import Rect
 
     def record(record_id, role, group, rect, *, orientation=0.0):
+        """Build one oriented object with an explicit front affordance depth."""
         return {
             "id": record_id,
             "role": role,
@@ -2139,6 +2163,7 @@ def test_evaluate_scene_orients_default_chair_affordance_for_inferred_regions():
                 "region": group,
                 "type_id": "chair.default" if role == "chair" else "furniture.default",
                 "orientation": str(orientation),
+                "affordance-front": "40",
             },
         }
 
@@ -2185,7 +2210,14 @@ def test_evaluate_scene_uses_armchair_profile_for_armchair_regions():
                     "see_block": 0.0,
                     "grouping_strength": 0.0,
                 },
-                "metadata": {"role": "armchair", "region": "reading"},
+                "metadata": {
+                    "role": "armchair",
+                    "region": "reading",
+                    "affordance-left": "15",
+                    "affordance-right": "15",
+                    "affordance-top": "15",
+                    "affordance-bottom": "15",
+                },
             }
         ],
         "regions": [],
@@ -2202,10 +2234,10 @@ def test_evaluate_scene_uses_armchair_profile_for_armchair_regions():
         (zone["id"], zone["side"], zone["depth"], zone["source"])
         for zone in matrix["affordance_zones"]
     ] == [
-        ("affordance_zone_armchair_left", "left", 15.0, "affordance_profile"),
-        ("affordance_zone_armchair_right", "right", 15.0, "affordance_profile"),
-        ("affordance_zone_armchair_top", "top", 15.0, "affordance_profile"),
-        ("affordance_zone_armchair_bottom", "bottom", 15.0, "affordance_profile"),
+        ("affordance_zone_armchair_left", "left", 15.0, "explicit_affordance_metadata"),
+        ("affordance_zone_armchair_right", "right", 15.0, "explicit_affordance_metadata"),
+        ("affordance_zone_armchair_top", "top", 15.0, "explicit_affordance_metadata"),
+        ("affordance_zone_armchair_bottom", "bottom", 15.0, "explicit_affordance_metadata"),
     ]
     assert matrix["inferred_regions"][0]["rect"] == Rect(
         cx=80.0,
@@ -2234,7 +2266,11 @@ def test_evaluate_scene_uses_podium_profile_for_work_regions():
                     "see_block": 0.0,
                     "grouping_strength": 0.0,
                 },
-                "metadata": {"role": "podium", "region": "work"},
+                "metadata": {
+                    "role": "podium",
+                    "region": "work",
+                    "affordance-front": "80",
+                },
             }
         ],
         "regions": [],
@@ -2254,7 +2290,7 @@ def test_evaluate_scene_uses_podium_profile_for_work_regions():
             "region": "work",
             "side": "bottom",
             "depth": 80.0,
-            "source": "affordance_profile",
+            "source": "explicit_affordance_metadata",
             "rect": Rect(cx=120.0, cy=185.0, width=100.0, height=80.0),
             "footprint_rect": Rect(cx=120, cy=120, width=100, height=50),
         }
@@ -4033,7 +4069,7 @@ def test_scene_inference_functions_have_docstrings_and_key_step_comments():
     assert "# Expand candidates just enough to represent repeated-group spacing" in source
     assert "# A gap band is usable only when it is clear and supported by free space" in source
     assert "# Manual path width is a demand parameter, not an inferred SVG feature" in source
-    assert "# Profile defaults turn object roles into usable-side extents" in source
+    assert "# Explicit front affordance is still authored input" in source
 
 
 def test_evaluate_scene_reports_inferred_gap_path_occupancy_by_objects_and_affordances():
@@ -9562,13 +9598,13 @@ def test_evaluate_scene_returns_stable_metric_rows():
     assert path_rows["inferred_gap_path_width_free_space_clearance_ratio"] == {
         "view_id": "path_connectivity",
         "metric": "inferred_gap_path_width_free_space_clearance_ratio",
-        "score": 0.4628,
+        "score": 0.3951,
         "status": "computed",
         "method": "free_space_edge_clearance_width_over_inferred_gap_band_width",
         "evidence": {
             "free_space_mean_edge_clearance_width": 29.6985,
-            "walkable_proxy_mean_thickness": 64.1667,
-            "walkable_proxy_min_thickness": 9.75,
+            "walkable_proxy_mean_thickness": 75.1667,
+            "walkable_proxy_min_thickness": 44.0,
             "walkable_proxy_edge_count": 6,
         },
         "uncertainty": "ratio between rect-cell free-space shared-edge width and inferred gap-band width; proxy consistency check, not route certification",
@@ -9764,14 +9800,14 @@ def test_evaluate_scene_returns_stable_metric_rows():
         if row["view_id"] == "region_alignment"
         and row["metric"] == "inferred_region_explicit_iou_mean"
     ][0]
-    assert inferred_iou["score"] == 0.81
+    assert inferred_iou["score"] == 0.7488
     assert [
         (item["region"], item["iou"])
         for item in inferred_iou["inferred_region_explicit_iou_evidence"][:3]
     ] == [
-        ("east_work", 0.5658),
+        ("east_work", 0.4529),
+        ("east_armchairs", 0.6574),
         ("north_wall", 0.6996),
-        ("north_tables", 0.7326),
     ]
     assert [
         (item["region"], item["iou"], item["dominant_mismatch"])
