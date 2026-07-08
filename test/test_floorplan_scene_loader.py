@@ -189,9 +189,14 @@ def test_inferred_oblique_region_uses_affordance_pca_frame_trend():
 
     assert group["metadata"]["group-axis-basis"] == "affordance_group_pca_frame"
     assert float(group["metadata"]["group-axis-primary-extent"]) > 150.0
-    assert len(center["points"]) == 5
+    assert len(center["points"]) >= 5
     assert center["metadata"]["axis-basis"] == "activity_group_frame_mean"
     assert center["metadata"]["axis-group-ids"] == "activity_group_center_lounge"
+    assert center["metadata"]["region-shape-basis"] in {
+        "oriented_rectangle",
+        "regularized_convex_hull",
+    }
+    assert center["metadata"]["shape-axis-basis"] == "region_polygon_pca"
     assert float(center["metadata"]["axis-strength"]) > 0.0
     assert float(center["metadata"]["axis-primary-extent"]) > 150.0
     assert float(center["metadata"]["axis-secondary-extent"]) > 100.0
@@ -2410,6 +2415,102 @@ def test_evaluate_scene_uses_member_spacing_margin_for_large_repeated_groups():
         "left:41.25,right:41.25,top:41.25,bottom:41.25"
     )
     assert region["rect"] == Rect(cx=500.0, cy=340.0, width=862.5, height=388.5)
+
+
+def test_evaluate_scene_uses_oriented_rectangle_for_regular_region_shape():
+    from features.affordance.models import Rect
+    from features.scene_evaluator import evaluate_scene
+
+    def record(record_id, rect):
+        """Build one regular test furniture record."""
+        return {
+            "id": record_id,
+            "role": "table",
+            "group": "regular",
+            "region": "regular",
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": "table", "region": "regular"},
+        }
+
+    scene = {
+        "source": "synthetic_regular_region_shape",
+        "size": (400.0, 240.0),
+        "objects": [
+            record("left_table", Rect(cx=120, cy=120, width=80, height=40)),
+            record("right_table", Rect(cx=240, cy=120, width=80, height=40)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    region = evaluate_scene(scene)["inferred_regions"][0]
+
+    assert region["metadata"]["region-shape-basis"] == "oriented_rectangle"
+    assert region["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert region["metadata"]["shape-axis-basis"] == "region_polygon_pca"
+    assert "frame-delta" in region["metadata"]
+
+
+def test_evaluate_scene_uses_regularized_hull_for_complex_region_shape():
+    from features.affordance.models import Rect
+    from features.scene_evaluator import evaluate_scene
+
+    def record(record_id, rect):
+        """Build one irregular test furniture record."""
+        return {
+            "id": record_id,
+            "role": "table",
+            "group": "irregular",
+            "region": "irregular",
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": "table", "region": "irregular"},
+        }
+
+    scene = {
+        "source": "synthetic_regularized_hull_region_shape",
+        "size": (500.0, 420.0),
+        "objects": [
+            record("a", Rect(cx=110, cy=90, width=42, height=34)),
+            record("b", Rect(cx=230, cy=65, width=38, height=32)),
+            record("c", Rect(cx=350, cy=130, width=44, height=30)),
+            record("d", Rect(cx=380, cy=255, width=40, height=36)),
+            record("e", Rect(cx=285, cy=345, width=36, height=34)),
+            record("f", Rect(cx=150, cy=320, width=42, height=30)),
+            record("g", Rect(cx=70, cy=210, width=38, height=36)),
+            record("h", Rect(cx=170, cy=180, width=34, height=34)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    region = evaluate_scene(scene)["inferred_regions"][0]
+
+    assert region["metadata"]["region-shape-basis"] == "regularized_convex_hull"
+    assert int(region["metadata"]["region-shape-vertex-count"]) >= 8
+    assert region["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert region["metadata"]["shape-axis-basis"] == "region_polygon_pca"
+    assert "shape-axis-angle" in region["metadata"]
+    assert "frame-delta" in region["metadata"]
 
 
 def test_evaluate_scene_clamps_spacing_margin_to_scene_bounds():
@@ -11421,6 +11522,9 @@ def test_svg_id_inference_notebook_presents_three_auto_inference_fixtures():
     assert "region-trend-primary" in source
     assert "region-trend-secondary" in source
     assert "region-polygon" in source
+    assert "region-shape-basis" in source
+    assert "data-shape-basis" in source
+    assert "data-frame-delta" in source
     assert "axis-strength" in source
     assert "manual_regions" in source
     assert "manual_paths" in source

@@ -736,7 +736,7 @@ def _attach_region_axis_metadata(
     groups: list[dict],
     scene_size: tuple[float, float],
 ) -> dict:
-    """Add activity-group frame mean evidence and an oriented polygon."""
+    """Add organization-frame trend evidence and a selected region polygon."""
     # Region shape must include affordance extents while retaining true member
     # points when the adapter provides rotated footprint geometry.
     points = [
@@ -754,7 +754,7 @@ def _attach_region_axis_metadata(
         [{"rect": rect} for rect in rects],
     )
     frame = _region_frame_mean(groups, fallback_frame)
-    _rect, polygon_points = _oriented_envelope(points, frame["angle"], scene_size)
+    shape = _region_shape(points, frame["angle"], scene_size)
     enriched = dict(candidate)
     metadata = dict(candidate["metadata"])
     metadata.update(
@@ -770,13 +770,14 @@ def _attach_region_axis_metadata(
             "axis-member-count": str(len(members)),
             "axis-group-count": str(len(groups)),
             "axis-group-ids": ",".join(group["id"] for group in groups),
+            **_region_shape_metadata(shape, frame),
         }
     )
     enriched["metadata"] = metadata
     # Keep the existing axis-aligned candidate bbox stable for downstream path,
     # occupancy, and adapter metrics; the oriented frame lives in points/metadata.
     enriched["rect"] = candidate["rect"]
-    enriched["points"] = polygon_points
+    enriched["points"] = shape["points"]
     return enriched
 
 
@@ -968,6 +969,211 @@ def _rect_points(rect: Rect) -> list[tuple[float, float]]:
         (rect.left, rect.bottom),
         (rect.left, rect.top),
     ]
+
+
+def _region_shape(
+    points: list[tuple[float, float]],
+    organization_angle: float,
+    scene_size: tuple[float, float],
+) -> dict:
+    """Choose the visual region shape from affordance geometry complexity."""
+    _rect, rectangle = _oriented_envelope(points, organization_angle, scene_size)
+    hull = _regularized_hull(points, organization_angle)
+    hull_vertex_count = max(0, len(hull) - 1)
+    aligned_edge_ratio = _axis_aligned_edge_ratio(hull, organization_angle)
+    # Keep rectangles as the preferred representation for simple, axis-readable
+    # groups; switch to hull only when the simplified boundary has real complexity.
+    use_rectangle = hull_vertex_count <= 7
+    polygon = rectangle if use_rectangle else hull
+    shape_frame = _pca_frame_stats(_open_polygon_points(polygon))
+    return {
+        "basis": "oriented_rectangle" if use_rectangle else "regularized_convex_hull",
+        "points": polygon,
+        "hull_vertex_count": hull_vertex_count,
+        "aligned_edge_ratio": aligned_edge_ratio,
+        "rectangle_area": _polygon_area(rectangle),
+        "hull_area": _polygon_area(hull),
+        "shape_frame": shape_frame,
+    }
+
+
+def _region_shape_metadata(shape: dict, organization_frame: dict) -> dict:
+    """Return metadata that separates shape frame diagnostics from trend frame."""
+    shape_frame = shape["shape_frame"]
+    hull_area = shape["hull_area"]
+    area_ratio = shape["rectangle_area"] / hull_area if hull_area > 1e-9 else 0.0
+    return {
+        "region-shape-basis": shape["basis"],
+        "region-shape-vertex-count": str(shape["hull_vertex_count"]),
+        "region-shape-aligned-edge-ratio": str(round(shape["aligned_edge_ratio"], 4)),
+        "region-shape-area-ratio": str(round(area_ratio, 4)),
+        "shape-axis-angle": str(round(shape_frame["angle"], 4)),
+        "shape-axis-strength": str(round(shape_frame["strength"], 4)),
+        "shape-axis-basis": "region_polygon_pca",
+        "shape-secondary-axis-angle": str(round((shape_frame["angle"] + 90.0) % 180.0, 4)),
+        "shape-axis-primary-extent": str(round(shape_frame["primary_extent"], 4)),
+        "shape-axis-secondary-extent": str(round(shape_frame["secondary_extent"], 4)),
+        "frame-delta": str(
+            round(_frame_angle_delta(organization_frame["angle"], shape_frame["angle"]), 4)
+        ),
+    }
+
+
+def _regularized_hull(
+    points: list[tuple[float, float]],
+    organization_angle: float,
+) -> list[tuple[float, float]]:
+    """Return a simplified convex hull for affordance-region visualization."""
+    hull = _convex_hull(points)
+    hull = _drop_short_edges(hull, min_edge_length=8.0)
+    hull = _drop_near_collinear_points(hull, angle_tolerance=8.0)
+    return _snap_hull_edges_to_frame(hull, organization_angle, angle_tolerance=5.0)
+
+
+def _convex_hull(points: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    """Compute a closed convex hull using Andrew's monotonic chain."""
+    unique = sorted({(round(x, 10), round(y, 10)) for x, y in points})
+    if len(unique) <= 1:
+        return unique + unique
+
+    def cross(origin, a, b):
+        """Return the signed turn area for three points."""
+        return (a[0] - origin[0]) * (b[1] - origin[1]) - (
+            a[1] - origin[1]
+        ) * (b[0] - origin[0])
+
+    lower = []
+    for point in unique:
+        # Non-left turns are inside or collinear with the current hull boundary.
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], point) <= 1e-9:
+            lower.pop()
+        lower.append(point)
+    upper = []
+    for point in reversed(unique):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], point) <= 1e-9:
+            upper.pop()
+        upper.append(point)
+    hull = lower[:-1] + upper[:-1]
+    return [*hull, hull[0]] if hull else []
+
+
+def _drop_short_edges(
+    polygon: list[tuple[float, float]],
+    min_edge_length: float,
+) -> list[tuple[float, float]]:
+    """Remove tiny hull edges that come from furniture-corner noise."""
+    points = _open_polygon_points(polygon)
+    if len(points) <= 4:
+        return _close_polygon(points)
+    kept = []
+    for point in points:
+        if not kept or _distance(kept[-1], point) >= min_edge_length:
+            kept.append(point)
+    if len(kept) > 1 and _distance(kept[0], kept[-1]) < min_edge_length:
+        kept.pop()
+    return _close_polygon(kept if len(kept) >= 3 else points)
+
+
+def _drop_near_collinear_points(
+    polygon: list[tuple[float, float]],
+    angle_tolerance: float,
+) -> list[tuple[float, float]]:
+    """Remove hull vertices whose adjacent edges form an almost straight line."""
+    points = _open_polygon_points(polygon)
+    if len(points) <= 4:
+        return _close_polygon(points)
+    kept = []
+    for index, point in enumerate(points):
+        prev_point = points[index - 1]
+        next_point = points[(index + 1) % len(points)]
+        # Collinear cleanup uses raw axis-angle distance; a 90 degree corner is
+        # not equivalent to a straight line here.
+        turn = _axis_angle_delta(
+            _edge_angle(prev_point, point),
+            _edge_angle(point, next_point),
+        )
+        if abs(180.0 - turn) > angle_tolerance:
+            kept.append(point)
+    return _close_polygon(kept if len(kept) >= 3 else points)
+
+
+def _snap_hull_edges_to_frame(
+    polygon: list[tuple[float, float]],
+    organization_angle: float,
+    angle_tolerance: float,
+) -> list[tuple[float, float]]:
+    """Keep hull coordinates stable while recording frame-aligned complexity."""
+    # ponytail: no coordinate snapping yet; add it when visual QA shows jagged
+    # hulls after the simple vertex cleanup above.
+    return polygon
+
+
+def _axis_aligned_edge_ratio(
+    polygon: list[tuple[float, float]],
+    organization_angle: float,
+) -> float:
+    """Return the share of hull edges aligned with the organization frame axes."""
+    edges = list(zip(polygon, polygon[1:]))
+    if not edges:
+        return 0.0
+    aligned = 0
+    for a, b in edges:
+        delta = _frame_angle_delta(_edge_angle(a, b), organization_angle)
+        if min(delta, abs(delta - 90.0)) <= 12.0:
+            aligned += 1
+    return aligned / len(edges)
+
+
+def _edge_angle(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Return the unsigned axis angle for a polygon edge."""
+    return degrees(atan2(b[1] - a[1], b[0] - a[0])) % 180.0
+
+
+def _frame_angle_delta(a: float, b: float) -> float:
+    """Return the smallest difference between two two-axis frame angles."""
+    delta = abs((a - b) % 180.0)
+    delta = min(delta, 180.0 - delta)
+    return min(delta, abs(delta - 90.0))
+
+
+def _axis_angle_delta(a: float, b: float) -> float:
+    """Return the smallest difference between two undirected axis angles."""
+    delta = abs((a - b) % 180.0)
+    return min(delta, 180.0 - delta)
+
+
+def _polygon_area(polygon: list[tuple[float, float]]) -> float:
+    """Return the absolute shoelace area of a closed or open polygon."""
+    points = _close_polygon(_open_polygon_points(polygon))
+    if len(points) < 4:
+        return 0.0
+    area = 0.0
+    for (x1, y1), (x2, y2) in zip(points, points[1:]):
+        area += x1 * y2 - x2 * y1
+    return abs(area) / 2.0
+
+
+def _open_polygon_points(
+    polygon: list[tuple[float, float]],
+) -> list[tuple[float, float]]:
+    """Return polygon points without the repeated closing point."""
+    if len(polygon) > 1 and polygon[0] == polygon[-1]:
+        return polygon[:-1]
+    return list(polygon)
+
+
+def _close_polygon(
+    points: list[tuple[float, float]],
+) -> list[tuple[float, float]]:
+    """Return polygon points with a repeated closing point."""
+    if not points:
+        return []
+    return points if points[0] == points[-1] else [*points, points[0]]
+
+
+def _distance(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Return Euclidean distance between two points."""
+    return sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
 
 def _oriented_envelope(
