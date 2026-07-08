@@ -56,14 +56,13 @@ def furniture_affordance_extents(scene: dict) -> list[dict]:
 
 
 def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict]:
-    """Build activity groups from semantic region keys and furniture extents."""
+    """Build activity groups from semantic furniture keys and affordance extents."""
     extents = extents if extents is not None else furniture_affordance_extents(scene)
-    fallback_region_keys = {"", "global", "room"}
     objects_by_id = {obj["id"]: obj for obj in scene.get("objects", [])}
     extents_by_region: dict[str, list[dict]] = {}
     for extent in extents:
-        region = extent.get("region", "")
-        if region in fallback_region_keys:
+        region = _analysis_region_key(extent)
+        if not region:
             continue
         extents_by_region.setdefault(region, []).append(extent)
     groups = []
@@ -476,7 +475,7 @@ def record_affordance_zones(record: dict) -> list[dict]:
             {
                 "id": f"affordance_zone_{record['id']}_{side}",
                 "object_id": record["id"],
-                "region": record.get("region", record.get("group", "")),
+                "region": _analysis_region_key(record),
                 "side": side,
                 "depth": round(depth, 4),
                 "source": _affordance_margin_source(record, side),
@@ -493,20 +492,18 @@ def gap_path_clear_status(occupancy_ratio: float) -> str:
 
 
 def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
-    """Create unexpanded region candidates from neutral object region keys."""
-    fallback_region_keys = {"", "global", "room"}
+    """Create unexpanded region candidates from semantic furniture group keys."""
     groups_by_region = {
         group["region"]: group
         for group in activity_groups(scene)
     }
-    # Group objects by neutral region keys
+    # Group objects by neutral region keys, falling back to BIM furniture-group
+    # keys when a base map has not already assigned final activity regions.
     region_keys = sorted(
         {
-            obj.get("region")
+            _analysis_region_key(obj)
             for obj in scene.get("objects", [])
-            if obj.get("region")
-            and obj.get("region") not in fallback_region_keys
-            and _participates_in_region_inference(obj)
+            if _analysis_region_key(obj) and _participates_in_region_inference(obj)
         }
     )
     candidates = []
@@ -514,7 +511,7 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
         members = [
             obj
             for obj in scene.get("objects", [])
-            if obj.get("region") == region_key
+            if _analysis_region_key(obj) == region_key
             and _participates_in_region_inference(obj)
         ]
         if not members:
@@ -528,7 +525,7 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
         boundary_cues = [
             boundary
             for boundary in scene.get("boundaries", [])
-            if boundary.get("region") == region_key
+            if _analysis_region_key(boundary) == region_key
             and boundary.get("weights", {}).get("grouping_strength", 0.0) > 0.0
         ]
         rects.extend(boundary["rect"] for boundary in boundary_cues)
@@ -1333,6 +1330,19 @@ def _participates_in_region_inference(record: dict) -> bool:
     return role not in {"plant", "decor", "decoration"}
 
 
+def _analysis_region_key(record: dict) -> str:
+    """Return the semantic key used to group furniture into activity regions."""
+    metadata = record.get("metadata", {})
+    neutral = {"", "global", "room", "misc", "room_misc", None}
+    region = record.get("region") or metadata.get("region")
+    if region not in neutral:
+        return str(region)
+    group = record.get("group") or metadata.get("group")
+    # The group fallback is the critical BIM-proxy rule: furniture groups are
+    # authored input, while activity regions are inferred analysis entities.
+    return "" if group in neutral else str(group)
+
+
 def _furniture_affordance_extent_record(record: dict) -> dict:
     """Create one maximum extent from a furniture footprint and its own affordances."""
     zones = record_affordance_zones(record)
@@ -1340,7 +1350,7 @@ def _furniture_affordance_extent_record(record: dict) -> dict:
     return {
         "id": f"furniture_affordance_extent_{record['id']}",
         "object_id": record["id"],
-        "region": record.get("region", record.get("group", "")),
+        "region": _analysis_region_key(record),
         "rect": rect,
         "footprint_rect": record["rect"],
         "affordance_zone_ids": sorted(zone["id"] for zone in zones),

@@ -140,6 +140,18 @@ def test_svg_id_fixture_without_manual_regions_loads_semantic_proxy_records():
     assert objects["east_work_chair"]["role"] == "chair"
 
 
+def test_svg_id_fixtures_do_not_contain_manual_region_marks():
+    """Official SVG fixtures should leave activity regions to inference."""
+    fixture_names = ["SVG_baseline.svg", "SVG_chaoticsvg.svg", "SVG_oblique.svg"]
+
+    for name in fixture_names:
+        svg = (Path("test") / name).read_text(encoding="utf-8")
+
+        assert 'data-role="region"' not in svg
+        assert "id=\"region_" not in svg
+        assert "data-region=" not in svg
+
+
 def test_svg_loader_preserves_rotated_rect_points_and_orientation():
     """SVG transforms should become neutral rotated geometry, not only moved centers."""
     scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
@@ -169,6 +181,33 @@ def test_svg_id_fixtures_infer_regions_and_gap_paths_without_manual_markers():
             network["scope"] == "inter_region" and network["edges"]
             for network in evidence["spatial_networks"]
         )
+
+
+def test_svg_group_only_fixture_infers_regions_without_region_labels():
+    """Furniture groups should be enough to infer activity regions."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    for obj in scene["objects"]:
+        # Simulate a BIM/SVG base map that provides furniture group ids but no
+        # final activity-region assignment.
+        obj["region"] = "global"
+        obj["metadata"]["region"] = "global"
+
+    evidence = infer_scene_evidence(scene)
+    candidate_regions = {
+        candidate["region"]
+        for candidate in evidence["inferred_region_candidates"]
+    }
+
+    assert scene["regions"] == []
+    assert {
+        "north_tables",
+        "west_lounge",
+        "center_lounge",
+        "east_armchairs",
+        "east_work",
+    } <= candidate_regions
+    assert len(evidence["activity_groups"]) >= 5
+    assert evidence["inferred_region_gap_paths"]
 
 
 def test_inferred_oblique_region_keeps_pca_frame_without_correction():
