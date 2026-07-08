@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from itertools import combinations
+from math import atan2, cos, degrees, radians, sin, sqrt
 from statistics import mean
 
 from .affordance.models import Rect
@@ -526,14 +527,20 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
             for zone_id in extent["affordance_zone_ids"]
         ]
         boundary_cue_ids = sorted(boundary["id"] for boundary in boundary_cues)
+        candidate = _inferred_region_record(
+            region_key,
+            region_rect,
+            member_ids,
+            child_extent_ids,
+            affordance_zone_ids,
+            boundary_cue_ids,
+        )
         candidates.append(
-            _inferred_region_record(
-                region_key,
-                region_rect,
-                member_ids,
-                child_extent_ids,
-                affordance_zone_ids,
-                boundary_cue_ids,
+            _attach_region_axis_metadata(
+                candidate,
+                members,
+                rects,
+                scene.get("size", (0.0, 0.0)),
             )
         )
     return candidates
@@ -703,7 +710,171 @@ def _spacing_margin_expanded_candidates(
         )
         widened["metadata"] = metadata
         widened["rect"] = candidate_rect
+        if candidate.get("points"):
+            widened["points"] = _expand_points_bbox(candidate["points"], candidate_rect)
         expanded.append(widened)
+    return expanded
+
+
+def _attach_region_axis_metadata(
+    candidate: dict,
+    members: list[dict],
+    rects: list[Rect],
+    scene_size: tuple[float, float],
+) -> dict:
+    """Add member-orientation trend evidence and an oriented polygon to a candidate."""
+    stats = _axis_orientation_stats(members)
+    # Region shape must include affordance extents while retaining true member
+    # points when the adapter provides rotated footprint geometry.
+    points = [
+        point
+        for rect in rects
+        for point in _rect_points(rect)
+    ]
+    points.extend(
+        point
+        for member in members
+        for point in _record_points(member)
+    )
+    rect, polygon_points = _oriented_envelope(points, stats["angle"], scene_size)
+    enriched = dict(candidate)
+    metadata = dict(candidate["metadata"])
+    metadata.update(
+        {
+            "axis-angle": str(round(stats["angle"], 4)),
+            "axis-strength": str(round(stats["strength"], 4)),
+            "axis-basis": "member_orientation_axis_mean",
+            "secondary-axis-angle": str(round((stats["angle"] + 90.0) % 180.0, 4)),
+            "axis-member-count": str(stats["count"]),
+        }
+    )
+    enriched["metadata"] = metadata
+    enriched["rect"] = rect
+    enriched["points"] = polygon_points
+    return enriched
+
+
+def _axis_orientation_stats(records: list[dict]) -> dict:
+    """Compute mean axis orientation and strength from member furniture records."""
+    weighted_x = 0.0
+    weighted_y = 0.0
+    total_weight = 0.0
+    count = 0
+    for record in records:
+        weight = _orientation_weight(record)
+        if weight <= 0:
+            continue
+        angle = _record_orientation(record) % 180.0
+        theta = radians(angle * 2.0)
+        weighted_x += weight * cos(theta)
+        weighted_y += weight * sin(theta)
+        total_weight += weight
+        count += 1
+    if total_weight <= 0:
+        return {"angle": 0.0, "strength": 0.0, "count": 0}
+    mean_x = weighted_x / total_weight
+    mean_y = weighted_y / total_weight
+    angle = (degrees(atan2(mean_y, mean_x)) / 2.0) % 180.0
+    strength = min(1.0, sqrt(mean_x * mean_x + mean_y * mean_y))
+    return {"angle": angle, "strength": strength, "count": count}
+
+
+def _orientation_weight(record: dict) -> float:
+    """Weight directional evidence by elongation so round objects do not dominate."""
+    rect = record["rect"]
+    short = max(min(rect.width, rect.height), 1e-9)
+    aspect = max(rect.width, rect.height) / short
+    return max(0.0, aspect - 1.0)
+
+
+def _record_points(record: dict) -> list[tuple[float, float]]:
+    """Return record polygon points with a rect-corner fallback."""
+    points = list(record.get("points") or [])
+    return points if points else _rect_points(record["rect"])
+
+
+def _rect_points(rect: Rect) -> list[tuple[float, float]]:
+    """Return closed axis-aligned rectangle corner points."""
+    return [
+        (rect.left, rect.top),
+        (rect.right, rect.top),
+        (rect.right, rect.bottom),
+        (rect.left, rect.bottom),
+        (rect.left, rect.top),
+    ]
+
+
+def _oriented_envelope(
+    points: list[tuple[float, float]],
+    angle: float,
+    scene_size: tuple[float, float],
+) -> tuple[Rect, list[tuple[float, float]]]:
+    """Build an oriented bbox around points in the supplied axis frame."""
+    theta = radians(angle)
+    c = cos(theta)
+    s = sin(theta)
+    local = [(x * c + y * s, -x * s + y * c) for x, y in points]
+    left = min(x for x, _y in local)
+    right = max(x for x, _y in local)
+    top = min(y for _x, y in local)
+    bottom = max(y for _x, y in local)
+    local_corners = [
+        (left, top),
+        (right, top),
+        (right, bottom),
+        (left, bottom),
+    ]
+    polygon_points = [
+        (round(x * c - y * s, 10), round(x * s + y * c, 10))
+        for x, y in local_corners
+    ]
+    polygon_points.append(polygon_points[0])
+    rect = _bounds([{"rect": _points_rect(polygon_points)}])
+    return _clamped_points_rect(polygon_points, scene_size) or rect, polygon_points
+
+
+def _points_rect(points: list[tuple[float, float]]) -> Rect:
+    """Return the axis-aligned bbox for arbitrary points."""
+    xs = [point[0] for point in points]
+    ys = [point[1] for point in points]
+    left, right = min(xs), max(xs)
+    top, bottom = min(ys), max(ys)
+    return Rect(
+        cx=(left + right) / 2,
+        cy=(top + bottom) / 2,
+        width=right - left,
+        height=bottom - top,
+    )
+
+
+def _clamped_points_rect(
+    points: list[tuple[float, float]],
+    scene_size: tuple[float, float],
+) -> Rect | None:
+    """Return a scene-clamped bbox for points when scene bounds are valid."""
+    rect = _points_rect(points)
+    clamped = _clamp_rect_to_scene_size(rect, scene_size)
+    return clamped if clamped != rect else rect
+
+
+def _expand_points_bbox(
+    points: list[tuple[float, float]],
+    target_rect: Rect,
+) -> list[tuple[float, float]]:
+    """Scale polygon points from their bbox into an expanded target bbox."""
+    source = _points_rect(points)
+    if source.width <= 1e-9 or source.height <= 1e-9:
+        return points
+    expanded = []
+    for x, y in points:
+        rx = (x - source.left) / source.width
+        ry = (y - source.top) / source.height
+        expanded.append(
+            (
+                round(target_rect.left + rx * target_rect.width, 10),
+                round(target_rect.top + ry * target_rect.height, 10),
+            )
+        )
     return expanded
 
 

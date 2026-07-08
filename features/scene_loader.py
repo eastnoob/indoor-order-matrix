@@ -100,6 +100,7 @@ def _shape_record(tag: str, attrib: dict, meta: dict) -> dict | None:
         role = _role_from_id(attrib.get("id") or meta.get("id"), tag)
     if not role:
         return None
+    _tx, _ty, orientation = meta.get("_transform") or (0.0, 0.0, 0.0)
     group = meta.get("data-group") or _group_from_id(meta.get("_semantic_parent_id"))
     region = meta.get("data-region", group)
     metadata = {
@@ -111,11 +112,14 @@ def _shape_record(tag: str, attrib: dict, meta: dict) -> dict | None:
         metadata["group"] = group
     if "region" not in metadata:
         metadata["region"] = region
+    if "orientation" not in metadata:
+        metadata["orientation"] = str(round(orientation % 360.0, 4))
     return {
         "id": attrib.get("id") or meta.get("id") or role,
         "role": role,
         "group": group,
         "region": region,
+        "orientation": orientation % 360.0,
         "order_view": meta.get("data-order-view"),
         "rect": _rect_for_shape(tag, attrib, meta.get("_transform")),
         "points": _points_for_shape(tag, attrib, meta.get("_transform")),
@@ -225,6 +229,9 @@ def _rect_for_shape(
         cx, cy = _transform_point(x + width / 2, y + height / 2, tx, ty, angle)
         return Rect(cx=cx, cy=cy, width=width, height=height)
     if tag == "rect":
+        points = _points_for_shape(tag, attrib, transform)
+        if points:
+            return _rect_from_points(points)
         x = float(attrib.get("x", 0) or 0)
         y = float(attrib.get("y", 0) or 0)
         width = float(attrib.get("width", 0) or 0)
@@ -298,6 +305,21 @@ def _points_for_shape(
             (rect.left, rect.bottom),
             (rect.left, rect.top),
         ]
+    if tag == "rect":
+        if abs(angle) < 1e-9:
+            return []
+        x = float(attrib.get("x", 0) or 0)
+        y = float(attrib.get("y", 0) or 0)
+        width = float(attrib.get("width", 0) or 0)
+        height = float(attrib.get("height", 0) or 0)
+        # Rect corners preserve rotation for downstream neutral geometry.
+        points = [
+            _transform_point(x, y, tx, ty, angle),
+            _transform_point(x + width, y, tx, ty, angle),
+            _transform_point(x + width, y + height, tx, ty, angle),
+            _transform_point(x, y + height, tx, ty, angle),
+        ]
+        return [*points, points[0]]
     if tag == "line":
         x1 = float(attrib.get("x1", 0) or 0)
         y1 = float(attrib.get("y1", 0) or 0)
@@ -315,6 +337,20 @@ def _points_for_shape(
         _transform_point(numbers[i], numbers[i + 1], tx, ty, angle)
         for i in range(0, len(numbers) - 1, 2)
     ]
+
+
+def _rect_from_points(points: list[tuple[float, float]]) -> Rect:
+    """Return the axis-aligned bbox around transformed SVG points."""
+    xs = [point[0] for point in points]
+    ys = [point[1] for point in points]
+    left, right = min(xs), max(xs)
+    top, bottom = min(ys), max(ys)
+    return Rect(
+        cx=(left + right) / 2,
+        cy=(top + bottom) / 2,
+        width=right - left,
+        height=bottom - top,
+    )
 
 
 def _points_for_path(

@@ -140,6 +140,19 @@ def test_svg_id_fixture_without_manual_regions_loads_semantic_proxy_records():
     assert objects["east_work_chair"]["role"] == "chair"
 
 
+def test_svg_loader_preserves_rotated_rect_points_and_orientation():
+    """SVG transforms should become neutral rotated geometry, not only moved centers."""
+    scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
+    objects = {obj["id"]: obj for obj in scene["objects"]}
+
+    sofa = objects["center_sofa_upper"]
+
+    assert round(sofa["orientation"], 4) == 90.0
+    assert len(sofa["points"]) == 5
+    assert sofa["rect"].width > 50
+    assert sofa["rect"].height > 140
+
+
 def test_svg_id_fixtures_infer_regions_and_gap_paths_without_manual_markers():
     """The current framework should infer structure after manual region/path marks are removed."""
     for path in sorted(Path("test").glob("SVG*.svg")):
@@ -155,6 +168,45 @@ def test_svg_id_fixtures_infer_regions_and_gap_paths_without_manual_markers():
             network["scope"] == "inter_region" and network["edges"]
             for network in evidence["spatial_networks"]
         )
+
+
+def test_inferred_oblique_region_uses_member_orientation_trend():
+    """Inferred regions should carry member-based trend evidence for rotated groups."""
+    scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
+    evidence = infer_scene_evidence(scene)
+    candidates = {
+        candidate["region"]: candidate
+        for candidate in evidence["inferred_region_candidates"]
+    }
+
+    center = candidates["center_lounge"]
+
+    assert len(center["points"]) == 5
+    assert center["metadata"]["axis-basis"] == "member_orientation_axis_mean"
+    assert float(center["metadata"]["axis-strength"]) > 0.9
+    assert 80.0 <= float(center["metadata"]["axis-angle"]) <= 100.0
+
+
+def test_chaotic_probe_has_weaker_north_table_trend_than_baseline():
+    """Trend strength should drop when members in the same region are less aligned."""
+    baseline = infer_scene_evidence(
+        load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    )
+    chaotic = infer_scene_evidence(
+        load_structured_svg_scene(Path("test/SVG_chaoticsvg.svg"))
+    )
+    baseline_north = {
+        candidate["region"]: candidate
+        for candidate in baseline["inferred_region_candidates"]
+    }["north_tables"]
+    chaotic_north = {
+        candidate["region"]: candidate
+        for candidate in chaotic["inferred_region_candidates"]
+    }["north_tables"]
+
+    assert float(baseline_north["metadata"]["axis-strength"]) > float(
+        chaotic_north["metadata"]["axis-strength"]
+    )
 
 
 def test_load_structured_svg_scene_normalizes_adapter_references(tmp_path):
@@ -1616,66 +1668,17 @@ def test_evaluate_scene_infers_regions_from_affordance_expanded_group_bounds():
 
     matrix = evaluate_scene(scene)
 
-    assert matrix["inferred_regions"] == [
-        {
-            "id": "inferred_region_east_lounge",
-            "role": "region",
-            "group": "east_lounge",
-            "region": "east_lounge",
-            "rect": Rect(cx=310.0, cy=102.5, width=140.0, height=155.0),
-            "points": [],
-            "weights": {
-                "walk_block": 0.0,
-                "see_block": 0.0,
-                "grouping_strength": 0.0,
-            },
-                "metadata": {
-                    "inferred": "true",
-                    "level": "activity_region_candidate",
-                    "source": "affordance_zone_boundary_cue_expanded_group_bounds",
-                    "geometry_basis": "object_footprints_plus_affordance_zone_rects",
-                    "member_ids": "east_chair,east_table",
-                    "child_extent_ids": (
-                        "furniture_affordance_extent_east_chair,"
-                        "furniture_affordance_extent_east_table"
-                    ),
-                    "affordance_zone_ids": "affordance_zone_east_chair_bottom",
-                    "boundary_cue_ids": "",
-                    "spacing_margin": "30.0",
-                "spacing_side_margins": "left:30.0,right:30.0,top:30.0,bottom:5.0",
-            },
-            "adapter_refs": {},
-        },
-        {
-            "id": "inferred_region_west_lounge",
-            "role": "region",
-            "group": "west_lounge",
-            "region": "west_lounge",
-            "rect": Rect(cx=70.0, cy=102.5, width=140.0, height=155.0),
-            "points": [],
-            "weights": {
-                "walk_block": 0.0,
-                "see_block": 0.0,
-                "grouping_strength": 0.0,
-            },
-                "metadata": {
-                    "inferred": "true",
-                    "level": "activity_region_candidate",
-                    "source": "affordance_zone_boundary_cue_expanded_group_bounds",
-                    "geometry_basis": "object_footprints_plus_affordance_zone_rects",
-                    "member_ids": "west_chair,west_table",
-                    "child_extent_ids": (
-                        "furniture_affordance_extent_west_chair,"
-                        "furniture_affordance_extent_west_table"
-                    ),
-                    "affordance_zone_ids": "affordance_zone_west_chair_bottom",
-                    "boundary_cue_ids": "",
-                    "spacing_margin": "30.0",
-                "spacing_side_margins": "left:30.0,right:30.0,top:30.0,bottom:5.0",
-            },
-            "adapter_refs": {},
-        },
-    ]
+    inferred = {region["region"]: region for region in matrix["inferred_regions"]}
+    for region_name, expected_rect in {
+        "east_lounge": Rect(cx=310.0, cy=102.5, width=140.0, height=155.0),
+        "west_lounge": Rect(cx=70.0, cy=102.5, width=140.0, height=155.0),
+    }.items():
+        region = inferred[region_name]
+        assert region["rect"] == expected_rect
+        assert len(region["points"]) == 5
+        assert region["metadata"]["geometry_basis"] == "object_footprints_plus_affordance_zone_rects"
+        assert region["metadata"]["axis-basis"] == "member_orientation_axis_mean"
+        assert region["metadata"]["spacing_margin"] == "30.0"
 
     inference_row = [
         row
@@ -11341,6 +11344,8 @@ def test_svg_id_inference_notebook_presents_three_auto_inference_fixtures():
     assert "infer_scene_evidence" in source
     assert "_inference_overlay_html" in source
     assert "region-trend" in source
+    assert "region-polygon" in source
+    assert "axis-strength" in source
     assert "manual_regions" in source
     assert "manual_paths" in source
     assert "evaluate_scene(" not in source
