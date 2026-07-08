@@ -2513,6 +2513,129 @@ def test_evaluate_scene_uses_regularized_hull_for_complex_region_shape():
     assert "frame-delta" in region["metadata"]
 
 
+def test_evaluate_scene_excludes_decorative_objects_from_region_inference():
+    from features.affordance.models import Rect
+    from features.scene_evaluator import evaluate_scene
+
+    def record(record_id, role, rect):
+        """Build one test object with a role-specific inference expectation."""
+        return {
+            "id": record_id,
+            "role": role,
+            "group": "lounge",
+            "region": "lounge",
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": {"role": role, "region": "lounge"},
+        }
+
+    scene = {
+        "source": "synthetic_decorative_object_region_filter",
+        "size": (360.0, 260.0),
+        "objects": [
+            record("sofa", "sofa", Rect(cx=120, cy=180, width=120, height=40)),
+            record("table", "table", Rect(cx=120, cy=130, width=70, height=36)),
+            record("plant", "plant", Rect(cx=120, cy=40, width=44, height=44)),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    region = evaluate_scene(scene)["inferred_regions"][0]
+
+    assert region["metadata"]["member_ids"] == "sofa,table"
+    assert "plant" not in region["metadata"]["child_extent_ids"]
+    assert region["rect"].top > 80.0
+
+
+def test_evaluate_scene_allows_decorative_region_shape_anchor_override():
+    from features.affordance.models import Rect
+    from features.scene_evaluator import evaluate_scene
+
+    def record(record_id, role, rect, *, anchor=False):
+        """Build one test object with optional region-shape anchor metadata."""
+        metadata = {"role": role, "region": "lounge"}
+        if anchor:
+            metadata["region-shape-anchor"] = "true"
+        return {
+            "id": record_id,
+            "role": role,
+            "group": "lounge",
+            "region": "lounge",
+            "rect": rect,
+            "points": [],
+            "weights": {
+                "walk_block": 0.0,
+                "see_block": 0.0,
+                "grouping_strength": 0.0,
+            },
+            "metadata": metadata,
+        }
+
+    scene = {
+        "source": "synthetic_decorative_object_region_anchor",
+        "size": (360.0, 260.0),
+        "objects": [
+            record("sofa", "sofa", Rect(cx=120, cy=180, width=120, height=40)),
+            record("table", "table", Rect(cx=120, cy=130, width=70, height=36)),
+            record("plant", "plant", Rect(cx=120, cy=40, width=44, height=44), anchor=True),
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    region = evaluate_scene(scene)["inferred_regions"][0]
+
+    assert region["metadata"]["member_ids"] == "plant,sofa,table"
+    assert "furniture_affordance_extent_plant" in region["metadata"]["child_extent_ids"]
+    assert region["rect"].top <= 18.0
+
+
+def test_svg_baseline_center_lounge_regularized_hull_stays_rectangular():
+    from features.scene_loader import load_structured_svg_scene
+    from features.scene_inference import infer_scene_evidence
+
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    evidence = infer_scene_evidence(scene)
+    region = {
+        item["region"]: item
+        for item in evidence["inferred_region_candidates"]
+    }["center_lounge"]
+
+    assert region["metadata"]["region-shape-vertex-count"] == "8"
+    assert region["metadata"]["region-shape-aligned-edge-ratio"] == "0.75"
+    assert region["metadata"]["region-shape-basis"] == "oriented_rectangle"
+
+
+def test_center_lounge_trend_metadata_separates_alignment_clarity_and_strength():
+    from features.scene_loader import load_structured_svg_scene
+    from features.scene_inference import infer_scene_evidence
+
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    evidence = infer_scene_evidence(scene)
+    region = {
+        item["region"]: item
+        for item in evidence["inferred_region_candidates"]
+    }["center_lounge"]
+
+    assert region["metadata"]["axis-member-alignment"] == "1.0"
+    assert region["metadata"]["axis-shape-clarity"] == region["metadata"]["axis-clarity"]
+    assert region["metadata"]["axis-trend-strength"] == region["metadata"]["axis-strength"]
+
+
 def test_evaluate_scene_clamps_spacing_margin_to_scene_bounds():
     from features.affordance.models import Rect
 
@@ -11525,6 +11648,8 @@ def test_svg_id_inference_notebook_presents_three_auto_inference_fixtures():
     assert "region-shape-basis" in source
     assert "data-shape-basis" in source
     assert "data-frame-delta" in source
+    assert "axis-visual-length-basis" in source
+    assert "extent * max(0.15, strength)" not in source
     assert "axis-strength" in source
     assert "manual_regions" in source
     assert "manual_paths" in source

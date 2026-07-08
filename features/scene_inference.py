@@ -50,6 +50,7 @@ def furniture_affordance_extents(scene: dict) -> list[dict]:
         [
             _furniture_affordance_extent_record(obj)
             for obj in scene.get("objects", [])
+            if _participates_in_region_inference(obj)
         ],
         key=lambda item: item["id"],
     )
@@ -506,6 +507,7 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
             for obj in scene.get("objects", [])
             if obj.get("region")
             and obj.get("region") not in fallback_region_keys
+            and _participates_in_region_inference(obj)
         }
     )
     candidates = []
@@ -514,6 +516,7 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
             obj
             for obj in scene.get("objects", [])
             if obj.get("region") == region_key
+            and _participates_in_region_inference(obj)
         ]
         if not members:
             continue
@@ -766,6 +769,8 @@ def _attach_region_axis_metadata(
             "axis-primary-extent": str(round(frame["primary_extent"], 4)),
             "axis-secondary-extent": str(round(frame["secondary_extent"], 4)),
             "axis-clarity": str(round(frame["clarity"], 4)),
+            "axis-shape-clarity": str(round(frame["clarity"], 4)),
+            "axis-trend-strength": str(round(frame["strength"], 4)),
             "axis-member-alignment": str(round(frame["member_alignment"], 4)),
             "axis-member-count": str(len(members)),
             "axis-group-count": str(len(groups)),
@@ -983,7 +988,9 @@ def _region_shape(
     aligned_edge_ratio = _axis_aligned_edge_ratio(hull, organization_angle)
     # Keep rectangles as the preferred representation for simple, axis-readable
     # groups; switch to hull only when the simplified boundary has real complexity.
-    use_rectangle = hull_vertex_count <= 7
+    use_rectangle = hull_vertex_count <= 7 or (
+        hull_vertex_count == 8 and aligned_edge_ratio >= 0.75
+    )
     polygon = rectangle if use_rectangle else hull
     shape_frame = _pca_frame_stats(_open_polygon_points(polygon))
     return {
@@ -1026,7 +1033,7 @@ def _regularized_hull(
     """Return a simplified convex hull for affordance-region visualization."""
     hull = _convex_hull(points)
     hull = _drop_short_edges(hull, min_edge_length=8.0)
-    hull = _drop_near_collinear_points(hull, angle_tolerance=8.0)
+    hull = _drop_near_collinear_points(hull, angle_tolerance=15.0)
     return _snap_hull_edges_to_frame(hull, organization_angle, angle_tolerance=5.0)
 
 
@@ -1280,6 +1287,18 @@ def _inferred_region_gap_path(region_a: dict, region_b: dict, rect: Rect, orient
             "path_between": "activity_region_candidate",
         },
     }
+
+
+def _participates_in_region_inference(record: dict) -> bool:
+    """Return whether an object should anchor automatic region inference."""
+    metadata = record.get("metadata", {})
+    anchor = str(metadata.get("region-shape-anchor", "")).strip().lower()
+    if anchor in {"1", "true", "yes"}:
+        return True
+    role = str(record.get("role", metadata.get("role", ""))).strip().lower()
+    # Decorative objects remain scene evidence, but they should not enlarge
+    # activity regions unless authored as explicit shape anchors.
+    return role not in {"plant", "decor", "decoration"}
 
 
 def _furniture_affordance_extent_record(record: dict) -> dict:
