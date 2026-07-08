@@ -171,8 +171,8 @@ def test_svg_id_fixtures_infer_regions_and_gap_paths_without_manual_markers():
         )
 
 
-def test_inferred_oblique_region_uses_member_frame_consensus_trend():
-    """Inferred regions should carry member-frame trend evidence for rotated groups."""
+def test_inferred_oblique_region_keeps_pca_frame_without_correction():
+    """Inferred regions should keep PCA trend when no correction is needed."""
     scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
     evidence = infer_scene_evidence(scene)
     groups = {
@@ -187,7 +187,7 @@ def test_inferred_oblique_region_uses_member_frame_consensus_trend():
     group = groups["center_lounge"]
     center = candidates["center_lounge"]
 
-    assert group["metadata"]["group-axis-basis"] == "member_frame_consensus"
+    assert group["metadata"]["group-axis-basis"] == "affordance_group_pca_frame"
     assert float(group["metadata"]["group-axis-primary-extent"]) > 150.0
     assert len(center["points"]) >= 5
     assert center["metadata"]["axis-basis"] == "activity_group_frame_mean"
@@ -204,7 +204,7 @@ def test_inferred_oblique_region_uses_member_frame_consensus_trend():
 
 
 def test_west_lounge_member_frame_trend_ignores_semienclosed_pca_diagonal():
-    """Semienclosed lounge trend should follow furniture frames, not hull diagonals."""
+    """Semienclosed lounge trend should correct a false PCA diagonal."""
     scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
     evidence = infer_scene_evidence(scene)
     candidates = {
@@ -218,6 +218,38 @@ def test_west_lounge_member_frame_trend_ignores_semienclosed_pca_diagonal():
     assert float(west["metadata"]["axis-member-alignment"]) > 0.95
     assert float(west["metadata"]["axis-angle"]) <= 5.0
     assert float(west["metadata"]["shape-axis-angle"]) > 40.0
+
+
+def test_oblique_west_lounge_corrects_to_rotated_rectangular_frame():
+    """Rotated semienclosed lounge should keep its rotated rectangular frame."""
+    scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
+    evidence = infer_scene_evidence(scene)
+    candidates = {
+        candidate["region"]: candidate
+        for candidate in evidence["inferred_region_candidates"]
+    }
+
+    west = candidates["west_lounge"]
+
+    assert west["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert 15.0 <= float(west["metadata"]["axis-angle"]) <= 20.0
+    assert float(west["metadata"]["shape-axis-angle"]) > 70.0
+
+
+def test_weak_member_frame_evidence_keeps_pca_trend():
+    """Weak member-frame evidence should not replace the PCA trend."""
+    scene = load_structured_svg_scene(Path("test/SVG_chaoticsvg.svg"))
+    evidence = infer_scene_evidence(scene)
+    groups = {
+        group["region"]: group
+        for group in evidence["activity_groups"]
+    }
+
+    east_work = groups["east_work"]
+
+    assert east_work["metadata"]["group-axis-basis"] == "affordance_group_pca_frame"
+    assert float(east_work["metadata"]["group-axis-strength"]) < 0.2
+    assert float(east_work["metadata"]["group-axis-angle"]) > 150.0
 
 
 def test_horizontal_and_vertical_groups_have_clear_pca_frames():
@@ -3221,7 +3253,7 @@ def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extent
     assert metadata["level"] == "activity_group"
     assert metadata["source"] == "semantic_region_grouped_furniture_affordance_extents"
     assert metadata["geometry_basis"] == "union_envelope_of_member_furniture_affordance_extents"
-    assert metadata["group-axis-basis"] == "member_frame_consensus"
+    assert metadata["group-axis-basis"] == "affordance_group_pca_frame"
     assert float(metadata["group-axis-member-alignment"]) > 0.0
     assert float(metadata["group-axis-primary-extent"]) > 0.0
     assert matrix["adapter_payload"]["evidence_geometry"]["activity_groups"] == {

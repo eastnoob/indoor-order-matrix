@@ -818,7 +818,7 @@ def _pca_frame_stats(points: list[tuple[float, float]]) -> dict:
 
 
 def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
-    """Compute one furniture-group frame from member direction evidence."""
+    """Compute one furniture-group frame from affordance extent geometry."""
     points = [
         point
         for extent in extents
@@ -832,15 +832,12 @@ def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
     stats = _pca_frame_stats(points)
     member_frame = _member_frame_consensus(members)
     member_alignment = member_frame["strength"]
-    # Member frames express the organization trend. PCA remains the fallback for
-    # directionless objects such as rows of round tables and keeps extents stable.
-    angle = member_frame["angle"] if member_frame["weight"] > 0.0 else stats["angle"]
+    correction = _member_frame_pca_correction(stats, member_frame)
+    # PCA stays the default trend. The member frame only vetoes false diagonal
+    # PCA in semienclosed rectangular groups with strong edge support.
+    angle = correction["angle"] if correction["use"] else stats["angle"]
     strength = (member_alignment or stats["clarity"]) * stats["clarity"]
-    basis = (
-        "member_frame_consensus"
-        if member_frame["weight"] > 0.0
-        else "affordance_group_pca_frame"
-    )
+    basis = correction["basis"] if correction["use"] else "affordance_group_pca_frame"
     return {
         "angle": angle,
         "strength": strength,
@@ -853,7 +850,7 @@ def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
 
 
 def _group_frame_metadata(frame: dict) -> dict:
-    """Return string metadata for an activity-group organization frame."""
+    """Return string metadata for an activity-group trend frame."""
     return {
         "group-axis-angle": str(round(frame["angle"], 4)),
         "group-secondary-axis-angle": str(round((frame["angle"] + 90.0) % 180.0, 4)),
@@ -863,6 +860,22 @@ def _group_frame_metadata(frame: dict) -> dict:
         "group-axis-secondary-extent": str(round(frame["secondary_extent"], 4)),
         "group-axis-clarity": str(round(frame["clarity"], 4)),
         "group-axis-member-alignment": str(round(frame["member_alignment"], 4)),
+    }
+
+
+def _member_frame_pca_correction(pca_frame: dict, member_frame: dict) -> dict:
+    """Use a member-supported rectangular frame only for clear PCA false diagonals."""
+    delta = _frame_angle_delta(pca_frame["angle"], member_frame["angle"])
+    use_correction = (
+        member_frame["weight"] >= 1.5
+        and member_frame["strength"] >= 0.9
+        and pca_frame["clarity"] >= 0.3
+        and delta >= 25.0
+    )
+    return {
+        "use": use_correction,
+        "angle": member_frame["angle"],
+        "basis": "member_frame_pca_correction",
     }
 
 
