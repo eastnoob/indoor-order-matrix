@@ -59,6 +59,7 @@ def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict
     """Build activity groups from semantic region keys and furniture extents."""
     extents = extents if extents is not None else furniture_affordance_extents(scene)
     fallback_region_keys = {"", "global", "room"}
+    objects_by_id = {obj["id"]: obj for obj in scene.get("objects", [])}
     extents_by_region: dict[str, list[dict]] = {}
     for extent in extents:
         region = extent.get("region", "")
@@ -71,6 +72,12 @@ def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict
         # The group extent is the union envelope; overlaps are relation evidence,
         # not a replacement for the group's full maximum affordance extent.
         group_rect = _bounds(sorted_extents)
+        members = [
+            objects_by_id[extent["object_id"]]
+            for extent in sorted_extents
+            if extent["object_id"] in objects_by_id
+        ]
+        frame = _activity_group_frame(members, sorted_extents)
         groups.append(
             {
                 "id": f"activity_group_{region}",
@@ -86,6 +93,7 @@ def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict
                     "level": "activity_group",
                     "source": "semantic_region_grouped_furniture_affordance_extents",
                     "geometry_basis": "union_envelope_of_member_furniture_affordance_extents",
+                    **_group_frame_metadata(frame),
                 },
             }
         )
@@ -487,6 +495,10 @@ def gap_path_clear_status(occupancy_ratio: float) -> str:
 def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
     """Create unexpanded region candidates from neutral object region keys."""
     fallback_region_keys = {"", "global", "room"}
+    groups_by_region = {
+        group["region"]: group
+        for group in activity_groups(scene)
+    }
     # Group objects by neutral region keys
     region_keys = sorted(
         {
@@ -540,6 +552,7 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
                 candidate,
                 members,
                 rects,
+                [groups_by_region[region_key]] if region_key in groups_by_region else [],
                 scene.get("size", (0.0, 0.0)),
             )
         )
@@ -720,9 +733,10 @@ def _attach_region_axis_metadata(
     candidate: dict,
     members: list[dict],
     rects: list[Rect],
+    groups: list[dict],
     scene_size: tuple[float, float],
 ) -> dict:
-    """Add affordance-point PCA frame evidence and an oriented polygon."""
+    """Add activity-group frame mean evidence and an oriented polygon."""
     # Region shape must include affordance extents while retaining true member
     # points when the adapter provides rotated footprint geometry.
     points = [
@@ -735,23 +749,27 @@ def _attach_region_axis_metadata(
         for member in members
         for point in _record_points(member)
     )
-    stats = _pca_frame_stats(points)
-    member_alignment = _member_frame_alignment(members)
-    strength = stats["clarity"] * member_alignment
-    _rect, polygon_points = _oriented_envelope(points, stats["angle"], scene_size)
+    fallback_frame = _activity_group_frame(
+        members,
+        [{"rect": rect} for rect in rects],
+    )
+    frame = _region_frame_mean(groups, fallback_frame)
+    _rect, polygon_points = _oriented_envelope(points, frame["angle"], scene_size)
     enriched = dict(candidate)
     metadata = dict(candidate["metadata"])
     metadata.update(
         {
-            "axis-angle": str(round(stats["angle"], 4)),
-            "axis-strength": str(round(strength, 4)),
-            "axis-basis": "affordance_point_pca_frame",
-            "secondary-axis-angle": str(round((stats["angle"] + 90.0) % 180.0, 4)),
-            "axis-primary-extent": str(round(stats["primary_extent"], 4)),
-            "axis-secondary-extent": str(round(stats["secondary_extent"], 4)),
-            "axis-clarity": str(round(stats["clarity"], 4)),
-            "axis-member-alignment": str(round(member_alignment, 4)),
+            "axis-angle": str(round(frame["angle"], 4)),
+            "axis-strength": str(round(frame["strength"], 4)),
+            "axis-basis": "activity_group_frame_mean",
+            "secondary-axis-angle": str(round((frame["angle"] + 90.0) % 180.0, 4)),
+            "axis-primary-extent": str(round(frame["primary_extent"], 4)),
+            "axis-secondary-extent": str(round(frame["secondary_extent"], 4)),
+            "axis-clarity": str(round(frame["clarity"], 4)),
+            "axis-member-alignment": str(round(frame["member_alignment"], 4)),
             "axis-member-count": str(len(members)),
+            "axis-group-count": str(len(groups)),
+            "axis-group-ids": ",".join(group["id"] for group in groups),
         }
     )
     enriched["metadata"] = metadata
@@ -790,6 +808,90 @@ def _pca_frame_stats(points: list[tuple[float, float]]) -> dict:
         "clarity": clarity,
         "primary_extent": primary_extent,
         "secondary_extent": secondary_extent,
+    }
+
+
+def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
+    """Compute one furniture-group frame from affordance extent geometry."""
+    points = [
+        point
+        for extent in extents
+        for point in _rect_points(extent["rect"])
+    ]
+    points.extend(
+        point
+        for member in members
+        for point in _record_points(member)
+    )
+    stats = _pca_frame_stats(points)
+    member_alignment = _member_frame_alignment(members)
+    strength = stats["clarity"] * member_alignment
+    return {
+        "angle": stats["angle"],
+        "strength": strength,
+        "clarity": stats["clarity"],
+        "member_alignment": member_alignment,
+        "primary_extent": stats["primary_extent"],
+        "secondary_extent": stats["secondary_extent"],
+    }
+
+
+def _group_frame_metadata(frame: dict) -> dict:
+    """Return string metadata for an activity-group PCA frame."""
+    return {
+        "group-axis-angle": str(round(frame["angle"], 4)),
+        "group-secondary-axis-angle": str(round((frame["angle"] + 90.0) % 180.0, 4)),
+        "group-axis-strength": str(round(frame["strength"], 4)),
+        "group-axis-basis": "affordance_group_pca_frame",
+        "group-axis-primary-extent": str(round(frame["primary_extent"], 4)),
+        "group-axis-secondary-extent": str(round(frame["secondary_extent"], 4)),
+        "group-axis-clarity": str(round(frame["clarity"], 4)),
+        "group-axis-member-alignment": str(round(frame["member_alignment"], 4)),
+    }
+
+
+def _region_frame_mean(groups: list[dict], fallback_frame: dict) -> dict:
+    """Average activity-group frames into a region trend frame."""
+    frames = [_frame_from_group(group) for group in groups]
+    if not frames:
+        return dict(fallback_frame)
+    weighted_x = 0.0
+    weighted_y = 0.0
+    total_weight = 0.0
+    for frame in frames:
+        weight = frame["strength"] if frame["strength"] > 0.0 else 1.0
+        theta = radians(frame["angle"] * 4.0)
+        weighted_x += weight * cos(theta)
+        weighted_y += weight * sin(theta)
+        total_weight += weight
+    if total_weight <= 0.0:
+        return dict(fallback_frame)
+    angle = (degrees(atan2(weighted_y, weighted_x)) / 4.0) % 90.0
+    strength = min(1.0, sqrt(weighted_x * weighted_x + weighted_y * weighted_y) / total_weight)
+    return {
+        "angle": angle,
+        "strength": strength * mean(frame["strength"] for frame in frames),
+        "clarity": mean(frame["clarity"] for frame in frames),
+        "member_alignment": mean(frame["member_alignment"] for frame in frames),
+        "primary_extent": mean(frame["primary_extent"] for frame in frames),
+        "secondary_extent": mean(frame["secondary_extent"] for frame in frames),
+    }
+
+
+def _frame_from_group(group: dict) -> dict:
+    """Parse activity-group frame metadata back into numeric frame evidence."""
+    metadata = group.get("metadata", {})
+    return {
+        "angle": float(metadata.get("group-axis-angle", 0.0) or 0.0),
+        "strength": float(metadata.get("group-axis-strength", 0.0) or 0.0),
+        "clarity": float(metadata.get("group-axis-clarity", 0.0) or 0.0),
+        "member_alignment": float(
+            metadata.get("group-axis-member-alignment", 0.0) or 0.0
+        ),
+        "primary_extent": float(metadata.get("group-axis-primary-extent", 0.0) or 0.0),
+        "secondary_extent": float(
+            metadata.get("group-axis-secondary-extent", 0.0) or 0.0
+        ),
     }
 
 

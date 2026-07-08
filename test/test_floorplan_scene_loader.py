@@ -155,7 +155,8 @@ def test_svg_loader_preserves_rotated_rect_points_and_orientation():
 
 def test_svg_id_fixtures_infer_regions_and_gap_paths_without_manual_markers():
     """The current framework should infer structure after manual region/path marks are removed."""
-    for path in sorted(Path("test").glob("SVG*.svg")):
+    fixture_names = ["SVG_baseline.svg", "SVG_chaoticsvg.svg", "SVG_oblique.svg"]
+    for path in [Path("test") / name for name in fixture_names]:
         scene = load_structured_svg_scene(path)
         evidence = infer_scene_evidence(scene)
 
@@ -174,15 +175,23 @@ def test_inferred_oblique_region_uses_affordance_pca_frame_trend():
     """Inferred regions should carry PCA frame evidence for rotated affordance groups."""
     scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
     evidence = infer_scene_evidence(scene)
+    groups = {
+        group["region"]: group
+        for group in evidence["activity_groups"]
+    }
     candidates = {
         candidate["region"]: candidate
         for candidate in evidence["inferred_region_candidates"]
     }
 
+    group = groups["center_lounge"]
     center = candidates["center_lounge"]
 
+    assert group["metadata"]["group-axis-basis"] == "affordance_group_pca_frame"
+    assert float(group["metadata"]["group-axis-primary-extent"]) > 150.0
     assert len(center["points"]) == 5
-    assert center["metadata"]["axis-basis"] == "affordance_point_pca_frame"
+    assert center["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert center["metadata"]["axis-group-ids"] == "activity_group_center_lounge"
     assert float(center["metadata"]["axis-strength"]) > 0.0
     assert float(center["metadata"]["axis-primary-extent"]) > 150.0
     assert float(center["metadata"]["axis-secondary-extent"]) > 100.0
@@ -237,10 +246,10 @@ def test_horizontal_and_vertical_groups_have_clear_pca_frames():
     }
 
     assert candidates["horizontal"]["metadata"]["axis-basis"] == (
-        "affordance_point_pca_frame"
+        "activity_group_frame_mean"
     )
     assert candidates["vertical"]["metadata"]["axis-basis"] == (
-        "affordance_point_pca_frame"
+        "activity_group_frame_mean"
     )
     assert float(candidates["horizontal"]["metadata"]["axis-strength"]) > 0.8
     assert float(candidates["vertical"]["metadata"]["axis-strength"]) > 0.8
@@ -1736,7 +1745,7 @@ def test_evaluate_scene_infers_regions_from_affordance_expanded_group_bounds():
         assert region["rect"] == expected_rect
         assert len(region["points"]) == 5
         assert region["metadata"]["geometry_basis"] == "object_footprints_plus_affordance_zone_rects"
-        assert region["metadata"]["axis-basis"] == "affordance_point_pca_frame"
+        assert region["metadata"]["axis-basis"] == "activity_group_frame_mean"
         assert region["metadata"]["spacing_margin"] == "30.0"
 
     inference_row = [
@@ -2943,7 +2952,7 @@ def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extent
     matrix = evaluate_scene(scene)
     activity_groups = matrix["adapter_payload"]["evidence_geometry"]["activity_groups"]["items"]
 
-    assert activity_groups == [
+    expected_groups = [
         {
             "id": "activity_group_dining",
             "region": "dining",
@@ -2960,13 +2969,19 @@ def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extent
                     "overlap_area": 0.0,
                 }
             ],
-            "metadata": {
-                "level": "activity_group",
-                "source": "semantic_region_grouped_furniture_affordance_extents",
-                "geometry_basis": "union_envelope_of_member_furniture_affordance_extents",
-            },
         }
     ]
+    comparable_groups = [
+        {key: value for key, value in group.items() if key != "metadata"}
+        for group in activity_groups
+    ]
+    assert comparable_groups == expected_groups
+    metadata = activity_groups[0]["metadata"]
+    assert metadata["level"] == "activity_group"
+    assert metadata["source"] == "semantic_region_grouped_furniture_affordance_extents"
+    assert metadata["geometry_basis"] == "union_envelope_of_member_furniture_affordance_extents"
+    assert metadata["group-axis-basis"] == "affordance_group_pca_frame"
+    assert float(metadata["group-axis-primary-extent"]) > 0.0
     assert matrix["adapter_payload"]["evidence_geometry"]["activity_groups"] == {
         "count": 1,
         "items": activity_groups,
@@ -11403,6 +11418,8 @@ def test_svg_id_inference_notebook_presents_three_auto_inference_fixtures():
     assert "infer_scene_evidence" in source
     assert "_inference_overlay_html" in source
     assert "region-trend" in source
+    assert "region-trend-primary" in source
+    assert "region-trend-secondary" in source
     assert "region-polygon" in source
     assert "axis-strength" in source
     assert "manual_regions" in source

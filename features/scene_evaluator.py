@@ -2082,7 +2082,10 @@ def _object_region_membership_rows(scene: dict) -> list[dict]:
 def _region_record_overlap_area(region: dict, rect: Rect) -> float:
     """Return object overlap with authored polygons or inferred region bboxes."""
     metadata = region.get("metadata", {})
-    if metadata.get("axis-basis") == "affordance_point_pca_frame":
+    if metadata.get("axis-basis") in {
+        "affordance_point_pca_frame",
+        "activity_group_frame_mean",
+    }:
         # PCA points are diagnostic oriented envelopes. Membership coverage keeps
         # using the stable bbox proxy that downstream inferred-region rows expose.
         return _rect_overlap_area(region["rect"], rect)
