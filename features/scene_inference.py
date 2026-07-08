@@ -818,7 +818,7 @@ def _pca_frame_stats(points: list[tuple[float, float]]) -> dict:
 
 
 def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
-    """Compute one furniture-group frame from affordance extent geometry."""
+    """Compute one furniture-group frame from member direction evidence."""
     points = [
         point
         for extent in extents
@@ -830,25 +830,35 @@ def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
         for point in _record_points(member)
     )
     stats = _pca_frame_stats(points)
-    member_alignment = _member_frame_alignment(members)
-    strength = stats["clarity"] * member_alignment
+    member_frame = _member_frame_consensus(members)
+    member_alignment = member_frame["strength"]
+    # Member frames express the organization trend. PCA remains the fallback for
+    # directionless objects such as rows of round tables and keeps extents stable.
+    angle = member_frame["angle"] if member_frame["weight"] > 0.0 else stats["angle"]
+    strength = (member_alignment or stats["clarity"]) * stats["clarity"]
+    basis = (
+        "member_frame_consensus"
+        if member_frame["weight"] > 0.0
+        else "affordance_group_pca_frame"
+    )
     return {
-        "angle": stats["angle"],
+        "angle": angle,
         "strength": strength,
         "clarity": stats["clarity"],
         "member_alignment": member_alignment,
         "primary_extent": stats["primary_extent"],
         "secondary_extent": stats["secondary_extent"],
+        "basis": basis,
     }
 
 
 def _group_frame_metadata(frame: dict) -> dict:
-    """Return string metadata for an activity-group PCA frame."""
+    """Return string metadata for an activity-group organization frame."""
     return {
         "group-axis-angle": str(round(frame["angle"], 4)),
         "group-secondary-axis-angle": str(round((frame["angle"] + 90.0) % 180.0, 4)),
         "group-axis-strength": str(round(frame["strength"], 4)),
-        "group-axis-basis": "affordance_group_pca_frame",
+        "group-axis-basis": frame["basis"],
         "group-axis-primary-extent": str(round(frame["primary_extent"], 4)),
         "group-axis-secondary-extent": str(round(frame["secondary_extent"], 4)),
         "group-axis-clarity": str(round(frame["clarity"], 4)),
@@ -872,10 +882,10 @@ def _region_frame_mean(groups: list[dict], fallback_frame: dict) -> dict:
         total_weight += weight
     if total_weight <= 0.0:
         return dict(fallback_frame)
-    angle = (degrees(atan2(weighted_y, weighted_x)) / 4.0) % 90.0
+    angle = _orthogonal_frame_angle(degrees(atan2(weighted_y, weighted_x)) / 4.0)
     strength = min(1.0, sqrt(weighted_x * weighted_x + weighted_y * weighted_y) / total_weight)
     return {
-        "angle": angle,
+        "angle": _orthogonal_frame_angle(angle),
         "strength": strength * mean(frame["strength"] for frame in frames),
         "clarity": mean(frame["clarity"] for frame in frames),
         "member_alignment": mean(frame["member_alignment"] for frame in frames),
@@ -924,8 +934,8 @@ def _frame_extents(points: list[tuple[float, float]], angle: float) -> tuple[flo
     return max(primary) - min(primary), max(secondary) - min(secondary)
 
 
-def _member_frame_alignment(records: list[dict]) -> float:
-    """Score whether member affordance frames follow the group frame."""
+def _member_frame_consensus(records: list[dict]) -> dict:
+    """Average member furniture frames into one organization frame."""
     weighted_x = 0.0
     weighted_y = 0.0
     total_weight = 0.0
@@ -942,8 +952,18 @@ def _member_frame_alignment(records: list[dict]) -> float:
         weighted_y += weight * sin(theta)
         total_weight += weight
     if total_weight <= 0:
-        return 0.0
-    return min(1.0, sqrt(weighted_x * weighted_x + weighted_y * weighted_y) / total_weight)
+        return {"angle": 0.0, "strength": 0.0, "weight": 0.0}
+    strength = min(1.0, sqrt(weighted_x * weighted_x + weighted_y * weighted_y) / total_weight)
+    angle = _orthogonal_frame_angle(degrees(atan2(weighted_y, weighted_x)) / 4.0)
+    return {"angle": angle, "strength": strength, "weight": total_weight}
+
+
+def _orthogonal_frame_angle(angle: float) -> float:
+    """Normalize equivalent two-axis frame angles into the half-open 0-90 range."""
+    normalized = angle % 90.0
+    # Floating point means an exact 90 degree frame can arrive as 89.999999,
+    # but this representation is equivalent to zero for a two-axis frame.
+    return 0.0 if normalized >= 89.999 else normalized
 
 
 def _record_frame_angle(record: dict) -> float:
