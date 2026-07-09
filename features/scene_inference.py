@@ -771,6 +771,7 @@ def _attach_region_axis_metadata(
             "axis-member-count": str(len(members)),
             "axis-group-count": str(len(groups)),
             "axis-group-ids": ",".join(group["id"] for group in groups),
+            **_frame_explainability_metadata(points, members, frame["angle"]),
             **_region_shape_metadata(shape, frame),
         }
     )
@@ -941,6 +942,66 @@ def _frame_extents(points: list[tuple[float, float]], angle: float) -> tuple[flo
     primary = [x * c + y * s for x, y in points]
     secondary = [-x * s + y * c for x, y in points]
     return max(primary) - min(primary), max(secondary) - min(secondary)
+
+
+def _frame_explainability_metadata(
+    points: list[tuple[float, float]],
+    members: list[dict],
+    angle: float,
+) -> dict:
+    """Return diagnostic evidence comparing PCA and nearest orthogonal frames."""
+    orthogonal_angle = _nearest_orthogonal_angle(angle)
+    pca_area = _frame_area(points, angle)
+    orthogonal_area = _frame_area(points, orthogonal_angle)
+    pca_alignment = _member_alignment_for_angle(members, angle)
+    orthogonal_alignment = _member_alignment_for_angle(members, orthogonal_angle)
+    area_loss = orthogonal_area / pca_area if pca_area > 1e-9 else 0.0
+    alignment_loss = (
+        orthogonal_alignment / pca_alignment
+        if pca_alignment > 1e-9
+        else 0.0
+    )
+    # This is only a diagnostic flag. It deliberately does not change the
+    # selected trend or region shape until the evidence is visually reviewed.
+    snap_candidate = area_loss <= 1.05 and alignment_loss >= 0.95
+    return {
+        "frame-explainability-basis": "pca_vs_nearest_orthogonal_frame",
+        "frame-pca-area": str(round(pca_area, 4)),
+        "frame-orthogonal-area": str(round(orthogonal_area, 4)),
+        "frame-orthogonal-area-ratio": str(round(area_loss, 4)),
+        "frame-pca-member-alignment": str(round(pca_alignment, 4)),
+        "frame-orthogonal-member-alignment": str(round(orthogonal_alignment, 4)),
+        "frame-member-alignment-ratio": str(round(alignment_loss, 4)),
+        "frame-nearest-orthogonal-angle": str(round(orthogonal_angle, 4)),
+        "frame-snap-candidate": "true" if snap_candidate else "false",
+    }
+
+
+def _frame_area(points: list[tuple[float, float]], angle: float) -> float:
+    """Return the projection bbox area for points in one frame."""
+    primary_extent, secondary_extent = _frame_extents(points, angle)
+    return max(0.0, primary_extent) * max(0.0, secondary_extent)
+
+
+def _nearest_orthogonal_angle(angle: float) -> float:
+    """Return the nearest 0/90-equivalent frame angle."""
+    normalized = _orthogonal_frame_angle(angle)
+    return 0.0 if normalized <= 45.0 else 90.0
+
+
+def _member_alignment_for_angle(records: list[dict], angle: float) -> float:
+    """Return weighted member-frame agreement with a candidate frame angle."""
+    weighted = 0.0
+    total_weight = 0.0
+    for record in records:
+        weight = _record_frame_weight(record)
+        if weight <= 0.0:
+            continue
+        delta = _frame_angle_delta(_record_frame_angle(record), angle)
+        # Cosine on a two-axis frame maps 0 and 90 degree agreement to 1.
+        weighted += weight * max(0.0, cos(radians(delta * 4.0)))
+        total_weight += weight
+    return weighted / total_weight if total_weight > 0.0 else 0.0
 
 
 def _member_frame_consensus(records: list[dict]) -> dict:

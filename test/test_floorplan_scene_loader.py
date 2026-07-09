@@ -2760,6 +2760,35 @@ def test_center_lounge_trend_metadata_separates_alignment_clarity_and_strength()
     assert region["metadata"]["axis-trend-strength"] == region["metadata"]["axis-strength"]
 
 
+def test_region_frame_explainability_diagnostics_do_not_change_trend():
+    """Frame diagnostics should expose snap evidence without changing behavior."""
+    from features.scene_loader import load_structured_svg_scene
+    from features.scene_inference import infer_scene_evidence
+
+    scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
+    evidence = infer_scene_evidence(scene)
+    regions = {
+        item["region"]: item
+        for item in evidence["inferred_region_candidates"]
+    }
+    center = regions["center_lounge"]
+    west = regions["west_lounge"]
+
+    assert 6.0 <= float(center["metadata"]["axis-angle"]) <= 7.0
+    assert center["metadata"]["region-shape-basis"] == "oriented_rectangle"
+    assert center["metadata"]["frame-explainability-basis"] == (
+        "pca_vs_nearest_orthogonal_frame"
+    )
+    assert float(center["metadata"]["frame-pca-area"]) > 0.0
+    assert float(center["metadata"]["frame-orthogonal-area"]) > 0.0
+    assert float(center["metadata"]["frame-orthogonal-area-ratio"]) > 0.0
+    assert 0.0 <= float(center["metadata"]["frame-pca-member-alignment"]) <= 1.0
+    assert 0.0 <= float(center["metadata"]["frame-orthogonal-member-alignment"]) <= 1.0
+    assert center["metadata"]["frame-snap-candidate"] in {"true", "false"}
+    assert float(west["metadata"]["axis-angle"]) > 15.0
+    assert float(west["metadata"]["frame-member-alignment-ratio"]) < 0.5
+
+
 def test_evaluate_scene_clamps_spacing_margin_to_scene_bounds():
     from features.affordance.models import Rect
 
