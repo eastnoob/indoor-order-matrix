@@ -26,6 +26,7 @@ def load_structured_svg_scene(path: str | Path) -> dict:
         "boundaries": [],
         "entries": [],
         "paths": [],
+        "columns": [],
         "column_axes": [],
         "regions": [],
         "uncertainties": [],
@@ -51,6 +52,7 @@ def _svg_size(root: ET.Element) -> tuple[float, float]:
 
 
 def _walk(element: ET.Element, *, inherited: dict, scene: dict) -> None:
+    """Walk SVG elements and route neutral records into scene buckets."""
     meta = _merge_metadata(inherited, element.attrib)
     tag = _tag_name(element.tag)
     transform = _combine_transform(inherited.get("_transform"), element.attrib.get("transform"))
@@ -74,7 +76,12 @@ def _walk(element: ET.Element, *, inherited: dict, scene: dict) -> None:
         scene["regions"].append(record)
     elif role == "path":
         scene["paths"].append(record)
-    elif role in {"column", "column_axis", "column_grid"}:
+    elif role == "column":
+        scene["columns"].append(record)
+    elif role in {"column_axis", "column_grid"}:
+        # Adapter handoff expects authored grid-axis records to use one role.
+        record["role"] = "column_axis"
+        record["metadata"]["role"] = "column_axis"
         scene["column_axes"].append(record)
     else:
         scene["objects"].append(record)
@@ -95,6 +102,7 @@ def _merge_metadata(inherited: dict, attrib: dict) -> dict:
 
 
 def _shape_record(tag: str, attrib: dict, meta: dict) -> dict | None:
+    """Convert one SVG element into a neutral scene record when it has a role."""
     role = meta.get("data-role")
     if not role and meta.get("_allow_id_fallback"):
         role = _role_from_id(attrib.get("id") or meta.get("id"), tag)
@@ -114,6 +122,12 @@ def _shape_record(tag: str, attrib: dict, meta: dict) -> dict | None:
         metadata["region"] = region
     if "orientation" not in metadata:
         metadata["orientation"] = str(round(orientation % 360.0, 4))
+    rect = _rect_for_shape(tag, attrib, meta.get("_transform"))
+    points = _points_for_shape(tag, attrib, meta.get("_transform"))
+    if role in {"column_axis", "column_grid"}:
+        # Column axes are authored grid centerlines. Filled/dashed SVG paths may
+        # carry many outline points, so collapse line-like bboxes before metrics.
+        points = _compact_axis_points(points, rect)
     return {
         "id": attrib.get("id") or meta.get("id") or role,
         "role": role,
@@ -121,13 +135,27 @@ def _shape_record(tag: str, attrib: dict, meta: dict) -> dict | None:
         "region": region,
         "orientation": orientation % 360.0,
         "order_view": meta.get("data-order-view"),
-        "rect": _rect_for_shape(tag, attrib, meta.get("_transform")),
-        "points": _points_for_shape(tag, attrib, meta.get("_transform")),
+        "rect": rect,
+        "points": points,
         "weights": _weights(meta),
         "tag": tag,
         "metadata": metadata,
         "adapter_refs": _adapter_refs(metadata),
     }
+
+
+def _compact_axis_points(
+    points: list[tuple[float, float]],
+    rect: Rect,
+) -> list[tuple[float, float]]:
+    """Return centerline points for line-like authored axes."""
+    if len(points) < 3:
+        return points
+    if rect.height > rect.width * 5:
+        return [(rect.cx, rect.top), (rect.cx, rect.bottom)]
+    if rect.width > rect.height * 5:
+        return [(rect.left, rect.cy), (rect.right, rect.cy)]
+    return points
 
 
 def _role_from_id(record_id: str | None, tag: str) -> str | None:
@@ -140,6 +168,12 @@ def _role_from_id(record_id: str | None, tag: str) -> str | None:
     if "entry" in lowered:
         return "opening"
     if "column_axis" in lowered:
+        return "column_axis"
+    # SVG fixtures use an "axis" group for authored grid axes; this is explicit
+    # fixture metadata, not geometric axis inference from columns.
+    if tag in {"line", "path", "polygon"} and (
+        lowered == "axis" or re.fullmatch(r"axis\d+", lowered)
+    ):
         return "column_axis"
     if tag == "use" and "room_boundary" in lowered:
         return "boundary"
@@ -357,6 +391,7 @@ def _points_for_path(
     raw: str,
     transform: tuple[float, float, float] | None,
 ) -> list[tuple[float, float]]:
+    """Extract transformed path vertices that are enough for bbox/axis evidence."""
     if not raw:
         return []
     tx, ty, angle = transform or (0.0, 0.0, 0.0)
@@ -381,7 +416,9 @@ def _points_for_path(
             ny = float(tokens[index + 1])
             index += 2
             x, y = (x + nx, y + ny) if relative else (nx, ny)
-            if lower == "m" and start is None:
+            if lower == "m":
+                # Each moveto starts a new subpath; closepath must return to
+                # that local start so repeated dashed path segments accumulate.
                 start = (x, y)
             points.append(_transform_point(x, y, tx, ty, angle))
             if lower == "m":
@@ -406,6 +443,16 @@ def _points_for_path(
             nx = float(tokens[index + 5])
             ny = float(tokens[index + 6])
             index += 7
+            x, y = (x + nx, y + ny) if relative else (nx, ny)
+            points.append(_transform_point(x, y, tx, ty, angle))
+        elif lower == "c":
+            if index + 5 >= len(tokens):
+                break
+            nx = float(tokens[index + 4])
+            ny = float(tokens[index + 5])
+            index += 6
+            # Cubic control points shape the curve, but the endpoint is enough
+            # for authored dashed grid axes and downstream bbox/angle evidence.
             x, y = (x + nx, y + ny) if relative else (nx, ny)
             points.append(_transform_point(x, y, tx, ty, angle))
         elif lower == "z":

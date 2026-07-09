@@ -51,6 +51,9 @@ def test_floorplan_fixture_has_structured_metadata():
     assert "north_tables" in regions
 
 
+from features.affordance.models import Rect
+from features.column_grid import column_grid_evidence
+from features.scene_evaluator import evaluate_scene
 from features.scene_loader import load_structured_svg_scene
 from features.scene_inference import infer_scene_evidence
 
@@ -140,6 +143,906 @@ def test_svg_id_fixture_without_manual_regions_loads_semantic_proxy_records():
     assert objects["east_work_chair"]["role"] == "chair"
 
 
+def test_svg_loader_separates_pilers_from_explicit_column_axes():
+    """Piler records are columns; explicit SVG axis records are column axes."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    column_ids = {item["id"] for item in scene["columns"]}
+    axis_ids = {item["id"] for item in scene["column_axes"]}
+
+    assert "columns" in scene
+    assert len(scene["columns"]) == 9
+    assert {"piler", "piler1", "piler6", "piller", "pller"} <= column_ids
+    assert {"column_axis_x", "column_axis_y", "axis1", "axis6"} <= axis_ids
+    assert all(item["role"] == "column" for item in scene["columns"])
+    assert all(item["role"] == "column_axis" for item in scene["column_axes"])
+
+
+def test_svg_loader_preserves_authored_dashed_axis_path_extents():
+    """Dashed axis paths should load as compact long authored axes."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    axes = {axis["id"]: axis for axis in scene["column_axes"]}
+
+    # The SVG stores visible dashed grid axes as filled cubic path segments; the
+    # loader keeps their bbox extent while simplifying calculation points to the
+    # centerline that downstream grid and distance metrics need.
+    assert axes["axis1"]["rect"].height > 900
+    assert axes["axis4"]["rect"].width > 900
+    assert axes["axis6"]["rect"].width > 900
+    assert len(axes["axis1"]["points"]) == 2
+    assert len(axes["axis4"]["points"]) == 2
+
+
+def test_svg_loader_only_treats_explicit_axis_ids_as_column_axes(tmp_path):
+    """Axis labels and axis-like path names should not become column axes."""
+    svg = tmp_path / "axis_ids.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path id="axis1" d="M0,0 L100,0" />
+  <path id="axis_label" d="M0,10 L100,10" />
+  <path id="axis_walk_path" d="M0,20 L100,20" />
+</svg>""",
+        encoding="utf-8",
+    )
+
+    scene = load_structured_svg_scene(svg)
+
+    assert [axis["id"] for axis in scene["column_axes"]] == ["axis1"]
+
+
+def test_adapter_payload_keeps_physical_columns_as_scene_records():
+    """Columns should stay visible to adapter targets without sharing axis records."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    payload = evaluate_scene(scene)["adapter_payload"]
+    record_ids = {record["id"] for record in payload["scene_records"]}
+
+    assert {"piler", "piler1", "piler6", "piller", "pller"} <= record_ids
+
+
+def test_evaluator_emits_column_grid_relation_rows():
+    """Matrix rows should expose explicit-axis C_global and C_local_profile evidence."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            {
+                "id": "seating",
+                "region": "seating",
+                "role": "region",
+                "rect": Rect(cx=40, cy=40, width=40, height=40),
+                "metadata": {},
+            }
+        ],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=0, width=100, height=0),
+                "points": [(0, 0), (100, 0)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "x"},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "x"},
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "y"},
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "y"},
+            },
+        ],
+    }
+    matrix = evaluate_scene(scene)
+    rows = {row["metric"]: row for row in matrix["rows"]}
+
+    assert rows["column_grid_C_global"]["status"] == "computed"
+    assert rows["column_grid_C_local_profile"]["status"] == "computed"
+    assert rows["column_grid_C_global"]["column_grid_evidence"]["global_relations"]
+    assert rows["column_grid_C_local_profile"]["column_grid_evidence"]["local_profiles"]
+    assert matrix["adapter_payload"]["column_grid_handoff"]["C_global"]["evidence_count"] > 0
+    assert matrix["adapter_payload"]["column_grid_handoff"]["C_local_profile"]["evidence_count"] > 0
+
+
+def test_evaluator_does_not_fabricate_column_grid_local_profiles_without_bays():
+    """Explicit axes without bays should not invent C_local_profile evidence."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            {
+                "id": "seating",
+                "region": "seating",
+                "role": "region",
+                "rect": Rect(cx=40, cy=40, width=40, height=40),
+                "metadata": {},
+            }
+        ],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "line_only",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=50, width=0, height=100),
+                "points": [(50, 0), (50, 100)],
+                "metadata": {"branch-id": "without_bays", "axis-list": "y"},
+            },
+        ],
+    }
+
+    matrix = evaluate_scene(scene)
+    rows = {row["metric"]: row for row in matrix["rows"]}
+    handoff = matrix["adapter_payload"]["column_grid_handoff"]
+
+    assert rows["column_grid_C_global"]["status"] == "computed"
+    assert rows["column_grid_C_local_profile"]["status"] == "not_available"
+    assert rows["column_grid_C_local_profile"]["evidence"] == []
+    assert handoff["C_global"]["evidence_count"] > 0
+    assert handoff["C_local_profile"]["evidence_count"] == 0
+    assert handoff["C_local_profile"]["items"] == []
+
+
+def test_evaluator_marks_empty_column_grid_relation_evidence_not_available():
+    """Computed column grids with no region evidence should expose unavailable rows."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=0, width=100, height=0),
+                "points": [(0, 0), (100, 0)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "x"},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "x"},
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "y"},
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "y"},
+            },
+        ],
+    }
+
+    matrix = evaluate_scene(scene)
+    rows = {row["metric"]: row for row in matrix["rows"]}
+    handoff = matrix["adapter_payload"]["column_grid_handoff"]
+
+    assert rows["column_grid_C_global"]["status"] == "not_available"
+    assert rows["column_grid_C_global"]["score"] is None
+    assert rows["column_grid_C_local_profile"]["status"] == "not_available"
+    assert rows["column_grid_C_local_profile"]["score"] is None
+    assert handoff["C_global"]["evidence_count"] == 0
+    assert handoff["C_local_profile"]["evidence_count"] == 0
+
+
+def test_column_grid_evidence_builds_bays_from_explicit_axes():
+    """Explicit axes should create neutral systems, branches, bays, and graph edges."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "regions": [],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=150, cy=0, width=300, height=0),
+                "points": [(0, 0), (300, 0)],
+                "metadata": {
+                    "grid-id": "main",
+                    "branch-id": "orthogonal",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=150, cy=100, width=300, height=0),
+                "points": [(0, 100), (300, 100)],
+                "metadata": {
+                    "grid-id": "main",
+                    "branch-id": "orthogonal",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {
+                    "grid-id": "main",
+                    "branch-id": "orthogonal",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=120, cy=50, width=0, height=100),
+                "points": [(120, 0), (120, 100)],
+                "metadata": {
+                    "grid-id": "main",
+                    "branch-id": "orthogonal",
+                    "axis-list": "y",
+                },
+            },
+        ],
+    }
+    evidence = column_grid_evidence(scene)
+
+    assert evidence["systems"][0]["id"] == "main"
+    assert evidence["branches"][0]["id"] == "orthogonal"
+    assert len(evidence["bays"]) == 1
+    assert evidence["bays"][0]["axis_ids"] == ["x0", "x1", "y0", "y1"]
+    assert evidence["bays"][0]["adjacent_bay_ids"] == []
+
+
+def test_column_grid_evidence_bay_adjacency_excludes_diagonal_bays():
+    """Multi-bay grids should connect edge neighbors without diagonal leakage."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "regions": [],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=0, width=200, height=0),
+                "points": [(0, 0), (200, 0)],
+                "metadata": {"axis-list": "x"},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=100, width=200, height=0),
+                "points": [(0, 100), (200, 100)],
+                "metadata": {"axis-list": "x"},
+            },
+            {
+                "id": "x2",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=200, width=200, height=0),
+                "points": [(0, 200), (200, 200)],
+                "metadata": {"axis-list": "x"},
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=200, width=0, height=200),
+                "points": [(0, 0), (0, 200)],
+                "metadata": {"axis-list": "y"},
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=40, width=0, height=80),
+                "points": [(100, 0), (100, 200)],
+                "metadata": {"axis-list": "y"},
+            },
+            {
+                "id": "y2",
+                "role": "column_axis",
+                "rect": Rect(cx=200, cy=120, width=0, height=160),
+                "points": [(200, 0), (200, 200)],
+                "metadata": {"axis-list": "y"},
+            },
+        ],
+    }
+    evidence = column_grid_evidence(scene)
+    bays = {tuple(bay["axis_ids"]): bay for bay in evidence["bays"]}
+
+    assert len(evidence["bays"]) == 4
+    corner = bays[("x0", "x1", "y0", "y1")]
+    right = bays[("x0", "x1", "y1", "y2")]
+    lower = bays[("x1", "x2", "y0", "y1")]
+    diagonal = bays[("x1", "x2", "y1", "y2")]
+    assert set(corner["adjacent_bay_ids"]) == {right["id"], lower["id"]}
+    assert diagonal["id"] not in corner["adjacent_bay_ids"]
+
+
+def test_column_grid_evidence_bay_adjacency_excludes_skipped_strip_bays():
+    """A bay strip should connect neighbors without jumping over middle bays."""
+    scene = {
+        "source": "unit",
+        "size": (400.0, 100.0),
+        "objects": [],
+        "regions": [],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=150, cy=0, width=300, height=0),
+                "points": [(0, 0), (300, 0)],
+                "metadata": {"axis-list": "x"},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=150, cy=100, width=300, height=0),
+                "points": [(0, 100), (300, 100)],
+                "metadata": {"axis-list": "x"},
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {"axis-list": "y"},
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {"axis-list": "y"},
+            },
+            {
+                "id": "y2",
+                "role": "column_axis",
+                "rect": Rect(cx=200, cy=50, width=0, height=100),
+                "points": [(200, 0), (200, 100)],
+                "metadata": {"axis-list": "y"},
+            },
+            {
+                "id": "y3",
+                "role": "column_axis",
+                "rect": Rect(cx=300, cy=50, width=0, height=100),
+                "points": [(300, 0), (300, 100)],
+                "metadata": {"axis-list": "y"},
+            },
+        ],
+    }
+    evidence = column_grid_evidence(scene)
+    bays = {tuple(bay["axis_ids"]): bay for bay in evidence["bays"]}
+
+    assert len(evidence["bays"]) == 3
+    left = bays[("x0", "x1", "y0", "y1")]
+    middle = bays[("x0", "x1", "y1", "y2")]
+    right = bays[("x0", "x1", "y2", "y3")]
+    assert middle["id"] in left["adjacent_bay_ids"]
+    assert right["id"] in middle["adjacent_bay_ids"]
+    assert right["id"] not in left["adjacent_bay_ids"]
+
+
+def test_column_grid_evidence_bay_adjacency_stays_within_system():
+    """Same-named branches in different systems should not share bay edges."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 200.0),
+        "objects": [],
+        "regions": [],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=0, width=100, height=0),
+                "points": [(0, 0), (100, 0)],
+                "metadata": {
+                    "grid-id": "north",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {
+                    "grid-id": "north",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {
+                    "grid-id": "north",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {
+                    "grid-id": "north",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {
+                    "grid-id": "south",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=200, width=100, height=0),
+                "points": [(0, 200), (100, 200)],
+                "metadata": {
+                    "grid-id": "south",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=150, width=0, height=100),
+                "points": [(0, 100), (0, 200)],
+                "metadata": {
+                    "grid-id": "south",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "y2",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=150, width=0, height=100),
+                "points": [(100, 100), (100, 200)],
+                "metadata": {
+                    "grid-id": "south",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+        ],
+    }
+    evidence = column_grid_evidence(scene)
+    bays_by_system = {bay["system_id"]: bay for bay in evidence["bays"]}
+
+    assert len(evidence["bays"]) == 2
+    assert bays_by_system["north"]["adjacent_bay_ids"] == []
+    assert bays_by_system["south"]["adjacent_bay_ids"] == []
+
+
+def test_column_grid_evidence_system_id_overrides_shared_grid_id_for_adjacency():
+    """Explicit system IDs should split bays even when grid and branch IDs match."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 100.0),
+        "objects": [],
+        "regions": [],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=0, width=100, height=0),
+                "points": [(0, 0), (100, 0)],
+                "metadata": {
+                    "grid-id": "shared-grid",
+                    "system-id": "west-system",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {
+                    "grid-id": "shared-grid",
+                    "system-id": "west-system",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {
+                    "grid-id": "shared-grid",
+                    "system-id": "west-system",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {
+                    "grid-id": "shared-grid",
+                    "system-id": "west-system",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {
+                    "grid-id": "shared-grid",
+                    "system-id": "east-system",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "x2",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=200, width=100, height=0),
+                "points": [(0, 200), (100, 200)],
+                "metadata": {
+                    "grid-id": "shared-grid",
+                    "system-id": "east-system",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=150, width=0, height=100),
+                "points": [(0, 100), (0, 200)],
+                "metadata": {
+                    "grid-id": "shared-grid",
+                    "system-id": "east-system",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=150, width=0, height=100),
+                "points": [(100, 100), (100, 200)],
+                "metadata": {
+                    "grid-id": "shared-grid",
+                    "system-id": "east-system",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+        ],
+    }
+    evidence = column_grid_evidence(scene)
+    bays_by_system = {bay["system_id"]: bay for bay in evidence["bays"]}
+
+    assert {system["id"] for system in evidence["systems"]} == {
+        "east-system",
+        "west-system",
+    }
+    assert len(evidence["bays"]) == 2
+    assert bays_by_system["east-system"]["adjacent_bay_ids"] == []
+    assert bays_by_system["west-system"]["adjacent_bay_ids"] == []
+    assert evidence["local_profiles"] == []
+    assert evidence["global_relations"] == []
+
+
+def test_column_grid_evidence_local_profiles_keep_reused_axis_ids_system_scoped():
+    """Local bay profiles should not collide when systems reuse branch and axis IDs."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "regions": [
+            {
+                "id": "west_region",
+                "role": "region",
+                "rect": Rect(cx=50, cy=50, width=20, height=20),
+                "metadata": {},
+            },
+            {
+                "id": "east_region",
+                "role": "region",
+                "rect": Rect(cx=250, cy=250, width=20, height=20),
+                "metadata": {},
+            },
+        ],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=0, width=100, height=0),
+                "points": [(0, 0), (100, 0)],
+                "metadata": {
+                    "system-id": "west-system",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {
+                    "system-id": "west-system",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {
+                    "system-id": "west-system",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {
+                    "system-id": "west-system",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=250, cy=200, width=100, height=0),
+                "points": [(200, 200), (300, 200)],
+                "metadata": {
+                    "system-id": "east-system",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=250, cy=300, width=100, height=0),
+                "points": [(200, 300), (300, 300)],
+                "metadata": {
+                    "system-id": "east-system",
+                    "branch-id": "shared",
+                    "axis-list": "x",
+                },
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=200, cy=250, width=0, height=100),
+                "points": [(200, 200), (200, 300)],
+                "metadata": {
+                    "system-id": "east-system",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=300, cy=250, width=0, height=100),
+                "points": [(300, 200), (300, 300)],
+                "metadata": {
+                    "system-id": "east-system",
+                    "branch-id": "shared",
+                    "axis-list": "y",
+                },
+            },
+        ],
+    }
+    evidence = column_grid_evidence(scene)
+    bay_ids = [bay["id"] for bay in evidence["bays"]]
+
+    assert len(bay_ids) == len(set(bay_ids))
+    for profile in evidence["local_profiles"]:
+        for bay_id in profile["included_bay_ids"]:
+            # A local profile ID must resolve to one bay in the same authored branch.
+            matches = [bay for bay in evidence["bays"] if bay["id"] == bay_id]
+            assert len(matches) == 1
+            assert matches[0]["system_id"] == profile["system_id"]
+            assert matches[0]["branch_id"] == profile["branch_id"]
+        for grammar_item in profile["bay_grammar"]:
+            assert grammar_item["bay_id"] in profile["included_bay_ids"]
+
+
+def test_column_grid_evidence_reports_global_and_local_profiles_for_regions():
+    """Furniture regions should relate to explicit global and local column-grid evidence."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "regions": [
+            {
+                "id": "seating",
+                "role": "region",
+                "rect": Rect(cx=40, cy=40, width=40, height=40),
+                "metadata": {},
+            }
+        ],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=0, width=100, height=0),
+                "points": [(0, 0), (100, 0)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "x"},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "x"},
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "y"},
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "y"},
+            },
+            {
+                "id": "line_only",
+                "role": "column_axis",
+                "rect": Rect(cx=150, cy=50, width=0, height=100),
+                "points": [(150, 0), (150, 100)],
+                "metadata": {"branch-id": "without_bays", "axis-list": "y"},
+            },
+        ],
+    }
+
+    grid = column_grid_evidence(scene)
+
+    assert grid["global_relations"]
+    assert grid["local_profiles"]
+    assert all(item["metric"] == "C_global" for item in grid["global_relations"])
+    assert all(item["metric"] == "C_local_profile" for item in grid["local_profiles"])
+    assert all(
+        {
+            "agreement",
+            "region_angle",
+            "region_id",
+            "source",
+            "target_angle",
+            "target_id",
+            "target_kind",
+            "target_strength",
+        }
+        <= item.keys()
+        for item in grid["global_relations"]
+    )
+    assert all("agreement_score" not in item for item in grid["global_relations"])
+    assert all(
+        {
+            "branch_angle",
+            "frame_agreement",
+            "region_angle",
+            "region_id",
+            "source",
+            "system_id",
+        }
+        <= item.keys()
+        for item in grid["local_profiles"]
+    )
+    assert all("agreement_score" not in item for item in grid["local_profiles"])
+    assert {item["scale"] for item in grid["local_profiles"]} == {0, 1, "all"}
+    assert all(item["seed_bay_ids"] for item in grid["local_profiles"])
+    assert all(item["included_bay_ids"] for item in grid["local_profiles"])
+    assert all(item["bay_grammar"] for item in grid["local_profiles"])
+    assert all(
+        {
+            "bay_id",
+            "overlap_area",
+            "overlap_score",
+            "region_area",
+            "region_center_in_bay",
+        }
+        <= grammar_item.keys()
+        for item in grid["local_profiles"]
+        for grammar_item in item["bay_grammar"]
+    )
+    assert {item["branch_id"] for item in grid["local_profiles"]} == {"with_bays"}
+
+
+def test_column_grid_evidence_does_not_infer_axes_from_columns():
+    """Columns alone are evidence, not enough to silently create a grid."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "regions": [],
+        "columns": [
+            {
+                "id": "piler_1",
+                "role": "column",
+                "rect": Rect(cx=0, cy=0, width=10, height=10),
+                "metadata": {},
+            },
+            {
+                "id": "piler_2",
+                "role": "column",
+                "rect": Rect(cx=100, cy=0, width=10, height=10),
+                "metadata": {},
+            },
+        ],
+        "column_axes": [],
+    }
+    evidence = column_grid_evidence(scene)
+
+    assert evidence["systems"] == []
+    assert evidence["bays"] == []
+    assert evidence["status"] == "not_available"
+    assert evidence["reason"] == "missing_explicit_column_axes"
+
+
 def test_svg_id_fixtures_do_not_contain_manual_region_marks():
     """Official SVG fixtures should leave activity regions to inference."""
     fixture_names = ["SVG_baseline.svg", "SVG_chaoticsvg.svg", "SVG_oblique.svg"]
@@ -210,8 +1113,8 @@ def test_svg_group_only_fixture_infers_regions_without_region_labels():
     assert evidence["inferred_region_gap_paths"]
 
 
-def test_inferred_oblique_region_keeps_pca_frame_without_correction():
-    """Inferred regions should keep PCA trend when no correction is needed."""
+def test_inferred_oblique_region_keeps_member_frame_without_correction():
+    """Inferred regions should use member trend while keeping shape diagnostics."""
     scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
     evidence = infer_scene_evidence(scene)
     groups = {
@@ -226,7 +1129,8 @@ def test_inferred_oblique_region_keeps_pca_frame_without_correction():
     group = groups["center_lounge"]
     center = candidates["center_lounge"]
 
-    assert group["metadata"]["group-axis-basis"] == "affordance_group_pca_frame"
+    assert group["metadata"]["group-axis-basis"] == "member_frame_consensus"
+    assert float(group["metadata"]["group-axis-geometry-angle"]) > 0.0
     assert float(group["metadata"]["group-axis-primary-extent"]) > 150.0
     assert len(center["points"]) >= 5
     assert center["metadata"]["axis-basis"] == "activity_group_frame_mean"
@@ -275,8 +1179,8 @@ def test_oblique_west_lounge_corrects_to_rotated_rectangular_frame():
     assert float(west["metadata"]["shape-axis-angle"]) > 70.0
 
 
-def test_weak_member_frame_evidence_keeps_pca_trend():
-    """Weak member-frame evidence should not replace the PCA trend."""
+def test_member_frame_trend_drives_rotated_east_work_fixture():
+    """Rotated directional furniture should drive trend instead of bbox PCA."""
     scene = load_structured_svg_scene(Path("test/SVG_chaoticsvg.svg"))
     evidence = infer_scene_evidence(scene)
     groups = {
@@ -286,9 +1190,53 @@ def test_weak_member_frame_evidence_keeps_pca_trend():
 
     east_work = groups["east_work"]
 
-    assert east_work["metadata"]["group-axis-basis"] == "affordance_group_pca_frame"
-    assert float(east_work["metadata"]["group-axis-strength"]) < 0.2
-    assert float(east_work["metadata"]["group-axis-angle"]) > 150.0
+    assert east_work["metadata"]["group-axis-basis"] == "member_frame_consensus"
+    assert float(east_work["metadata"]["group-axis-strength"]) > 0.95
+    assert 60.0 <= float(east_work["metadata"]["group-axis-angle"]) <= 70.0
+
+
+def test_single_directional_table_has_strong_member_frame_trend():
+    """A single clear furniture frame should be strong even without repetition."""
+    from features.scene_evaluator import evaluate_scene
+    from features.affordance.models import Rect
+
+    scene = {
+        "source": "synthetic_single_directional_table",
+        "size": (400.0, 300.0),
+        "objects": [
+            {
+                "id": "single_table",
+                "role": "table",
+                "group": "single_work",
+                "region": "single_work",
+                "rect": Rect(cx=200.0, cy=150.0, width=120.0, height=40.0),
+                "points": [],
+                "orientation": 30.0,
+                "weights": {
+                    "walk_block": 0.0,
+                    "see_block": 0.0,
+                    "grouping_strength": 0.0,
+                },
+                "metadata": {"role": "table", "region": "single_work"},
+            }
+        ],
+        "regions": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "column_axes": [],
+        "uncertainties": [],
+    }
+
+    matrix = evaluate_scene(scene)
+    region = {
+        candidate["region"]: candidate
+        for candidate in matrix["inferred_region_candidates"]
+    }["single_work"]
+
+    assert region["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert float(region["metadata"]["axis-strength"]) > 0.95
+    assert 29.0 <= float(region["metadata"]["axis-angle"]) <= 31.0
 
 
 def test_horizontal_and_vertical_groups_have_clear_pca_frames():
@@ -2779,10 +3727,9 @@ def test_region_frame_explainability_selects_only_better_orthogonal_frames():
     assert center["metadata"]["frame-explainability-basis"] == (
         "pca_vs_nearest_orthogonal_frame"
     )
-    assert center["metadata"]["frame-snap-candidate"] == "true"
-    assert center["metadata"]["axis-explainability-correction"] == (
-        "nearest_orthogonal_frame"
-    )
+    assert center["metadata"]["frame-snap-candidate"] == "false"
+    assert center["metadata"]["axis-explainability-correction"] == "none"
+    assert center["metadata"]["axis-original-angle"] == "0.0"
     assert float(center["metadata"]["frame-pca-area"]) > 0.0
     assert float(center["metadata"]["frame-orthogonal-area"]) > 0.0
     assert float(center["metadata"]["frame-orthogonal-area-ratio"]) > 0.0
@@ -3393,7 +4340,7 @@ def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extent
     assert metadata["level"] == "activity_group"
     assert metadata["source"] == "semantic_region_grouped_furniture_affordance_extents"
     assert metadata["geometry_basis"] == "union_envelope_of_member_furniture_affordance_extents"
-    assert metadata["group-axis-basis"] == "affordance_group_pca_frame"
+    assert metadata["group-axis-basis"] == "member_frame_consensus"
     assert float(metadata["group-axis-member-alignment"]) > 0.0
     assert float(metadata["group-axis-primary-extent"]) > 0.0
     assert matrix["adapter_payload"]["evidence_geometry"]["activity_groups"] == {
@@ -9603,6 +10550,7 @@ def test_evaluate_scene_reports_matrix_completion_audit_gate():
 
 
 def test_evaluate_scene_returns_stable_metric_rows():
+    """Stable fixture payload should keep existing rows and required handoffs."""
     scene = load_structured_svg_scene(FIXTURE)
     matrix = evaluate_scene(scene)
     row_ids = {row["view_id"] for row in matrix["rows"]}
@@ -10392,6 +11340,8 @@ def test_evaluate_scene_returns_stable_metric_rows():
     assert len(column_grid_handoff["axes"]["items"]) == 2
     assert len(column_grid_handoff["region_bays"]["items"]) == 7
     assert len(column_grid_handoff["object_bay_local_positions"]["items"]) == 22
+    assert len(column_grid_handoff["C_global"]["items"]) == 14
+    assert len(column_grid_handoff["C_local_profile"]["items"]) == 0
     assert {
         **column_grid_handoff,
         "axes": {
@@ -10407,6 +11357,16 @@ def test_evaluate_scene_returns_stable_metric_rows():
         "object_bay_local_positions": {
             key: value
             for key, value in column_grid_handoff["object_bay_local_positions"].items()
+            if key != "items"
+        },
+        "C_global": {
+            key: value
+            for key, value in column_grid_handoff["C_global"].items()
+            if key != "items"
+        },
+        "C_local_profile": {
+            key: value
+            for key, value in column_grid_handoff["C_local_profile"].items()
             if key != "items"
         },
     } == {
@@ -10431,6 +11391,16 @@ def test_evaluate_scene_returns_stable_metric_rows():
             "method": "object_center_affine_position_in_nearest_column_bay",
             "score": 0.4091,
             "evidence_count": 22,
+        },
+        "C_global": {
+            "method": "explicit_column_grid_region_to_system_branch_frame_agreement",
+            "score": 1.0,
+            "evidence_count": 14,
+        },
+        "C_local_profile": {
+            "method": "not_available",
+            "score": None,
+            "evidence_count": 0,
         },
         "uncertainty": "column-grid handoff only; authored axis and bay proxies must be replaced by Rhino/BIM grid topology or irregular local grid interpolation downstream",
     }
@@ -11605,10 +12575,10 @@ def test_scene_metric_overlay_svg_contains_source_ids_and_metric_layers():
     assert "edge_negative_space_component_region_component_0_region_north_tables" in svg
     assert 'data-overlap-area="337125.0"' in svg
     assert 'data-layer="column-axis"' in svg
-    assert 'data-layer="column-bay"' in svg
-    assert 'data-bay="column_axis_x__column_axis_y"' in svg
-    assert 'data-score-max="1.0000"' in svg
-    assert 'data-score-count="2"' in svg
+    # The evaluated column-grid evidence has explicit axes but no paired axis
+    # lists, so the overlay must not draw legacy synthetic bay placeholders.
+    assert matrix["column_grid"]["bays"] == []
+    assert 'data-layer="column-bay"' not in svg
     assert 'data-layer="region-axis"' in svg
     assert 'data-region="region_slanted_test"' in svg
     assert 'data-basis="polygon_pca_axis"' in svg
@@ -11638,6 +12608,113 @@ def test_scene_metric_overlay_svg_contains_source_ids_and_metric_layers():
     assert 'data-blocker="east_work_table"' in svg
     assert "edge_entry_path_touch_bottom_entry_path_placeholder" in svg
     assert "center_misc_fixture" in svg
+
+
+def test_overlay_draws_column_grid_relation_layers():
+    """Overlay should draw relation evidence from the evaluated column grid."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            {
+                "id": "seating",
+                "region": "seating",
+                "role": "region",
+                "rect": Rect(cx=40, cy=40, width=40, height=40),
+                "metadata": {},
+            }
+        ],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=0, width=100, height=0),
+                "points": [(0, 0), (100, 0)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "x"},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "x"},
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "y"},
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {"branch-id": "with_bays", "axis-list": "y"},
+            },
+        ],
+    }
+
+    matrix = evaluate_scene(scene)
+    svg = scene_metric_overlay_svg(scene, matrix)
+
+    assert 'data-layer="column-axis"' in svg
+    assert 'data-layer="column-bay"' in svg
+    assert 'data-layer="column-seed-bay"' in svg
+    assert 'data-layer="column-global-frame"' in svg
+    assert 'data-layer="column-local-profile"' in svg
+
+
+def test_overlay_draws_physical_columns_from_svg_proxy():
+    """SVG piler records should remain visible as physical column evidence."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    matrix = evaluate_scene(scene)
+    svg = scene_metric_overlay_svg(scene, matrix)
+
+    assert 'data-layer="column-physical"' in svg
+    assert 'data-column="piler1"' in svg
+
+
+def test_overlay_does_not_draw_legacy_column_bays_when_matrix_bays_are_empty():
+    """Explicit empty evaluated bays should suppress legacy axis-derived bays."""
+    scene = {
+        "source": "unit",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [],
+        "columns": [],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=0, width=100, height=0),
+                "points": [(0, 0), (100, 0)],
+                "metadata": {},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=50, cy=100, width=100, height=0),
+                "points": [(0, 100), (100, 100)],
+                "metadata": {},
+            },
+        ],
+    }
+    matrix = {"rows": [], "column_grid": {"status": "computed", "bays": []}}
+
+    svg = scene_metric_overlay_svg(scene, matrix)
+
+    assert 'data-layer="column-axis"' in svg
+    assert 'data-layer="column-bay"' not in svg
 
 
 def test_scene_metric_overlay_svg_can_include_dense_free_space_paths():

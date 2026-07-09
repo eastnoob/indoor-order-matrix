@@ -23,6 +23,20 @@
 
 ## Current Task State
 
+2026-07-09, member-frame trend ground truth pass:
+
+- Split trend and shape evidence:
+  - `group-axis-angle` / `group-axis-strength` now come from member furniture frame consensus when directional member evidence exists;
+  - geometry PCA is retained as `group-axis-geometry-angle` and shape diagnostics;
+  - region polygons, affordance extents, and gap paths are unchanged.
+- This makes directionality independent of furniture count:
+  - a single clear directional table can have strong trend strength;
+  - chaotic multi-member layouts still weaken through circular frame dispersion.
+- Safety boundary:
+  - no new angle thresholds;
+  - no global switch to true-points PCA;
+  - no change to path/region shape generation.
+
 2026-07-09, region frame extent consistency fix:
 
 - Fixed a trend overlay bug where a normalized final frame angle could keep stale PCA `axis-primary-extent` / `axis-secondary-extent`.

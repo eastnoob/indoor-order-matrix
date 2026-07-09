@@ -13,6 +13,7 @@ from .affordance.grid_backend import SpatialGridBackend
 from .affordance.grid_backend import _polygon_rect_overlap_area
 from .affordance.models import Polygon, Rect
 from .analyzer import OrderAnalyzer
+from .column_grid import column_grid_evidence
 from .scene_inference import build_inferred_region_gap_path_graph
 from .scene_inference import gap_path_clear_status
 from .scene_inference import infer_scene_evidence
@@ -44,6 +45,9 @@ def evaluate_scene(scene: dict) -> dict:
     spatial_networks = inference["spatial_networks"]
     boundary_semantics = inference["boundary_semantics"]
     analysis_scene = _analysis_scene(scene, inferred_regions=inferred_regions)
+    # Column-grid evidence is derived after inferred regions are attached, so
+    # relation rows can compare explicit axes against both authored and inferred regions.
+    column_grid = column_grid_evidence(analysis_scene)
     graph = _path_graph(analysis_scene)
     graphs = _modal_path_graphs(analysis_scene, graph)
     path_geometry = _path_geometry(scene)
@@ -112,6 +116,7 @@ def evaluate_scene(scene: dict) -> dict:
     rows.append(_inferred_region_gap_path_explicit_path_iou_row(scene, inferred_region_gap_paths))
     rows.extend(_object_region_membership_rows(analysis_scene))
     rows.extend(_column_alignment_rows(analysis_scene))
+    rows.extend(_column_grid_relation_rows(column_grid))
     rows.extend(_whole_space_force_rows(scene))
     rows.extend(
         _path_connectivity_rows(
@@ -146,6 +151,7 @@ def evaluate_scene(scene: dict) -> dict:
         "inferred_region_gap_paths": inferred_region_gap_paths,
         "spatial_networks": spatial_networks,
         "boundary_semantics": boundary_semantics,
+        "column_grid": column_grid,
         "inferred_region_gap_path_graph": inferred_region_gap_path_graph,
         "adapter_payload": _adapter_payload(
             _adapter_scene(scene, inferred_regions=inferred_regions),
@@ -409,7 +415,7 @@ def scene_metric_overlay_svg(
     *,
     include_free_space_paths: bool = False,
 ) -> str:
-    """Draw parsed source ids and group boxes as metric evidence."""
+    """Draw parsed source ids and evaluated metric evidence."""
     analysis_scene = _analysis_scene(scene)
     labels = []
     boxes = []
@@ -601,6 +607,17 @@ def scene_metric_overlay_svg(
                 f'</circle>'
             )
 
+    for column in scene.get("columns", []):
+        rect = column["rect"]
+        # Physical columns are source evidence, separate from authored grid axes.
+        column_layers.append(
+            f'<rect data-layer="column-physical" data-column="{escape(column["id"])}" '
+            f'x="{rect.left:.1f}" y="{rect.top:.1f}" '
+            f'width="{rect.width:.1f}" height="{rect.height:.1f}" '
+            f'fill="#1d4ed8" stroke="#172554" stroke-width="1.8" '
+            f'opacity="0.58"><title>{escape(column["id"])}</title></rect>'
+        )
+
     for column in scene.get("column_axes", []):
         points = column.get("points") or []
         if len(points) >= 2:
@@ -616,6 +633,8 @@ def scene_metric_overlay_svg(
             f'stroke="#2563eb" stroke-width="2.5" opacity="0.72">'
             f'<title>{escape(column["id"])}</title></line>'
         )
+    column_grid = matrix.get("column_grid", {})
+    column_grid_bays = column_grid.get("bays", [])
     bay_scores = {}
     for row in matrix.get("rows", []):
         if row.get("metric") != "region_column_bay_fit":
@@ -624,7 +643,13 @@ def scene_metric_overlay_svg(
             score = item.get("score")
             if isinstance(score, (int, float)):
                 bay_scores.setdefault(item["bay_id"], []).append(score)
-    for bay in _column_axis_bays(scene.get("column_axes", [])):
+    # Keep overlay bays aligned with evaluated matrix evidence; fall back only
+    # for callers that predate the column_grid matrix payload.
+    for bay in (
+        column_grid_bays
+        if "column_grid" in matrix
+        else _column_axis_bays(scene.get("column_axes", []))
+    ):
         scores = bay_scores.get(bay["id"], [])
         score_attr = (
             f' data-score-max="{max(scores):.4f}" data-score-count="{len(scores)}"'
@@ -649,6 +674,72 @@ def scene_metric_overlay_svg(
                 f'fill="#93c5fd" stroke="#2563eb" stroke-width="2" '
                 f'opacity="0.22"><title>{escape(bay["id"])}</title></rect>'
             )
+
+    column_grid_bays_by_id = {bay["id"]: bay for bay in column_grid_bays}
+    regions_by_id = {
+        region["id"]: region
+        for region in analysis_scene.get("regions", []) + matrix.get("inferred_regions", [])
+    }
+    for relation in column_grid.get("global_relations", []):
+        region = regions_by_id.get(relation.get("region_id"))
+        if not region:
+            continue
+        x1, y1, x2, y2 = _axis_line(region["rect"], relation["target_angle"])
+        column_layers.append(
+            f'<line data-layer="column-global-frame" '
+            f'data-region="{escape(relation["region_id"])}" '
+            f'data-target-kind="{escape(relation["target_kind"])}" '
+            f'data-target="{escape(relation["target_id"])}" '
+            f'data-agreement="{relation["agreement"]:.4f}" '
+            f'x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" '
+            f'stroke="#7c3aed" stroke-width="2.4" opacity="0.72">'
+            f'<title>{escape(relation["region_id"])} to '
+            f'{escape(relation["target_id"])}</title></line>'
+        )
+    for profile in column_grid.get("local_profiles", []):
+        if profile.get("scale") != 0 or not profile.get("seed_bay_ids"):
+            continue
+        region = regions_by_id.get(profile.get("region_id"))
+        if not region:
+            continue
+        # Scale-zero profiles identify the seed bay context; larger scales are
+        # omitted here to keep the overlay tied to direct relation evidence.
+        for bay_id in profile["seed_bay_ids"]:
+            bay = column_grid_bays_by_id.get(bay_id)
+            if not bay:
+                continue
+            polygon = bay.get("polygon")
+            if polygon is not None:
+                points = " ".join(f"{x:.1f},{y:.1f}" for x, y in polygon.points)
+                column_layers.append(
+                    f'<polygon data-layer="column-seed-bay" '
+                    f'data-region="{escape(profile["region_id"])}" '
+                    f'data-bay="{escape(bay_id)}" points="{points}" '
+                    f'fill="#facc15" stroke="#ca8a04" stroke-width="2.4" '
+                    f'opacity="0.28"><title>{escape(bay_id)}</title></polygon>'
+                )
+            else:
+                rect = bay["rect"]
+                column_layers.append(
+                    f'<rect data-layer="column-seed-bay" '
+                    f'data-region="{escape(profile["region_id"])}" '
+                    f'data-bay="{escape(bay_id)}" x="{rect.left:.1f}" '
+                    f'y="{rect.top:.1f}" width="{rect.width:.1f}" '
+                    f'height="{rect.height:.1f}" fill="#facc15" '
+                    f'stroke="#ca8a04" stroke-width="2.4" opacity="0.28">'
+                    f'<title>{escape(bay_id)}</title></rect>'
+                )
+        rect = region["rect"]
+        column_layers.append(
+            f'<circle data-layer="column-local-profile" '
+            f'data-region="{escape(profile["region_id"])}" '
+            f'data-system="{escape(profile["system_id"])}" '
+            f'data-branch="{escape(profile["branch_id"])}" '
+            f'data-scale="0" data-frame-agreement="{profile["frame_agreement"]:.4f}" '
+            f'cx="{rect.cx:.1f}" cy="{rect.cy:.1f}" r="6" '
+            f'fill="#ca8a04" opacity="0.82">'
+            f'<title>{escape(profile["region_id"])}</title></circle>'
+        )
 
     for region in analysis_scene.get("regions", []):
         rect = region["rect"]
@@ -2185,6 +2276,67 @@ def _column_alignment_rows(scene: dict) -> list[dict]:
                 "region_bay_fit_evidence": bay_fit_evidence,
                 "uncertainty": "axis-aligned adjacent authored column-axis bay overlap proxy; not polygon bay topology or irregular grid interpolation",
             }
+        )
+    return rows
+
+
+def _column_grid_relation_rows(column_grid: dict) -> list[dict]:
+    """Return explicit column-grid relation rows for evaluator consumers."""
+    if column_grid.get("status") != "computed":
+        reason = column_grid.get("reason", "missing column-grid support")
+        return [
+            _not_available("column_alignment", "column_grid_C_global", reason),
+            _not_available("column_alignment", "column_grid_C_local_profile", reason),
+        ]
+
+    global_relations = column_grid.get("global_relations", [])
+    local_profiles = column_grid.get("local_profiles", [])
+    rows = []
+    if global_relations:
+        # Scores are direct means over normalized relation evidence; empty
+        # evidence is unavailable because there is nothing to substantiate.
+        rows.append(
+            {
+                "view_id": "column_alignment",
+                "metric": "column_grid_C_global",
+                "score": round(mean(item["agreement"] for item in global_relations), 4),
+                "status": "computed",
+                "method": "explicit_column_grid_region_to_system_branch_frame_agreement",
+                "evidence": [item["region_id"] for item in global_relations],
+                "column_grid_evidence": {"global_relations": global_relations},
+                "uncertainty": "explicit column-grid relation evidence; not structural grid validation or BIM-hosted topology",
+            }
+        )
+    else:
+        rows.append(
+            _not_available(
+                "column_alignment",
+                "column_grid_C_global",
+                "computed column grid has no global relation evidence",
+            )
+        )
+    if local_profiles:
+        rows.append(
+            {
+                "view_id": "column_alignment",
+                "metric": "column_grid_C_local_profile",
+                "score": round(
+                    mean(item["frame_agreement"] for item in local_profiles), 4
+                ),
+                "status": "computed",
+                "method": "explicit_column_grid_region_local_bay_profile_agreement",
+                "evidence": [item["region_id"] for item in local_profiles],
+                "column_grid_evidence": {"local_profiles": local_profiles},
+                "uncertainty": "explicit bay profile evidence; not irregular structural grid interpolation",
+            }
+        )
+    else:
+        rows.append(
+            _not_available(
+                "column_alignment",
+                "column_grid_C_local_profile",
+                "computed column grid has no local bay profile evidence",
+            )
         )
     return rows
 
@@ -8463,6 +8615,16 @@ def _adapter_column_grid_handoff(rows: list[dict]) -> dict:
     phase_row = column_rows.get("object_column_axis_phase_alignment", {})
     bay_row = column_rows.get("region_column_bay_fit", {})
     local_row = column_rows.get("object_column_bay_local_position_coverage", {})
+    c_global_row = column_rows.get("column_grid_C_global", {})
+    c_local_row = column_rows.get("column_grid_C_local_profile", {})
+    c_global_items = c_global_row.get("column_grid_evidence", {}).get(
+        "global_relations",
+        [],
+    )
+    c_local_items = c_local_row.get("column_grid_evidence", {}).get(
+        "local_profiles",
+        [],
+    )
     return {
         "method": "adapter_column_grid_handoff_from_existing_column_alignment_rows",
         "axes": {
@@ -8492,6 +8654,18 @@ def _adapter_column_grid_handoff(rows: list[dict]) -> dict:
             ),
             # Local coordinates are the current adapter-readable bay placement proxy.
             "items": local_row.get("object_bay_local_position_evidence", []),
+        },
+        "C_global": {
+            "method": c_global_row.get("method"),
+            "score": c_global_row.get("score"),
+            "evidence_count": len(c_global_items),
+            "items": c_global_items,
+        },
+        "C_local_profile": {
+            "method": c_local_row.get("method"),
+            "score": c_local_row.get("score"),
+            "evidence_count": len(c_local_items),
+            "items": c_local_items,
         },
         "uncertainty": "column-grid handoff only; authored axis and bay proxies must be replaced by Rhino/BIM grid topology or irregular local grid interpolation downstream",
     }
@@ -9284,12 +9458,14 @@ def _cad_room_minus_blocker_component_graph(touch_evidence: list[dict]) -> dict:
 
 
 def _adapter_scene_records(scene: dict) -> list[dict]:
+    """Collect scene records that should remain visible to adapter payloads."""
     return (
         scene.get("objects", [])
         + scene.get("boundaries", [])
         + scene.get("entries", [])
         + scene.get("paths", [])
         + scene.get("regions", [])
+        + scene.get("columns", [])
         + scene.get("column_axes", [])
     )
 

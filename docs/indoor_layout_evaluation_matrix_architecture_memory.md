@@ -40,6 +40,8 @@ Boundary semantics are normalized inference evidence from authored boundary meta
 
 Region trend is a two-axis frame inferred from activity-group frame evidence. The raw activity-group/frame angle remains auditable as `axis-original-angle` when a later correction is applied.
 
+Trend ground truth is member furniture frame consensus when directional member evidence exists. Shape geometry is separate: PCA, hulls, bbox envelopes, and affordance extents describe region shape, occupancy, and path spacing, but they should not override trend direction. A single directional furniture item can therefore have strong trend strength; evidence support should be audited separately from concentration.
+
 Near-orthogonal visual noise should not be corrected by a hard small-angle threshold. The accepted rule is explainability-first: compare the current region frame with its nearest 0/90-equivalent frame, and correct only when the orthogonal frame Pareto-dominates the current frame. That means the orthogonal frame must keep the projection envelope no larger, explain member furniture frames at least as well, have some member-frame support, and improve at least one of area or member alignment.
 
 This correction applies only to the region trend/frame metadata. It must not reintroduce broad region-shape candidate selection or rewrite the SVG/BIM proxy geometry. Real oblique organization, such as the oblique north tables or west lounge samples, should remain oblique when the orthogonal frame explains the members or envelope worse.

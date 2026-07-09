@@ -834,17 +834,23 @@ def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
     stats = _pca_frame_stats(points)
     member_frame = _member_frame_consensus(members)
     member_alignment = member_frame["strength"]
-    correction = _member_frame_pca_correction(stats, member_frame)
-    # PCA stays the default trend. The member frame only vetoes false diagonal
-    # PCA in semienclosed rectangular groups with strong edge support.
-    angle = correction["angle"] if correction["use"] else stats["angle"]
-    strength = (member_alignment or stats["clarity"]) * stats["clarity"]
-    basis = correction["basis"] if correction["use"] else "affordance_group_pca_frame"
+    if member_frame["weight"] > 0.0:
+        # Trend ground truth is member frame consensus; PCA remains geometry
+        # evidence for shape diagnostics and fallback when no member frame exists.
+        angle = member_frame["angle"]
+        strength = member_frame["strength"]
+        basis = "member_frame_consensus"
+    else:
+        angle = stats["angle"]
+        strength = stats["clarity"]
+        basis = "affordance_group_pca_frame"
     return {
         "angle": angle,
         "strength": strength,
         "clarity": stats["clarity"],
         "member_alignment": member_alignment,
+        "support": member_frame["weight"],
+        "geometry_angle": stats["angle"],
         "primary_extent": stats["primary_extent"],
         "secondary_extent": stats["secondary_extent"],
         "basis": basis,
@@ -862,22 +868,8 @@ def _group_frame_metadata(frame: dict) -> dict:
         "group-axis-secondary-extent": str(round(frame["secondary_extent"], 4)),
         "group-axis-clarity": str(round(frame["clarity"], 4)),
         "group-axis-member-alignment": str(round(frame["member_alignment"], 4)),
-    }
-
-
-def _member_frame_pca_correction(pca_frame: dict, member_frame: dict) -> dict:
-    """Use a member-supported rectangular frame only for clear PCA false diagonals."""
-    delta = _frame_angle_delta(pca_frame["angle"], member_frame["angle"])
-    use_correction = (
-        member_frame["weight"] >= 1.5
-        and member_frame["strength"] >= 0.9
-        and pca_frame["clarity"] >= 0.3
-        and delta >= 25.0
-    )
-    return {
-        "use": use_correction,
-        "angle": member_frame["angle"],
-        "basis": "member_frame_pca_correction",
+        "group-axis-support": str(round(frame["support"], 4)),
+        "group-axis-geometry-angle": str(round(frame["geometry_angle"], 4)),
     }
 
 
