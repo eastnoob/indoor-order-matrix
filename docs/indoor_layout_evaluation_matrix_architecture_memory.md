@@ -36,6 +36,14 @@ Spatial networks use one shared evidence schema for different scopes. `region_in
 
 Boundary semantics are normalized inference evidence from authored boundary metadata and weights. They describe walk passability, visual passability, thickness, grouping strength, openings, and surface identity without treating the SVG drawing itself as the matrix definition.
 
+## Region Trend Frame Rule
+
+Region trend is a two-axis frame inferred from activity-group frame evidence. The raw activity-group/frame angle remains auditable as `axis-original-angle` when a later correction is applied.
+
+Near-orthogonal visual noise should not be corrected by a hard small-angle threshold. The accepted rule is explainability-first: compare the current region frame with its nearest 0/90-equivalent frame, and correct only when the orthogonal frame Pareto-dominates the current frame. That means the orthogonal frame must keep the projection envelope no larger, explain member furniture frames at least as well, have some member-frame support, and improve at least one of area or member alignment.
+
+This correction applies only to the region trend/frame metadata. It must not reintroduce broad region-shape candidate selection or rewrite the SVG/BIM proxy geometry. Real oblique organization, such as the oblique north tables or west lounge samples, should remain oblique when the orthogonal frame explains the members or envelope worse.
+
 ## Evaluation Matrix
 
 Evaluation Matrix code scores and audits evidence. The matrix consumes neutral scene plus inference evidence; it should not depend on SVG-specific rendering, SVG element names, or hand-authored SVG overlay conventions.

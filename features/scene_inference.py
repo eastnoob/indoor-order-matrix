@@ -753,6 +753,11 @@ def _attach_region_axis_metadata(
         [{"rect": rect} for rect in rects],
     )
     frame = _region_frame_mean(groups, fallback_frame)
+    frame, explainability_metadata = _frame_with_explainability_correction(
+        frame,
+        points,
+        members,
+    )
     shape = _region_shape(points, frame["angle"], scene_size)
     enriched = dict(candidate)
     metadata = dict(candidate["metadata"])
@@ -771,7 +776,7 @@ def _attach_region_axis_metadata(
             "axis-member-count": str(len(members)),
             "axis-group-count": str(len(groups)),
             "axis-group-ids": ",".join(group["id"] for group in groups),
-            **_frame_explainability_metadata(points, members, frame["angle"]),
+            **explainability_metadata,
             **_region_shape_metadata(shape, frame),
         }
     )
@@ -904,6 +909,24 @@ def _region_frame_mean(groups: list[dict], fallback_frame: dict) -> dict:
     }
 
 
+def _frame_with_explainability_correction(
+    frame: dict,
+    points: list[tuple[float, float]],
+    members: list[dict],
+) -> tuple[dict, dict]:
+    """Return a region frame corrected only when orthogonal evidence dominates."""
+    evidence = _frame_explainability_record(points, members, frame["angle"])
+    corrected = dict(frame)
+    if evidence["snap_candidate"]:
+        corrected["angle"] = evidence["orthogonal_angle"]
+        corrected["primary_extent"], corrected["secondary_extent"] = _frame_extents(
+            points,
+            corrected["angle"],
+        )
+        corrected["member_alignment"] = evidence["orthogonal_alignment"]
+    return corrected, _frame_explainability_metadata(evidence)
+
+
 def _frame_from_group(group: dict) -> dict:
     """Parse activity-group frame metadata back into numeric frame evidence."""
     metadata = group.get("metadata", {})
@@ -944,12 +967,12 @@ def _frame_extents(points: list[tuple[float, float]], angle: float) -> tuple[flo
     return max(primary) - min(primary), max(secondary) - min(secondary)
 
 
-def _frame_explainability_metadata(
+def _frame_explainability_record(
     points: list[tuple[float, float]],
     members: list[dict],
     angle: float,
 ) -> dict:
-    """Return diagnostic evidence comparing PCA and nearest orthogonal frames."""
+    """Compare the current frame with its nearest orthogonal interpretation."""
     orthogonal_angle = _nearest_orthogonal_angle(angle)
     pca_area = _frame_area(points, angle)
     orthogonal_area = _frame_area(points, orthogonal_angle)
@@ -961,19 +984,69 @@ def _frame_explainability_metadata(
         if pca_alignment > 1e-9
         else 0.0
     )
-    # This is only a diagnostic flag. It deliberately does not change the
-    # selected trend or region shape until the evidence is visually reviewed.
-    snap_candidate = area_loss <= 1.05 and alignment_loss >= 0.95
+    snap_candidate = _orthogonal_frame_explains_better(
+        pca_area,
+        orthogonal_area,
+        pca_alignment,
+        orthogonal_alignment,
+    )
+    return {
+        "angle": angle,
+        "orthogonal_angle": orthogonal_angle,
+        "pca_area": pca_area,
+        "orthogonal_area": orthogonal_area,
+        "area_ratio": area_loss,
+        "pca_alignment": pca_alignment,
+        "orthogonal_alignment": orthogonal_alignment,
+        "alignment_ratio": alignment_loss,
+        "snap_candidate": snap_candidate,
+    }
+
+
+def _orthogonal_frame_explains_better(
+    pca_area: float,
+    orthogonal_area: float,
+    pca_alignment: float,
+    orthogonal_alignment: float,
+) -> bool:
+    """Return true when an orthogonal frame Pareto-dominates the current frame."""
+    # Numerical tolerance only absorbs floating-point noise; the rule itself is
+    # not angle-threshold based. Orthogonal correction is allowed only when it
+    # keeps the envelope no larger and explains member frames at least as well.
+    epsilon = 1e-9
+    has_member_support = orthogonal_alignment > epsilon
+    area_not_worse = orthogonal_area <= pca_area + epsilon
+    alignment_not_worse = orthogonal_alignment + epsilon >= pca_alignment
+    strictly_better = (
+        orthogonal_area + epsilon < pca_area
+        or orthogonal_alignment > pca_alignment + epsilon
+    )
+    return (
+        has_member_support
+        and area_not_worse
+        and alignment_not_worse
+        and strictly_better
+    )
+
+
+def _frame_explainability_metadata(evidence: dict) -> dict:
+    """Return string metadata for frame explainability evidence."""
     return {
         "frame-explainability-basis": "pca_vs_nearest_orthogonal_frame",
-        "frame-pca-area": str(round(pca_area, 4)),
-        "frame-orthogonal-area": str(round(orthogonal_area, 4)),
-        "frame-orthogonal-area-ratio": str(round(area_loss, 4)),
-        "frame-pca-member-alignment": str(round(pca_alignment, 4)),
-        "frame-orthogonal-member-alignment": str(round(orthogonal_alignment, 4)),
-        "frame-member-alignment-ratio": str(round(alignment_loss, 4)),
-        "frame-nearest-orthogonal-angle": str(round(orthogonal_angle, 4)),
-        "frame-snap-candidate": "true" if snap_candidate else "false",
+        "frame-pca-area": str(round(evidence["pca_area"], 4)),
+        "frame-orthogonal-area": str(round(evidence["orthogonal_area"], 4)),
+        "frame-orthogonal-area-ratio": str(round(evidence["area_ratio"], 4)),
+        "frame-pca-member-alignment": str(round(evidence["pca_alignment"], 4)),
+        "frame-orthogonal-member-alignment": str(
+            round(evidence["orthogonal_alignment"], 4)
+        ),
+        "frame-member-alignment-ratio": str(round(evidence["alignment_ratio"], 4)),
+        "frame-nearest-orthogonal-angle": str(round(evidence["orthogonal_angle"], 4)),
+        "frame-snap-candidate": "true" if evidence["snap_candidate"] else "false",
+        "axis-explainability-correction": (
+            "nearest_orthogonal_frame" if evidence["snap_candidate"] else "none"
+        ),
+        "axis-original-angle": str(round(evidence["angle"], 4)),
     }
 
 

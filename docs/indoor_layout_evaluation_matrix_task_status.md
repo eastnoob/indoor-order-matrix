@@ -23,6 +23,38 @@
 
 ## Current Task State
 
+2026-07-09, region trend explainability correction pass:
+
+- Selected the explainability-first orthogonal frame rule for inferred region trend cleanup.
+- The rule compares the current region frame with the nearest 0/90-equivalent frame and corrects only when the orthogonal frame:
+  - keeps the projection envelope no larger;
+  - explains member furniture frames at least as well;
+  - has non-zero member-frame support;
+  - improves at least one of envelope area or member alignment.
+- This is not a hard small-angle threshold and does not revive broad region-shape candidate selection.
+- Metadata now keeps audit evidence:
+  - `axis-original-angle`;
+  - `axis-explainability-correction`;
+  - `frame-pca-area`;
+  - `frame-orthogonal-area`;
+  - `frame-pca-member-alignment`;
+  - `frame-orthogonal-member-alignment`;
+  - `frame-snap-candidate`.
+- SVG probe result:
+  - `SVG_oblique.svg` `center_lounge` corrects from `6.5528` to `0.0`;
+  - `SVG_chaoticsvg.svg` `center_lounge` remains `85.0265` and is not corrected;
+  - `SVG_oblique.svg` `west_lounge` remains `17.9849`;
+  - `SVG_oblique.svg` `north_tables` remains `84.017`.
+- Verification:
+  - `pixi run pytest test/test_floorplan_scene_loader.py::test_region_frame_explainability_selects_only_better_orthogonal_frames -q`: passed;
+  - `pixi run pytest -q`: `230 passed`;
+  - executed notebook saved to `test/output/svg_id_inference_demo.executed.ipynb`;
+  - visual QA saved to `test/output/svg_id_inference_demo.visual.html` and `test/output/svg_id_inference_demo.visual.png`.
+- Important boundary:
+  - the correction belongs to inference trend/frame metadata;
+  - SVG remains a neutral proxy input;
+  - region polygon/shape selection is intentionally left on the existing conservative path.
+
 2026-07-08, layout hierarchy/network/boundary skeleton pass:
 
 - Added focused spec: `docs/superpowers/specs/2026-07-08-layout-hierarchy-network-boundary-skeleton-design.md`.

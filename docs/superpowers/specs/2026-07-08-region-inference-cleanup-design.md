@@ -39,11 +39,11 @@ The organization trend remains based on furniture-group frames. Metadata separat
 - `axis-shape-clarity`: PCA/geometric axis clarity
 - `axis-trend-strength`: combined trend evidence
 
-Existing `axis-strength` is kept as an alias for compatibility. The notebook visual length uses geometric extent with a stable floor and records `axis-visual-length-basis`, so low strength changes opacity rather than making axes almost disappear.
+Existing `axis-strength` is kept as an alias for compatibility. The notebook visual length uses geometric extent multiplied by trend strength and records `axis-visual-length-basis`, so weak or chaotic trends do not appear as strong long axes.
 
 ## Tests
 
 - Plant records do not expand inferred region candidates by default.
 - `region-shape-anchor=true` makes a plant participate.
 - Baseline `center_lounge` uses `oriented_rectangle` after regularized eight-point handling.
-- Notebook source uses `axis-visual-length-basis` and no longer multiplies axis length directly by `strength`.
+- Notebook source uses `axis-visual-length-basis` and scales axis length directly by `strength`.

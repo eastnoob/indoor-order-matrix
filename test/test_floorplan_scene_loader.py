@@ -2760,33 +2760,49 @@ def test_center_lounge_trend_metadata_separates_alignment_clarity_and_strength()
     assert region["metadata"]["axis-trend-strength"] == region["metadata"]["axis-strength"]
 
 
-def test_region_frame_explainability_diagnostics_do_not_change_trend():
-    """Frame diagnostics should expose snap evidence without changing behavior."""
+def test_region_frame_explainability_selects_only_better_orthogonal_frames():
+    """Frame diagnostics should correct only orthogonal frames that explain data better."""
     from features.scene_loader import load_structured_svg_scene
     from features.scene_inference import infer_scene_evidence
 
-    scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
-    evidence = infer_scene_evidence(scene)
-    regions = {
-        item["region"]: item
-        for item in evidence["inferred_region_candidates"]
+    oblique_scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
+    oblique_evidence = infer_scene_evidence(oblique_scene)
+    oblique_regions = {
+        item["region"]: item for item in oblique_evidence["inferred_region_candidates"]
     }
-    center = regions["center_lounge"]
-    west = regions["west_lounge"]
+    center = oblique_regions["center_lounge"]
+    west = oblique_regions["west_lounge"]
+    north = oblique_regions["north_tables"]
 
-    assert 6.0 <= float(center["metadata"]["axis-angle"]) <= 7.0
+    assert float(center["metadata"]["axis-angle"]) == 0.0
     assert center["metadata"]["region-shape-basis"] == "oriented_rectangle"
     assert center["metadata"]["frame-explainability-basis"] == (
         "pca_vs_nearest_orthogonal_frame"
+    )
+    assert center["metadata"]["frame-snap-candidate"] == "true"
+    assert center["metadata"]["axis-explainability-correction"] == (
+        "nearest_orthogonal_frame"
     )
     assert float(center["metadata"]["frame-pca-area"]) > 0.0
     assert float(center["metadata"]["frame-orthogonal-area"]) > 0.0
     assert float(center["metadata"]["frame-orthogonal-area-ratio"]) > 0.0
     assert 0.0 <= float(center["metadata"]["frame-pca-member-alignment"]) <= 1.0
     assert 0.0 <= float(center["metadata"]["frame-orthogonal-member-alignment"]) <= 1.0
-    assert center["metadata"]["frame-snap-candidate"] in {"true", "false"}
     assert float(west["metadata"]["axis-angle"]) > 15.0
+    assert west["metadata"]["frame-snap-candidate"] == "false"
     assert float(west["metadata"]["frame-member-alignment-ratio"]) < 0.5
+    assert 80.0 <= float(north["metadata"]["axis-angle"]) <= 90.0
+    assert north["metadata"]["frame-snap-candidate"] == "false"
+
+    chaotic_scene = load_structured_svg_scene(Path("test/SVG_chaoticsvg.svg"))
+    chaotic_evidence = infer_scene_evidence(chaotic_scene)
+    chaotic_regions = {
+        item["region"]: item for item in chaotic_evidence["inferred_region_candidates"]
+    }
+    chaotic_center = chaotic_regions["center_lounge"]
+
+    assert chaotic_center["metadata"]["frame-snap-candidate"] == "false"
+    assert 80.0 <= float(chaotic_center["metadata"]["axis-angle"]) <= 90.0
 
 
 def test_evaluate_scene_clamps_spacing_margin_to_scene_bounds():
@@ -11804,6 +11820,8 @@ def test_svg_id_inference_notebook_presents_three_auto_inference_fixtures():
     assert "data-frame-delta" in source
     assert "axis-visual-length-basis" in source
     assert "extent * max(0.15, strength)" not in source
+    assert "extent * 0.65 * strength" in source
+    assert "extent_times_0.65_times_strength" in source
     assert "axis-strength" in source
     assert "manual_regions" in source
     assert "manual_paths" in source
