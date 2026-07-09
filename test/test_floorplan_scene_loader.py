@@ -2805,6 +2805,26 @@ def test_region_frame_explainability_selects_only_better_orthogonal_frames():
     assert 80.0 <= float(chaotic_center["metadata"]["axis-angle"]) <= 90.0
 
 
+def test_region_frame_extents_match_final_axis_angle():
+    """Region trend extent metadata should match the final drawn frame angle."""
+    from features.scene_loader import load_structured_svg_scene
+    from features.scene_inference import infer_scene_evidence
+
+    scene = load_structured_svg_scene(Path("test/SVG_chaoticsvg.svg"))
+    evidence = infer_scene_evidence(scene)
+    north_tables = {
+        item["region"]: item for item in evidence["inferred_region_candidates"]
+    }["north_tables"]
+    metadata = north_tables["metadata"]
+
+    # A near-vertical final frame must not keep the near-horizontal PCA long
+    # extent as its primary visual length.
+    assert float(metadata["axis-angle"]) > 80.0
+    assert float(metadata["axis-primary-extent"]) < float(
+        metadata["axis-secondary-extent"]
+    )
+
+
 def test_evaluate_scene_clamps_spacing_margin_to_scene_bounds():
     from features.affordance.models import Rect
 

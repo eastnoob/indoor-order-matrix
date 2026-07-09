@@ -44,6 +44,8 @@ Near-orthogonal visual noise should not be corrected by a hard small-angle thres
 
 This correction applies only to the region trend/frame metadata. It must not reintroduce broad region-shape candidate selection or rewrite the SVG/BIM proxy geometry. Real oblique organization, such as the oblique north tables or west lounge samples, should remain oblique when the orthogonal frame explains the members or envelope worse.
 
+After the final region trend angle is selected, `axis-primary-extent` and `axis-secondary-extent` must be recomputed in that same final frame. Do not carry PCA extents across angle normalization or correction, because overlays and downstream audits draw lengths from these metadata fields.
+
 ## Evaluation Matrix
 
 Evaluation Matrix code scores and audits evidence. The matrix consumes neutral scene plus inference evidence; it should not depend on SVG-specific rendering, SVG element names, or hand-authored SVG overlay conventions.

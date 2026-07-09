@@ -23,6 +23,22 @@
 
 ## Current Task State
 
+2026-07-09, region frame extent consistency fix:
+
+- Fixed a trend overlay bug where a normalized final frame angle could keep stale PCA `axis-primary-extent` / `axis-secondary-extent`.
+- Scope is intentionally narrow:
+  - angle and strength algorithms are unchanged;
+  - only final-frame extent metadata is recomputed after correction/normalization;
+  - SVG remains an input proxy and notebook drawing still uses `extent * 0.65 * strength`.
+- Regression:
+  - `SVG_chaoticsvg.svg` `north_tables` now has final `axis-angle=86.2722`, `primary=495.1`, `secondary=830.0`;
+  - the prior stale metadata had the long horizontal extent bound to the near-vertical primary axis.
+- Verification:
+  - focused frame tests: passed;
+  - `pixi run pytest -q`: `231 passed in 54.63s`;
+  - executed notebook saved to `test/output/svg_id_inference_demo.executed.ipynb`;
+  - visual QA saved to `test/output/svg_id_inference_demo.visual.html` and `test/output/svg_id_inference_demo.visual.png`.
+
 2026-07-09, region trend explainability correction pass:
 
 - Selected the explainability-first orthogonal frame rule for inferred region trend cleanup.
