@@ -11,7 +11,7 @@ def infer_scene_evidence(scene: dict) -> dict:
     """Infer analysis evidence from a neutral scene, independent of SVG loading."""
     zones = affordance_zones(scene)
     extents = furniture_affordance_extents(scene)
-    groups = activity_groups(scene, extents)
+    groups = furniture_groups(scene, extents)
     candidates = inferred_region_candidates(scene)
     regions = inferred_regions(scene, candidates)
     gap_paths = inferred_region_gap_paths(candidates)
@@ -20,7 +20,7 @@ def infer_scene_evidence(scene: dict) -> dict:
     return {
         "affordance_zones": zones,
         "furniture_affordance_extents": extents,
-        "activity_groups": groups,
+        "furniture_groups": groups,
         "inferred_region_candidates": candidates,
         "inferred_regions": regions,
         "inferred_region_gap_paths": gap_paths,
@@ -55,19 +55,21 @@ def furniture_affordance_extents(scene: dict) -> list[dict]:
     )
 
 
-def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict]:
-    """Build activity groups from semantic furniture keys and affordance extents."""
+def furniture_groups(scene: dict, extents: list[dict] | None = None) -> list[dict]:
+    """Build canonical furniture groups from semantic keys and affordance extents."""
     extents = extents if extents is not None else furniture_affordance_extents(scene)
     objects_by_id = {obj["id"]: obj for obj in scene.get("objects", [])}
-    extents_by_region: dict[str, list[dict]] = {}
+    extents_by_group: dict[str, list[dict]] = {}
     for extent in extents:
-        region = _analysis_region_key(extent)
-        if not region:
+        source_object = objects_by_id.get(extent["object_id"], extent)
+        group_key = _furniture_group_key(source_object)
+        if not group_key:
             continue
-        extents_by_region.setdefault(region, []).append(extent)
+        extents_by_group.setdefault(group_key, []).append(extent)
     groups = []
-    for region, region_extents in sorted(extents_by_region.items()):
-        sorted_extents = sorted(region_extents, key=lambda item: item["id"])
+    for group_key, group_extents in sorted(extents_by_group.items()):
+        sorted_extents = sorted(group_extents, key=lambda item: item["id"])
+        activity_region_id = _analysis_region_key(sorted_extents[0]) or group_key
         # The group extent is the union envelope; overlaps are relation evidence,
         # not a replacement for the group's full maximum affordance extent.
         group_rect = _bounds(sorted_extents)
@@ -76,11 +78,12 @@ def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict
             for extent in sorted_extents
             if extent["object_id"] in objects_by_id
         ]
-        frame = _activity_group_frame(members, sorted_extents)
+        frame = _furniture_group_frame(members, sorted_extents)
         groups.append(
             {
-                "id": f"activity_group_{region}",
-                "region": region,
+                "id": f"furniture_group_{group_key}",
+                "activity_region_id": activity_region_id,
+                "region": activity_region_id,
                 "member_ids": sorted(extent["object_id"] for extent in sorted_extents),
                 "furniture_affordance_extent_ids": [
                     extent["id"] for extent in sorted_extents
@@ -89,7 +92,7 @@ def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict
                 "bbox": _rect_bbox(group_rect),
                 "overlap_evidence": _extent_overlap_evidence(sorted_extents),
                 "metadata": {
-                    "level": "activity_group",
+                    "level": "furniture_group",
                     "source": "semantic_region_grouped_furniture_affordance_extents",
                     "geometry_basis": "union_envelope_of_member_furniture_affordance_extents",
                     **_group_frame_metadata(frame),
@@ -99,11 +102,11 @@ def activity_groups(scene: dict, extents: list[dict] | None = None) -> list[dict
     return groups
 
 
-def spatial_networks(activity_groups: list[dict], gap_paths: list[dict]) -> list[dict]:
+def spatial_networks(furniture_groups: list[dict], gap_paths: list[dict]) -> list[dict]:
     """Build shared-schema spatial networks for internal and inter-region scopes."""
     networks = [
         {
-            "id": f"spatial_network_region_internal_{group['region']}",
+            "id": f"spatial_network_region_internal_{group['activity_region_id']}",
             "scope": "region_internal",
             "nodes": [
                 {
@@ -112,14 +115,14 @@ def spatial_networks(activity_groups: list[dict], gap_paths: list[dict]) -> list
                 }
                 for extent_id in group["furniture_affordance_extent_ids"]
             ],
-            "edges": _activity_group_internal_edges(group),
+            "edges": _furniture_group_internal_edges(group),
             "components": [[extent_id] for extent_id in group["furniture_affordance_extent_ids"]],
             "metadata": {
-                "method": "activity_group_member_extent_network_skeleton",
-                "activity_group_id": group["id"],
+                "method": "furniture_group_member_extent_network_skeleton",
+                "furniture_group_id": group["id"],
             },
         }
-        for group in activity_groups
+        for group in furniture_groups
     ]
     region_node_ids = sorted(
         {
@@ -157,7 +160,7 @@ def spatial_networks(activity_groups: list[dict], gap_paths: list[dict]) -> list
             if region_node_ids
             else [],
             "metadata": {
-                "method": "shared_spatial_network_schema_from_activity_groups_and_gap_paths",
+                "method": "shared_spatial_network_schema_from_furniture_groups_and_gap_paths",
             },
         }
     )
@@ -495,7 +498,7 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
     """Create unexpanded region candidates from semantic furniture group keys."""
     groups_by_region = {
         group["region"]: group
-        for group in activity_groups(scene)
+        for group in furniture_groups(scene)
     }
     # Group objects by neutral region keys, falling back to BIM furniture-group
     # keys when a base map has not already assigned final activity regions.
@@ -748,7 +751,7 @@ def _attach_region_axis_metadata(
         for member in members
         for point in _record_points(member)
     )
-    fallback_frame = _activity_group_frame(
+    fallback_frame = _furniture_group_frame(
         members,
         [{"rect": rect} for rect in rects],
     )
@@ -765,7 +768,7 @@ def _attach_region_axis_metadata(
         {
             "axis-angle": str(round(frame["angle"], 4)),
             "axis-strength": str(round(frame["strength"], 4)),
-            "axis-basis": "activity_group_frame_mean",
+            "axis-basis": "furniture_group_frame_mean",
             "secondary-axis-angle": str(round((frame["angle"] + 90.0) % 180.0, 4)),
             "axis-primary-extent": str(round(frame["primary_extent"], 4)),
             "axis-secondary-extent": str(round(frame["secondary_extent"], 4)),
@@ -819,7 +822,7 @@ def _pca_frame_stats(points: list[tuple[float, float]]) -> dict:
     }
 
 
-def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
+def _furniture_group_frame(members: list[dict], extents: list[dict]) -> dict:
     """Compute one furniture-group frame from affordance extent geometry."""
     points = [
         point
@@ -858,7 +861,7 @@ def _activity_group_frame(members: list[dict], extents: list[dict]) -> dict:
 
 
 def _group_frame_metadata(frame: dict) -> dict:
-    """Return string metadata for an activity-group trend frame."""
+    """Return string metadata for a canonical furniture-group trend frame."""
     return {
         "group-axis-angle": str(round(frame["angle"], 4)),
         "group-secondary-axis-angle": str(round((frame["angle"] + 90.0) % 180.0, 4)),
@@ -1471,6 +1474,18 @@ def _analysis_region_key(record: dict) -> str:
     return "" if group in neutral else str(group)
 
 
+def _furniture_group_key(record: dict) -> str:
+    """Return the authored furniture-group key used for canonical grouping."""
+    metadata = record.get("metadata", {})
+    neutral = {"", "global", "room", "misc", "room_misc", None}
+    key = record.get("furniture_group") or metadata.get("furniture-group")
+    # Authored furniture groups are the preferred BIM-style semantic unit; the
+    # activity-region key is only the degenerate fallback for older fixtures.
+    if key not in neutral:
+        return str(key)
+    return _analysis_region_key(record)
+
+
 def _furniture_affordance_extent_record(record: dict) -> dict:
     """Create one maximum extent from a furniture footprint and its own affordances."""
     zones = record_affordance_zones(record)
@@ -1511,7 +1526,7 @@ def _extent_overlap_evidence(extents: list[dict]) -> list[dict]:
     ]
 
 
-def _activity_group_internal_edges(group: dict) -> list[dict]:
+def _furniture_group_internal_edges(group: dict) -> list[dict]:
     """Connect member extents that have non-zero relation overlap evidence."""
     return [
         {
@@ -1691,3 +1706,4 @@ def _components(nodes: dict, adjacency: dict[str, set[str]]) -> list[list[str]]:
                 stack.append(neighbor)
         components.append(sorted(component))
     return components
+

@@ -14,6 +14,8 @@ from .affordance.grid_backend import _polygon_rect_overlap_area
 from .affordance.models import Polygon, Rect
 from .analyzer import OrderAnalyzer
 from .column_grid import column_grid_evidence
+from .position_grammar import group_assembly_grammar_evidence
+from .position_grammar import region_position_grammar_evidence
 from .scene_inference import build_inferred_region_gap_path_graph
 from .scene_inference import gap_path_clear_status
 from .scene_inference import infer_scene_evidence
@@ -38,7 +40,12 @@ def evaluate_scene(scene: dict) -> dict:
     inference = infer_scene_evidence(scene)
     affordance_zones = inference["affordance_zones"]
     furniture_affordance_extents = inference["furniture_affordance_extents"]
-    activity_groups = inference["activity_groups"]
+    furniture_groups = inference["furniture_groups"]
+    region_position_grammar = region_position_grammar_evidence(furniture_groups)
+    group_assembly_grammar = group_assembly_grammar_evidence(
+        furniture_groups,
+        furniture_affordance_extents,
+    )
     inferred_region_candidates = inference["inferred_region_candidates"]
     inferred_regions = inference["inferred_regions"]
     inferred_region_gap_paths = inference["inferred_region_gap_paths"]
@@ -71,6 +78,7 @@ def evaluate_scene(scene: dict) -> dict:
     rows.append(_region_source_boundary_proximity_row(analysis_scene))
     rows.append(_affordance_use_zone_row(affordance_zones))
     rows.append(_furniture_affordance_extent_row(furniture_affordance_extents))
+    rows.extend(_position_grammar_rows(region_position_grammar))
     rows.append(_inferred_region_candidate_row(inferred_region_candidates))
     rows.append(_inferred_region_row(inferred_regions))
     rows.append(_inferred_region_explicit_iou_row(scene, inferred_region_candidates))
@@ -145,7 +153,9 @@ def evaluate_scene(scene: dict) -> dict:
         "score_matrix": score_matrix,
         "affordance_zones": affordance_zones,
         "furniture_affordance_extents": furniture_affordance_extents,
-        "activity_groups": activity_groups,
+        "furniture_groups": furniture_groups,
+        "region_position_grammar": region_position_grammar,
+        "group_assembly_grammar": group_assembly_grammar,
         "inferred_region_candidates": inferred_region_candidates,
         "inferred_regions": inferred_regions,
         "inferred_region_gap_paths": inferred_region_gap_paths,
@@ -163,7 +173,9 @@ def evaluate_scene(scene: dict) -> dict:
             isovist_radial_proxy,
             affordance_zones,
             furniture_affordance_extents,
-            activity_groups,
+            furniture_groups,
+            region_position_grammar,
+            group_assembly_grammar,
             inferred_region_candidates,
             inferred_region_gap_paths,
             spatial_networks,
@@ -783,6 +795,28 @@ def scene_metric_overlay_svg(
             f'stroke-dasharray="2 4" opacity="0.72">'
             f'<title>{escape(extent["id"])}</title></rect>'
         )
+    for item in _position_grammar_items(matrix):
+        for residual in item.get("residuals", []):
+            # Slots and residuals are diagnostic evidence for the selected
+            # grammar; in the public matrix they show how far each furniture
+            # group sits from its inferred or authored local position.
+            region_layers.append(
+                f'<circle data-layer="position-grammar-slot" '
+                f'data-system="{escape(item["position-system-id"])}" '
+                f'data-member="{escape(residual["id"])}" '
+                f'cx="{residual["slot_x"]:.1f}" cy="{residual["slot_y"]:.1f}" r="4" '
+                f'fill="#f59e0b" opacity="0.75">'
+                f'<title>{escape(item["position-grammar-type"])} '
+                f'{residual["normalized"]:.4f}</title></circle>'
+            )
+            region_layers.append(
+                f'<line data-layer="position-grammar-residual" '
+                f'data-system="{escape(item["position-system-id"])}" '
+                f'data-member="{escape(residual["id"])}" '
+                f'x1="{residual["x"]:.1f}" y1="{residual["y"]:.1f}" '
+                f'x2="{residual["slot_x"]:.1f}" y2="{residual["slot_y"]:.1f}" '
+                f'stroke="#f59e0b" stroke-width="2" opacity="0.7" />'
+            )
     inferred_region_ids = {
         region["id"] for region in matrix.get("inferred_regions", [])
     }
@@ -1081,6 +1115,54 @@ def scene_metric_overlay_svg(
             + labels
         )
         + "</svg>"
+    )
+
+
+def scene_position_grammar_overlay_svg(scene: dict, matrix: dict) -> str:
+    """Draw only region-level furniture-group position grammar evidence."""
+    layers = []
+    for group in matrix.get("furniture_groups", []):
+        layers.append(_position_grammar_group_svg(group))
+    for item in _position_grammar_items(matrix):
+        for residual in item.get("residuals", []):
+            # The isolated overlay keeps only the public proxy result: expected
+            # slot and actual-to-slot residual vector for each furniture group.
+            layers.append(
+                f'<circle data-layer="position-grammar-slot" '
+                f'data-system="{escape(item["position-system-id"])}" '
+                f'data-member="{escape(residual["id"])}" '
+                f'cx="{residual["slot_x"]:.1f}" cy="{residual["slot_y"]:.1f}" r="4" '
+                f'fill="#f59e0b" opacity="0.8">'
+                f'<title>{escape(item["position-grammar-type"])} '
+                f'{residual["normalized"]:.4f}</title></circle>'
+            )
+            layers.append(
+                f'<line data-layer="position-grammar-residual" '
+                f'data-system="{escape(item["position-system-id"])}" '
+                f'data-member="{escape(residual["id"])}" '
+                f'x1="{residual["x"]:.1f}" y1="{residual["y"]:.1f}" '
+                f'x2="{residual["slot_x"]:.1f}" y2="{residual["slot_y"]:.1f}" '
+                f'stroke="#f59e0b" stroke-width="2" opacity="0.82" />'
+            )
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" '
+        'width="1000" height="1000">'
+        + "".join(layers)
+        + "</svg>"
+    )
+
+
+def _position_grammar_group_svg(group: dict) -> str:
+    """Draw one furniture-group proxy outline for focused position evidence."""
+    rect = group["rect"]
+    return (
+        f'<rect data-layer="position-grammar-group" '
+        f'data-group="{escape(group["id"])}" '
+        f'x="{rect.left:.1f}" y="{rect.top:.1f}" '
+        f'width="{rect.width:.1f}" height="{rect.height:.1f}" '
+        f'fill="none" stroke="#059669" stroke-width="2.0" '
+        f'stroke-dasharray="2 4" opacity="0.72">'
+        f'<title>{escape(group["id"])}</title></rect>'
     )
 
 
@@ -1582,6 +1664,7 @@ def _furniture_affordance_extent_row(extents: list[dict]) -> dict:
 
 
 def _furniture_affordance_extent_evidence(extent: dict) -> dict:
+    """Return adapter-safe affordance extent evidence without Rect objects."""
     return {
         "id": extent["id"],
         "object_id": extent["object_id"],
@@ -1592,10 +1675,11 @@ def _furniture_affordance_extent_evidence(extent: dict) -> dict:
     }
 
 
-def _activity_group_evidence(group: dict) -> dict:
-    """Return adapter-safe activity group evidence without Rect objects."""
+def _furniture_group_evidence(group: dict) -> dict:
+    """Return adapter-safe furniture group evidence without Rect objects."""
     return {
         "id": group["id"],
+        "activity_region_id": group["activity_region_id"],
         "region": group["region"],
         "member_ids": list(group["member_ids"]),
         "furniture_affordance_extent_ids": list(group["furniture_affordance_extent_ids"]),
@@ -1603,6 +1687,54 @@ def _activity_group_evidence(group: dict) -> dict:
         "overlap_evidence": list(group["overlap_evidence"]),
         "metadata": dict(group["metadata"]),
     }
+
+
+def _position_grammar_rows(position_grammar: dict) -> list[dict]:
+    """Expose compact public position-order variables from grammar evidence."""
+    items = position_grammar.get("items", [])
+    if not items:
+        return [
+            _not_available(
+                "internal_order",
+                "P_position_fit",
+                "needs at least two canonical furniture groups in a position scope",
+            ),
+            _not_available(
+                "internal_order",
+                "P_position_confidence",
+                "needs at least two canonical furniture groups in a position scope",
+            ),
+        ]
+    return [
+        {
+            "view_id": "internal_order",
+            "metric": "P_position_fit",
+            "score": round(mean(item["position-fit"] for item in items), 4),
+            "status": "computed",
+            "method": "region_position_grammar_selected_fit_mean",
+            "evidence": [item["id"] for item in items],
+            "region_position_grammar_evidence": items,
+            "uncertainty": "position grammar is internal evidence only; final perceptual weight is deferred to experiments",
+        },
+        {
+            "view_id": "internal_order",
+            "metric": "P_position_confidence",
+            "score": round(mean(item["position-confidence"] for item in items), 4),
+            "status": "computed",
+            "method": "region_position_grammar_confidence_mean",
+            "evidence": [item["id"] for item in items],
+            "region_position_grammar_evidence": items,
+            "uncertainty": "confidence describes evidence reliability, not design quality",
+        },
+    ]
+
+
+def _position_grammar_items(matrix: dict) -> list[dict]:
+    """Read nested position grammar evidence from public matrix rows."""
+    for row in matrix.get("rows", []):
+        if row.get("metric") == "P_position_fit":
+            return list(row.get("region_position_grammar_evidence", []))
+    return []
 
 
 def _inferred_region_candidate_row(candidates: list[dict]) -> dict:
@@ -2175,7 +2307,7 @@ def _region_record_overlap_area(region: dict, rect: Rect) -> float:
     metadata = region.get("metadata", {})
     if metadata.get("axis-basis") in {
         "affordance_point_pca_frame",
-        "activity_group_frame_mean",
+        "furniture_group_frame_mean",
     }:
         # PCA points are diagnostic oriented envelopes. Membership coverage keeps
         # using the stable bbox proxy that downstream inferred-region rows expose.
@@ -8419,7 +8551,9 @@ def _adapter_payload(
     isovist_radial_proxy: dict,
     affordance_zones: list[dict],
     furniture_affordance_extents: list[dict],
-    activity_groups: list[dict],
+    furniture_groups: list[dict],
+    region_position_grammar: dict,
+    group_assembly_grammar: dict,
     inferred_region_candidates: list[dict],
     inferred_region_gap_paths: list[dict],
     spatial_networks: list[dict],
@@ -8483,7 +8617,9 @@ def _adapter_payload(
         negative_space_graph,
         affordance_zones,
         furniture_affordance_extents,
-        activity_groups,
+        furniture_groups,
+        region_position_grammar,
+        group_assembly_grammar,
         inferred_region_candidates,
         inferred_region_gap_paths,
         spatial_networks,
@@ -9119,7 +9255,9 @@ def _adapter_evidence_geometry(
     negative_space_graph: dict,
     affordance_zones: list[dict],
     furniture_affordance_extents: list[dict],
-    activity_groups: list[dict],
+    furniture_groups: list[dict],
+    region_position_grammar: dict,
+    group_assembly_grammar: dict,
     inferred_region_candidates: list[dict],
     inferred_region_gap_paths: list[dict],
     spatial_networks: list[dict],
@@ -9187,13 +9325,15 @@ def _adapter_evidence_geometry(
                 for extent in furniture_affordance_extents
             ],
         },
-        "activity_groups": {
-            "count": len(activity_groups),
+        "furniture_groups": {
+            "count": len(furniture_groups),
             "items": [
-                _activity_group_evidence(group)
-                for group in activity_groups
+                _furniture_group_evidence(group)
+                for group in furniture_groups
             ],
         },
+        "region_position_grammar": region_position_grammar,
+        "group_assembly_grammar": group_assembly_grammar,
         "inferred_region_candidates": {
             "count": len(inferred_region_candidates),
             "items": [
@@ -10080,3 +10220,4 @@ def _longest_edge_angle(points: list[tuple[float, float]]) -> float:
         if length_sq > best[0]:
             best = (length_sq, degrees(atan2(dy, dx)) % 180)
     return best[1]
+

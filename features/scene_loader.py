@@ -122,8 +122,23 @@ def _shape_record(tag: str, attrib: dict, meta: dict) -> dict | None:
         metadata["region"] = region
     if "orientation" not in metadata:
         metadata["orientation"] = str(round(orientation % 360.0, 4))
+    furniture_group = (
+        meta.get("data-furniture-group")
+        or meta.get("data-furniture-group-id")
+        or metadata.get("furniture-group")
+        or metadata.get("furniture-group-id")
+        or group
+    )
+    if "furniture-group" not in metadata:
+        metadata["furniture-group"] = furniture_group
     rect = _rect_for_shape(tag, attrib, meta.get("_transform"))
     points = _points_for_shape(tag, attrib, meta.get("_transform"))
+    if abs(orientation) < 1e-9 and points:
+        # Path-authored furniture often has no transform matrix, so recover its
+        # usable frame from the longest polygon edge instead of treating it as
+        # globally horizontal.
+        orientation = _points_orientation(points)
+        metadata["orientation"] = str(round(orientation % 360.0, 4))
     if role in {"column_axis", "column_grid"}:
         # Column axes are authored grid centerlines. Filled/dashed SVG paths may
         # carry many outline points, so collapse line-like bboxes before metrics.
@@ -133,6 +148,7 @@ def _shape_record(tag: str, attrib: dict, meta: dict) -> dict | None:
         "role": role,
         "group": group,
         "region": region,
+        "furniture_group": furniture_group,
         "orientation": orientation % 360.0,
         "order_view": meta.get("data-order-view"),
         "rect": rect,
@@ -155,7 +171,18 @@ def _compact_axis_points(
         return [(rect.cx, rect.top), (rect.cx, rect.bottom)]
     if rect.width > rect.height * 5:
         return [(rect.left, rect.cy), (rect.right, rect.cy)]
-    return points
+    return _dedupe_consecutive_points(points)
+
+
+def _dedupe_consecutive_points(
+    points: list[tuple[float, float]],
+) -> list[tuple[float, float]]:
+    """Remove duplicate adjacent vertices introduced by explicit path closing."""
+    deduped = []
+    for point in points:
+        if not deduped or point != deduped[-1]:
+            deduped.append(point)
+    return deduped
 
 
 def _role_from_id(record_id: str | None, tag: str) -> str | None:
@@ -462,7 +489,25 @@ def _points_for_path(
             command = ""
         else:
             break
-    return points
+    return _dedupe_consecutive_points(points)
+
+
+def _points_orientation(points: list[tuple[float, float]]) -> float:
+    """Infer a conservative object orientation from the longest point edge."""
+    from math import atan2, degrees
+
+    if len(points) < 2:
+        return 0.0
+    best_length = 0.0
+    best_angle = 0.0
+    for start, end in zip(points, points[1:]):
+        dx = end[0] - start[0]
+        dy = end[1] - start[1]
+        length = dx * dx + dy * dy
+        if length > best_length:
+            best_length = length
+            best_angle = degrees(atan2(dy, dx)) % 180.0
+    return best_angle
 
 
 def _combine_transform(

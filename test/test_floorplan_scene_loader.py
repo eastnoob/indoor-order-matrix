@@ -189,6 +189,49 @@ def test_svg_loader_only_treats_explicit_axis_ids_as_column_axes(tmp_path):
     assert [axis["id"] for axis in scene["column_axes"]] == ["axis1"]
 
 
+def test_svg_loader_preserves_explicit_furniture_group_id(tmp_path):
+    """SVG proxy group labels should normalize into furniture_group metadata."""
+    svg = tmp_path / "furniture_group.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect id="table" data-role="table" data-region="dining" data-furniture-group="dining_set_1" x="10" y="10" width="20" height="10" />
+  <rect id="chair" data-role="chair" data-region="dining" data-furniture-group="dining_set_1" x="10" y="30" width="20" height="10" />
+</svg>""",
+        encoding="utf-8",
+    )
+
+    scene = load_structured_svg_scene(svg)
+
+    assert {obj["metadata"]["furniture-group"] for obj in scene["objects"]} == {
+        "dining_set_1"
+    }
+    assert {obj["furniture_group"] for obj in scene["objects"]} == {"dining_set_1"}
+
+
+def test_svg_table_sets_are_distinct_furniture_groups_inside_north_region():
+    """Each north table set should be a furniture group inside one region."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+
+    north_objects = [
+        obj for obj in scene["objects"]
+        if obj["region"] == "north_tables"
+    ]
+    north_furniture_groups = {
+        obj["furniture_group"]
+        for obj in north_objects
+    }
+
+    assert north_furniture_groups == {
+        "north_table_group_r1_c1",
+        "north_table_group_r1_c2",
+        "north_table_group_r1_c3",
+        "north_table_group_r2_c1",
+        "north_table_group_r2_c2",
+        "north_table_group_r2_c3",
+    }
+    assert {obj["region"] for obj in north_objects} == {"north_tables"}
+
+
 def test_adapter_payload_keeps_physical_columns_as_scene_records():
     """Columns should stay visible to adapter targets without sharing axis records."""
     scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
@@ -1077,13 +1120,33 @@ def test_svg_id_fixtures_infer_regions_and_gap_paths_without_manual_markers():
 
         assert scene["regions"] == []
         assert scene["paths"] == []
-        assert len(evidence["activity_groups"]) >= 5
+        assert len(evidence["furniture_groups"]) >= 5
         assert len(evidence["inferred_region_candidates"]) >= 5
         assert evidence["inferred_region_gap_paths"]
         assert any(
             network["scope"] == "inter_region" and network["edges"]
             for network in evidence["spatial_networks"]
         )
+
+
+def test_inference_exposes_canonical_furniture_groups_without_legacy_group_api():
+    """Runtime inference should expose one canonical furniture-group system."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+
+    evidence = infer_scene_evidence(scene)
+
+    assert "furniture_groups" in evidence
+    assert "activity_" + "groups" not in evidence
+    assert len(evidence["furniture_groups"]) >= 5
+    group = {
+        item["id"]: item
+        for item in evidence["furniture_groups"]
+    }["furniture_group_center_lounge"]
+    assert group["metadata"]["level"] == "furniture_group"
+    assert group["activity_region_id"] == "center_lounge"
+    assert group["member_ids"]
+    assert group["furniture_affordance_extent_ids"]
+    assert "group-axis-angle" in group["metadata"]
 
 
 def test_svg_group_only_fixture_infers_regions_without_region_labels():
@@ -1109,7 +1172,7 @@ def test_svg_group_only_fixture_infers_regions_without_region_labels():
         "east_armchairs",
         "east_work",
     } <= candidate_regions
-    assert len(evidence["activity_groups"]) >= 5
+    assert len(evidence["furniture_groups"]) >= 5
     assert evidence["inferred_region_gap_paths"]
 
 
@@ -1119,7 +1182,7 @@ def test_inferred_oblique_region_keeps_member_frame_without_correction():
     evidence = infer_scene_evidence(scene)
     groups = {
         group["region"]: group
-        for group in evidence["activity_groups"]
+        for group in evidence["furniture_groups"]
     }
     candidates = {
         candidate["region"]: candidate
@@ -1133,8 +1196,8 @@ def test_inferred_oblique_region_keeps_member_frame_without_correction():
     assert float(group["metadata"]["group-axis-geometry-angle"]) > 0.0
     assert float(group["metadata"]["group-axis-primary-extent"]) > 150.0
     assert len(center["points"]) >= 5
-    assert center["metadata"]["axis-basis"] == "activity_group_frame_mean"
-    assert center["metadata"]["axis-group-ids"] == "activity_group_center_lounge"
+    assert center["metadata"]["axis-basis"] == "furniture_group_frame_mean"
+    assert center["metadata"]["axis-group-ids"] == "furniture_group_center_lounge"
     assert center["metadata"]["region-shape-basis"] in {
         "oriented_rectangle",
         "regularized_convex_hull",
@@ -1157,7 +1220,7 @@ def test_west_lounge_member_frame_trend_ignores_semienclosed_pca_diagonal():
 
     west = candidates["west_lounge"]
 
-    assert west["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert west["metadata"]["axis-basis"] == "furniture_group_frame_mean"
     assert float(west["metadata"]["axis-member-alignment"]) > 0.95
     assert float(west["metadata"]["axis-angle"]) <= 5.0
     assert float(west["metadata"]["shape-axis-angle"]) > 40.0
@@ -1174,7 +1237,7 @@ def test_oblique_west_lounge_corrects_to_rotated_rectangular_frame():
 
     west = candidates["west_lounge"]
 
-    assert west["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert west["metadata"]["axis-basis"] == "furniture_group_frame_mean"
     assert 15.0 <= float(west["metadata"]["axis-angle"]) <= 20.0
     assert float(west["metadata"]["shape-axis-angle"]) > 70.0
 
@@ -1185,7 +1248,7 @@ def test_member_frame_trend_drives_rotated_east_work_fixture():
     evidence = infer_scene_evidence(scene)
     groups = {
         group["region"]: group
-        for group in evidence["activity_groups"]
+        for group in evidence["furniture_groups"]
     }
 
     east_work = groups["east_work"]
@@ -1234,7 +1297,7 @@ def test_single_directional_table_has_strong_member_frame_trend():
         for candidate in matrix["inferred_region_candidates"]
     }["single_work"]
 
-    assert region["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert region["metadata"]["axis-basis"] == "furniture_group_frame_mean"
     assert float(region["metadata"]["axis-strength"]) > 0.95
     assert 29.0 <= float(region["metadata"]["axis-angle"]) <= 31.0
 
@@ -1287,10 +1350,10 @@ def test_horizontal_and_vertical_groups_have_clear_pca_frames():
     }
 
     assert candidates["horizontal"]["metadata"]["axis-basis"] == (
-        "activity_group_frame_mean"
+        "furniture_group_frame_mean"
     )
     assert candidates["vertical"]["metadata"]["axis-basis"] == (
-        "activity_group_frame_mean"
+        "furniture_group_frame_mean"
     )
     assert float(candidates["horizontal"]["metadata"]["axis-strength"]) > 0.8
     assert float(candidates["vertical"]["metadata"]["axis-strength"]) > 0.8
@@ -2807,7 +2870,7 @@ def test_evaluate_scene_infers_regions_from_affordance_expanded_group_bounds():
         assert region["rect"] == expected_rect
         assert len(region["points"]) == 5
         assert region["metadata"]["geometry_basis"] == "object_footprints_plus_affordance_zone_rects"
-        assert region["metadata"]["axis-basis"] == "activity_group_frame_mean"
+        assert region["metadata"]["axis-basis"] == "furniture_group_frame_mean"
         assert region["metadata"]["spacing_margin"] == "30.0"
 
     inference_row = [
@@ -3528,7 +3591,7 @@ def test_evaluate_scene_uses_oriented_rectangle_for_regular_region_shape():
     region = evaluate_scene(scene)["inferred_regions"][0]
 
     assert region["metadata"]["region-shape-basis"] == "oriented_rectangle"
-    assert region["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert region["metadata"]["axis-basis"] == "furniture_group_frame_mean"
     assert region["metadata"]["shape-axis-basis"] == "region_polygon_pca"
     assert "frame-delta" in region["metadata"]
 
@@ -3579,7 +3642,7 @@ def test_evaluate_scene_uses_regularized_hull_for_complex_region_shape():
 
     assert region["metadata"]["region-shape-basis"] == "regularized_convex_hull"
     assert int(region["metadata"]["region-shape-vertex-count"]) >= 8
-    assert region["metadata"]["axis-basis"] == "activity_group_frame_mean"
+    assert region["metadata"]["axis-basis"] == "furniture_group_frame_mean"
     assert region["metadata"]["shape-axis-basis"] == "region_polygon_pca"
     assert "shape-axis-angle" in region["metadata"]
     assert "frame-delta" in region["metadata"]
@@ -4264,12 +4327,12 @@ def test_evaluate_scene_infers_thick_gap_path_between_affordance_regions():
     assert 'data-thickness="40.0000"' in svg
 
 
-def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extents():
-    """Activity groups expose union envelopes plus separate overlap evidence."""
+def test_evaluate_scene_exposes_furniture_groups_from_furniture_affordance_extents():
+    """Furniture groups expose union envelopes plus separate overlap evidence."""
     from features.affordance.models import Rect
 
     def record(record_id, role, group, rect, *, affordance=None):
-        """Create a minimal neutral object record for activity group tests."""
+        """Create a minimal neutral object record for furniture group tests."""
         metadata = {"role": role, "region": group}
         if affordance:
             for side, value in affordance.items():
@@ -4290,7 +4353,7 @@ def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extent
         }
 
     scene = {
-        "source": "synthetic_activity_group_skeleton",
+        "source": "synthetic_furniture_group_skeleton",
         "size": (220.0, 180.0),
         "objects": [
             record("table", "table", "dining", Rect(cx=90, cy=70, width=80, height=40)),
@@ -4310,11 +4373,12 @@ def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extent
     }
 
     matrix = evaluate_scene(scene)
-    activity_groups = matrix["adapter_payload"]["evidence_geometry"]["activity_groups"]["items"]
+    furniture_groups = matrix["adapter_payload"]["evidence_geometry"]["furniture_groups"]["items"]
 
     expected_groups = [
         {
-            "id": "activity_group_dining",
+            "id": "furniture_group_dining",
+            "activity_region_id": "dining",
             "region": "dining",
             "member_ids": ["chair", "table"],
             "furniture_affordance_extent_ids": [
@@ -4333,20 +4397,298 @@ def test_evaluate_scene_exposes_activity_groups_from_furniture_affordance_extent
     ]
     comparable_groups = [
         {key: value for key, value in group.items() if key != "metadata"}
-        for group in activity_groups
+        for group in furniture_groups
     ]
     assert comparable_groups == expected_groups
-    metadata = activity_groups[0]["metadata"]
-    assert metadata["level"] == "activity_group"
+    metadata = furniture_groups[0]["metadata"]
+    assert metadata["level"] == "furniture_group"
     assert metadata["source"] == "semantic_region_grouped_furniture_affordance_extents"
     assert metadata["geometry_basis"] == "union_envelope_of_member_furniture_affordance_extents"
     assert metadata["group-axis-basis"] == "member_frame_consensus"
     assert float(metadata["group-axis-member-alignment"]) > 0.0
     assert float(metadata["group-axis-primary-extent"]) > 0.0
-    assert matrix["adapter_payload"]["evidence_geometry"]["activity_groups"] == {
+    assert matrix["adapter_payload"]["evidence_geometry"]["furniture_groups"] == {
         "count": 1,
-        "items": activity_groups,
+        "items": furniture_groups,
     }
+
+
+def test_position_grammar_line_fit_drops_for_shifted_member():
+    """Line grammar should penalize a shifted member while keeping one public fit."""
+    from features.position_grammar import position_grammar_evidence
+
+    group = {
+        "id": "furniture_group_row",
+        "activity_region_id": "row",
+        "rect": Rect(cx=100, cy=50, width=200, height=40),
+        "furniture_affordance_extent_ids": ["a", "b", "c"],
+        "metadata": {
+            "group-axis-angle": "0",
+            "group-axis-strength": "1.0",
+            "group-axis-basis": "test",
+        },
+    }
+    regular = [
+        {"id": "a", "rect": Rect(cx=0, cy=50, width=20, height=20)},
+        {"id": "b", "rect": Rect(cx=100, cy=50, width=20, height=20)},
+        {"id": "c", "rect": Rect(cx=200, cy=50, width=20, height=20)},
+    ]
+    shifted = [
+        {"id": "a", "rect": Rect(cx=0, cy=50, width=20, height=20)},
+        {"id": "b", "rect": Rect(cx=100, cy=75, width=20, height=20)},
+        {"id": "c", "rect": Rect(cx=200, cy=50, width=20, height=20)},
+    ]
+
+    regular_fit = position_grammar_evidence([group], regular)["items"][0]
+    shifted_fit = position_grammar_evidence([group], shifted)["items"][0]
+
+    assert regular_fit["position-grammar-type"] == "line"
+    assert regular_fit["position-fit"] > shifted_fit["position-fit"]
+    assert shifted_fit["position-residual-mean"] > 0
+
+
+def test_region_position_grammar_scores_furniture_groups_not_extents():
+    """Public position evidence should assign one slot per furniture group."""
+    from features.position_grammar import region_position_grammar_evidence
+
+    groups = [
+        {
+            "id": "furniture_group_a",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=0, cy=0, width=20, height=20),
+            "member_ids": ["a_table", "a_chair"],
+            "furniture_affordance_extent_ids": ["a_table_extent", "a_chair_extent"],
+            "metadata": {"group-axis-angle": "0", "group-axis-basis": "test"},
+        },
+        {
+            "id": "furniture_group_b",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=100, cy=0, width=20, height=20),
+            "member_ids": ["b_table", "b_chair"],
+            "furniture_affordance_extent_ids": ["b_table_extent", "b_chair_extent"],
+            "metadata": {"group-axis-angle": "0", "group-axis-basis": "test"},
+        },
+        {
+            "id": "furniture_group_c",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=200, cy=0, width=20, height=20),
+            "member_ids": ["c_table", "c_chair"],
+            "furniture_affordance_extent_ids": ["c_table_extent", "c_chair_extent"],
+            "metadata": {"group-axis-angle": "0", "group-axis-basis": "test"},
+        },
+    ]
+
+    evidence = region_position_grammar_evidence(groups)
+    item = evidence["items"][0]
+
+    assert item["subject_kind"] in {"activity_region", "room_scope"}
+    assert item["position-member-count"] == 3
+    assert item["position-slot-count"] == 3
+    assert item["assignments"] == [
+        "furniture_group_a",
+        "furniture_group_b",
+        "furniture_group_c",
+    ]
+    assert all("extent" not in assignment for assignment in item["assignments"])
+
+
+def test_position_grammar_grid_uses_local_frame_not_global_xy():
+    """Rotated grids should fit in local u/v coordinates."""
+    from features.position_grammar import position_grammar_evidence
+
+    group = {
+        "id": "furniture_group_rotated_grid",
+        "activity_region_id": "rotated_grid",
+        "rect": Rect(cx=100, cy=100, width=160, height=160),
+        "furniture_affordance_extent_ids": ["a", "b", "c", "d"],
+        "metadata": {
+            "group-axis-angle": "45",
+            "group-axis-strength": "1.0",
+            "group-axis-basis": "test",
+        },
+    }
+    extents = [
+        {"id": "a", "rect": Rect(cx=100, cy=57.57, width=12, height=12)},
+        {"id": "b", "rect": Rect(cx=142.43, cy=100, width=12, height=12)},
+        {"id": "c", "rect": Rect(cx=57.57, cy=100, width=12, height=12)},
+        {"id": "d", "rect": Rect(cx=100, cy=142.43, width=12, height=12)},
+    ]
+
+    item = position_grammar_evidence([group], extents)["items"][0]
+
+    assert item["position-grammar-type"] == "grid"
+    assert item["position-fit"] > 0.95
+    assert item["position-frame-angle"] == 45.0
+
+
+def test_position_grammar_uses_authored_slots_when_available():
+    """Authored slots should win over inferred grammar when complete."""
+    from features.position_grammar import position_grammar_evidence
+
+    group = {
+        "id": "furniture_group_authored",
+        "activity_region_id": "authored",
+        "rect": Rect(cx=50, cy=50, width=100, height=100),
+        "furniture_affordance_extent_ids": ["a", "b"],
+        "metadata": {
+            "group-axis-angle": "0",
+            "group-axis-basis": "test",
+            "position-slots": "a:0,0;b:50,0",
+        },
+    }
+    extents = [
+        {"id": "a", "rect": Rect(cx=50, cy=50, width=10, height=10)},
+        {"id": "b", "rect": Rect(cx=100, cy=50, width=10, height=10)},
+    ]
+
+    item = position_grammar_evidence([group], extents)["items"][0]
+
+    assert item["position-grammar-type"] == "authored"
+    assert item["position-fit"] == 1.0
+    assert item["position-confidence"] > 0.9
+
+
+def test_position_grammar_pair_scores_matched_offsets():
+    """Pair grammar should explain two symmetric members around the local center."""
+    from features.position_grammar import position_grammar_evidence
+
+    group = {
+        "id": "furniture_group_pair",
+        "activity_region_id": "pair",
+        "rect": Rect(cx=100, cy=100, width=120, height=60),
+        "furniture_affordance_extent_ids": ["left", "right"],
+        "metadata": {
+            "group-axis-angle": "0",
+            "group-axis-basis": "test",
+        },
+    }
+    extents = [
+        {"id": "left", "rect": Rect(cx=70, cy=100, width=20, height=20)},
+        {"id": "right", "rect": Rect(cx=130, cy=100, width=20, height=20)},
+    ]
+
+    item = position_grammar_evidence([group], extents)["items"][0]
+
+    assert item["position-grammar-type"] == "pair"
+    assert item["position-fit"] > 0.95
+
+
+def test_evaluator_emits_position_grammar_rows():
+    """Matrix should expose only fit and confidence as public position variables."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+
+    matrix = evaluate_scene(scene)
+    rows = {row["metric"]: row for row in matrix["rows"]}
+
+    assert rows["P_position_fit"]["view_id"] == "internal_order"
+    assert rows["P_position_fit"]["status"] == "computed"
+    assert rows["P_position_confidence"]["view_id"] == "internal_order"
+    assert rows["P_position_confidence"]["status"] == "computed"
+    assert "region_position_grammar_evidence" in rows["P_position_fit"]
+    assert "position_grammar_evidence" not in rows["P_position_fit"]
+    assert "position_grammar" not in matrix
+    assert "position_grammar" not in matrix["adapter_payload"]["evidence_geometry"]
+    assert "region_position_grammar" in matrix
+    assert "group_assembly_grammar" in matrix
+    assert "line_fit" not in rows
+    assert "grid_fit" not in rows
+    assert "pair_fit" not in rows
+
+
+def test_evaluator_position_rows_use_region_position_evidence():
+    """Public P_position rows should expose region-level group assignments."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+
+    matrix = evaluate_scene(scene)
+    rows = {row["metric"]: row for row in matrix["rows"]}
+    evidence = rows["P_position_fit"]["region_position_grammar_evidence"]
+
+    assert evidence
+    assert "position_grammar_evidence" not in rows["P_position_fit"]
+    assert all(item["subject_kind"] in {"activity_region", "room_scope"} for item in evidence)
+    assert all(
+        assignment.startswith("furniture_group_")
+        for item in evidence
+        for assignment in item["assignments"]
+    )
+
+
+def test_overlay_draws_position_grammar_residuals():
+    """Overlay should expose selected position grammar residual vectors."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    matrix = evaluate_scene(scene)
+
+    svg = scene_metric_overlay_svg(scene, matrix)
+
+    assert 'data-layer="position-grammar-residual"' in svg
+    assert 'data-layer="position-grammar-slot"' in svg
+
+
+def test_position_grammar_overlay_hides_unrelated_metric_layers():
+    """Focused overlay should draw only the position grammar proxy evidence."""
+    from features.scene_evaluator import scene_position_grammar_overlay_svg
+
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    matrix = evaluate_scene(scene)
+
+    svg = scene_position_grammar_overlay_svg(scene, matrix)
+
+    assert 'data-layer="position-grammar-slot"' in svg
+    assert 'data-layer="position-grammar-residual"' in svg
+    assert 'data-layer="region-axis"' not in svg
+    assert 'data-layer="inferred-region"' not in svg
+    assert 'data-layer="column-axis"' not in svg
+    assert 'data-layer="path-graph-edge"' not in svg
+
+
+def test_position_grammar_overlay_draws_group_slots_not_extent_slots():
+    """Focused position overlay should show furniture-group assignments only."""
+    from features.scene_evaluator import scene_position_grammar_overlay_svg
+
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    matrix = evaluate_scene(scene)
+
+    svg = scene_position_grammar_overlay_svg(scene, matrix)
+
+    assert 'data-layer="position-grammar-slot"' in svg
+    assert 'data-member="furniture_group_north_table_group_r1_c1"' in svg
+    assert "furniture_affordance_extent_" not in svg
+
+
+def test_position_grammar_overlay_draws_group_proxy_outlines():
+    """Focused overlay should draw furniture-group proxies, not object extents."""
+    from features.scene_evaluator import scene_position_grammar_overlay_svg
+
+    scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
+    matrix = evaluate_scene(scene)
+
+    svg = scene_position_grammar_overlay_svg(scene, matrix)
+
+    assert 'data-layer="position-grammar-group"' in svg
+    assert 'data-group="furniture_group_north_table_group_r1_c1"' in svg
+    assert 'data-group="furniture_group_north_tables"' not in svg
+    assert 'data-layer="position-grammar-extent"' not in svg
+
+
+def test_position_no_rotation_fixture_scores_position_without_rotation_signal():
+    """Position fixture should produce group-level evidence with zero rotations."""
+    scene = load_structured_svg_scene(Path("test/SVG_potionNoRotation.svg"))
+
+    matrix = evaluate_scene(scene)
+    rows = {row["metric"]: row for row in matrix["rows"]}
+    evidence = rows["P_position_fit"]["region_position_grammar_evidence"]
+
+    assert rows["P_position_fit"]["status"] == "computed"
+    assert evidence
+    assert all(item["position-member-count"] >= 2 for item in evidence)
+    assert all(
+        assignment.startswith("furniture_group_")
+        for item in evidence
+        for assignment in item["assignments"]
+    )
 
 
 def test_evaluate_scene_exposes_shared_spatial_network_schema():
@@ -13458,3 +13800,4 @@ def test_method_ledger_records_source_backed_method_decisions():
     assert "column_grid_handoff.region_bays.items" in text
     assert "column_grid_handoff.object_bay_local_positions.items" in text
     assert "local-frame containment proxy" in text
+
