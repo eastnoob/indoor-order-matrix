@@ -31,14 +31,10 @@ def load_structured_svg_scene(path: str | Path) -> dict:
         "regions": [],
         "uncertainties": [],
     }
-    _walk(root, inherited={"_allow_id_fallback": not _has_data_roles(root)}, scene=scene)
+    # SVG fixtures can be partially annotated while they evolve toward BIM-like
+    # metadata, so id fallback stays available only for elements missing a role.
+    _walk(root, inherited={"_allow_id_fallback": True}, scene=scene)
     return scene
-
-
-def _has_data_roles(root: ET.Element) -> bool:
-    """Return whether an SVG already carries explicit role metadata."""
-    return any("data-role" in element.attrib for element in root.iter())
-
 
 def _svg_size(root: ET.Element) -> tuple[float, float]:
     view_box = root.attrib.get("viewBox", "")

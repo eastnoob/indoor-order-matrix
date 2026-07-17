@@ -208,6 +208,38 @@ def test_svg_loader_preserves_explicit_furniture_group_id(tmp_path):
     assert {obj["furniture_group"] for obj in scene["objects"]} == {"dining_set_1"}
 
 
+def test_svg_loader_allows_partial_roles_with_id_fallback(tmp_path):
+    """SVG fixtures may mix BIM-like roles with legacy id-derived roles."""
+    svg = tmp_path / "mixed_roles.svg"
+    svg.write_text(
+        """
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <g id="north_tables">
+            <rect id="north_table" data-role="table" x="10" y="10" width="20" height="10" />
+          </g>
+          <g id="center_lounge">
+            <rect id="center_sofa" x="50" y="50" width="20" height="10" />
+          </g>
+        </svg>
+        """,
+        encoding="utf-8",
+    )
+
+    scene = load_structured_svg_scene(svg)
+
+    assert {obj["id"] for obj in scene["objects"]} == {
+        "north_table",
+        "center_sofa",
+    }
+    assert {
+        (obj["id"], obj["role"], obj["group"])
+        for obj in scene["objects"]
+    } == {
+        ("north_table", "table", "north_tables"),
+        ("center_sofa", "sofa", "center_lounge"),
+    }
+
+
 def test_svg_table_sets_are_distinct_furniture_groups_inside_north_region():
     """Each north table set should be a furniture group inside one region."""
     scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
@@ -230,6 +262,29 @@ def test_svg_table_sets_are_distinct_furniture_groups_inside_north_region():
         "north_table_group_r2_c3",
     }
     assert {obj["region"] for obj in north_objects} == {"north_tables"}
+
+
+def test_svg_table_sets_keep_table_and_chair_roles_inside_group():
+    """North table furniture groups should expose one table and four chairs."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+
+    north_objects = [
+        obj for obj in scene["objects"]
+        if obj["region"] == "north_tables"
+    ]
+    north_furniture_groups = {
+        obj["furniture_group"]
+        for obj in north_objects
+    }
+
+    for furniture_group in north_furniture_groups:
+        roles = [
+            obj["role"]
+            for obj in north_objects
+            if obj["furniture_group"] == furniture_group
+        ]
+        assert roles.count("table") == 1
+        assert roles.count("chair") == 4
 
 
 def test_adapter_payload_keeps_physical_columns_as_scene_records():
@@ -4671,6 +4726,21 @@ def test_position_grammar_overlay_draws_group_proxy_outlines():
     assert 'data-group="furniture_group_north_table_group_r1_c1"' in svg
     assert 'data-group="furniture_group_north_tables"' not in svg
     assert 'data-layer="position-grammar-extent"' not in svg
+
+
+def test_position_grammar_overlay_draws_object_basemap_context():
+    """Focused overlay should draw faint objects below group-level evidence."""
+    from features.scene_evaluator import scene_position_grammar_overlay_svg
+
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    matrix = evaluate_scene(scene)
+
+    svg = scene_position_grammar_overlay_svg(scene, matrix)
+
+    assert 'data-layer="position-basemap-object"' in svg
+    assert 'data-object="north_table_r1_c1"' in svg
+    assert 'data-layer="position-grammar-slot"' in svg
+    assert "furniture_affordance_extent_" not in svg
 
 
 def test_position_no_rotation_fixture_scores_position_without_rotation_signal():

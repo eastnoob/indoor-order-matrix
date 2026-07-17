@@ -1121,6 +1121,8 @@ def scene_metric_overlay_svg(
 def scene_position_grammar_overlay_svg(scene: dict, matrix: dict) -> str:
     """Draw only region-level furniture-group position grammar evidence."""
     layers = []
+    for obj in scene.get("objects", []):
+        layers.append(_position_basemap_object_svg(obj))
     for group in matrix.get("furniture_groups", []):
         layers.append(_position_grammar_group_svg(group))
     for item in _position_grammar_items(matrix):
@@ -1149,6 +1151,39 @@ def scene_position_grammar_overlay_svg(scene: dict, matrix: dict) -> str:
         'width="1000" height="1000">'
         + "".join(layers)
         + "</svg>"
+    )
+
+
+def _position_basemap_object_svg(obj: dict) -> str:
+    """Draw one neutral source object as faint context for position evidence."""
+    rect = obj["rect"]
+    attrs = (
+        f'data-layer="position-basemap-object" '
+        f'data-object="{escape(obj["id"])}" '
+        f'fill="#64748b" fill-opacity="0.10" '
+        f'stroke="#64748b" stroke-width="1" stroke-opacity="0.34"'
+    )
+    points = obj.get("points") or []
+    if len(points) >= 3:
+        # Preserve authored polygonal footprints when the SVG/BIM proxy provides
+        # them; the basemap is context only, not scoring evidence.
+        point_text = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
+        return (
+            f"<polygon {attrs} points=\"{point_text}\">"
+            f'<title>{escape(obj["id"])}</title></polygon>'
+        )
+    if obj.get("tag") in {"circle", "ellipse"}:
+        return (
+            f"<ellipse {attrs} "
+            f'cx="{rect.cx:.1f}" cy="{rect.cy:.1f}" '
+            f'rx="{rect.width / 2:.1f}" ry="{rect.height / 2:.1f}">'
+            f'<title>{escape(obj["id"])}</title></ellipse>'
+        )
+    return (
+        f"<rect {attrs} "
+        f'x="{rect.left:.1f}" y="{rect.top:.1f}" '
+        f'width="{rect.width:.1f}" height="{rect.height:.1f}">'
+        f'<title>{escape(obj["id"])}</title></rect>'
     )
 
 
