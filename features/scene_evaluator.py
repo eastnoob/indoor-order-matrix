@@ -14,7 +14,6 @@ from .affordance.grid_backend import _polygon_rect_overlap_area
 from .affordance.models import Polygon, Rect
 from .analyzer import OrderAnalyzer
 from .column_grid import column_grid_evidence
-from .position_grammar import group_assembly_grammar_evidence
 from .position_grammar import region_position_grammar_evidence
 from .scene_inference import build_inferred_region_gap_path_graph
 from .scene_inference import gap_path_clear_status
@@ -34,17 +33,25 @@ ADAPTER_READY_HANDOFFS = [
 ]
 
 
-def evaluate_scene(scene: dict) -> dict:
+def evaluate_scene(
+    scene: dict,
+    *,
+    position_grammar_enabled: bool = True,
+    allow_two_point_inferred_frame: bool = False,
+) -> dict:
     """Evaluate a parsed layout scene into stable, notebook-friendly rows."""
     objects = scene["objects"]
     inference = infer_scene_evidence(scene)
     affordance_zones = inference["affordance_zones"]
     furniture_affordance_extents = inference["furniture_affordance_extents"]
     furniture_groups = inference["furniture_groups"]
-    region_position_grammar = region_position_grammar_evidence(furniture_groups)
-    group_assembly_grammar = group_assembly_grammar_evidence(
-        furniture_groups,
-        furniture_affordance_extents,
+    region_position_grammar = (
+        region_position_grammar_evidence(
+            furniture_groups,
+            allow_two_point_inferred_frame=allow_two_point_inferred_frame,
+        )
+        if position_grammar_enabled
+        else _disabled_position_grammar()
     )
     inferred_region_candidates = inference["inferred_region_candidates"]
     inferred_regions = inference["inferred_regions"]
@@ -155,7 +162,6 @@ def evaluate_scene(scene: dict) -> dict:
         "furniture_affordance_extents": furniture_affordance_extents,
         "furniture_groups": furniture_groups,
         "region_position_grammar": region_position_grammar,
-        "group_assembly_grammar": group_assembly_grammar,
         "inferred_region_candidates": inferred_region_candidates,
         "inferred_regions": inferred_regions,
         "inferred_region_gap_paths": inferred_region_gap_paths,
@@ -175,7 +181,6 @@ def evaluate_scene(scene: dict) -> dict:
             furniture_affordance_extents,
             furniture_groups,
             region_position_grammar,
-            group_assembly_grammar,
             inferred_region_candidates,
             inferred_region_gap_paths,
             spatial_networks,
@@ -1726,6 +1731,11 @@ def _furniture_group_evidence(group: dict) -> dict:
 
 def _position_grammar_rows(position_grammar: dict) -> list[dict]:
     """Expose compact public position-order variables from grammar evidence."""
+    if position_grammar.get("status") == "disabled":
+        return [
+            _disabled_row("internal_order", "P_position_fit", "position grammar disabled"),
+            _disabled_row("internal_order", "P_position_confidence", "position grammar disabled"),
+        ]
     items = position_grammar.get("items", [])
     if not items:
         return [
@@ -1762,6 +1772,16 @@ def _position_grammar_rows(position_grammar: dict) -> list[dict]:
             "uncertainty": "confidence describes evidence reliability, not design quality",
         },
     ]
+
+
+def _disabled_position_grammar() -> dict:
+    """Return a stable empty payload when public position grammar is disabled."""
+    return {
+        "method": "region_level_furniture_group_position_grammar",
+        "status": "disabled",
+        "scopes": [],
+        "items": [],
+    }
 
 
 def _position_grammar_items(matrix: dict) -> list[dict]:
@@ -8588,7 +8608,6 @@ def _adapter_payload(
     furniture_affordance_extents: list[dict],
     furniture_groups: list[dict],
     region_position_grammar: dict,
-    group_assembly_grammar: dict,
     inferred_region_candidates: list[dict],
     inferred_region_gap_paths: list[dict],
     spatial_networks: list[dict],
@@ -8654,7 +8673,6 @@ def _adapter_payload(
         furniture_affordance_extents,
         furniture_groups,
         region_position_grammar,
-        group_assembly_grammar,
         inferred_region_candidates,
         inferred_region_gap_paths,
         spatial_networks,
@@ -9292,7 +9310,6 @@ def _adapter_evidence_geometry(
     furniture_affordance_extents: list[dict],
     furniture_groups: list[dict],
     region_position_grammar: dict,
-    group_assembly_grammar: dict,
     inferred_region_candidates: list[dict],
     inferred_region_gap_paths: list[dict],
     spatial_networks: list[dict],
@@ -9368,7 +9385,6 @@ def _adapter_evidence_geometry(
             ],
         },
         "region_position_grammar": region_position_grammar,
-        "group_assembly_grammar": group_assembly_grammar,
         "inferred_region_candidates": {
             "count": len(inferred_region_candidates),
             "items": [
@@ -9739,6 +9755,14 @@ def _not_available(view_id: str, metric: str, reason: str) -> dict:
         "evidence": [],
         "uncertainty": reason,
     }
+
+
+def _disabled_row(view_id: str, metric: str, reason: str) -> dict:
+    """Return a stable disabled metric row for independently switched modules."""
+    row = _not_available(view_id, metric, reason)
+    row["status"] = "disabled"
+    row["region_position_grammar_evidence"] = []
+    return row
 
 
 def _position_phase_score(points: list[tuple[float, float]], axis: str = "x") -> float:

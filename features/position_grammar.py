@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from itertools import combinations
 from math import atan2, cos, degrees, hypot, radians, sin
 from statistics import mean, pstdev
 
@@ -26,22 +27,23 @@ def group_assembly_grammar_evidence(
     }
 
 
-def position_grammar_evidence(
+def region_position_grammar_evidence(
     furniture_groups: list[dict],
-    extents: list[dict],
+    *,
+    allow_two_point_inferred_frame: bool = False,
 ) -> dict:
-    """Return legacy debug assembly evidence for older callers."""
-    return group_assembly_grammar_evidence(furniture_groups, extents)
-
-
-def region_position_grammar_evidence(furniture_groups: list[dict]) -> dict:
     """Build public position grammar evidence for furniture groups in scopes."""
     scopes = _position_scopes(furniture_groups)
     items = []
+    items_by_scope_id = {}
     for scope in scopes:
-        evidence = _scope_position_evidence(scope)
+        evidence = _scope_position_evidence(
+            scope,
+            allow_two_point_inferred_frame=allow_two_point_inferred_frame,
+        )
         if evidence is not None:
             items.append(evidence)
+            items_by_scope_id[scope["id"]] = evidence
     return {
         "method": "region_level_furniture_group_position_grammar",
         "scopes": [
@@ -49,8 +51,15 @@ def region_position_grammar_evidence(furniture_groups: list[dict]) -> dict:
                 "id": scope["id"],
                 "kind": scope["kind"],
                 "member_group_ids": list(scope["member_group_ids"]),
-                "position-frame-angle": scope["position-frame-angle"],
-                "position-frame-basis": scope["position-frame-basis"],
+                "position-frame-angle": (
+                    items_by_scope_id.get(scope["id"], {}).get("position-frame-angle")
+                ),
+                "position-frame-basis": (
+                    items_by_scope_id.get(scope["id"], {}).get(
+                        "position-frame-basis",
+                        scope["position-frame-basis"],
+                    )
+                ),
             }
             for scope in scopes
         ],
@@ -92,15 +101,16 @@ def _scope_record(scope_id: str, kind: str, groups: list[dict]) -> dict:
     """Return one position scope with a shared local frame."""
     sorted_groups = sorted(groups, key=lambda item: item["id"])
     rect = _bounds(sorted_groups)
-    frame = _scope_frame(sorted_groups, rect)
+    metadata = _scope_metadata(sorted_groups)
     return {
         "id": scope_id,
         "kind": kind,
         "member_group_ids": [group["id"] for group in sorted_groups],
         "groups": sorted_groups,
         "rect": rect,
-        "position-frame-angle": round(frame["angle"], 4),
-        "position-frame-basis": frame["basis"],
+        "metadata": metadata,
+        "position-frame-angle": None,
+        "position-frame-basis": "position_frame_selected_by_grammar",
     }
 
 
@@ -119,74 +129,75 @@ def _bounds(records: list[dict]):
     )
 
 
-def _scope_frame(groups: list[dict], rect) -> dict:
-    """Choose a local frame for group-position scoring without scoring rotation."""
+def _scope_metadata(groups: list[dict]) -> dict:
+    """Return authored position metadata shared by every group in a scope."""
     angles = []
     for group in groups:
-        raw = group.get("metadata", {}).get("group-axis-angle")
+        raw = group.get("metadata", {}).get("position-frame-angle")
         if raw is None:
-            continue
-        try:
-            angles.append(float(raw) % 180.0)
-        except (TypeError, ValueError):
-            continue
-    if angles:
-        # Axial angles are doubled before averaging so 0 and 180 remain equal.
-        x = mean(cos(radians(angle * 2.0)) for angle in angles)
-        y = mean(sin(radians(angle * 2.0)) for angle in angles)
-        angle = (0.5 * degrees(atan2(y, x))) % 180.0
-        return {"angle": angle, "basis": "furniture_group_frame_consensus"}
-    return {
-        "angle": 0.0 if rect.width >= rect.height else 90.0,
-        "basis": "scope_bbox_axis_weak",
-    }
+            return {}
+        angle = _parse_axial_angle(raw)
+        if angle is None:
+            return {}
+        angles.append(angle)
+    # Authored frames are scope metadata only when every group says the same
+    # axial frame. A single authored member must not steer the public scope.
+    rounded = {round(angle, 4) for angle in angles}
+    if len(rounded) == 1:
+        return {"position-frame-angle": rounded.pop()}
+    return {}
 
 
-def _scope_position_evidence(scope: dict) -> dict | None:
+def _parse_axial_angle(raw) -> float | None:
+    """Return a normalized axial angle or None when metadata is not numeric."""
+    try:
+        return float(raw) % 180.0
+    except (TypeError, ValueError):
+        return None
+
+
+def _scope_position_evidence(
+    scope: dict,
+    *,
+    allow_two_point_inferred_frame: bool,
+) -> dict | None:
     """Return selected grammar evidence for furniture groups inside one scope."""
     groups = scope["groups"]
     if len(groups) < 2:
         return None
-    frame = {
-        "angle": scope["position-frame-angle"],
-        "basis": scope["position-frame-basis"],
-    }
-    coords = [
+    base_coords = [
         {
             "id": group["id"],
             "x": group["rect"].cx,
             "y": group["rect"].cy,
-            "u": u,
-            "v": v,
             "scale": max(group["rect"].width, group["rect"].height, 1e-9),
         }
         for group in groups
-        for u, v in [
-            _project(
-                group["rect"].cx,
-                group["rect"].cy,
-                scope["rect"].cx,
-                scope["rect"].cy,
-                frame["angle"],
-            )
-        ]
     ]
     candidates = [
-        item
-        for item in (
-            _line_candidate(scope, coords, frame),
-            _pair_candidate(scope, coords, frame),
-            _grid_candidate(scope, coords, frame),
+        candidate
+        for frame_index, frame in enumerate(
+            _frame_candidates(
+                scope,
+                base_coords,
+                allow_two_point_inferred_frame=allow_two_point_inferred_frame,
+            )
         )
-        if item is not None
+        for coords in [_project_coords(base_coords, scope, frame)]
+        for candidate in _grammar_candidates(scope, coords, frame, frame_index)
     ]
     if not candidates:
         return None
-    # Fit chooses the explanatory grammar; complexity breaks near-ties toward
-    # the simpler system so line evidence does not inflate into a grid.
+    # Public position order is selected from position-only frames. Rotation and
+    # region trend evidence are intentionally absent from this competition.
     selected = sorted(
         candidates,
-        key=lambda item: (-item["position-fit"], item["complexity"]),
+        key=lambda item: (
+            -item["position-fit"],
+            0 if item["position-frame-basis"] == "authored_position_frame" else 1,
+            item["complexity"],
+            item["frame-priority"],
+        ),
     )[0]
     selected["subject_kind"] = scope["kind"]
     selected["subject_id"] = scope["id"]
@@ -195,6 +206,102 @@ def _scope_position_evidence(scope: dict) -> dict | None:
     )
     selected["scope-member-group-ids"] = list(scope["member_group_ids"])
     return selected
+
+
+def _frame_candidates(
+    scope: dict,
+    coords: list[dict],
+    *,
+    allow_two_point_inferred_frame: bool = False,
+) -> list[dict]:
+    """Return position-only frame candidates for one scope."""
+    raw = scope.get("metadata", {}).get("position-frame-angle")
+    candidates = []
+    angle = _parse_axial_angle(raw)
+    if angle is not None:
+        candidates.append((angle, "authored_position_frame"))
+    self_inferred_allowed = len(coords) >= 3 or allow_two_point_inferred_frame
+    if self_inferred_allowed:
+        # Two points cannot disprove their own connecting line, so this branch
+        # stays opt-in for two-point demo comparisons and default-on for 3+ points.
+        for first, second in combinations(coords, 2):
+            dx = second["x"] - first["x"]
+            dy = second["y"] - first["y"]
+            if hypot(dx, dy) > 1e-9:
+                candidates.append((degrees(atan2(dy, dx)), "position_pair_direction"))
+        pca = _pca_position_angle(coords)
+        if pca is not None:
+            candidates.append((pca, "position_pca_frame"))
+    candidates.extend([(0.0, "global_position_fallback"), (90.0, "global_position_fallback")])
+
+    frames = []
+    seen = set()
+    for angle, basis in candidates:
+        axial = angle % 180.0
+        key = round(axial, 4)
+        if key in seen:
+            continue
+        seen.add(key)
+        frames.append({"angle": axial, "basis": basis, "priority": len(frames)})
+    return frames
+
+
+def _pca_position_angle(coords: list[dict]) -> float | None:
+    """Return the principal axis of furniture-group centers, if meaningful."""
+    if len(coords) < 2:
+        return None
+    cx = mean(item["x"] for item in coords)
+    cy = mean(item["y"] for item in coords)
+    xx = mean((item["x"] - cx) ** 2 for item in coords)
+    yy = mean((item["y"] - cy) ** 2 for item in coords)
+    xy = mean((item["x"] - cx) * (item["y"] - cy) for item in coords)
+    if xx <= 1e-9 and yy <= 1e-9:
+        return None
+    return (0.5 * degrees(atan2(2.0 * xy, xx - yy))) % 180.0
+
+
+def _project_coords(base_coords: list[dict], scope: dict, frame: dict) -> list[dict]:
+    """Project scene centers into one candidate position frame."""
+    return [
+        {
+            **item,
+            "u": u,
+            "v": v,
+        }
+        for item in base_coords
+        for u, v in [
+            _project(
+                item["x"],
+                item["y"],
+                scope["rect"].cx,
+                scope["rect"].cy,
+                frame["angle"],
+            )
+        ]
+    ]
+
+
+def _grammar_candidates(
+    scope: dict,
+    coords: list[dict],
+    frame: dict,
+    frame_index: int,
+) -> list[dict]:
+    """Return scored position grammar candidates for one frame."""
+    candidates = [
+        item
+        for item in (
+            _line_candidate(scope, coords, frame),
+            _pair_candidate(scope, coords, frame),
+            _grid_candidate(scope, coords, frame),
+            _cluster_candidate(scope, coords, frame),
+            _unstructured_candidate(scope, coords, frame),
+        )
+        if item is not None
+    ]
+    for item in candidates:
+        item["frame-priority"] = frame_index
+    return candidates
 
 
 def _group_position_evidence(group: dict, members: list[dict]) -> dict | None:
@@ -354,6 +461,57 @@ def _grid_candidate(group: dict, coords: list[dict], frame: dict) -> dict | None
         slot_v = min(rows, key=lambda value: abs(value - item["v"]))
         residuals.append(_residual_record(item, slot_u, slot_v, group, frame, scale))
     return _evidence(group, frame, "grid", residuals, len(coords), slot_count, complexity=3)
+
+
+def _cluster_candidate(group: dict, coords: list[dict], frame: dict) -> dict | None:
+    """Score compact members around one centroid slot."""
+    if len(coords) < 3:
+        return None
+    slot_u = mean(item["u"] for item in coords)
+    slot_v = mean(item["v"] for item in coords)
+    scale = _stable_scale(_nearest_neighbor_distances(coords), coords, group)
+    residuals = [
+        _residual_record(item, slot_u, slot_v, group, frame, scale)
+        for item in coords
+    ]
+    return _evidence(group, frame, "cluster", residuals, len(coords), 1, complexity=4)
+
+
+def _unstructured_candidate(group: dict, coords: list[dict], frame: dict) -> dict:
+    """Return the always-available low-confidence fallback evidence."""
+    slot_u = mean(item["u"] for item in coords)
+    slot_v = mean(item["v"] for item in coords)
+    scale = _stable_scale(_nearest_neighbor_distances(coords), coords, group)
+    residuals = [
+        _residual_record(item, slot_u, slot_v, group, frame, scale)
+        for item in coords
+    ]
+    evidence = _evidence(
+        group,
+        frame,
+        "unstructured",
+        residuals,
+        len(coords),
+        1,
+        complexity=5,
+        fit=min(0.25, _fit(mean(item["normalized"] for item in residuals))),
+    )
+    evidence["position-confidence"] = min(evidence["position-confidence"], 0.25)
+    return evidence
+
+
+def _nearest_neighbor_distances(coords: list[dict]) -> list[float]:
+    """Return each point's nearest center distance for local scale estimation."""
+    distances = []
+    for item in coords:
+        others = [
+            hypot(item["u"] - other["u"], item["v"] - other["v"])
+            for other in coords
+            if other is not item
+        ]
+        if others:
+            distances.append(min(others))
+    return distances
 
 
 def _axis_slots(values: list[float], scale: float) -> list[float]:

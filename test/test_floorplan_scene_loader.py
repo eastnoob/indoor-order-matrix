@@ -4,6 +4,8 @@ from pathlib import Path
 import sys
 import xml.etree.ElementTree as ET
 
+import pytest
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -4470,7 +4472,7 @@ def test_evaluate_scene_exposes_furniture_groups_from_furniture_affordance_exten
 
 def test_position_grammar_line_fit_drops_for_shifted_member():
     """Line grammar should penalize a shifted member while keeping one public fit."""
-    from features.position_grammar import position_grammar_evidence
+    from features.position_grammar import group_assembly_grammar_evidence
 
     group = {
         "id": "furniture_group_row",
@@ -4494,8 +4496,8 @@ def test_position_grammar_line_fit_drops_for_shifted_member():
         {"id": "c", "rect": Rect(cx=200, cy=50, width=20, height=20)},
     ]
 
-    regular_fit = position_grammar_evidence([group], regular)["items"][0]
-    shifted_fit = position_grammar_evidence([group], shifted)["items"][0]
+    regular_fit = group_assembly_grammar_evidence([group], regular)["items"][0]
+    shifted_fit = group_assembly_grammar_evidence([group], shifted)["items"][0]
 
     assert regular_fit["position-grammar-type"] == "line"
     assert regular_fit["position-fit"] > shifted_fit["position-fit"]
@@ -4550,9 +4552,90 @@ def test_region_position_grammar_scores_furniture_groups_not_extents():
     assert all("extent" not in assignment for assignment in item["assignments"])
 
 
+def test_region_position_grammar_ignores_group_rotation_for_grid_positions():
+    """Position score should stay high when only furniture-group rotations vary."""
+    scene = load_structured_svg_scene(Path("test/SVG_chaoticsvg.svg"))
+
+    matrix = evaluate_scene(scene)
+    rows = {row["metric"]: row for row in matrix["rows"]}
+    north_table_evidence = [
+        item
+        for item in rows["P_position_fit"]["region_position_grammar_evidence"]
+        if item["subject_id"] == "position_scope_region_north_tables"
+    ]
+
+    assert len(north_table_evidence) == 1
+    assert north_table_evidence[0]["position-grammar-type"] == "grid"
+    assert north_table_evidence[0]["position-fit"] == pytest.approx(1.0)
+
+
+def test_position_grammar_can_be_disabled_without_touching_other_rows():
+    """Position grammar switch should only disable public position rows."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+
+    enabled = evaluate_scene(scene)
+    disabled = evaluate_scene(scene, position_grammar_enabled=False)
+    enabled_rows = {row["metric"]: row for row in enabled["rows"]}
+    disabled_rows = {row["metric"]: row for row in disabled["rows"]}
+
+    assert disabled_rows["P_position_fit"]["status"] == "disabled"
+    assert disabled_rows["P_position_fit"]["score"] is None
+    assert disabled_rows["P_position_fit"].get("region_position_grammar_evidence") == []
+    assert disabled_rows["P_position_confidence"]["status"] == "disabled"
+    assert disabled_rows["P_position_confidence"]["score"] is None
+    assert disabled_rows["P_position_confidence"].get("region_position_grammar_evidence") == []
+    assert disabled["region_position_grammar"]["status"] == "disabled"
+    assert disabled["region_position_grammar"]["items"] == []
+    assert disabled_rows["region_centroid_trend_alignment"]["status"] == (
+        enabled_rows["region_centroid_trend_alignment"]["status"]
+    )
+    assert disabled_rows["region_centroid_trend_alignment"]["score"] == (
+        enabled_rows["region_centroid_trend_alignment"]["score"]
+    )
+
+
+def test_region_position_grammar_selects_line_for_non_grid_layout():
+    """A straight non-grid layout should not be forced into grid evidence."""
+    from features.position_grammar import region_position_grammar_evidence
+
+    groups = [
+        {
+            "id": "furniture_group_line_a",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=0, cy=0, width=20, height=20),
+            "member_ids": ["a"],
+            "furniture_affordance_extent_ids": ["a"],
+            "metadata": {},
+        },
+        {
+            "id": "furniture_group_line_b",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=100, cy=0, width=20, height=20),
+            "member_ids": ["b"],
+            "furniture_affordance_extent_ids": ["b"],
+            "metadata": {},
+        },
+        {
+            "id": "furniture_group_line_c",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=200, cy=0, width=20, height=20),
+            "member_ids": ["c"],
+            "furniture_affordance_extent_ids": ["c"],
+            "metadata": {},
+        },
+    ]
+
+    evidence = region_position_grammar_evidence(groups)
+
+    assert evidence["items"][0]["position-grammar-type"] == "line"
+
+
 def test_position_grammar_grid_uses_local_frame_not_global_xy():
     """Rotated grids should fit in local u/v coordinates."""
-    from features.position_grammar import position_grammar_evidence
+    from features.position_grammar import group_assembly_grammar_evidence
 
     group = {
         "id": "furniture_group_rotated_grid",
@@ -4572,7 +4655,7 @@ def test_position_grammar_grid_uses_local_frame_not_global_xy():
         {"id": "d", "rect": Rect(cx=100, cy=142.43, width=12, height=12)},
     ]
 
-    item = position_grammar_evidence([group], extents)["items"][0]
+    item = group_assembly_grammar_evidence([group], extents)["items"][0]
 
     assert item["position-grammar-type"] == "grid"
     assert item["position-fit"] > 0.95
@@ -4581,7 +4664,7 @@ def test_position_grammar_grid_uses_local_frame_not_global_xy():
 
 def test_position_grammar_uses_authored_slots_when_available():
     """Authored slots should win over inferred grammar when complete."""
-    from features.position_grammar import position_grammar_evidence
+    from features.position_grammar import group_assembly_grammar_evidence
 
     group = {
         "id": "furniture_group_authored",
@@ -4599,7 +4682,7 @@ def test_position_grammar_uses_authored_slots_when_available():
         {"id": "b", "rect": Rect(cx=100, cy=50, width=10, height=10)},
     ]
 
-    item = position_grammar_evidence([group], extents)["items"][0]
+    item = group_assembly_grammar_evidence([group], extents)["items"][0]
 
     assert item["position-grammar-type"] == "authored"
     assert item["position-fit"] == 1.0
@@ -4608,7 +4691,7 @@ def test_position_grammar_uses_authored_slots_when_available():
 
 def test_position_grammar_pair_scores_matched_offsets():
     """Pair grammar should explain two symmetric members around the local center."""
-    from features.position_grammar import position_grammar_evidence
+    from features.position_grammar import group_assembly_grammar_evidence
 
     group = {
         "id": "furniture_group_pair",
@@ -4625,7 +4708,7 @@ def test_position_grammar_pair_scores_matched_offsets():
         {"id": "right", "rect": Rect(cx=130, cy=100, width=20, height=20)},
     ]
 
-    item = position_grammar_evidence([group], extents)["items"][0]
+    item = group_assembly_grammar_evidence([group], extents)["items"][0]
 
     assert item["position-grammar-type"] == "pair"
     assert item["position-fit"] > 0.95
@@ -4647,10 +4730,222 @@ def test_evaluator_emits_position_grammar_rows():
     assert "position_grammar" not in matrix
     assert "position_grammar" not in matrix["adapter_payload"]["evidence_geometry"]
     assert "region_position_grammar" in matrix
-    assert "group_assembly_grammar" in matrix
+    assert "group_assembly_grammar" not in matrix
+    assert "group_assembly_grammar" not in matrix["adapter_payload"]["evidence_geometry"]
     assert "line_fit" not in rows
     assert "grid_fit" not in rows
     assert "pair_fit" not in rows
+
+
+def test_region_position_grammar_uses_authored_position_frame():
+    """Authored position frames should be public position candidates."""
+    from features.position_grammar import region_position_grammar_evidence
+
+    groups = [
+        {
+            "id": "furniture_group_diag_a",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=0, cy=0, width=20, height=20),
+            "member_ids": ["a"],
+            "furniture_affordance_extent_ids": ["a"],
+            "metadata": {"position-frame-angle": "45"},
+        },
+        {
+            "id": "furniture_group_diag_b",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=100, cy=100, width=20, height=20),
+            "member_ids": ["b"],
+            "furniture_affordance_extent_ids": ["b"],
+            "metadata": {"position-frame-angle": "45"},
+        },
+    ]
+
+    item = region_position_grammar_evidence(groups)["items"][0]
+
+    assert item["position-frame-basis"] == "authored_position_frame"
+    assert item["position-frame-angle"] == 45.0
+
+
+def test_region_position_grammar_normalizes_shared_authored_frame_values():
+    """Equivalent authored frame values should remain shared scope metadata."""
+    from features.position_grammar import region_position_grammar_evidence
+
+    groups = [
+        {
+            "id": "furniture_group_diag_a",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=0, cy=0, width=20, height=20),
+            "member_ids": ["a"],
+            "furniture_affordance_extent_ids": ["a"],
+            "metadata": {"position-frame-angle": "45"},
+        },
+        {
+            "id": "furniture_group_diag_b",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=100, cy=100, width=20, height=20),
+            "member_ids": ["b"],
+            "furniture_affordance_extent_ids": ["b"],
+            "metadata": {"position-frame-angle": "45.0"},
+        },
+    ]
+
+    payload = region_position_grammar_evidence(groups)
+    item = payload["items"][0]
+
+    assert item["position-frame-basis"] == "authored_position_frame"
+    assert item["position-frame-angle"] == 45.0
+
+
+def test_region_position_grammar_requires_authored_frame_on_every_scope_member():
+    """One authored frame value should not bias a whole public position scope."""
+    from features.position_grammar import region_position_grammar_evidence
+
+    groups = [
+        {
+            "id": "furniture_group_diag_a",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=0, cy=0, width=20, height=20),
+            "member_ids": ["a"],
+            "furniture_affordance_extent_ids": ["a"],
+            "metadata": {"position-frame-angle": "45"},
+        },
+        {
+            "id": "furniture_group_diag_b",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=100, cy=100, width=20, height=20),
+            "member_ids": ["b"],
+            "furniture_affordance_extent_ids": ["b"],
+            "metadata": {},
+        },
+    ]
+
+    item = region_position_grammar_evidence(groups)["items"][0]
+
+    assert item["position-frame-basis"] != "authored_position_frame"
+
+
+def test_region_position_grammar_two_point_scope_does_not_self_infer_frame_by_default():
+    """Two furniture groups should not use their own connecting line as frame."""
+    from features.position_grammar import region_position_grammar_evidence
+
+    groups = [
+        {
+            "id": "furniture_group_pair_a",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=0, cy=0, width=20, height=20),
+            "member_ids": ["a"],
+            "furniture_affordance_extent_ids": ["a"],
+            "metadata": {},
+        },
+        {
+            "id": "furniture_group_pair_b",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=100, cy=100, width=20, height=20),
+            "member_ids": ["b"],
+            "furniture_affordance_extent_ids": ["b"],
+            "metadata": {},
+        },
+    ]
+
+    item = region_position_grammar_evidence(groups)["items"][0]
+
+    assert item["position-frame-basis"] == "global_position_fallback"
+    assert item["position-frame-angle"] in {0.0, 90.0}
+    assert item["position-residual-mean"] > 0
+    assert item["position-fit"] < 1.0
+
+
+def test_region_position_grammar_two_point_scope_can_opt_into_self_inferred_frame():
+    """The demo switch should expose the old two-point inferred frame behavior."""
+    from features.position_grammar import region_position_grammar_evidence
+
+    groups = [
+        {
+            "id": "furniture_group_pair_a",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=0, cy=0, width=20, height=20),
+            "member_ids": ["a"],
+            "furniture_affordance_extent_ids": ["a"],
+            "metadata": {},
+        },
+        {
+            "id": "furniture_group_pair_b",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=100, cy=100, width=20, height=20),
+            "member_ids": ["b"],
+            "furniture_affordance_extent_ids": ["b"],
+            "metadata": {},
+        },
+    ]
+
+    item = region_position_grammar_evidence(
+        groups,
+        allow_two_point_inferred_frame=True,
+    )["items"][0]
+
+    assert item["position-frame-basis"] == "position_pair_direction"
+    assert item["position-frame-angle"] == 45.0
+    assert item["position-fit"] == 1.0
+
+
+def test_position_no_rotation_center_lounge_no_false_two_point_residual():
+    """Center lounge should not self-score zero residual from two group centers."""
+    scene = load_structured_svg_scene(Path("test/SVG_potionNoRotation.svg"))
+
+    matrix = evaluate_scene(scene)
+    rows = {row["metric"]: row for row in matrix["rows"]}
+    item = [
+        evidence
+        for evidence in rows["P_position_fit"]["region_position_grammar_evidence"]
+        if evidence["subject_id"] == "position_scope_region_center_lounge"
+    ][0]
+
+    assert item["position-frame-basis"] != "position_pair_direction"
+    assert item["position-residual-mean"] > 0
+    assert item["position-fit"] < 1.0
+
+
+def test_region_position_grammar_scope_summary_reports_selected_frame():
+    """Scope summaries should mirror the selected public position frame."""
+    from features.position_grammar import region_position_grammar_evidence
+
+    groups = [
+        {
+            "id": "furniture_group_diag_a",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=0, cy=0, width=20, height=20),
+            "member_ids": ["a"],
+            "furniture_affordance_extent_ids": ["a"],
+            "metadata": {"position-frame-angle": "45"},
+        },
+        {
+            "id": "furniture_group_diag_b",
+            "activity_region_id": "room",
+            "region": "room",
+            "rect": Rect(cx=100, cy=100, width=20, height=20),
+            "member_ids": ["b"],
+            "furniture_affordance_extent_ids": ["b"],
+            "metadata": {"position-frame-angle": "45"},
+        },
+    ]
+
+    payload = region_position_grammar_evidence(groups)
+    scope = payload["scopes"][0]
+    item = payload["items"][0]
+
+    assert scope["position-frame-angle"] == item["position-frame-angle"]
+    assert scope["position-frame-basis"] == item["position-frame-basis"]
 
 
 def test_evaluator_position_rows_use_region_position_evidence():
