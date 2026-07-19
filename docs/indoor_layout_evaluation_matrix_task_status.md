@@ -10,6 +10,23 @@
 - Prompt coverage audit: `docs/indoor_layout_evaluation_matrix_prompt_coverage_audit.md`
 - Method decision ledger: `docs/indoor_layout_evaluation_matrix_method_ledger.md`
 
+## Current Index
+
+- VCS: use `jj`; keep working-copy changes clean before moving `master`.
+- Mainline rule: merge stable feature/fix changes often; keep `experiment:` and
+  `backup-` changes out of `master` until they become a formal feature/fix.
+- Stable latest change: `fix: prevent two-point position self-inference`.
+- Position grammar default: two furniture groups do not self-infer a scoring
+  frame from their own connecting line; demos may opt in explicitly.
+- SVG/BIM boundary: SVG remains a proxy input; matrix scoring reads neutral
+  furniture-group and authored metadata, not raw drawing intent.
+- Furniture grouping: explicit `data-furniture-group` is the canonical test
+  stand-in for BIM furniture-group semantics.
+- Current visual demo rule: default demo cells show real strict behavior;
+  explicit opt-in cells are marked as debug comparisons.
+- Current next likely work: keep tightening public metrics around explicit
+  semantic objects before adding broader BIM/Rhino plugin plumbing.
+
 ## Goal Requirements
 
 - [x] Preserve the full original task prompt as Markdown before writing the spec.
