@@ -15,6 +15,7 @@ from .affordance.models import Polygon, Rect
 from .analyzer import OrderAnalyzer
 from .column_grid import column_grid_evidence
 from .position_grammar import region_position_grammar_evidence
+from .room_analysis_model import build_room_analysis_model
 from .scene_inference import build_inferred_region_gap_path_graph
 from .scene_inference import gap_path_clear_status
 from .scene_inference import infer_scene_evidence
@@ -154,7 +155,8 @@ def evaluate_scene(
     rows.append(_uncertainty_route_row(rows))
     rows.append(_matrix_completion_audit_row())
     score_matrix = _score_matrix(rows)
-    return {
+    adapter_scene = _adapter_scene(scene, inferred_regions=inferred_regions)
+    matrix = {
         "source": scene["source"],
         "rows": rows,
         "score_matrix": score_matrix,
@@ -170,7 +172,7 @@ def evaluate_scene(
         "column_grid": column_grid,
         "inferred_region_gap_path_graph": inferred_region_gap_path_graph,
         "adapter_payload": _adapter_payload(
-            _adapter_scene(scene, inferred_regions=inferred_regions),
+            adapter_scene,
             rows,
             graphs,
             negative_space,
@@ -197,6 +199,8 @@ def evaluate_scene(
         "line_of_sight_graph": line_of_sight_graph,
         "isovist_radial_proxy": isovist_radial_proxy,
     }
+    matrix["room_analysis_model"] = build_room_analysis_model(adapter_scene, matrix)
+    return matrix
 
 
 def export_adapter_payload_json(scene: dict, target: str | Path) -> dict:

@@ -14166,3 +14166,62 @@ def test_method_ledger_records_source_backed_method_decisions():
     assert "column_grid_handoff.object_bay_local_positions.items" in text
     assert "local-frame containment proxy" in text
 
+
+def test_evaluate_scene_exports_room_analysis_model_layers():
+    scene = load_structured_svg_scene(Path("test/SVG_potionNoRotation.svg"))
+    matrix = evaluate_scene(scene)
+    model = matrix["room_analysis_model"]
+
+    assert model["contract"] == {"id": "room_analysis_model", "version": 1}
+    assert model["base_layer"]["room"]["id"] == "room"
+    assert model["object_layer"]["furniture_groups"]
+    assert model["region_layer"]["activity_regions"]
+    assert "spatial_networks" in model["network_layer"]
+    assert "column_grid" in model["reference_layer"]
+    assert model["metric_layer"]["metrics"]
+    assert model["summary_layer"]["summaries"]
+
+
+def test_room_analysis_model_maps_position_to_static_scope_not_subject():
+    scene = load_structured_svg_scene(Path("test/SVG_potionNoRotation.svg"))
+    model = evaluate_scene(scene)["room_analysis_model"]
+
+    position_metrics = [
+        item
+        for item in model["metric_layer"]["metrics"]
+        if item["metric"] == "P_position_fit"
+    ]
+
+    assert position_metrics
+    assert {item["target_layer"] for item in position_metrics} <= {
+        "ActivityRegion",
+        "RoomScope",
+    }
+    assert all("subject_id" not in item for item in position_metrics)
+
+
+@pytest.mark.parametrize(
+    "fixture",
+    [
+        "test/SVG_baseline.svg",
+        "test/SVG_oblique.svg",
+        "test/SVG_chaoticsvg.svg",
+        "test/SVG_potionNoRotation.svg",
+    ],
+)
+def test_room_analysis_model_builds_for_svg_fixtures(fixture):
+    scene = load_structured_svg_scene(Path(fixture))
+    model = evaluate_scene(scene)["room_analysis_model"]
+
+    assert set(model) == {
+        "contract",
+        "source",
+        "base_layer",
+        "object_layer",
+        "region_layer",
+        "network_layer",
+        "reference_layer",
+        "metric_layer",
+        "summary_layer",
+    }
+

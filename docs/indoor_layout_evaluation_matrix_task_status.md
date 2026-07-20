@@ -26,6 +26,10 @@
   explicit opt-in cells are marked as debug comparisons.
 - Current next likely work: keep tightening public metrics around explicit
   semantic objects before adding broader BIM/Rhino plugin plumbing.
+- Current saved feature change: `feat: add room analysis model foundation`.
+- RoomAnalysisModel status: focused tests and notebook execution pass; full
+  pytest is still red from legacy fixture/expectation drift, so the feature is
+  saved but not merge-ready.
 
 ## Goal Requirements
 
@@ -39,6 +43,35 @@
 - [ ] Review against the original prompt before claiming completion.
 
 ## Current Task State
+
+2026-07-20, RoomAnalysisModel foundation pass:
+
+- Added a static `RoomAnalysisModel` export at
+  `evaluate_scene(scene)["room_analysis_model"]`.
+- The model organizes existing outputs into:
+  - `base_layer`;
+  - `object_layer`;
+  - `region_layer`;
+  - `network_layer`;
+  - `reference_layer`;
+  - `metric_layer`;
+  - `summary_layer`.
+- Added `features/room_analysis_model.py` as a model builder that adapts current
+  neutral scene and matrix rows without moving working region, trend, position,
+  path, boundary, or column-grid algorithms.
+- Added concise interface and development-standard notes:
+  - `docs/room_analysis_model_interface.md`;
+  - `docs/room_analysis_model_development_standard.md`.
+- Added notebook demo:
+  - `test/room_analysis_model_demo.ipynb`;
+  - executed output at `test/output/room_analysis_model_demo.executed.ipynb`.
+- Verification:
+  - focused RoomAnalysisModel pytest checks: `6 passed`;
+  - notebook execution: passed through `nbclient`;
+  - full pytest: `270 passed, 14 failed`.
+- Merge boundary:
+  - do not mark this change merge-ready until the existing fixture/test drift is
+    reconciled or accepted as the current non-green baseline.
 
 2026-07-09, member-frame trend ground truth pass:
 

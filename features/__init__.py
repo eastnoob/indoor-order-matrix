@@ -25,6 +25,7 @@ from .scene_evaluator import (
     validate_adapter_payload_json,
 )
 from .scene_loader import load_structured_svg_scene
+from .room_analysis_model import build_room_analysis_model
 
 __all__ = [
     "OrderAnalyzer",
@@ -39,4 +40,5 @@ __all__ = [
     "load_structured_svg_scene",
     "scene_metric_overlay_svg",
     "validate_adapter_payload_json",
+    "build_room_analysis_model",
 ]
