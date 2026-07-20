@@ -10653,6 +10653,50 @@ def test_column_alignment_reports_object_axis_phase_score():
     ]
 
 
+def test_object_to_grid_rows_are_diagnostic_by_default():
+    """Object-to-grid evidence should be optional diagnostics, not main scoring."""
+    scene = {
+        "source": "unit",
+        "size": (200.0, 200.0),
+        "objects": [
+            {
+                "id": "chair_loose",
+                "role": "chair",
+                "group": "seating",
+                "region": "seating",
+                "rect": Rect(cx=30, cy=30, width=20, height=20),
+                "metadata": {},
+            }
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [],
+        "columns": [],
+        "column_axes": [
+            {"id": "x0", "role": "column_axis", "rect": Rect(cx=100, cy=0, width=200, height=0), "points": [(0, 0), (200, 0)], "metadata": {"branch-id": "main", "axis-list": "x"}},
+            {"id": "x1", "role": "column_axis", "rect": Rect(cx=100, cy=100, width=200, height=0), "points": [(0, 100), (200, 100)], "metadata": {"branch-id": "main", "axis-list": "x"}},
+            {"id": "y0", "role": "column_axis", "rect": Rect(cx=0, cy=50, width=0, height=100), "points": [(0, 0), (0, 100)], "metadata": {"branch-id": "main", "axis-list": "y"}},
+            {"id": "y1", "role": "column_axis", "rect": Rect(cx=100, cy=50, width=0, height=100), "points": [(100, 0), (100, 100)], "metadata": {"branch-id": "main", "axis-list": "y"}},
+        ],
+    }
+
+    matrix = evaluate_scene(scene)
+    rows = {
+        row["metric"]: row
+        for row in matrix["rows"]
+        if row["view_id"] == "column_alignment"
+    }
+
+    assert rows["object_column_axis_phase_alignment"]["scoring_role"] == "diagnostic"
+    assert rows["object_column_axis_phase_alignment"]["default_enabled"] is False
+    assert rows["object_column_bay_local_position_coverage"]["scoring_role"] == "diagnostic"
+    assert rows["object_column_bay_local_position_coverage"]["default_enabled"] is False
+    excluded = matrix["score_matrix"]["excluded_metrics"]
+    assert "column_alignment.object_column_axis_phase_alignment" in excluded
+    assert "column_alignment.object_column_bay_local_position_coverage" in excluded
+
+
 def test_region_alignment_uses_pca_axis_for_irregular_polygons():
     from features.affordance.models import Rect
 
@@ -10848,6 +10892,7 @@ def test_column_alignment_reports_non_orthogonal_region_to_bay_fit():
 
 
 def test_column_alignment_reports_object_local_position_in_slanted_bay():
+    """Column alignment should report object bay-local positions in slanted bays."""
     from features.affordance.models import Rect
 
     def record(record_id, role, rect, points=None):
@@ -10904,6 +10949,10 @@ def test_column_alignment_reports_object_local_position_in_slanted_bay():
     assert local_position == {
         "view_id": "column_alignment",
         "metric": "object_column_bay_local_position_coverage",
+        "layer": "object_to_grid",
+        "scoring_role": "diagnostic",
+        "default_enabled": False,
+        "policy": "object_to_grid_diagnostic",
         "score": 0.5,
         "status": "computed",
         "method": "object_center_affine_position_in_nearest_column_bay",

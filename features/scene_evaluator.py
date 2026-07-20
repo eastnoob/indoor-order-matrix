@@ -2378,6 +2378,7 @@ def _region_record_overlap_area(region: dict, rect: Rect) -> float:
 
 
 def _column_alignment_rows(scene: dict) -> list[dict]:
+    """Return legacy column-axis and column-bay alignment rows for the scene."""
     columns = scene.get("column_axes", [])
     if not columns:
         return [_not_available(
@@ -2426,6 +2427,10 @@ def _column_alignment_rows(scene: dict) -> list[dict]:
             {
                 "view_id": "column_alignment",
                 "metric": "object_column_axis_phase_alignment",
+                "layer": "object_to_grid",
+                "scoring_role": "diagnostic",
+                "default_enabled": False,
+                "policy": "object_to_grid_diagnostic",
                 "score": round(mean(item["score"] for item in phase_evidence), 4),
                 "status": "computed",
                 "method": "object_center_to_nearest_column_axis_distance_kernel",
@@ -2444,6 +2449,10 @@ def _column_alignment_rows(scene: dict) -> list[dict]:
             {
                 "view_id": "column_alignment",
                 "metric": "object_column_bay_local_position_coverage",
+                "layer": "object_to_grid",
+                "scoring_role": "diagnostic",
+                "default_enabled": False,
+                "policy": "object_to_grid_diagnostic",
                 "score": round(mean(item["score"] for item in local_position_evidence), 4),
                 "status": "computed",
                 "method": "object_center_affine_position_in_nearest_column_bay",
@@ -8591,9 +8600,14 @@ def _score_matrix(rows: list[dict]) -> dict:
 
 
 def _score_matrix_excluded_metric(row: dict) -> bool:
+    """Return whether a computed row is evidence-only for aggregate scoring."""
     metric = row["metric"]
     return (
         row["view_id"] in {"boundary_connectivity", "uncertainties"}
+        # Policy metadata keeps diagnostic and summary rows auditable without
+        # letting them enter the default aggregate score.
+        or row.get("scoring_role") in {"diagnostic", "summary"}
+        or row.get("default_enabled") is False
         or metric.endswith("_count")
         or metric.endswith("_count_mean")
         or "count" in metric
