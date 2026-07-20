@@ -386,6 +386,37 @@ def test_inter_region_to_grid_uses_spatial_network_edges():
     assert {item["target_layer"] for item in model_items} == {"SpatialNetwork"}
 
 
+def test_whole_room_to_grid_is_summary_only():
+    """Whole-room grid relation should summarize lower layers instead of inventing a trend."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    matrix = evaluate_scene(scene)
+    rows = {
+        row["metric"]: row
+        for row in matrix["rows"]
+        if row["view_id"] == "column_alignment"
+    }
+
+    summary = rows["column_grid_whole_room_summary"]
+
+    assert summary["layer"] == "whole_room_to_grid"
+    assert summary["scoring_role"] == "summary"
+    assert summary["target_layer"] == "Room"
+    assert summary["target_id"] == "room"
+    assert "column_grid_C_local_profile" in summary["source_metrics"]
+    assert "column_grid_inter_region_alignment" in summary["source_metrics"]
+    assert (
+        "column_alignment.column_grid_whole_room_summary"
+        in matrix["score_matrix"]["excluded_metrics"]
+    )
+    model_items = [
+        item
+        for item in matrix["room_analysis_model"]["metric_layer"]["metrics"]
+        if item["metric"] == "column_grid_whole_room_summary"
+    ]
+    assert model_items
+    assert {item["target_layer"] for item in model_items} == {"Room"}
+
+
 def test_inter_region_to_grid_skips_column_grid_branches_without_angle():
     """Inter-region grid evidence should degrade when branch frames lack angles."""
     from features.scene_evaluator import _column_grid_relation_rows

@@ -2496,11 +2496,13 @@ def _column_grid_relation_rows(
     gap_paths = gap_paths or []
     if column_grid.get("status") != "computed":
         reason = column_grid.get("reason", "missing column-grid support")
-        return [
+        rows = [
             _not_available("column_alignment", "column_grid_C_global", reason),
             _not_available("column_alignment", "column_grid_C_local_profile", reason),
             _inter_region_column_grid_row(column_grid, spatial_networks, gap_paths),
         ]
+        rows.append(_column_grid_whole_room_summary_row(rows))
+        return rows
 
     global_relations = column_grid.get("global_relations", [])
     local_profiles = column_grid.get("local_profiles", [])
@@ -2552,6 +2554,7 @@ def _column_grid_relation_rows(
             )
         )
     rows.append(_inter_region_column_grid_row(column_grid, spatial_networks, gap_paths))
+    rows.append(_column_grid_whole_room_summary_row(rows))
     return rows
 
 
@@ -2623,6 +2626,53 @@ def _inter_region_column_grid_row(
         "evidence": [item["target_id"] for item in evidence],
         "inter_region_column_grid_evidence": evidence,
         "uncertainty": "uses existing inferred gap-path orientation; not a new pathfinding or corridor extraction system",
+    }
+
+
+def _column_grid_whole_room_summary_row(rows: list[dict]) -> dict:
+    """Summarize enabled region and inter-region column-grid evidence."""
+    source_metrics = {
+        row["metric"]: row
+        for row in rows
+        if row.get("metric")
+        in {"column_grid_C_local_profile", "column_grid_inter_region_alignment"}
+    }
+    # Summary scoring only averages already-computed lower-layer rows, so it
+    # does not invent a separate whole-room trend from the SVG proxy.
+    scores = [
+        row["score"]
+        for row in source_metrics.values()
+        if row.get("status") == "computed" and isinstance(row.get("score"), (int, float))
+    ]
+    if not scores:
+        row = _not_available(
+            "column_alignment",
+            "column_grid_whole_room_summary",
+            "no enabled region or inter-region column-grid evidence",
+        )
+        row.update(
+            {
+                "layer": "whole_room_to_grid",
+                "scoring_role": "summary",
+                "target_layer": "Room",
+                "target_id": "room",
+                "source_metrics": sorted(source_metrics),
+            }
+        )
+        return row
+    return {
+        "view_id": "column_alignment",
+        "metric": "column_grid_whole_room_summary",
+        "layer": "whole_room_to_grid",
+        "scoring_role": "summary",
+        "target_layer": "Room",
+        "target_id": "room",
+        "score": round(mean(scores), 4),
+        "status": "computed",
+        "method": "summary_mean_of_region_and_inter_region_column_grid_rows",
+        "source_metrics": sorted(source_metrics),
+        "evidence": sorted(source_metrics),
+        "uncertainty": "summary over lower column-grid layers; does not introduce an independent whole-room trend",
     }
 
 

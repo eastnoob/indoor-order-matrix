@@ -183,6 +183,19 @@ def _column_grid_metric_records(row: dict) -> list[dict]:
             )
             for item in row.get("inter_region_column_grid_evidence", [])
         ]
+    if metric == "column_grid_whole_room_summary":
+        return [
+            _evidence_metric_record(
+                row,
+                target_layer="Room",
+                target_id="room",
+                value=row.get("score"),
+                evidence={
+                    "source_metrics": row.get("source_metrics", []),
+                    "scoring_role": row.get("scoring_role"),
+                },
+            )
+        ]
     return []
 
 
