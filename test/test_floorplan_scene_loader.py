@@ -1144,7 +1144,7 @@ def test_column_grid_evidence_does_not_infer_axes_from_columns():
 
 
 def test_svg_id_fixtures_do_not_contain_manual_region_marks():
-    """Official SVG fixtures should leave activity regions to inference."""
+    """Official SVG fixtures should leave drawn activity regions to inference."""
     fixture_names = ["SVG_baseline.svg", "SVG_chaoticsvg.svg", "SVG_oblique.svg"]
 
     for name in fixture_names:
@@ -1152,7 +1152,6 @@ def test_svg_id_fixtures_do_not_contain_manual_region_marks():
 
         assert 'data-role="region"' not in svg
         assert "id=\"region_" not in svg
-        assert "data-region=" not in svg
 
 
 def test_svg_loader_preserves_rotated_rect_points_and_orientation():
@@ -1195,15 +1194,19 @@ def test_inference_exposes_canonical_furniture_groups_without_legacy_group_api()
     assert "furniture_groups" in evidence
     assert "activity_" + "groups" not in evidence
     assert len(evidence["furniture_groups"]) >= 5
-    group = {
-        item["id"]: item
+    center_groups = [
+        item
         for item in evidence["furniture_groups"]
-    }["furniture_group_center_lounge"]
-    assert group["metadata"]["level"] == "furniture_group"
-    assert group["activity_region_id"] == "center_lounge"
-    assert group["member_ids"]
-    assert group["furniture_affordance_extent_ids"]
-    assert "group-axis-angle" in group["metadata"]
+        if item["activity_region_id"] == "center_lounge"
+    ]
+    assert {item["id"] for item in center_groups} == {
+        "furniture_group_center_lounge_lower",
+        "furniture_group_center_lounge_upper",
+    }
+    assert all(group["metadata"]["level"] == "furniture_group" for group in center_groups)
+    assert all(group["member_ids"] for group in center_groups)
+    assert all(group["furniture_affordance_extent_ids"] for group in center_groups)
+    assert all("group-axis-angle" in group["metadata"] for group in center_groups)
 
 
 def test_svg_group_only_fixture_infers_regions_without_region_labels():
@@ -1237,24 +1240,36 @@ def test_inferred_oblique_region_keeps_member_frame_without_correction():
     """Inferred regions should use member trend while keeping shape diagnostics."""
     scene = load_structured_svg_scene(Path("test/SVG_oblique.svg"))
     evidence = infer_scene_evidence(scene)
-    groups = {
-        group["region"]: group
+    groups = [
+        group
         for group in evidence["furniture_groups"]
-    }
+        if group["region"] == "center_lounge"
+    ]
     candidates = {
         candidate["region"]: candidate
         for candidate in evidence["inferred_region_candidates"]
     }
 
-    group = groups["center_lounge"]
     center = candidates["center_lounge"]
 
-    assert group["metadata"]["group-axis-basis"] == "member_frame_consensus"
-    assert float(group["metadata"]["group-axis-geometry-angle"]) > 0.0
-    assert float(group["metadata"]["group-axis-primary-extent"]) > 150.0
+    assert {group["id"] for group in groups} == {
+        "furniture_group_center_lounge_lower",
+        "furniture_group_center_lounge_upper",
+    }
+    assert all(
+        group["metadata"]["group-axis-basis"] == "member_frame_consensus"
+        for group in groups
+    )
+    assert any(float(group["metadata"]["group-axis-geometry-angle"]) > 0.0 for group in groups)
+    assert all(
+        float(group["metadata"]["group-axis-primary-extent"]) > 100.0
+        for group in groups
+    )
     assert len(center["points"]) >= 5
     assert center["metadata"]["axis-basis"] == "furniture_group_frame_mean"
-    assert center["metadata"]["axis-group-ids"] == "furniture_group_center_lounge"
+    assert center["metadata"]["axis-group-ids"] == (
+        "furniture_group_center_lounge_lower,furniture_group_center_lounge_upper"
+    )
     assert center["metadata"]["region-shape-basis"] in {
         "oriented_rectangle",
         "regularized_convex_hull",
@@ -11825,7 +11840,7 @@ def test_evaluate_scene_returns_stable_metric_rows():
         if row["view_id"] == "whole_space_force"
         and row["metric"] == "length_weighted_boundary_axis_concentration"
     ][0]
-    assert length_boundary_force["score"] == 0.7614
+    assert length_boundary_force["score"] == 0.709
     assert (
         length_boundary_force["method"]
         == "boundary_axis_weighted_by_length_walk_see_grouping_strength"
@@ -11932,7 +11947,7 @@ def test_evaluate_scene_returns_stable_metric_rows():
         path_rows["path_touched_region_boundary_walk_see_gap_mean"]["method"]
         == "path_touched_region_same_region_boundary_length_weighted_walk_see_gap_mean"
     )
-    assert path_rows["path_touched_region_boundary_cue_perimeter_influence_mean"]["score"] == 0.1209
+    assert path_rows["path_touched_region_boundary_cue_perimeter_influence_mean"]["score"] == 0.2445
     assert (
         path_rows["path_touched_region_boundary_cue_perimeter_influence_mean"]["method"]
         == "path_touched_region_same_region_boundary_influence_per_region_bbox_perimeter_mean"

@@ -27,9 +27,12 @@
 - Current next likely work: keep tightening public metrics around explicit
   semantic objects before adding broader BIM/Rhino plugin plumbing.
 - Current saved feature change: `feat: add room analysis model foundation`.
-- RoomAnalysisModel status: focused tests and notebook execution pass; full
-  pytest is still red from legacy fixture/expectation drift, so the feature is
-  saved but not merge-ready.
+- Current follow-up fix: reconciles SVG fixture semantics with the full suite by
+  ignoring furniture-group container ids as furniture, preserving plain vertical
+  rect orientation, and feeding all furniture groups into inferred-region trend
+  metadata.
+- RoomAnalysisModel status: focused tests, notebook execution, and full pytest
+  are green; the feature is ready for jj integration after review.
 
 ## Goal Requirements
 
@@ -68,10 +71,10 @@
 - Verification:
   - focused RoomAnalysisModel pytest checks: `6 passed`;
   - notebook execution: passed through `nbclient`;
-  - full pytest: `270 passed, 14 failed`.
+  - full pytest after follow-up fix: `284 passed`.
 - Merge boundary:
-  - do not mark this change merge-ready until the existing fixture/test drift is
-    reconciled or accepted as the current non-green baseline.
+  - fixture/test drift has been reconciled in the follow-up jj change; merge can
+    proceed after normal review.
 
 2026-07-09, member-frame trend ground truth pass:
 

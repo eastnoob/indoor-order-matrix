@@ -32,6 +32,13 @@ All new or modified project-owned code must include English comments at two leve
 
 Do not add noisy comments that merely restate obvious assignments. Vendored OCTA toolbox code is exempt unless it is edited.
 
+## Project Memory
+
+For layout-matrix work, read `docs/indoor_layout_evaluation_matrix_architecture_memory.md` first.
+Read `docs/room_analysis_model_development_standard.md` when adding model layers or metrics.
+Read `docs/room_analysis_model_interface.md` only when changing the exported `room_analysis_model` shape.
+Use `docs/indoor_layout_evaluation_matrix_task_status.md` only as a history ledger; do not load it by default for ordinary feature work.
+
 ## Architecture
 
 This project is a **thin wrapper** (`analyzer.py`) around the embedded OCTA toolbox (`OCTA_toolbox-master/`), which is included as source rather than a package dependency.

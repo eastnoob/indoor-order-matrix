@@ -496,10 +496,11 @@ def gap_path_clear_status(occupancy_ratio: float) -> str:
 
 def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
     """Create unexpanded region candidates from semantic furniture group keys."""
-    groups_by_region = {
-        group["region"]: group
-        for group in furniture_groups(scene)
-    }
+    groups_by_region: dict[str, list[dict]] = {}
+    for group in furniture_groups(scene):
+        # Activity regions can contain several furniture groups; keeping only
+        # one group makes region trend look falsely strong and single-sourced.
+        groups_by_region.setdefault(group["region"], []).append(group)
     # Group objects by neutral region keys, falling back to BIM furniture-group
     # keys when a base map has not already assigned final activity regions.
     region_keys = sorted(
@@ -554,7 +555,7 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
                 candidate,
                 members,
                 rects,
-                [groups_by_region[region_key]] if region_key in groups_by_region else [],
+                groups_by_region.get(region_key, []),
                 scene.get("size", (0.0, 0.0)),
             )
         )

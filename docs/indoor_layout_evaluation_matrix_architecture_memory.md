@@ -8,6 +8,13 @@ SVG is a neutral BIM proxy/base map. SVG does not define the evaluation matrix.
 
 The SVG fixture is only a compact way to provide objective layout records while the BIM/Rhino adapter is not live yet. It may carry geometry, roles, ids, grouping keys, affordance metadata, boundary weights, entries, paths, and adapter references, but those attributes are input data only.
 
+## Reading Rule
+
+Read this memory first when adding layout abstractions or changing inference/evaluation boundaries.
+Read `docs/room_analysis_model_development_standard.md` when adding a model layer or metric.
+Read `docs/room_analysis_model_interface.md` only when changing the exported `room_analysis_model` shape.
+Use `docs/indoor_layout_evaluation_matrix_task_status.md` as a history ledger only when auditing old decisions; do not load it by default for ordinary feature work.
+
 ## Layer Contract
 
 1. `features/scene_loader.py` converts SVG into a Neutral Scene.

@@ -28,10 +28,11 @@
 - Focused RoomAnalysisModel pytest checks passed: `6 passed`.
 - Notebook execution succeeded with `nbclient`:
   `test/output/room_analysis_model_demo.executed.ipynb`.
-- Full pytest is not green: `270 passed, 14 failed`.
-- The failing full-suite tests are legacy fixture/expectation drift outside this
-  change's touched runtime files, so this change is saved but not marked
-  merge-ready.
+- Full pytest is green after the follow-up fixture/loader reconciliation:
+  `284 passed`.
+- The follow-up fixed SVG furniture-group container parsing, plain vertical rect
+  orientation, and multi-group inferred-region trend input, so this feature can
+  be treated as merge-ready once the current jj change is integrated.
 
 ## Task 1: Add RoomAnalysisModel Builder
 
@@ -299,6 +300,9 @@ Expected: pass.
 Actual closure result: failed with 14 legacy fixture/expectation failures. Do
 not merge this change until that separate suite drift is reconciled or the team
 accepts a non-green baseline.
+
+Follow-up closure result: the suite drift was reconciled in the next jj change.
+Full pytest now reports `284 passed`.
 
 - [x] **Step 3: Check jj status**
 

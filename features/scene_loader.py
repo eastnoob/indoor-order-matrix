@@ -135,6 +135,13 @@ def _shape_record(tag: str, attrib: dict, meta: dict) -> dict | None:
         # globally horizontal.
         orientation = _points_orientation(points)
         metadata["orientation"] = str(round(orientation % 360.0, 4))
+    elif abs(orientation) < 1e-9 and tag == "rect":
+        # Some exported SVGs encode object orientation as a plain vertical rect
+        # inside an id-bearing group, with no transform matrix or polygon path.
+        orientation = _rect_aspect_orientation(attrib)
+        metadata["orientation"] = str(round(orientation % 360.0, 4))
+        if orientation:
+            points = _plain_rect_points(attrib)
     if role in {"column_axis", "column_grid"}:
         # Column axes are authored grid centerlines. Filled/dashed SVG paths may
         # carry many outline points, so collapse line-like bboxes before metrics.
@@ -186,6 +193,10 @@ def _role_from_id(record_id: str | None, tag: str) -> str | None:
     if not record_id:
         return None
     lowered = record_id.lower()
+    if lowered.endswith("_group") or "_group_" in lowered:
+        # Furniture-group containers are semantic scopes, not furniture objects.
+        # Children without their own ids must not inherit a group id as a role.
+        return None
     if lowered.startswith("region_"):
         return None
     if "entry" in lowered:
@@ -504,6 +515,28 @@ def _points_orientation(points: list[tuple[float, float]]) -> float:
             best_length = length
             best_angle = degrees(atan2(dy, dx)) % 180.0
     return best_angle
+
+
+def _rect_aspect_orientation(attrib: dict) -> float:
+    """Infer orientation for untransformed rects whose aspect carries direction."""
+    width = float(attrib.get("width", 0) or 0)
+    height = float(attrib.get("height", 0) or 0)
+    return 90.0 if height > width else 0.0
+
+
+def _plain_rect_points(attrib: dict) -> list[tuple[float, float]]:
+    """Return corners for an untransformed rect that still carries orientation."""
+    x = float(attrib.get("x", 0) or 0)
+    y = float(attrib.get("y", 0) or 0)
+    width = float(attrib.get("width", 0) or 0)
+    height = float(attrib.get("height", 0) or 0)
+    points = [
+        (x, y),
+        (x + width, y),
+        (x + width, y + height),
+        (x, y + height),
+    ]
+    return [*points, points[0]]
 
 
 def _combine_transform(
