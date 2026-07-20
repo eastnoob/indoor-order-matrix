@@ -132,7 +132,13 @@ def evaluate_scene(
     rows.append(_inferred_region_gap_path_explicit_path_iou_row(scene, inferred_region_gap_paths))
     rows.extend(_object_region_membership_rows(analysis_scene))
     rows.extend(_column_alignment_rows(analysis_scene))
-    rows.extend(_column_grid_relation_rows(column_grid))
+    rows.extend(
+        _column_grid_relation_rows(
+            column_grid,
+            spatial_networks,
+            inferred_region_gap_paths,
+        )
+    )
     rows.extend(_whole_space_force_rows(scene))
     rows.extend(
         _path_connectivity_rows(
@@ -2480,13 +2486,20 @@ def _column_alignment_rows(scene: dict) -> list[dict]:
     return rows
 
 
-def _column_grid_relation_rows(column_grid: dict) -> list[dict]:
+def _column_grid_relation_rows(
+    column_grid: dict,
+    spatial_networks: list[dict] | None = None,
+    gap_paths: list[dict] | None = None,
+) -> list[dict]:
     """Return explicit column-grid relation rows for evaluator consumers."""
+    spatial_networks = spatial_networks or []
+    gap_paths = gap_paths or []
     if column_grid.get("status") != "computed":
         reason = column_grid.get("reason", "missing column-grid support")
         return [
             _not_available("column_alignment", "column_grid_C_global", reason),
             _not_available("column_alignment", "column_grid_C_local_profile", reason),
+            _inter_region_column_grid_row(column_grid, spatial_networks, gap_paths),
         ]
 
     global_relations = column_grid.get("global_relations", [])
@@ -2538,7 +2551,91 @@ def _column_grid_relation_rows(column_grid: dict) -> list[dict]:
                 "computed column grid has no local bay profile evidence",
             )
         )
+    rows.append(_inter_region_column_grid_row(column_grid, spatial_networks, gap_paths))
     return rows
+
+
+def _inter_region_column_grid_row(
+    column_grid: dict,
+    spatial_networks: list[dict],
+    gap_paths: list[dict],
+) -> dict:
+    """Compare inter-region gap directions with the column-grid frame."""
+    if column_grid.get("status") != "computed":
+        return _not_available(
+            "column_alignment",
+            "column_grid_inter_region_alignment",
+            column_grid.get("reason", "missing column-grid support"),
+        )
+    frames = [
+        branch["trend_frame"]["angle"]
+        for branch in column_grid.get("branches", [])
+        if branch.get("trend_frame")
+        and isinstance(branch["trend_frame"].get("angle"), (int, float))
+    ]
+    gap_path_by_id = {
+        path["id"]: path
+        for path in gap_paths
+        if path.get("id")
+    }
+    inter_networks = [
+        network
+        for network in spatial_networks
+        if network.get("scope") == "inter_region"
+    ]
+    evidence = []
+    for network in inter_networks:
+        for edge in network.get("edges", []):
+            path = gap_path_by_id.get(edge.get("id"))
+            # The neutral spatial-network edge id mirrors the inferred gap-path
+            # id, so the row scores network edges without reading raw SVG paths.
+            angle = _gap_path_grid_angle(path) if path else None
+            if angle is None or not frames:
+                continue
+            # Compare the inferred travel direction to the best available
+            # branch frame; axis-pair scoring handles 0/180 equivalence.
+            score = max(_axis_pair_score(angle, frame) for frame in frames)
+            evidence.append(
+                {
+                    "target_layer": "SpatialNetwork",
+                    "target_id": edge.get("id") or network["id"],
+                    "network_id": network["id"],
+                    "edge_id": edge.get("id"),
+                    "edge_angle": round(angle % 180.0, 4),
+                    "gap_path_orientation": path.get("orientation"),
+                    "score": round(score, 4),
+                    "source": "inter_region_gap_path",
+                }
+            )
+    if not evidence:
+        return _not_available(
+            "column_alignment",
+            "column_grid_inter_region_alignment",
+            "no inter-region network edge direction evidence",
+        )
+    return {
+        "view_id": "column_alignment",
+        "metric": "column_grid_inter_region_alignment",
+        "layer": "inter_region_to_grid",
+        "score": round(mean(item["score"] for item in evidence), 4),
+        "status": "computed",
+        "method": "inter_region_gap_path_orientation_to_column_grid_frame",
+        "evidence": [item["target_id"] for item in evidence],
+        "inter_region_column_grid_evidence": evidence,
+        "uncertainty": "uses existing inferred gap-path orientation; not a new pathfinding or corridor extraction system",
+    }
+
+
+def _gap_path_grid_angle(path: dict | None) -> float | None:
+    """Return the travel direction represented by an inferred gap band."""
+    if not path:
+        return None
+    orientation = path.get("orientation")
+    if orientation == "vertical":
+        return 90.0
+    if orientation == "horizontal":
+        return 0.0
+    return None
 
 
 def _region_column_bay_fit_evidence(regions: list[dict], columns: list[dict]) -> list[dict]:

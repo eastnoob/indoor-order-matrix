@@ -359,6 +359,65 @@ def test_evaluator_emits_column_grid_relation_rows():
     assert matrix["adapter_payload"]["column_grid_handoff"]["C_local_profile"]["evidence_count"] > 0
 
 
+def test_inter_region_to_grid_uses_spatial_network_edges():
+    """Inter-region grid evidence should target network edges, not raw SVG paths."""
+    scene = load_structured_svg_scene(Path("test/SVG_baseline.svg"))
+    matrix = evaluate_scene(scene)
+    rows = {
+        row["metric"]: row
+        for row in matrix["rows"]
+        if row["view_id"] == "column_alignment"
+    }
+
+    row = rows["column_grid_inter_region_alignment"]
+
+    assert row["layer"] == "inter_region_to_grid"
+    assert row["status"] == "computed"
+    assert row["inter_region_column_grid_evidence"]
+    assert all(
+        item["target_layer"] == "SpatialNetwork"
+        for item in row["inter_region_column_grid_evidence"]
+    )
+    metrics = matrix["room_analysis_model"]["metric_layer"]["metrics"]
+    model_items = [
+        item for item in metrics if item["metric"] == "column_grid_inter_region_alignment"
+    ]
+    assert model_items
+    assert {item["target_layer"] for item in model_items} == {"SpatialNetwork"}
+
+
+def test_inter_region_to_grid_skips_column_grid_branches_without_angle():
+    """Inter-region grid evidence should degrade when branch frames lack angles."""
+    from features.scene_evaluator import _column_grid_relation_rows
+
+    rows = {
+        row["metric"]: row
+        for row in _column_grid_relation_rows(
+            {"status": "computed", "branches": [{"trend_frame": {"strength": 1.0}}]},
+            [{"id": "network_1", "scope": "inter_region", "edges": [{"id": "gap_1"}]}],
+            [{"id": "gap_1", "orientation": "horizontal"}],
+        )
+    }
+
+    assert rows["column_grid_inter_region_alignment"]["status"] == "not_available"
+
+
+def test_inter_region_to_grid_skips_gap_paths_without_id():
+    """Inter-region grid evidence should ignore unusable gap-path records."""
+    from features.scene_evaluator import _column_grid_relation_rows
+
+    rows = {
+        row["metric"]: row
+        for row in _column_grid_relation_rows(
+            {"status": "computed", "branches": [{"trend_frame": {"angle": 0.0}}]},
+            [{"id": "network_1", "scope": "inter_region", "edges": [{"id": "gap_1"}]}],
+            [{"orientation": "horizontal"}],
+        )
+    }
+
+    assert rows["column_grid_inter_region_alignment"]["status"] == "not_available"
+
+
 def test_evaluator_does_not_fabricate_column_grid_local_profiles_without_bays():
     """Explicit axes without bays should not invent C_local_profile evidence."""
     scene = {
