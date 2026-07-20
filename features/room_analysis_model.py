@@ -85,6 +85,11 @@ def _metric_records(matrix: dict) -> list[dict]:
             # model targets instead of keeping one opaque row-level target.
             records.extend(_position_metric_records(row))
             continue
+        if row.get("view_id") == "column_alignment":
+            expanded = _column_grid_metric_records(row)
+            if expanded:
+                records.extend(expanded)
+                continue
         records.append(_row_metric_record(row))
     return records
 
@@ -118,6 +123,93 @@ def _position_metric_records(row: dict) -> list[dict]:
             }
         )
     return records
+
+
+def _column_grid_metric_records(row: dict) -> list[dict]:
+    """Expand column-grid rows into concrete model-targeted metric records."""
+    metric = row.get("metric")
+    if metric == "object_column_axis_phase_alignment":
+        return [
+            _evidence_metric_record(
+                row,
+                target_layer="Furniture",
+                target_id=item["object_id"],
+                value=item.get("score"),
+                evidence=item,
+            )
+            for item in row.get("object_axis_phase_evidence", [])
+        ]
+    if metric == "object_column_bay_local_position_coverage":
+        return [
+            _evidence_metric_record(
+                row,
+                target_layer="Furniture",
+                target_id=item["object_id"],
+                value=item.get("score"),
+                evidence=item,
+            )
+            for item in row.get("object_bay_local_position_evidence", [])
+        ]
+    if metric == "column_grid_C_local_profile":
+        return [
+            _evidence_metric_record(
+                row,
+                target_layer="ActivityRegion",
+                target_id=item["region_id"],
+                value=item.get("frame_agreement"),
+                evidence=item,
+            )
+            for item in row.get("column_grid_evidence", {}).get("local_profiles", [])
+        ]
+    if metric == "column_grid_C_global":
+        return [
+            _evidence_metric_record(
+                row,
+                target_layer="ActivityRegion",
+                target_id=item["region_id"],
+                value=item.get("agreement"),
+                evidence=item,
+            )
+            for item in row.get("column_grid_evidence", {}).get("global_relations", [])
+        ]
+    if metric == "column_grid_inter_region_alignment":
+        return [
+            _evidence_metric_record(
+                row,
+                target_layer="SpatialNetwork",
+                target_id=item["target_id"],
+                value=item.get("score"),
+                evidence=item,
+            )
+            for item in row.get("inter_region_column_grid_evidence", [])
+        ]
+    return []
+
+
+def _evidence_metric_record(
+    row: dict,
+    *,
+    target_layer: str,
+    target_id: str,
+    value,
+    evidence: dict,
+) -> dict:
+    """Build one metric record from a row-level evidence item."""
+    return {
+        "metric": row.get("metric"),
+        "family": row.get("view_id"),
+        "target_layer": target_layer,
+        "target_id": target_id,
+        "value": value,
+        "status": row.get("status", "computed"),
+        "geometry": None,
+        "anchor": None,
+        "reference": row.get("column_grid_evidence") or row.get("column_axis_evidence"),
+        "confidence": row.get("confidence"),
+        "method": row.get("method"),
+        "evidence": evidence,
+        "uncertainty": row.get("uncertainty"),
+    }
 
 
 def _row_metric_record(row: dict) -> dict:

@@ -14264,6 +14264,61 @@ def test_room_analysis_model_maps_position_to_static_scope_not_subject():
     assert all("subject_id" not in item for item in position_metrics)
 
 
+def test_room_analysis_model_expands_column_grid_targets():
+    """Column-grid metrics should target concrete model objects, not coarse rows."""
+    scene = {
+        "source": "unit",
+        "size": (200.0, 200.0),
+        "objects": [
+            {
+                "id": "chair_loose",
+                "role": "chair",
+                "group": "seating",
+                "region": "seating",
+                "rect": Rect(cx=30, cy=30, width=20, height=20),
+                "metadata": {},
+            }
+        ],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            {
+                "id": "region_seating",
+                "role": "region",
+                "region": "seating",
+                "group": "seating",
+                "rect": Rect(cx=40, cy=40, width=40, height=40),
+                "metadata": {"axis-angle": "0"},
+            }
+        ],
+        "columns": [],
+        "column_axes": [
+            {"id": "x0", "role": "column_axis", "rect": Rect(cx=100, cy=0, width=200, height=0), "points": [(0, 0), (200, 0)], "metadata": {"branch-id": "main", "axis-list": "x"}},
+            {"id": "x1", "role": "column_axis", "rect": Rect(cx=100, cy=100, width=200, height=0), "points": [(0, 100), (200, 100)], "metadata": {"branch-id": "main", "axis-list": "x"}},
+            {"id": "y0", "role": "column_axis", "rect": Rect(cx=0, cy=50, width=0, height=100), "points": [(0, 0), (0, 100)], "metadata": {"branch-id": "main", "axis-list": "y"}},
+            {"id": "y1", "role": "column_axis", "rect": Rect(cx=100, cy=50, width=0, height=100), "points": [(100, 0), (100, 100)], "metadata": {"branch-id": "main", "axis-list": "y"}},
+        ],
+    }
+
+    metrics = evaluate_scene(scene)["room_analysis_model"]["metric_layer"]["metrics"]
+    object_metrics = [
+        item
+        for item in metrics
+        if item["metric"] == "object_column_bay_local_position_coverage"
+    ]
+    region_metrics = [
+        item for item in metrics if item["metric"] == "column_grid_C_local_profile"
+    ]
+
+    assert object_metrics
+    assert {item["target_layer"] for item in object_metrics} == {"Furniture"}
+    assert {item["target_id"] for item in object_metrics} == {"chair_loose"}
+    assert region_metrics
+    assert {item["target_layer"] for item in region_metrics} == {"ActivityRegion"}
+    assert {item["target_id"] for item in region_metrics} == {"region_seating"}
+
+
 @pytest.mark.parametrize(
     "fixture",
     [
