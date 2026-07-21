@@ -4,6 +4,7 @@ from itertools import pairwise
 from math import atan2, cos, degrees, radians, sin
 from statistics import mean
 
+from .affordance.grid_backend import shape_overlap_area
 from .affordance.models import Polygon, Rect
 
 
@@ -174,7 +175,7 @@ def _local_profiles(
     }
     bay_by_id = {bay["id"]: bay for bay in bays}
     for region in regions:
-        region_rect = region["rect"]
+        region_shape = _region_shape(region)
         region_frame = _region_frame(region)
         for branch in branches:
             branch_bays = bays_by_branch[(branch["system_id"], branch["id"])]
@@ -182,8 +183,8 @@ def _local_profiles(
                 # Local profiles require authored bay polygons for seed overlap
                 # and fallback. Empty profiles would imply invented bay context.
                 continue
+            seed_ids = _seed_bay_ids(region_shape, branch_bays)
             for scale in [0, 1, "all"]:
-                seed_ids = _seed_bay_ids(region_rect, branch_bays)
                 included_ids = _expand_bays(seed_ids, branch_bays, bay_by_id, scale)
                 included_bays = [bay_by_id[bay_id] for bay_id in included_ids]
                 profiles.append(
@@ -200,7 +201,7 @@ def _local_profiles(
                         ),
                         "seed_bay_ids": seed_ids,
                         "included_bay_ids": included_ids,
-                        "bay_grammar": _bay_grammar(region_rect, included_bays),
+                        "bay_grammar": _bay_grammar(region_shape, included_bays),
                         "source": "explicit_column_axes",
                     }
                 )
@@ -220,6 +221,36 @@ def _region_frame(region: dict) -> dict:
     return {"angle": angle, "basis": "bbox_long_axis"}
 
 
+def _region_shape(region: dict) -> Rect | Polygon:
+    """Return the inferred region polygon when present, otherwise its bbox."""
+    points = []
+    for point in region.get("points", []):
+        try:
+            x, y = point
+            points.append((float(x), float(y)))
+        except (TypeError, ValueError):
+            continue
+    unique_points = {(round(x, 9), round(y, 9)) for x, y in points}
+    if len(unique_points) >= 3:
+        # C_local consumes activity-region geometry from inference; the world
+        # bbox remains a compatibility fallback for older region records.
+        return Polygon(points=tuple(points))
+    return region["rect"]
+
+
+def _shape_bounds(shape: Rect | Polygon) -> Rect:
+    """Return axis-aligned bounds for fallback distance and center checks."""
+    return shape.bounds if isinstance(shape, Polygon) else shape
+
+
+def _shape_bay_overlap_area(shape: Rect | Polygon, bay: dict) -> float:
+    """Return region-shape overlap area with one generated column bay."""
+    bay_shape = bay.get("polygon") or bay["rect"]
+    # Region inference and bay generation already own the geometry shapes; the
+    # column-grid layer only chooses which authored shapes participate.
+    return shape_overlap_area(shape, bay_shape)
+
+
 def _axis_score(first: float, second: float) -> float:
     """Score undirected orthogonal-frame agreement from 0 to 1."""
     diff = abs((first - second) % 180.0)
@@ -229,19 +260,20 @@ def _axis_score(first: float, second: float) -> float:
     return round(max(0.0, 1.0 - frame_diff / 45.0), 4)
 
 
-def _seed_bay_ids(region_rect: Rect, branch_bays: list[dict]) -> list[str]:
+def _seed_bay_ids(region_shape: Rect | Polygon, branch_bays: list[dict]) -> list[str]:
     """Choose overlapping seed bays, or the nearest bay when none overlap."""
     overlaps = [
-        (bay["id"], _rect_overlap_area(region_rect, bay["rect"]))
+        (bay["id"], _shape_bay_overlap_area(region_shape, bay))
         for bay in branch_bays
     ]
     seed_ids = sorted(bay_id for bay_id, area in overlaps if area > 0.0)
     if seed_ids:
         return seed_ids
+    bounds = _shape_bounds(region_shape)
     # A no-overlap region still gets local context from the nearest explicit bay.
     nearest = min(
         branch_bays,
-        key=lambda bay: (_rect_gap(region_rect, bay["rect"]), bay["id"]),
+        key=lambda bay: (_rect_gap(bounds, bay["rect"]), bay["id"]),
     )
     return [nearest["id"]]
 
@@ -270,38 +302,34 @@ def _expand_bays(
     return sorted(included)
 
 
-def _bay_grammar(region_rect: Rect, bays: list[dict]) -> list[dict]:
-    """Summarize how a region sits inside included authored bays."""
+def _bay_grammar(region_shape: Rect | Polygon, bays: list[dict]) -> list[dict]:
+    """Summarize how a region shape sits inside included authored bays."""
     grammar = []
+    region_area = max(region_shape.area, 1e-9)
     for bay in bays:
-        overlap = _rect_overlap_area(region_rect, bay["rect"])
+        overlap = _shape_bay_overlap_area(region_shape, bay)
         # The score is local containment evidence only, not a perceptual weight.
-        region_area = max(region_rect.area, 1e-9)
         grammar.append(
             {
                 "bay_id": bay["id"],
                 "overlap_area": round(overlap, 4),
-                "region_area": round(region_rect.area, 4),
+                "region_area": round(region_area, 4),
                 "overlap_score": round(overlap / region_area, 4),
-                "region_center_in_bay": _local_in_bay(region_rect, bay),
+                "region_center_in_bay": _local_in_bay(region_shape, bay),
             }
         )
     return grammar
 
 
-def _local_in_bay(region_rect: Rect, bay: dict) -> bool:
-    """Return whether the region centroid lies inside one bay polygon."""
+def _local_in_bay(region_shape: Rect | Polygon, bay: dict) -> bool:
+    """Return whether the region shape bounds center lies inside one bay."""
+    bounds = _shape_bounds(region_shape)
     polygon = bay.get("polygon")
+    # Keep the legacy field as a bounds-center proxy so adapter payloads stay
+    # stable; full polygon-in-bay classification is a separate metric decision.
     if isinstance(polygon, Polygon):
-        return polygon.contains_point(region_rect.cx, region_rect.cy)
-    return bay["rect"].intersects(Rect(region_rect.cx, region_rect.cy, 0.0, 0.0))
-
-
-def _rect_overlap_area(first: Rect, second: Rect) -> float:
-    """Return axis-aligned overlap area between two rectangles."""
-    width = max(0.0, min(first.right, second.right) - max(first.left, second.left))
-    height = max(0.0, min(first.bottom, second.bottom) - max(first.top, second.top))
-    return width * height
+        return polygon.contains_point(bounds.cx, bounds.cy)
+    return bay["rect"].intersects(Rect(bounds.cx, bounds.cy, 0.0, 0.0))
 
 
 def _rect_gap(first: Rect, second: Rect) -> float:

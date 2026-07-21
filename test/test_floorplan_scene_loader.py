@@ -1202,6 +1202,197 @@ def test_column_grid_evidence_reports_global_and_local_profiles_for_regions():
     assert {item["branch_id"] for item in grid["local_profiles"]} == {"with_bays"}
 
 
+def test_column_grid_local_profile_uses_region_points_before_world_bbox():
+    """C_local should seed bays from inferred region shape, not its world bbox."""
+    scene = {
+        "source": "unit",
+        "size": (220.0, 120.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "columns": [],
+        "regions": [
+            {
+                "id": "oblique_region",
+                "role": "region",
+                "region": "oblique_region",
+                "group": "oblique_region",
+                "rect": Rect(cx=100.0, cy=50.0, width=120.0, height=40.0),
+                "points": [
+                    (20.0, 30.0),
+                    (90.0, 30.0),
+                    (90.0, 70.0),
+                    (20.0, 70.0),
+                    (20.0, 30.0),
+                ],
+                "metadata": {"axis-angle": "0"},
+            }
+        ],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=0, width=200, height=0),
+                "points": [(0, 0), (200, 0)],
+                "metadata": {"branch-id": "main", "axis-list": "x"},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=100, width=200, height=0),
+                "points": [(0, 100), (200, 100)],
+                "metadata": {"branch-id": "main", "axis-list": "x"},
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=0, cy=50, width=0, height=100),
+                "points": [(0, 0), (0, 100)],
+                "metadata": {"branch-id": "main", "axis-list": "y"},
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=100, cy=50, width=0, height=100),
+                "points": [(100, 0), (100, 100)],
+                "metadata": {"branch-id": "main", "axis-list": "y"},
+            },
+            {
+                "id": "y2",
+                "role": "column_axis",
+                "rect": Rect(cx=200, cy=50, width=0, height=100),
+                "points": [(200, 0), (200, 100)],
+                "metadata": {"branch-id": "main", "axis-list": "y"},
+            },
+        ],
+    }
+
+    grid = column_grid_evidence(scene)
+    scale_zero = [
+        item
+        for item in grid["local_profiles"]
+        if item["region_id"] == "oblique_region" and item["scale"] == 0
+    ]
+    scale_one = [
+        item
+        for item in grid["local_profiles"]
+        if item["region_id"] == "oblique_region" and item["scale"] == 1
+    ][0]
+
+    assert len(scale_zero) == 1
+    profile = scale_zero[0]
+    assert len(profile["seed_bay_ids"]) == 1
+    assert "__y0__y1" in profile["seed_bay_ids"][0]
+    assert all("__y1__y2" not in bay_id for bay_id in profile["seed_bay_ids"])
+    first_bay = next(
+        item for item in profile["bay_grammar"] if "__y0__y1" in item["bay_id"]
+    )
+    second_bay = next(
+        item for item in scale_one["bay_grammar"] if "__y1__y2" in item["bay_id"]
+    )
+    assert first_bay["overlap_area"] == 2800.0
+    assert first_bay["region_area"] == 2800.0
+    assert second_bay["overlap_area"] == 0.0
+
+
+def test_column_grid_local_profile_clips_oblique_bays_to_actual_polygon():
+    """C_local should not seed an oblique bay from its larger world AABB."""
+    scene = {
+        "source": "unit",
+        "size": (260.0, 140.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "columns": [],
+        "regions": [
+            {
+                "id": "inside_neighbor_outside_bbox_bay",
+                "role": "region",
+                "region": "inside_neighbor_outside_bbox_bay",
+                "group": "inside_neighbor_outside_bbox_bay",
+                "rect": Rect(cx=140.0, cy=10.0, width=10.0, height=10.0),
+                "points": [
+                    (135.0, 5.0),
+                    (145.0, 5.0),
+                    (145.0, 15.0),
+                    (135.0, 15.0),
+                    (135.0, 5.0),
+                ],
+                "metadata": {"axis-angle": "0"},
+            }
+        ],
+        "column_axes": [
+            {
+                "id": "x0",
+                "role": "column_axis",
+                "rect": Rect(cx=100.0, cy=0.0, width=200.0, height=0.0),
+                "points": [(0.0, 0.0), (200.0, 0.0)],
+                "metadata": {"branch-id": "skewed", "axis-list": "x"},
+            },
+            {
+                "id": "x1",
+                "role": "column_axis",
+                "rect": Rect(cx=150.0, cy=100.0, width=200.0, height=0.0),
+                "points": [(50.0, 100.0), (250.0, 100.0)],
+                "metadata": {"branch-id": "skewed", "axis-list": "x"},
+            },
+            {
+                "id": "y0",
+                "role": "column_axis",
+                "rect": Rect(cx=25.0, cy=50.0, width=50.0, height=100.0),
+                "points": [(0.0, 0.0), (50.0, 100.0)],
+                "metadata": {"branch-id": "skewed", "axis-list": "y"},
+            },
+            {
+                "id": "y1",
+                "role": "column_axis",
+                "rect": Rect(cx=125.0, cy=50.0, width=50.0, height=100.0),
+                "points": [(100.0, 0.0), (150.0, 100.0)],
+                "metadata": {"branch-id": "skewed", "axis-list": "y"},
+            },
+            {
+                "id": "y2",
+                "role": "column_axis",
+                "rect": Rect(cx=225.0, cy=50.0, width=50.0, height=100.0),
+                "points": [(200.0, 0.0), (250.0, 100.0)],
+                "metadata": {"branch-id": "skewed", "axis-list": "y"},
+            },
+        ],
+    }
+
+    grid = column_grid_evidence(scene)
+    profile = next(
+        item
+        for item in grid["local_profiles"]
+        if item["region_id"] == "inside_neighbor_outside_bbox_bay"
+        and item["scale"] == 0
+    )
+    false_positive_bay = next(
+        bay_id for bay_id in grid["bays"] if "__y0__y1" in bay_id["id"]
+    )["id"]
+    true_bay = next(bay_id for bay_id in grid["bays"] if "__y1__y2" in bay_id["id"])[
+        "id"
+    ]
+
+    assert profile["seed_bay_ids"] == [true_bay]
+    assert false_positive_bay not in profile["included_bay_ids"]
+
+    scale_one = next(
+        item
+        for item in grid["local_profiles"]
+        if item["region_id"] == "inside_neighbor_outside_bbox_bay"
+        and item["scale"] == 1
+    )
+    false_positive_grammar = next(
+        item
+        for item in scale_one["bay_grammar"]
+        if item["bay_id"] == false_positive_bay
+    )
+    assert false_positive_grammar["overlap_area"] == 0.0
+
+
 def test_column_grid_evidence_does_not_infer_axes_from_columns():
     """Columns alone are evidence, not enough to silently create a grid."""
     scene = {

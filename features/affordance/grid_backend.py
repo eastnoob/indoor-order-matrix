@@ -308,6 +308,19 @@ def _shape_cell_coverage_ratio(shape: Rect | Polygon, cell: Rect) -> float:
     return _polygon_rect_overlap_area(shape, cell) / cell.area
 
 
+def shape_overlap_area(left: Rect | Polygon, right: Rect | Polygon) -> float:
+    """Return exact overlap area for current Rect/convex-Polygon geometry."""
+    if isinstance(left, Rect) and isinstance(right, Rect):
+        return _rect_overlap_area(left, right)
+    if isinstance(left, Polygon) and isinstance(right, Rect):
+        return _polygon_rect_overlap_area(left, right)
+    if isinstance(left, Rect) and isinstance(right, Polygon):
+        return _polygon_rect_overlap_area(right, left)
+    # Oblique column bays and inferred regions are convex polygons, so
+    # Sutherland-Hodgman clipping gives deterministic area without a dependency.
+    return _polygon_polygon_overlap_area(left, right)
+
+
 def _rect_overlap_area(left: Rect, right: Rect) -> float:
     x1 = max(left.left, right.left)
     x2 = min(left.right, right.right)
@@ -333,6 +346,102 @@ def _polygon_rect_overlap_area(polygon: Polygon, rect: Rect) -> float:
         if len(clipped) < 3:
             return 0.0
     return abs(_polygon_area(tuple(clipped)))
+
+
+def _polygon_polygon_overlap_area(left: Polygon, right: Polygon) -> float:
+    """Return overlap area between two convex polygons."""
+    clipped = _open_polygon_points(left.points)
+    clip_points = _open_polygon_points(right.points)
+    if len(clipped) < 3 or len(clip_points) < 3:
+        return 0.0
+    clip_sign = 1.0 if _polygon_area(tuple(clip_points)) >= 0.0 else -1.0
+    for index, start in enumerate(clip_points):
+        end = clip_points[(index + 1) % len(clip_points)]
+        clipped = _clip_polygon_to_edge(clipped, start, end, clip_sign)
+        if len(clipped) < 3:
+            return 0.0
+    return abs(_polygon_area(tuple(clipped)))
+
+
+def _open_polygon_points(
+    points: tuple[tuple[float, float], ...],
+) -> list[tuple[float, float]]:
+    """Return polygon points without a duplicated closing point."""
+    opened = list(points)
+    if len(opened) >= 2 and opened[0] == opened[-1]:
+        opened.pop()
+    return opened
+
+
+def _clip_polygon_to_edge(
+    points: list[tuple[float, float]],
+    edge_start: tuple[float, float],
+    edge_end: tuple[float, float],
+    clip_sign: float,
+) -> list[tuple[float, float]]:
+    """Clip one convex polygon by one directed edge of another polygon."""
+    if not points:
+        return []
+    result: list[tuple[float, float]] = []
+    previous = points[-1]
+    previous_inside = _inside_clip_edge(previous, edge_start, edge_end, clip_sign)
+    for current in points:
+        current_inside = _inside_clip_edge(current, edge_start, edge_end, clip_sign)
+        if current_inside:
+            if not previous_inside:
+                result.append(
+                    _line_edge_intersection(previous, current, edge_start, edge_end)
+                )
+            result.append(current)
+        elif previous_inside:
+            result.append(_line_edge_intersection(previous, current, edge_start, edge_end))
+        previous = current
+        previous_inside = current_inside
+    return result
+
+
+def _inside_clip_edge(
+    point: tuple[float, float],
+    edge_start: tuple[float, float],
+    edge_end: tuple[float, float],
+    clip_sign: float,
+) -> bool:
+    """Return whether a point is inside one directed convex clip edge."""
+    cross = _edge_cross(edge_start, edge_end, point)
+    return cross * clip_sign >= -1e-9
+
+
+def _line_edge_intersection(
+    start: tuple[float, float],
+    end: tuple[float, float],
+    edge_start: tuple[float, float],
+    edge_end: tuple[float, float],
+) -> tuple[float, float]:
+    """Return the intersection between a subject segment and clip edge line."""
+    sx, sy = start
+    ex, ey = end
+    cx, cy = edge_start
+    dx, dy = edge_end
+    subject_dx = ex - sx
+    subject_dy = ey - sy
+    clip_dx = dx - cx
+    clip_dy = dy - cy
+    denominator = subject_dx * clip_dy - subject_dy * clip_dx
+    if abs(denominator) <= 1e-12:
+        return end
+    t = ((cx - sx) * clip_dy - (cy - sy) * clip_dx) / denominator
+    return (sx + t * subject_dx, sy + t * subject_dy)
+
+
+def _edge_cross(
+    start: tuple[float, float],
+    end: tuple[float, float],
+    point: tuple[float, float],
+) -> float:
+    """Return the signed cross product for an edge and point."""
+    return (end[0] - start[0]) * (point[1] - start[1]) - (
+        end[1] - start[1]
+    ) * (point[0] - start[0])
 
 
 def _clip_polygon_to_rect_boundary(
