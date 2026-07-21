@@ -4162,8 +4162,14 @@ def test_region_frame_explainability_selects_only_better_orthogonal_frames():
     chaotic_regions = {
         item["region"]: item for item in chaotic_evidence["inferred_region_candidates"]
     }
+    chaotic_north = chaotic_regions["north_tables"]
     chaotic_center = chaotic_regions["center_lounge"]
 
+    assert float(chaotic_north["metadata"]["axis-angle"]) == 0.0
+    assert chaotic_north["metadata"]["frame-snap-candidate"] == "true"
+    assert chaotic_north["metadata"]["axis-explainability-correction"] == (
+        "nearest_orthogonal_frame"
+    )
     assert chaotic_center["metadata"]["frame-snap-candidate"] == "false"
     assert 80.0 <= float(chaotic_center["metadata"]["axis-angle"]) <= 90.0
 
@@ -4180,10 +4186,10 @@ def test_region_frame_extents_match_final_axis_angle():
     }["north_tables"]
     metadata = north_tables["metadata"]
 
-    # A near-vertical final frame must not keep the near-horizontal PCA long
-    # extent as its primary visual length.
-    assert float(metadata["axis-angle"]) > 80.0
-    assert float(metadata["axis-primary-extent"]) < float(
+    # Orthogonal-frame correction should choose the canonical horizontal
+    # representation, so single-line overlays do not draw an equivalent 90-deg axis.
+    assert float(metadata["axis-angle"]) == 0.0
+    assert float(metadata["axis-primary-extent"]) > float(
         metadata["axis-secondary-extent"]
     )
 

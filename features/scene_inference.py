@@ -914,7 +914,7 @@ def _frame_with_explainability_correction(
     evidence = _frame_explainability_record(points, members, frame["angle"])
     corrected = dict(frame)
     if evidence["snap_candidate"]:
-        corrected["angle"] = evidence["orthogonal_angle"]
+        corrected["angle"] = _orthogonal_frame_angle(evidence["orthogonal_angle"])
         corrected["member_alignment"] = evidence["orthogonal_alignment"]
     # The final angle may be normalized or corrected after PCA, so extents must
     # be recomputed in the same frame that downstream overlays draw.
