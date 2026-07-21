@@ -161,6 +161,17 @@ def _column_grid_metric_records(row: dict) -> list[dict]:
             )
             for item in row.get("column_grid_evidence", {}).get("local_profiles", [])
         ]
+    if metric == "column_grid_field_profile":
+        return [
+            _evidence_metric_record(
+                row,
+                target_layer="ActivityRegion",
+                target_id=item["region_id"],
+                value=item.get("strength"),
+                evidence=item,
+            )
+            for item in row.get("column_grid_evidence", {}).get("field_profiles", [])
+        ]
     if metric == "column_grid_C_global":
         return [
             _evidence_metric_record(

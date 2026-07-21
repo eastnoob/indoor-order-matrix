@@ -2499,13 +2499,21 @@ def _column_grid_relation_rows(
         rows = [
             _not_available("column_alignment", "column_grid_C_global", reason),
             _not_available("column_alignment", "column_grid_C_local_profile", reason),
+            _not_available("column_alignment", "column_grid_field_profile", reason),
             _inter_region_column_grid_row(column_grid, spatial_networks, gap_paths),
         ]
+        rows[2]["field_angle"] = None
+        rows[2]["field_secondary_angle"] = None
+        rows[2]["field_support"] = None
+        rows[2]["field_clarity"] = None
+        rows[2]["field_strength"] = None
+        rows[2]["column_grid_field_evidence"] = []
         rows.append(_column_grid_whole_room_summary_row(rows))
         return rows
 
     global_relations = column_grid.get("global_relations", [])
     local_profiles = column_grid.get("local_profiles", [])
+    field_profiles = column_grid.get("field_profiles", [])
     rows = []
     if global_relations:
         # Scores are direct means over normalized relation evidence; empty
@@ -2553,6 +2561,47 @@ def _column_grid_relation_rows(
                 "computed column grid has no local bay profile evidence",
             )
         )
+    if field_profiles:
+        # Region profiles are already normalized from probe support and axial
+        # clarity, so this row only summarizes their auditable evidence.
+        field_strength = round(mean(item["strength"] for item in field_profiles), 4)
+        field_angle = round(mean(item["angle"] for item in field_profiles), 4)
+        field_secondary_angle = round(
+            mean(item["secondary_angle"] for item in field_profiles), 4
+        )
+        field_support = round(mean(item["support"] for item in field_profiles), 4)
+        field_clarity = round(mean(item["clarity"] for item in field_profiles), 4)
+        rows.append(
+            {
+                "view_id": "column_alignment",
+                "metric": "column_grid_field_profile",
+                "score": field_strength,
+                "status": "computed",
+                "method": "explicit_column_grid_probe_field_support_times_clarity",
+                "evidence": [item["region_id"] for item in field_profiles],
+                "column_grid_evidence": {"field_profiles": field_profiles},
+                "column_grid_field_evidence": field_profiles,
+                "field_angle": field_angle,
+                "field_secondary_angle": field_secondary_angle,
+                "field_support": field_support,
+                "field_clarity": field_clarity,
+                "field_strength": field_strength,
+                "uncertainty": "deterministic local bay probes; not a dense raster field or inferred structural grid",
+            }
+        )
+    else:
+        row = _not_available(
+            "column_alignment",
+            "column_grid_field_profile",
+            "computed column grid has no probe field evidence",
+        )
+        row["column_grid_field_evidence"] = []
+        row["field_angle"] = None
+        row["field_secondary_angle"] = None
+        row["field_support"] = None
+        row["field_clarity"] = None
+        row["field_strength"] = None
+        rows.append(row)
     rows.append(_inter_region_column_grid_row(column_grid, spatial_networks, gap_paths))
     rows.append(_column_grid_whole_room_summary_row(rows))
     return rows

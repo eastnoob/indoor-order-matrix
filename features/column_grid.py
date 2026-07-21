@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from itertools import pairwise
-from math import atan2, cos, degrees, radians, sin
+from math import atan2, cos, degrees, hypot, radians, sin, sqrt
 from statistics import mean
 
 from .affordance.grid_backend import shape_overlap_area
@@ -22,6 +22,7 @@ def column_grid_evidence(scene: dict) -> dict:
             "bays": [],
             "local_profiles": [],
             "global_relations": [],
+            "field_profiles": [],
         }
 
     branches = _branches(axes)
@@ -40,7 +41,13 @@ def column_grid_evidence(scene: dict) -> dict:
         "bays": bays,
         "local_profiles": _local_profiles(regions, branches, bays),
         "global_relations": _global_relations(regions, systems, branches),
+        "field_profiles": _field_profiles(regions, branches, bays),
     }
+
+
+def column_grid_field_evidence(scene: dict) -> list[dict]:
+    """Return only the continuous field profiles derived from explicit axes."""
+    return column_grid_evidence(scene).get("field_profiles", [])
 
 
 def _axis_record(axis: dict) -> dict:
@@ -206,6 +213,181 @@ def _local_profiles(
                     }
                 )
     return profiles
+
+
+def _field_profiles(
+    regions: list[dict],
+    branches: list[dict],
+    bays: list[dict],
+) -> list[dict]:
+    """Aggregate deterministic probe evidence into one continuous profile per region."""
+    bays_by_branch = {
+        (branch["system_id"], branch["id"]): [
+            bay
+            for bay in bays
+            if bay["system_id"] == branch["system_id"]
+            and bay["branch_id"] == branch["id"]
+        ]
+        for branch in branches
+    }
+    profiles = []
+    for region in regions:
+        shape = _region_shape(region)
+        probes = [
+            _field_probe(point, branches, bays_by_branch)
+            for point in _region_probe_points(shape, _region_frame(region)["angle"])
+        ]
+        branch_evidence = [
+            evidence
+            for probe in probes
+            for evidence in probe["branch_evidence"]
+            if evidence["weight"] > 0.0
+        ]
+        if not branch_evidence:
+            continue
+        angle, clarity = _field_frame(branch_evidence)
+        support = mean(probe["support"] for probe in probes)
+        # Support measures nearby structural mass, while clarity records whether
+        # that local mass agrees on one axial frame. Neither grows by raw count.
+        profiles.append(
+            {
+                "metric": "column_grid_field_profile",
+                "region_id": region["id"],
+                "angle": angle,
+                "secondary_angle": round((angle + 90.0) % 180.0, 4),
+                "support": round(support, 4),
+                "clarity": clarity,
+                "strength": round(support * clarity, 4),
+                "probes": probes,
+                "source": "explicit_column_axes_probe_field",
+            }
+        )
+    return profiles
+
+
+def _region_probe_points(shape: Rect | Polygon, angle: float) -> list[tuple[float, float]]:
+    """Return stable region probes without creating a dense scene raster."""
+    bounds = _shape_bounds(shape)
+    if not isinstance(shape, Polygon):
+        return [(bounds.cx, bounds.cy)]
+
+    points = list(dict.fromkeys(shape.points))
+    if len(points) < 3:
+        return [(bounds.cx, bounds.cy)]
+    center = _polygon_centroid(points, bounds)
+    direction = (cos(radians(angle)), sin(radians(angle)))
+    projections = [
+        ((x - center[0]) * direction[0] + (y - center[1]) * direction[1])
+        for x, y in points
+    ]
+    probes = [
+        center,
+        (center[0] + min(projections) * direction[0], center[1] + min(projections) * direction[1]),
+        (center[0] + max(projections) * direction[0], center[1] + max(projections) * direction[1]),
+    ]
+    edges = list(pairwise([*points, points[0]]))
+    # Long edges retain shape-sensitive probes without letting every small hull
+    # corner become a separate field sample.
+    for (x1, y1), (x2, y2) in sorted(
+        edges,
+        key=lambda edge: hypot(edge[1][0] - edge[0][0], edge[1][1] - edge[0][1]),
+        reverse=True,
+    )[:2]:
+        probes.append(((x1 + x2) / 2.0, (y1 + y2) / 2.0))
+    return list(dict.fromkeys((round(x, 9), round(y, 9)) for x, y in probes))
+
+
+def _polygon_centroid(points: list[tuple[float, float]], bounds: Rect) -> tuple[float, float]:
+    """Return the area centroid of a polygon, with bounds-center fallback."""
+    area_factor = 0.0
+    x_total = 0.0
+    y_total = 0.0
+    for (x1, y1), (x2, y2) in pairwise([*points, points[0]]):
+        cross = x1 * y2 - x2 * y1
+        area_factor += cross
+        x_total += (x1 + x2) * cross
+        y_total += (y1 + y2) * cross
+    if abs(area_factor) <= 1e-9:
+        return (bounds.cx, bounds.cy)
+    return (x_total / (3.0 * area_factor), y_total / (3.0 * area_factor))
+
+
+def _field_probe(
+    point: tuple[float, float],
+    branches: list[dict],
+    bays_by_branch: dict[tuple[str, str], list[dict]],
+) -> dict:
+    """Evaluate authored branch evidence at one deterministic region probe."""
+    evidence = []
+    for branch in branches:
+        branch_bays = bays_by_branch[(branch["system_id"], branch["id"])]
+        if not branch_bays:
+            continue
+        nearest = min(branch_bays, key=lambda bay: _point_bay_distance(point, bay))
+        distance = _point_bay_distance(point, nearest)
+        scale = max(sqrt(max(nearest["polygon"].area, 1e-9)), 1e-9)
+        # Local bay scale normalizes uneven spans, avoiding a fixed world radius.
+        weight = 1.0 / (1.0 + distance / scale)
+        evidence.append(
+            {
+                "system_id": branch["system_id"],
+                "branch_id": branch["id"],
+                "bay_id": nearest["id"],
+                "angle": branch["trend_frame"]["angle"],
+                "distance": round(distance, 4),
+                "local_scale": round(scale, 4),
+                "weight": round(weight, 4),
+            }
+        )
+    # The maximum is normalized local structural support. It avoids treating a
+    # duplicated or densely subdivided grid as stronger merely by item count.
+    support = max((item["weight"] for item in evidence), default=0.0)
+    return {
+        "point": (round(point[0], 4), round(point[1], 4)),
+        "support": round(support, 4),
+        "branch_evidence": evidence,
+    }
+
+
+def _point_bay_distance(point: tuple[float, float], bay: dict) -> float:
+    """Return Euclidean distance from a probe to one authored bay polygon."""
+    polygon = bay["polygon"]
+    if polygon.contains_point(*point):
+        return 0.0
+    edges = pairwise([*polygon.points, polygon.points[0]])
+    return min(_point_segment_distance(point, start, end) for start, end in edges)
+
+
+def _point_segment_distance(
+    point: tuple[float, float],
+    start: tuple[float, float],
+    end: tuple[float, float],
+) -> float:
+    """Return Euclidean point-to-segment distance for polygon bay proximity."""
+    px, py = point
+    x1, y1 = start
+    x2, y2 = end
+    dx = x2 - x1
+    dy = y2 - y1
+    length_squared = dx * dx + dy * dy
+    if length_squared <= 1e-12:
+        return hypot(px - x1, py - y1)
+    ratio = max(0.0, min(1.0, ((px - x1) * dx + (py - y1) * dy) / length_squared))
+    return hypot(px - (x1 + ratio * dx), py - (y1 + ratio * dy))
+
+
+def _field_frame(evidence: list[dict]) -> tuple[float, float]:
+    """Return the weighted orthogonal frame and its directional clarity."""
+    weight_total = sum(item["weight"] for item in evidence)
+    x = sum(item["weight"] * cos(radians(item["angle"] * 4.0)) for item in evidence)
+    y = sum(item["weight"] * sin(radians(item["angle"] * 4.0)) for item in evidence)
+    angle = (degrees(atan2(y, x)) / 4.0) % 90.0
+    # 0 and 90 describe the same orthogonal frame. Floating-point signed zero
+    # can otherwise surface that equivalent frame as a misleading 90 degrees.
+    if abs(angle - 90.0) <= 1e-9:
+        angle = 0.0
+    clarity = hypot(x, y) / max(weight_total, 1e-9)
+    return (round(angle, 4), round(clarity, 4))
 
 
 def _region_frame(region: dict) -> dict:

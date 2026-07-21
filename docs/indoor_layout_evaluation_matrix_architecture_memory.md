@@ -43,6 +43,8 @@ Spatial networks use one shared evidence schema for different scopes. `region_in
 
 Boundary semantics are normalized inference evidence from authored boundary metadata and weights. They describe walk passability, visual passability, thickness, grouping strength, openings, and surface identity without treating the SVG drawing itself as the matrix definition.
 
+Column-grid field evidence is an additive continuous layer over the explicit axis/branch/bay scaffold. It summarizes local support, clarity, and strength at deterministic region probes, and it must not replace bay-based local profiles or force orthogonal snapping.
+
 ## Region Trend Frame Rule
 
 Region trend is a two-axis frame inferred from activity-group frame evidence. The raw activity-group/frame angle remains auditable as `axis-original-angle` when a later correction is applied.

@@ -54,7 +54,7 @@ def test_floorplan_fixture_has_structured_metadata():
 
 
 from features.affordance.models import Rect
-from features.column_grid import column_grid_evidence
+from features.column_grid import column_grid_evidence, column_grid_field_evidence
 from features.scene_evaluator import evaluate_scene
 from features.scene_loader import load_structured_svg_scene
 from features.scene_inference import infer_scene_evidence
@@ -357,6 +357,141 @@ def test_evaluator_emits_column_grid_relation_rows():
     assert rows["column_grid_C_local_profile"]["column_grid_evidence"]["local_profiles"]
     assert matrix["adapter_payload"]["column_grid_handoff"]["C_global"]["evidence_count"] > 0
     assert matrix["adapter_payload"]["column_grid_handoff"]["C_local_profile"]["evidence_count"] > 0
+
+
+def test_column_grid_field_profile_exposes_probe_based_region_evidence():
+    """A regular authored grid should yield one auditable region field profile."""
+    scene = {
+        "source": "unit_column_field",
+        "size": (200.0, 200.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            {
+                "id": "region_seating",
+                "role": "region",
+                "region": "seating",
+                "rect": Rect(cx=50, cy=50, width=40, height=40),
+                "metadata": {"axis-angle": "0"},
+            }
+        ],
+        "columns": [],
+        "column_axes": [
+            {"id": "x0", "role": "column_axis", "rect": Rect(cx=100, cy=0, width=200, height=0), "points": [(0, 0), (200, 0)], "metadata": {"branch-id": "main", "axis-list": "x"}},
+            {"id": "x1", "role": "column_axis", "rect": Rect(cx=100, cy=100, width=200, height=0), "points": [(0, 100), (200, 100)], "metadata": {"branch-id": "main", "axis-list": "x"}},
+            {"id": "y0", "role": "column_axis", "rect": Rect(cx=0, cy=50, width=0, height=100), "points": [(0, 0), (0, 100)], "metadata": {"branch-id": "main", "axis-list": "y"}},
+            {"id": "y1", "role": "column_axis", "rect": Rect(cx=100, cy=50, width=0, height=100), "points": [(100, 0), (100, 100)], "metadata": {"branch-id": "main", "axis-list": "y"}},
+        ],
+    }
+
+    matrix = evaluate_scene(scene)
+    row = next(
+        item for item in matrix["rows"]
+        if item["metric"] == "column_grid_field_profile"
+    )
+    profile = row["column_grid_evidence"]["field_profiles"][0]
+
+    assert row["status"] == "computed"
+    assert profile["region_id"] == "region_seating"
+    assert {"angle", "secondary_angle", "support", "clarity", "strength", "probes"} <= profile.keys()
+    assert profile["angle"] == 0.0
+    assert profile["secondary_angle"] == 90.0
+    assert profile["support"] > 0.0
+    assert profile["clarity"] == 1.0
+    assert profile["strength"] == profile["support"]
+    assert profile["probes"]
+    assert row["field_strength"] == row["score"]
+    assert row["column_grid_field_evidence"] == [profile]
+    assert column_grid_field_evidence(scene) == [profile]
+    model_items = [
+        item
+        for item in matrix["room_analysis_model"]["metric_layer"]["metrics"]
+        if item["metric"] == "column_grid_field_profile"
+    ]
+    assert {item["target_layer"] for item in model_items} == {"ActivityRegion"}
+    assert {item["target_id"] for item in model_items} == {"region_seating"}
+
+
+def test_column_grid_field_profile_preserves_oblique_evidence_and_penalizes_mixed_frames():
+    """Field frames should remain oblique and lose clarity only for conflicting support."""
+    def axis(axis_id, points, axis_list, branch_id):
+        """Create a concise authored axis for field-profile evidence tests."""
+        (x1, y1), (x2, y2) = points
+        return {
+            "id": axis_id,
+            "role": "column_axis",
+            "rect": Rect(cx=(x1 + x2) / 2, cy=(y1 + y2) / 2, width=abs(x2 - x1), height=abs(y2 - y1)),
+            "points": points,
+            "metadata": {"branch-id": branch_id, "axis-list": axis_list},
+        }
+
+    oblique_axes = [
+        axis("o_x0", [(0, 0), (200, 200)], "x", "oblique"),
+        axis("o_x1", [(0, 100), (200, 300)], "x", "oblique"),
+        axis("o_y0", [(100, -100), (-100, 100)], "y", "oblique"),
+        axis("o_y1", [(200, -100), (0, 100)], "y", "oblique"),
+    ]
+    horizontal_axes = [
+        axis("h_x0", [(100, 0), (300, 0)], "x", "horizontal"),
+        axis("h_x1", [(100, 100), (300, 100)], "x", "horizontal"),
+        axis("h_y0", [(100, 0), (100, 100)], "y", "horizontal"),
+        axis("h_y1", [(200, 0), (200, 100)], "y", "horizontal"),
+    ]
+    oblique_scene = {
+        "source": "unit_oblique_column_field",
+        "size": (300.0, 300.0),
+        "objects": [],
+        "boundaries": [],
+        "entries": [],
+        "paths": [],
+        "regions": [
+            {"id": "oblique", "role": "region", "rect": Rect(cx=0, cy=50, width=40, height=40), "metadata": {}},
+        ],
+        "columns": [],
+        "column_axes": oblique_axes,
+    }
+    mixed_scene = {
+        **oblique_scene,
+        "source": "unit_mixed_column_field",
+        "regions": [
+            {"id": "mixed", "role": "region", "rect": Rect(cx=75, cy=50, width=40, height=40), "metadata": {}},
+        ],
+        "column_axes": [*oblique_axes, *horizontal_axes],
+    }
+
+    oblique = column_grid_evidence(oblique_scene)["field_profiles"][0]
+    mixed = column_grid_evidence(mixed_scene)["field_profiles"][0]
+
+    assert 40.0 <= oblique["angle"] <= 50.0
+    assert oblique["clarity"] == 1.0
+    assert mixed["clarity"] < oblique["clarity"]
+    assert mixed["strength"] < oblique["strength"]
+
+
+def test_column_grid_field_profile_is_not_available_without_explicit_axes():
+    """The additive field must not infer structural evidence from columns alone."""
+    rows = {
+        item["metric"]: item
+        for item in evaluate_scene(
+            {
+                "source": "unit_missing_column_field",
+                "size": (100.0, 100.0),
+                "objects": [],
+                "boundaries": [],
+                "entries": [],
+                "paths": [],
+                "regions": [],
+                "columns": [],
+                "column_axes": [],
+            }
+        )["rows"]
+    }
+
+    assert rows["column_grid_field_profile"]["status"] == "not_available"
+    assert rows["column_grid_field_profile"]["evidence"] == []
+    assert rows["column_grid_field_profile"]["column_grid_field_evidence"] == []
 
 
 def test_inter_region_to_grid_uses_spatial_network_edges():
