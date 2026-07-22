@@ -6,6 +6,7 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 test/output/
+*.3dmbak
 *.pyc
 
 # Editor-local settings
