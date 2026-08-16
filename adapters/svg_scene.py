@@ -1,4 +1,4 @@
-"""Translate structured planar SVG fixture facts into Neutral Scene v2."""
+"""Parse planar SVG source facts into Neutral Scene v2."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 import re
 from typing import Iterable, Mapping, MutableMapping
+import xml.etree.ElementTree as ET
 
 if "." in (__package__ or ""):
     from ..features.scene_contract import (
@@ -24,7 +25,6 @@ if "." in (__package__ or ""):
         SourceOpening,
         UncertaintyRecord,
     )
-    from ..features.scene_loader import load_structured_svg_scene
 else:
     from features.scene_contract import (
         NEUTRAL_SCENE_V2,
@@ -41,10 +41,9 @@ else:
         SourceOpening,
         UncertaintyRecord,
     )
-    from features.scene_loader import load_structured_svg_scene
 
 
-SVG_ADAPTER_VERSION = "svg-scene-adapter/0.1.0"
+SVG_ADAPTER_VERSION = "svg-scene-adapter/0.2.0"
 DEFAULT_GEOMETRY_TOLERANCE = 1e-6
 DEFAULT_TOPOLOGY_TOLERANCE = 1e-6
 
@@ -67,6 +66,20 @@ _FORBIDDEN_METADATA_KEYS = {
     "boundary-strength",
     "boundary_strength",
 }
+_IDENTITY_AFFINE = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+_SUPPORTED_GEOMETRY_TAGS = {
+    "circle",
+    "ellipse",
+    "line",
+    "path",
+    "polygon",
+    "polyline",
+    "rect",
+    "use",
+}
+_NON_SOURCE_TAGS = {"defs", "g", "style", "svg"}
+_PATH_CURVE_SAMPLES = 16
+_CURVE_OUTLINE_SEGMENTS = 64
 
 
 def load_svg_neutral_scene(
@@ -84,8 +97,7 @@ def load_svg_neutral_scene(
     analysis unit while the original y-down convention remains in provenance.
     """
     source = Path(path)
-    legacy_scene = load_structured_svg_scene(source, include_source_order=True)
-    width, height = legacy_scene["size"]
+    (width, height), records = _parse_svg_source(source)
 
     # Constructing the context is the contract's authoritative unit and
     # tolerance validation boundary; no viewBox-derived unit guess is allowed.
@@ -109,7 +121,6 @@ def load_svg_neutral_scene(
         coordinate_scale=scale,
     )
 
-    records = list(legacy_scene["_source_records"])
     _assign_neutral_ids(records)
     _validate_explicit_source_ids(records)
     geometries: list[MeshGeometry3D] = []
@@ -120,7 +131,7 @@ def load_svg_neutral_scene(
             record,
             scale=scale,
             analysis_length_unit=context.analysis_length_unit,
-            legacy_bucket=bucket,
+            source_bucket=bucket,
         )
         geometry_warnings[id(record)] = warnings
         if geometry is not None:
@@ -128,9 +139,11 @@ def load_svg_neutral_scene(
             geometry_refs[id(record)] = geometry.id
 
     authored_groups, object_group_refs = _authored_groups(record for _, record in records)
-    openings = _source_openings(
+    source_ids = {_neutral_id(record) for _, record in records}
+    openings, opening_uncertainties = _source_openings(
         (record for _, record in records),
         geometry_refs=geometry_refs,
+        valid_object_refs=source_ids,
     )
     opening_refs_by_host: dict[str, list[str]] = defaultdict(list)
     for opening in openings:
@@ -140,7 +153,7 @@ def load_svg_neutral_scene(
     source_objects = tuple(
         _source_object(
             record,
-            legacy_bucket=bucket,
+            source_bucket=bucket,
             geometry_ref=geometry_refs.get(id(record)),
             group_refs=object_group_refs.get(_neutral_id(record), ()),
             opening_refs=tuple(opening_refs_by_host.get(_neutral_id(record), ())),
@@ -155,10 +168,22 @@ def load_svg_neutral_scene(
         (record for _, record in records),
         geometry_refs=geometry_refs,
         scale=scale,
+        valid_object_refs=source_ids,
     )
     analysis_domain = _analysis_domain(
         (record for _, record in records),
         geometry_refs=geometry_refs,
+    )
+
+    _validate_adapter_references(
+        source_objects=source_objects,
+        geometries=tuple(geometries),
+        authored_groups=authored_groups,
+        authored_grids=grids,
+        authored_grid_axes=axes,
+        authored_affordances=affordances,
+        openings=openings,
+        analysis_domain=analysis_domain,
     )
 
     return NeutralSceneV2(
@@ -171,8 +196,448 @@ def load_svg_neutral_scene(
         authored_grid_axes=axes,
         authored_affordances=affordances,
         openings=openings,
-        uncertainties=affordance_uncertainties,
+        uncertainties=(*affordance_uncertainties, *opening_uncertainties),
     )
+
+
+def _parse_svg_source(
+    path: Path,
+) -> tuple[tuple[float, float], list[tuple[str, dict[str, object]]]]:
+    """Parse every supported visible SVG source element in document order."""
+    root = ET.parse(path).getroot()
+    records: list[tuple[str, dict[str, object]]] = []
+    _walk_svg_source(
+        root,
+        inherited_metadata={},
+        inherited_presentation={"fill": "black", "fill-rule": "nonzero"},
+        parent_affine=_IDENTITY_AFFINE,
+        records=records,
+        inside_defs=False,
+    )
+    return _svg_size(root), records
+
+
+def _walk_svg_source(
+    element: ET.Element,
+    *,
+    inherited_metadata: Mapping[str, object],
+    inherited_presentation: Mapping[str, str],
+    parent_affine: tuple[float, float, float, float, float, float],
+    records: list[tuple[str, dict[str, object]]],
+    inside_defs: bool,
+) -> None:
+    """Collect source elements while carrying authored metadata and transforms."""
+    tag = _tag_name(element.tag)
+    metadata = dict(inherited_metadata)
+    metadata.update(
+        {
+            key[5:]: value
+            for key, value in element.attrib.items()
+            if key.startswith("data-")
+        }
+    )
+    presentation = _presentation_facts(inherited_presentation, element.attrib)
+    affine = _compose_svg_affine(parent_affine, element.attrib.get("transform"))
+    in_defs = inside_defs or tag == "defs"
+
+    # Definitions are reusable resources rather than visible source elements;
+    # unresolved use instances remain explicit uncertain records at their site.
+    if not in_defs and _is_source_element(tag, metadata):
+        geometry, geometry_error = _geometry_for_element(
+            tag,
+            element.attrib,
+            affine,
+            presentation,
+        )
+        records.append(
+            (
+                "source_elements",
+                {
+                    "tag": tag,
+                    "_source_id": element.attrib.get("id"),
+                    "_authored_metadata": metadata,
+                    "_adapter_geometry": geometry,
+                    "_adapter_geometry_error": geometry_error,
+                    "adapter_refs": _adapter_refs(metadata),
+                },
+            )
+        )
+
+    for child in element:
+        _walk_svg_source(
+            child,
+            inherited_metadata=metadata,
+            inherited_presentation=presentation,
+            parent_affine=affine,
+            records=records,
+            inside_defs=in_defs,
+        )
+
+
+def _is_source_element(tag: str, metadata: Mapping[str, object]) -> bool:
+    """Return whether an SVG element should become one Neutral Scene source object."""
+    if tag in _SUPPORTED_GEOMETRY_TAGS:
+        return True
+    return tag not in _NON_SOURCE_TAGS and bool(_optional_text(metadata.get("role")))
+
+
+def _svg_size(root: ET.Element) -> tuple[float, float]:
+    """Return SVG viewBox dimensions without interpreting them as physical units."""
+    raw = root.attrib.get("viewBox", "")
+    try:
+        values = [float(part) for part in re.split(r"[\s,]+", raw.strip()) if part]
+    except ValueError:
+        values = []
+    if len(values) == 4 and all(math.isfinite(value) for value in values):
+        return values[2], values[3]
+    return _svg_dimension(root.attrib.get("width")), _svg_dimension(
+        root.attrib.get("height")
+    )
+
+
+def _svg_dimension(raw: str | None) -> float:
+    """Parse one finite SVG dimension while tolerating a presentation unit suffix."""
+    if raw is None:
+        return 0.0
+    match = re.fullmatch(
+        r"\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)(?:[A-Za-z%]+)?\s*",
+        raw,
+    )
+    if not match:
+        return 0.0
+    value = float(match.group(1))
+    return value if math.isfinite(value) else 0.0
+
+
+def _presentation_facts(
+    inherited: Mapping[str, str],
+    attributes: Mapping[str, str],
+) -> dict[str, str]:
+    """Resolve inherited fill facts with inline style taking precedence."""
+    result = dict(inherited)
+    for name in ("fill", "fill-rule"):
+        if name in attributes:
+            result[name] = attributes[name].strip().lower()
+    style = _inline_style(attributes.get("style"))
+    for name in ("fill", "fill-rule"):
+        if name in style:
+            result[name] = style[name].strip().lower()
+    return result
+
+
+def _inline_style(raw: str | None) -> dict[str, str]:
+    """Parse the small inline CSS declaration subset needed for SVG fill facts."""
+    result: dict[str, str] = {}
+    for declaration in (raw or "").split(";"):
+        name, separator, value = declaration.partition(":")
+        if separator and name.strip() and value.strip():
+            result[name.strip().lower()] = value.strip()
+    return result
+
+
+def _geometry_for_element(
+    tag: str,
+    attributes: Mapping[str, str],
+    transform: tuple[float, float, float, float, float, float],
+    presentation: Mapping[str, str],
+) -> tuple[dict[str, object] | None, str | None]:
+    """Extract authored planar geometry without substituting a bounding box."""
+    fill = presentation.get("fill", "black")
+    fill_rule = presentation.get("fill-rule", "nonzero")
+    filled = fill != "none"
+    if tag == "rect":
+        x = _finite_svg_number(attributes.get("x"), default=0.0)
+        y = _finite_svg_number(attributes.get("y"), default=0.0)
+        width = _finite_svg_number(attributes.get("width"), default=0.0)
+        height = _finite_svg_number(attributes.get("height"), default=0.0)
+        if None in {x, y, width, height} or width <= 0.0 or height <= 0.0:
+            return None, "invalid_rect_dimensions"
+        points = ((x, y), (x + width, y), (x + width, y + height), (x, y + height))
+        return _geometry_descriptor(
+            "authored_rect", points, transform, polygonal=filled, fill=fill, fill_rule=fill_rule
+        ), None
+    if tag in {"circle", "ellipse"}:
+        return _curve_geometry(tag, attributes, transform, fill, fill_rule)
+    if tag in {"polygon", "polyline"}:
+        points = _points_attribute(attributes.get("points"))
+        minimum = 3 if tag == "polygon" else 2
+        if points is None or len(points) < minimum:
+            error = (
+                "invalid_polygon_points"
+                if tag == "polygon"
+                else "invalid_polyline_points"
+            )
+            return None, error
+        return _geometry_descriptor(
+            f"authored_{tag}",
+            points,
+            transform,
+            polygonal=tag == "polygon" and filled,
+            fill=fill,
+            fill_rule=fill_rule,
+        ), None
+    if tag == "line":
+        values = tuple(
+            _finite_svg_number(attributes.get(name), default=0.0)
+            for name in ("x1", "y1", "x2", "y2")
+        )
+        if any(value is None for value in values):
+            return None, "invalid_line_coordinates"
+        x1, y1, x2, y2 = values
+        return _geometry_descriptor(
+            "authored_line",
+            ((x1, y1), (x2, y2)),
+            transform,
+            polygonal=False,
+            fill="none",
+            fill_rule=fill_rule,
+        ), None
+    if tag == "path":
+        return _path_geometry(attributes.get("d", ""), transform, fill, fill_rule)
+    if tag == "use":
+        return None, "unresolved_use_reference"
+    return None, f"unsupported_svg_tag:{tag or 'unknown'}"
+
+
+def _finite_svg_number(raw: str | None, *, default: float | None) -> float | None:
+    """Parse one complete finite SVG number without accepting malformed prefixes."""
+    if raw is None:
+        return default
+    try:
+        value = float(raw.strip())
+    except (AttributeError, TypeError, ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) else None
+
+
+def _points_attribute(raw: str | None) -> tuple[tuple[float, float], ...] | None:
+    """Parse a complete SVG points attribute into ordered finite coordinates."""
+    if not raw or re.search(r"[^0-9eE+\-.,\s]", raw):
+        return None
+    try:
+        values = [float(value) for value in re.findall(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", raw)]
+    except ValueError:
+        return None
+    if len(values) % 2 or not all(math.isfinite(value) for value in values):
+        return None
+    return tuple(zip(values[0::2], values[1::2]))
+
+
+def _curve_geometry(
+    tag: str,
+    attributes: Mapping[str, str],
+    transform: tuple[float, float, float, float, float, float],
+    fill: str,
+    fill_rule: str,
+) -> tuple[dict[str, object] | None, str | None]:
+    """Tessellate a valid analytic circle or ellipse outline deterministically."""
+    cx = _finite_svg_number(attributes.get("cx"), default=0.0)
+    cy = _finite_svg_number(attributes.get("cy"), default=0.0)
+    if tag == "circle":
+        rx = ry = _finite_svg_number(attributes.get("r"), default=None)
+        source = "analytic_circle"
+    else:
+        rx = _finite_svg_number(attributes.get("rx"), default=None)
+        ry = _finite_svg_number(attributes.get("ry"), default=None)
+        source = "analytic_ellipse"
+    if None in {cx, cy, rx, ry} or rx <= 0.0 or ry <= 0.0:
+        return None, "invalid_curve_dimensions"
+    points = tuple(
+        (
+            cx + rx * math.cos(2.0 * math.pi * index / _CURVE_OUTLINE_SEGMENTS),
+            cy + ry * math.sin(2.0 * math.pi * index / _CURVE_OUTLINE_SEGMENTS),
+        )
+        for index in range(_CURVE_OUTLINE_SEGMENTS)
+    )
+    return _geometry_descriptor(
+        source,
+        points,
+        transform,
+        polygonal=fill != "none",
+        fill=fill,
+        fill_rule=fill_rule,
+        extra={"curve_segments": _CURVE_OUTLINE_SEGMENTS},
+    ), None
+
+
+def _geometry_descriptor(
+    source: str,
+    points: Iterable[tuple[float, float]],
+    transform: tuple[float, float, float, float, float, float],
+    *,
+    polygonal: bool,
+    fill: str,
+    fill_rule: str,
+    extra: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Apply the composed transform once and package adapter geometry facts."""
+    return {
+        "points": tuple(_apply_affine(point, transform) for point in points),
+        "polygonal": polygonal,
+        "geometry_source": source,
+        "world_affine": transform,
+        "fill": fill,
+        "fill_rule": fill_rule,
+        **dict(extra or {}),
+    }
+
+
+def _path_geometry(
+    raw: str,
+    transform: tuple[float, float, float, float, float, float],
+    fill: str,
+    fill_rule: str,
+) -> tuple[dict[str, object] | None, str | None]:
+    """Sample SVG path curves while refusing ambiguous filled topology."""
+    if not raw.strip():
+        return None, "empty_path"
+    try:
+        from svgpathtools import Line, parse_path
+
+        subpaths = parse_path(raw).continuous_subpaths()
+    except (ImportError, ValueError, TypeError) as error:
+        return None, f"path_parse_failed:{type(error).__name__}"
+    if not subpaths:
+        return None, "empty_path"
+
+    points: list[tuple[float, float]] = []
+    subpath_offsets: list[int] = []
+    curved = False
+    for subpath in subpaths:
+        subpath_offsets.append(len(points))
+        for segment_index, segment in enumerate(subpath):
+            steps = 1 if isinstance(segment, Line) else _PATH_CURVE_SAMPLES
+            curved = curved or steps > 1
+            if segment_index == 0:
+                start = segment.point(0.0)
+                points.append((float(start.real), float(start.imag)))
+            for index in range(1, steps + 1):
+                point = segment.point(index / steps)
+                points.append((float(point.real), float(point.imag)))
+
+    closed = len(subpaths) == 1 and bool(subpaths[0].isclosed())
+    polygonal = fill != "none" and closed
+    topology_warning = None
+    if fill != "none" and not closed:
+        topology_warning = "unsupported_path_fill_topology"
+    descriptor = _geometry_descriptor(
+        "svg_path_curve" if curved else "svg_path_polyline",
+        points,
+        transform,
+        polygonal=polygonal,
+        fill=fill,
+        fill_rule=fill_rule,
+        extra={
+            "subpath_count": len(subpaths),
+            "subpath_offsets": tuple(subpath_offsets),
+            "curve_sampling_strategy": "fixed_samples_per_segment",
+            "curve_samples_per_segment": _PATH_CURVE_SAMPLES,
+            "curve_sampling_tolerance": None,
+            "sampled_vertex_count": len(points),
+            "geometry_uncertainty": topology_warning,
+        },
+    )
+    return descriptor, None
+
+
+def _compose_svg_affine(
+    parent: tuple[float, float, float, float, float, float],
+    raw: str | None,
+) -> tuple[float, float, float, float, float, float]:
+    """Compose a complete SVG transform list beneath its parent transform."""
+    local = _IDENTITY_AFFINE
+    if raw:
+        matches = list(re.finditer(r"([A-Za-z]+)\s*\(([^)]*)\)", raw))
+        compact = "".join(match.group(0) for match in matches)
+        if not matches or re.sub(r"[\s,]+", "", compact) != re.sub(r"[\s,]+", "", raw):
+            raise ValueError(f"unsupported SVG transform syntax: {raw!r}")
+        for match in matches:
+            values = [
+                float(value)
+                for value in re.findall(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", match.group(2))
+            ]
+            if not all(math.isfinite(value) for value in values):
+                raise ValueError(f"nonfinite SVG transform values: {raw!r}")
+            local = _multiply_affine(local, _svg_transform_operation(match.group(1), values))
+    return _multiply_affine(parent, local)
+
+
+def _svg_transform_operation(
+    name: str,
+    values: list[float],
+) -> tuple[float, float, float, float, float, float]:
+    """Return one standard SVG affine operation as a six-value matrix."""
+    lowered = name.lower()
+    if lowered == "matrix" and len(values) == 6:
+        return tuple(values)
+    if lowered == "translate" and len(values) in {1, 2}:
+        return (1.0, 0.0, 0.0, 1.0, values[0], values[1] if len(values) == 2 else 0.0)
+    if lowered == "scale" and len(values) in {1, 2}:
+        return (values[0], 0.0, 0.0, values[-1], 0.0, 0.0)
+    if lowered == "rotate" and len(values) in {1, 3}:
+        angle = math.radians(values[0])
+        rotation = (math.cos(angle), math.sin(angle), -math.sin(angle), math.cos(angle), 0.0, 0.0)
+        if len(values) == 1:
+            return rotation
+        cx, cy = values[1:]
+        return _multiply_affine(
+            _multiply_affine((1.0, 0.0, 0.0, 1.0, cx, cy), rotation),
+            (1.0, 0.0, 0.0, 1.0, -cx, -cy),
+        )
+    if lowered in {"skewx", "skewy"} and len(values) == 1:
+        shear = math.tan(math.radians(values[0]))
+        if lowered == "skewx":
+            return (1.0, 0.0, shear, 1.0, 0.0, 0.0)
+        return (1.0, shear, 0.0, 1.0, 0.0, 0.0)
+    raise ValueError(f"unsupported SVG transform operation {name!r} with {len(values)} values")
+
+
+def _multiply_affine(
+    left: tuple[float, float, float, float, float, float],
+    right: tuple[float, float, float, float, float, float],
+) -> tuple[float, float, float, float, float, float]:
+    """Multiply SVG affine matrices using column-vector coordinate semantics."""
+    la, lb, lc, ld, le, lf = left
+    ra, rb, rc, rd, re, rf = right
+    return (
+        la * ra + lc * rb,
+        lb * ra + ld * rb,
+        la * rc + lc * rd,
+        lb * rc + ld * rd,
+        la * re + lc * rf + le,
+        lb * re + ld * rf + lf,
+    )
+
+
+def _apply_affine(
+    point: tuple[float, float],
+    transform: tuple[float, float, float, float, float, float],
+) -> tuple[float, float]:
+    """Apply one composed SVG affine matrix to a source-space point exactly once."""
+    a, b, c, d, e, f = transform
+    x, y = point
+    return a * x + c * y + e, b * x + d * y + f
+
+
+def _tag_name(tag: str) -> str:
+    """Remove an ElementTree namespace prefix from an SVG tag."""
+    return tag.rsplit("}", 1)[-1]
+
+
+def _adapter_refs(metadata: Mapping[str, object]) -> dict[str, str]:
+    """Collect explicit external-system references from SVG data attributes."""
+    aliases = {
+        "rhino_guid": ("rhino-guid", "rhino_guid"),
+        "ifc_guid": ("ifc-guid", "ifc_guid"),
+        "visualarq_id": ("visualarq-id", "visualarq_id"),
+        "source_layer": ("source-layer", "source_layer"),
+        "source_id": ("source-id", "source_id"),
+    }
+    return {
+        key: str(value)
+        for key, names in aliases.items()
+        if (value := next((metadata[name] for name in names if metadata.get(name)), None))
+    }
 
 
 def _analysis_context(
@@ -229,13 +694,18 @@ def _mesh_from_record(
     *,
     scale: float,
     analysis_length_unit: str,
-    legacy_bucket: str,
+    source_bucket: str,
 ) -> tuple[MeshGeometry3D | None, tuple[UncertaintyRecord, ...]]:
-    """Create a z=0 mesh from adapter handoff geometry without bbox invention."""
+    """Create a z=0 transport mesh from authored SVG geometry facts."""
     source_ref = _neutral_id(record)
     descriptor = record.get("_adapter_geometry")
     if not isinstance(descriptor, Mapping):
         reason = str(record.get("_adapter_geometry_error") or "unsupported")
+        error_code = (
+            reason
+            if reason in {"invalid_curve_dimensions"}
+            else "unsupported_svg_geometry"
+        )
         return None, (
             _record_uncertainty(
                 "missing_geometry",
@@ -244,7 +714,7 @@ def _mesh_from_record(
                 {"reason": reason},
             ),
             _record_uncertainty(
-                "unsupported_svg_geometry",
+                error_code,
                 "The SVG geometry could not be represented without fabrication.",
                 source_ref,
                 {"reason": reason},
@@ -263,20 +733,33 @@ def _mesh_from_record(
     planar_vertices = tuple(
         (float(x) * scale, float(y) * scale) for x, y in points
     )
-    warnings: tuple[UncertaintyRecord, ...] = ()
+    warnings: list[UncertaintyRecord] = []
+    geometry_uncertainty = _optional_text(descriptor.get("geometry_uncertainty"))
+    if geometry_uncertainty:
+        warnings.append(
+            _record_uncertainty(
+                geometry_uncertainty,
+                "The SVG path fill topology was preserved as line geometry.",
+                source_ref,
+                {
+                    "subpath_count": descriptor.get("subpath_count"),
+                    "fill_rule": descriptor.get("fill_rule"),
+                },
+            )
+        )
     triangles: tuple[tuple[int, int, int], ...] = ()
     if bool(descriptor.get("polygonal")) and len(planar_vertices) >= 3:
         planar_vertices, triangles, triangulation_error = _triangulate_polygon(
             planar_vertices
         )
         if triangulation_error:
-            warnings = (
+            warnings.append(
                 _record_uncertainty(
                     "polygon_triangulation_unavailable",
                     "The authored polygon vertices were preserved without fabricated faces.",
                     source_ref,
                     {"reason": triangulation_error},
-                ),
+                )
             )
     vertices = tuple((x, y, 0.0) for x, y in planar_vertices)
 
@@ -292,21 +775,27 @@ def _mesh_from_record(
         is_closed=False,
         local_to_world_provenance={
             "adapter": SVG_ADAPTER_VERSION,
-            "method": "structured_svg_loader_world_points",
+            "method": "svg_adapter_world_geometry",
             "svg_y_direction": "down",
-            "legacy_bucket": legacy_bucket,
+            "source_bucket": source_bucket,
             "world_affine": descriptor.get("world_affine"),
         },
         source_representation_id=source_id,
         tessellation_settings={
             "geometry_source": str(descriptor.get("geometry_source") or "unknown"),
-            "curve_segments": 64
-            if descriptor.get("geometry_source") in {"analytic_circle", "analytic_ellipse"}
-            else None,
+            "curve_segments": descriptor.get("curve_segments"),
+            "fill": descriptor.get("fill"),
+            "fill_rule": descriptor.get("fill_rule"),
+            "subpath_count": descriptor.get("subpath_count"),
+            "subpath_offsets": descriptor.get("subpath_offsets"),
+            "curve_sampling_strategy": descriptor.get("curve_sampling_strategy"),
+            "curve_samples_per_segment": descriptor.get("curve_samples_per_segment"),
+            "curve_sampling_tolerance": descriptor.get("curve_sampling_tolerance"),
+            "sampled_vertex_count": descriptor.get("sampled_vertex_count"),
             "triangulation": "shapely_constrained_filter" if triangles else "none",
         },
         units=analysis_length_unit,
-    ), warnings
+    ), tuple(warnings)
 
 
 def _dedupe_polygon_closure(
@@ -371,13 +860,13 @@ def _triangulate_polygon(
 def _source_object(
     record: Mapping[str, object],
     *,
-    legacy_bucket: str,
+    source_bucket: str,
     geometry_ref: str | None,
     group_refs: tuple[str, ...],
     opening_refs: tuple[str, ...],
     geometry_warnings: tuple[UncertaintyRecord, ...],
 ) -> SourceObject:
-    """Translate one loader record without adding analysis semantics."""
+    """Translate one parsed source element without adding analysis semantics."""
     neutral_id = _neutral_id(record)
     source_id = _source_id(record)
     metadata = _authored_metadata(record)
@@ -402,7 +891,26 @@ def _source_object(
                 "source_role_unavailable",
                 "No explicit data-role metadata was authored for this SVG element.",
                 neutral_id,
-                {"compatibility_role": record.get("role")},
+            )
+        )
+    material_refs = _metadata_refs(metadata, "material-ref", "material-refs")
+    surface_refs = _metadata_refs(metadata, "surface-ref", "surface-refs")
+    if material_refs:
+        uncertainties.append(
+            _record_uncertainty(
+                "unresolved_material_ref",
+                "SVG material references were omitted because no material records exist.",
+                neutral_id,
+                {"omitted_refs": material_refs},
+            )
+        )
+    if surface_refs:
+        uncertainties.append(
+            _record_uncertainty(
+                "unresolved_surface_ref",
+                "SVG surface references were omitted because no surface records exist.",
+                neutral_id,
+                {"omitted_refs": surface_refs},
             )
         )
     orientation = _optional_number(metadata.get("orientation"))
@@ -413,8 +921,8 @@ def _source_object(
         source_class=f"svg:{record.get('tag') or 'unknown'}",
         geometry_refs=(geometry_ref,) if geometry_ref else (),
         group_refs=group_refs,
-        material_refs=_metadata_refs(metadata, "material-ref", "material-refs"),
-        surface_refs=_metadata_refs(metadata, "surface-ref", "surface-refs"),
+        material_refs=(),
+        surface_refs=(),
         opening_refs=opening_refs,
         authored_local_frame=(
             {
@@ -426,15 +934,11 @@ def _source_object(
         ),
         provenance={
             "adapter": SVG_ADAPTER_VERSION,
-            "legacy_bucket": legacy_bucket,
+            "source_bucket": source_bucket,
             "source_order": "global_svg_traversal",
             "source_metadata": metadata,
             "adapter_refs": dict(record.get("adapter_refs") or {}),
             "authored_hint": authored_role in {"region", "path"},
-            "compatibility_role": record.get("role"),
-            "compatibility_group": record.get("group"),
-            "compatibility_furniture_group": record.get("furniture_group"),
-            "compatibility_semantics_authored": False,
         },
         uncertainties=tuple(uncertainties),
     )
@@ -662,6 +1166,7 @@ def _authored_affordances(
     *,
     geometry_refs: Mapping[int, str],
     scale: float,
+    valid_object_refs: set[str],
 ) -> tuple[tuple[AuthoredAffordanceZone, ...], tuple[UncertaintyRecord, ...]]:
     """Preserve only affordances with explicit role, purpose, owners, and extent."""
     zones: list[AuthoredAffordanceZone] = []
@@ -671,12 +1176,25 @@ def _authored_affordances(
         if metadata.get("role") not in {"affordance", "affordance_zone"}:
             continue
         purpose = _optional_text(metadata.get("purpose"))
-        owners = _metadata_refs(
+        authored_owners = _metadata_refs(
             metadata, "source-furniture-refs", "source-furniture-ref"
         )
+        owners = tuple(ref for ref in authored_owners if ref in valid_object_refs)
+        unresolved_owners = tuple(
+            ref for ref in authored_owners if ref not in valid_object_refs
+        )
+        source_id = _neutral_id(record)
+        if unresolved_owners:
+            uncertainties.append(
+                _record_uncertainty(
+                    "unresolved_affordance_owner_ref",
+                    "Unknown affordance owner references were omitted.",
+                    source_id,
+                    {"omitted_refs": unresolved_owners},
+                )
+            )
         geometry_ref = geometry_refs.get(id(record))
         if not purpose or not owners or not geometry_ref:
-            source_id = _neutral_id(record)
             uncertainties.append(
                 UncertaintyRecord(
                     code="incomplete_authored_affordance",
@@ -688,7 +1206,6 @@ def _authored_affordances(
                 )
             )
             continue
-        source_id = _neutral_id(record)
         try:
             z_min = float(metadata["z-min"]) * scale
             z_max = float(metadata["z-max"]) * scale
@@ -735,15 +1252,31 @@ def _source_openings(
     records: Iterable[Mapping[str, object]],
     *,
     geometry_refs: Mapping[int, str],
-) -> tuple[SourceOpening, ...]:
+    valid_object_refs: set[str],
+) -> tuple[tuple[SourceOpening, ...], tuple[UncertaintyRecord, ...]]:
     """Translate explicitly parsed SVG openings and their authored host refs."""
     openings: list[SourceOpening] = []
+    adapter_uncertainties: list[UncertaintyRecord] = []
     for record in records:
         metadata = _authored_metadata(record)
         if metadata.get("role") != "opening":
             continue
         neutral_id = _neutral_id(record)
         geometry_ref = geometry_refs.get(id(record))
+        authored_hosts = _metadata_refs(metadata, "host-refs", "host-ref")
+        host_refs = tuple(ref for ref in authored_hosts if ref in valid_object_refs)
+        unresolved_hosts = tuple(
+            ref for ref in authored_hosts if ref not in valid_object_refs
+        )
+        if unresolved_hosts:
+            adapter_uncertainties.append(
+                _record_uncertainty(
+                    "unresolved_opening_host_ref",
+                    "Unknown opening host references were omitted.",
+                    neutral_id,
+                    {"omitted_refs": unresolved_hosts},
+                )
+            )
         uncertainties = () if geometry_ref else (
             _record_uncertainty(
                 "missing_geometry",
@@ -755,7 +1288,7 @@ def _source_openings(
             SourceOpening(
                 id=neutral_id,
                 source_id=_source_id(record),
-                host_refs=_metadata_refs(metadata, "host-refs", "host-ref"),
+                host_refs=host_refs,
                 geometry_refs=(geometry_ref,) if geometry_ref else (),
                 opening_kind=_optional_text(metadata.get("opening-kind")) or "opening",
                 provenance={
@@ -766,7 +1299,7 @@ def _source_openings(
                 uncertainties=uncertainties,
             )
         )
-    return tuple(openings)
+    return tuple(openings), tuple(adapter_uncertainties)
 
 
 def _analysis_domain(
@@ -774,32 +1307,129 @@ def _analysis_domain(
     *,
     geometry_refs: Mapping[int, str],
 ) -> AnalysisDomain | None:
-    """Return only an explicitly role-marked SVG analysis domain."""
-    for record in records:
-        metadata = _authored_metadata(record)
-        if metadata.get("role") not in {"analysis_domain", "analysis-domain"}:
-            continue
-        neutral_id = _neutral_id(record)
-        geometry_ref = geometry_refs.get(id(record))
-        uncertainties = () if geometry_ref else (
-            _record_uncertainty(
-                "missing_geometry",
-                "The explicit SVG analysis domain has no supported geometry.",
-                neutral_id,
-            ),
+    """Return the sole explicit domain and reject ambiguous authored selection."""
+    candidates = [
+        record
+        for record in records
+        if _authored_metadata(record).get("role")
+        in {"analysis_domain", "analysis-domain"}
+    ]
+    if len(candidates) > 1:
+        candidate_ids = tuple(_neutral_id(record) for record in candidates)
+        raise ValueError(
+            f"multiple explicit SVG analysis domains are ambiguous: {candidate_ids}"
         )
-        return AnalysisDomain(
-            id=neutral_id,
-            geometry_refs=(geometry_ref,) if geometry_ref else (),
-            source_id=_source_id(record),
-            selection_method="explicit_svg_element",
-            provenance={
-                "adapter": SVG_ADAPTER_VERSION,
-                "method": "explicit_svg_analysis_domain_role",
-            },
-            uncertainties=uncertainties,
+    if not candidates:
+        return None
+    record = candidates[0]
+    neutral_id = _neutral_id(record)
+    geometry_ref = geometry_refs.get(id(record))
+    uncertainties = () if geometry_ref else (
+        _record_uncertainty(
+            "missing_geometry",
+            "The explicit SVG analysis domain has no supported geometry.",
+            neutral_id,
+        ),
+    )
+    return AnalysisDomain(
+        id=neutral_id,
+        geometry_refs=(geometry_ref,) if geometry_ref else (),
+        source_id=_source_id(record),
+        selection_method="explicit_svg_element",
+        provenance={
+            "adapter": SVG_ADAPTER_VERSION,
+            "method": "explicit_svg_analysis_domain_role",
+        },
+        uncertainties=uncertainties,
+    )
+
+
+def _validate_adapter_references(
+    *,
+    source_objects: tuple[SourceObject, ...],
+    geometries: tuple[MeshGeometry3D, ...],
+    authored_groups: tuple[AuthoredGroup, ...],
+    authored_grids: tuple[AuthoredGrid, ...],
+    authored_grid_axes: tuple[AuthoredGridAxis, ...],
+    authored_affordances: tuple[AuthoredAffordanceZone, ...],
+    openings: tuple[SourceOpening, ...],
+    analysis_domain: AnalysisDomain | None,
+) -> None:
+    """Reject any dangling reference left by adapter record construction."""
+    object_ids = {record.id for record in source_objects}
+    geometry_ids = {record.id for record in geometries}
+    group_ids = {record.id for record in authored_groups}
+    axis_ids = {record.id for record in authored_grid_axes}
+    opening_ids = {record.id for record in openings}
+
+    # Gate 2 constructs neither material nor surface records, so corresponding
+    # object refs must be empty rather than point at unrepresented source ids.
+    for record in source_objects:
+        _require_ref_subset(
+            record.geometry_refs,
+            geometry_ids,
+            f"source_object:{record.id}:geometry_refs",
         )
-    return None
+        _require_ref_subset(record.group_refs, group_ids, f"source_object:{record.id}:group_refs")
+        _require_ref_subset(
+            record.opening_refs,
+            opening_ids,
+            f"source_object:{record.id}:opening_refs",
+        )
+        _require_ref_subset(
+            record.container_refs,
+            object_ids,
+            f"source_object:{record.id}:container_refs",
+        )
+        _require_ref_subset(
+            record.material_refs,
+            set(),
+            f"source_object:{record.id}:material_refs",
+        )
+        _require_ref_subset(record.surface_refs, set(), f"source_object:{record.id}:surface_refs")
+    for record in authored_groups:
+        _require_ref_subset(
+            record.member_refs,
+            object_ids,
+            f"authored_group:{record.id}:member_refs",
+        )
+    for record in authored_grids:
+        _require_ref_subset(record.axis_refs, axis_ids, f"authored_grid:{record.id}:axis_refs")
+    for record in authored_affordances:
+        _require_ref_subset(
+            record.geometry_refs,
+            geometry_ids,
+            f"affordance:{record.id}:geometry_refs",
+        )
+        _require_ref_subset(
+            record.source_furniture_refs,
+            object_ids,
+            f"affordance:{record.id}:source_furniture_refs",
+        )
+    for record in openings:
+        _require_ref_subset(
+            record.geometry_refs,
+            geometry_ids,
+            f"opening:{record.id}:geometry_refs",
+        )
+        _require_ref_subset(record.host_refs, object_ids, f"opening:{record.id}:host_refs")
+    if analysis_domain is not None:
+        _require_ref_subset(
+            analysis_domain.geometry_refs,
+            geometry_ids,
+            f"analysis_domain:{analysis_domain.id}:geometry_refs",
+        )
+
+
+def _require_ref_subset(
+    refs: Iterable[str],
+    valid_ids: set[str],
+    location: str,
+) -> None:
+    """Raise an internal adapter error when references escape their record set."""
+    missing = tuple(ref for ref in refs if ref not in valid_ids)
+    if missing:
+        raise RuntimeError(f"dangling Neutral Scene references at {location}: {missing}")
 
 
 def _optional_text(value: object) -> str | None:

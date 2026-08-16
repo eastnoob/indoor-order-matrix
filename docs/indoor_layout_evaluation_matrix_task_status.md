@@ -3098,3 +3098,55 @@
   source identity crossing the adapter boundary. Ponytail review retained one
   shared parser, the installed geometry primitive, and contract-specific
   helpers only; no new dependency or speculative adapter framework was added.
+
+2026-08-17, Gate 2 architecture and integrity re-review repair checkpoint:
+
+- Scope remained Gate 2 only. The seven review findings agree with the formal
+  Gate 2 plan. This re-review corrects the earlier interpretation that the V2
+  adapter must reuse the legacy XML traversal: the approved plan places
+  XML/data-attribute parsing in `adapters/svg_scene.py` and leaves
+  `features/scene_loader.py` as legacy compatibility behavior.
+- Strict TDD RED evidence:
+  - the initial re-review run was `13 failed, 27 passed`; failures covered
+    role-filtered generic geometry, ignored duplicate generic ids, dangling
+    material/surface/affordance/opening refs, ambiguous domains, lost
+    stroke-only and multi-subpath paths, invalid curve dimensions, absent path
+    sampling provenance, and the reversed parser boundary;
+  - the provenance-version RED was `3 failed`, with every real fixture still
+    reporting `svg-scene-adapter/0.1.0` instead of the required `0.2.0` after
+    the semantic parser change.
+- The adapter now parses every supported visible geometry element regardless
+  of role. Missing roles remain `unknown` with uncertainty; duplicate explicit
+  ids are checked across this complete source set, and all explicit ids are
+  reserved before deterministic traversal ids are assigned.
+- XML, inherited `data-*`, presentation fill facts, full affine composition,
+  curve/path sampling, and V2 geometry extraction now live in the SVG adapter.
+  V2-only handoff state and extraction helpers were removed from the legacy
+  loader; its default public shape and representative values remain unchanged.
+- A final adapter integrity pass checks geometry, group, axis/grid, opening,
+  affordance-owner, domain, container, material, and surface refs against the
+  actual emitted record sets. Unknown refs are omitted with structured
+  uncertainty. Gate 2 emits no material or surface records and therefore emits
+  no material or surface refs.
+- `fill:none` closed paths remain faceless. Ambiguous open or multi-subpath
+  filled paths retain sampled line geometry and
+  `unsupported_path_fill_topology` uncertainty rather than fabricated faces.
+  Fill, fill-rule, subpath offsets, fixed curve sampling count, sampled vertex
+  count, and the absence of a tolerance criterion are serialized in mesh
+  tessellation settings.
+- Nonfinite or nonpositive circle/ellipse radii produce source objects with
+  missing geometry and `invalid_curve_dimensions` uncertainty. Multiple
+  explicit analysis domains raise a focused ambiguity error.
+- Focused GREEN evidence:
+  - adapter-only after behavior repair: `40 passed in 2.37s`;
+  - relevant legacy loader compatibility: `8 passed, 203 deselected in 0.17s`;
+  - Gate 0, Gate 1, and Gate 2 importlib set: `157 passed in 2.93s`;
+  - adapter provenance version cycle: `3 passed`, then `40 passed in 2.40s`.
+- First full-suite verification before the provenance-only version bump:
+  `452 passed in 774.80s (0:12:54)` under Pixi runtime Python `3.12.13`.
+- Grill Me review found no role-gated source loss, dangling Neutral Scene ref,
+  fabricated path surface, ambiguous domain selection, invalid curve mesh,
+  implicit unit inference, or Gate 3 behavior. Ponytail review retained the
+  already-installed SVG/path and Shapely primitives, one adapter parser, and
+  one compact integrity validator; it added no dependency or generic parser
+  framework. All modified/new functions have English docstrings.

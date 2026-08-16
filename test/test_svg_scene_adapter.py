@@ -71,13 +71,13 @@ def test_real_svg_fixtures_validate_and_round_trip_without_fabricated_facts(
     fixture: Path,
 ) -> None:
     """Real planar fixtures should become strict, source-ordered v2 scenes."""
-    legacy = load_structured_svg_scene(fixture, include_source_order=True)
     scene = _load(fixture)
     payload = scene.to_dict()
 
     assert NeutralSceneV2.from_dict(json.loads(json.dumps(payload))).to_dict() == payload
     assert scene.context.input_mode == "svg"
     assert scene.context.source_schema == "SVG"
+    assert scene.context.adapter_version == "svg-scene-adapter/0.2.0"
     assert scene.context.source_length_unit == "mm"
     assert scene.context.analysis_length_unit == "m"
     assert scene.context.capability_flags == {
@@ -92,26 +92,9 @@ def test_real_svg_fixtures_validate_and_round_trip_without_fabricated_facts(
     assert scene.authored_affordances == ()
     assert not (FORBIDDEN_WEIGHT_KEYS & _all_keys(payload))
 
-    legacy_objects = [
-        record
-        for bucket, record in legacy["_source_records"]
-        if bucket == "objects"
-    ]
-    mapped_objects = [
-        item
-        for item in scene.source_objects
-        if item.provenance["legacy_bucket"] == "objects"
-    ]
-    assert [item.source_id for item in mapped_objects] == [
-        record["_source_id"] for record in legacy_objects
-    ]
-    repeated_ids = [
-        item.id
-        for item in _load(fixture).source_objects
-        if item.provenance["legacy_bucket"] == "objects"
-    ]
-    assert [item.id for item in mapped_objects] == repeated_ids
-    assert len(mapped_objects) == len({item.id for item in mapped_objects})
+    repeated_ids = [item.id for item in _load(fixture).source_objects]
+    assert [item.id for item in scene.source_objects] == repeated_ids
+    assert len(scene.source_objects) == len({item.id for item in scene.source_objects})
 
 
 def test_existing_structured_svg_loader_behavior_remains_unchanged() -> None:
@@ -264,8 +247,12 @@ def test_explicit_affordance_opening_and_domain_are_mapped(tmp_path: Path) -> No
     assert len(scene.openings) == 1
     assert scene.openings[0].host_refs == ("wall-1",)
     assert scene.openings[0].opening_kind == "door"
-    assert by_id["chair-1"].material_refs == ("mat-chair",)
-    assert by_id["chair-1"].surface_refs == ("seat-finish",)
+    assert by_id["chair-1"].material_refs == ()
+    assert by_id["chair-1"].surface_refs == ()
+    assert {item.code for item in by_id["chair-1"].uncertainties} >= {
+        "unresolved_material_ref",
+        "unresolved_surface_ref",
+    }
     assert by_id["wall-1"].opening_refs == ("door-1",)
     assert not (FORBIDDEN_WEIGHT_KEYS & _all_keys(scene.to_dict()))
 
@@ -427,9 +414,12 @@ def test_svg_adapter_import_graph_excludes_analysis_and_bim_dependencies() -> No
         for module in imported
         for token in ("ifc", "blender", "octa", "evaluator", "inference")
     )
-    assert "ElementTree" not in source
-    assert "xml.etree" not in source
-    assert "ET.parse" not in source
+    loader_source = Path("features/scene_loader.py").read_text(encoding="utf-8")
+
+    assert "xml.etree" in source
+    assert "scene_loader" not in source
+    assert "_adapter_geometry_for_shape" not in loader_source
+    assert "_compose_svg_affine" not in loader_source
     assert "import Rect" not in source
 
 
@@ -463,9 +453,6 @@ def test_legacy_id_roles_remain_compatibility_facts_not_authored_v2(
     assert scene.authored_grids == ()
     assert scene.openings == ()
     assert all(item.source_role == "unknown" for item in objects.values())
-    assert objects["axis1"].provenance["compatibility_role"] == "column_axis"
-    assert objects["bottom_entry"].provenance["compatibility_role"] == "opening"
-    assert objects["chair-by-name"].provenance["compatibility_role"] == "chair"
     assert all(
         "source_role_unavailable" in {warning.code for warning in item.uncertainties}
         for item in objects.values()
@@ -715,3 +702,189 @@ def test_generated_neutral_ids_avoid_explicit_source_id_collisions(
         "svg-element-000001",
     ]
     assert len({item.id for item in scene.source_objects}) == 2
+
+
+def test_generic_supported_geometry_is_collected_without_role_metadata(
+    tmp_path: Path,
+) -> None:
+    """Supported visible geometry must reach v2 even when no role can be inferred."""
+    svg = tmp_path / "generic_geometry.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect id="shape-a" x="1" y="2" width="10" height="20"/>
+        <circle cx="40" cy="20" r="5"/>
+        <polyline id="shape-c" points="60,10 70,20 80,10" fill="none"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert [item.source_id for item in scene.source_objects] == [
+        "shape-a",
+        None,
+        "shape-c",
+    ]
+    assert all(item.source_role == "unknown" for item in scene.source_objects)
+    assert all(item.geometry_refs for item in scene.source_objects)
+    assert all(
+        "source_role_unavailable" in {warning.code for warning in item.uncertainties}
+        for item in scene.source_objects
+    )
+
+
+def test_duplicate_ids_on_generic_geometry_are_rejected(tmp_path: Path) -> None:
+    """Duplicate ids must be rejected even when legacy role filtering would drop them."""
+    svg = tmp_path / "generic_duplicate_ids.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect id="shape" x="0" y="0" width="10" height="10"/>
+        <circle id="shape" cx="30" cy="30" r="5"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate explicit SVG source id 'shape'"):
+        _load(svg)
+
+
+def test_dangling_explicit_references_are_omitted_with_uncertainty(
+    tmp_path: Path,
+) -> None:
+    """Every emitted adapter reference must resolve to a Neutral Scene record."""
+    svg = tmp_path / "dangling_refs.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect id="chair" data-role="chair" data-material-ref="missing-material"
+              data-surface-ref="missing-surface" x="10" y="10" width="10" height="10"/>
+        <rect id="zone" data-role="affordance" data-purpose="pullback"
+              data-source-furniture-refs="chair missing-chair"
+              x="5" y="5" width="20" height="20"/>
+        <rect id="wall" data-role="boundary" x="0" y="0" width="100" height="2"/>
+        <line id="door" data-role="opening" data-host-refs="wall missing-wall"
+              x1="20" y1="0" x2="30" y2="0"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+    by_id = {item.id: item for item in scene.source_objects}
+    scene_codes = {item.code for item in scene.uncertainties}
+
+    assert by_id["chair"].material_refs == ()
+    assert by_id["chair"].surface_refs == ()
+    assert scene.authored_affordances[0].source_furniture_refs == ("chair",)
+    assert scene.openings[0].host_refs == ("wall",)
+    assert by_id["wall"].opening_refs == ("door",)
+    assert {item.code for item in by_id["chair"].uncertainties} >= {
+        "unresolved_material_ref",
+        "unresolved_surface_ref",
+    }
+    assert scene_codes >= {
+        "unresolved_affordance_owner_ref",
+        "unresolved_opening_host_ref",
+    }
+
+
+def test_multiple_explicit_analysis_domains_are_rejected(tmp_path: Path) -> None:
+    """The adapter must not silently select one of several authored domains."""
+    svg = tmp_path / "multiple_domains.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect id="domain-a" data-role="analysis_domain" x="0" y="0" width="40" height="40"/>
+        <rect id="domain-b" data-role="analysis_domain" x="50" y="50" width="40" height="40"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="multiple explicit SVG analysis domains"):
+        _load(svg)
+
+
+def test_closed_stroke_only_path_remains_faceless(tmp_path: Path) -> None:
+    """A closed path with explicit no-fill styling must remain line geometry."""
+    svg = tmp_path / "stroke_only.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <path id="outline" d="M 1 1 L 10 1 L 10 10 Z"
+              style="fill:none;fill-rule:evenodd;stroke:#000"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    mesh = _load(svg).geometries[0]
+
+    assert mesh.triangle_indices == ()
+    assert mesh.tessellation_settings["fill"] == "none"
+    assert mesh.tessellation_settings["fill_rule"] == "evenodd"
+
+
+def test_multi_subpath_fill_is_preserved_as_lines_with_uncertainty(
+    tmp_path: Path,
+) -> None:
+    """Potential holes must not be flattened into a fabricated filled polygon."""
+    svg = tmp_path / "path_hole.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <path id="ring" fill="black" fill-rule="evenodd"
+              d="M 1 1 L 19 1 L 19 19 L 1 19 Z M 5 5 L 5 15 L 15 15 L 15 5 Z"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+    mesh = scene.geometries[0]
+
+    assert mesh.triangle_indices == ()
+    assert mesh.tessellation_settings["subpath_count"] == 2
+    assert "unsupported_path_fill_topology" in {
+        item.code for item in scene.source_objects[0].uncertainties
+    }
+
+
+@pytest.mark.parametrize(
+    ("element", "source_id"),
+    [
+        ('<circle id="zero" cx="10" cy="10" r="0"/>', "zero"),
+        ('<circle id="negative" cx="10" cy="10" r="-1"/>', "negative"),
+        ('<circle id="nonfinite" cx="10" cy="10" r="NaN"/>', "nonfinite"),
+        ('<ellipse id="flat" cx="10" cy="10" rx="4" ry="0"/>', "flat"),
+    ],
+)
+def test_invalid_circle_and_ellipse_dimensions_are_uncertain(
+    tmp_path: Path,
+    element: str,
+    source_id: str,
+) -> None:
+    """Nonpositive or nonfinite curve dimensions must not produce geometry."""
+    svg = tmp_path / f"{source_id}.svg"
+    svg.write_text(
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">{element}</svg>',
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert scene.geometries == ()
+    assert scene.source_objects[0].geometry_refs == ()
+    assert "invalid_curve_dimensions" in {
+        item.code for item in scene.source_objects[0].uncertainties
+    }
+
+
+def test_curved_path_records_sampling_strategy_and_count(tmp_path: Path) -> None:
+    """Path transport geometry must disclose its deterministic curve sampling."""
+    svg = tmp_path / "curve_sampling.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <path id="curve" fill="none" d="M 0 0 C 10 20 20 20 30 0"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    settings = _load(svg).geometries[0].tessellation_settings
+
+    assert settings["curve_sampling_strategy"] == "fixed_samples_per_segment"
+    assert settings["curve_samples_per_segment"] == 16
+    assert settings["curve_sampling_tolerance"] is None
+    assert settings["sampled_vertex_count"] == 17
