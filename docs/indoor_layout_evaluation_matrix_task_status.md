@@ -2881,3 +2881,43 @@
   Pixi runtime `Python 3.12.13`; the environment was not changed.
 - Self-review found no Gate 1 implementation, Blender-scene modification,
   perceptual weight, score, or inferred semantic addition.
+
+2026-08-16, `JJ-01-contract` Neutral Scene v2 checkpoint:
+
+- Scope remained Gate 1 only: one pure-Python contract module and one focused
+  contract test module. No SVG, IFC, Blender, substitute, inference, analysis,
+  or exported `room_analysis_model` implementation was changed.
+- Strict TDD RED evidence:
+  - the initial test collection exposed a package-relative test import issue
+    after Gate 0 made `test` an explicit package;
+  - after correcting only that test harness import, collection failed for the
+    intended reason with `ModuleNotFoundError: No module named
+    'order_analyzer.features.scene_contract'`.
+- The contract defines the explicit `neutral-scene-v2` version, the four exact
+  input modes, `AnalysisContext`, optional `AnalysisDomain`, all required
+  source/fact/authored records, `UncertaintyRecord`, and the top-level
+  `NeutralSceneV2` aggregate.
+- Serialization and validation evidence covers a complete recursive JSON
+  round trip, source ordering and provenance, finite units/transforms/geometry,
+  orthonormal analysis planes, positive tolerances, triangle arity/range,
+  stable ids, explicit absent domain/capabilities, and path-specific rejection
+  of unsupported raw application objects.
+- Ponytail/YAGNI review removed repeated per-record serializer/deserializer
+  machinery and the subsequent type-dispatch registry. The module decreased
+  from about 54 KB/1203 lines to about 37 KB/833 lines while each concrete
+  record retained its own explicit `from_dict` method. Remaining helpers are
+  limited to shared JSON traversal, strict dataclass loading, and repeated
+  primitive validation; no factory, backend, dependency, or future adapter
+  abstraction was added.
+- Final focused verification: `42 passed in 0.07s`; importlib-mode focused
+  verification: `42 passed in 0.04s`.
+- Final full verification: `355 passed in 931.64s (0:15:31)` under the observed
+  Pixi runtime Python `3.12.13`; the environment was not changed.
+- Grill Me self-review found:
+  - raw Blender/IFC/SVG/custom geometry objects cannot pass the recursive JSON
+    boundary and report their exact record path;
+  - missing domain and evidence remain `None`, false capability flags, and/or
+    uncertainty records rather than numeric zero;
+  - the module imports only Python standard-library modules;
+  - no perceptual weight, final score, collapsed boundary field, source adapter,
+    or speculative analysis abstraction is present.
