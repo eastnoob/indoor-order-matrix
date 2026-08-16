@@ -6,6 +6,10 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 This project uses **Pixi** (conda-based) for environment management, not pip/venv.
 
+### Blender
+
+When this project needs to invoke Blender, use only the portable installation in `D:\Blender\BlenderPortableLTS5.2`. Do not discover, launch, or configure any other Blender installation. The executable is `D:\Blender\BlenderPortableLTS5.2\App\Blender64\blender.exe`.
+
 ```bash
 # Install Pixi if not already installed, then:
 pixi install       # Set up environment from pixi.lock
