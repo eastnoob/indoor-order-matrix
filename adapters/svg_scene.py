@@ -43,7 +43,7 @@ else:
     )
 
 
-SVG_ADAPTER_VERSION = "svg-scene-adapter/0.2.0"
+SVG_ADAPTER_VERSION = "svg-scene-adapter/0.3.0"
 DEFAULT_GEOMETRY_TOLERANCE = 1e-6
 DEFAULT_TOPOLOGY_TOLERANCE = 1e-6
 
@@ -77,7 +77,19 @@ _SUPPORTED_GEOMETRY_TAGS = {
     "rect",
     "use",
 }
-_NON_SOURCE_TAGS = {"defs", "g", "style", "svg"}
+_FILLABLE_GEOMETRY_TAGS = {"circle", "ellipse", "path", "polygon", "rect"}
+_RESOURCE_CONTAINER_TAGS = {
+    "clipPath",
+    "defs",
+    "filter",
+    "linearGradient",
+    "marker",
+    "mask",
+    "pattern",
+    "radialGradient",
+    "symbol",
+}
+_NON_SOURCE_TAGS = {"defs", "g", "style", "svg", *_RESOURCE_CONTAINER_TAGS}
 _PATH_CURVE_SAMPLES = 16
 _CURVE_OUTLINE_SEGMENTS = 64
 
@@ -97,7 +109,7 @@ def load_svg_neutral_scene(
     analysis unit while the original y-down convention remains in provenance.
     """
     source = Path(path)
-    (width, height), records = _parse_svg_source(source)
+    (width, height), records, document_ids = _parse_svg_source(source)
 
     # Constructing the context is the contract's authoritative unit and
     # tolerance validation boundary; no viewBox-derived unit guess is allowed.
@@ -121,7 +133,7 @@ def load_svg_neutral_scene(
         coordinate_scale=scale,
     )
 
-    _assign_neutral_ids(records)
+    _assign_neutral_ids(records, reserved_ids=set(document_ids))
     _validate_explicit_source_ids(records)
     geometries: list[MeshGeometry3D] = []
     geometry_refs: dict[int, str] = {}
@@ -202,19 +214,106 @@ def load_svg_neutral_scene(
 
 def _parse_svg_source(
     path: Path,
-) -> tuple[tuple[float, float], list[tuple[str, dict[str, object]]]]:
+) -> tuple[
+    tuple[float, float],
+    list[tuple[str, dict[str, object]]],
+    tuple[str, ...],
+]:
     """Parse every supported visible SVG source element in document order."""
     root = ET.parse(path).getroot()
+    document_ids = _document_ids(root)
+    stylesheet_rules, unresolved_stylesheet = _local_stylesheet_rules(root)
     records: list[tuple[str, dict[str, object]]] = []
     _walk_svg_source(
         root,
         inherited_metadata={},
         inherited_presentation={"fill": "black", "fill-rule": "nonzero"},
         parent_affine=_IDENTITY_AFFINE,
+        stylesheet_rules=stylesheet_rules,
+        unresolved_stylesheet=unresolved_stylesheet,
         records=records,
-        inside_defs=False,
+        inside_resource=False,
+        nested_viewport=False,
+        svg_depth=0,
     )
-    return _svg_size(root), records
+    return _svg_size(root), records, document_ids
+
+
+def _document_ids(root: ET.Element) -> tuple[str, ...]:
+    """Collect and validate every explicit SVG id, including resource elements."""
+    ids: list[str] = []
+    first_positions: dict[str, int] = {}
+    for position, element in enumerate(root.iter(), start=1):
+        if "id" not in element.attrib:
+            continue
+        source_id = element.attrib["id"].strip()
+        if not source_id:
+            raise ValueError(f"empty explicit SVG id at document element {position}")
+        if source_id in first_positions:
+            raise ValueError(
+                f"duplicate explicit SVG source id {source_id!r} "
+                f"at document elements {first_positions[source_id]} and {position}"
+            )
+        first_positions[source_id] = position
+        ids.append(source_id)
+    return tuple(ids)
+
+
+def _local_stylesheet_rules(
+    root: ET.Element,
+) -> tuple[tuple[dict[str, object], ...], bool]:
+    """Parse deterministic tag, class, and id rules that affect SVG fill facts."""
+    rules: list[dict[str, object]] = []
+    unresolved = False
+    order = 0
+    for element in root.iter():
+        if _tag_name(element.tag) != "style":
+            continue
+        raw = re.sub(r"/\*.*?\*/", "", element.text or "", flags=re.DOTALL)
+        matches = list(re.finditer(r"([^{}]+)\{([^{}]*)\}", raw))
+        remainder = re.sub(r"[^{}]+\{[^{}]*\}", "", raw).strip()
+        if remainder and re.search(r"(?:fill|fill-rule)\s*:", raw, re.IGNORECASE):
+            unresolved = True
+        for match in matches:
+            declarations = _inline_style(match.group(2))
+            fill_facts = {
+                name: value.strip().lower()
+                for name, value in declarations.items()
+                if name in {"fill", "fill-rule"}
+            }
+            if not fill_facts:
+                continue
+            if any("!important" in value.lower() for value in fill_facts.values()):
+                unresolved = True
+                continue
+            for selector in match.group(1).split(","):
+                parsed = _simple_selector(selector.strip())
+                if parsed is None:
+                    unresolved = True
+                    continue
+                selector_kind, selector_value, specificity = parsed
+                rules.append(
+                    {
+                        "kind": selector_kind,
+                        "value": selector_value,
+                        "specificity": specificity,
+                        "order": order,
+                        "declarations": fill_facts,
+                    }
+                )
+                order += 1
+    return tuple(rules), unresolved
+
+
+def _simple_selector(selector: str) -> tuple[str, str, int] | None:
+    """Parse one local CSS selector without implementing browser selector logic."""
+    if re.fullmatch(r"#[A-Za-z_][\w.-]*", selector):
+        return "id", selector[1:], 100
+    if re.fullmatch(r"\.[A-Za-z_][\w-]*", selector):
+        return "class", selector[1:], 10
+    if re.fullmatch(r"[A-Za-z_][\w-]*", selector):
+        return "tag", selector, 1
+    return None
 
 
 def _walk_svg_source(
@@ -223,8 +322,12 @@ def _walk_svg_source(
     inherited_metadata: Mapping[str, object],
     inherited_presentation: Mapping[str, str],
     parent_affine: tuple[float, float, float, float, float, float],
+    stylesheet_rules: tuple[dict[str, object], ...],
+    unresolved_stylesheet: bool,
     records: list[tuple[str, dict[str, object]]],
-    inside_defs: bool,
+    inside_resource: bool,
+    nested_viewport: bool,
+    svg_depth: int,
 ) -> None:
     """Collect source elements while carrying authored metadata and transforms."""
     tag = _tag_name(element.tag)
@@ -236,19 +339,41 @@ def _walk_svg_source(
             if key.startswith("data-")
         }
     )
-    presentation = _presentation_facts(inherited_presentation, element.attrib)
+    presentation = _presentation_facts(
+        inherited_presentation,
+        element.attrib,
+        tag=tag,
+        stylesheet_rules=stylesheet_rules,
+    )
     affine = _compose_svg_affine(parent_affine, element.attrib.get("transform"))
-    in_defs = inside_defs or tag == "defs"
+    in_resource = inside_resource or tag in _RESOURCE_CONTAINER_TAGS
+    in_nested_viewport = nested_viewport or (tag == "svg" and svg_depth > 0)
+    child_svg_depth = svg_depth + 1 if tag == "svg" else svg_depth
 
-    # Definitions are reusable resources rather than visible source elements;
-    # unresolved use instances remain explicit uncertain records at their site.
-    if not in_defs and _is_source_element(tag, metadata):
-        geometry, geometry_error = _geometry_for_element(
-            tag,
-            element.attrib,
-            affine,
-            presentation,
-        )
+    # Resource descendants participate in global id integrity but are not
+    # ordinary scene geometry until an explicitly supported instance resolves them.
+    if not in_resource and _is_source_element(tag, metadata):
+        if in_nested_viewport:
+            geometry, geometry_error = None, "unsupported_nested_svg_viewport"
+        else:
+            geometry, geometry_error = _geometry_for_element(
+                tag,
+                element.attrib,
+                affine,
+                presentation,
+            )
+            if (
+                unresolved_stylesheet
+                and tag in _FILLABLE_GEOMETRY_TAGS
+                and geometry is not None
+            ):
+                # Unknown selectors may change fill topology, so retaining only
+                # the outline is safer than manufacturing a filled surface.
+                geometry["polygonal"] = False
+                _append_geometry_uncertainty(
+                    geometry,
+                    "unresolved_css_presentation",
+                )
         records.append(
             (
                 "source_elements",
@@ -269,8 +394,12 @@ def _walk_svg_source(
             inherited_metadata=metadata,
             inherited_presentation=presentation,
             parent_affine=affine,
+            stylesheet_rules=stylesheet_rules,
+            unresolved_stylesheet=unresolved_stylesheet,
             records=records,
-            inside_defs=in_defs,
+            inside_resource=in_resource,
+            nested_viewport=in_nested_viewport,
+            svg_depth=child_svg_depth,
         )
 
 
@@ -312,17 +441,50 @@ def _svg_dimension(raw: str | None) -> float:
 def _presentation_facts(
     inherited: Mapping[str, str],
     attributes: Mapping[str, str],
+    *,
+    tag: str,
+    stylesheet_rules: tuple[dict[str, object], ...],
 ) -> dict[str, str]:
-    """Resolve inherited fill facts with inline style taking precedence."""
+    """Resolve inherited, presentation, stylesheet, and inline fill facts."""
     result = dict(inherited)
+    priorities = {name: (-1, -1) for name in ("fill", "fill-rule")}
     for name in ("fill", "fill-rule"):
         if name in attributes:
             result[name] = attributes[name].strip().lower()
+            priorities[name] = (0, -1)
+    for rule in stylesheet_rules:
+        if not _selector_matches(rule, tag, attributes):
+            continue
+        priority = (int(rule["specificity"]), int(rule["order"]))
+        declarations = rule["declarations"]
+        if not isinstance(declarations, Mapping):
+            continue
+        for name, value in declarations.items():
+            if priority >= priorities[str(name)]:
+                result[str(name)] = str(value)
+                priorities[str(name)] = priority
     style = _inline_style(attributes.get("style"))
     for name in ("fill", "fill-rule"):
         if name in style:
             result[name] = style[name].strip().lower()
     return result
+
+
+def _selector_matches(
+    rule: Mapping[str, object],
+    tag: str,
+    attributes: Mapping[str, str],
+) -> bool:
+    """Match one supported simple selector against an SVG element."""
+    kind = rule.get("kind")
+    value = str(rule.get("value") or "")
+    if kind == "tag":
+        return tag == value
+    if kind == "id":
+        return attributes.get("id") == value
+    if kind == "class":
+        return value in attributes.get("class", "").split()
+    return False
 
 
 def _inline_style(raw: str | None) -> dict[str, str]:
@@ -482,6 +644,16 @@ def _geometry_descriptor(
     }
 
 
+def _append_geometry_uncertainty(
+    descriptor: MutableMapping[str, object],
+    code: str,
+) -> None:
+    """Append one stable geometry uncertainty code without duplicating it."""
+    existing = tuple(descriptor.get("geometry_uncertainties") or ())
+    if code not in existing:
+        descriptor["geometry_uncertainties"] = (*existing, code)
+
+
 def _path_geometry(
     raw: str,
     transform: tuple[float, float, float, float, float, float],
@@ -517,9 +689,6 @@ def _path_geometry(
 
     closed = len(subpaths) == 1 and bool(subpaths[0].isclosed())
     polygonal = fill != "none" and closed
-    topology_warning = None
-    if fill != "none" and not closed:
-        topology_warning = "unsupported_path_fill_topology"
     descriptor = _geometry_descriptor(
         "svg_path_curve" if curved else "svg_path_polyline",
         points,
@@ -534,9 +703,13 @@ def _path_geometry(
             "curve_samples_per_segment": _PATH_CURVE_SAMPLES,
             "curve_sampling_tolerance": None,
             "sampled_vertex_count": len(points),
-            "geometry_uncertainty": topology_warning,
         },
     )
+    if fill != "none" and not closed:
+        _append_geometry_uncertainty(
+            descriptor,
+            "unsupported_path_fill_topology",
+        )
     return descriptor, None
 
 
@@ -703,7 +876,8 @@ def _mesh_from_record(
         reason = str(record.get("_adapter_geometry_error") or "unsupported")
         error_code = (
             reason
-            if reason in {"invalid_curve_dimensions"}
+            if reason
+            in {"invalid_curve_dimensions", "unsupported_nested_svg_viewport"}
             else "unsupported_svg_geometry"
         )
         return None, (
@@ -734,12 +908,16 @@ def _mesh_from_record(
         (float(x) * scale, float(y) * scale) for x, y in points
     )
     warnings: list[UncertaintyRecord] = []
-    geometry_uncertainty = _optional_text(descriptor.get("geometry_uncertainty"))
-    if geometry_uncertainty:
+    geometry_uncertainties = tuple(
+        str(code)
+        for code in descriptor.get("geometry_uncertainties") or ()
+        if _optional_text(code)
+    )
+    for geometry_uncertainty in geometry_uncertainties:
         warnings.append(
             _record_uncertainty(
                 geometry_uncertainty,
-                "The SVG path fill topology was preserved as line geometry.",
+                "SVG fill topology was preserved as line geometry due to uncertainty.",
                 source_ref,
                 {
                     "subpath_count": descriptor.get("subpath_count"),
@@ -1018,6 +1196,8 @@ def _validate_explicit_source_ids(
 
 def _assign_neutral_ids(
     records: Iterable[tuple[str, MutableMapping[str, object]]],
+    *,
+    reserved_ids: set[str] | None = None,
 ) -> None:
     """Assign deterministic neutral ids without colliding with authored SVG ids."""
     materialized = list(records)
@@ -1026,7 +1206,7 @@ def _assign_neutral_ids(
         for _, record in materialized
         if (source_id := _source_id(record)) is not None
     }
-    assigned_ids = set(explicit_ids)
+    assigned_ids = {*explicit_ids, *(reserved_ids or set())}
     next_index = 1
 
     # Reserve all authored ids first so traversal fallbacks cannot shadow a

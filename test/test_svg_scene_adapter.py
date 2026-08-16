@@ -77,7 +77,7 @@ def test_real_svg_fixtures_validate_and_round_trip_without_fabricated_facts(
     assert NeutralSceneV2.from_dict(json.loads(json.dumps(payload))).to_dict() == payload
     assert scene.context.input_mode == "svg"
     assert scene.context.source_schema == "SVG"
-    assert scene.context.adapter_version == "svg-scene-adapter/0.2.0"
+    assert scene.context.adapter_version == "svg-scene-adapter/0.3.0"
     assert scene.context.source_length_unit == "mm"
     assert scene.context.analysis_length_unit == "m"
     assert scene.context.capability_flags == {
@@ -888,3 +888,148 @@ def test_curved_path_records_sampling_strategy_and_count(tmp_path: Path) -> None
     assert settings["curve_samples_per_segment"] == 16
     assert settings["curve_sampling_tolerance"] is None
     assert settings["sampled_vertex_count"] == 17
+
+
+def test_duplicate_id_between_defs_and_visible_geometry_is_rejected(
+    tmp_path: Path,
+) -> None:
+    """Every explicit document id must be unique, including non-emitted resources."""
+    svg = tmp_path / "defs_duplicate.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <defs><path id="shared" d="M 0 0 L 1 1"/></defs>
+        <rect id="shared" x="2" y="2" width="5" height="5"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate explicit SVG source id 'shared'"):
+        _load(svg)
+
+
+def test_fallback_ids_reserve_ids_owned_by_nonemitted_resources(
+    tmp_path: Path,
+) -> None:
+    """Generated ids must skip explicit ids even when their owner is not emitted."""
+    svg = tmp_path / "defs_reserved_id.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <defs><path id="svg-element-000001" d="M 0 0 L 1 1"/></defs>
+        <rect x="2" y="2" width="5" height="5"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert [item.id for item in scene.source_objects] == ["svg-element-000002"]
+
+
+def test_empty_explicit_document_id_is_rejected(tmp_path: Path) -> None:
+    """An explicitly present empty id must not be reinterpreted as a missing id."""
+    svg = tmp_path / "empty_id.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <rect id="" x="2" y="2" width="5" height="5"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="empty explicit SVG id"):
+        _load(svg)
+
+
+def test_resource_container_geometry_is_not_emitted_as_source_geometry(
+    tmp_path: Path,
+) -> None:
+    """Geometry under non-rendering SVG resource containers must stay non-source."""
+    svg = tmp_path / "resources.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <clipPath id="clip"><rect id="clip-shape" width="5" height="5"/></clipPath>
+        <mask id="mask"><rect id="mask-shape" width="5" height="5"/></mask>
+        <marker id="marker"><path id="marker-shape" d="M 0 0 L 1 1"/></marker>
+        <pattern id="pattern"><rect id="pattern-shape" width="5" height="5"/></pattern>
+        <symbol id="symbol"><circle id="symbol-shape" cx="2" cy="2" r="1"/></symbol>
+        <defs id="defs"><path id="defs-shape" d="M 0 0 L 1 1"/></defs>
+        <rect id="visible" x="10" y="10" width="20" height="20"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert [item.source_id for item in scene.source_objects] == ["visible"]
+    assert [item.source_representation_id for item in scene.geometries] == ["visible"]
+
+
+def test_simple_stylesheet_class_and_id_rules_control_fill_topology(
+    tmp_path: Path,
+) -> None:
+    """Simple local class and id rules must determine fill and fill-rule facts."""
+    svg = tmp_path / "stylesheet_fill.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <style>
+          .outline { fill: none; }
+          #styled { fill-rule: evenodd; }
+        </style>
+        <path id="styled" class="outline" d="M 1 1 L 10 1 L 10 10 Z"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    mesh = _load(svg).geometries[0]
+
+    assert mesh.triangle_indices == ()
+    assert mesh.tessellation_settings["fill"] == "none"
+    assert mesh.tessellation_settings["fill_rule"] == "evenodd"
+
+
+def test_unresolved_stylesheet_selector_forces_faceless_uncertain_geometry(
+    tmp_path: Path,
+) -> None:
+    """Unsupported CSS selectors must not allow a possibly stroke-only face."""
+    svg = tmp_path / "unresolved_stylesheet.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <style>path[data-mode="outline"] { fill: none; }</style>
+        <path id="styled" data-mode="outline" d="M 1 1 L 10 1 L 10 10 Z"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert scene.geometries[0].triangle_indices == ()
+    assert "unresolved_css_presentation" in {
+        item.code for item in scene.source_objects[0].uncertainties
+    }
+
+
+def test_nested_svg_viewport_geometry_is_rejected_with_uncertainty(
+    tmp_path: Path,
+) -> None:
+    """Nested viewport coordinates must never pass through without composition."""
+    svg = tmp_path / "nested_viewport.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <svg id="viewport" x="20" y="30" width="40" height="20"
+             viewBox="0 0 10 10" preserveAspectRatio="xMidYMid meet">
+          <rect id="nested-shape" x="1" y="1" width="4" height="4"/>
+        </svg>
+        <rect id="visible" x="70" y="70" width="10" height="10"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+    objects = {item.id: item for item in scene.source_objects}
+    geometries = {item.source_representation_id: item for item in scene.geometries}
+
+    assert objects["nested-shape"].geometry_refs == ()
+    assert "unsupported_nested_svg_viewport" in {
+        item.code for item in objects["nested-shape"].uncertainties
+    }
+    assert "nested-shape" not in geometries
+    assert "visible" in geometries

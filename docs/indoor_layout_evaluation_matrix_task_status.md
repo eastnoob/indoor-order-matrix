@@ -3150,3 +3150,44 @@
   already-installed SVG/path and Shapely primitives, one adapter parser, and
   one compact integrity validator; it added no dependency or generic parser
   framework. All modified/new functions have English docstrings.
+
+2026-08-17, Gate 2 SVG document-semantics re-review repair checkpoint:
+
+- Scope remained Gate 2 only. The four findings agree with the formal Gate 2
+  boundary: they strengthen source-document integrity and conservative planar
+  extraction without adding analysis, substitutes, IFC, Blender, or migrated
+  consumers.
+- Strict TDD RED evidence:
+  - the initial adversarial run was `9 failed, 37 passed`; failures covered the
+    adapter version, duplicate/resource-owned ids, resource-container leakage,
+    stylesheet-controlled fill topology, unresolved CSS, and nested viewport
+    coordinates;
+  - an additional empty-id boundary test failed with `DID NOT RAISE` before an
+    explicitly present `id=""` was distinguished from a missing id.
+- Every explicit `id` in the complete SVG document is now validated before
+  emission and reserved before fallback ids are assigned. Resource descendants
+  under defs, clip paths, masks, markers, patterns, symbols, filters, and
+  gradients participate in id integrity but do not become ordinary source
+  geometry.
+- A deliberately small local stylesheet parser resolves tag, class, and id
+  rules for `fill` and `fill-rule` with deterministic specificity/order. An
+  unsupported fill-affecting selector causes faceless geometry plus
+  `unresolved_css_presentation` uncertainty rather than a fabricated surface.
+- Nested SVG viewport descendants are conservatively retained as source objects
+  with `unsupported_nested_svg_viewport` and no geometry; untransformed child
+  coordinates never enter Neutral Scene. Adapter provenance is versioned as
+  `svg-scene-adapter/0.3.0`.
+- Pre-full checks found no fixture-name branch, Gate 3 import, V2 helper in the
+  legacy loader, duplicate parse within the V2 call path, forbidden weight, or
+  missing function docstring. `features/scene_loader.py` and all SVG fixtures
+  remained unchanged.
+- Focused GREEN evidence:
+  - adapter-only: `47 passed in 2.40s`;
+  - relevant legacy loader compatibility: `8 passed, 203 deselected in 0.18s`;
+  - Gate 0, Gate 1, and Gate 2 importlib set: `164 passed in 3.52s`.
+- Final full verification: `459 passed in 776.45s (0:12:56)` under the observed
+  Pixi runtime Python `3.12.13`; the environment was not changed.
+- Grill Me review found no resource geometry leak, id collision path, silently
+  transformed nested viewport, fabricated CSS-dependent face, or Gate 3
+  behavior. Ponytail review kept the CSS support to the requested local subset
+  and standard-library parsing, with no dependency or browser-style CSS engine.
