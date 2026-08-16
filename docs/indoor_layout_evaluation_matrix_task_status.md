@@ -2851,3 +2851,33 @@
   forbids manual edits.
 - The manifest contains no viewport-name dependency, perceptual weight, score,
   or inferred semantic result.
+
+2026-08-16, Gate 0 code-quality repair checkpoint:
+
+- Parent Gate 0 checkpoint: change `ltxoqrkpqpkppzuttnszwnozpzsxszkl`,
+  commit `26c7329c`.
+- Import-boundary RED evidence:
+  - `pixi run pytest test/bim/test_acceptance_manifest.py -q
+    --import-mode=importlib` produced `1 failed, 5 passed`;
+  - the fresh repository-root subprocess failed with
+    `ModuleNotFoundError: No module named 'test.bim'`.
+- Import-boundary repair:
+  - `test` and `test.bim` are explicit packages;
+  - the test module uses a relative import;
+  - a fresh Python subprocess proves the package-qualified manifest API imports
+    from the repository root without pytest path injection.
+- Structural-validation RED evidence:
+  - the parameterized malformed-input run produced `12 failed, 6 passed`;
+  - missing keys, strings, mappings, and non-string members were accepted,
+    misreported, or leaked into later collection logic before the repair.
+- Structural-validation repair:
+  - `fixture_ids`, `required_outputs`, and `allowed_input_modes` must each exist
+    and contain a list of strings before any list/set conversion;
+  - malformed values now raise focused `ValueError` messages.
+- Final focused verification:
+  - importlib mode: `18 passed in 0.21s`;
+  - normal mode: `18 passed in 0.20s`.
+- Final full verification: `313 passed in 923.37s (0:15:23)` under the observed
+  Pixi runtime `Python 3.12.13`; the environment was not changed.
+- Self-review found no Gate 1 implementation, Blender-scene modification,
+  perceptual weight, score, or inferred semantic addition.

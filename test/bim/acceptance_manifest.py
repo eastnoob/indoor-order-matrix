@@ -10,6 +10,8 @@ _REQUIRED_OUTPUTS = {
 
 _ALLOWED_INPUT_MODES = {"ifc", "blender_geometry", "hybrid", "svg"}
 
+_REQUIRED_LIST_FIELDS = ("fixture_ids", "required_outputs", "allowed_input_modes")
+
 
 ACCEPTANCE_MANIFEST = {
     "fixture_ids": [
@@ -41,9 +43,25 @@ ACCEPTANCE_MANIFEST = {
 
 def validate_acceptance_manifest(manifest: Mapping[str, object]) -> None:
     """Validate identifiers, required artifacts, and supported source modes."""
-    fixture_ids = list(manifest.get("fixture_ids", []))
-    required_outputs = set(manifest.get("required_outputs", []))
-    input_modes = set(manifest.get("allowed_input_modes", []))
+    validated_fields: dict[str, list[str]] = {}
+
+    # Structural validation happens before collection conversion so malformed
+    # source data always produces a focused ValueError instead of coercion.
+    for key in _REQUIRED_LIST_FIELDS:
+        if key not in manifest:
+            raise ValueError(f"missing required key: {key}")
+
+        value = manifest[key]
+        if not isinstance(value, list):
+            raise ValueError(f"{key} must be a list of strings")
+        if not all(isinstance(item, str) for item in value):
+            raise ValueError(f"{key} must contain only strings")
+
+        validated_fields[key] = value
+
+    fixture_ids = validated_fields["fixture_ids"]
+    required_outputs = set(validated_fields["required_outputs"])
+    input_modes = set(validated_fields["allowed_input_modes"])
 
     # Ambiguous ids would make later generated geometry impossible to address
     # deterministically across IFC, Blender, and serialized output artifacts.

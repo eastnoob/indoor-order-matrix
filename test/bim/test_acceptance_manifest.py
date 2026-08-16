@@ -1,10 +1,13 @@
 """Tests for the BIM acceptance fixture manifest contract."""
 
 from copy import deepcopy
+from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
-from acceptance_manifest import (
+from .acceptance_manifest import (
     ACCEPTANCE_MANIFEST,
     validate_acceptance_manifest,
 )
@@ -29,6 +32,30 @@ EXPECTED_OUTPUTS = (
     "test/output/blender_demo_description.json",
     "test/output/blender_demo_room_analysis_model.json",
 )
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+REQUIRED_LIST_FIELDS = ("fixture_ids", "required_outputs", "allowed_input_modes")
+
+
+def test_manifest_api_imports_from_repository_root() -> None:
+    """Import the public manifest API without relying on pytest path injection."""
+    import_statement = (
+        "from test.bim.acceptance_manifest import "
+        "ACCEPTANCE_MANIFEST, validate_acceptance_manifest; "
+        "validate_acceptance_manifest(ACCEPTANCE_MANIFEST)"
+    )
+
+    # A fresh interpreter from the repository root proves that package imports
+    # do not depend on pytest's test-directory path manipulation.
+    completed = subprocess.run(
+        [sys.executable, "-c", import_statement],
+        cwd=REPOSITORY_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_acceptance_manifest_is_valid_and_stable() -> None:
@@ -82,4 +109,38 @@ def test_validator_rejects_a_missing_supported_input_mode() -> None:
     manifest["allowed_input_modes"].remove("svg")
 
     with pytest.raises(ValueError, match="missing supported input mode"):
+        validate_acceptance_manifest(manifest)
+
+
+@pytest.mark.parametrize("key", REQUIRED_LIST_FIELDS)
+def test_validator_rejects_a_missing_required_list_key(key: str) -> None:
+    """Reject every missing required list field with a focused error."""
+    manifest = deepcopy(ACCEPTANCE_MANIFEST)
+    manifest.pop(key)
+
+    with pytest.raises(ValueError, match=rf"^missing required key: {key}$"):
+        validate_acceptance_manifest(manifest)
+
+
+@pytest.mark.parametrize("key", REQUIRED_LIST_FIELDS)
+@pytest.mark.parametrize("malformed_value", ["not-a-list", {"unexpected": "value"}])
+def test_validator_rejects_a_non_list_field(
+    key: str,
+    malformed_value: object,
+) -> None:
+    """Reject strings and mappings instead of coercing them into collections."""
+    manifest = deepcopy(ACCEPTANCE_MANIFEST)
+    manifest[key] = malformed_value
+
+    with pytest.raises(ValueError, match=rf"^{key} must be a list of strings$"):
+        validate_acceptance_manifest(manifest)
+
+
+@pytest.mark.parametrize("key", REQUIRED_LIST_FIELDS)
+def test_validator_rejects_a_non_string_list_member(key: str) -> None:
+    """Reject list members that cannot serve as stable textual identifiers."""
+    manifest = deepcopy(ACCEPTANCE_MANIFEST)
+    manifest[key].append(42)
+
+    with pytest.raises(ValueError, match=rf"^{key} must contain only strings$"):
         validate_acceptance_manifest(manifest)
