@@ -2960,3 +2960,33 @@
 - Final self-review found no source-application imports, weights, scores,
   adapter work, hidden payload fields, schema framework, or speculative
   feature. All project-owned functions retain English docstrings.
+
+2026-08-16, Gate 1 validation-edge repair checkpoint:
+
+- Scope remained Gate 1 only; Gate 2 was not started.
+- Strict TDD RED evidence:
+  - the 24-case vocabulary test failed all 24 cases before repair;
+  - list/dict values for source and analysis units, mesh units, and input mode
+    leaked unhashable `TypeError` from membership checks;
+  - other non-string values raised messages without the required
+    `context.*` or `mesh.*` record path;
+  - the 14-record hashability test failed all 14 cases because frozen
+    dataclasses advertised `collections.abc.Hashable` even when mapping fields
+    made generated hashes fail at runtime.
+- `_unit` and input-mode validation now reject non-strings before set
+  membership and use explicit `context.source_length_unit`,
+  `context.analysis_length_unit`, `mesh.units`, and `context.input_mode`
+  locations. The existing nested `_load` path qualification remains intact.
+- Every concrete record explicitly defines `__hash__ = None`. Equality and
+  frozen-field behavior remain unchanged; no structural hash, frozen-dict
+  framework, `unsafe_hash`, or hashability claim was added.
+- Targeted GREEN evidence:
+  - vocabulary type/path cases: `24 passed in 0.04s`;
+  - concrete-record unhashability: `14 passed in 0.04s`.
+- Final focused verification: `99 passed in 0.08s`.
+- Final importlib-focused verification: `99 passed in 0.08s`.
+- Final full verification: `412 passed in 932.85s (0:15:32)` under the observed
+  Pixi runtime Python `3.12.13`; the environment was not changed.
+- Self-review confirmed exactly 14 explicit unhashable declarations, no custom
+  hash implementation, no source-application imports, no weights or scores,
+  and no missing project-owned function docstrings.

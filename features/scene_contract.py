@@ -287,9 +287,9 @@ def _json_sequence(value: object, path: str) -> tuple[FrozenJsonValue, ...]:
 
 def _unit(value: object, path: str) -> str:
     """Validate one canonical length-unit token without transforming coordinates."""
-    if value not in ALLOWED_LENGTH_UNITS:
+    if not isinstance(value, str) or value not in ALLOWED_LENGTH_UNITS:
         raise ValueError(f"{path} must be one of {sorted(ALLOWED_LENGTH_UNITS)}")
-    return cast(str, value)
+    return value
 
 
 def _ratio(value: object, path: str) -> float | None:
@@ -319,6 +319,8 @@ def _record_tuple(
 @dataclass(frozen=True)
 class AnalysisPlane(_Record):
     """Named analysis plane with a finite origin and orthonormal basis."""
+
+    __hash__ = None
 
     name: str
     origin: Vector3
@@ -350,6 +352,8 @@ class AnalysisPlane(_Record):
 class UncertaintyRecord(_Record):
     """Unavailable or uncertain evidence without an inferred score."""
 
+    __hash__ = None
+
     code: str
     message: str
     source_refs: tuple[str, ...]
@@ -376,6 +380,8 @@ class UncertaintyRecord(_Record):
 class AnalysisContext(_Record):
     """Source, coordinate, tolerance, capability, and query context."""
 
+    __hash__ = None
+
     contract_version: str
     source_schema: str
     adapter_version: str
@@ -397,8 +403,8 @@ class AnalysisContext(_Record):
             raise ValueError(f"contract_version must be exactly {NEUTRAL_SCENE_V2!r}")
         object.__setattr__(self, "source_schema", _text(self.source_schema, "source_schema"))
         object.__setattr__(self, "adapter_version", _text(self.adapter_version, "adapter_version"))
-        object.__setattr__(self, "source_length_unit", _unit(self.source_length_unit, "source_length_unit"))
-        object.__setattr__(self, "analysis_length_unit", _unit(self.analysis_length_unit, "analysis_length_unit"))
+        object.__setattr__(self, "source_length_unit", _unit(self.source_length_unit, "context.source_length_unit"))
+        object.__setattr__(self, "analysis_length_unit", _unit(self.analysis_length_unit, "context.analysis_length_unit"))
         object.__setattr__(self, "world_coordinate_system", _json_object(self.world_coordinate_system, "world_coordinate_system"))
         object.__setattr__(self, "level_references", _refs(self.level_references, "level_references"))
         if not isinstance(self.analysis_plane, AnalysisPlane):
@@ -417,8 +423,8 @@ class AnalysisContext(_Record):
             "capability_flags",
             MappingProxyType(dict(self.capability_flags)),
         )
-        if self.input_mode not in ALLOWED_INPUT_MODES:
-            raise ValueError(f"input_mode must be one of {sorted(ALLOWED_INPUT_MODES)}")
+        if not isinstance(self.input_mode, str) or self.input_mode not in ALLOWED_INPUT_MODES:
+            raise ValueError(f"context.input_mode must be one of {sorted(ALLOWED_INPUT_MODES)}")
 
     @classmethod
     def from_dict(cls, data: object) -> AnalysisContext:
@@ -434,6 +440,8 @@ class AnalysisContext(_Record):
 @dataclass(frozen=True)
 class AnalysisDomain(_Record):
     """Explicit spatial extent selected for analysis."""
+
+    __hash__ = None
 
     id: str
     geometry_refs: tuple[str, ...]
@@ -473,6 +481,8 @@ _IDENTITY_4: Matrix4 = (
 @dataclass(frozen=True)
 class SourceObject(_Record):
     """Source identity, placement, relationships, and factual references."""
+
+    __hash__ = None
 
     id: str
     source_id: str | None = None
@@ -529,6 +539,8 @@ class SourceObject(_Record):
 class MeshGeometry3D(_Record):
     """Triangulated source geometry used for transport and later queries."""
 
+    __hash__ = None
+
     id: str
     vertices: tuple[Vector3, ...]
     triangle_indices: tuple[tuple[int, int, int], ...]
@@ -573,7 +585,7 @@ class MeshGeometry3D(_Record):
         object.__setattr__(self, "local_to_world_provenance", _json_object(self.local_to_world_provenance, "local_to_world_provenance"))
         object.__setattr__(self, "source_representation_id", _stable_id(self.source_representation_id, "source_representation_id", optional=True))
         object.__setattr__(self, "tessellation_settings", _json_object(self.tessellation_settings, "tessellation_settings"))
-        object.__setattr__(self, "units", _unit(self.units, "units"))
+        object.__setattr__(self, "units", _unit(self.units, "mesh.units"))
 
     @classmethod
     def from_dict(cls, data: object) -> MeshGeometry3D:
@@ -584,6 +596,8 @@ class MeshGeometry3D(_Record):
 @dataclass(frozen=True)
 class MaterialFact(_Record):
     """Material identity and separate physical and viewport optical facts."""
+
+    __hash__ = None
 
     id: str
     source_id: str | None
@@ -617,6 +631,8 @@ class MaterialFact(_Record):
 @dataclass(frozen=True)
 class SurfaceFact(_Record):
     """Surface identity, appearance, elevation, slope, and geometry facts."""
+
+    __hash__ = None
 
     id: str
     source_id: str | None
@@ -658,6 +674,8 @@ class SurfaceFact(_Record):
 class AuthoredGroup(_Record):
     """Explicit source grouping relationship without inferred membership."""
 
+    __hash__ = None
+
     id: str
     source_id: str | None
     member_refs: tuple[str, ...]
@@ -681,6 +699,8 @@ class AuthoredGroup(_Record):
 @dataclass(frozen=True)
 class AuthoredGridAxis(_Record):
     """Explicit source grid axis with ordered curve geometry and identifiers."""
+
+    __hash__ = None
 
     id: str
     source_id: str | None
@@ -710,6 +730,8 @@ class AuthoredGridAxis(_Record):
 class AuthoredGrid(_Record):
     """Explicit source grid referencing separately addressable axes."""
 
+    __hash__ = None
+
     id: str
     source_id: str | None
     axis_refs: tuple[str, ...]
@@ -731,6 +753,8 @@ class AuthoredGrid(_Record):
 @dataclass(frozen=True)
 class AuthoredAffordanceZone(_Record):
     """Explicit functional use geometry supplied by the source author."""
+
+    __hash__ = None
 
     id: str
     geometry_refs: tuple[str, ...]
@@ -775,6 +799,8 @@ class AuthoredAffordanceZone(_Record):
 class SourceOpening(_Record):
     """Explicit source opening and its host and geometry references."""
 
+    __hash__ = None
+
     id: str
     source_id: str | None
     host_refs: tuple[str, ...]
@@ -807,6 +833,8 @@ class SourceOpening(_Record):
 @dataclass(frozen=True)
 class NeutralSceneV2(_Record):
     """Top-level source-independent aggregate for Neutral Scene v2 facts."""
+
+    __hash__ = None
 
     context: AnalysisContext
     analysis_domain: AnalysisDomain | None = None

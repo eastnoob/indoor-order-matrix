@@ -1,5 +1,6 @@
 """Contract tests for source-independent Neutral Scene v2 records."""
 
+from collections.abc import Hashable
 import inspect
 import json
 import math
@@ -371,6 +372,39 @@ def test_context_and_mesh_reject_unsupported_units(unit: object) -> None:
         _mesh(units=unit)
 
 
+@pytest.mark.parametrize(
+    "value",
+    [
+        pytest.param([], id="list"),
+        pytest.param({}, id="dict"),
+        pytest.param(1, id="integer"),
+        pytest.param(1.0, id="float"),
+        pytest.param(True, id="boolean"),
+        pytest.param(("m",), id="tuple"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("field_name", "expected_path"),
+    [
+        ("source_length_unit", "context.source_length_unit"),
+        ("analysis_length_unit", "context.analysis_length_unit"),
+        ("units", "mesh.units"),
+        ("input_mode", "context.input_mode"),
+    ],
+)
+def test_unit_and_input_mode_reject_non_string_values_with_paths(
+    value: object,
+    field_name: str,
+    expected_path: str,
+) -> None:
+    """Vocabulary fields reject every non-string value with their record path."""
+    with pytest.raises(ValueError, match=rf"^{expected_path} "):
+        if field_name == "units":
+            _mesh(units=value)
+        else:
+            _context(**{field_name: value})
+
+
 @pytest.mark.parametrize("bad_id", ["", "   ", None, 42])
 def test_records_reject_empty_or_non_string_stable_ids(bad_id: object) -> None:
     """Addressable records require non-empty stable string identifiers."""
@@ -577,3 +611,15 @@ def test_every_concrete_record_supports_a_direct_json_round_trip(record: object)
 
     assert reopened == record
     assert reopened.to_dict() == payload
+
+
+@pytest.mark.parametrize(
+    "record",
+    _all_concrete_records(),
+    ids=lambda record: type(record).__name__,
+)
+def test_every_concrete_record_is_explicitly_unhashable(record: object) -> None:
+    """Frozen records consistently decline the public Hashable contract."""
+    assert not isinstance(record, Hashable)
+    with pytest.raises(TypeError):
+        hash(record)
