@@ -6,7 +6,7 @@ from collections import defaultdict
 import math
 from pathlib import Path
 import re
-from typing import Iterable, Mapping
+from typing import Iterable, Mapping, MutableMapping
 
 if "." in (__package__ or ""):
     from ..features.scene_contract import (
@@ -24,7 +24,7 @@ if "." in (__package__ or ""):
         SourceOpening,
         UncertaintyRecord,
     )
-    from ..features.scene_loader import Rect, load_structured_svg_scene
+    from ..features.scene_loader import load_structured_svg_scene
 else:
     from features.scene_contract import (
         NEUTRAL_SCENE_V2,
@@ -41,7 +41,7 @@ else:
         SourceOpening,
         UncertaintyRecord,
     )
-    from features.scene_loader import Rect, load_structured_svg_scene
+    from features.scene_loader import load_structured_svg_scene
 
 
 SVG_ADAPTER_VERSION = "svg-scene-adapter/0.1.0"
@@ -67,7 +67,6 @@ _FORBIDDEN_METADATA_KEYS = {
     "boundary-strength",
     "boundary_strength",
 }
-_LINE_ROLES = {"opening", "column_axis", "column_grid"}
 
 
 def load_svg_neutral_scene(
@@ -111,22 +110,27 @@ def load_svg_neutral_scene(
     )
 
     records = list(legacy_scene["_source_records"])
+    _assign_neutral_ids(records)
+    _validate_explicit_source_ids(records)
     geometries: list[MeshGeometry3D] = []
     geometry_refs: dict[int, str] = {}
+    geometry_warnings: dict[int, tuple[UncertaintyRecord, ...]] = {}
     for bucket, record in records:
-        geometry = _mesh_from_record(
+        geometry, warnings = _mesh_from_record(
             record,
             scale=scale,
             analysis_length_unit=context.analysis_length_unit,
             legacy_bucket=bucket,
         )
+        geometry_warnings[id(record)] = warnings
         if geometry is not None:
             geometries.append(geometry)
             geometry_refs[id(record)] = geometry.id
 
-    authored_groups, object_group_refs = _authored_groups(legacy_scene["objects"])
+    authored_groups, object_group_refs = _authored_groups(record for _, record in records)
     openings = _source_openings(
-        legacy_scene["entries"], geometry_refs=geometry_refs
+        (record for _, record in records),
+        geometry_refs=geometry_refs,
     )
     opening_refs_by_host: dict[str, list[str]] = defaultdict(list)
     for opening in openings:
@@ -138,19 +142,23 @@ def load_svg_neutral_scene(
             record,
             legacy_bucket=bucket,
             geometry_ref=geometry_refs.get(id(record)),
-            group_refs=object_group_refs.get(record["id"], ()),
-            opening_refs=tuple(opening_refs_by_host.get(record["id"], ())),
+            group_refs=object_group_refs.get(_neutral_id(record), ()),
+            opening_refs=tuple(opening_refs_by_host.get(_neutral_id(record), ())),
+            geometry_warnings=geometry_warnings.get(id(record), ()),
         )
         for bucket, record in records
     )
     axes, grids = _authored_grids(
-        legacy_scene["column_axes"], scale=scale
+        (record for _, record in records), scale=scale
     )
     affordances, affordance_uncertainties = _authored_affordances(
-        legacy_scene["objects"], geometry_refs=geometry_refs, scale=scale
+        (record for _, record in records),
+        geometry_refs=geometry_refs,
+        scale=scale,
     )
     analysis_domain = _analysis_domain(
-        legacy_scene["objects"], geometry_refs=geometry_refs
+        (record for _, record in records),
+        geometry_refs=geometry_refs,
     )
 
     return NeutralSceneV2(
@@ -222,38 +230,61 @@ def _mesh_from_record(
     scale: float,
     analysis_length_unit: str,
     legacy_bucket: str,
-) -> MeshGeometry3D | None:
-    """Create a z=0 transport mesh from explicit points or a recorded rect fallback."""
-    raw_points = list(record.get("points") or ())
-    outline_closed = len(raw_points) >= 3 and raw_points[0] == raw_points[-1]
-    points = _dedupe_polygon_closure(raw_points)
-    geometry_source = "points"
-    if len(points) < 2:
-        rect = record.get("rect")
-        if not isinstance(rect, Rect):
-            return None
-        points = _dedupe_polygon_closure(_rect_corners(rect))
-        geometry_source = "rect_fallback"
-    if len(points) < 2:
-        return None
+) -> tuple[MeshGeometry3D | None, tuple[UncertaintyRecord, ...]]:
+    """Create a z=0 mesh from adapter handoff geometry without bbox invention."""
+    source_ref = _neutral_id(record)
+    descriptor = record.get("_adapter_geometry")
+    if not isinstance(descriptor, Mapping):
+        reason = str(record.get("_adapter_geometry_error") or "unsupported")
+        return None, (
+            _record_uncertainty(
+                "missing_geometry",
+                "The SVG element has no supported authored geometry.",
+                source_ref,
+                {"reason": reason},
+            ),
+            _record_uncertainty(
+                "unsupported_svg_geometry",
+                "The SVG geometry could not be represented without fabrication.",
+                source_ref,
+                {"reason": reason},
+            ),
+        )
 
-    vertices = tuple((float(x) * scale, float(y) * scale, 0.0) for x, y in points)
-    role = str(record.get("role") or "")
-    tag = str(record.get("tag") or "")
-    polygonal = (
-        len(vertices) >= 3
-        and role not in _LINE_ROLES
-        and (tag in {"polygon", "rect", "circle", "ellipse", "use"} or outline_closed)
+    points = _dedupe_polygon_closure(descriptor.get("points") or ())
+    if len(points) < 2:
+        return None, (
+            _record_uncertainty(
+                "missing_geometry",
+                "The authored SVG geometry has fewer than two distinct points.",
+                source_ref,
+            ),
+        )
+    planar_vertices = tuple(
+        (float(x) * scale, float(y) * scale) for x, y in points
     )
-    triangles = tuple(
-        (0, index, index + 1) for index in range(1, len(vertices) - 1)
-    ) if polygonal else ()
+    warnings: tuple[UncertaintyRecord, ...] = ()
+    triangles: tuple[tuple[int, int, int], ...] = ()
+    if bool(descriptor.get("polygonal")) and len(planar_vertices) >= 3:
+        planar_vertices, triangles, triangulation_error = _triangulate_polygon(
+            planar_vertices
+        )
+        if triangulation_error:
+            warnings = (
+                _record_uncertainty(
+                    "polygon_triangulation_unavailable",
+                    "The authored polygon vertices were preserved without fabricated faces.",
+                    source_ref,
+                    {"reason": triangulation_error},
+                ),
+            )
+    vertices = tuple((x, y, 0.0) for x, y in planar_vertices)
 
     # These meshes transport planar evidence only. They are never declared as
     # closed solids, and manifold state remains unknown until a 3D gate exists.
-    source_id = str(record["id"])
+    source_id = _source_id(record)
     return MeshGeometry3D(
-        id=f"svg-geometry:{source_id}",
+        id=f"svg-geometry:{source_ref}",
         vertices=vertices,
         triangle_indices=triangles,
         normals=tuple((0.0, 0.0, 1.0) for _ in triangles),
@@ -264,14 +295,18 @@ def _mesh_from_record(
             "method": "structured_svg_loader_world_points",
             "svg_y_direction": "down",
             "legacy_bucket": legacy_bucket,
+            "world_affine": descriptor.get("world_affine"),
         },
         source_representation_id=source_id,
         tessellation_settings={
-            "geometry_source": geometry_source,
-            "triangulation": "deterministic_fan" if triangles else "none",
+            "geometry_source": str(descriptor.get("geometry_source") or "unknown"),
+            "curve_segments": 64
+            if descriptor.get("geometry_source") in {"analytic_circle", "analytic_ellipse"}
+            else None,
+            "triangulation": "shapely_constrained_filter" if triangles else "none",
         },
         units=analysis_length_unit,
-    )
+    ), warnings
 
 
 def _dedupe_polygon_closure(
@@ -288,14 +323,49 @@ def _dedupe_polygon_closure(
     return result
 
 
-def _rect_corners(rect: Rect) -> list[tuple[float, float]]:
-    """Return deterministic bbox corners for point-poor loader records."""
-    return [
-        (rect.left, rect.top),
-        (rect.right, rect.top),
-        (rect.right, rect.bottom),
-        (rect.left, rect.bottom),
+def _triangulate_polygon(
+    points: tuple[tuple[float, float], ...],
+) -> tuple[
+    tuple[tuple[float, float], ...],
+    tuple[tuple[int, int, int], ...],
+    str | None,
+]:
+    """Triangulate a simple concave polygon while excluding exterior Delaunay faces."""
+    from shapely.geometry import Polygon
+    from shapely.ops import triangulate
+
+    polygon = Polygon(points)
+    if not polygon.is_valid or polygon.is_empty or polygon.area <= 0.0:
+        return points, (), "invalid_or_zero_area_polygon"
+    candidates = [
+        triangle
+        for triangle in triangulate(polygon)
+        if polygon.covers(triangle)
     ]
+    if not candidates or not math.isclose(
+        sum(triangle.area for triangle in candidates),
+        polygon.area,
+        rel_tol=1e-9,
+        abs_tol=1e-12,
+    ):
+        return points, (), "triangles_do_not_cover_polygon"
+
+    vertices = list(points)
+    indices = {point: index for index, point in enumerate(vertices)}
+    triangle_indices: list[tuple[int, int, int]] = []
+    for triangle in sorted(
+        candidates,
+        key=lambda item: (item.centroid.x, item.centroid.y, tuple(item.exterior.coords)),
+    ):
+        triangle_points = tuple(
+            (float(x), float(y)) for x, y in list(triangle.exterior.coords)[:-1]
+        )
+        for point in triangle_points:
+            if point not in indices:
+                indices[point] = len(vertices)
+                vertices.append(point)
+        triangle_indices.append(tuple(indices[point] for point in triangle_points))
+    return tuple(vertices), tuple(triangle_indices), None
 
 
 def _source_object(
@@ -305,19 +375,39 @@ def _source_object(
     geometry_ref: str | None,
     group_refs: tuple[str, ...],
     opening_refs: tuple[str, ...],
+    geometry_warnings: tuple[UncertaintyRecord, ...],
 ) -> SourceObject:
     """Translate one loader record without adding analysis semantics."""
-    source_id = str(record["id"])
-    metadata = _sanitized_metadata(record.get("metadata"))
-    role = str(record.get("role") or "unknown")
-    if legacy_bucket == "regions":
+    neutral_id = _neutral_id(record)
+    source_id = _source_id(record)
+    metadata = _authored_metadata(record)
+    authored_role = _optional_text(metadata.get("role"))
+    role = authored_role or "unknown"
+    if authored_role == "region":
         role = "authored_region_hint"
-    elif legacy_bucket == "paths":
+    elif authored_role == "path":
         role = "authored_path_hint"
-    uncertainties = () if geometry_ref else (_missing_geometry(source_id),)
-    orientation = float(record.get("orientation") or 0.0)
+    uncertainties = list(geometry_warnings)
+    if source_id is None:
+        uncertainties.append(
+            _record_uncertainty(
+                "missing_source_id",
+                "The SVG element had no explicit source id; a traversal id was assigned.",
+                neutral_id,
+            )
+        )
+    if authored_role is None:
+        uncertainties.append(
+            _record_uncertainty(
+                "source_role_unavailable",
+                "No explicit data-role metadata was authored for this SVG element.",
+                neutral_id,
+                {"compatibility_role": record.get("role")},
+            )
+        )
+    orientation = _optional_number(metadata.get("orientation"))
     return SourceObject(
-        id=source_id,
+        id=neutral_id,
         source_id=source_id,
         source_role=role,
         source_class=f"svg:{record.get('tag') or 'unknown'}",
@@ -331,7 +421,7 @@ def _source_object(
                 "orientation_degrees": orientation,
                 "basis_source": "explicit_svg_orientation_metadata",
             }
-            if "orientation" in record.get("_authored_metadata_keys", ())
+            if orientation is not None
             else None
         ),
         provenance={
@@ -340,21 +430,30 @@ def _source_object(
             "source_order": "global_svg_traversal",
             "source_metadata": metadata,
             "adapter_refs": dict(record.get("adapter_refs") or {}),
-            "authored_hint": legacy_bucket in {"regions", "paths"},
+            "authored_hint": authored_role in {"region", "path"},
+            "compatibility_role": record.get("role"),
+            "compatibility_group": record.get("group"),
+            "compatibility_furniture_group": record.get("furniture_group"),
+            "compatibility_semantics_authored": False,
         },
-        uncertainties=uncertainties,
+        uncertainties=tuple(uncertainties),
     )
 
 
-def _missing_geometry(source_id: str) -> UncertaintyRecord:
-    """Describe an explicit SVG object whose loader yielded no usable geometry."""
+def _record_uncertainty(
+    code: str,
+    message: str,
+    source_ref: str,
+    details: Mapping[str, object] | None = None,
+) -> UncertaintyRecord:
+    """Build one adapter warning without collapsing unavailable evidence to zero."""
     return UncertaintyRecord(
-        code="missing_geometry",
-        message="The structured SVG record had no usable points or rectangle.",
-        source_refs=(source_id,),
+        code=code,
+        message=message,
+        source_refs=(source_ref,),
         operation="svg_adapter_geometry_handoff",
         severity="warning",
-        details={"adapter": SVG_ADAPTER_VERSION},
+        details={"adapter": SVG_ADAPTER_VERSION, **(details or {})},
     )
 
 
@@ -367,6 +466,79 @@ def _sanitized_metadata(value: object) -> dict[str, object]:
         for key, nested in value.items()
         if str(key).lower() not in _FORBIDDEN_METADATA_KEYS
     }
+
+
+def _authored_metadata(record: Mapping[str, object]) -> dict[str, object]:
+    """Return only explicit data-* facts captured during the shared XML traversal."""
+    return _sanitized_metadata(record.get("_authored_metadata"))
+
+
+def _neutral_id(record: Mapping[str, object]) -> str:
+    """Return the deterministic Neutral Scene identity assigned by the loader handoff."""
+    return str(record["_neutral_id"])
+
+
+def _source_id(record: Mapping[str, object]) -> str | None:
+    """Return the original explicit SVG id without compatibility fallbacks."""
+    value = record.get("_source_id")
+    return str(value) if value is not None and str(value).strip() else None
+
+
+def _optional_number(value: object) -> float | None:
+    """Return one optional finite numeric metadata fact."""
+    if value is None:
+        return None
+    try:
+        result = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return result if math.isfinite(result) else None
+
+
+def _validate_explicit_source_ids(
+    records: Iterable[tuple[str, Mapping[str, object]]],
+) -> None:
+    """Reject duplicate explicit SVG ids before any Neutral Scene references exist."""
+    seen: dict[str, int] = {}
+    for index, (_, record) in enumerate(records, start=1):
+        source_id = _source_id(record)
+        if source_id is None:
+            continue
+        if source_id in seen:
+            raise ValueError(
+                f"duplicate explicit SVG source id {source_id!r} "
+                f"at traversal records {seen[source_id]} and {index}"
+            )
+        seen[source_id] = index
+
+
+def _assign_neutral_ids(
+    records: Iterable[tuple[str, MutableMapping[str, object]]],
+) -> None:
+    """Assign deterministic neutral ids without colliding with authored SVG ids."""
+    materialized = list(records)
+    explicit_ids = {
+        source_id
+        for _, record in materialized
+        if (source_id := _source_id(record)) is not None
+    }
+    assigned_ids = set(explicit_ids)
+    next_index = 1
+
+    # Reserve all authored ids first so traversal fallbacks cannot shadow a
+    # later element that owns the same textual id in the source document.
+    for _, record in materialized:
+        source_id = _source_id(record)
+        if source_id is not None:
+            record["_neutral_id"] = source_id
+            continue
+        while True:
+            candidate = f"svg-element-{next_index:06d}"
+            next_index += 1
+            if candidate not in assigned_ids:
+                break
+        record["_neutral_id"] = candidate
+        assigned_ids.add(candidate)
 
 
 def _metadata_refs(metadata: Mapping[str, object], *names: str) -> tuple[str, ...]:
@@ -386,36 +558,48 @@ def _split_refs(value: object) -> tuple[str, ...]:
 def _authored_groups(
     records: Iterable[Mapping[str, object]],
 ) -> tuple[tuple[AuthoredGroup, ...], dict[str, tuple[str, ...]]]:
-    """Collect explicit furniture-group memberships in loader source order."""
+    """Collect only explicit data-group and furniture-group memberships."""
     members: dict[str, list[str]] = {}
+    roles: dict[str, str] = {}
+    object_memberships: dict[str, list[str]] = {}
     for record in records:
-        authored_keys = set(record.get("_authored_metadata_keys", ()))
-        if not authored_keys.intersection({"furniture-group", "furniture-group-id"}):
-            continue
-        group_id = str(record.get("furniture_group") or "")
-        if not group_id or group_id == "global":
-            continue
-        members.setdefault(group_id, [])
-        source_id = str(record["id"])
-        if source_id not in members[group_id]:
-            members[group_id].append(source_id)
+        metadata = _authored_metadata(record)
+        furniture_group = _optional_text(
+            metadata.get("furniture-group") or metadata.get("furniture-group-id")
+        )
+        source_group = _optional_text(metadata.get("group"))
+        candidates = []
+        if furniture_group:
+            candidates.append((furniture_group, "furniture_group"))
+        if source_group and source_group != furniture_group:
+            candidates.append((source_group, "source_group"))
+        neutral_id = _neutral_id(record)
+        for group_id, role in candidates:
+            members.setdefault(group_id, [])
+            roles.setdefault(group_id, role)
+            if role == "furniture_group":
+                roles[group_id] = role
+            if neutral_id not in members[group_id]:
+                members[group_id].append(neutral_id)
+            object_memberships.setdefault(neutral_id, [])
+            if group_id not in object_memberships[neutral_id]:
+                object_memberships[neutral_id].append(group_id)
     groups = tuple(
         AuthoredGroup(
             id=group_id,
             source_id=group_id,
             member_refs=tuple(group_members),
-            group_role="furniture_group",
+            group_role=roles[group_id],
             provenance={
                 "adapter": SVG_ADAPTER_VERSION,
-                "method": "explicit_svg_furniture_group_metadata",
+                "method": "explicit_svg_group_metadata",
             },
         )
         for group_id, group_members in members.items()
     )
     object_refs: dict[str, tuple[str, ...]] = {
-        member: (group.id,)
-        for group in groups
-        for member in group.member_refs
+        member: tuple(group_ids)
+        for member, group_ids in object_memberships.items()
     }
     return groups, object_refs
 
@@ -429,15 +613,20 @@ def _authored_grids(
     axes: list[AuthoredGridAxis] = []
     grid_axes: dict[str, list[str]] = {}
     for record in records:
-        points = _dedupe_polygon_closure(record.get("points") or ())
+        metadata = _authored_metadata(record)
+        if metadata.get("role") not in {"column_axis", "column_grid"}:
+            continue
+        descriptor = record.get("_adapter_geometry")
+        if not isinstance(descriptor, Mapping):
+            continue
+        points = _dedupe_polygon_closure(descriptor.get("points") or ())
         if len(points) < 2:
             continue
-        metadata = _sanitized_metadata(record.get("metadata"))
-        axis_id = str(record["id"])
+        axis_id = _neutral_id(record)
         axes.append(
             AuthoredGridAxis(
                 id=axis_id,
-                source_id=axis_id,
+                source_id=_source_id(record),
                 curve_points=tuple((x * scale, y * scale, 0.0) for x, y in points),
                 branch_identifier=_optional_text(metadata.get("branch")),
                 list_identifier=_optional_text(metadata.get("list")),
@@ -478,16 +667,16 @@ def _authored_affordances(
     zones: list[AuthoredAffordanceZone] = []
     uncertainties: list[UncertaintyRecord] = []
     for record in records:
-        if str(record.get("role") or "") not in {"affordance", "affordance_zone"}:
+        metadata = _authored_metadata(record)
+        if metadata.get("role") not in {"affordance", "affordance_zone"}:
             continue
-        metadata = _sanitized_metadata(record.get("metadata"))
         purpose = _optional_text(metadata.get("purpose"))
         owners = _metadata_refs(
             metadata, "source-furniture-refs", "source-furniture-ref"
         )
         geometry_ref = geometry_refs.get(id(record))
         if not purpose or not owners or not geometry_ref:
-            source_id = str(record["id"])
+            source_id = _neutral_id(record)
             uncertainties.append(
                 UncertaintyRecord(
                     code="incomplete_authored_affordance",
@@ -499,7 +688,7 @@ def _authored_affordances(
                 )
             )
             continue
-        source_id = str(record["id"])
+        source_id = _neutral_id(record)
         try:
             z_min = float(metadata["z-min"]) * scale
             z_max = float(metadata["z-max"]) * scale
@@ -550,14 +739,22 @@ def _source_openings(
     """Translate explicitly parsed SVG openings and their authored host refs."""
     openings: list[SourceOpening] = []
     for record in records:
-        metadata = _sanitized_metadata(record.get("metadata"))
-        source_id = str(record["id"])
+        metadata = _authored_metadata(record)
+        if metadata.get("role") != "opening":
+            continue
+        neutral_id = _neutral_id(record)
         geometry_ref = geometry_refs.get(id(record))
-        uncertainties = () if geometry_ref else (_missing_geometry(source_id),)
+        uncertainties = () if geometry_ref else (
+            _record_uncertainty(
+                "missing_geometry",
+                "The explicit SVG opening has no supported geometry.",
+                neutral_id,
+            ),
+        )
         openings.append(
             SourceOpening(
-                id=source_id,
-                source_id=source_id,
+                id=neutral_id,
+                source_id=_source_id(record),
                 host_refs=_metadata_refs(metadata, "host-refs", "host-ref"),
                 geometry_refs=(geometry_ref,) if geometry_ref else (),
                 opening_kind=_optional_text(metadata.get("opening-kind")) or "opening",
@@ -579,15 +776,22 @@ def _analysis_domain(
 ) -> AnalysisDomain | None:
     """Return only an explicitly role-marked SVG analysis domain."""
     for record in records:
-        if str(record.get("role") or "") not in {"analysis_domain", "analysis-domain"}:
+        metadata = _authored_metadata(record)
+        if metadata.get("role") not in {"analysis_domain", "analysis-domain"}:
             continue
-        source_id = str(record["id"])
+        neutral_id = _neutral_id(record)
         geometry_ref = geometry_refs.get(id(record))
-        uncertainties = () if geometry_ref else (_missing_geometry(source_id),)
+        uncertainties = () if geometry_ref else (
+            _record_uncertainty(
+                "missing_geometry",
+                "The explicit SVG analysis domain has no supported geometry.",
+                neutral_id,
+            ),
+        )
         return AnalysisDomain(
-            id=source_id,
+            id=neutral_id,
             geometry_refs=(geometry_ref,) if geometry_ref else (),
-            source_id=source_id,
+            source_id=_source_id(record),
             selection_method="explicit_svg_element",
             provenance={
                 "adapter": SVG_ADAPTER_VERSION,

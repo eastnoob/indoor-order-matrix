@@ -3048,3 +3048,53 @@
   rejected sending uncommitted repository contents to an external model
   without explicit data-disclosure authorization. Local static review and all
   required tests completed; this is the only review-process concern.
+
+2026-08-17, Gate 2 rejected-review repair checkpoint:
+
+- Scope remained Gate 2 only. The five HIGH review findings did not conflict
+  with the approved Gate 2 architecture. The earlier allowance for fan
+  triangulation was narrowed because it is not correct for arbitrary concave
+  polygons; no Gate 3 substitute, boundary-evidence, IFC, Blender, evaluator,
+  inference-consumer, or OCTA work was started.
+- Strict TDD RED evidence:
+  - the initial repair run was `9 failed, 19 passed`; failures demonstrated a
+    leaked `Rect` import, promotion of id-derived axes and fixture-name groups,
+    lost affine transforms, bbox-derived curves, invalid concave fan faces,
+    bbox fabrication for unresolved `use`, accepted duplicate ids, and
+    colliding role-derived ids;
+  - after correcting a test-harness use of nested `pytest.approx`, the affine
+    RED showed source point `(1.0, 2.0, 0.0)` instead of transformed
+    `(2.0, 6.0, 0.0)`;
+  - a final identity-edge RED showed generated `svg-element-000001` shadowing
+    a later explicit id of the same value.
+- The opt-in loader handoff now carries explicit source/authorship facts,
+  composed SVG affine transforms, and actual planar geometry from the single
+  existing XML traversal. The default compatibility output remains unchanged.
+- The adapter now accepts authored `data-*` roles and groups only. Legacy
+  id/name-derived roles and grouping remain provenance-marked compatibility
+  facts, unknown roles carry uncertainty, and columns never create axes.
+- Scale, shear, nested transforms, and centered rotation are composed once
+  before physical-unit conversion. Analytic circles and ellipses are sampled
+  from their authored curves; concave polygons use the already-installed
+  Shapely triangulator with interior and area checks; open polylines remain
+  unfilled. Unsupported geometry preserves uncertainty instead of a bbox.
+- Duplicate explicit source ids fail at the adapter boundary. Missing ids use
+  stable traversal-based Neutral Scene ids that reserve every authored id,
+  while the missing original source id remains `None` with uncertainty.
+- Pre-full static review found no fixture-name-specific branch, duplicate XML
+  parser, raw `Rect` adapter import, forbidden analysis import, or missing
+  project-owned function docstring. JSON round trips and fixture tests found no
+  raw compatibility object or forbidden legacy weight in Neutral Scene output.
+- Focused GREEN evidence:
+  - adapter-only: `29 passed in 2.56s`;
+  - relevant legacy loader compatibility: `8 passed, 203 deselected in 0.17s`;
+  - Gate 0, Gate 1, and Gate 2 importlib set: `146 passed in 3.21s`;
+  - post-docstring adapter/loader set: `37 passed, 203 deselected in 2.69s`.
+- First full-suite verification after behavioral repair: `441 passed in
+  775.71s (0:12:55)` under Pixi runtime Python `3.12.13`; the environment was
+  not changed.
+- Grill Me review found no analysis behavior, fabricated 3D/affordance/domain,
+  implicit physical units, authored compatibility semantics, or ambiguous
+  source identity crossing the adapter boundary. Ponytail review retained one
+  shared parser, the installed geometry primitive, and contract-specific
+  helpers only; no new dependency or speculative adapter framework was added.

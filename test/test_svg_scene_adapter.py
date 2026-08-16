@@ -3,6 +3,7 @@
 import ast
 from importlib import import_module
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -70,7 +71,7 @@ def test_real_svg_fixtures_validate_and_round_trip_without_fabricated_facts(
     fixture: Path,
 ) -> None:
     """Real planar fixtures should become strict, source-ordered v2 scenes."""
-    legacy = load_structured_svg_scene(fixture)
+    legacy = load_structured_svg_scene(fixture, include_source_order=True)
     scene = _load(fixture)
     payload = scene.to_dict()
 
@@ -91,12 +92,26 @@ def test_real_svg_fixtures_validate_and_round_trip_without_fabricated_facts(
     assert scene.authored_affordances == ()
     assert not (FORBIDDEN_WEIGHT_KEYS & _all_keys(payload))
 
-    legacy_ids = [item["id"] for item in legacy["objects"]]
-    mapped_object_ids = [
-        item.id for item in scene.source_objects if item.provenance["legacy_bucket"] == "objects"
+    legacy_objects = [
+        record
+        for bucket, record in legacy["_source_records"]
+        if bucket == "objects"
     ]
-    assert mapped_object_ids == legacy_ids
-    assert len(mapped_object_ids) == len(set(mapped_object_ids))
+    mapped_objects = [
+        item
+        for item in scene.source_objects
+        if item.provenance["legacy_bucket"] == "objects"
+    ]
+    assert [item.source_id for item in mapped_objects] == [
+        record["_source_id"] for record in legacy_objects
+    ]
+    repeated_ids = [
+        item.id
+        for item in _load(fixture).source_objects
+        if item.provenance["legacy_bucket"] == "objects"
+    ]
+    assert [item.id for item in mapped_objects] == repeated_ids
+    assert len(mapped_objects) == len({item.id for item in mapped_objects})
 
 
 def test_existing_structured_svg_loader_behavior_remains_unchanged() -> None:
@@ -296,8 +311,8 @@ def test_planar_affordance_without_height_is_preserved_as_uncertain(
     ]
 
 
-def test_planar_meshes_use_points_then_record_rect_fallback(tmp_path: Path) -> None:
-    """Explicit polygon points should win while point-poor shapes record bbox fallback."""
+def test_planar_meshes_preserve_polygon_and_analytic_circle_sources(tmp_path: Path) -> None:
+    """Polygon and circle geometry should retain their authored geometric source."""
     svg = tmp_path / "geometry.svg"
     svg.write_text(
         """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -311,10 +326,10 @@ def test_planar_meshes_use_points_then_record_rect_fallback(tmp_path: Path) -> N
     geometry = {item.source_representation_id: item for item in scene.geometries}
 
     assert len(geometry["poly"].vertices) == 4
-    assert geometry["poly"].triangle_indices == ((0, 1, 2), (0, 2, 3))
-    assert geometry["poly"].tessellation_settings["geometry_source"] == "points"
-    assert len(geometry["circle"].vertices) == 4
-    assert geometry["circle"].tessellation_settings["geometry_source"] == "rect_fallback"
+    assert len(geometry["poly"].triangle_indices) == 2
+    assert geometry["poly"].tessellation_settings["geometry_source"] == "authored_polygon"
+    assert len(geometry["circle"].vertices) == 64
+    assert geometry["circle"].tessellation_settings["geometry_source"] == "analytic_circle"
     assert all(vertex[2] == 0.0 for item in scene.geometries for vertex in item.vertices)
     assert all(item.is_closed is False for item in scene.geometries)
 
@@ -333,9 +348,10 @@ def test_pointless_zero_extent_record_reports_missing_geometry(tmp_path: Path) -
 
     assert scene.geometries == ()
     assert scene.source_objects[0].geometry_refs == ()
-    assert [item.code for item in scene.source_objects[0].uncertainties] == [
-        "missing_geometry"
-    ]
+    assert {item.code for item in scene.source_objects[0].uncertainties} == {
+        "missing_geometry",
+        "unsupported_svg_geometry",
+    }
 
 
 def test_open_boundary_polyline_is_not_fabricated_as_a_surface(
@@ -411,6 +427,10 @@ def test_svg_adapter_import_graph_excludes_analysis_and_bim_dependencies() -> No
         for module in imported
         for token in ("ifc", "blender", "octa", "evaluator", "inference")
     )
+    assert "ElementTree" not in source
+    assert "xml.etree" not in source
+    assert "ET.parse" not in source
+    assert "import Rect" not in source
 
 
 def test_plain_neutral_scene_payload_round_trips_without_svg_parser() -> None:
@@ -420,3 +440,278 @@ def test_plain_neutral_scene_payload_round_trips_without_svg_parser() -> None:
     rebuilt = NeutralSceneV2.from_dict(json.loads(json.dumps(payload)))
 
     assert rebuilt.to_dict() == payload
+
+
+def test_legacy_id_roles_remain_compatibility_facts_not_authored_v2(
+    tmp_path: Path,
+) -> None:
+    """Id-derived legacy roles must not cross the authored Neutral Scene boundary."""
+    svg = tmp_path / "legacy_roles.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <line id="axis1" x1="0" y1="20" x2="100" y2="20"/>
+        <path id="bottom_entry" d="M 20 100 L 40 80"/>
+        <rect id="chair-by-name" x="10" y="10" width="10" height="10"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+    objects = {item.id: item for item in scene.source_objects}
+
+    assert scene.authored_grid_axes == ()
+    assert scene.authored_grids == ()
+    assert scene.openings == ()
+    assert all(item.source_role == "unknown" for item in objects.values())
+    assert objects["axis1"].provenance["compatibility_role"] == "column_axis"
+    assert objects["bottom_entry"].provenance["compatibility_role"] == "opening"
+    assert objects["chair-by-name"].provenance["compatibility_role"] == "chair"
+    assert all(
+        "source_role_unavailable" in {warning.code for warning in item.uncertainties}
+        for item in objects.values()
+    )
+
+
+def test_only_explicit_group_metadata_creates_v2_group_semantics(
+    tmp_path: Path,
+) -> None:
+    """Fixture-specific parent names must not become authored Neutral Scene groups."""
+    svg = tmp_path / "group_authorship.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <g id="west_lounge">
+          <rect id="chair-legacy" x="5" y="5" width="10" height="10"/>
+        </g>
+        <g data-role="chair" data-group="authored-lounge">
+          <rect id="chair-explicit" x="30" y="5" width="10" height="10"/>
+        </g>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+    objects = {item.id: item for item in scene.source_objects}
+
+    assert [(group.id, group.group_role, group.member_refs) for group in scene.authored_groups] == [
+        ("authored-lounge", "source_group", ("chair-explicit",))
+    ]
+    assert objects["chair-legacy"].source_role == "unknown"
+    assert objects["chair-legacy"].group_refs == ()
+    assert objects["chair-explicit"].source_role == "chair"
+    assert objects["chair-explicit"].group_refs == ("authored-lounge",)
+
+
+def test_full_svg_affine_transforms_are_applied_once_in_world_coordinates(
+    tmp_path: Path,
+) -> None:
+    """Scale, shear, nesting, and centered rotation must survive adapter handoff."""
+    svg = tmp_path / "affine.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect id="scaled" data-role="table" x="1" y="2" width="3" height="4"
+              transform="scale(2 3)"/>
+        <rect id="sheared" data-role="table" x="0" y="0" width="2" height="2"
+              transform="matrix(1 0 0.5 1 0 0)"/>
+        <g transform="translate(10 20)">
+          <rect id="nested" data-role="table" x="1" y="1" width="2" height="1"
+                transform="scale(2)"/>
+        </g>
+        <rect id="center-rotated" data-role="table" x="20" y="10" width="2" height="1"
+              transform="rotate(90 10 10)"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = load_svg_neutral_scene_for_test(svg, source_length_unit="m")
+    geometry = {item.source_representation_id: item.vertices for item in scene.geometries}
+
+    _assert_points(
+        geometry["scaled"],
+        ((2.0, 6.0, 0.0), (8.0, 6.0, 0.0), (8.0, 18.0, 0.0), (2.0, 18.0, 0.0)),
+    )
+    _assert_points(
+        geometry["sheared"],
+        ((0.0, 0.0, 0.0), (2.0, 0.0, 0.0), (3.0, 2.0, 0.0), (1.0, 2.0, 0.0)),
+    )
+    _assert_points(
+        geometry["nested"],
+        ((12.0, 22.0, 0.0), (16.0, 22.0, 0.0), (16.0, 24.0, 0.0), (12.0, 24.0, 0.0)),
+    )
+    _assert_points(
+        geometry["center-rotated"],
+        ((10.0, 20.0, 0.0), (10.0, 22.0, 0.0), (9.0, 22.0, 0.0), (9.0, 20.0, 0.0)),
+    )
+
+
+def load_svg_neutral_scene_for_test(
+    path: Path,
+    *,
+    source_length_unit: str,
+) -> NeutralSceneV2:
+    """Load an SVG with a non-default source unit for focused geometry tests."""
+    from ..adapters import load_svg_neutral_scene
+
+    return load_svg_neutral_scene(path, source_length_unit=source_length_unit)
+
+
+def _assert_points(
+    actual: object,
+    expected: tuple[tuple[float, float, float], ...],
+) -> None:
+    """Compare ordered 3D point sequences with floating-point tolerance."""
+    assert len(actual) == len(expected)
+    for actual_point, expected_point in zip(actual, expected):
+        assert actual_point == pytest.approx(expected_point)
+
+
+def test_circle_and_ellipse_use_authored_curve_tessellation_not_bbox(
+    tmp_path: Path,
+) -> None:
+    """Analytic SVG curves should retain curved area and non-corner vertices."""
+    svg = tmp_path / "curves.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle id="circle" data-role="table" cx="20" cy="20" r="10"/>
+        <ellipse id="ellipse" data-role="table" cx="60" cy="20" rx="15" ry="5"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = load_svg_neutral_scene_for_test(svg, source_length_unit="m")
+    geometry = {item.source_representation_id: item for item in scene.geometries}
+
+    assert len(geometry["circle"].vertices) >= 32
+    assert len(geometry["ellipse"].vertices) >= 32
+    assert geometry["circle"].tessellation_settings["geometry_source"] == "analytic_circle"
+    assert geometry["ellipse"].tessellation_settings["geometry_source"] == "analytic_ellipse"
+    assert _mesh_area(geometry["circle"]) == pytest.approx(math.pi * 100.0, rel=0.01)
+    assert _mesh_area(geometry["ellipse"]) == pytest.approx(math.pi * 75.0, rel=0.01)
+
+
+def _mesh_area(geometry: object) -> float:
+    """Return XY triangle area for one transport mesh used by focused tests."""
+    vertices = geometry.vertices
+    return sum(
+        abs(
+            (vertices[b][0] - vertices[a][0]) * (vertices[c][1] - vertices[a][1])
+            - (vertices[b][1] - vertices[a][1]) * (vertices[c][0] - vertices[a][0])
+        )
+        / 2.0
+        for a, b, c in geometry.triangle_indices
+    )
+
+
+def test_concave_polygon_triangulation_stays_inside_authored_polygon(
+    tmp_path: Path,
+) -> None:
+    """Concave polygon triangles must cover only the authored polygon interior."""
+    from shapely.geometry import Polygon
+
+    svg = tmp_path / "concave.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+        <polygon id="u-shape" data-role="table"
+          points="0,0 4,0 4,4 3,4 3,1 1,1 1,4 0,4"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = load_svg_neutral_scene_for_test(svg, source_length_unit="m")
+    mesh = scene.geometries[0]
+    authored = Polygon(((0, 0), (4, 0), (4, 4), (3, 4), (3, 1), (1, 1), (1, 4), (0, 4)))
+    triangles = [Polygon((mesh.vertices[a][:2], mesh.vertices[b][:2], mesh.vertices[c][:2])) for a, b, c in mesh.triangle_indices]
+
+    assert triangles
+    assert all(authored.covers(triangle) for triangle in triangles)
+    assert sum(triangle.area for triangle in triangles) == pytest.approx(authored.area)
+
+
+def test_unsupported_use_geometry_is_uncertain_not_bbox_source(tmp_path: Path) -> None:
+    """An unresolved SVG use reference must not become an authored bbox mesh."""
+    svg = tmp_path / "unsupported_use.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <use id="unresolved" data-role="boundary" href="#missing"
+             x="10" y="20" width="30" height="40"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert scene.geometries == ()
+    assert scene.source_objects[0].geometry_refs == ()
+    assert "unsupported_svg_geometry" in {
+        warning.code for warning in scene.source_objects[0].uncertainties
+    }
+
+
+def test_duplicate_explicit_source_ids_are_rejected_at_adapter_boundary(
+    tmp_path: Path,
+) -> None:
+    """Ambiguous explicit SVG ids should fail before Neutral Scene refs are built."""
+    svg = tmp_path / "duplicate_ids.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect id="duplicate" data-role="chair" x="0" y="0" width="10" height="10"/>
+        <rect id="duplicate" data-role="chair" x="20" y="0" width="10" height="10"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate explicit SVG source id 'duplicate'"):
+        _load(svg)
+
+
+def test_missing_source_ids_receive_stable_neutral_ids_and_uncertainty(
+    tmp_path: Path,
+) -> None:
+    """Id-less authored elements need deterministic neutral identity without fake source ids."""
+    svg = tmp_path / "missing_ids.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <g data-role="chair">
+          <rect x="0" y="0" width="10" height="10"/>
+          <rect x="20" y="0" width="10" height="10"/>
+        </g>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    first = _load(svg)
+    second = _load(svg)
+
+    assert [item.id for item in first.source_objects] == [
+        "svg-element-000001",
+        "svg-element-000002",
+    ]
+    assert [item.id for item in second.source_objects] == [item.id for item in first.source_objects]
+    assert all(item.source_id is None for item in first.source_objects)
+    assert all(
+        "missing_source_id" in {warning.code for warning in item.uncertainties}
+        for item in first.source_objects
+    )
+
+
+def test_generated_neutral_ids_avoid_explicit_source_id_collisions(
+    tmp_path: Path,
+) -> None:
+    """Traversal ids should deterministically skip ids explicitly owned by SVG elements."""
+    svg = tmp_path / "generated_id_collision.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <g data-role="chair">
+          <rect x="0" y="0" width="10" height="10"/>
+          <rect id="svg-element-000001" x="20" y="0" width="10" height="10"/>
+        </g>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert [item.id for item in scene.source_objects] == [
+        "svg-element-000002",
+        "svg-element-000001",
+    ]
+    assert len({item.id for item in scene.source_objects}) == 2

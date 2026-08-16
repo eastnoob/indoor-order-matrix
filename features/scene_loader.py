@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from math import cos, radians, sin
+from math import cos, pi, radians, sin, tan
 from pathlib import Path
 import re
 import xml.etree.ElementTree as ET
@@ -9,6 +9,7 @@ from .affordance.models import Rect
 
 
 SVG_NS = "{http://www.w3.org/2000/svg}"
+_IDENTITY_AFFINE = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
 
 def load_structured_svg_scene(
@@ -39,12 +40,15 @@ def load_structured_svg_scene(
         # Neutral Scene adapters need cross-bucket source order and authoredness,
         # while the default legacy dictionary must remain byte-for-byte shaped.
         scene["_source_records"] = []
+        scene["_next_neutral_id"] = 1
     # SVG fixtures can be partially annotated while they evolve toward BIM-like
     # metadata, so id fallback stays available only for elements missing a role.
     _walk(root, inherited={"_allow_id_fallback": True}, scene=scene)
     return scene
 
+
 def _svg_size(root: ET.Element) -> tuple[float, float]:
+    """Return the SVG viewBox size, falling back to explicit dimensions."""
     view_box = root.attrib.get("viewBox", "")
     parts = [float(part) for part in view_box.replace(",", " ").split() if part]
     if len(parts) == 4:
@@ -61,6 +65,12 @@ def _walk(element: ET.Element, *, inherited: dict, scene: dict) -> None:
     tag = _tag_name(element.tag)
     transform = _combine_transform(inherited.get("_transform"), element.attrib.get("transform"))
     meta["_transform"] = transform
+    if "_source_records" in scene:
+        # The adapter handoff keeps a complete affine chain beside the legacy
+        # translation/angle approximation, so compatibility values do not move.
+        meta["_adapter_affine"] = _compose_svg_affine(
+            inherited.get("_adapter_affine"), element.attrib.get("transform")
+        )
 
     if tag == "g" or list(element):
         for child in element:
@@ -96,10 +106,26 @@ def _walk(element: ET.Element, *, inherited: dict, scene: dict) -> None:
         record["_authored_metadata_keys"] = tuple(
             key[5:] for key in meta if key.startswith("data-")
         )
+        record["_authored_metadata"] = {
+            key[5:]: value for key, value in meta.items() if key.startswith("data-")
+        }
+        source_id = element.attrib.get("id")
+        neutral_index = scene["_next_neutral_id"]
+        scene["_next_neutral_id"] += 1
+        record["_source_id"] = source_id
+        record["_neutral_id"] = source_id or f"svg-element-{neutral_index:06d}"
+        geometry, geometry_error = _adapter_geometry_for_shape(
+            tag,
+            element.attrib,
+            meta["_adapter_affine"],
+        )
+        record["_adapter_geometry"] = geometry
+        record["_adapter_geometry_error"] = geometry_error
         scene["_source_records"].append((bucket, record))
 
 
 def _merge_metadata(inherited: dict, attrib: dict) -> dict:
+    """Merge inherited SVG data attributes while tracking semantic parent ids."""
     meta = dict(inherited)
     previous_id = inherited.get("id")
     for key, value in attrib.items():
@@ -261,6 +287,7 @@ def _semantic_group_id(record_id: str | None) -> bool:
 
 
 def _adapter_refs(metadata: dict) -> dict[str, str]:
+    """Collect explicit external-system references from SVG metadata aliases."""
     aliases = {
         "rhino_guid": ("rhino-guid", "rhino_guid"),
         "ifc_guid": ("ifc-guid", "ifc_guid"),
@@ -277,6 +304,7 @@ def _adapter_refs(metadata: dict) -> dict[str, str]:
 
 
 def _weights(meta: dict) -> dict[str, float]:
+    """Build legacy compatibility weights from explicit metadata or role defaults."""
     role = meta.get("data-role", "")
     defaults = {
         "boundary": (1.0, 1.0, 1.0),
@@ -291,6 +319,7 @@ def _weights(meta: dict) -> dict[str, float]:
 
 
 def _weight(raw: str | None, default: float) -> float:
+    """Clamp one legacy compatibility weight to the inclusive unit interval."""
     if raw is None:
         return default
     try:
@@ -304,6 +333,7 @@ def _rect_for_shape(
     attrib: dict,
     transform: tuple[float, float, float] | None,
 ) -> Rect:
+    """Build the legacy axis-aligned rectangle proxy for one SVG shape."""
     tx, ty, angle = transform or (0.0, 0.0, 0.0)
     if tag == "use":
         x = _svg_number(attrib.get("x"))
@@ -377,6 +407,7 @@ def _points_for_shape(
     attrib: dict,
     transform: tuple[float, float, float] | None,
 ) -> list[tuple[float, float]]:
+    """Return legacy world points using the compatibility transform model."""
     tx, ty, angle = transform or (0.0, 0.0, 0.0)
     if tag == "path":
         return _points_for_path(attrib.get("d", ""), transform)
@@ -555,10 +586,220 @@ def _plain_rect_points(attrib: dict) -> list[tuple[float, float]]:
     return [*points, points[0]]
 
 
+def _adapter_geometry_for_shape(
+    tag: str,
+    attrib: dict,
+    transform: tuple[float, float, float, float, float, float],
+) -> tuple[dict | None, str | None]:
+    """Build factual world-space geometry for the opt-in Neutral Scene handoff."""
+    if tag == "rect":
+        x = _svg_number(attrib.get("x"))
+        y = _svg_number(attrib.get("y"))
+        width = _svg_number(attrib.get("width"))
+        height = _svg_number(attrib.get("height"))
+        points = ((x, y), (x + width, y), (x + width, y + height), (x, y + height))
+        return _adapter_geometry("authored_rect", points, transform, polygonal=True), None
+    if tag in {"circle", "ellipse"}:
+        cx = _svg_number(attrib.get("cx"))
+        cy = _svg_number(attrib.get("cy"))
+        if tag == "circle":
+            rx = ry = _svg_number(attrib.get("r"))
+            source = "analytic_circle"
+        else:
+            rx = _svg_number(attrib.get("rx"))
+            ry = _svg_number(attrib.get("ry"))
+            source = "analytic_ellipse"
+        # A fixed deterministic tessellation preserves the analytic outline
+        # without claiming that the SVG supplied a four-corner bbox polygon.
+        points = tuple(
+            (
+                cx + rx * cos(2.0 * pi * index / 64.0),
+                cy + ry * sin(2.0 * pi * index / 64.0),
+            )
+            for index in range(64)
+        )
+        return _adapter_geometry(source, points, transform, polygonal=True), None
+    if tag == "polygon":
+        numbers = [
+            float(value)
+            for value in re.findall(
+                r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", attrib.get("points", "")
+            )
+        ]
+        if len(numbers) < 6 or len(numbers) % 2:
+            return None, "invalid_polygon_points"
+        points = tuple(zip(numbers[0::2], numbers[1::2]))
+        return _adapter_geometry("authored_polygon", points, transform, polygonal=True), None
+    if tag == "line":
+        points = (
+            (_svg_number(attrib.get("x1")), _svg_number(attrib.get("y1"))),
+            (_svg_number(attrib.get("x2")), _svg_number(attrib.get("y2"))),
+        )
+        return _adapter_geometry("authored_line", points, transform, polygonal=False), None
+    if tag == "path":
+        return _adapter_path_geometry(attrib.get("d", ""), transform)
+    if tag == "use":
+        return None, "unresolved_use_reference"
+    return None, f"unsupported_svg_tag:{tag or 'unknown'}"
+
+
+def _adapter_geometry(
+    source: str,
+    points: tuple[tuple[float, float], ...],
+    transform: tuple[float, float, float, float, float, float],
+    *,
+    polygonal: bool,
+) -> dict:
+    """Apply one composed affine transform and package adapter-only geometry."""
+    return {
+        "points": tuple(_apply_affine(point, transform) for point in points),
+        "polygonal": polygonal,
+        "geometry_source": source,
+        "world_affine": transform,
+    }
+
+
+def _adapter_path_geometry(
+    raw: str,
+    transform: tuple[float, float, float, float, float, float],
+) -> tuple[dict | None, str | None]:
+    """Tessellate authored SVG path segments for the adapter-only handoff."""
+    if not raw.strip():
+        return None, "empty_path"
+    try:
+        from svgpathtools import Line, parse_path
+
+        parsed = parse_path(raw)
+        subpaths = parsed.continuous_subpaths()
+    except (ImportError, ValueError, TypeError) as error:
+        return None, f"path_parse_failed:{type(error).__name__}"
+    if not subpaths:
+        return None, "empty_path"
+
+    points: list[tuple[float, float]] = []
+    curved = False
+    for subpath in subpaths:
+        for segment in subpath:
+            steps = 1 if isinstance(segment, Line) else 16
+            curved = curved or steps > 1
+            start = segment.point(0.0)
+            start_point = (float(start.real), float(start.imag))
+            if not points or start_point != points[-1]:
+                points.append(start_point)
+            for index in range(1, steps + 1):
+                point = segment.point(index / steps)
+                points.append((float(point.real), float(point.imag)))
+    closed = len(subpaths) == 1 and bool(subpaths[0].isclosed())
+    geometry = _adapter_geometry(
+        "svg_path_curve" if curved else "svg_path_polyline",
+        tuple(points),
+        transform,
+        polygonal=closed,
+    )
+    geometry["subpath_count"] = len(subpaths)
+    return geometry, None
+
+
+def _compose_svg_affine(
+    parent: tuple[float, float, float, float, float, float] | None,
+    raw: str | None,
+) -> tuple[float, float, float, float, float, float]:
+    """Compose one complete SVG transform list beneath its parent transform."""
+    local = _IDENTITY_AFFINE
+    if raw:
+        matches = list(re.finditer(r"([A-Za-z]+)\s*\(([^)]*)\)", raw))
+        compact_matches = "".join(match.group(0) for match in matches)
+        if not matches or re.sub(r"[\s,]+", "", compact_matches) != re.sub(
+            r"[\s,]+", "", raw
+        ):
+            raise ValueError(f"unsupported SVG transform syntax: {raw!r}")
+        for match in matches:
+            values = [
+                float(value)
+                for value in re.findall(
+                    r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", match.group(2)
+                )
+            ]
+            local = _multiply_affine(
+                local, _svg_transform_operation(match.group(1), values)
+            )
+    return _multiply_affine(parent or _IDENTITY_AFFINE, local)
+
+
+def _svg_transform_operation(
+    name: str,
+    values: list[float],
+) -> tuple[float, float, float, float, float, float]:
+    """Return one standard SVG affine operation as a six-value matrix."""
+    lowered = name.lower()
+    if lowered == "matrix" and len(values) == 6:
+        return tuple(values)
+    if lowered == "translate" and len(values) in {1, 2}:
+        return (
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            values[0],
+            values[1] if len(values) == 2 else 0.0,
+        )
+    if lowered == "scale" and len(values) in {1, 2}:
+        return (values[0], 0.0, 0.0, values[-1], 0.0, 0.0)
+    if lowered == "rotate" and len(values) in {1, 3}:
+        angle = radians(values[0])
+        rotation = (cos(angle), sin(angle), -sin(angle), cos(angle), 0.0, 0.0)
+        if len(values) == 1:
+            return rotation
+        cx, cy = values[1:]
+        return _multiply_affine(
+            _multiply_affine(
+                (1.0, 0.0, 0.0, 1.0, cx, cy),
+                rotation,
+            ),
+            (1.0, 0.0, 0.0, 1.0, -cx, -cy),
+        )
+    if lowered in {"skewx", "skewy"} and len(values) == 1:
+        shear = tan(radians(values[0]))
+        if lowered == "skewx":
+            return (1.0, 0.0, shear, 1.0, 0.0, 0.0)
+        return (1.0, shear, 0.0, 1.0, 0.0, 0.0)
+    raise ValueError(
+        f"unsupported SVG transform operation {name!r} with {len(values)} values"
+    )
+
+
+def _multiply_affine(
+    left: tuple[float, float, float, float, float, float],
+    right: tuple[float, float, float, float, float, float],
+) -> tuple[float, float, float, float, float, float]:
+    """Multiply SVG affine matrices using column-vector coordinate semantics."""
+    la, lb, lc, ld, le, lf = left
+    ra, rb, rc, rd, re, rf = right
+    return (
+        la * ra + lc * rb,
+        lb * ra + ld * rb,
+        la * rc + lc * rd,
+        lb * rc + ld * rd,
+        la * re + lc * rf + le,
+        lb * re + ld * rf + lf,
+    )
+
+
+def _apply_affine(
+    point: tuple[float, float],
+    transform: tuple[float, float, float, float, float, float],
+) -> tuple[float, float]:
+    """Apply one composed SVG affine matrix to a source-space point exactly once."""
+    a, b, c, d, e, f = transform
+    x, y = point
+    return a * x + c * y + e, b * x + d * y + f
+
+
 def _combine_transform(
     parent: tuple[float, float, float] | None,
     raw: str | None,
 ) -> tuple[float, float, float]:
+    """Combine transforms using the legacy translation-and-angle approximation."""
     tx, ty, angle = parent or (0.0, 0.0, 0.0)
     if not raw:
         return tx, ty, angle
@@ -604,6 +845,7 @@ def _transform_point(
     ty: float,
     angle: float,
 ) -> tuple[float, float]:
+    """Apply the legacy translation-and-rotation transform to one point."""
     if abs(angle) < 1e-9:
         return x + tx, y + ty
     theta = radians(angle)
@@ -611,4 +853,5 @@ def _transform_point(
 
 
 def _tag_name(tag: str) -> str:
+    """Remove the SVG namespace prefix from an ElementTree tag."""
     return tag[len(SVG_NS):] if tag.startswith(SVG_NS) else tag
