@@ -4,15 +4,22 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
 import math
+from types import MappingProxyType
 from typing import Callable, Mapping, TypeAlias, TypeVar, cast
 
 
 NEUTRAL_SCENE_V2 = "neutral-scene-v2"
+MISSING_GEOMETRY_UNCERTAINTY = "missing_geometry"
 ALLOWED_INPUT_MODES = frozenset({"ifc", "blender_geometry", "hybrid", "svg"})
 ALLOWED_LENGTH_UNITS = frozenset({"mm", "cm", "m", "km", "in", "ft"})
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+FrozenJsonValue: TypeAlias = (
+    JsonScalar
+    | tuple["FrozenJsonValue", ...]
+    | Mapping[str, "FrozenJsonValue"]
+)
 Vector3: TypeAlias = tuple[float, float, float]
 Matrix3: TypeAlias = tuple[Vector3, Vector3, Vector3]
 Matrix4: TypeAlias = tuple[
@@ -67,6 +74,32 @@ def _json_value(value: object, path: str) -> JsonValue:
     raise TypeError(f"{path or '<root>'} has unsupported type {type(value).__name__}")
 
 
+def _freeze_json(value: object, path: str) -> FrozenJsonValue:
+    """Copy and recursively freeze one open JSON value at record construction."""
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError(f"{path or '<root>'} contains a non-finite float")
+        return value
+    if isinstance(value, Mapping):
+        frozen: dict[str, FrozenJsonValue] = {}
+        for key, nested in value.items():
+            if not isinstance(key, str):
+                raise TypeError(
+                    f"{path or '<root>'} has unsupported key type "
+                    f"{type(key).__name__}"
+                )
+            frozen[key] = _freeze_json(nested, _child(path, key))
+        return MappingProxyType(frozen)
+    if isinstance(value, (list, tuple)):
+        return tuple(
+            _freeze_json(nested, _item(path, index))
+            for index, nested in enumerate(value)
+        )
+    raise TypeError(f"{path or '<root>'} has unsupported type {type(value).__name__}")
+
+
 class _Record:
     """Shared JSON handoff for the concrete Neutral Scene records."""
 
@@ -98,7 +131,30 @@ def _load(
     values: dict[str, object] = dict(payload)
     for name, converter in (converters or {}).items():
         values[name] = converter(values[name], _child(path, name))
-    return record_type(**values)
+    try:
+        return record_type(**values)
+    except ValueError as error:
+        raise ValueError(_qualified_error(str(error), path, expected)) from None
+
+
+def _qualified_error(message: str, path: str, field_names: tuple[str, ...]) -> str:
+    """Replace a constructor's local field prefix with its enclosing record path."""
+    location, separator, detail = message.partition(" ")
+    for field_name in field_names:
+        direct = location == field_name or location.startswith(
+            (f"{field_name}.", f"{field_name}[")
+        )
+        marker = f".{field_name}"
+        nested_index = location.find(marker)
+        if direct:
+            suffix = location[len(field_name):]
+        elif nested_index >= 0:
+            suffix = location[nested_index + len(marker):]
+        else:
+            continue
+        qualified = f"{_child(path, field_name)}{suffix}"
+        return f"{qualified}{separator}{detail}"
+    return f"{path}: {message}"
 
 
 def _record_converter(
@@ -176,7 +232,10 @@ def _number(value: object, path: str, *, positive: bool = False) -> float:
     """Validate a finite number, optionally requiring strict positivity."""
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{path} must be a finite number")
-    result = float(value)
+    try:
+        result = float(value)
+    except OverflowError:
+        raise ValueError(f"{path} must be a finite number") from None
     if not math.isfinite(result) or (positive and result <= 0.0):
         qualifier = "positive finite" if positive else "finite"
         raise ValueError(f"{path} must be a {qualifier} number")
@@ -210,20 +269,20 @@ def _matrix(value: object, path: str, size: int) -> tuple[tuple[float, ...], ...
     return tuple(result)
 
 
-def _json_object(value: object, path: str) -> dict[str, JsonValue]:
-    """Validate an open factual JSON object while preserving key order."""
-    result = _json_value(value, path)
-    if not isinstance(result, dict):
+def _json_object(value: object, path: str) -> Mapping[str, FrozenJsonValue]:
+    """Copy and recursively freeze an open factual JSON object."""
+    result = _freeze_json(value, path)
+    if not isinstance(result, Mapping):
         raise ValueError(f"{path} must be a JSON object")
     return result
 
 
-def _json_sequence(value: object, path: str) -> tuple[JsonValue, ...]:
-    """Validate and freeze an ordered sequence of open JSON facts."""
-    result = _json_value(value, path)
-    if not isinstance(result, list):
+def _json_sequence(value: object, path: str) -> tuple[FrozenJsonValue, ...]:
+    """Copy and recursively freeze an ordered sequence of open JSON facts."""
+    result = _freeze_json(value, path)
+    if not isinstance(result, tuple):
         raise ValueError(f"{path} must be an ordered JSON sequence")
-    return tuple(result)
+    return result
 
 
 def _unit(value: object, path: str) -> str:
@@ -296,7 +355,7 @@ class UncertaintyRecord(_Record):
     source_refs: tuple[str, ...]
     operation: str
     severity: str
-    details: dict[str, JsonValue] = field(default_factory=dict)
+    details: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validate uncertainty identity, references, operation, and details."""
@@ -322,14 +381,14 @@ class AnalysisContext(_Record):
     adapter_version: str
     source_length_unit: str
     analysis_length_unit: str
-    world_coordinate_system: dict[str, JsonValue]
+    world_coordinate_system: Mapping[str, FrozenJsonValue]
     level_references: tuple[str, ...]
     analysis_plane: AnalysisPlane
     geometry_tolerance: float
     topology_tolerance: float
-    walking_body_profiles: tuple[JsonValue, ...]
-    visual_height_bands: tuple[JsonValue, ...]
-    capability_flags: dict[str, bool]
+    walking_body_profiles: tuple[FrozenJsonValue, ...]
+    visual_height_bands: tuple[FrozenJsonValue, ...]
+    capability_flags: Mapping[str, bool]
     input_mode: str
 
     def __post_init__(self) -> None:
@@ -353,7 +412,11 @@ class AnalysisContext(_Record):
             for name, available in self.capability_flags.items()
         ):
             raise ValueError("capability_flags must map string names to booleans")
-        object.__setattr__(self, "capability_flags", dict(self.capability_flags))
+        object.__setattr__(
+            self,
+            "capability_flags",
+            MappingProxyType(dict(self.capability_flags)),
+        )
         if self.input_mode not in ALLOWED_INPUT_MODES:
             raise ValueError(f"input_mode must be one of {sorted(ALLOWED_INPUT_MODES)}")
 
@@ -376,7 +439,7 @@ class AnalysisDomain(_Record):
     geometry_refs: tuple[str, ...]
     source_id: str | None
     selection_method: str
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
     uncertainties: tuple[UncertaintyRecord, ...] = ()
 
     def __post_init__(self) -> None:
@@ -424,8 +487,8 @@ class SourceObject(_Record):
     material_refs: tuple[str, ...] = ()
     surface_refs: tuple[str, ...] = ()
     opening_refs: tuple[str, ...] = ()
-    authored_local_frame: dict[str, JsonValue] | None = None
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    authored_local_frame: Mapping[str, FrozenJsonValue] | None = None
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
     uncertainties: tuple[UncertaintyRecord, ...] = ()
 
     def __post_init__(self) -> None:
@@ -442,6 +505,14 @@ class SourceObject(_Record):
             object.__setattr__(self, "authored_local_frame", _json_object(self.authored_local_frame, "source_object.authored_local_frame"))
         object.__setattr__(self, "provenance", _json_object(self.provenance, "source_object.provenance"))
         object.__setattr__(self, "uncertainties", _record_tuple(self.uncertainties, UncertaintyRecord, "source_object.uncertainties"))
+        if not self.geometry_refs and not any(
+            uncertainty.code == MISSING_GEOMETRY_UNCERTAINTY
+            for uncertainty in self.uncertainties
+        ):
+            raise ValueError(
+                "source_object.geometry_refs must contain a reference or "
+                f"uncertainties must include {MISSING_GEOMETRY_UNCERTAINTY}"
+            )
 
     @classmethod
     def from_dict(cls, data: object) -> SourceObject:
@@ -464,9 +535,9 @@ class MeshGeometry3D(_Record):
     normals: tuple[Vector3, ...]
     is_manifold: bool | None
     is_closed: bool | None
-    local_to_world_provenance: dict[str, JsonValue]
+    local_to_world_provenance: Mapping[str, FrozenJsonValue]
     source_representation_id: str | None
-    tessellation_settings: dict[str, JsonValue]
+    tessellation_settings: Mapping[str, FrozenJsonValue]
     units: str
 
     def __post_init__(self) -> None:
@@ -519,7 +590,7 @@ class MaterialFact(_Record):
     identity: str | None
     visible_transmittance: float | None
     viewport_transparency: float | None
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
     uncertainties: tuple[UncertaintyRecord, ...] = ()
 
     def __post_init__(self) -> None:
@@ -551,13 +622,13 @@ class SurfaceFact(_Record):
     source_id: str | None
     host_refs: tuple[str, ...]
     identity: str | None
-    color: JsonValue
-    finish: JsonValue
-    texture: JsonValue
-    elevation: JsonValue
-    slope: JsonValue
+    color: FrozenJsonValue
+    finish: FrozenJsonValue
+    texture: FrozenJsonValue
+    elevation: FrozenJsonValue
+    slope: FrozenJsonValue
     geometry_refs: tuple[str, ...]
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
     uncertainties: tuple[UncertaintyRecord, ...] = ()
 
     def __post_init__(self) -> None:
@@ -567,7 +638,7 @@ class SurfaceFact(_Record):
         object.__setattr__(self, "host_refs", _refs(self.host_refs, "surface.host_refs"))
         object.__setattr__(self, "identity", _text(self.identity, "surface.identity", optional=True))
         for name in ("color", "finish", "texture", "elevation", "slope"):
-            object.__setattr__(self, name, _json_value(getattr(self, name), f"surface.{name}"))
+            object.__setattr__(self, name, _freeze_json(getattr(self, name), f"surface.{name}"))
         object.__setattr__(self, "geometry_refs", _refs(self.geometry_refs, "surface.geometry_refs"))
         object.__setattr__(self, "provenance", _json_object(self.provenance, "surface.provenance"))
         object.__setattr__(self, "uncertainties", _record_tuple(self.uncertainties, UncertaintyRecord, "surface.uncertainties"))
@@ -591,7 +662,7 @@ class AuthoredGroup(_Record):
     source_id: str | None
     member_refs: tuple[str, ...]
     group_role: str
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validate authored group identity, members, role, and provenance."""
@@ -616,7 +687,7 @@ class AuthoredGridAxis(_Record):
     curve_points: tuple[Vector3, ...]
     branch_identifier: str | None
     list_identifier: str | None
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validate axis identity, curve points, labels, and provenance."""
@@ -642,7 +713,7 @@ class AuthoredGrid(_Record):
     id: str
     source_id: str | None
     axis_refs: tuple[str, ...]
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validate grid identity, ordered axis references, and provenance."""
@@ -665,9 +736,9 @@ class AuthoredAffordanceZone(_Record):
     geometry_refs: tuple[str, ...]
     vertical_extent: tuple[float, float]
     purpose: str
-    task_facts: dict[str, JsonValue]
+    task_facts: Mapping[str, FrozenJsonValue]
     source_furniture_refs: tuple[str, ...]
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
     uncertainties: tuple[UncertaintyRecord, ...] = ()
 
     def __post_init__(self) -> None:
@@ -709,7 +780,7 @@ class SourceOpening(_Record):
     host_refs: tuple[str, ...]
     geometry_refs: tuple[str, ...]
     opening_kind: str
-    provenance: dict[str, JsonValue] = field(default_factory=dict)
+    provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
     uncertainties: tuple[UncertaintyRecord, ...] = ()
 
     def __post_init__(self) -> None:
@@ -815,6 +886,7 @@ class NeutralSceneV2(_Record):
 __all__ = [
     "ALLOWED_INPUT_MODES",
     "ALLOWED_LENGTH_UNITS",
+    "MISSING_GEOMETRY_UNCERTAINTY",
     "NEUTRAL_SCENE_V2",
     "AnalysisContext",
     "AnalysisDomain",

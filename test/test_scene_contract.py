@@ -221,6 +221,72 @@ def test_complete_scene_round_trips_through_json() -> None:
     assert reopened.geometries[0].triangle_indices == ((0, 1, 2),)
 
 
+def test_open_json_is_recursively_frozen_and_not_shared_between_owners() -> None:
+    """Shared input containers cannot create mutable aliases across frozen records."""
+    shared_provenance = {
+        "adapter": {"tags": ["authored"], "settings": {"lod": 2}},
+    }
+    first = AuthoredGroup(
+        id="group:first",
+        source_id="source:first",
+        member_refs=("object:a",),
+        group_role="furniture_group",
+        provenance=shared_provenance,
+    )
+    second = AuthoredGroup(
+        id="group:second",
+        source_id="source:second",
+        member_refs=("object:b",),
+        group_role="furniture_group",
+        provenance=shared_provenance,
+    )
+
+    shared_provenance["adapter"]["tags"].append("input-mutated")
+    assert first.to_dict()["provenance"]["adapter"]["tags"] == ["authored"]
+    assert second.to_dict()["provenance"]["adapter"]["tags"] == ["authored"]
+
+    with pytest.raises(TypeError):
+        first.provenance["new"] = "mutation"
+    with pytest.raises(AttributeError):
+        first.provenance["adapter"]["tags"].append("owner-mutated")
+
+    assert second.to_dict()["provenance"]["adapter"]["tags"] == ["authored"]
+    assert isinstance(first.to_dict()["provenance"], dict)
+    assert isinstance(first.to_dict()["provenance"]["adapter"]["tags"], list)
+
+    shared_details = {"observations": [{"source": "adapter"}]}
+    first_uncertainty = UncertaintyRecord(
+        code="first",
+        message="First observation.",
+        source_refs=("object:a",),
+        operation="extraction",
+        severity="warning",
+        details=shared_details,
+    )
+    second_uncertainty = UncertaintyRecord(
+        code="second",
+        message="Second observation.",
+        source_refs=("object:b",),
+        operation="extraction",
+        severity="warning",
+        details=shared_details,
+    )
+    shared_details["observations"][0]["source"] = "input-mutated"
+
+    with pytest.raises(TypeError):
+        first_uncertainty.details["new"] = "mutation"
+    with pytest.raises(TypeError):
+        first_uncertainty.details["observations"][0]["source"] = "owner-mutated"
+
+    assert second_uncertainty.to_dict()["details"]["observations"][0]["source"] == "adapter"
+
+    scene = _representative_scene()
+    with pytest.raises(TypeError):
+        scene.context.capability_flags["has_3d_geometry"] = False
+    with pytest.raises(AttributeError):
+        scene.surfaces[0].color["value"].append(0.8)
+
+
 def test_missing_domain_and_capabilities_are_explicit() -> None:
     """Unavailable evidence must remain distinct from an empty or zero value."""
     context = _context(
@@ -347,20 +413,76 @@ def test_source_object_rejects_nonfinite_world_transform() -> None:
         )
 
 
+def test_source_object_rejects_silent_missing_geometry() -> None:
+    """An empty geometry reference set needs explicit unavailable evidence."""
+    with pytest.raises(ValueError, match=r"source_object\.geometry_refs.*missing_geometry"):
+        SourceObject(
+            id="object:no-geometry",
+            source_id="source:no-geometry",
+            source_role="furniture",
+            source_class="IfcFurniture",
+            geometry_refs=(),
+            uncertainties=(),
+        )
+
+
+def test_source_object_accepts_explicit_missing_geometry_uncertainty() -> None:
+    """A source object remains representable when geometry extraction is unavailable."""
+    missing_geometry = UncertaintyRecord(
+        code="missing_geometry",
+        message="Source geometry could not be extracted.",
+        source_refs=("source:no-geometry",),
+        operation="geometry_extraction",
+        severity="warning",
+        details={},
+    )
+
+    source_object = SourceObject(
+        id="object:no-geometry",
+        source_id="source:no-geometry",
+        source_role="furniture",
+        source_class="IfcFurniture",
+        geometry_refs=(),
+        uncertainties=(missing_geometry,),
+    )
+
+    assert source_object.geometry_refs == ()
+    assert source_object.uncertainties[0].code == "missing_geometry"
+    assert SourceObject.from_dict(source_object.to_dict()) == source_object
+
+
+def test_source_object_accepts_geometry_without_missing_uncertainty() -> None:
+    """Normal source objects satisfy the invariant with a geometry reference."""
+    source_object = SourceObject(
+        id="object:with-geometry",
+        source_id="source:with-geometry",
+        source_role="furniture",
+        source_class="IfcFurniture",
+        geometry_refs=("geometry:with-geometry",),
+        uncertainties=(),
+    )
+
+    assert source_object.geometry_refs == ("geometry:with-geometry",)
+
+
 class RawMeshWrapper:
     """Stand in for an unsupported application-owned geometry object."""
 
 
-def test_serializer_rejects_raw_objects_with_precise_record_path() -> None:
-    """Application objects cannot leak through open provenance payloads."""
-    scene = _representative_scene()
-    scene.source_objects[0].provenance["adapter"] = {"raw_mesh": RawMeshWrapper()}
-
+def test_constructor_rejects_raw_objects_with_precise_record_path() -> None:
+    """Application objects cannot enter a record through open provenance."""
     with pytest.raises(
         TypeError,
-        match=r"source_objects\[0\]\.provenance\.adapter\.raw_mesh.*RawMeshWrapper",
+        match=r"source_object\.provenance\.adapter\.raw_mesh.*RawMeshWrapper",
     ):
-        scene.to_dict()
+        SourceObject(
+            id="object:raw",
+            source_id="source:raw",
+            source_role="furniture",
+            source_class="IfcFurniture",
+            geometry_refs=("geometry:raw",),
+            provenance={"adapter": {"raw_mesh": RawMeshWrapper()}},
+        )
 
 
 def test_from_dict_rejects_raw_objects_with_precise_record_path() -> None:
@@ -371,6 +493,30 @@ def test_from_dict_rejects_raw_objects_with_precise_record_path() -> None:
     with pytest.raises(
         TypeError,
         match=r"materials\[0\]\.provenance\.ifc_entity.*RawMeshWrapper",
+    ):
+        NeutralSceneV2.from_dict(payload)
+
+
+def test_nested_constructor_validation_reports_full_scene_path() -> None:
+    """Nested record validation errors retain their complete aggregate path."""
+    payload = _representative_scene().to_dict()
+    payload["materials"][0]["visible_transmittance"] = 1.5
+
+    with pytest.raises(
+        ValueError,
+        match=r"^neutral_scene\.materials\[0\]\.visible_transmittance ",
+    ):
+        NeutralSceneV2.from_dict(payload)
+
+
+def test_huge_integer_is_normalized_to_path_qualified_value_error() -> None:
+    """Numeric overflow is reported as a contract error at the complete field path."""
+    payload = _representative_scene().to_dict()
+    payload["context"]["geometry_tolerance"] = 10**400
+
+    with pytest.raises(
+        ValueError,
+        match=r"^neutral_scene\.context\.geometry_tolerance ",
     ):
         NeutralSceneV2.from_dict(payload)
 
@@ -398,23 +544,36 @@ def test_contract_payload_has_no_weight_or_collapsed_boundary_fields() -> None:
         assert forbidden not in payload_text
 
 
-def test_every_record_declares_an_explicit_from_dict() -> None:
-    """Concrete records keep visible deserialization entry points after refactors."""
-    record_types = (
-        AnalysisPlane,
-        UncertaintyRecord,
-        AnalysisContext,
-        AnalysisDomain,
-        SourceObject,
-        MeshGeometry3D,
-        MaterialFact,
-        SurfaceFact,
-        AuthoredGroup,
-        AuthoredGridAxis,
-        AuthoredGrid,
-        AuthoredAffordanceZone,
-        SourceOpening,
-        NeutralSceneV2,
+def _all_concrete_records() -> tuple[object, ...]:
+    """Return representative instances of every concrete contract record."""
+    scene = _representative_scene()
+    return (
+        scene.context.analysis_plane,
+        scene.uncertainties[0],
+        scene.context,
+        scene.analysis_domain,
+        scene.source_objects[0],
+        scene.geometries[0],
+        scene.materials[0],
+        scene.surfaces[0],
+        scene.authored_groups[0],
+        scene.authored_grid_axes[0],
+        scene.authored_grids[0],
+        scene.authored_affordances[0],
+        scene.openings[0],
+        scene,
     )
 
-    assert all("from_dict" in record_type.__dict__ for record_type in record_types)
+
+@pytest.mark.parametrize(
+    "record",
+    _all_concrete_records(),
+    ids=lambda record: type(record).__name__,
+)
+def test_every_concrete_record_supports_a_direct_json_round_trip(record: object) -> None:
+    """Each concrete record reopens its own representative JSON payload."""
+    payload = record.to_dict()
+    reopened = type(record).from_dict(json.loads(json.dumps(payload)))
+
+    assert reopened == record
+    assert reopened.to_dict() == payload

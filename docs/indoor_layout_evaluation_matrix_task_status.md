@@ -2921,3 +2921,42 @@
   - the module imports only Python standard-library modules;
   - no perceptual weight, final score, collapsed boundary field, source adapter,
     or speculative analysis abstraction is present.
+
+2026-08-16, Gate 1 contract-invariant repair checkpoint:
+
+- Scope remained Gate 1 only. The repair changes the Neutral Scene contract,
+  its focused tests, and this evidence ledger; Gate 2 was not started.
+- Strict TDD evidence by defect:
+  - shared-mutation RED: the new provenance regression failed with `DID NOT
+    RAISE TypeError`, proving frozen dataclasses still exposed mutable nested
+    JSON containers;
+  - nested-path RED: invalid material transmittance reported only
+    `material.visible_transmittance must be between 0 and 1`, not the required
+    `neutral_scene.materials[0].visible_transmittance` path;
+  - overflow RED: `10**400` leaked `OverflowError: int too large to convert to
+    float` from `_number`;
+  - geometry-invariant RED: a `SourceObject` with empty `geometry_refs` and no
+    uncertainty was silently accepted (`DID NOT RAISE ValueError`).
+- The weak method-name-only deserialization test was replaced by 14
+  representative direct JSON round trips, one for every concrete record type.
+  Its first characterization run was `14 passed in 0.05s`; there was no
+  behavior failure to manufacture for this coverage-only correction.
+- Open JSON facts are now recursively copied and frozen with standard-library
+  tuples and `MappingProxyType`. Shared provenance/details cannot be mutated
+  through either owner, surface facts and capability flags are also frozen,
+  and `to_dict()` still returns ordinary JSON lists and dictionaries. No
+  hashability claim is made.
+- `_load` now rewrites constructor-local validation locations to the complete
+  enclosing path without adding serialized metadata. `_number` converts
+  integer-to-float overflow into a path-qualified `ValueError`.
+- The geometry contradiction is resolved with one stable uncertainty code:
+  `SourceObject.geometry_refs` must be non-empty unless its uncertainties
+  explicitly include `missing_geometry`. Both legitimate branches and the
+  rejected silent-empty branch have focused tests.
+- Final focused verification: `61 passed in 0.07s`.
+- Final importlib-focused verification: `61 passed in 0.06s`.
+- Final full verification: `374 passed in 818.20s (0:13:38)` under the observed
+  Pixi runtime Python `3.12.13`; the environment was not changed.
+- Final self-review found no source-application imports, weights, scores,
+  adapter work, hidden payload fields, schema framework, or speculative
+  feature. All project-owned functions retain English docstrings.
