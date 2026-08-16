@@ -77,7 +77,7 @@ def test_real_svg_fixtures_validate_and_round_trip_without_fabricated_facts(
     assert NeutralSceneV2.from_dict(json.loads(json.dumps(payload))).to_dict() == payload
     assert scene.context.input_mode == "svg"
     assert scene.context.source_schema == "SVG"
-    assert scene.context.adapter_version == "svg-scene-adapter/0.3.0"
+    assert scene.context.adapter_version == "svg-scene-adapter/0.4.0"
     assert scene.context.source_length_unit == "mm"
     assert scene.context.analysis_length_unit == "m"
     assert scene.context.capability_flags == {
@@ -1033,3 +1033,167 @@ def test_nested_svg_viewport_geometry_is_rejected_with_uncertainty(
     }
     assert "nested-shape" not in geometries
     assert "visible" in geometries
+
+
+@pytest.mark.parametrize(
+    "fill_declaration",
+    (
+        "fill: var(--surface-fill)",
+        "fill: initial",
+        "fill: context-fill",
+        "fill-rule: var(--surface-rule)",
+    ),
+)
+def test_unresolved_css_property_values_force_faceless_geometry(
+    tmp_path: Path,
+    fill_declaration: str,
+) -> None:
+    """Unsupported CSS property values must never manufacture a filled face."""
+    svg = tmp_path / "unresolved_css_value.svg"
+    svg.write_text(
+        f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <style>.surface {{ {fill_declaration}; }}</style>
+        <path id="surface" class="surface" d="M 1 1 L 10 1 L 10 10 Z"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert scene.geometries[0].triangle_indices == ()
+    assert "unresolved_css_presentation" in {
+        item.code for item in scene.source_objects[0].uncertainties
+    }
+
+
+def test_inherited_css_keyword_is_conservatively_faceless(tmp_path: Path) -> None:
+    """An inherited fill remains faceless when the adapter declines CSS-wide values."""
+    svg = tmp_path / "inherited_fill.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <g fill="none">
+          <path id="surface" style="fill: inherit" d="M 1 1 L 10 1 L 10 10 Z"/>
+        </g>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert scene.geometries[0].triangle_indices == ()
+    assert "unresolved_css_presentation" in {
+        item.code for item in scene.source_objects[0].uncertainties
+    }
+
+
+def test_inline_important_fill_is_conservatively_faceless(tmp_path: Path) -> None:
+    """Inline important declarations must not bypass conservative CSS handling."""
+    svg = tmp_path / "important_fill.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <path id="surface" style="fill: none !important"
+              d="M 1 1 L 10 1 L 10 10 Z"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert scene.geometries[0].triangle_indices == ()
+    assert "unresolved_css_presentation" in {
+        item.code for item in scene.source_objects[0].uncertainties
+    }
+
+
+def test_external_stylesheet_marker_forces_conservative_fill(tmp_path: Path) -> None:
+    """External stylesheet dependence must prevent locally fabricated fill topology."""
+    svg = tmp_path / "external_stylesheet.svg"
+    svg.write_text(
+        """<?xml-stylesheet type="text/css" href="theme.css"?>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+          <rect id="surface" x="1" y="1" width="10" height="10"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert scene.geometries[0].triangle_indices == ()
+    assert "unresolved_css_presentation" in {
+        item.code for item in scene.source_objects[0].uncertainties
+    }
+
+
+@pytest.mark.parametrize("source_id", ("bad id", " padded", "tail ", "line\nbreak"))
+def test_whitespace_containing_explicit_ids_are_rejected(
+    tmp_path: Path,
+    source_id: str,
+) -> None:
+    """SVG ids containing XML whitespace must be rejected rather than normalized."""
+    svg = tmp_path / "invalid_whitespace_id.svg"
+    svg.write_text(
+        f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <rect id="{source_id}" x="1" y="1" width="10" height="10"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="invalid explicit SVG id"):
+        _load(svg)
+
+
+def test_normalization_changing_explicit_id_is_rejected(tmp_path: Path) -> None:
+    """A non-NFC id must not acquire a different neutral identity during validation."""
+    svg = tmp_path / "non_normalized_id.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <rect id="e\u0301" x="1" y="1" width="10" height="10"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="invalid explicit SVG id"):
+        _load(svg)
+
+
+def test_foreign_namespace_geometry_is_excluded_but_reserves_ids(
+    tmp_path: Path,
+) -> None:
+    """Foreign geometry is non-source while every foreign id still reserves identity."""
+    svg = tmp_path / "foreign_geometry.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg"
+                  xmlns:x="urn:example:foreign" viewBox="0 0 20 20">
+        <foreignObject id="foreign-container" x="0" y="0" width="5" height="5">
+          <x:rect id="svg-element-000001" x="1" y="1" width="2" height="2"/>
+          <rect id="embedded-svg" x="1" y="1" width="2" height="2"/>
+        </foreignObject>
+        <rect x="10" y="10" width="5" height="5"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    scene = _load(svg)
+
+    assert [item.id for item in scene.source_objects] == ["svg-element-000002"]
+    assert scene.source_objects[0].provenance["source_namespace"] == (
+        "http://www.w3.org/2000/svg"
+    )
+
+
+def test_foreign_namespace_ids_participate_in_duplicate_validation(
+    tmp_path: Path,
+) -> None:
+    """A foreign element id must still collide with the same visible SVG id."""
+    svg = tmp_path / "foreign_duplicate.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg"
+                  xmlns:x="urn:example:foreign" viewBox="0 0 20 20">
+        <foreignObject><x:rect id="shared"/></foreignObject>
+        <rect id="shared" x="10" y="10" width="5" height="5"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate explicit SVG source id 'shared'"):
+        _load(svg)

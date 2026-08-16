@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 import re
 from typing import Iterable, Mapping, MutableMapping
+import unicodedata
 import xml.etree.ElementTree as ET
 
 if "." in (__package__ or ""):
@@ -43,9 +44,25 @@ else:
     )
 
 
-SVG_ADAPTER_VERSION = "svg-scene-adapter/0.3.0"
+SVG_ADAPTER_VERSION = "svg-scene-adapter/0.4.0"
 DEFAULT_GEOMETRY_TOLERANCE = 1e-6
 DEFAULT_TOPOLOGY_TOLERANCE = 1e-6
+
+_SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+_CSS_WIDE_KEYWORDS = {"inherit", "initial", "revert", "revert-layer", "unset"}
+_SIMPLE_FILL_KEYWORDS = {
+    "black",
+    "blue",
+    "currentcolor",
+    "gray",
+    "green",
+    "grey",
+    "none",
+    "red",
+    "transparent",
+    "white",
+    "yellow",
+}
 
 _UNIT_IN_METRES = {
     "mm": 0.001,
@@ -221,34 +238,51 @@ def _parse_svg_source(
 ]:
     """Parse every supported visible SVG source element in document order."""
     root = ET.parse(path).getroot()
-    document_ids = _document_ids(root)
-    stylesheet_rules, unresolved_stylesheet = _local_stylesheet_rules(root)
+    document_ids, validated_source_ids = _document_ids(root)
+    stylesheet_rules, unresolved_stylesheet = _local_stylesheet_rules(
+        root,
+        external_stylesheet=_has_external_stylesheet(path),
+    )
     records: list[tuple[str, dict[str, object]]] = []
     _walk_svg_source(
         root,
         inherited_metadata={},
         inherited_presentation={"fill": "black", "fill-rule": "nonzero"},
+        inherited_presentation_unresolved=False,
         parent_affine=_IDENTITY_AFFINE,
         stylesheet_rules=stylesheet_rules,
         unresolved_stylesheet=unresolved_stylesheet,
+        validated_source_ids=validated_source_ids,
         records=records,
         inside_resource=False,
+        inside_foreign_content=False,
         nested_viewport=False,
         svg_depth=0,
     )
     return _svg_size(root), records, document_ids
 
 
-def _document_ids(root: ET.Element) -> tuple[str, ...]:
+def _document_ids(
+    root: ET.Element,
+) -> tuple[tuple[str, ...], dict[ET.Element, str]]:
     """Collect and validate every explicit SVG id, including resource elements."""
     ids: list[str] = []
+    validated_by_element: dict[ET.Element, str] = {}
     first_positions: dict[str, int] = {}
     for position, element in enumerate(root.iter(), start=1):
         if "id" not in element.attrib:
             continue
-        source_id = element.attrib["id"].strip()
+        source_id = element.attrib["id"]
         if not source_id:
             raise ValueError(f"empty explicit SVG id at document element {position}")
+        if (
+            any(character.isspace() for character in source_id)
+            or unicodedata.normalize("NFC", source_id) != source_id
+        ):
+            raise ValueError(
+                f"invalid explicit SVG id at document element {position}: "
+                "ids must be nonempty, whitespace-free, and NFC-normalized"
+            )
         if source_id in first_positions:
             raise ValueError(
                 f"duplicate explicit SVG source id {source_id!r} "
@@ -256,20 +290,36 @@ def _document_ids(root: ET.Element) -> tuple[str, ...]:
             )
         first_positions[source_id] = position
         ids.append(source_id)
-    return tuple(ids)
+        validated_by_element[element] = source_id
+    return tuple(ids), validated_by_element
+
+
+def _has_external_stylesheet(path: Path) -> bool:
+    """Detect an external XML stylesheet marker without fetching its dependency."""
+    return re.search(br"<\?xml-stylesheet\b", path.read_bytes(), re.IGNORECASE) is not None
 
 
 def _local_stylesheet_rules(
     root: ET.Element,
+    *,
+    external_stylesheet: bool,
 ) -> tuple[tuple[dict[str, object], ...], bool]:
     """Parse deterministic tag, class, and id rules that affect SVG fill facts."""
     rules: list[dict[str, object]] = []
-    unresolved = False
+    unresolved = external_stylesheet
     order = 0
     for element in root.iter():
-        if _tag_name(element.tag) != "style":
+        namespace, tag = _tag_identity(element.tag)
+        if namespace == _SVG_NAMESPACE and tag == "link":
+            rel = element.attrib.get("rel", "").lower().split()
+            if "stylesheet" in rel:
+                unresolved = True
+            continue
+        if namespace != _SVG_NAMESPACE or tag != "style":
             continue
         raw = re.sub(r"/\*.*?\*/", "", element.text or "", flags=re.DOTALL)
+        if re.search(r"@import\b", raw, re.IGNORECASE):
+            unresolved = True
         matches = list(re.finditer(r"([^{}]+)\{([^{}]*)\}", raw))
         remainder = re.sub(r"[^{}]+\{[^{}]*\}", "", raw).strip()
         if remainder and re.search(r"(?:fill|fill-rule)\s*:", raw, re.IGNORECASE):
@@ -283,7 +333,10 @@ def _local_stylesheet_rules(
             }
             if not fill_facts:
                 continue
-            if any("!important" in value.lower() for value in fill_facts.values()):
+            if any(
+                not _css_property_value_is_resolved(name, value)
+                for name, value in fill_facts.items()
+            ):
                 unresolved = True
                 continue
             for selector in match.group(1).split(","):
@@ -305,6 +358,24 @@ def _local_stylesheet_rules(
     return tuple(rules), unresolved
 
 
+def _css_property_value_is_resolved(name: str, value: str) -> bool:
+    """Return whether a fill property value is safe for local topology decisions."""
+    normalized = value.strip().lower()
+    if (
+        not normalized
+        or normalized in _CSS_WIDE_KEYWORDS
+        or "!important" in normalized
+        or re.search(r"[a-z_-][\w-]*\s*\(", normalized)
+    ):
+        return False
+    if name == "fill-rule":
+        return normalized in {"evenodd", "nonzero"}
+    return normalized in _SIMPLE_FILL_KEYWORDS or re.fullmatch(
+        r"#[0-9a-f]{3}(?:[0-9a-f]{1}|[0-9a-f]{3}|[0-9a-f]{5})?",
+        normalized,
+    ) is not None
+
+
 def _simple_selector(selector: str) -> tuple[str, str, int] | None:
     """Parse one local CSS selector without implementing browser selector logic."""
     if re.fullmatch(r"#[A-Za-z_][\w.-]*", selector):
@@ -321,16 +392,19 @@ def _walk_svg_source(
     *,
     inherited_metadata: Mapping[str, object],
     inherited_presentation: Mapping[str, str],
+    inherited_presentation_unresolved: bool,
     parent_affine: tuple[float, float, float, float, float, float],
     stylesheet_rules: tuple[dict[str, object], ...],
     unresolved_stylesheet: bool,
+    validated_source_ids: Mapping[ET.Element, str],
     records: list[tuple[str, dict[str, object]]],
     inside_resource: bool,
+    inside_foreign_content: bool,
     nested_viewport: bool,
     svg_depth: int,
 ) -> None:
     """Collect source elements while carrying authored metadata and transforms."""
-    tag = _tag_name(element.tag)
+    namespace, tag = _tag_identity(element.tag)
     metadata = dict(inherited_metadata)
     metadata.update(
         {
@@ -339,20 +413,36 @@ def _walk_svg_source(
             if key.startswith("data-")
         }
     )
-    presentation = _presentation_facts(
+    presentation, presentation_unresolved = _presentation_facts(
         inherited_presentation,
         element.attrib,
+        inherited_unresolved=inherited_presentation_unresolved,
         tag=tag,
         stylesheet_rules=stylesheet_rules,
     )
     affine = _compose_svg_affine(parent_affine, element.attrib.get("transform"))
     in_resource = inside_resource or tag in _RESOURCE_CONTAINER_TAGS
-    in_nested_viewport = nested_viewport or (tag == "svg" and svg_depth > 0)
-    child_svg_depth = svg_depth + 1 if tag == "svg" else svg_depth
+    in_foreign_content = (
+        inside_foreign_content
+        or namespace != _SVG_NAMESPACE
+        or tag == "foreignObject"
+    )
+    in_nested_viewport = nested_viewport or (
+        namespace == _SVG_NAMESPACE and tag == "svg" and svg_depth > 0
+    )
+    child_svg_depth = (
+        svg_depth + 1
+        if namespace == _SVG_NAMESPACE and tag == "svg"
+        else svg_depth
+    )
 
     # Resource descendants participate in global id integrity but are not
     # ordinary scene geometry until an explicitly supported instance resolves them.
-    if not in_resource and _is_source_element(tag, metadata):
+    if (
+        not in_resource
+        and not in_foreign_content
+        and _is_source_element(namespace, tag, metadata)
+    ):
         if in_nested_viewport:
             geometry, geometry_error = None, "unsupported_nested_svg_viewport"
         else:
@@ -363,7 +453,7 @@ def _walk_svg_source(
                 presentation,
             )
             if (
-                unresolved_stylesheet
+                (unresolved_stylesheet or presentation_unresolved)
                 and tag in _FILLABLE_GEOMETRY_TAGS
                 and geometry is not None
             ):
@@ -379,7 +469,8 @@ def _walk_svg_source(
                 "source_elements",
                 {
                     "tag": tag,
-                    "_source_id": element.attrib.get("id"),
+                    "_source_id": validated_source_ids.get(element),
+                    "_source_namespace": namespace,
                     "_authored_metadata": metadata,
                     "_adapter_geometry": geometry,
                     "_adapter_geometry_error": geometry_error,
@@ -393,18 +484,27 @@ def _walk_svg_source(
             child,
             inherited_metadata=metadata,
             inherited_presentation=presentation,
+            inherited_presentation_unresolved=presentation_unresolved,
             parent_affine=affine,
             stylesheet_rules=stylesheet_rules,
             unresolved_stylesheet=unresolved_stylesheet,
+            validated_source_ids=validated_source_ids,
             records=records,
             inside_resource=in_resource,
+            inside_foreign_content=in_foreign_content,
             nested_viewport=in_nested_viewport,
             svg_depth=child_svg_depth,
         )
 
 
-def _is_source_element(tag: str, metadata: Mapping[str, object]) -> bool:
+def _is_source_element(
+    namespace: str | None,
+    tag: str,
+    metadata: Mapping[str, object],
+) -> bool:
     """Return whether an SVG element should become one Neutral Scene source object."""
+    if namespace != _SVG_NAMESPACE:
+        return False
     if tag in _SUPPORTED_GEOMETRY_TAGS:
         return True
     return tag not in _NON_SOURCE_TAGS and bool(_optional_text(metadata.get("role")))
@@ -442,16 +542,22 @@ def _presentation_facts(
     inherited: Mapping[str, str],
     attributes: Mapping[str, str],
     *,
+    inherited_unresolved: bool,
     tag: str,
     stylesheet_rules: tuple[dict[str, object], ...],
-) -> dict[str, str]:
+) -> tuple[dict[str, str], bool]:
     """Resolve inherited, presentation, stylesheet, and inline fill facts."""
     result = dict(inherited)
+    unresolved = inherited_unresolved
     priorities = {name: (-1, -1) for name in ("fill", "fill-rule")}
     for name in ("fill", "fill-rule"):
         if name in attributes:
-            result[name] = attributes[name].strip().lower()
-            priorities[name] = (0, -1)
+            value = attributes[name].strip().lower()
+            if _css_property_value_is_resolved(name, value):
+                result[name] = value
+                priorities[name] = (0, -1)
+            else:
+                unresolved = True
     for rule in stylesheet_rules:
         if not _selector_matches(rule, tag, attributes):
             continue
@@ -461,13 +567,22 @@ def _presentation_facts(
             continue
         for name, value in declarations.items():
             if priority >= priorities[str(name)]:
-                result[str(name)] = str(value)
-                priorities[str(name)] = priority
+                normalized_name = str(name)
+                normalized_value = str(value)
+                if _css_property_value_is_resolved(normalized_name, normalized_value):
+                    result[normalized_name] = normalized_value
+                    priorities[normalized_name] = priority
+                else:
+                    unresolved = True
     style = _inline_style(attributes.get("style"))
     for name in ("fill", "fill-rule"):
         if name in style:
-            result[name] = style[name].strip().lower()
-    return result
+            value = style[name].strip().lower()
+            if _css_property_value_is_resolved(name, value):
+                result[name] = value
+            else:
+                unresolved = True
+    return result, unresolved
 
 
 def _selector_matches(
@@ -792,9 +907,12 @@ def _apply_affine(
     return a * x + c * y + e, b * x + d * y + f
 
 
-def _tag_name(tag: str) -> str:
-    """Remove an ElementTree namespace prefix from an SVG tag."""
-    return tag.rsplit("}", 1)[-1]
+def _tag_identity(tag: str) -> tuple[str | None, str]:
+    """Return the namespace URI and local name without discarding either fact."""
+    if tag.startswith("{") and "}" in tag:
+        namespace, local_name = tag[1:].split("}", 1)
+        return namespace, local_name
+    return None, tag
 
 
 def _adapter_refs(metadata: Mapping[str, object]) -> dict[str, str]:
@@ -955,6 +1073,7 @@ def _mesh_from_record(
             "adapter": SVG_ADAPTER_VERSION,
             "method": "svg_adapter_world_geometry",
             "svg_y_direction": "down",
+            "source_namespace": record.get("_source_namespace"),
             "source_bucket": source_bucket,
             "world_affine": descriptor.get("world_affine"),
         },
@@ -1112,6 +1231,7 @@ def _source_object(
         ),
         provenance={
             "adapter": SVG_ADAPTER_VERSION,
+            "source_namespace": record.get("_source_namespace"),
             "source_bucket": source_bucket,
             "source_order": "global_svg_traversal",
             "source_metadata": metadata,

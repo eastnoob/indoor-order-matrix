@@ -3191,3 +3191,44 @@
   transformed nested viewport, fabricated CSS-dependent face, or Gate 3
   behavior. Ponytail review kept the CSS support to the requested local subset
   and standard-library parsing, with no dependency or browser-style CSS engine.
+
+2026-08-17, Gate 2 CSS, identity, and namespace re-review repair checkpoint:
+
+- Scope remained Gate 2 only. The three findings are compatible with the
+  approved adapter boundary and add no geometry substitutes, boundary evidence,
+  IFC, Blender, inference, evaluation, or consumer migration.
+- Strict TDD RED evidence:
+  - the initial adapter run was `12 failed, 48 passed`; failures showed faces
+    fabricated from `var(...)`, CSS-wide values, inline `!important`, and an
+    external stylesheet marker, accepted whitespace/non-NFC ids, and emitted
+    foreign/`foreignObject` geometry;
+  - adapter provenance then failed all three real fixtures at `0.3.0` before
+    the semantic version advanced to `svg-scene-adapter/0.4.0`;
+  - a separate adversarial test proved `fill: context-fill` still fabricated a
+    triangle before context-dependent simple values were made unresolved.
+- CSS topology decisions now accept only a deliberately small deterministic
+  subset. CSS-wide keywords, variables, functions, context-dependent values,
+  `!important`, `@import`, SVG stylesheet links, and XML stylesheet processing
+  instructions force faceless geometry with `unresolved_css_presentation`.
+  No external stylesheet is fetched and no browser CSS engine was added.
+- Every plain SVG `id` is validated once before emission. Empty ids retain the
+  existing focused error; ids containing whitespace or changing under NFC are
+  rejected. The same validated value drives global duplicate checks, fallback
+  reservation, source identity, and neutral identity.
+- Traversal retains namespace URI and local name separately. Only elements in
+  the SVG namespace can become source geometry; foreign namespaces and the
+  complete `foreignObject` subtree are excluded. Their explicit ids still take
+  part in global duplicate detection and fallback-id reservation. Emitted
+  source and mesh provenance records the SVG namespace.
+- Focused GREEN evidence:
+  - adapter-only final run: `61 passed in 2.48s`;
+  - relevant legacy loader compatibility: `8 passed, 203 deselected in 0.17s`;
+  - Gate 0, Gate 1, and Gate 2 importlib set: `178 passed in 3.06s`.
+- Final full verification: `473 passed in 771.24s (0:12:51)` under the observed
+  Pixi runtime Python `3.12.13`; the environment was not changed.
+- Grill Me review found no unresolved CSS value that can create a face, no id
+  normalization ambiguity, no foreign geometry leak, no fixture-name branch,
+  and no Gate 3 behavior. Ponytail review retained only standard-library NFC,
+  byte-marker, and namespace helpers plus the small required fill subset; it
+  removed the obsolete local-name-only helper and added no dependency or CSS
+  framework. All project-owned functions have English docstrings.
