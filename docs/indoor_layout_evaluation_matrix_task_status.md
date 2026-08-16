@@ -2828,3 +2828,26 @@
 - Important boundary:
   - this is still rect-cell negative-space component touch evidence;
   - it is not shortest-path routing, route quality, semantic region membership, or CAD boolean topology.
+
+2026-08-16, `JJ-00-baseline` BIM acceptance-manifest checkpoint:
+
+- The accepted pre-Gate baseline was `295 passed in 785.92s` under the observed
+  Pixi runtime `Python 3.12.13`; the environment was not changed despite the
+  planned Python version differing from this observed runtime.
+- Strict TDD evidence:
+  - the first focused run failed during collection with
+    `ModuleNotFoundError: No module named 'test.bim'` because the acceptance
+    manifest did not exist;
+  - the deterministic-regeneration repair test then failed with
+    `KeyError: 'regeneration'` before the regeneration contract was added.
+  - the repository-relative generator-path test failed while the manifest
+    still exposed the shadowable `generator_module` key;
+  - the exact-mode-set test failed with `DID NOT RAISE` before missing supported
+    modes were rejected.
+- Final focused verification: `5 passed in 0.02s`.
+- Final full verification: `300 passed in 816.39s (0:13:36)`.
+- The manifest locks stable fixture ids, the two required JSON artifacts, the
+  four explicit input modes, and a programmatic regeneration entrypoint that
+  forbids manual edits.
+- The manifest contains no viewport-name dependency, perceptual weight, score,
+  or inferred semantic result.
