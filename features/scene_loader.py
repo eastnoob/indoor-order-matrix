@@ -11,7 +11,11 @@ from .affordance.models import Rect
 SVG_NS = "{http://www.w3.org/2000/svg}"
 
 
-def load_structured_svg_scene(path: str | Path) -> dict:
+def load_structured_svg_scene(
+    path: str | Path,
+    *,
+    include_source_order: bool = False,
+) -> dict:
     """Load a metadata-bearing SVG fixture into neutral scene records.
 
     This is not image recognition: geometry meaning comes from explicit
@@ -31,6 +35,10 @@ def load_structured_svg_scene(path: str | Path) -> dict:
         "regions": [],
         "uncertainties": [],
     }
+    if include_source_order:
+        # Neutral Scene adapters need cross-bucket source order and authoredness,
+        # while the default legacy dictionary must remain byte-for-byte shaped.
+        scene["_source_records"] = []
     # SVG fixtures can be partially annotated while they evolve toward BIM-like
     # metadata, so id fallback stays available only for elements missing a role.
     _walk(root, inherited={"_allow_id_fallback": True}, scene=scene)
@@ -65,22 +73,30 @@ def _walk(element: ET.Element, *, inherited: dict, scene: dict) -> None:
         return
     role = record["role"]
     if role == "boundary":
-        scene["boundaries"].append(record)
+        bucket = "boundaries"
     elif role == "opening":
-        scene["entries"].append(record)
+        bucket = "entries"
     elif role == "region":
-        scene["regions"].append(record)
+        bucket = "regions"
     elif role == "path":
-        scene["paths"].append(record)
+        bucket = "paths"
     elif role == "column":
-        scene["columns"].append(record)
+        bucket = "columns"
     elif role in {"column_axis", "column_grid"}:
         # Adapter handoff expects authored grid-axis records to use one role.
         record["role"] = "column_axis"
         record["metadata"]["role"] = "column_axis"
-        scene["column_axes"].append(record)
+        bucket = "column_axes"
     else:
-        scene["objects"].append(record)
+        bucket = "objects"
+    scene[bucket].append(record)
+    if "_source_records" in scene:
+        # Raw data-* keys distinguish authored facts from compatibility defaults
+        # without asking the adapter to traverse XML a second time.
+        record["_authored_metadata_keys"] = tuple(
+            key[5:] for key in meta if key.startswith("data-")
+        )
+        scene["_source_records"].append((bucket, record))
 
 
 def _merge_metadata(inherited: dict, attrib: dict) -> dict:

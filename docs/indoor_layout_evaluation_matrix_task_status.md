@@ -2990,3 +2990,61 @@
 - Self-review confirmed exactly 14 explicit unhashable declarations, no custom
   hash implementation, no source-application imports, no weights or scores,
   and no missing project-owned function docstrings.
+
+2026-08-17, `JJ-02-svg-adapter` Neutral Scene v2 SVG adapter checkpoint:
+
+- Scope remained Gate 2 only. Added the `adapters` package and focused adapter
+  tests; `features/scene_loader.py` changed only through an opt-in
+  `include_source_order` compatibility channel whose default dictionary shape
+  remains unchanged. No geometry substitutes, boundary evidence, IFC,
+  Blender, inference consumer, evaluator, OCTA, or SVG fixture was changed.
+- Strict TDD RED evidence:
+  - the initial public-API test failed with `ModuleNotFoundError: No module
+    named 'adapters'` before the package existed;
+  - analysis-unit consistency failed because converted centimetre coordinates
+    still advertised mesh unit `m`;
+  - cross-bucket source order failed with `chair-second` before `wall-first`;
+  - a point-free zero-extent record incorrectly produced a degenerate mesh;
+  - the existing top-level import mode failed with `attempted relative import
+    beyond top-level package`;
+  - an open three-point boundary path incorrectly produced triangle
+    `(0, 1, 2)`;
+  - an explicit planar affordance without z metadata was dropped instead of
+    retained with `vertical_extent_unavailable` uncertainty.
+- Adapter behavior:
+  - explicit source and analysis units are contract-validated and coordinates
+    are normalized without inferring physical scale from the viewBox;
+  - SVG y-down coordinates, viewBox size, XY analysis plane, adapter version,
+    tolerances, input mode, and planar-only capabilities are explicit;
+  - source ids and global XML order, z=0 transport geometry, authored furniture
+    groups, explicit grid axes/grids, openings, affordances, domain selection,
+    metadata, adapter references, and provenance are preserved when present;
+  - room boundaries never become an analysis domain, columns never create
+    axes, furniture names never create affordances, and region/path records are
+    source hints rather than inferred outputs;
+  - legacy weights and all walk/see/grouping/boundary-strength key spellings
+    are absent from serialized Neutral Scene output.
+- Pre-full static checks found no fixture-name-specific branch, no XML parser or
+  traversal in the adapter beyond one call to `load_structured_svg_scene`, and
+  no evaluator, inference, OCTA, IFC, Blender, or `bpy` import.
+- Final focused verification:
+  - Gate 0, Gate 1, and Gate 2 importlib run: `137 passed in 6.20s`;
+  - relevant legacy loader compatibility run: `8 passed, 203 deselected in
+    0.37s`;
+  - adapter-only final run before full verification: `20 passed`.
+- Final full verification: `432 passed in 811.60s (0:13:31)` under the observed
+  Pixi runtime Python `3.12.13`; the environment was not changed.
+- Grill Me self-review found no adapter-authored analysis behavior, fabricated
+  3D solid/height/optical/permeability/domain/affordance fact, legacy weight,
+  duplicate parser, or source-name branch. Missing physical vertical extent is
+  a z=0 representation with explicit uncertainty and unavailable vertical
+  capability, not a numeric height claim.
+- Ponytail review removed an unused bucket-order constant and unnecessary
+  `OrderedDict` use. The remaining helpers correspond directly to contract
+  record families or repeated metadata/geometry normalization; no dependency,
+  generic adapter framework, parser, inference abstraction, or compatibility
+  rewrite was added.
+- An external read-only Codex diff review was attempted, but platform policy
+  rejected sending uncommitted repository contents to an external model
+  without explicit data-disclosure authorization. Local static review and all
+  required tests completed; this is the only review-process concern.
