@@ -339,33 +339,46 @@ second implicit BIM authority.
 - Create: `test/test_blender_geometry_adapter.py`
 - Modify: `features/scene_contract.py`
 
-- [ ] **Step 1: Write failing mode-isolation tests.**
+- [x] **Step 1: Write failing mode-isolation tests.**
 
 Create a Blender-side fixture with selected meshes, unselected distractor
 meshes, explicit role/group mappings, an explicit domain, and an explicitly
 linked helper. Assert that `ifc` ignores distractors, `blender_geometry`
 includes only selected meshes, and `hybrid` includes only explicit links.
 
-- [ ] **Step 2: Implement mode validation and extraction.**
+- [x] **Step 2: Implement mode validation and extraction.**
 
 Record mode, selected source ids, helper links, absent IFC identity, and
 capabilities in provenance. Preserve explicit role, surface, grid, group, and
 affordance mappings; do not infer them from object or collection names.
 
-- [ ] **Step 3: Verify and self-review.**
+- [x] **Step 3: Verify and self-review.**
 
 Run focused tests and the full suite. Grill Me: can simply opening a Blender
 file change an IFC analysis result? Can an unselected mesh enter because it is
 visible? Can a mesh with no role silently become furniture? Repair before
 checkpoint.
 
-- [ ] **Step 4: Create the checkpoint.**
+- [x] **Step 4: Create the checkpoint.**
 
 ```powershell
 jj commit -m "feat: support explicit Blender geometry and hybrid input modes"
 ```
 
 Checkpoint: `JJ-06-blender-input-modes`.
+
+Gate 6 verification record (2026-08-17): the adapter accepts only explicit
+evaluated Blender mesh snapshots. `ifc` mode short-circuits before reading
+Blender input; `blender_geometry` uses selected ids only; `hybrid` uses only
+explicit helper-to-IFC links. Names, visibility, collections, bboxes, and IFC
+classes do not provide semantics. Missing geometry, unknown selections/roles/
+links, duplicate record ids, and dangling cross-record references are explicit
+errors or uncertainties rather than silent omissions. Three independent
+read-only reviews ended with no Critical or Important findings. Final focused
+cross-adapter result was `240 passed`; final full result was
+`583 passed in 811.86s` under Pixi Python 3.12.13. Compileall, project-owned
+function docstring audit, JSON/no-mutation checks, and `git diff --check` also
+passed.
 
 ## Gate 7: Migrate Existing Analysis Consumers
 

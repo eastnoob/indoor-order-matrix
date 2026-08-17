@@ -3332,3 +3332,31 @@
 - Final full verification: `568 passed in 879.64s` (`0:14:39`) under Pixi
   Python `3.12.13`; compileall, docstring audit, JSON/no-mutation checks, and
   `git diff --check` passed. Checkpoint: `JJ-05-ifc-adapter`.
+
+2026-08-17, Gate 6 explicit Blender geometry and hybrid input checkpoint:
+
+- Added `adapters/blender_geometry.py` as a source adapter for evaluated
+  Blender mesh snapshots. It does not import `bpy`, does not classify ordinary
+  meshes as IFC objects, and does not infer roles from names, visibility,
+  collections, or bbox substitutes.
+- `ifc` mode returns the selected IFC Neutral Scene unchanged. The
+  `blender_geometry` mode uses only explicit selection and role mappings;
+  `hybrid` mode keeps IFC as the base and adds only explicitly linked helpers.
+  Explicit groups, grids, surfaces, affordances, openings, and domains are
+  passed through with cross-record reference validation.
+- Missing mesh, unknown selection/role/helper ids, duplicate record ids,
+  dangling references, and invalid modes are rejected or represented as
+  structured uncertainty. A valid explicit analysis domain updates the
+  capability flags consistently. Hybrid composition uses immutable scene
+  replacement and leaves the IFC source scene unchanged.
+- Strict TDD RED/GREEN evidence covered mode isolation, no-payload IFC
+  short-circuit, selection/link/role allowlists, missing mesh, JSON round trip,
+  domain capability, duplicate ids, and dangling references. All new/modified
+  project-owned functions retain English-first docstrings and important-step
+  English comments.
+- Final focused verification: `240 passed in 4.98s` for Blender, contract, IFC,
+  and SVG adapter compatibility tests. Final independent review reported no
+  Critical or Important findings.
+- Final full verification: `583 passed in 811.86s` (`0:13:31`) under Pixi
+  Python `3.12.13`; compileall, docstring audit, JSON/no-mutation checks, and
+  `git diff --check` passed. Checkpoint: `JJ-06-blender-input-modes`.
