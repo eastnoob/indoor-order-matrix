@@ -3255,3 +3255,27 @@
 - Independent review found one P1 repeated-comma defect, which was fixed and
   covered before the final full-suite run. No remaining review finding was
   reported for scope, compatibility, uncertainty handling, or comments.
+
+2026-08-17, Gate 3 functional geometry substitutes and task views checkpoint:
+
+- Gate 3 now exposes source-independent `MassPatch`, `SurfacePatch`, and
+  `AffordanceZone` records plus deterministic plan, vertical, occlusion, and
+  clearance views. These records retain source ids and provenance and contain
+  no perceptual weights or final scores.
+- Plan projection unions triangulated faces, preserving disconnected
+  components and interior rings instead of connecting source vertices across
+  empty space. Coordinates are canonically oriented and ordered for stable
+  JSON/test output.
+- Ray evidence now respects origin, direction sign, zero-vector rejection,
+  and height-band occupancy. Height bands test occupied ray segments rather
+  than merely surface hits; tangent contacts are rejected by midpoint
+  classification, and point-in-mesh parity is independent of triangle winding.
+- Strict TDD RED evidence covered disconnected solids, upward/downward/zero
+  rays, out-of-band intersections, tangent vertex contact, and mixed triangle
+  winding. Final focused evidence: `17 passed`.
+- Final full verification: `495 passed in 879.09s` (`0:14:39`) under Pixi
+  runtime Python `3.12.13`; compileall and `git diff --check` also passed.
+- Independent review initially found disconnected/holed topology, ray origin
+  and direction, height-band bypass, tangent contact, and winding assumptions;
+  each was repaired with a regression test. Final review approved Gate 3 with
+  no blocking or important findings.
