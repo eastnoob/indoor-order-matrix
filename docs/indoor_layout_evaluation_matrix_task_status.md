@@ -3279,3 +3279,28 @@
   and direction, height-band bypass, tangent contact, and winding assumptions;
   each was repaired with a regression test. Final review approved Gate 3 with
   no blocking or important findings.
+
+2026-08-17, Gate 4 weight-free multi-channel boundary evidence checkpoint:
+
+- Gate 4 adds `features/boundary_evidence.py`: analyzer-derived evidence
+  records over neutral `MassPatch` and `SurfacePatch` substitutes. Every record
+  retains source refs, method, substitute provenance, geometric projection,
+  tolerances, and explicit uncertainty, with no aggregate boundary weight.
+- Physical continuity, walking permeability, visual permeability, and Gestalt
+  continuity remain independent serialized channels. Body and visual queries
+  use validated, finite, ordered height bands. A carpet-like surface can obtain
+  location from referenced geometry while remaining non-mass and non-blocking.
+- Subject relations use the nearest projected exterior or hole boundary point,
+  not an interior centroid. Computation range produces `not_evaluated`, never a
+  fabricated zero score. Disconnected geometry contributes all components'
+  local height intervals.
+- Strict TDD RED evidence covered four-channel low-cabinet semantics, a
+  mass-free carpet, out-of-range relations, disconnected components, provenance
+  serialization, referenced surface geometry, nearest-boundary distance, and
+  malformed height queries. Final focused result: `9 passed`.
+- Independent review found and verified repairs for first-component sampling,
+  missing provenance, surface spatial location, interior-sample range distance,
+  and invalid height-band inputs. Final review approved Gate 4 with no
+  blocking or important findings.
+- Final full verification: `504 passed in 914.83s` (`0:15:14`) under Pixi
+  runtime Python `3.12.13`; `compileall` and `git diff --check` also passed.
