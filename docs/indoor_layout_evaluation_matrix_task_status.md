@@ -3232,3 +3232,26 @@
   byte-marker, and namespace helpers plus the small required fill subset; it
   removed the obsolete local-name-only helper and added no dependency or CSS
   framework. All project-owned functions have English docstrings.
+2026-08-17, Gate 2 parser compatibility and malformed-input repair checkpoint:
+
+- Scope remained Gate 2 only. No Neutral Scene schema, inference, evaluation,
+  geometry substitutes, IFC, Blender, or consumer behavior was changed.
+- RED tests covered the legacy opt-in `_source_records` contract, malformed
+  polygon points, malformed transform suffixes, repeated number-list commas,
+  and parser `IndexError`/`AssertionError` from malformed SVG paths.
+- The legacy loader now accepts `include_source_order=False` and exposes a
+  traversal-ordered `_source_records` list only when explicitly requested.
+  Existing default scene keys remain unchanged.
+- Legacy number parsing is separator-aware: repeated/leading/trailing commas,
+  malformed decimal fragments, nonfinite values, and transform garbage are
+  rejected instead of being partially converted.
+- Malformed modern SVG paths are converted to `path_parse_failed` uncertainty,
+  including parser `IndexError` and `AssertionError`, rather than escaping as
+  adapter crashes.
+- Focused GREEN evidence: adapter-only `62 passed`; Gate 2 legacy regression
+  set `4 passed` after the independent review repair.
+- Full verification after the final repair: `478 passed in 775.37s`
+  (`0:12:55`) under the Pixi runtime Python `3.12.13`; no environment change.
+- Independent review found one P1 repeated-comma defect, which was fixed and
+  covered before the final full-suite run. No remaining review finding was
+  reported for scope, compatibility, uncertainty handling, or comments.

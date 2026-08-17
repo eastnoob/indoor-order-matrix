@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from math import cos, radians, sin
 from pathlib import Path
 import re
@@ -9,7 +10,11 @@ from .affordance.models import Rect
 
 
 SVG_NS = "{http://www.w3.org/2000/svg}"
-def load_structured_svg_scene(path: str | Path) -> dict:
+def load_structured_svg_scene(
+    path: str | Path,
+    *,
+    include_source_order: bool = False,
+) -> dict:
     """Load a metadata-bearing SVG fixture into neutral scene records.
 
     This is not image recognition: geometry meaning comes from explicit
@@ -29,6 +34,10 @@ def load_structured_svg_scene(path: str | Path) -> dict:
         "regions": [],
         "uncertainties": [],
     }
+    if include_source_order:
+        # Keep one traversal-ordered compatibility view for callers that need
+        # document order without changing the semantic buckets used by legacy code.
+        scene["_source_records"] = []
     # SVG fixtures can be partially annotated while they evolve toward BIM-like
     # metadata, so id fallback stays available only for elements missing a role.
     _walk(root, inherited={"_allow_id_fallback": True}, scene=scene)
@@ -63,6 +72,8 @@ def _walk(element: ET.Element, *, inherited: dict, scene: dict) -> None:
     record = _shape_record(tag, element.attrib, meta)
     if record is None:
         return
+    if "_source_records" in scene:
+        scene["_source_records"].append(record)
     role = record["role"]
     if role == "boundary":
         scene["boundaries"].append(record)
@@ -406,7 +417,9 @@ def _points_for_shape(
     raw = attrib.get("points", "")
     if tag != "polygon" or not raw:
         return []
-    numbers = [float(value) for value in re.findall(r"[-+]?\d*\.?\d+", raw)]
+    numbers = _strict_coordinate_numbers(raw, attribute_name="points")
+    if len(numbers) % 2:
+        raise ValueError("invalid SVG points attribute: expected coordinate pairs")
     return [
         _transform_point(numbers[i], numbers[i + 1], tx, ty, angle)
         for i in range(0, len(numbers) - 1, 2)
@@ -553,24 +566,54 @@ def _combine_transform(
     tx, ty, angle = parent or (0.0, 0.0, 0.0)
     if not raw:
         return tx, ty, angle
-    matrix = re.search(
-        r"matrix\(([-0-9.]+),([-0-9.]+),([-0-9.]+),([-0-9.]+),([-0-9.]+),([-0-9.]+)\)",
-        raw,
-    )
-    if matrix:
-        a, b, _c, _d, e, f = (float(matrix.group(index)) for index in range(1, 7))
-        tx += e
-        ty += f
-        angle += _matrix_angle(a, b)
-        return tx, ty, angle
-    translate = re.search(r"translate\(([-0-9.]+)(?:[ ,]+([-0-9.]+))?\)", raw)
-    if translate:
-        tx += float(translate.group(1))
-        ty += float(translate.group(2) or 0)
-    rotate = re.search(r"rotate\(([-0-9.]+)\)", raw)
-    if rotate:
-        angle += float(rotate.group(1))
+    matches = list(re.finditer(r"([A-Za-z]+)\s*\(([^()]*)\)", raw))
+    compact = "".join(match.group(0) for match in matches)
+    if not matches or re.sub(r"[\s,]+", "", compact) != re.sub(r"[\s,]+", "", raw):
+        raise ValueError(f"invalid SVG transform syntax: {raw!r}")
+    for match in matches:
+        name = match.group(1).lower()
+        values = _strict_coordinate_numbers(
+            match.group(2), attribute_name=f"transform {name}"
+        )
+        if name == "matrix" and len(values) == 6:
+            a, b, _c, _d, e, f = values
+            tx += e
+            ty += f
+            angle += _matrix_angle(a, b)
+        elif name == "translate" and len(values) in {1, 2}:
+            tx += values[0]
+            ty += values[1] if len(values) == 2 else 0.0
+        elif name == "rotate" and len(values) == 1:
+            angle += values[0]
+        else:
+            raise ValueError(
+                f"unsupported legacy SVG transform operation {name!r}"
+            )
     return tx, ty, angle
+
+
+def _strict_coordinate_numbers(raw: str, *, attribute_name: str) -> list[float]:
+    """Parse a complete SVG number list without accepting malformed fragments."""
+    number = r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?"
+    tokens = list(re.finditer(number, raw))
+    if not tokens or raw[: tokens[0].start()].strip():
+        raise ValueError(f"invalid SVG {attribute_name} attribute: {raw!r}")
+    if raw[tokens[-1].end() :].strip():
+        raise ValueError(f"invalid SVG {attribute_name} attribute: {raw!r}")
+    for previous, current in zip(tokens, tokens[1:]):
+        separator = raw[previous.end() : current.start()]
+        if "," in separator:
+            if separator.count(",") != 1 or separator.replace(",", "").strip():
+                raise ValueError(f"invalid SVG {attribute_name} attribute: {raw!r}")
+        elif separator:
+            if not separator.isspace():
+                raise ValueError(f"invalid SVG {attribute_name} attribute: {raw!r}")
+        elif not current.group(0).startswith(("+", "-")):
+            raise ValueError(f"invalid SVG {attribute_name} attribute: {raw!r}")
+    values = [float(token.group(0)) for token in tokens]
+    if not all(math.isfinite(value) for value in values):
+        raise ValueError(f"nonfinite SVG {attribute_name} attribute: {raw!r}")
+    return values
 
 
 def _matrix_angle(a: float, b: float) -> float:

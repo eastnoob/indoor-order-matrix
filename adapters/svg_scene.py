@@ -782,7 +782,7 @@ def _path_geometry(
         from svgpathtools import Line, parse_path
 
         subpaths = parse_path(raw).continuous_subpaths()
-    except (ImportError, ValueError, TypeError) as error:
+    except (ImportError, ValueError, TypeError, IndexError, AssertionError) as error:
         return None, f"path_parse_failed:{type(error).__name__}"
     if not subpaths:
         return None, "empty_path"
@@ -993,7 +993,9 @@ def _mesh_from_record(
     if not isinstance(descriptor, Mapping):
         reason = str(record.get("_adapter_geometry_error") or "unsupported")
         error_code = (
-            reason
+            "path_parse_failed"
+            if reason.startswith("path_parse_failed:")
+            else reason
             if reason
             in {"invalid_curve_dimensions", "unsupported_nested_svg_viewport"}
             else "unsupported_svg_geometry"

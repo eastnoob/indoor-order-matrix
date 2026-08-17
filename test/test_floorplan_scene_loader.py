@@ -14766,3 +14766,81 @@ def test_room_analysis_model_builds_for_svg_fixtures(fixture):
         "summary_layer",
     }
 
+
+def test_legacy_loader_preserves_optional_source_order_compatibility(tmp_path: Path):
+    """The legacy loader keeps its optional source-order payload contract."""
+    svg = tmp_path / "source_order.svg"
+    svg.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+        '<rect id="wall-a" data-role="boundary" x="0" y="0" width="20" height="1"/>'
+        '<rect id="chair-a" data-role="chair" x="1" y="2" width="3" height="4"/>'
+        '<line id="door-a" data-role="opening" x1="5" y1="0" x2="8" y2="0"/>'
+        '<rect id="column-a" data-role="column" x="10" y="10" width="2" height="2"/>'
+        '</svg>',
+        encoding="utf-8",
+    )
+
+    with_order = load_structured_svg_scene(svg, include_source_order=True)
+    without_order = load_structured_svg_scene(svg, include_source_order=False)
+
+    assert [record["id"] for record in with_order["_source_records"]] == [
+        "wall-a",
+        "chair-a",
+        "door-a",
+        "column-a",
+    ]
+    assert "_source_records" not in without_order
+
+
+def test_legacy_points_parser_rejects_partially_numeric_attribute(tmp_path: Path):
+    """Malformed points must not be silently converted into valid coordinates."""
+    svg = tmp_path / "malformed-points.svg"
+    svg.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+        '<polygon id="table" points="0..0 10,10"/>'
+        '</svg>',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="points"):
+        load_structured_svg_scene(svg)
+
+
+def test_legacy_transform_parser_rejects_numeric_suffix_garbage(tmp_path: Path):
+    """Malformed transform arguments must not be accepted by substring matching."""
+    svg = tmp_path / "malformed-transform.svg"
+    svg.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+        '<rect id="chair" x="1" y="2" width="3" height="4" '
+        'transform="translate(2)garbage"/>'
+        '</svg>',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="transform"):
+        load_structured_svg_scene(svg)
+
+
+def test_legacy_number_lists_reject_repeated_commas(tmp_path: Path):
+    """Repeated commas must not be treated as valid SVG number separators."""
+    points_svg = tmp_path / "repeated-point-commas.svg"
+    points_svg.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+        '<polygon id="table" points="0,0,,10,10,10"/>'
+        '</svg>',
+        encoding="utf-8",
+    )
+    transform_svg = tmp_path / "repeated-transform-commas.svg"
+    transform_svg.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+        '<rect id="chair" x="1" y="2" width="3" height="4" '
+        'transform="matrix(1,,0,0,1,0)"/>'
+        '</svg>',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="points"):
+        load_structured_svg_scene(points_svg)
+    with pytest.raises(ValueError, match="transform matrix"):
+        load_structured_svg_scene(transform_svg)
+

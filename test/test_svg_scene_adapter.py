@@ -551,6 +551,30 @@ def _assert_points(
         assert actual_point == pytest.approx(expected_point)
 
 
+def test_malformed_svg_path_becomes_uncertainty_instead_of_crashing(
+    tmp_path: Path,
+) -> None:
+    """Parser failures from malformed paths remain explicit adapter uncertainty."""
+    svg = tmp_path / "malformed-path.svg"
+    svg.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+        '<path id="broken" data-role="table" d="M 0 0 C"/>'
+        '</svg>',
+        encoding="utf-8",
+    )
+
+    scene = load_svg_neutral_scene_for_test(svg, source_length_unit="m")
+
+    assert any(
+        uncertainty.code == "path_parse_failed"
+        for uncertainty in scene.uncertainties
+    ) or any(
+        uncertainty.code == "path_parse_failed"
+        for obj in scene.source_objects
+        for uncertainty in obj.uncertainties
+    )
+
+
 def test_circle_and_ellipse_use_authored_curve_tessellation_not_bbox(
     tmp_path: Path,
 ) -> None:
