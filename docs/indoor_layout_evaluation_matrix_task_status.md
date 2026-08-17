@@ -3304,3 +3304,31 @@
   blocking or important findings.
 - Final full verification: `504 passed in 914.83s` (`0:15:14`) under Pixi
   runtime Python `3.12.13`; `compileall` and `git diff --check` also passed.
+
+2026-08-17, Gate 5 IFC4/Bonsai adapter checkpoint:
+
+- Added the read-only IFC4 adapter and deterministic IFC4 fixture. IFC facts
+  now terminate at Neutral Scene v2 with stable source ids, world-coordinate
+  mesh provenance, placements, units, grids, groups, openings, materials,
+  surfaces, explicit affordance zones, and structured uncertainty records.
+- The adapter does not infer regions, paths, trends, boundaries, order, scores,
+  weights, or column grids. Authored affordance geometry and purpose remain
+  explicit facts; missing geometry, purpose, or furniture references remain
+  auditable rather than becoming inferred defaults.
+- `OM_Surface` type defaults and occurrence overrides are source-traceable;
+  elevations are normalized to metres, non-length units are rejected, invalid
+  occurrence overrides clear inherited values, and raw surface facts are not
+  duplicated in unqualified SourceObject properties. Authored affordances
+  retain an explicit optional `source_id` for cross-adapter handoff.
+- Strict TDD RED/GREEN evidence covered invalid `IfcReal` optical values,
+  non-length property units, type-level surface inheritance, invalid surface
+  overrides, missing affordance purpose, source-id round trips, and reference
+  auditing with and without geometry. All new/modified project-owned functions
+  retain English-first docstrings and important-step English comments; short
+  Chinese annotations remain supplementary only.
+- Final focused verification: `225 passed in 5.45s` for scene contract, IFC,
+  and SVG adapter compatibility tests. Three independent read-only reviews
+  ended with no Critical or Important findings after repair.
+- Final full verification: `568 passed in 879.64s` (`0:14:39`) under Pixi
+  Python `3.12.13`; compileall, docstring audit, JSON/no-mutation checks, and
+  `git diff --check` passed. Checkpoint: `JJ-05-ifc-adapter`.

@@ -118,6 +118,19 @@ If a behavior still works when the scene is a plain Python dict with `Rect` geom
 
 ## Code Comment Rule
 
-Every function should have a docstring. Important computation steps should have comments that explain the intent of the operation, especially inference, scoring, geometry conversion, graph construction, and adapter handoff logic. Comments should be in English and should clarify why the step exists, not restate obvious assignments.
+This is mandatory for every new or modified project-owned code path. Every
+function must have an English-first docstring. Important computation or functional
+blocks must have English-first comments that explain why the step exists, especially
+inference, scoring, geometry conversion, graph construction, serialization,
+and adapter handoff logic. Comments must clarify intent rather than restate
+obvious assignments. Short Chinese annotations may be added where they improve
+communication with project stakeholders, but they supplement rather than replace
+the English documentation.
 
-All new or modified project-owned code should follow this rule. Vendored OCTA toolbox code is exempt unless it is edited.
+All new or modified project-owned code should follow this rule.
+Every function should have a docstring.
+Important computation steps should have comments that explain why they exist.
+
+Before each checkpoint, audit the touched project-owned files for this rule and
+repair omissions before declaring the checkpoint ready.
+Vendored OCTA toolbox code is exempt unless it is edited.

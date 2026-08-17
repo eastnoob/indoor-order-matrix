@@ -1535,6 +1535,7 @@ def _authored_affordances(
         zones.append(
             AuthoredAffordanceZone(
                 id=source_id,
+                source_id=source_id,
                 geometry_refs=(geometry_ref,),
                 vertical_extent=(z_min, z_max),
                 purpose=purpose,

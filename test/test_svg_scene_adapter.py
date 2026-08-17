@@ -241,6 +241,7 @@ def test_explicit_affordance_opening_and_domain_are_mapped(tmp_path: Path) -> No
     assert scene.analysis_domain.source_id == "study-domain"
     assert scene.analysis_domain.selection_method == "explicit_svg_element"
     assert len(scene.authored_affordances) == 1
+    assert scene.authored_affordances[0].source_id == "chair-pullback"
     assert scene.authored_affordances[0].purpose == "pullback"
     assert scene.authored_affordances[0].source_furniture_refs == ("chair-1",)
     assert scene.authored_affordances[0].vertical_extent == (0.0, 0.9)

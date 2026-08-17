@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields
+from dataclasses import MISSING, dataclass, field, fields
 import math
 from types import MappingProxyType
 from typing import Callable, Mapping, TypeAlias, TypeVar, cast
@@ -11,7 +11,30 @@ from typing import Callable, Mapping, TypeAlias, TypeVar, cast
 NEUTRAL_SCENE_V2 = "neutral-scene-v2"
 MISSING_GEOMETRY_UNCERTAINTY = "missing_geometry"
 ALLOWED_INPUT_MODES = frozenset({"ifc", "blender_geometry", "hybrid", "svg"})
-ALLOWED_LENGTH_UNITS = frozenset({"mm", "cm", "m", "km", "in", "ft"})
+ALLOWED_LENGTH_UNITS = frozenset(
+    {
+        "am",
+        "fm",
+        "pm",
+        "nm",
+        "um",
+        "mm",
+        "cm",
+        "dm",
+        "m",
+        "dam",
+        "hm",
+        "km",
+        "Mm",
+        "Gm",
+        "Tm",
+        "Pm",
+        "Em",
+        "in",
+        "ft",
+        "custom",
+    }
+)
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
@@ -120,8 +143,15 @@ def _load(
     if not isinstance(payload, dict):
         raise TypeError(f"{path} must be a mapping, got {type(data).__name__}")
 
-    expected = tuple(record_field.name for record_field in fields(record_type))
-    missing = [name for name in expected if name not in payload]
+    record_fields = fields(record_type)
+    expected = tuple(record_field.name for record_field in record_fields)
+    required = {
+        record_field.name
+        for record_field in record_fields
+        if record_field.default is MISSING
+        and record_field.default_factory is MISSING
+    }
+    missing = [name for name in expected if name in required and name not in payload]
     if missing:
         raise ValueError(f"{path} is missing field {missing[0]}")
     unexpected = [name for name in payload if name not in expected]
@@ -130,7 +160,8 @@ def _load(
 
     values: dict[str, object] = dict(payload)
     for name, converter in (converters or {}).items():
-        values[name] = converter(values[name], _child(path, name))
+        if name in values:
+            values[name] = converter(values[name], _child(path, name))
     try:
         return record_type(**values)
     except ValueError as error:
@@ -498,6 +529,9 @@ class SourceObject(_Record):
     surface_refs: tuple[str, ...] = ()
     opening_refs: tuple[str, ...] = ()
     authored_local_frame: Mapping[str, FrozenJsonValue] | None = None
+    factual_properties: Mapping[str, FrozenJsonValue] = field(
+        default_factory=dict
+    )
     provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
     uncertainties: tuple[UncertaintyRecord, ...] = ()
 
@@ -513,6 +547,14 @@ class SourceObject(_Record):
             object.__setattr__(self, name, _refs(getattr(self, name), f"source_object.{name}"))
         if self.authored_local_frame is not None:
             object.__setattr__(self, "authored_local_frame", _json_object(self.authored_local_frame, "source_object.authored_local_frame"))
+        object.__setattr__(
+            self,
+            "factual_properties",
+            _json_object(
+                self.factual_properties,
+                "source_object.factual_properties",
+            ),
+        )
         object.__setattr__(self, "provenance", _json_object(self.provenance, "source_object.provenance"))
         object.__setattr__(self, "uncertainties", _record_tuple(self.uncertainties, UncertaintyRecord, "source_object.uncertainties"))
         if not self.geometry_refs and not any(
@@ -707,6 +749,7 @@ class AuthoredGridAxis(_Record):
     curve_points: tuple[Vector3, ...]
     branch_identifier: str | None
     list_identifier: str | None
+    same_sense: bool | None = None
     provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -718,6 +761,8 @@ class AuthoredGridAxis(_Record):
         object.__setattr__(self, "curve_points", tuple(_vector(point, _item("authored_grid_axis.curve_points", index)) for index, point in enumerate(self.curve_points)))
         for name in ("branch_identifier", "list_identifier"):
             object.__setattr__(self, name, _text(getattr(self, name), f"authored_grid_axis.{name}", optional=True))
+        if self.same_sense is not None and not isinstance(self.same_sense, bool):
+            raise ValueError("authored_grid_axis.same_sense must be a boolean or null")
         object.__setattr__(self, "provenance", _json_object(self.provenance, "authored_grid_axis.provenance"))
 
     @classmethod
@@ -762,12 +807,14 @@ class AuthoredAffordanceZone(_Record):
     purpose: str
     task_facts: Mapping[str, FrozenJsonValue]
     source_furniture_refs: tuple[str, ...]
+    source_id: str | None = None
     provenance: Mapping[str, FrozenJsonValue] = field(default_factory=dict)
     uncertainties: tuple[UncertaintyRecord, ...] = ()
 
     def __post_init__(self) -> None:
         """Validate affordance geometry, vertical extent, purpose, and evidence."""
         object.__setattr__(self, "id", _stable_id(self.id, "authored_affordance.id"))
+        object.__setattr__(self, "source_id", _stable_id(self.source_id, "authored_affordance.source_id", optional=True))
         object.__setattr__(self, "geometry_refs", _refs(self.geometry_refs, "authored_affordance.geometry_refs"))
         if not isinstance(self.vertical_extent, (list, tuple)) or len(self.vertical_extent) != 2:
             raise ValueError("authored_affordance.vertical_extent must contain two values")

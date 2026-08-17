@@ -30,3 +30,4 @@ shapely = ">=2.1.2,<3"
 [pypi-dependencies]
 ipykernel = "*"
 numpy = "*"
+ifcopenshell = "==0.8.5"

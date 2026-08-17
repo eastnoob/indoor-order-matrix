@@ -183,6 +183,7 @@ def _representative_scene(domain: AnalysisDomain | None = None) -> NeutralSceneV
         authored_affordances=(
             AuthoredAffordanceZone(
                 id="affordance:chair-pullback",
+                source_id="ifc:spatial-zone:1",
                 geometry_refs=("geometry:chair-affordance",),
                 vertical_extent=(0.0, 1.2),
                 purpose="chair_pullback",
@@ -220,6 +221,7 @@ def test_complete_scene_round_trips_through_json() -> None:
     assert reopened.context.analysis_plane.origin == (10.0, 20.0, 0.0)
     assert reopened.source_objects[0].provenance["global_id"] == "chair-guid"
     assert reopened.geometries[0].triangle_indices == ((0, 1, 2),)
+    assert reopened.authored_affordances[0].source_id == "ifc:spatial-zone:1"
 
 
 def test_open_json_is_recursively_frozen_and_not_shared_between_owners() -> None:
@@ -623,3 +625,30 @@ def test_every_concrete_record_is_explicitly_unhashable(record: object) -> None:
     assert not isinstance(record, Hashable)
     with pytest.raises(TypeError):
         hash(record)
+
+
+def test_source_object_from_dict_accepts_missing_new_defaulted_fact_field() -> None:
+    """Older Neutral Scene v2 JSON may omit newly added defaulted factual fields."""
+    payload = _representative_scene().source_objects[0].to_dict()
+    payload.pop("factual_properties")
+
+    restored = SourceObject.from_dict(payload)
+
+    assert restored.factual_properties == {}
+
+
+def test_authored_grid_axis_round_trip_preserves_optional_same_sense() -> None:
+    """Explicit IFC axis direction semantics survive the neutral JSON boundary."""
+    axis = AuthoredGridAxis(
+        id="axis:reverse",
+        source_id="ifc-axis:reverse",
+        curve_points=((0.0, 0.0, 0.0), (5.0, 0.0, 0.0)),
+        branch_identifier="A",
+        list_identifier="UAxes",
+        same_sense=False,
+        provenance={"method": "fixture"},
+    )
+
+    restored = AuthoredGridAxis.from_dict(axis.to_dict())
+
+    assert restored.same_sense is False

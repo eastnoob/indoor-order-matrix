@@ -6,7 +6,7 @@
 
 **Architecture:** Bonsai/Blender authors and previews; IFC remains the durable factual source; explicit Blender geometry is an opt-in geometry source; SVG is a planar adapter. All adapters terminate at a pure Neutral Scene v2 contract. Functional substitutes (`MassPatch`, `SurfacePatch`, `AffordanceZone`) and task views feed the existing region, path, trend, network, boundary, and column-grid analysis, while the exported description registry remains separate from any later fitted feature model.
 
-**Tech Stack:** Python 3.14 via Pixi, existing geometry helpers, IfcOpenShell 0.8.5 when available, Blender 5.2 portable executable, pytest, nbformat/nbclient, JSON artifacts, and jj for history checkpoints.
+**Tech Stack:** Python 3.12 via Pixi, existing geometry helpers, IfcOpenShell 0.8.5 when available, Blender 5.2 portable executable, pytest, nbformat/nbclient, JSON artifacts, and jj for history checkpoints.
 
 ---
 
@@ -286,38 +286,48 @@ without computing analysis in Blender.
 - Modify: `pyproject.toml` or `pixi.toml` only if the locked environment lacks
   an already available IFC dependency
 
-- [ ] **Step 1: Write failing in-memory IFC4 fixture tests.**
+- [x] **Step 1: Write failing in-memory IFC4 fixture tests.**
 
 Build furniture, groups, walls, slab, openings, covering, surface feature,
 affordance zone, and grid axes in memory. Serialize/reopen and assert stable
 source ids and mappings. Add missing geometry, missing grid, missing domain,
 and IFC4 versus IFC4X3 schema-guard cases.
 
-- [ ] **Step 2: Implement read-only extraction.**
+- [x] **Step 2: Implement read-only extraction.**
 
 Resolve units and placements once, extract tessellated transport meshes with
 settings provenance, map native IFC relationships, and emit structured
 uncertainties. Never infer a column grid, affordance, region, path, boundary,
 trend, order, or score here.
 
-- [ ] **Step 3: Add no-mutation tests.**
+- [x] **Step 3: Add no-mutation tests.**
 
 Hash source entity ids and serialized source facts before and after adapter use.
 Assert that the hashes are unchanged.
 
-- [ ] **Step 4: Verify and self-review.**
+- [x] **Step 4: Verify and self-review.**
 
 Run focused IFC tests and `pixi run pytest`. Grill Me: does an IFC class decide
 boundary meaning, or merely select factual extraction? Does IFC4 code touch an
 IFC4X3-only relationship without a capability check? Repair before checkpoint.
 
-- [ ] **Step 5: Create the checkpoint.**
+- [x] **Step 5: Create the checkpoint.**
 
 ```powershell
 jj commit -m "feat: add read-only IFC4 Bonsai adapter"
 ```
 
 Checkpoint: `JJ-05-ifc-adapter`.
+
+Gate 5 verification record (2026-08-17): strict RED/GREEN cycles repaired
+optical IFC value typing, unit dimensionality, type-level `OM_Surface`
+inheritance, invalid occurrence overrides, source provenance, explicit
+affordance purpose/source ids, and semantic reference auditing when geometry
+or purpose is unavailable. Three independent read-only reviews ended with no
+Critical or Important findings. Final focused cross-adapter result was
+`225 passed`; final full result was `568 passed in 879.64s` under Pixi Python
+3.12.13. Compileall, project-owned function docstring audit, JSON/no-mutation
+checks, and `git diff --check` also passed.
 
 ## Gate 6: Explicit Blender Geometry And Hybrid Modes
 

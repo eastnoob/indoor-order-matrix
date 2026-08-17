@@ -16,7 +16,8 @@ pixi install       # Set up environment from pixi.lock
 pixi shell         # Activate the environment
 ```
 
-The locked Python version is **3.14.4** (see [pixi.toml](pixi.toml)).
+The locked environment currently resolves to **Python 3.12.13** under the
+`>=3.12,<3.13` constraint in [pixi.toml](pixi.toml).
 
 OCTA toolbox dependencies not listed in pixi.toml but imported in source: `svgwrite`, `svg.path`, `svgpathtools`, `svgutils`, `jsonpickle`, `html2image`, `svglib`, `reportlab`, `colour`, `IPython`, `pandas`, `PIL`, `matplotlib`.
 
@@ -29,12 +30,13 @@ pixi run pytest OCTA_toolbox-master/tests/test_pattern.py  # single file
 
 ## Code Comments
 
-All new or modified project-owned code must include English comments at two levels:
+All new or modified project-owned code must use English-first comments at two levels:
 
 - Every function should have a docstring.
 - Important computation steps should have comments explaining why the step exists, especially inference, scoring, geometry conversion, graph construction, and adapter handoff logic.
 
 Do not add noisy comments that merely restate obvious assignments. Vendored OCTA toolbox code is exempt unless it is edited.
+Short Chinese annotations are allowed when they improve communication, but they supplement rather than replace the English documentation.
 
 ## Project Memory
 
