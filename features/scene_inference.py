@@ -5,10 +5,13 @@ from math import atan2, cos, degrees, radians, sin, sqrt
 from statistics import mean
 
 from .affordance.models import Rect
+from .geometry_views import component_shape
+from .neutral_scene_views import AnalysisSceneInput, analysis_scene_view
 
 
-def infer_scene_evidence(scene: dict) -> dict:
+def infer_scene_evidence(scene: AnalysisSceneInput) -> dict:
     """Infer analysis evidence from a neutral scene, independent of SVG loading."""
+    scene = analysis_scene_view(scene)
     zones = affordance_zones(scene)
     extents = furniture_affordance_extents(scene)
     groups = furniture_groups(scene, extents)
@@ -17,6 +20,12 @@ def infer_scene_evidence(scene: dict) -> dict:
     gap_paths = inferred_region_gap_paths(candidates)
     networks = spatial_networks(groups, gap_paths)
     boundaries = boundary_semantics(scene)
+    interface_relation_result = _subject_interface_relation_result(
+        scene,
+        candidates,
+        boundaries,
+    )
+    interface_relations = interface_relation_result["relations"]
     return {
         "affordance_zones": zones,
         "furniture_affordance_extents": extents,
@@ -26,6 +35,8 @@ def infer_scene_evidence(scene: dict) -> dict:
         "inferred_region_gap_paths": gap_paths,
         "spatial_networks": networks,
         "boundary_semantics": boundaries,
+        "subject_interface_relations": interface_relations,
+        "subject_interface_relation_scope": interface_relation_result["scope"],
         "inferred_region_gap_path_graph": build_inferred_region_gap_path_graph(
             candidates,
             gap_paths,
@@ -34,8 +45,9 @@ def infer_scene_evidence(scene: dict) -> dict:
     }
 
 
-def affordance_zones(scene: dict) -> list[dict]:
+def affordance_zones(scene: AnalysisSceneInput) -> list[dict]:
     """Collect all furniture affordance zones in a neutral scene."""
+    scene = analysis_scene_view(scene)
     return [
         zone
         for obj in scene.get("objects", [])
@@ -43,8 +55,9 @@ def affordance_zones(scene: dict) -> list[dict]:
     ]
 
 
-def furniture_affordance_extents(scene: dict) -> list[dict]:
+def furniture_affordance_extents(scene: AnalysisSceneInput) -> list[dict]:
     """Infer one maximum affordance extent for each furniture object."""
+    scene = analysis_scene_view(scene)
     return sorted(
         [
             _furniture_affordance_extent_record(obj)
@@ -55,8 +68,12 @@ def furniture_affordance_extents(scene: dict) -> list[dict]:
     )
 
 
-def furniture_groups(scene: dict, extents: list[dict] | None = None) -> list[dict]:
+def furniture_groups(
+    scene: AnalysisSceneInput,
+    extents: list[dict] | None = None,
+) -> list[dict]:
     """Build canonical furniture groups from semantic keys and affordance extents."""
+    scene = analysis_scene_view(scene)
     extents = extents if extents is not None else furniture_affordance_extents(scene)
     objects_by_id = {obj["id"]: obj for obj in scene.get("objects", [])}
     extents_by_group: dict[str, list[dict]] = {}
@@ -104,28 +121,10 @@ def furniture_groups(scene: dict, extents: list[dict] | None = None) -> list[dic
 
 def spatial_networks(furniture_groups: list[dict], gap_paths: list[dict]) -> list[dict]:
     """Build shared-schema spatial networks for internal and inter-region scopes."""
-    networks = [
-        {
-            "id": f"spatial_network_region_internal_{group['activity_region_id']}",
-            "scope": "region_internal",
-            "nodes": [
-                {
-                    "id": extent_id,
-                    "kind": "furniture_affordance_extent",
-                }
-                for extent_id in group["furniture_affordance_extent_ids"]
-            ],
-            "edges": _furniture_group_internal_edges(group),
-            "components": [[extent_id] for extent_id in group["furniture_affordance_extent_ids"]],
-            "metadata": {
-                "method": "furniture_group_member_extent_network_skeleton",
-                "furniture_group_id": group["id"],
-            },
-        }
-        for group in furniture_groups
-    ]
+    networks = [_furniture_group_internal_network(group) for group in furniture_groups]
     region_node_ids = sorted(
-        {
+        {_activity_region_candidate_id(group["activity_region_id"]) for group in furniture_groups}
+        | {
             region_id
             for path in gap_paths
             for region_id in (path["region_a"], path["region_b"])
@@ -167,13 +166,57 @@ def spatial_networks(furniture_groups: list[dict], gap_paths: list[dict]) -> lis
     return networks
 
 
-def boundary_semantics(scene: dict) -> list[dict]:
-    """Normalize boundary-like records into walk/see/grouping semantic profiles."""
+def _furniture_group_internal_network(group: dict) -> dict:
+    """Build one internal network whose components follow overlap edges."""
+    extent_ids = list(group["furniture_affordance_extent_ids"])
+    edges = _furniture_group_internal_edges(group)
+    adjacency = {extent_id: set() for extent_id in extent_ids}
+    for edge in edges:
+        adjacency[edge["a"]].add(edge["b"])
+        adjacency[edge["b"]].add(edge["a"])
+    # Components describe actual overlap topology; disconnected members must
+    # remain visible instead of being implied connected by group membership.
+    return {
+        "id": f"spatial_network_region_internal_{group['activity_region_id']}",
+        "scope": "region_internal",
+        "nodes": [
+            {"id": extent_id, "kind": "furniture_affordance_extent"}
+            for extent_id in extent_ids
+        ],
+        "edges": edges,
+        "components": _components(
+            {extent_id: {} for extent_id in extent_ids},
+            adjacency,
+        ),
+        "metadata": {
+            "method": "furniture_group_member_extent_overlap_network",
+            "furniture_group_id": group["id"],
+        },
+    }
+
+
+def _activity_region_candidate_id(activity_region_id: object) -> str:
+    """Map a furniture-group region key to its inferred candidate stable id."""
+    identifier = str(activity_region_id)
+    return (
+        identifier
+        if identifier.startswith("inferred_region_")
+        else f"inferred_region_{identifier}"
+    )
+
+
+def boundary_semantics(scene: AnalysisSceneInput) -> list[dict]:
+    """Expose Neutral factual channels or the exact legacy weighted profiles."""
+    scene = analysis_scene_view(scene)
     openings_by_boundary: dict[str, list[str]] = {}
     for entry in scene.get("entries", []):
         host = entry.get("metadata", {}).get("host-boundary")
         if host:
             openings_by_boundary.setdefault(host, []).append(entry["id"])
+    if "_neutral_scene" in scene:
+        # Neutral boundary facts have no authored weights; preserve their four
+        # evidence channels instead of routing them through legacy thresholds.
+        return _neutral_boundary_semantics(scene, openings_by_boundary)
     semantics = []
     for boundary in sorted(scene.get("boundaries", []), key=lambda item: item["id"]):
         weights = boundary.get("weights", {})
@@ -198,17 +241,533 @@ def boundary_semantics(scene: dict) -> list[dict]:
     return semantics
 
 
-def inferred_region_candidates(scene: dict) -> list[dict]:
+def _neutral_boundary_semantics(
+    scene: dict,
+    openings_by_boundary: dict[str, list[str]],
+) -> list[dict]:
+    """Serialize weight-free Neutral mass and surface interface channels."""
+    channel_evidence = scene.get("channel_evidence", {})
+    semantics = []
+    for interface in sorted(scene.get("interface_facts", []), key=lambda item: item["id"]):
+        evidence = channel_evidence.get(interface["id"], {})
+        metadata = interface.get("metadata", {})
+        semantics.append(
+            {
+                "id": interface["id"],
+                "kind": (
+                    metadata.get("surface-identity")
+                    or metadata.get("boundary-kind")
+                    or interface.get("role", "interface")
+                ),
+                "interface_kind": evidence.get("interface_kind", "unknown"),
+                "source_geometry_refs": list(evidence.get("geometry_refs", [])),
+                "physical_continuity": list(evidence.get("physical_continuity", [])),
+                "walking_permeability": list(evidence.get("walking", [])),
+                "walking_permeability_status": evidence.get("walking_status", "unknown"),
+                "visual_permeability": list(evidence.get("visual", [])),
+                "visual_permeability_status": evidence.get("visual_status", "unknown"),
+                "gestalt_continuity": list(evidence.get("gestalt_continuity", [])),
+                "opening_ids": sorted(openings_by_boundary.get(interface["id"], [])),
+                "uncertainties": list(evidence.get("uncertainties", [])),
+                "metadata": {
+                    "source": "neutral_scene_boundary_facts_and_derived_channels",
+                },
+            }
+        )
+    return semantics
+
+
+def subject_interface_relations(
+    scene: AnalysisSceneInput,
+    subjects: list[dict],
+    interfaces: list[dict] | None = None,
+) -> list[dict]:
+    """Relate Neutral activity regions to factual mass and surface interfaces."""
+    return _subject_interface_relation_result(scene, subjects, interfaces)["relations"]
+
+
+def _subject_interface_relation_result(
+    scene: AnalysisSceneInput,
+    subjects: list[dict],
+    interfaces: list[dict] | None = None,
+) -> dict[str, object]:
+    """Evaluate only subject-interface pairs allowed by explicit range settings."""
+    scene = analysis_scene_view(scene)
+    if "_neutral_scene" not in scene:
+        return {
+            "relations": [],
+            "scope": _subject_interface_scope(
+                status="not_applicable",
+                max_distance=None,
+                all_pairs=False,
+                candidate_pair_count=0,
+                relation_count=0,
+                not_evaluated_pair_ids=[],
+                uncertainty="legacy_scene_has_no_neutral_range_contract",
+            ),
+        }
+    context = scene["_neutral_scene"].context
+    max_distance = context.subject_interface_max_distance
+    all_pairs = context.subject_interface_all_pairs
+    if max_distance is None and not all_pairs:
+        return {
+            "relations": [],
+            "scope": _subject_interface_scope(
+                status="not_available",
+                max_distance=None,
+                all_pairs=False,
+                candidate_pair_count=0,
+                relation_count=0,
+                not_evaluated_pair_ids=[],
+                uncertainty="missing_subject_interface_range",
+            ),
+        }
+    semantics = interfaces if interfaces is not None else boundary_semantics(scene)
+    semantics_by_id = {record["id"]: record for record in semantics}
+    ordered_subjects = sorted(subjects, key=lambda item: item["id"])
+    ordered_interfaces = [
+        interface
+        for interface in sorted(
+            scene.get("interface_facts", []),
+            key=lambda item: item["id"],
+        )
+        if interface["id"] in semantics_by_id
+    ]
+    # Member-owned interfaces are internal evidence for the inferred subject,
+    # not range-query candidates. Excluding them from the universe prevents
+    # audit output from mislabeling intentional self-exclusion as unevaluated.
+    eligible_pairs = [
+        (subject, interface)
+        for subject in ordered_subjects
+        for interface in ordered_interfaces
+        if interface["id"] not in _candidate_member_ids(subject)
+    ]
+    all_pair_ids = [
+        _subject_interface_relation_id(subject, interface)
+        for subject, interface in eligible_pairs
+    ]
+    pairs = (
+        eligible_pairs
+        if all_pairs
+        else _range_candidate_pairs(ordered_subjects, ordered_interfaces, max_distance)
+    )
+    pairs = [
+        (subject, interface)
+        for subject, interface in pairs
+        if interface["id"] not in _candidate_member_ids(subject)
+    ]
+    relations = [
+        _subject_interface_relation(
+            subject,
+            interface,
+            semantics_by_id[interface["id"]],
+        )
+        for subject, interface in pairs
+    ]
+    evaluated_ids = {relation["id"] for relation in relations}
+    return {
+        "relations": relations,
+        "scope": _subject_interface_scope(
+            status="computed",
+            max_distance=max_distance,
+            all_pairs=all_pairs,
+            candidate_pair_count=len(pairs),
+            relation_count=len(relations),
+            not_evaluated_pair_ids=[
+                pair_id for pair_id in all_pair_ids if pair_id not in evaluated_ids
+            ],
+            uncertainty=None,
+        ),
+    }
+
+
+def _subject_interface_scope(
+    *,
+    status: str,
+    max_distance: float | None,
+    all_pairs: bool,
+    candidate_pair_count: int,
+    relation_count: int,
+    not_evaluated_pair_ids: list[str],
+    uncertainty: str | None,
+) -> dict[str, object]:
+    """Serialize the explicit production or validation range contract."""
+    return {
+        "status": status,
+        "method": "explicit_subject_interface_range_contract",
+        "max_distance": max_distance,
+        "all_pairs": all_pairs,
+        "candidate_pair_count": candidate_pair_count,
+        "relation_count": relation_count,
+        "not_evaluated_pair_ids": not_evaluated_pair_ids,
+        "uncertainty": uncertainty,
+    }
+
+
+def _range_candidate_pairs(
+    subjects: list[dict],
+    interfaces: list[dict],
+    max_distance: float | None,
+) -> list[tuple[dict, dict]]:
+    """Use an STRtree to select exact-distance pairs within the authored range."""
+    from numbers import Integral
+    from shapely.strtree import STRtree
+
+    if max_distance is None:
+        return []
+    interface_entries = [
+        (interface, _analysis_record_shape(interface))
+        for interface in interfaces
+    ]
+    interface_entries = [entry for entry in interface_entries if entry[1] is not None]
+    if not interface_entries:
+        return []
+    shapes = [entry[1] for entry in interface_entries]
+    tree = STRtree(shapes)
+    shape_index_by_identity = {id(shape): index for index, shape in enumerate(shapes)}
+    pairs = []
+    for subject in subjects:
+        subject_shape = _analysis_record_shape(subject)
+        if subject_shape is None:
+            continue
+        candidates = tree.query(subject_shape.buffer(max_distance).envelope)
+        for candidate in candidates:
+            index = (
+                int(candidate)
+                if isinstance(candidate, Integral)
+                else shape_index_by_identity[id(candidate)]
+            )
+            interface, interface_shape = interface_entries[index]
+            # The tree only rejects distant envelopes; exact geometry decides
+            # whether a pair satisfies the authored production range.
+            if subject_shape.distance(interface_shape) <= max_distance:
+                pairs.append((subject, interface))
+    return sorted(pairs, key=lambda pair: (pair[0]["id"], pair[1]["id"]))
+
+
+def _analysis_record_shape(record: dict, *, allow_rect_fallback: bool = True):
+    """Return exact component geometry with an optional rectangle fallback."""
+    shape = component_shape(record.get("geometry_components", ()))
+    if shape is not None:
+        return shape
+    points = record.get("points", ())
+    if len(points) >= 3:
+        from shapely.geometry import Polygon
+
+        polygon = Polygon(points)
+        if polygon.is_valid and not polygon.is_empty:
+            return polygon
+    if not allow_rect_fallback:
+        return None
+    rect = record.get("rect")
+    if not isinstance(rect, Rect):
+        return None
+    from shapely.geometry import box
+
+    return box(rect.left, rect.top, rect.right, rect.bottom)
+
+
+def _subject_interface_relation_id(subject: dict, interface: dict) -> str:
+    """Return the stable audit id for one potential relation pair."""
+    return f"subject_interface:{subject['id']}__{interface['id']}"
+
+
+def _candidate_member_ids(subject: dict) -> set[str]:
+    """Return source members whose own interfaces are internal to the region."""
+    raw = subject.get("metadata", {}).get("member_ids", "")
+    return {member_id for member_id in raw.split(",") if member_id}
+
+
+def _subject_interface_relation(
+    subject: dict,
+    interface: dict,
+    semantics: dict,
+) -> dict:
+    """Describe one region-interface pair without reducing it to influence."""
+    subject_shape = _analysis_record_shape(subject, allow_rect_fallback=False)
+    interface_shape = _analysis_record_shape(interface, allow_rect_fallback=False)
+    geometry_supported = subject_shape is not None and interface_shape is not None
+    if geometry_supported:
+        from shapely.geometry import Point
+        from shapely.ops import nearest_points
+
+        # Exact component boundaries preserve holes and disconnected interfaces;
+        # the outer Rect is intentionally not used for relation evidence.
+        subject_centroid = subject_shape.centroid
+        nearest = nearest_points(subject_centroid, interface_shape.boundary)[1]
+        nearest_side = (
+            round(nearest.x - subject_centroid.x, 4),
+            round(nearest.y - subject_centroid.y, 4),
+        )
+        distance = round(Point(subject_centroid).distance(interface_shape.boundary), 4)
+        overlap = subject_shape.intersection(interface_shape).area
+        subject_coverage = (
+            round(overlap / subject_shape.area, 4)
+            if subject_shape.area > 1e-9
+            else None
+        )
+        interface_coverage = (
+            round(overlap / interface_shape.area, 4)
+            if interface_shape.area > 1e-9
+            else None
+        )
+        containment = {
+            "status": "computed",
+            "subject_within_interface": bool(
+                subject_shape.difference(interface_shape).area <= 1e-9
+            ),
+            "interface_within_subject": bool(
+                interface_shape.difference(subject_shape).area <= 1e-9
+            ),
+        }
+    else:
+        # Missing projection support is unknown evidence, never zero distance,
+        # zero coverage, or a false non-containment observation.
+        nearest_side = None
+        distance = None
+        subject_coverage = None
+        interface_coverage = None
+        containment = {
+            "status": "unknown",
+            "subject_within_interface": None,
+            "interface_within_subject": None,
+        }
+    frame_relation = _subject_interface_frame_relation(subject, interface)
+    parallel_coverage = _parallel_coverage(
+        subject,
+        interface,
+        subject_shape,
+        interface_shape,
+    )
+    # Permeability and continuity stay as observations on the relation; later
+    # perception models may combine them, but inference must not do so here.
+    return {
+        "id": f"subject_interface:{subject['id']}__{interface['id']}",
+        "subject_id": subject["id"],
+        "subject_kind": "activity_region_candidate",
+        "interface_id": interface["id"],
+        "interface_kind": semantics.get("interface_kind", "unknown"),
+        "status": "evaluated" if geometry_supported else "unknown",
+        "distance": distance,
+        "nearest_side": nearest_side,
+        "frame_relation": frame_relation,
+        "subject_coverage_ratio": subject_coverage,
+        "interface_coverage_ratio": interface_coverage,
+        "containment": containment,
+        "parallel_coverage": parallel_coverage,
+        "opening_ids": list(semantics.get("opening_ids", [])),
+        "physical_continuity": list(semantics.get("physical_continuity", [])),
+        "permeability": {
+            "walking_status": semantics.get("walking_permeability_status", "unknown"),
+            "walking": list(semantics.get("walking_permeability", [])),
+            "visual_status": semantics.get("visual_permeability_status", "unknown"),
+            "visual": list(semantics.get("visual_permeability", [])),
+        },
+        "gestalt_continuity": list(semantics.get("gestalt_continuity", [])),
+        "method": "all_pairs_region_to_neutral_interface_plan_relation",
+        "uncertainty": (
+            None
+            if geometry_supported
+            else "missing supported planar subject or interface geometry"
+        ),
+    }
+
+
+def _parallel_coverage(
+    subject: dict,
+    interface: dict,
+    subject_shape,
+    interface_shape,
+) -> dict[str, object]:
+    """Measure continuous parallel boundary coverage from exact segments."""
+    subject_angle = _optional_float_metadata(subject.get("metadata", {}), "axis-angle")
+    interface_angle = _optional_float_metadata(interface.get("metadata", {}), "orientation")
+    if subject_shape is None or interface_shape is None:
+        return {"status": "unknown", "ratio": None, "angle_delta_degrees": None}
+    if subject_angle is None or interface_angle is None:
+        return {"status": "unknown", "ratio": None, "angle_delta_degrees": None}
+
+    angle = radians(interface_angle)
+    direction = (cos(angle), sin(angle))
+    subject_segments = _boundary_segments(subject_shape)
+    interface_segments = _boundary_segments(interface_shape)
+    if not subject_segments or not interface_segments:
+        return {
+            "status": "unknown",
+            "ratio": None,
+            "angle_delta_degrees": round(
+                _frame_angle_delta(subject_angle, interface_angle), 4
+            ),
+        }
+
+    # Segment matching uses exact endpoints and parallel direction; the
+    # resulting ratio is continuous in overlap length, not a binary alignment.
+    parallel_subject = [
+        segment
+        for segment in subject_segments
+        if _parallel_angle(segment["angle"], interface_angle)
+    ]
+    parallel_interface = [
+        segment
+        for segment in interface_segments
+        if not segment["is_hole"]
+        and _parallel_angle(segment["angle"], interface_angle)
+    ]
+    subject_length = sum(segment["length"] for segment in parallel_subject)
+    covered_length = sum(
+        max(
+            (
+                _segment_projection_overlap(subject_segment, interface_segment, direction)
+                for interface_segment in parallel_interface
+            ),
+            default=0.0,
+        )
+        for subject_segment in parallel_subject
+    )
+    ratio = covered_length / subject_length if subject_length > 1e-9 else None
+    return {
+        "status": "computed" if ratio is not None else "unknown",
+        "ratio": round(max(0.0, min(1.0, ratio)), 4) if ratio is not None else None,
+        "angle_delta_degrees": round(
+            _frame_angle_delta(subject_angle, interface_angle), 4
+        ),
+        "subject_parallel_boundary_length": round(subject_length, 4),
+        "covered_parallel_boundary_length": round(covered_length, 4),
+        "interface_parallel_boundary_length": round(
+            sum(segment["length"] for segment in parallel_interface), 4
+        ),
+    }
+
+
+def _boundary_segments(shape) -> list[dict[str, object]]:
+    """Extract exterior and hole boundary segments from polygonal geometry."""
+    geometries = getattr(shape, "geoms", (shape,))
+    segments = []
+    for geometry in geometries:
+        rings = (
+            (geometry.exterior, False),
+            *((ring, True) for ring in geometry.interiors),
+        )
+        for ring, is_hole in rings:
+            coordinates = list(ring.coords)
+            for first, second in zip(coordinates, coordinates[1:]):
+                dx = second[0] - first[0]
+                dy = second[1] - first[1]
+                length = sqrt(dx * dx + dy * dy)
+                if length <= 1e-9:
+                    continue
+                segments.append(
+                    {
+                        "first": (first[0], first[1]),
+                        "second": (second[0], second[1]),
+                        "angle": degrees(atan2(dy, dx)) % 180.0,
+                        "length": length,
+                        "is_hole": is_hole,
+                    }
+                )
+    return segments
+
+
+def _parallel_angle(first: float, second: float) -> bool:
+    """Return whether two segment directions are parallel within geometry tolerance."""
+    delta = radians((first - second) % 180.0)
+    return abs(sin(delta)) <= 1e-6
+
+
+def _segment_projection_overlap(
+    first: dict[str, object],
+    second: dict[str, object],
+    direction: tuple[float, float],
+) -> float:
+    """Measure exact one-dimensional overlap of two parallel boundary segments."""
+    normal = (-direction[1], direction[0])
+    separation = abs(
+        (second["first"][0] - first["first"][0]) * normal[0]
+        + (second["first"][1] - first["first"][1]) * normal[1]
+    )
+    if separation > 1e-6:
+        return 0.0
+    first_values = [
+        point[0] * direction[0] + point[1] * direction[1]
+        for point in (first["first"], first["second"])
+    ]
+    second_values = [
+        point[0] * direction[0] + point[1] * direction[1]
+        for point in (second["first"], second["second"])
+    ]
+    return max(
+        0.0,
+        min(max(first_values), max(second_values))
+        - max(min(first_values), min(second_values)),
+    )
+
+
+def _subject_interface_frame_relation(subject: dict, interface: dict) -> dict:
+    """Compare available local frames while keeping missing angles unknown."""
+    subject_angle = _optional_float_metadata(subject.get("metadata", {}), "axis-angle")
+    interface_angle = _optional_float_metadata(interface.get("metadata", {}), "orientation")
+    if subject_angle is None or interface_angle is None:
+        return {"status": "unknown", "angle_delta_degrees": None}
+    return {
+        "status": "computed",
+        "angle_delta_degrees": round(
+            _frame_angle_delta(subject_angle, interface_angle),
+            4,
+        ),
+    }
+
+
+def inferred_region_candidates(scene: AnalysisSceneInput) -> list[dict]:
     """Infer candidate activity regions from objects, affordances, and boundary cues."""
-    return _spacing_margin_expanded_candidates(
+    scene = analysis_scene_view(scene)
+    candidates = _spacing_margin_expanded_candidates(
         _raw_inferred_region_candidates(scene),
         scene.get("size", (0.0, 0.0)),
         scene,
     )
+    if "_neutral_scene" in scene:
+        # Zero-valued legacy fields only exist for compatibility internals;
+        # Neutral descriptions must not expose absent authored weights as facts.
+        return [_strip_neutral_aggregate_fields(candidate) for candidate in candidates]
+    return candidates
 
 
-def inferred_regions(scene: dict, candidates: list[dict]) -> list[dict]:
+def _strip_neutral_aggregate_fields(value):
+    """Remove legacy aggregate-weight fields from Neutral public records only."""
+    forbidden = {
+        "weights",
+        "weight_metadata",
+        "walk_block",
+        "see_block",
+        "grouping_strength",
+        "boundary_strength",
+        "walk-block",
+        "see-block",
+        "grouping-strength",
+        "boundary-strength",
+        "walk_see_block_gap",
+        "non_blocking_grouping_cue",
+        "calibration_candidates",
+    }
+    if isinstance(value, dict):
+        return {
+            key: _strip_neutral_aggregate_fields(nested)
+            for key, nested in value.items()
+            if key not in forbidden
+        }
+    if isinstance(value, list):
+        return [_strip_neutral_aggregate_fields(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_strip_neutral_aggregate_fields(item) for item in value)
+    return value
+
+
+def inferred_regions(
+    scene: AnalysisSceneInput,
+    candidates: list[dict],
+) -> list[dict]:
     """Return inferred candidates that are not already explicit scene regions."""
+    scene = analysis_scene_view(scene)
     existing_region_keys = {
         region.get("region") for region in scene.get("regions", [])
     }
@@ -470,7 +1029,10 @@ def build_inferred_region_gap_path_graph(
 
 def record_affordance_zones(record: dict) -> list[dict]:
     """Convert one object record into side-specific affordance rectangles."""
-    zones = []
+    zones = [dict(zone) for zone in record.get("_authored_affordance_zones", [])]
+    for zone in zones:
+        zone["region"] = _analysis_region_key(record)
+        zone.setdefault("footprint_rect", record["rect"])
     for side, depth in _affordance_margins(record).items():
         if depth <= 0:
             continue
@@ -526,12 +1088,28 @@ def _raw_inferred_region_candidates(scene: dict) -> list[dict]:
             extent["rect"]
             for extent in extents
         ]
-        boundary_cues = [
-            boundary
-            for boundary in scene.get("boundaries", [])
-            if _analysis_region_key(boundary) == region_key
-            and boundary.get("weights", {}).get("grouping_strength", 0.0) > 0.0
-        ]
+        if "_neutral_scene" in scene:
+            # Neutral boundary facts are already factual, weight-free evidence;
+            # use their geometry directly instead of requiring legacy grouping
+            # weights that are intentionally absent from the Neutral contract.
+            boundary_records = [
+                *scene.get("boundaries", []),
+                *scene.get("boundary_facts", []),
+            ]
+            boundary_cues = list(
+                {
+                    boundary["id"]: boundary
+                    for boundary in boundary_records
+                    if _analysis_region_key(boundary) == region_key
+                }.values()
+            )
+        else:
+            boundary_cues = [
+                boundary
+                for boundary in scene.get("boundaries", [])
+                if _analysis_region_key(boundary) == region_key
+                and boundary.get("weights", {}).get("grouping_strength", 0.0) > 0.0
+            ]
         rects.extend(boundary["rect"] for boundary in boundary_cues)
         region_rect = _bounds([{"rect": rect} for rect in rects])
         member_ids = sorted(obj["id"] for obj in members)
@@ -578,11 +1156,6 @@ def _inferred_region_record(
         "region": region_key,
         "rect": region_rect,
         "points": [],
-        "weights": {
-            "walk_block": 0.0,
-            "see_block": 0.0,
-            "grouping_strength": 0.0,
-        },
         "metadata": {
             "inferred": "true",
             "level": "activity_region_candidate",
@@ -1114,9 +1687,15 @@ def _record_frame_angle(record: dict) -> float:
 
 def _record_frame_weight(record: dict) -> float:
     """Weight member-frame evidence by its own geometric clarity."""
-    rect = record["rect"]
-    short = max(min(rect.width, rect.height), 1e-9)
-    aspect = max(rect.width, rect.height) / short
+    metadata = record.get("metadata", {})
+    try:
+        primary = float(metadata["frame-primary-extent"])
+        secondary = float(metadata["frame-secondary-extent"])
+    except (KeyError, TypeError, ValueError):
+        rect = record["rect"]
+        primary, secondary = rect.width, rect.height
+    short = max(min(primary, secondary), 1e-9)
+    aspect = max(primary, secondary) / short
     return max(0.0, aspect - 1.0)
 
 
@@ -1632,6 +2211,17 @@ def _float_metadata(metadata: dict, key: str) -> float:
         return float(metadata.get(key, 0.0) or 0.0)
     except (TypeError, ValueError):
         return 0.0
+
+
+def _optional_float_metadata(metadata: dict, key: str) -> float | None:
+    """Parse optional numeric metadata without turning absence into zero."""
+    value = metadata.get(key)
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _rect_iou(a: Rect, b: Rect) -> float:

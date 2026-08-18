@@ -1,6 +1,7 @@
 """Contract tests for the planar SVG Neutral Scene v2 adapter."""
 
 import ast
+from dataclasses import replace
 from importlib import import_module
 import json
 import math
@@ -10,6 +11,7 @@ import sys
 import pytest
 
 from ..features.scene_contract import NeutralSceneV2
+from ..features.scene_evaluator import evaluate_scene
 from ..features.scene_loader import load_structured_svg_scene
 
 
@@ -124,6 +126,44 @@ def test_existing_structured_svg_loader_behavior_remains_unchanged() -> None:
         "regions",
         "uncertainties",
     }
+
+
+def test_planar_svg_neutral_channels_are_unavailable() -> None:
+    """Open planar SVG geometry must not imply walking or visual permeability."""
+    scene = _load(SVG_FIXTURES[0])
+    scene = replace(
+        scene,
+        context=replace(
+            scene.context,
+            walking_body_profiles=(
+                {"id": "adult", "height_band": (0.0, 1.8), "radius": 0.3},
+            ),
+            visual_height_bands=(
+                {"id": "standing-eye", "height_band": (1.5, 1.8)},
+            ),
+        ),
+    )
+    matrix = evaluate_scene(scene)
+
+    assert matrix["negative_space"]["status"] == "not_available"
+    assert matrix["negative_space"]["room_area"] is None
+    assert matrix["negative_space"]["negative_space_area"] is None
+    assert matrix["negative_space_graph"]["status"] == "not_available"
+    assert matrix["negative_space_graph"]["nodes"] == []
+    route_topology = matrix["adapter_payload"]["route_topology_handoff"]
+    assert route_topology["cad_component_graph"]["status"] == "not_available"
+    assert route_topology["cad_component_graph"]["node_count"] is None
+    assert route_topology["cad_component_graph"]["edge_count"] is None
+    assert route_topology["free_space_polygon_graph"]["status"] == "not_available"
+    assert route_topology["free_space_polygon_graph"]["node_count"] is None
+    assert route_topology["free_space_polygon_graph"]["edge_count"] is None
+    assert matrix["sampled_walkable_space"]["walk_status"] == "not_available"
+    assert matrix["sampled_walkable_space"]["visibility_status"] == "not_available"
+    assert matrix["sampled_walkable_space"]["blocked_cells"] is None
+    assert matrix["sampled_walkable_space"]["blocker_evidence"] == []
+    assert matrix["sampled_walkable_space"]["visibility_blocker_evidence"] == []
+    assert matrix["line_of_sight_graph"]["status"] == "not_available"
+    assert matrix["isovist_radial_proxy"]["status"] == "not_available"
 
 
 def test_source_objects_preserve_global_svg_element_order(tmp_path: Path) -> None:
@@ -487,6 +527,28 @@ def test_only_explicit_group_metadata_creates_v2_group_semantics(
     assert objects["chair-legacy"].group_refs == ()
     assert objects["chair-explicit"].source_role == "chair"
     assert objects["chair-explicit"].group_refs == ("authored-lounge",)
+
+
+def test_authored_svg_facts_are_sanitized_into_factual_properties(
+    tmp_path: Path,
+) -> None:
+    """SVG semantics should survive as facts without carrying legacy weights."""
+    svg = tmp_path / "authored_facts.svg"
+    svg.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect id="chair" data-role="chair" data-group="table-set"
+              data-region="north-zone" data-walk-block="1"
+              x="10" y="10" width="10" height="10"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+
+    source = _load(svg).source_objects[0]
+
+    assert source.factual_properties["role"] == "chair"
+    assert source.factual_properties["group"] == "table-set"
+    assert source.factual_properties["region"] == "north-zone"
+    assert "walk-block" not in source.factual_properties
 
 
 def test_full_svg_affine_transforms_are_applied_once_in_world_coordinates(

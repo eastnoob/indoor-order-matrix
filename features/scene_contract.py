@@ -427,6 +427,8 @@ class AnalysisContext(_Record):
     visual_height_bands: tuple[FrozenJsonValue, ...]
     capability_flags: Mapping[str, bool]
     input_mode: str
+    subject_interface_max_distance: float | None = None
+    subject_interface_all_pairs: bool = False
 
     def __post_init__(self) -> None:
         """Validate the complete versioned adapter handoff context."""
@@ -456,6 +458,15 @@ class AnalysisContext(_Record):
         )
         if not isinstance(self.input_mode, str) or self.input_mode not in ALLOWED_INPUT_MODES:
             raise ValueError(f"context.input_mode must be one of {sorted(ALLOWED_INPUT_MODES)}")
+        if self.subject_interface_max_distance is not None:
+            distance = _number(
+                self.subject_interface_max_distance,
+                "subject_interface_max_distance",
+                positive=True,
+            )
+            object.__setattr__(self, "subject_interface_max_distance", distance)
+        if not isinstance(self.subject_interface_all_pairs, bool):
+            raise ValueError("subject_interface_all_pairs must be a boolean")
 
     @classmethod
     def from_dict(cls, data: object) -> AnalysisContext:

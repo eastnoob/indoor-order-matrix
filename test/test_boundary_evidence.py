@@ -8,7 +8,7 @@ import pytest
 
 from ..features.boundary_evidence import derive_boundary_evidence
 from ..features.geometry_substitutes import mass_patch_from_mesh, surface_patch_from_fact
-from ..features.scene_contract import SurfaceFact
+from ..features.scene_contract import AnalysisPlane, SurfaceFact
 from .test_geometry_substitutes import _box_mesh
 
 
@@ -32,7 +32,7 @@ def test_boundary_evidence_keeps_four_channels_separate():
     json.dumps(evidence.to_dict())
 
 
-def test_surface_boundary_has_no_mass_but_has_surface_and_unknown_optics():
+def test_surface_boundary_has_no_mass_and_is_geometrically_clear():
     """A carpet can be a surface cue without becoming a collision solid."""
     surface = surface_patch_from_fact(
         SurfaceFact(
@@ -53,7 +53,7 @@ def test_surface_boundary_has_no_mass_but_has_surface_and_unknown_optics():
 
     assert evidence.physical_continuity["mass_present"] is False
     assert evidence.walking_permeability[0]["status"] == "clear"
-    assert evidence.visual_permeability[0]["status"] == "unknown"
+    assert evidence.visual_permeability[0]["status"] == "clear"
     assert evidence.gestalt_continuity["surface_identity"] == "carpet"
 
 
@@ -93,6 +93,7 @@ def test_disconnected_components_contribute_all_local_height_intervals():
     evidence = derive_boundary_evidence(
         (mass_patch_from_mesh(combined),),
         visual_bands=({"id": "eye", "height_band": (1.5, 1.8)},),
+        optical_transmittance_by_source={"split": 0.0},
     )[0]
 
     assert evidence.physical_continuity["occupied_height"] == ((0.0, 1.0), (0.0, 2.0))
@@ -101,6 +102,60 @@ def test_disconnected_components_contribute_all_local_height_intervals():
     assert json.loads(json.dumps(evidence.to_dict()))["provenance"]["method"] == (
         "mesh_geometry_transport"
     )
+
+
+def test_visual_channel_distinguishes_unknown_opaque_and_transmitting_optics():
+    """Eye-band intersections require measured optics for a resolved state."""
+    patches = tuple(
+        mass_patch_from_mesh(_box_mesh(mesh_id=mesh_id, top=2.0))
+        for mesh_id in ("unknown", "opaque", "glass")
+    )
+
+    evidence = derive_boundary_evidence(
+        patches,
+        visual_bands=({"id": "eye", "height_band": (1.5, 1.8)},),
+        optical_transmittance_by_source={"opaque": 0.0, "glass": 0.7},
+    )
+
+    by_source = {item.source_refs[0]: item.visual_permeability[0] for item in evidence}
+    assert by_source["mass-patch:unknown"]["status"] == "unknown"
+    assert by_source["mass-patch:opaque"]["status"] == "blocked"
+    assert by_source["mass-patch:glass"]["status"] == "transmitting"
+    assert by_source["mass-patch:glass"]["optical_transmittance"] == 0.7
+
+
+def test_non_xy_analysis_plane_matches_equivalent_xy_channel_evidence():
+    """Height bands must be evaluated along the authored plane normal."""
+    xy_patch = mass_patch_from_mesh(_box_mesh(mesh_id="xy", top=2.0))
+    rotated_mesh = _box_mesh(mesh_id="rotated", top=2.0)
+    rotated_mesh = replace(
+        rotated_mesh,
+        vertices=tuple((x, -z, y) for x, y, z in rotated_mesh.vertices),
+    )
+    rotated_patch = mass_patch_from_mesh(rotated_mesh)
+    rotated_plane = AnalysisPlane(
+        name="vertical-local-plane",
+        origin=(0.0, 0.0, 0.0),
+        basis=((1.0, 0.0, 0.0), (0.0, 0.0, 1.0), (0.0, -1.0, 0.0)),
+    )
+    query = ({"id": "eye", "height_band": (1.5, 1.8)},)
+
+    xy = derive_boundary_evidence(
+        (xy_patch,), visual_bands=query,
+        optical_transmittance_by_source={"xy": 0.0},
+    )[0]
+    rotated = derive_boundary_evidence(
+        (rotated_patch,), visual_bands=query,
+        optical_transmittance_by_source={"rotated": 0.0},
+        analysis_plane=rotated_plane,
+    )[0]
+
+    assert rotated.visual_permeability[0]["status"] == xy.visual_permeability[0]["status"]
+    assert (
+        rotated.visual_permeability[0]["query_projection"]["components"]
+        == xy.visual_permeability[0]["query_projection"]["components"]
+    )
+    assert rotated.projection.components == xy.projection.components
 
 
 def test_surface_uses_referenced_geometry_for_location_without_acquiring_mass():

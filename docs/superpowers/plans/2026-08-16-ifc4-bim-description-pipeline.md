@@ -394,26 +394,26 @@ SVG fields, world bboxes, or authored weights.
 - Modify: `features/local_reference.py`
 - Create: `test/test_neutral_scene_analysis_regression.py`
 
-- [ ] **Step 1: Write adapter-independent regression tests.**
+- [x] **Step 1: Write adapter-independent regression tests.**
 
 Feed a plain Python Neutral Scene fixture with rectangular geometry and no SVG
 parser. Assert furniture affordance extents, group extents, activity regions,
 remaining free-space paths, shared-scope network records, two-axis trend and
 strength, and local/global grid relations.
 
-- [ ] **Step 2: Replace raw-source access at one consumer at a time.**
+- [x] **Step 2: Replace raw-source access at one consumer at a time.**
 
 Use explicit view protocols and preserve legacy planar output through a labeled
 compatibility adapter. Region trend remains furniture-group frame consensus;
 shape PCA and polygon geometry describe shape rather than overriding trend.
 
-- [ ] **Step 3: Add cross-adapter equivalence tests.**
+- [x] **Step 3: Add cross-adapter equivalence tests.**
 
 Equivalent planar SVG and IFC fixtures must produce equivalent derived plan
 evidence within recorded tolerances. Planar SVG must report height-aware
 metrics unavailable rather than inventing them.
 
-- [ ] **Step 4: Verify and self-review.**
+- [x] **Step 4: Verify and self-review.**
 
 Run focused migration tests and `pixi run pytest`. Grill Me: can the evaluator
 run on a dict with no SVG? Did compatibility fields accidentally become source
@@ -426,6 +426,19 @@ jj commit -m "refactor: consume neutral scene views in layout analysis"
 ```
 
 Checkpoint: `JJ-07-analysis-migration`.
+
+Verification evidence before checkpoint creation:
+
+- adapter-independent Neutral regression: `32 passed`;
+- Gate 7 focused migration set: `122 passed in 4.50s`;
+- SVG adapter: `64 passed`; IFC adapter: `62 passed`;
+- negative-space, line-of-sight, and sampled-channel subset: `35 passed`;
+- full suite after the Cartesian cell-adjacency optimization:
+  `620 passed in 298.00s` (`0:04:57`);
+- `compileall` and `git diff --check` passed (line-ending warnings only);
+- independent spec review approved; quality review's unavailable-topology
+  propagation finding was repaired, regression-tested, and approved on
+  re-review.
 
 ## Gate 8: Programmatic Three-Dimensional Acceptance Scene
 

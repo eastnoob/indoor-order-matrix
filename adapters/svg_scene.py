@@ -1231,6 +1231,9 @@ def _source_object(
             if orientation is not None
             else None
         ),
+        # Authored data-* semantics are factual adapter output after legacy
+        # weights are removed; provenance keeps a separate audit copy only.
+        factual_properties=metadata,
         provenance={
             "adapter": SVG_ADAPTER_VERSION,
             "source_namespace": record.get("_source_namespace"),

@@ -1,0 +1,1579 @@
+from __future__ import annotations
+
+from pathlib import Path
+from dataclasses import replace
+from math import cos, radians, sin
+
+from ..adapters.ifc_bonsai import load_ifc_neutral_scene
+from ..adapters.svg_scene import load_svg_neutral_scene
+from ..features.affordance.models import Rect
+from ..features.column_grid import column_grid_evidence
+from ..features.room_analysis_model import build_room_analysis_model
+from ..features.scene_contract import (
+    AnalysisContext,
+    AnalysisDomain,
+    AnalysisPlane,
+    AuthoredAffordanceZone,
+    AuthoredGridAxis,
+    AuthoredGroup,
+    MaterialFact,
+    MeshGeometry3D,
+    NEUTRAL_SCENE_V2,
+    NeutralSceneV2,
+    SourceObject,
+    SurfaceFact,
+)
+from ..features.scene_evaluator import (
+    _cad_room_minus_blocker_component_touch_evidence,
+    _line_of_sight_entry_region_evidence,
+    evaluate_scene,
+)
+from ..features.scene_inference import (
+    _subject_interface_relation,
+    affordance_zones,
+    furniture_affordance_extents,
+    furniture_groups,
+    infer_scene_evidence,
+    inferred_region_candidates,
+    spatial_networks,
+)
+from ..features.neutral_scene_views import analysis_scene_view
+from .fixtures.ifc4_description_fixture import write_ifc4_description_fixture
+from .test_geometry_substitutes import _box_mesh
+
+
+def _mesh(mesh_id: str, rect: Rect, z: float = 0.0) -> MeshGeometry3D:
+    """Build one deterministic rectangular mesh for the neutral fixture."""
+    points = (
+        (rect.left, rect.top, z),
+        (rect.right, rect.top, z),
+        (rect.right, rect.bottom, z),
+        (rect.left, rect.bottom, z),
+    )
+    return MeshGeometry3D(
+        id=mesh_id,
+        vertices=points,
+        triangle_indices=((0, 1, 2), (0, 2, 3)),
+        normals=((0.0, 0.0, 1.0),) * 4,
+        is_manifold=False,
+        is_closed=False,
+        local_to_world_provenance={"method": "synthetic_neutral_fixture"},
+        source_representation_id=None,
+        tessellation_settings={},
+        units="m",
+    )
+
+
+def _neutral_scene() -> NeutralSceneV2:
+    """Create an adapter-independent scene with furniture, affordance, and grid facts."""
+    left_rect = Rect(cx=30.0, cy=50.0, width=30.0, height=10.0)
+    right_rect = Rect(cx=90.0, cy=50.0, width=30.0, height=10.0)
+    zone_rect = Rect(cx=30.0, cy=65.0, width=30.0, height=20.0)
+    meshes = (
+        _mesh("mesh_left", left_rect),
+        _mesh("mesh_right", right_rect),
+        _mesh("mesh_zone", zone_rect),
+        _mesh("mesh_slab", Rect(cx=60.0, cy=50.0, width=120.0, height=100.0)),
+        _mesh("mesh_wall", Rect(cx=60.0, cy=50.0, width=4.0, height=20.0)),
+    )
+    objects = (
+        SourceObject(
+            id="left_table",
+            source_role="furniture",
+            geometry_refs=("mesh_left",),
+            group_refs=("group_left",),
+            authored_local_frame={"orientation_degrees": 0.0},
+            factual_properties={"region": "left", "group": "left"},
+        ),
+        SourceObject(
+            id="right_table",
+            source_role="furniture",
+            geometry_refs=("mesh_right",),
+            group_refs=("group_right",),
+            authored_local_frame={"orientation_degrees": 0.0},
+            factual_properties={"region": "right", "group": "right"},
+        ),
+        SourceObject(
+            id="floor_slab",
+            source_role="slab",
+            geometry_refs=("mesh_slab",),
+        ),
+        SourceObject(
+            id="north_wall",
+            source_role="wall",
+            geometry_refs=("mesh_wall",),
+            factual_properties={
+                "weights": {
+                    "walk_block": 1.0,
+                    "see_block": 1.0,
+                    "grouping_strength": 1.0,
+                }
+            },
+        ),
+    )
+    context = AnalysisContext(
+        contract_version=NEUTRAL_SCENE_V2,
+        source_schema="synthetic",
+        adapter_version="test-neutral-scene/1.0",
+        source_length_unit="m",
+        analysis_length_unit="m",
+        world_coordinate_system={"method": "test"},
+        level_references=(),
+        analysis_plane=AnalysisPlane(
+            name="test-plan",
+            origin=(0.0, 0.0, 0.0),
+            basis=((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)),
+        ),
+        geometry_tolerance=1e-6,
+        topology_tolerance=1e-6,
+        walking_body_profiles=({"required_path_width": 10.0},),
+        visual_height_bands=(),
+        capability_flags={"planar_geometry": True},
+        input_mode="ifc",
+        subject_interface_all_pairs=True,
+    )
+    return NeutralSceneV2(
+        context=context,
+        analysis_domain=AnalysisDomain(
+            id="domain_room",
+            geometry_refs=("mesh_slab",),
+            source_id=None,
+            selection_method="test_fixture",
+        ),
+        source_objects=objects,
+        geometries=meshes,
+        authored_groups=(
+            AuthoredGroup(
+                id="group_left",
+                source_id=None,
+                member_refs=("left_table",),
+                group_role="furniture_group",
+            ),
+            AuthoredGroup(
+                id="group_right",
+                source_id=None,
+                member_refs=("right_table",),
+                group_role="furniture_group",
+            ),
+        ),
+        authored_grid_axes=(
+            AuthoredGridAxis(
+                id="grid_x0",
+                source_id=None,
+                curve_points=((0.0, 0.0, 0.0), (120.0, 0.0, 0.0)),
+                branch_identifier="main",
+                list_identifier="x",
+            ),
+            AuthoredGridAxis(
+                id="grid_x1",
+                source_id=None,
+                curve_points=((0.0, 100.0, 0.0), (120.0, 100.0, 0.0)),
+                branch_identifier="main",
+                list_identifier="x",
+            ),
+            AuthoredGridAxis(
+                id="grid_y0",
+                source_id=None,
+                curve_points=((0.0, 0.0, 0.0), (0.0, 100.0, 0.0)),
+                branch_identifier="main",
+                list_identifier="y",
+            ),
+            AuthoredGridAxis(
+                id="grid_y1",
+                source_id=None,
+                curve_points=((120.0, 0.0, 0.0), (120.0, 100.0, 0.0)),
+                branch_identifier="main",
+                list_identifier="y",
+            ),
+        ),
+        authored_affordances=(
+            AuthoredAffordanceZone(
+                id="zone_left_table",
+                geometry_refs=("mesh_zone",),
+                vertical_extent=(0.0, 1.0),
+                purpose="sit",
+                task_facts={},
+                source_furniture_refs=("left_table",),
+            ),
+        ),
+    )
+
+
+def _closed_channel_scene(
+    sources: tuple[SourceObject, ...],
+    meshes: tuple[MeshGeometry3D, ...],
+    *,
+    materials: tuple[MaterialFact, ...] = (),
+) -> NeutralSceneV2:
+    """Build a minimal Neutral Scene with explicit body and visual queries."""
+    base = _neutral_scene()
+    context = replace(
+        base.context,
+        walking_body_profiles=(
+            {
+                "id": "adult",
+                "height_band": (0.0, 1.8),
+                "radius": 0.3,
+                "required_path_width": 0.6,
+            },
+        ),
+        visual_height_bands=(
+            {"id": "standing-eye", "height_band": (1.5, 1.8)},
+        ),
+        capability_flags={
+            "planar_geometry": True,
+            "height_queries": True,
+            "closed_solid_geometry": True,
+            "optical_queries": bool(materials),
+        },
+    )
+    slab = next(geometry for geometry in base.geometries if geometry.id == "mesh_slab")
+    return replace(
+        base,
+        context=context,
+        source_objects=sources,
+        geometries=(slab, *meshes),
+        materials=materials,
+        authored_groups=(),
+        authored_affordances=(),
+    )
+
+
+def _placed_box(
+    mesh_id: str,
+    *,
+    left: float,
+    top: float,
+    height: float,
+) -> MeshGeometry3D:
+    """Translate the shared closed-box fixture into one room location."""
+    mesh = _box_mesh(mesh_id=mesh_id, top=height)
+    return replace(
+        mesh,
+        vertices=tuple((x + left, y + top, z) for x, y, z in mesh.vertices),
+    )
+
+
+def test_body_band_requires_positive_vertical_overlap_beyond_support_plane():
+    """A supporting slab that only touches the body band must remain clear."""
+    support = _box_mesh(mesh_id="support_slab", top=0.2)
+    support = replace(
+        support,
+        vertices=tuple((x, y, z - 0.2) for x, y, z in support.vertices),
+    )
+    raised = _box_mesh(mesh_id="raised_slab", top=0.2)
+    scene = _closed_channel_scene(
+        (
+            SourceObject(
+                id="support_slab",
+                source_role="slab",
+                geometry_refs=(support.id,),
+            ),
+            SourceObject(
+                id="raised_slab",
+                source_role="slab",
+                geometry_refs=(raised.id,),
+            ),
+        ),
+        (support, raised),
+    )
+
+    view = analysis_scene_view(scene)
+
+    assert view["channel_evidence"]["support_slab"]["walking"][0]["status"] == "clear"
+    assert view["channel_evidence"]["raised_slab"]["walking"][0]["status"] == "blocked"
+    assert [record["id"] for record in view["walk_blockers"]] == ["raised_slab"]
+
+
+def test_analysis_domain_support_mass_is_not_a_walking_blocker_when_overlapping_body_band():
+    """The selected analysis-domain support remains physical evidence, not an obstacle."""
+    support = _box_mesh(mesh_id="analysis_support", top=0.2)
+    support = replace(
+        support,
+        vertices=tuple((x, y, z - 0.1) for x, y, z in support.vertices),
+    )
+    scene = _closed_channel_scene(
+        (
+            SourceObject(
+                id="analysis_support",
+                source_role="slab",
+                geometry_refs=(support.id,),
+            ),
+        ),
+        (support,),
+    )
+    scene = replace(
+        scene,
+        analysis_domain=replace(
+            scene.analysis_domain,
+            geometry_refs=(support.id,),
+        ),
+    )
+
+    view = analysis_scene_view(scene)
+
+    assert view["channel_evidence"]["analysis_support"]["walking"][0]["status"] == "blocked"
+    assert view["walk_blockers"] == []
+
+
+def test_neutral_role_neutral_mass_enters_physical_occupancy():
+    """Physical occupancy must include mass geometry even when its role is not wall-like."""
+    partition = _box_mesh(mesh_id="role_neutral_partition", top=1.2)
+    scene = _closed_channel_scene(
+        (
+            SourceObject(
+                id="role_neutral_partition",
+                source_role="partition",
+                geometry_refs=(partition.id,),
+            ),
+        ),
+        (partition,),
+    )
+
+    view = analysis_scene_view(scene)
+
+    assert "role_neutral_partition" in {
+        record["id"] for record in view["physical_occupancy"]
+    }
+
+
+def test_neutral_scene_drives_inference_without_svg_parser():
+    """Neutral Scene facts should produce furniture, regions, and a gap path."""
+    evidence = infer_scene_evidence(_neutral_scene())
+
+    assert {item["object_id"] for item in evidence["furniture_affordance_extents"]} == {
+        "left_table",
+        "right_table",
+    }
+    assert evidence["furniture_affordance_extents"][0]["object_id"] == "left_table"
+    assert len(evidence["furniture_groups"]) == 2
+    assert {item["region"] for item in evidence["inferred_regions"]} == {"left", "right"}
+    assert evidence["inferred_region_gap_paths"]
+    assert all("weights" not in item for item in evidence["inferred_region_candidates"])
+    assert all("weights" not in item for item in evidence["inferred_regions"])
+
+
+def test_neutral_boundary_fact_expands_the_matching_inferred_region():
+    """Weight-free Neutral boundary geometry must participate in region construction."""
+    boundary_mesh = _mesh(
+        "mesh_left_boundary_cue",
+        Rect(cx=50.0, cy=50.0, width=10.0, height=20.0),
+    )
+    boundary = SourceObject(
+        id="left_boundary_cue",
+        source_role="wall",
+        geometry_refs=(boundary_mesh.id,),
+        factual_properties={"region": "left"},
+    )
+    scene = replace(
+        _neutral_scene(),
+        source_objects=_neutral_scene().source_objects + (boundary,),
+        geometries=_neutral_scene().geometries + (boundary_mesh,),
+    )
+
+    candidate = next(
+        item
+        for item in inferred_region_candidates(scene)
+        if item["region"] == "left"
+    )
+
+    assert "left_boundary_cue" in candidate["metadata"]["boundary_cue_ids"]
+    assert candidate["rect"].right >= 55.0
+
+
+def test_neutral_boundary_semantics_consumes_weight_free_boundary_facts():
+    """Neutral boundaries should expose four factual channels without legacy weights."""
+    semantics = infer_scene_evidence(_neutral_scene())["boundary_semantics"]
+
+    by_id = {record["id"]: record for record in semantics}
+    assert {"left_table", "right_table", "north_wall"} <= set(by_id)
+    assert "floor_slab" not in by_id
+    wall = by_id["north_wall"]
+    assert wall["physical_continuity"][0]["channel_geometry_status"] == "unknown"
+    assert wall["walking_permeability"] == []
+    assert wall["walking_permeability_status"] == "unknown"
+    assert wall["visual_permeability"] == []
+    assert wall["visual_permeability_status"] == "unknown"
+    assert wall["gestalt_continuity"][0]["alignment"] == "not_evaluated"
+    assert {
+        "weights",
+        "walk_passable",
+        "see_passable",
+        "grouping_strength",
+    }.isdisjoint(wall)
+
+
+def test_neutral_interfaces_include_furniture_mass_and_surface_facts():
+    """Interface evidence must follow mass and surface facts rather than roles."""
+    cabinet_mesh = _placed_box(
+        "mesh_low_cabinet_interface",
+        left=50.0,
+        top=49.0,
+        height=1.0,
+    )
+    cabinet = SourceObject(
+        id="low_cabinet_interface",
+        source_role="cabinet",
+        geometry_refs=(cabinet_mesh.id,),
+    )
+    scene = _closed_channel_scene((cabinet,), (cabinet_mesh,))
+    scene = replace(
+        scene,
+        surfaces=(
+            SurfaceFact(
+                id="carpet_cue",
+                source_id=None,
+                host_refs=(),
+                identity="carpet",
+                color="#aa0000",
+                finish=None,
+                texture=None,
+                elevation={"constant": 0.0},
+                slope=None,
+                geometry_refs=("mesh_slab",),
+            ),
+        ),
+    )
+
+    inference = infer_scene_evidence(scene)
+    semantics = {
+        record["id"]: record
+        for record in inference["boundary_semantics"]
+    }
+
+    cabinet_interface = semantics["low_cabinet_interface"]
+    assert cabinet_interface["kind"] == "cabinet"
+    assert cabinet_interface["physical_continuity"][0]["mass_present"] is True
+    assert cabinet_interface["walking_permeability"][0]["status"] == "blocked"
+    assert cabinet_interface["visual_permeability"][0]["status"] == "clear"
+    surface_interface = semantics["surface:carpet_cue"]
+    assert surface_interface["physical_continuity"][0]["mass_present"] is False
+    assert surface_interface["walking_permeability"][0]["status"] == "clear"
+    assert surface_interface["visual_permeability"][0]["status"] == "clear"
+    assert surface_interface["gestalt_continuity"][0]["surface_identity"] == (
+        "carpet_cue"
+    )
+    surface_relation = next(
+        record
+        for record in inference["subject_interface_relations"]
+        if record["interface_id"] == "surface:carpet_cue"
+    )
+    assert surface_relation["interface_kind"] == "surface"
+    assert surface_relation["physical_continuity"][0]["mass_present"] is False
+
+
+def test_neutral_subject_interface_relations_are_weight_free_descriptions():
+    """Regions should receive factual interface relations without aggregate scores."""
+    table_mesh = _placed_box(
+        "mesh_relation_table", left=20.0, top=20.0, height=0.75
+    )
+    cabinet_mesh = _placed_box(
+        "mesh_relation_cabinet", left=30.0, top=20.0, height=1.0
+    )
+    scene = _closed_channel_scene(
+        (
+            SourceObject(
+                id="relation_table",
+                source_role="furniture",
+                geometry_refs=(table_mesh.id,),
+            ),
+            SourceObject(
+                id="relation_cabinet",
+                source_role="cabinet",
+                geometry_refs=(cabinet_mesh.id,),
+            ),
+        ),
+        (table_mesh, cabinet_mesh),
+    )
+
+    inference = infer_scene_evidence(scene)
+    relation = next(
+        record
+        for record in inference["subject_interface_relations"]
+        if record["subject_id"] == "inferred_region_relation_table"
+        and record["interface_id"] == "relation_cabinet"
+    )
+
+    assert relation["status"] == "evaluated"
+    assert relation["distance"] is not None
+    assert len(relation["nearest_side"]) == 2
+    assert relation["frame_relation"]["status"] == "computed"
+    assert relation["frame_relation"]["angle_delta_degrees"] is not None
+    assert relation["subject_coverage_ratio"] is not None
+    assert relation["interface_coverage_ratio"] is not None
+    assert relation["containment"]["status"] == "computed"
+    assert isinstance(relation["containment"]["subject_within_interface"], bool)
+    assert isinstance(relation["containment"]["interface_within_subject"], bool)
+    assert relation["opening_ids"] == []
+    assert relation["permeability"]["walking"][0]["status"] == "blocked"
+    assert relation["permeability"]["visual"][0]["status"] == "clear"
+    assert "score" not in relation
+    assert "weights" not in relation
+    assert not any(
+        item["subject_id"] == "inferred_region_relation_table"
+        and item["interface_id"] == "relation_table"
+        for item in inference["subject_interface_relations"]
+    )
+    assert not any(
+        pair_id.endswith("__relation_table")
+        for pair_id in inference["subject_interface_relation_scope"][
+            "not_evaluated_pair_ids"
+        ]
+    )
+
+    matrix = evaluate_scene(scene)
+    relation_row = next(
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "subject_interface_relation_count"
+    )
+    assert relation_row["status"] == "computed"
+    assert relation_row["subject_interface_relations"] == matrix[
+        "subject_interface_relations"
+    ]
+    assert matrix["room_analysis_model"]["reference_layer"][
+        "subject_interface_relations"
+    ] == matrix["subject_interface_relations"]
+
+
+def test_neutral_support_mass_is_not_an_external_interface_but_surface_cue_survives():
+    """Domain support mass is common context while explicit surface cues remain local."""
+    scene = _neutral_scene()
+    scene = replace(
+        scene,
+        surfaces=(
+            SurfaceFact(
+                id="support_carpet",
+                source_id=None,
+                host_refs=("floor_slab",),
+                identity="carpet",
+                color="#aa0000",
+                finish=None,
+                texture=None,
+                elevation={"constant": 0.0},
+                slope=None,
+                geometry_refs=("mesh_slab",),
+            ),
+        ),
+    )
+
+    inference = infer_scene_evidence(scene)
+
+    assert "floor_slab" not in {
+        record["interface_id"]
+        for record in inference["subject_interface_relations"]
+    }
+    assert "floor_slab" not in {
+        record["id"] for record in inference["boundary_semantics"]
+    }
+    assert "surface:support_carpet" in {
+        record["id"] for record in inference["boundary_semantics"]
+    }
+
+
+def test_subject_interface_relation_uses_exact_holes_and_parallel_coverage():
+    """A subject inside an interface hole is not covered by its outer bounds."""
+    relation = _subject_interface_relation(
+        {
+            "id": "region_hole_subject",
+            "rect": Rect(cx=10.0, cy=10.0, width=4.0, height=4.0),
+            "points": ((8.0, 8.0), (12.0, 8.0), (12.0, 12.0), (8.0, 12.0)),
+            "metadata": {"axis-angle": "0"},
+        },
+        {
+            "id": "donut_interface",
+            "rect": Rect(cx=10.0, cy=10.0, width=20.0, height=20.0),
+            "geometry_components": (
+                {
+                    "exterior": ((0.0, 0.0), (20.0, 0.0), (20.0, 20.0), (0.0, 20.0)),
+                    "holes": (((8.0, 8.0), (12.0, 8.0), (12.0, 12.0), (8.0, 12.0)),),
+                },
+            ),
+            "metadata": {"orientation": "0"},
+        },
+        {"interface_kind": "mass", "opening_ids": []},
+    )
+
+    assert relation["subject_coverage_ratio"] == 0.0
+    assert relation["interface_coverage_ratio"] == 0.0
+    assert relation["containment"]["subject_within_interface"] is False
+    assert relation["parallel_coverage"]["status"] == "computed"
+    assert relation["parallel_coverage"]["ratio"] == 0.0
+
+
+def test_adjacent_aligned_interface_has_parallel_coverage_without_area_overlap():
+    """A shared aligned boundary is continuous evidence even with zero area overlap."""
+    relation = _subject_interface_relation(
+        {
+            "id": "region_adjacent_subject",
+            "points": ((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)),
+            "metadata": {"axis-angle": "90"},
+        },
+        {
+            "id": "adjacent_wall",
+            "geometry_components": (
+                {
+                    "exterior": ((10.0, 0.0), (12.0, 0.0), (12.0, 10.0), (10.0, 10.0)),
+                    "holes": (),
+                },
+            ),
+            "metadata": {"orientation": "90"},
+        },
+        {"interface_kind": "mass", "opening_ids": []},
+    )
+
+    assert relation["subject_coverage_ratio"] == 0.0
+    assert relation["parallel_coverage"]["status"] == "computed"
+    assert relation["parallel_coverage"]["ratio"] > 0.0
+
+
+def test_subject_interface_relations_require_an_explicit_range_contract():
+    """Missing range configuration must not silently evaluate every pair."""
+    scene = _neutral_scene()
+    scene = replace(
+        scene,
+        context=replace(
+            scene.context,
+            subject_interface_max_distance=None,
+            subject_interface_all_pairs=False,
+        ),
+    )
+
+    evidence = infer_scene_evidence(scene)
+
+    assert evidence["subject_interface_relations"] == []
+    assert evidence["subject_interface_relation_scope"] == {
+        "status": "not_available",
+        "method": "explicit_subject_interface_range_contract",
+        "max_distance": None,
+        "all_pairs": False,
+        "candidate_pair_count": 0,
+        "relation_count": 0,
+        "not_evaluated_pair_ids": [],
+        "uncertainty": "missing_subject_interface_range",
+    }
+    matrix = evaluate_scene(scene)
+    assert matrix["subject_interface_relation_scope"] == evidence[
+        "subject_interface_relation_scope"
+    ]
+    assert matrix["room_analysis_model"]["reference_layer"][
+        "subject_interface_relation_scope"
+    ] == evidence["subject_interface_relation_scope"]
+    row = next(
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "subject_interface_relation_count"
+    )
+    assert row["score"] is None
+    assert row["status"] == "not_available"
+    assert row["uncertainty"] == "missing_subject_interface_range"
+
+
+def test_neutral_legacy_boundary_weight_rows_are_unavailable_not_zero():
+    """Neutral output must not turn absent authored weights into zero scores."""
+    rows = {
+        row["metric"]: row
+        for row in evaluate_scene(_neutral_scene())["rows"]
+    }
+    legacy_weight_metrics = {
+        "region_source_boundary_weighted_axis_agreement",
+        "region_source_boundary_proximity",
+        "closed_blocking_boundary_ratio",
+        "boundary_weight_metadata_coverage",
+        "walk_block_mean",
+        "see_block_mean",
+        "grouping_strength_mean",
+        "walk_see_block_gap_mean",
+        "non_blocking_grouping_cue_mean",
+    }
+
+    for metric in legacy_weight_metrics:
+        assert rows[metric]["score"] is None
+        assert rows[metric]["status"] == "not_available"
+        assert rows[metric]["method"] == "not_available_without_legacy_boundary_weights"
+
+
+def test_neutral_public_description_surfaces_are_weight_free_recursively():
+    """Neutral public descriptions must not expose authored aggregate weights."""
+    matrix = evaluate_scene(_neutral_scene())
+    surfaces = (
+        matrix["inferred_region_candidates"],
+        matrix["inferred_regions"],
+        matrix["room_analysis_model"]["region_layer"],
+        matrix["room_analysis_model"]["reference_layer"],
+        matrix["adapter_payload"],
+    )
+    forbidden = {
+        "weights",
+        "walk_block",
+        "see_block",
+        "grouping_strength",
+        "boundary_strength",
+        "walk-block",
+        "see-block",
+        "grouping-strength",
+        "boundary-strength",
+    }
+
+    def walk(value):
+        """Yield mapping keys and nested values for one public record tree."""
+        if isinstance(value, dict):
+            for key, nested in value.items():
+                yield key
+                yield from walk(nested)
+        elif isinstance(value, (list, tuple)):
+            for nested in value:
+                yield from walk(nested)
+
+    assert not forbidden.intersection(
+        key for surface in surfaces for key in walk(surface)
+    )
+
+
+def test_neutral_scene_drives_evaluator_and_column_grid():
+    """The evaluator should expose trend evidence and authored grid relations."""
+    matrix = evaluate_scene(_neutral_scene())
+
+    assert matrix["column_grid"]["status"] == "computed"
+    assert matrix["column_grid"]["local_profiles"]
+    assert matrix["column_grid"]["global_relations"]
+    assert matrix["inferred_regions"]
+    trend = matrix["inferred_regions"][0]["metadata"]
+    assert float(trend["axis-trend-strength"]) > 0.0
+    assert float(trend["secondary-axis-angle"]) == 90.0
+    assert matrix["room_analysis_model"]["reference_layer"]["column_axes"]
+
+
+def test_shared_networks_preserve_internal_and_isolated_region_components():
+    """Network components should follow edges and retain isolated activity regions."""
+    groups = [
+        {
+            "id": "group_a",
+            "activity_region_id": "region_a",
+            "furniture_affordance_extent_ids": ["extent_a1", "extent_a2", "extent_a3"],
+            "overlap_evidence": [
+                {"a": "extent_a1", "b": "extent_a2", "overlap_area": 2.0},
+                {"a": "extent_a2", "b": "extent_a3", "overlap_area": 0.0},
+            ],
+        },
+        {
+            "id": "group_b",
+            "activity_region_id": "region_b",
+            "furniture_affordance_extent_ids": ["extent_b"],
+            "overlap_evidence": [],
+        },
+        {
+            "id": "group_isolated",
+            "activity_region_id": "region_isolated",
+            "furniture_affordance_extent_ids": ["extent_isolated"],
+            "overlap_evidence": [],
+        },
+    ]
+    gap_paths = [
+        {
+            "id": "gap_a_b",
+            "region_a": "inferred_region_region_a",
+            "region_b": "inferred_region_region_b",
+            "thickness": 1.0,
+        }
+    ]
+
+    networks = spatial_networks(groups, gap_paths)
+
+    internal_a = next(network for network in networks if network["id"].endswith("region_a"))
+    assert internal_a["components"] == [["extent_a1", "extent_a2"], ["extent_a3"]]
+    inter_region = next(network for network in networks if network["scope"] == "inter_region")
+    assert [node["id"] for node in inter_region["nodes"]] == [
+        "inferred_region_region_a",
+        "inferred_region_region_b",
+        "inferred_region_region_isolated",
+    ]
+    assert inter_region["components"] == [
+        ["inferred_region_region_a", "inferred_region_region_b"],
+        ["inferred_region_region_isolated"],
+    ]
+
+
+def test_low_closed_cabinet_blocks_walk_but_not_visual_band():
+    """A closed cabinet below eye height should separate walk and visual channels."""
+    cabinet_mesh = _placed_box(
+        "mesh_low_cabinet",
+        left=50.0,
+        top=49.0,
+        height=1.0,
+    )
+    cabinet = SourceObject(
+        id="low_cabinet",
+        source_role="cabinet",
+        geometry_refs=(cabinet_mesh.id,),
+    )
+    scene = _closed_channel_scene((cabinet,), (cabinet_mesh,))
+
+    view = analysis_scene_view(scene)
+    evidence = view["channel_evidence"]["low_cabinet"]
+    matrix = evaluate_scene(scene)
+
+    assert evidence["walking"][0]["status"] == "blocked"
+    assert evidence["visual"][0]["geometry_status"] == "clear"
+    assert evidence["visual"][0]["status"] == "clear"
+    assert [record["id"] for record in view["walk_blockers"]] == ["low_cabinet"]
+    assert view["visibility_blockers"] == []
+    assert matrix["sampled_walkable_space"]["walk_status"] == "computed"
+    assert matrix["sampled_walkable_space"]["visibility_status"] == "computed"
+    assert "low_cabinet" in matrix["negative_space"]["blocker_evidence"]
+
+
+def test_transparent_partition_keeps_obstruction_without_opaque_visual_blocking():
+    """Visible transmittance should separate geometry obstruction from opacity."""
+    glass_mesh = _placed_box(
+        "mesh_glass_partition",
+        left=45.0,
+        top=49.0,
+        height=3.0,
+    )
+    viewport_mesh = _placed_box(
+        "mesh_viewport_partition",
+        left=65.0,
+        top=49.0,
+        height=3.0,
+    )
+    glass = MaterialFact(
+        id="glass_material",
+        source_id=None,
+        identity="glass",
+        visible_transmittance=0.8,
+        viewport_transparency=0.0,
+    )
+    viewport_only = MaterialFact(
+        id="viewport_material",
+        source_id=None,
+        identity="viewport-only",
+        visible_transmittance=None,
+        viewport_transparency=1.0,
+    )
+    sources = (
+        SourceObject(
+            id="glass_partition",
+            source_role="wall",
+            geometry_refs=(glass_mesh.id,),
+            material_refs=(glass.id,),
+        ),
+        SourceObject(
+            id="viewport_partition",
+            source_role="wall",
+            geometry_refs=(viewport_mesh.id,),
+            material_refs=(viewport_only.id,),
+        ),
+    )
+    scene = _closed_channel_scene(
+        sources,
+        (glass_mesh, viewport_mesh),
+        materials=(glass, viewport_only),
+    )
+
+    view = analysis_scene_view(scene)
+    glass_evidence = view["channel_evidence"]["glass_partition"]
+    viewport_evidence = view["channel_evidence"]["viewport_partition"]
+
+    assert glass_evidence["material_refs"] == ["glass_material"]
+    assert glass_evidence["visible_transmittance"] == 0.8
+    assert glass_evidence["visual"][0]["geometry_status"] == "blocked"
+    assert glass_evidence["visual"][0]["status"] == "transmitting"
+    assert viewport_evidence["visible_transmittance"] is None
+    assert viewport_evidence["visual"][0]["geometry_status"] == "blocked"
+    assert viewport_evidence["visual"][0]["status"] == "unknown"
+    assert view["visibility_blockers"] == []
+    assert view["_analysis_view"]["capability_flags"]["visibility_channel"] is False
+    assert evaluate_scene(scene)["sampled_walkable_space"]["visibility_status"] == "not_available"
+    assert {record["id"] for record in view["physical_blockers"]} == {
+        "glass_partition",
+        "viewport_partition",
+    }
+
+
+def test_sofa_visual_blocker_uses_only_high_back_query_projection():
+    """A visual band must emit only the local high sofa-back geometry."""
+    seat_mesh = _placed_box("mesh_sofa_seat", left=50.0, top=49.0, height=0.45)
+    back_mesh = _placed_box("mesh_sofa_back", left=55.0, top=49.0, height=1.8)
+    opaque = MaterialFact(
+        id="opaque", source_id=None, identity="opaque",
+        visible_transmittance=0.0, viewport_transparency=1.0,
+    )
+    sofa = SourceObject(
+        id="sofa", source_role="sofa",
+        geometry_refs=(seat_mesh.id, back_mesh.id), material_refs=(opaque.id,),
+    )
+    scene = _closed_channel_scene(
+        (sofa,), (seat_mesh, back_mesh), materials=(opaque,),
+    )
+
+    view = analysis_scene_view(scene)
+    blocker = view["visibility_blockers"][0]
+
+    assert blocker["id"] == "sofa"
+    assert len(blocker["geometry_components"]) == 1
+    assert blocker["geometry_components"][0]["exterior"]
+    assert min(point[0] for point in blocker["geometry_components"][0]["exterior"]) >= 55.0
+
+
+def test_ambiguous_material_assignment_keeps_visual_channel_unknown():
+    """Unassigned differing material refs cannot manufacture object opacity."""
+    mesh = _placed_box("mesh_ambiguous", left=50.0, top=49.0, height=2.0)
+    first = MaterialFact(
+        id="mat-clear", source_id=None, identity="clear",
+        visible_transmittance=0.2, viewport_transparency=0.0,
+    )
+    second = MaterialFact(
+        id="mat-opaque", source_id=None, identity="opaque",
+        visible_transmittance=0.0, viewport_transparency=0.0,
+    )
+    source = SourceObject(
+        id="ambiguous-partition", source_role="wall",
+        geometry_refs=(mesh.id,), material_refs=(first.id, second.id),
+    )
+    scene = _closed_channel_scene(
+        (source,), (mesh,), materials=(first, second),
+    )
+
+    view = analysis_scene_view(scene)
+
+    evidence = view["channel_evidence"][source.id]
+    assert evidence["visible_transmittance"] is None
+    assert evidence["visual"][0]["status"] == "unknown"
+    assert view["_analysis_view"]["capability_flags"]["visibility_channel"] is False
+
+
+def test_public_analysis_consumers_accept_neutral_scene_directly():
+    """Public consumer entrypoints should share the same neutral-view boundary."""
+    scene = _neutral_scene()
+    matrix = evaluate_scene(scene)
+
+    assert affordance_zones(scene)
+    assert furniture_affordance_extents(scene)
+    assert furniture_groups(scene)
+    assert inferred_region_candidates(scene)
+    assert column_grid_evidence(scene)["status"] == "computed"
+    model = build_room_analysis_model(scene, matrix)
+    assert model["object_layer"]["objects"]
+    assert all("weights" not in item for item in model["object_layer"]["objects"])
+    assert model["region_layer"]["activity_regions"] == matrix["inferred_regions"]
+    assert [item["id"] for item in model["base_layer"]["room"]["boundaries"]] == [
+        "north_wall"
+    ]
+    assert "weights" not in model["base_layer"]["room"]["boundaries"][0]
+
+
+def test_provenance_source_metadata_remains_audit_only():
+    """Provenance metadata must not override factual or authored analysis facts."""
+    scene = _neutral_scene()
+    left, right, *others = scene.source_objects
+    scene = replace(
+        scene,
+        source_objects=(
+            replace(
+                left,
+                factual_properties={
+                    "group": "factual_group",
+                    "region": "factual_region",
+                    "role": "chair",
+                },
+                provenance={
+                    "source_metadata": {
+                        "group": "provenance_group",
+                        "region": "provenance_region",
+                        "role": "wall",
+                        "affordance-left": "99",
+                    }
+                },
+            ),
+            replace(
+                right,
+                factual_properties={},
+                provenance={
+                    "source_metadata": {
+                        "group": "provenance_group",
+                        "region": "provenance_region",
+                        "role": "wall",
+                    }
+                },
+            ),
+            *others,
+        ),
+    )
+
+    records = {item["id"]: item for item in analysis_scene_view(scene)["objects"]}
+
+    assert records["left_table"]["role"] == "chair"
+    assert records["left_table"]["group"] == "factual_group"
+    assert records["left_table"]["region"] == "factual_region"
+    assert "affordance-left" not in records["left_table"]["metadata"]
+    assert records["right_table"]["role"] == "furniture"
+    assert records["right_table"]["group"] == "group_right"
+    assert records["right_table"]["region"] == "group_right"
+
+
+def test_weight_free_wall_fact_can_block_an_inferred_gap_path():
+    """Physical wall geometry should enter path occupancy without authored weights."""
+    matrix = evaluate_scene(_neutral_scene())
+    occupancy = next(
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_occupancy_ratio"
+    )
+
+    assert any(
+        occupier["id"] == "north_wall"
+        for evidence in occupancy["inferred_region_gap_path_occupancy_evidence"]
+        for occupier in evidence["occupiers"]
+    )
+
+
+def test_open_planar_wall_occupies_space_without_claiming_channels():
+    """Planar wall geometry should remain occupancy evidence with unknown channels."""
+    matrix = evaluate_scene(_neutral_scene())
+
+    assert "north_wall" in matrix["negative_space"]["blocker_evidence"]
+    assert matrix["sampled_walkable_space"]["walk_status"] == "not_available"
+    assert matrix["sampled_walkable_space"]["visibility_status"] == "not_available"
+    assert matrix["line_of_sight_graph"]["status"] == "not_available"
+    assert matrix["line_of_sight_graph"]["edges"] == []
+
+
+def test_legacy_weighted_boundary_channels_remain_compatible():
+    """A plain legacy dict should retain object and weighted-boundary blocking."""
+    scene = analysis_scene_view(_neutral_scene())
+    legacy_boundary = dict(scene["physical_blockers"][0])
+    legacy_boundary["weights"] = {
+        "walk_block": 1.0,
+        "see_block": 1.0,
+        "grouping_strength": 1.0,
+    }
+    scene["boundaries"] = [legacy_boundary]
+    scene.pop("_neutral_scene")
+    scene.pop("_analysis_view")
+
+    matrix = evaluate_scene(scene)
+    region_pair = next(
+        edge
+        for edge in matrix["line_of_sight_graph"]["edges"]
+        if edge["kind"] == "region_pair_centerline_visibility"
+    )
+
+    assert matrix["negative_space"]["blocker_evidence"].count("north_wall") == 1
+    assert matrix["sampled_walkable_space"]["blocker_evidence"].count("north_wall") == 1
+    assert (
+        matrix["sampled_walkable_space"]["visibility_blocker_evidence"].count(
+            "north_wall"
+        )
+        == 1
+    )
+    assert region_pair["blocking_boundary_ids"] == ["north_wall"]
+
+
+def test_disconnected_wall_components_and_holes_survive_path_consumers():
+    """Path consumers must preserve component gaps and interior projection holes."""
+    scene = _neutral_scene()
+    hole_path_mesh = _mesh(
+        "mesh_hole_path",
+        Rect(cx=60.0, cy=20.0, width=5.0, height=5.0),
+    )
+    hole_path = SourceObject(
+        id="hole_path",
+        source_role="path",
+        geometry_refs=("mesh_hole_path",),
+    )
+    vertices = (
+        (50.0, 10.0, 0.0),
+        (70.0, 10.0, 0.0),
+        (70.0, 30.0, 0.0),
+        (50.0, 30.0, 0.0),
+        (55.0, 15.0, 0.0),
+        (65.0, 15.0, 0.0),
+        (65.0, 25.0, 0.0),
+        (55.0, 25.0, 0.0),
+        (50.0, 70.0, 0.0),
+        (70.0, 70.0, 0.0),
+        (70.0, 90.0, 0.0),
+        (50.0, 90.0, 0.0),
+    )
+    split_wall = MeshGeometry3D(
+        id="mesh_wall",
+        vertices=vertices,
+        triangle_indices=(
+            (0, 1, 5),
+            (0, 5, 4),
+            (1, 2, 6),
+            (1, 6, 5),
+            (2, 3, 7),
+            (2, 7, 6),
+            (3, 0, 4),
+            (3, 4, 7),
+            (8, 9, 10),
+            (8, 10, 11),
+        ),
+        normals=((0.0, 0.0, 1.0),) * 12,
+        is_manifold=False,
+        is_closed=False,
+        local_to_world_provenance={"method": "synthetic_neutral_fixture"},
+        source_representation_id=None,
+        tessellation_settings={},
+        units="m",
+    )
+    scene = replace(
+        scene,
+        source_objects=scene.source_objects + (hole_path,),
+        geometries=tuple(
+            split_wall if geometry.id == "mesh_wall" else geometry
+            for geometry in scene.geometries
+        )
+        + (hole_path_mesh,),
+    )
+
+    view = analysis_scene_view(scene)
+    wall = view["boundary_facts"][0]
+    matrix = evaluate_scene(scene)
+    occupancy = next(
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_occupancy_ratio"
+    )
+
+    assert len(wall["geometry_components"]) == 2
+    assert any(component["holes"] for component in wall["geometry_components"])
+    assert all(
+        occupier["id"] != "north_wall"
+        for evidence in occupancy["inferred_region_gap_path_occupancy_evidence"]
+        for occupier in evidence["occupiers"]
+    )
+    assert matrix["negative_space"]["blocker_overlap_area"] == 1300.0
+    assert matrix["sampled_walkable_space"]["walk_status"] == "not_available"
+    assert matrix["sampled_walkable_space"]["blocked_cells"] is None
+    assert matrix["path_geometry"]["hole_path"]["status"] == "not_available"
+    assert matrix["path_geometry"]["hole_path"]["blocker_overlap_area"] is None
+    assert matrix["line_of_sight_graph"]["status"] == "not_available"
+    rows = {row["metric"]: row for row in matrix["rows"]}
+    assert rows["path_min_clearance_to_blocker"]["status"] == "not_available"
+    assert rows["sampled_entry_reachable_cell_ratio"]["status"] == "not_available"
+    assert rows["line_of_sight_region_pair_ratio"]["status"] == "not_available"
+
+
+def test_cad_negative_space_touch_ignores_disconnected_region_bbox_gap():
+    """CAD free-space touch must use region components rather than their union bbox."""
+    cad_polygons = [
+        {
+            "component_index": 0,
+            "outer_ring": ((40.0, 40.0), (60.0, 40.0), (60.0, 60.0), (40.0, 60.0)),
+            "holes": (),
+        }
+    ]
+    disconnected_region = {
+        "id": "split_region",
+        "rect": Rect(cx=50.0, cy=50.0, width=100.0, height=20.0),
+        "geometry_components": [
+            {
+                "exterior": ((0.0, 40.0), (20.0, 40.0), (20.0, 60.0), (0.0, 60.0)),
+                "holes": (),
+            },
+            {
+                "exterior": ((80.0, 40.0), (100.0, 40.0), (100.0, 60.0), (80.0, 60.0)),
+                "holes": (),
+            },
+        ],
+    }
+
+    evidence = _cad_room_minus_blocker_component_touch_evidence(
+        cad_polygons,
+        [],
+        [disconnected_region],
+    )
+
+    assert evidence[0]["region_ids"] == []
+    assert evidence[0]["region_overlap_areas"] == {}
+
+
+def test_entry_bbox_touch_does_not_hide_disconnected_los_intersection():
+    """Entry contact at one bbox edge must not hide a farther component hit."""
+    entry = {
+        "id": "entry",
+        "rect": Rect(cx=5.0, cy=50.0, width=10.0, height=10.0),
+    }
+    region = {
+        "id": "region",
+        "rect": Rect(cx=80.0, cy=50.0, width=10.0, height=10.0),
+    }
+    blocker = {
+        "id": "split_wall",
+        "role": "boundary",
+        "rect": Rect(cx=27.5, cy=47.5, width=35.0, height=15.0),
+        "geometry_components": [
+            {
+                "exterior": ((10.0, 40.0), (20.0, 40.0), (20.0, 44.0), (10.0, 44.0)),
+                "holes": (),
+            },
+            {
+                "exterior": ((40.0, 45.0), (45.0, 45.0), (45.0, 55.0), (40.0, 55.0)),
+                "holes": (),
+            },
+        ],
+        "metadata": {"boundary-kind": "wall"},
+        "weights": {
+            "walk_block": 1.0,
+            "see_block": 1.0,
+            "grouping_strength": 1.0,
+        },
+    }
+    scene = {
+        "size": (100.0, 100.0),
+        "entries": [entry],
+        "regions": [region],
+        "boundaries": [blocker],
+        "physical_blockers": [],
+    }
+
+    evidence = _line_of_sight_entry_region_evidence(scene)
+
+    assert evidence[0]["visible"] is False
+    assert evidence[0]["blocking_boundary_ids"] == ["split_wall"]
+    assert sorted(
+        evidence[0]["blocking_boundary_evidence"][0]["intersection_points"]
+    ) == [
+        (40.0, 50.0),
+        (45.0, 50.0),
+    ]
+
+
+def test_missing_furniture_frame_uses_projected_geometry_pca():
+    """A missing authored frame should use geometry orientation, not horizontal zero."""
+    scene = _neutral_scene()
+    angle = radians(30.0)
+    base = ((-15.0, -5.0), (15.0, -5.0), (15.0, 5.0), (-15.0, 5.0))
+    rotated = tuple(
+        (
+            30.0 + x * cos(angle) - y * sin(angle),
+            40.0 + x * sin(angle) + y * cos(angle),
+            0.0,
+        )
+        for x, y in base
+    )
+    oblique_mesh = MeshGeometry3D(
+        id="mesh_oblique",
+        vertices=rotated,
+        triangle_indices=((0, 1, 2), (0, 2, 3)),
+        normals=((0.0, 0.0, 1.0),) * 4,
+        is_manifold=False,
+        is_closed=False,
+        local_to_world_provenance={"method": "synthetic_neutral_fixture"},
+        source_representation_id=None,
+        tessellation_settings={},
+        units="m",
+    )
+    oblique = SourceObject(
+        id="oblique_table",
+        source_role="furniture",
+        geometry_refs=("mesh_oblique",),
+        factual_properties={"region": "oblique", "group": "oblique"},
+    )
+    scene = replace(
+        scene,
+        source_objects=scene.source_objects + (oblique,),
+        geometries=scene.geometries + (oblique_mesh,),
+    )
+
+    record = next(
+        item for item in analysis_scene_view(scene)["objects"] if item["id"] == "oblique_table"
+    )
+    orientation = float(record["metadata"]["orientation"])
+    assert abs(orientation - 30.0) < 1.0
+
+
+def test_missing_analysis_domain_marks_domain_metrics_unavailable():
+    """A fallback canvas must not masquerade as an authored analysis domain."""
+    scene = replace(_neutral_scene(), analysis_domain=None)
+
+    matrix = evaluate_scene(scene)
+    path_rows = [row for row in matrix["rows"] if row["view_id"] == "path_connectivity"]
+
+    assert matrix["inferred_regions"]
+    assert path_rows
+    assert all(row["status"] == "not_available" for row in path_rows)
+    assert all(row["score"] is None for row in path_rows)
+    free_space_overlap = next(
+        row
+        for row in matrix["rows"]
+        if row["metric"] == "inferred_region_gap_path_free_space_overlap_ratio"
+    )
+    assert free_space_overlap["status"] == "not_available"
+    assert free_space_overlap["score"] is None
+
+
+class _EquivalentIfcSource:
+    """Provide normalized IFC facts equivalent to the temporary planar SVG."""
+
+    schema = "IFC4"
+
+    def __init__(self) -> None:
+        """Build two rectangular IFC furniture records in analysis units."""
+        self.payload = {
+            "source_length_unit": "m",
+            "objects": (
+                self._object("ifc-object:left", 15.0, 45.0, 45.0, 55.0),
+                self._object("ifc-object:right", 75.0, 45.0, 105.0, 55.0),
+            ),
+        }
+
+    @staticmethod
+    def _object(
+        global_id: str,
+        left: float,
+        top: float,
+        right: float,
+        bottom: float,
+    ) -> dict:
+        """Return one normalized IFC furniture rectangle."""
+        return {
+            "global_id": global_id,
+            "ifc_class": "IfcFurniture",
+            "geometry": {
+                "vertices": (
+                    (left, top, 0.0),
+                    (right, top, 0.0),
+                    (right, bottom, 0.0),
+                    (left, bottom, 0.0),
+                ),
+                "triangles": ((0, 1, 2), (0, 2, 3)),
+            },
+        }
+
+
+def _rect_signature(record: dict) -> tuple[float, float, float, float]:
+    """Return one rounded rectangle signature for cross-adapter comparison."""
+    rect = record["rect"]
+    return tuple(round(value, 6) for value in (rect.cx, rect.cy, rect.width, rect.height))
+
+
+def _network_signature(network: dict) -> tuple:
+    """Normalize one network to source-id-independent topology facts."""
+    return (
+        network["scope"],
+        len(network["nodes"]),
+        tuple(sorted(edge["kind"] for edge in network["edges"])),
+        tuple(sorted(len(component) for component in network["components"])),
+    )
+
+
+def _equivalent_authored_axes() -> tuple[AuthoredGridAxis, ...]:
+    """Provide identical explicit axes for the two adapter-equivalence fixtures."""
+    return (
+        AuthoredGridAxis(
+            id="grid:x0",
+            source_id="grid:equivalent",
+            curve_points=((0.0, 0.0, 0.0), (120.0, 0.0, 0.0)),
+            branch_identifier="main",
+            list_identifier="x",
+        ),
+        AuthoredGridAxis(
+            id="grid:x1",
+            source_id="grid:equivalent",
+            curve_points=((0.0, 100.0, 0.0), (120.0, 100.0, 0.0)),
+            branch_identifier="main",
+            list_identifier="x",
+        ),
+        AuthoredGridAxis(
+            id="grid:y0",
+            source_id="grid:equivalent",
+            curve_points=((0.0, 0.0, 0.0), (0.0, 100.0, 0.0)),
+            branch_identifier="main",
+            list_identifier="y",
+        ),
+        AuthoredGridAxis(
+            id="grid:y1",
+            source_id="grid:equivalent",
+            curve_points=((120.0, 0.0, 0.0), (120.0, 100.0, 0.0)),
+            branch_identifier="main",
+            list_identifier="y",
+        ),
+    )
+
+
+def _equivalent_neutral_scene_facts(scene: NeutralSceneV2) -> NeutralSceneV2:
+    """Attach the same query and authored-grid facts after adapter extraction."""
+    return replace(
+        scene,
+        context=replace(scene.context, subject_interface_all_pairs=True),
+        authored_grid_axes=_equivalent_authored_axes(),
+    )
+
+
+def _grid_relation_signature(column_grid: dict) -> tuple:
+    """Normalize local and global grid relation values for source-independent comparison."""
+    local = tuple(
+        (
+            item["scale"],
+            round(item["frame_agreement"], 6),
+            len(item["included_bay_ids"]),
+            repr(item["bay_grammar"]),
+        )
+        for item in column_grid["local_profiles"]
+    )
+    global_ = tuple(
+        (
+            item["target_kind"],
+            round(item["region_angle"], 6),
+            round(item["target_angle"], 6),
+            round(item["target_strength"], 6),
+            round(item["agreement"], 6),
+        )
+        for item in column_grid["global_relations"]
+    )
+    return local, global_
+
+
+def _subject_interface_relation_signature(result: dict) -> tuple:
+    """Normalize relation values while excluding adapter-specific audit identifiers."""
+    scope = result["subject_interface_relation_scope"]
+    normalized_scope = (
+        scope["status"],
+        scope["method"],
+        scope["max_distance"],
+        scope["all_pairs"],
+        scope["candidate_pair_count"],
+        scope["relation_count"],
+        len(scope["not_evaluated_pair_ids"]),
+        scope["uncertainty"],
+    )
+    relations = tuple(
+        (
+            relation["subject_kind"],
+            relation["interface_kind"],
+            round(relation["distance"], 6),
+            relation["nearest_side"],
+            relation["frame_relation"],
+            relation["subject_coverage_ratio"],
+            relation["interface_coverage_ratio"],
+            relation["containment"],
+            relation["opening_ids"],
+            relation["permeability"],
+            relation["gestalt_continuity"],
+            relation["parallel_coverage"],
+        )
+        for relation in result["subject_interface_relations"]
+    )
+    return normalized_scope, relations
+
+
+def test_equivalent_svg_and_ifc_planar_facts_produce_equivalent_evidence(
+    tmp_path: Path,
+):
+    """Equivalent adapter facts should converge after the Neutral Scene boundary."""
+    svg_path = tmp_path / "equivalent.svg"
+    svg_path.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100">
+        <rect id="ifc-object:left" data-role="furniture" x="15" y="45" width="30" height="10"/>
+        <rect id="ifc-object:right" data-role="furniture" x="75" y="45" width="30" height="10"/>
+        </svg>""",
+        encoding="utf-8",
+    )
+    svg_scene = _equivalent_neutral_scene_facts(
+        load_svg_neutral_scene(svg_path, source_length_unit="m")
+    )
+    ifc_scene = _equivalent_neutral_scene_facts(load_ifc_neutral_scene(_EquivalentIfcSource()))
+
+    svg_evidence = infer_scene_evidence(svg_scene)
+    ifc_evidence = infer_scene_evidence(ifc_scene)
+
+    assert [_rect_signature(item) for item in svg_evidence["furniture_affordance_extents"]] == [
+        _rect_signature(item) for item in ifc_evidence["furniture_affordance_extents"]
+    ]
+    assert [_rect_signature(item) for item in svg_evidence["inferred_regions"]] == [
+        _rect_signature(item) for item in ifc_evidence["inferred_regions"]
+    ]
+    assert [_rect_signature(item) for item in svg_evidence["inferred_region_gap_paths"]] == [
+        _rect_signature(item) for item in ifc_evidence["inferred_region_gap_paths"]
+    ]
+    assert [
+        (
+            len(group["member_ids"]),
+            _rect_signature(group),
+            group["metadata"]["group-axis-angle"],
+            group["metadata"]["group-axis-strength"],
+        )
+        for group in svg_evidence["furniture_groups"]
+    ] == [
+        (
+            len(group["member_ids"]),
+            _rect_signature(group),
+            group["metadata"]["group-axis-angle"],
+            group["metadata"]["group-axis-strength"],
+        )
+        for group in ifc_evidence["furniture_groups"]
+    ]
+    assert [
+        _network_signature(network) for network in svg_evidence["spatial_networks"]
+    ] == [
+        _network_signature(network) for network in ifc_evidence["spatial_networks"]
+    ]
+    assert [
+        (region["metadata"]["axis-angle"], region["metadata"]["axis-trend-strength"])
+        for region in svg_evidence["inferred_regions"]
+    ] == [
+        (region["metadata"]["axis-angle"], region["metadata"]["axis-trend-strength"])
+        for region in ifc_evidence["inferred_regions"]
+    ]
+    assert [
+        (
+            interface["kind"],
+            interface["interface_kind"],
+            interface["physical_continuity"][0]["mass_present"],
+        )
+        for interface in svg_evidence["boundary_semantics"]
+    ] == [
+        (
+            interface["kind"],
+            interface["interface_kind"],
+            interface["physical_continuity"][0]["mass_present"],
+        )
+        for interface in ifc_evidence["boundary_semantics"]
+    ]
+    assert evaluate_scene(svg_scene)["column_grid"]["status"] == (
+        evaluate_scene(ifc_scene)["column_grid"]["status"]
+    )
+    svg_matrix = evaluate_scene(svg_scene)
+    ifc_matrix = evaluate_scene(ifc_scene)
+    assert _subject_interface_relation_signature(svg_matrix) == (
+        _subject_interface_relation_signature(ifc_matrix)
+    )
+    assert _grid_relation_signature(svg_matrix["column_grid"]) == _grid_relation_signature(
+        ifc_matrix["column_grid"]
+    )
+    svg_capabilities = analysis_scene_view(svg_scene)["_analysis_view"]["capability_flags"]
+    assert svg_capabilities["height_queries"] is False
+
+
+def test_real_ifc_fixture_keeps_non_furniture_out_of_region_inference(
+    tmp_path: Path,
+):
+    """A real IFC adapter result should expose only furniture as region anchors."""
+    path = tmp_path / "analysis-consumer.ifc"
+    ids = write_ifc4_description_fixture(path)
+    scene = load_ifc_neutral_scene(path, analysis_domain_source_id=ids["room"])
+    furniture_ids = {
+        item.id for item in scene.source_objects if item.source_role == "furniture"
+    }
+
+    evidence = infer_scene_evidence(scene)
+    matrix = evaluate_scene(scene)
+
+    assert {item["object_id"] for item in evidence["furniture_affordance_extents"]} == (
+        furniture_ids
+    )
+    assert evidence["affordance_zones"]
+    assert len(evidence["furniture_groups"]) == 1
+    assert matrix["column_grid"]["status"] == "computed"
+    assert all(
+        item["branch_id"] == "default_branch"
+        for item in matrix["column_grid"]["axes"]
+    )
+    assert all(
+        item["id"] not in {f"ifc-object:{ids['wall']}", f"ifc-object:{ids['slab']}"}
+        for item in matrix["room_analysis_model"]["object_layer"]["objects"]
+    )

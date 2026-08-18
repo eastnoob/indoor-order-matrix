@@ -94,6 +94,27 @@ Spatial networks use one shared evidence schema for different scopes. `region_in
 
 Boundary semantics are derived evidence from measured geometry, surface facts, openings, permeability observations, and spatial relations. They keep physical continuity, walk permeability, visual permeability, and Gestalt continuity separate and do not collapse them into a boundary weight or grouping strength.
 
+Neutral planar consumers keep physical occupancy distinct from channel-specific
+blocking. `physical_occupancy` contains source records with factual mass geometry
+regardless of furniture, wall, partition, railing, or unknown product role. The
+selected analysis-domain support geometry and conceptual path, region, entry,
+opening, surface, and grid records are excluded from occupancy. `walk_blockers`
+and `visibility_blockers` remain height-band/channel observations, while the
+legacy `physical_blockers` field retains its boundary-only compatibility
+meaning.
+
+Subject-interface relation scope is explicit in `AnalysisContext`.
+`subject_interface_max_distance` defines the production query range;
+`subject_interface_all_pairs` is an explicit validation mode. Member-owned
+interfaces are outside the relation universe rather than being reported as
+range-excluded `not_evaluated` pairs.
+
+An analysis canvas or source-file extent is never a substitute for an analysis
+domain. When the Neutral Scene lacks an explicit analysis domain, negative
+space and all dependent topology graphs are `not_available`; adapters must not
+serialize them as computed zero-node graphs. This unavailable status propagates
+through evidence geometry and route-topology handoffs.
+
 Column-grid field evidence is an additive continuous layer over the explicit axis/branch/bay scaffold. It summarizes local support, clarity, and strength at deterministic region probes, and it must not replace bay-based local profiles or force orthogonal snapping.
 
 ## Region Trend Frame Rule

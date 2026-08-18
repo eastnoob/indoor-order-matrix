@@ -3360,3 +3360,26 @@
 - Final full verification: `583 passed in 811.86s` (`0:13:31`) under Pixi
   Python `3.12.13`; compileall, docstring audit, JSON/no-mutation checks, and
   `git diff --check` passed. Checkpoint: `JJ-06-blender-input-modes`.
+
+2026-08-19, Gate 7 Neutral Scene analysis migration checkpoint preparation:
+
+- Region, path, shared-scope network, trend, local-reference, boundary, and
+  column-grid consumers now accept source-independent Neutral Scene views.
+  Legacy dict behavior remains an explicit compatibility path; SVG provenance
+  is audit-only and no authored perceptual weight becomes Neutral source truth.
+- Neutral physical occupancy is distinct from walking and visibility blockers.
+  Components, holes, local height bands, unknown optics, groups, authored axes,
+  and explicit relation scope propagate through the migrated consumers.
+- Missing analysis domains now make negative space and dependent graph/handoff
+  records explicitly unavailable. A drawing canvas is not treated as a room.
+- Rect-cell free-space adjacency now uses its Cartesian partition indices
+  instead of all-pairs cell comparison. This preserves exact edge topology and
+  removes the oblique-layout O(n^2) performance regression without thresholds.
+- Focused evidence: Neutral `32 passed`; Gate migration `122 passed`; SVG
+  adapter `64 passed`; IFC adapter `62 passed`; path/LOS subset `35 passed`.
+  Full verification: `620 passed in 298.00s` (`0:04:57`). Compileall and
+  `git diff --check` passed, apart from line-ending warnings.
+- Independent spec review approved. Independent quality review identified one
+  unavailable-topology propagation gap; it was repaired with a regression test
+  and approved on final re-review with no remaining Critical or Important
+  findings.

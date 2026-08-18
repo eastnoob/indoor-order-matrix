@@ -60,6 +60,7 @@ def _representative_points(projection: PlanProjection) -> tuple[tuple[float, flo
 def _projection_from_references(
     surface: SurfacePatch,
     mass_by_reference: Mapping[str, MassPatch],
+    analysis_plane: object | None = None,
 ) -> PlanProjection | None:
     """Resolve surface location from referenced geometry without assigning mass."""
     components = []
@@ -67,7 +68,7 @@ def _projection_from_references(
         patch = mass_by_reference.get(reference)
         if patch is None:
             continue
-        components.extend(plan_projection(patch).components)
+        components.extend(plan_projection(patch, analysis_plane).components)
     if not components:
         return None
     coordinates = tuple(components[0]["exterior"])
@@ -193,12 +194,25 @@ class BoundaryEvidence:
 def _height_intervals(
     patch: MassPatch,
     points: tuple[tuple[float, float], ...],
+    analysis_plane: object | None = None,
 ) -> tuple[tuple[float, float], ...]:
     """Read and deterministically combine local intervals for all components."""
+    # A named analysis plane defines what "vertical" means for channel bands;
+    # world Z is valid only for the backward-compatible default plane.
+    direction = (
+        tuple(analysis_plane.basis[2])
+        if analysis_plane is not None
+        else (0.0, 0.0, 1.0)
+    )
     intervals = {
         interval
         for point in points
-        for interval in vertical_intervals_at(patch, point).intervals
+        for interval in vertical_intervals_at(
+            patch,
+            point,
+            direction,
+            analysis_plane=analysis_plane,
+        ).intervals
     }
     return tuple(sorted(intervals))
 
@@ -212,52 +226,102 @@ def _overlaps(
 
 
 def _walking_channel(
+    patch: MassPatch | None,
     intervals: tuple[tuple[float, float], ...],
     profiles: tuple[Mapping[str, object], ...],
     *,
     mass_present: bool,
+    geometry_usable: bool,
+    analysis_plane: object | None = None,
+    height_tolerance: float = 1e-9,
 ) -> tuple[Mapping[str, object], ...]:
     """Describe body-band collision facts for each explicit body profile."""
     results = []
     for profile in profiles:
         band = tuple(float(value) for value in profile["height_band"])
-        collision = any(_overlaps(interval, band) for interval in intervals)
+        query_projection = (
+            plan_projection(
+                patch,
+                analysis_plane,
+                band,
+                height_tolerance=height_tolerance,
+            )
+            if patch is not None
+            else None
+        )
+        collision = bool(query_projection and query_projection.components)
         results.append(
             {
                 "profile_id": profile["id"],
                 "height_band": band,
                 "radius": profile.get("radius"),
-                "status": "blocked" if mass_present and collision else "clear",
+                "status": (
+                    "unknown"
+                    if mass_present and not geometry_usable
+                    else "blocked"
+                    if mass_present and collision
+                    else "clear"
+                ),
                 "collision_intervals": tuple(interval for interval in intervals if _overlaps(interval, band)),
+                "query_projection": (
+                    query_projection.to_dict() if query_projection else None
+                ),
             }
         )
     return tuple(results)
 
 
 def _visual_channel(
+    patch: MassPatch | None,
     intervals: tuple[tuple[float, float], ...],
     bands: tuple[Mapping[str, object], ...],
     *,
     mass_present: bool,
+    geometry_usable: bool,
     optical_transmittance: object = None,
+    analysis_plane: object | None = None,
+    height_tolerance: float = 1e-9,
 ) -> tuple[Mapping[str, object], ...]:
     """Describe geometry and optical evidence independently for each eye band."""
     results = []
     for band_record in bands:
         band = tuple(float(value) for value in band_record["height_band"])
-        geometry_blocked = mass_present and any(_overlaps(interval, band) for interval in intervals)
+        query_projection = (
+            plan_projection(
+                patch,
+                analysis_plane,
+                band,
+                height_tolerance=height_tolerance,
+            )
+            if patch is not None
+            else None
+        )
+        geometry_blocked = bool(query_projection and query_projection.components)
         results.append(
             {
                 "band_id": band_record["id"],
                 "height_band": band,
-                "geometry_status": "blocked" if geometry_blocked else "clear",
+                "geometry_status": (
+                    "unknown"
+                    if mass_present and not geometry_usable
+                    else "blocked"
+                    if geometry_blocked
+                    else "clear"
+                ),
                 "optical_transmittance": optical_transmittance,
                 "status": (
                     "unknown"
-                    if optical_transmittance is None and not mass_present
-                    else "blocked"
-                    if geometry_blocked and optical_transmittance in (None, 0.0)
+                    if mass_present and not geometry_usable
                     else "clear"
+                    if not geometry_blocked
+                    else "unknown"
+                    if optical_transmittance is None
+                    else "blocked"
+                    if float(optical_transmittance) == 0.0
+                    else "transmitting"
+                ),
+                "query_projection": (
+                    query_projection.to_dict() if query_projection else None
                 ),
             }
         )
@@ -271,30 +335,48 @@ def _evidence_for_patch(
     visual_bands: tuple[Mapping[str, object], ...],
     optical_transmittance: object = None,
     surface_projection: PlanProjection | None = None,
+    analysis_plane: object | None = None,
+    height_tolerance: float = 1e-9,
 ) -> BoundaryEvidence:
     """Build one evidence record from a physical or surface substitute."""
     if isinstance(patch, MassPatch):
-        projection = plan_projection(patch)
+        projection = plan_projection(patch, analysis_plane)
         points = _representative_points(projection)
         point = points[0] if points else None
-        intervals = _height_intervals(patch, points)
+        intervals = _height_intervals(patch, points, analysis_plane)
+        geometry_usable = (
+            patch.is_closed is True
+            and patch.is_manifold is True
+            and bool(intervals)
+        )
         physical = {
             "mass_present": True,
             "occupied_height": intervals[0] if len(intervals) == 1 else intervals,
             "component_count": len(projection.components),
             "thickness": max(interval[1] - interval[0] for interval in intervals) if intervals else None,
+            "is_closed": patch.is_closed,
+            "is_manifold": patch.is_manifold,
+            "channel_geometry_status": "usable" if geometry_usable else "unknown",
         }
         gestalt = {
             "alignment": "not_evaluated",
             "good_continuation": "single_patch",
             "surface_identity": None,
         }
-        uncertainties = ("multiple_height_intervals",) if len(intervals) > 1 else ()
+        uncertainties = []
+        if patch.is_closed is not True or patch.is_manifold is not True:
+            uncertainties.append("open_or_nonmanifold_geometry")
+        if not intervals:
+            uncertainties.append("missing_occupied_height_intervals")
+        if len(intervals) > 1:
+            uncertainties.append("multiple_height_intervals")
+        uncertainties = tuple(uncertainties)
     else:
         projection = surface_projection
         points = _representative_points(projection) if projection else ()
         point = points[0] if points else None
         intervals = ()
+        geometry_usable = False
         physical = {
             "mass_present": False,
             "occupied_height": None,
@@ -318,15 +400,27 @@ def _evidence_for_patch(
         representative_points=points,
         provenance=patch.provenance,
         physical_continuity=physical,
-        walking_permeability=_walking_channel(intervals, body_profiles, mass_present=isinstance(patch, MassPatch)),
+        walking_permeability=_walking_channel(
+            patch if isinstance(patch, MassPatch) else None,
+            intervals,
+            body_profiles,
+            mass_present=isinstance(patch, MassPatch),
+            geometry_usable=geometry_usable,
+            analysis_plane=analysis_plane,
+            height_tolerance=height_tolerance,
+        ),
         visual_permeability=_visual_channel(
+            patch if isinstance(patch, MassPatch) else None,
             intervals,
             visual_bands,
             mass_present=isinstance(patch, MassPatch),
+            geometry_usable=geometry_usable,
             optical_transmittance=optical_transmittance,
+            analysis_plane=analysis_plane,
+            height_tolerance=height_tolerance,
         ),
         gestalt_continuity=gestalt,
-        tolerances={"height": 1e-9, "distance": 1e-9},
+        tolerances={"height": height_tolerance, "distance": 1e-9},
         uncertainties=uncertainties,
     )
 
@@ -334,11 +428,11 @@ def _evidence_for_patch(
 def _normalized_queries(
     records: Iterable[Mapping[str, object]],
     *,
-    default: Mapping[str, object],
+    default: Mapping[str, object] | None,
     label: str,
 ) -> tuple[Mapping[str, object], ...]:
     """Validate and normalize named body or visual height-band queries."""
-    source_records = tuple(records) or (default,)
+    source_records = tuple(records) or ((default,) if default is not None else ())
     normalized = []
     for record in source_records:
         identifier = record.get("id") if isinstance(record, Mapping) else None
@@ -369,17 +463,22 @@ def derive_boundary_evidence(
     body_profiles: Iterable[Mapping[str, object]] = (),
     visual_bands: Iterable[Mapping[str, object]] = (),
     optical_transmittance_by_source: Mapping[str, object] | None = None,
+    use_default_queries: bool = True,
+    analysis_plane: object | None = None,
+    height_tolerance: float = 1e-9,
 ) -> tuple[BoundaryEvidence, ...]:
-    """Derive separate boundary-channel evidence from neutral substitutes."""
+    """Derive separate channels in an optional authored analysis plane."""
+    if not math.isfinite(height_tolerance) or height_tolerance < 0.0:
+        raise ValueError("height_tolerance must be finite and non-negative")
     patches = tuple(patches)
     profiles = _normalized_queries(
         body_profiles,
-        default=_default_body_profile(),
+        default=_default_body_profile() if use_default_queries else None,
         label="body_profile",
     )
     bands = _normalized_queries(
         visual_bands,
-        default=_default_visual_band(),
+        default=_default_visual_band() if use_default_queries else None,
         label="visual_band",
     )
     optical = optical_transmittance_by_source or {}
@@ -398,10 +497,16 @@ def derive_boundary_evidence(
                 patch.source_geometry_id if isinstance(patch, MassPatch) else patch.source_surface_id
             ),
             surface_projection=(
-                _projection_from_references(patch, mass_by_reference)
+                _projection_from_references(
+                    patch,
+                    mass_by_reference,
+                    analysis_plane,
+                )
                 if isinstance(patch, SurfacePatch)
                 else None
             ),
+            analysis_plane=analysis_plane,
+            height_tolerance=height_tolerance,
         )
         for patch in patches
     )

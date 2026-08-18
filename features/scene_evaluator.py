@@ -9,11 +9,13 @@ from math import atan2, cos, degrees, hypot, radians, sin
 from pathlib import Path
 from statistics import mean, pstdev
 
+from .affordance.grid_backend import OCCUPIED_CELL_COVERAGE_THRESHOLD
 from .affordance.grid_backend import SpatialGridBackend
 from .affordance.grid_backend import _polygon_rect_overlap_area
 from .affordance.models import Polygon, Rect
 from .analyzer import OrderAnalyzer
 from .column_grid import column_grid_evidence
+from .neutral_scene_views import AnalysisSceneInput, analysis_scene_view
 from .position_grammar import region_position_grammar_evidence
 from .room_analysis_model import build_room_analysis_model
 from .scene_inference import build_inferred_region_gap_path_graph
@@ -32,15 +34,44 @@ ADAPTER_READY_HANDOFFS = [
     "material_calibration_handoff",
     "column_grid_handoff",
 ]
+LEGACY_BOUNDARY_WEIGHT_METRICS = frozenset(
+    {
+        "region_source_boundary_weighted_axis_agreement",
+        "region_source_boundary_proximity",
+        "weighted_boundary_axis_concentration",
+        "length_weighted_boundary_axis_concentration",
+        "thickness_weighted_boundary_axis_concentration",
+        "path_region_split_tendency_proxy",
+        "path_touched_region_boundary_cue_ratio",
+        "path_touched_region_boundary_cue_count_mean",
+        "path_touched_region_boundary_cue_strength_mean",
+        "path_touched_region_boundary_grouping_strength_mean",
+        "path_touched_region_boundary_walk_block_mean",
+        "path_touched_region_boundary_see_block_mean",
+        "path_touched_region_boundary_walk_see_gap_mean",
+        "path_touched_region_boundary_cue_perimeter_influence_mean",
+        "walk_visibility_cost_gap",
+        "closed_blocking_boundary_ratio",
+        "boundary_weight_metadata_coverage",
+        "walk_block_mean",
+        "see_block_mean",
+        "grouping_strength_mean",
+        "walk_see_block_gap_mean",
+        "non_blocking_grouping_cue_mean",
+        "glass_walk_see_gap",
+        "rug_grouping_without_block",
+    }
+)
 
 
 def evaluate_scene(
-    scene: dict,
+    scene: AnalysisSceneInput,
     *,
     position_grammar_enabled: bool = True,
     allow_two_point_inferred_frame: bool = False,
 ) -> dict:
     """Evaluate a parsed layout scene into stable, notebook-friendly rows."""
+    scene = analysis_scene_view(scene)
     objects = scene["objects"]
     inference = infer_scene_evidence(scene)
     affordance_zones = inference["affordance_zones"]
@@ -59,6 +90,8 @@ def evaluate_scene(
     inferred_region_gap_paths = inference["inferred_region_gap_paths"]
     spatial_networks = inference["spatial_networks"]
     boundary_semantics = inference["boundary_semantics"]
+    subject_interface_relations = inference["subject_interface_relations"]
+    subject_interface_relation_scope = inference["subject_interface_relation_scope"]
     analysis_scene = _analysis_scene(scene, inferred_regions=inferred_regions)
     # Column-grid evidence is derived after inferred regions are attached, so
     # relation rows can compare explicit axes against both authored and inferred regions.
@@ -97,16 +130,20 @@ def evaluate_scene(
         inferred_region_gap_paths,
     )
     rows.append(gap_path_occupancy_row)
-    gap_path_free_space_overlap_row = _inferred_region_gap_path_free_space_overlap_row(
-        inferred_region_gap_paths,
-        negative_space,
+    gap_path_free_space_overlap_row = _require_capability(
+        _inferred_region_gap_path_free_space_overlap_row(
+            inferred_region_gap_paths,
+            negative_space,
+        ),
+        "analysis_domain",
     )
     rows.append(gap_path_free_space_overlap_row)
-    gap_path_cad_free_space_overlap_row = (
+    gap_path_cad_free_space_overlap_row = _require_capability(
         _inferred_region_gap_path_cad_free_space_overlap_row(
             inferred_region_gap_paths,
             negative_space,
-        )
+        ),
+        "analysis_domain",
     )
     inferred_region_gap_path_graph = build_inferred_region_gap_path_graph(
         inferred_region_candidates,
@@ -126,8 +163,23 @@ def evaluate_scene(
         ),
         scene=scene,
     )
-    rows.append(_inferred_region_gap_path_walkable_proxy_row(inferred_region_gap_path_graph))
-    rows.append(_inferred_region_gap_path_min_width_row(inferred_region_gap_path_graph))
+    rows.append(
+        _require_capability(
+            _require_capability(
+                _inferred_region_gap_path_walkable_proxy_row(
+                    inferred_region_gap_path_graph
+                ),
+                "walk_channel",
+            ),
+            "analysis_domain",
+        )
+    )
+    rows.append(
+        _require_capability(
+            _inferred_region_gap_path_min_width_row(inferred_region_gap_path_graph),
+            "analysis_domain",
+        )
+    )
     rows.append(gap_path_cad_free_space_overlap_row)
     rows.append(_inferred_region_gap_path_explicit_path_iou_row(scene, inferred_region_gap_paths))
     rows.extend(_object_region_membership_rows(analysis_scene))
@@ -140,8 +192,7 @@ def evaluate_scene(
         )
     )
     rows.extend(_whole_space_force_rows(scene))
-    rows.extend(
-        _path_connectivity_rows(
+    for row in _path_connectivity_rows(
             analysis_scene,
             graph,
             graphs,
@@ -151,17 +202,50 @@ def evaluate_scene(
             negative_space_graph,
             line_of_sight_graph,
             isovist_radial_proxy,
+        ):
+        marked = _require_capability(row, "analysis_domain")
+        for capability in _metric_channel_capabilities(row["metric"]):
+            marked = _require_capability(marked, capability)
+        rows.append(marked)
+    rows.append(
+        _require_capability(
+            _inferred_gap_path_width_free_space_clearance_row(rows, negative_space),
+            "analysis_domain",
         )
     )
-    rows.append(_inferred_gap_path_width_free_space_clearance_row(rows, negative_space))
-    rows.append(_boundary_connectivity_row(scene))
+    rows.append(
+        _require_capability(
+            _boundary_connectivity_row(scene),
+            "analysis_domain",
+        )
+    )
     rows.extend(_boundary_metrics_rows(scene, graph))
+    if _is_neutral_analysis_view(scene):
+        rows.append(
+            _subject_interface_relation_row(
+                subject_interface_relations,
+                subject_interface_relation_scope,
+            )
+        )
     rows.append(_adapter_reference_row(scene))
     rows.append(_uncertainty_row(scene))
     rows.append(_uncertainty_route_row(rows))
     rows.append(_matrix_completion_audit_row())
+    # These compatibility rows have no Neutral factual equivalent yet. Marking
+    # them by metric identity prevents absent authored weights becoming zero.
+    rows = [
+        _require_capability(row, "legacy_boundary_weights")
+        if row.get("metric") in LEGACY_BOUNDARY_WEIGHT_METRICS
+        else row
+        for row in rows
+    ]
+    rows = _apply_domain_availability(rows, scene)
     score_matrix = _score_matrix(rows)
     adapter_scene = _adapter_scene(scene, inferred_regions=inferred_regions)
+    public_sampled_walkable_space = _public_sampled_walkable_space(
+        sampled_walkable_space
+    )
+    public_path_geometry = _public_path_geometry(path_geometry, scene)
     matrix = {
         "source": scene["source"],
         "rows": rows,
@@ -175,6 +259,8 @@ def evaluate_scene(
         "inferred_region_gap_paths": inferred_region_gap_paths,
         "spatial_networks": spatial_networks,
         "boundary_semantics": boundary_semantics,
+        "subject_interface_relations": subject_interface_relations,
+        "subject_interface_relation_scope": subject_interface_relation_scope,
         "column_grid": column_grid,
         "inferred_region_gap_path_graph": inferred_region_gap_path_graph,
         "adapter_payload": _adapter_payload(
@@ -198,8 +284,8 @@ def evaluate_scene(
         ),
         "graph": graph,
         "graphs": graphs,
-        "path_geometry": path_geometry,
-        "sampled_walkable_space": sampled_walkable_space,
+        "path_geometry": public_path_geometry,
+        "sampled_walkable_space": public_sampled_walkable_space,
         "negative_space": negative_space,
         "negative_space_graph": negative_space_graph,
         "line_of_sight_graph": line_of_sight_graph,
@@ -207,6 +293,216 @@ def evaluate_scene(
     }
     matrix["room_analysis_model"] = build_room_analysis_model(adapter_scene, matrix)
     return matrix
+
+
+def _apply_domain_availability(rows: list[dict], scene: dict) -> list[dict]:
+    """Apply explicit Neutral Scene capabilities to marked metric rows."""
+    analysis_view = scene.get("_analysis_view", {})
+    capabilities = dict(analysis_view.get("capability_flags", {}))
+    capabilities.setdefault(
+        "analysis_domain",
+        analysis_view.get("domain_available", True),
+    )
+    result = []
+    for row in rows:
+        normalized = dict(row)
+        required_capabilities = set(normalized.pop("_required_capabilities", ()))
+        missing = sorted(
+            capability
+            for capability in required_capabilities
+            if analysis_view and not capabilities.get(capability, False)
+        )
+        if not missing:
+            result.append(normalized)
+            continue
+        missing_label = "_and_".join(missing)
+        normalized.update(
+            {
+                "score": None,
+                "status": "not_available",
+                "method": f"not_available_without_{missing_label}",
+                "uncertainty": (
+                    "requires explicit Neutral Scene capability evidence: "
+                    + ", ".join(missing)
+                ),
+            }
+        )
+        result.append(normalized)
+    return result
+
+
+def _require_capability(row: dict, capability: str) -> dict:
+    """Attach one internal capability requirement for final availability handling."""
+    marked = dict(row)
+    # Capability markers are internal handoff facts and are stripped before rows
+    # leave evaluate_scene; metric availability therefore does not depend on labels.
+    capabilities = set(marked.get("_required_capabilities", ()))
+    capabilities.add(capability)
+    marked["_required_capabilities"] = tuple(sorted(capabilities))
+    return marked
+
+
+def _is_neutral_analysis_view(scene: dict) -> bool:
+    """Return whether the mapping came from the Neutral Scene view adapter."""
+    return "_neutral_scene" in scene
+
+
+def _channel_available(scene: dict, capability: str) -> bool:
+    """Keep legacy dict channels available and require Neutral evidence flags."""
+    if not _is_neutral_analysis_view(scene):
+        return True
+    return bool(
+        scene.get("_analysis_view", {})
+        .get("capability_flags", {})
+        .get(capability, False)
+    )
+
+
+def _metric_channel_capabilities(metric: str) -> tuple[str, ...]:
+    """Map channel-dependent metric identities to canonical capabilities."""
+    cross_channel_metrics = {
+        "walk_visibility_cost_gap",
+        "sampled_visibility_only_region_ratio",
+        "sampled_walk_only_region_ratio",
+        "sampled_walk_visibility_disagreement_region_ratio",
+        "sampled_visibility_only_region_pair_ratio",
+        "sampled_walk_only_region_pair_ratio",
+        "sampled_walk_visibility_disagreement_region_pair_ratio",
+    }
+    if metric in cross_channel_metrics:
+        return ("visibility_channel", "walk_channel")
+    if metric.startswith(("line_of_sight_", "isovist_", "sampled_visibility_")):
+        return ("visibility_channel",)
+    if metric in {
+        "sampled_mean_visibility_region_grid_distance",
+        "path_touched_region_boundary_see_block_mean",
+    }:
+        return ("visibility_channel",)
+    if metric.startswith("graph_") or metric.startswith("sampled_"):
+        return () if metric == "sampled_grid_resolution" else ("walk_channel",)
+    if metric in {
+        "entry_to_region_reachability",
+        "path_min_clearance_to_blocker",
+        "path_blocker_overlap_ratio",
+        "path_blocker_overlap_area_ratio",
+        "path_touched_region_boundary_walk_block_mean",
+    }:
+        return ("walk_channel",)
+    return ()
+
+
+def _public_sampled_walkable_space(sampled: dict) -> dict:
+    """Mask unavailable sampled channels while retaining geometric grid context."""
+    public = dict(sampled)
+    if sampled.get("walk_status") != "computed":
+        list_valued = {
+            "component_sizes",
+            "entry_seed_cells",
+            "path_cells",
+            "reachable_path_cells",
+            "entry_region_grid_distances",
+            "region_pair_grid_distances",
+            "entry_region_widest_clearance_paths",
+            "sampled_entry_reachable_region_pair_evidence",
+            "sampled_unreachable_region_pair_evidence",
+            "blocker_evidence",
+        }
+        for key in (
+            "blocked_cells",
+            "walkable_cells",
+            "reachable_cells",
+            "component_count",
+            "component_sizes",
+            "largest_component_cell_ratio",
+            "entry_reachable_component_ratio",
+            "entry_seed_cells",
+            "path_cells",
+            "reachable_path_cells",
+            "walkable_cell_ratio",
+            "entry_reachable_cell_ratio",
+            "entry_reachable_region_ratio",
+            "entry_region_grid_distances",
+            "mean_entry_region_grid_steps",
+            "mean_entry_region_grid_distance",
+            "region_pair_grid_distances",
+            "entry_region_widest_clearance_paths",
+            "mean_entry_region_widest_clearance",
+            "mean_entry_region_clearance_per_distance",
+            "mean_region_pair_grid_steps",
+            "mean_region_pair_grid_distance",
+            "path_reachable_region_ratio",
+            "sampled_entry_reachable_region_pair_ratio",
+            "sampled_entry_reachable_region_pair_evidence",
+            "sampled_unreachable_region_pair_evidence",
+            "blocker_evidence",
+        ):
+            public[key] = [] if key in list_valued else None
+        public["sampled_clearance_to_walk_blockers"] = {
+            "status": "not_available",
+            "blocker_evidence": [],
+        }
+        public["entry_reachable_clearance_to_walk_blockers"] = {
+            "status": "not_available",
+            "blocker_evidence": [],
+        }
+        public["resolution_sensitivity"] = None
+    if sampled.get("visibility_status") != "computed":
+        for key in (
+            "visibility_reachable_region_ratio",
+            "visibility_region_grid_distances",
+            "mean_visibility_region_grid_steps",
+            "mean_visibility_region_grid_distance",
+            "sampled_visibility_reachable_region_pair_ratio",
+            "sampled_visibility_reachable_region_pair_evidence",
+            "sampled_visibility_unreachable_region_pair_evidence",
+            "visibility_blocker_evidence",
+        ):
+            public[key] = [] if key.endswith(("distances", "evidence")) else None
+    if (
+        sampled.get("walk_status") != "computed"
+        or sampled.get("visibility_status") != "computed"
+    ):
+        for key in (
+            "visibility_only_region_ratio",
+            "walk_only_region_ratio",
+            "walk_visibility_disagreement_region_ratio",
+            "sampled_visibility_only_region_pair_ratio",
+            "sampled_walk_only_region_pair_ratio",
+            "sampled_walk_visibility_disagreement_region_pair_ratio",
+        ):
+            public[key] = None
+        public["region_reachability"] = []
+        public["sampled_visibility_only_region_pair_evidence"] = []
+        public["sampled_walk_only_region_pair_evidence"] = []
+        public["sampled_walk_visibility_disagreement_region_pair_evidence"] = []
+    return public
+
+
+def _public_path_geometry(path_geometry: dict, scene: dict) -> dict:
+    """Mask Neutral path-channel claims when body evidence is unavailable."""
+    if not _is_neutral_analysis_view(scene):
+        return path_geometry
+    available = _channel_available(scene, "walk_channel")
+    result = {}
+    for path_id, descriptor in path_geometry.items():
+        public = dict(descriptor)
+        public["status"] = "computed" if available else "not_available"
+        if not available:
+            public.update(
+                {
+                    "clearance_samples": [],
+                    "min_clearance_to_blocker": None,
+                    "mean_clearance_to_blocker": None,
+                    "blocker_overlap_count": None,
+                    "blocker_overlap_ratio": None,
+                    "blocker_overlap_samples": [],
+                    "blocker_overlap_area": None,
+                    "summed_blocker_overlap_area": None,
+                    "blocker_overlap_area_ratio": None,
+                }
+            )
+        result[path_id] = public
+    return result
 
 
 def export_adapter_payload_json(scene: dict, target: str | Path) -> dict:
@@ -1973,6 +2269,7 @@ def _inferred_region_gap_path_occupancy_row(
     affordance_zones: list[dict],
     gap_paths: list[dict],
 ) -> dict:
+    """Measure component-aware physical occupancy inside inferred gap bands."""
     candidates_by_id = {
         candidate["id"]: candidate
         for candidate in infer_region_candidates(scene)
@@ -1998,7 +2295,7 @@ def _inferred_region_gap_path_occupancy_row(
         for obj in scene.get("objects", []):
             if obj["id"] in source_member_ids:
                 continue
-            overlap = _rect_overlap_area(gap_path["rect"], obj["rect"])
+            overlap = _record_rect_overlap_area(obj, gap_path["rect"])
             if overlap > 0:
                 occupiers.append(
                     {
@@ -2017,6 +2314,18 @@ def _inferred_region_gap_path_occupancy_row(
                         "id": zone["id"],
                         "kind": "affordance_zone",
                         "object_id": zone["object_id"],
+                        "overlap_area": round(overlap, 4),
+                    }
+                )
+        for boundary in scene.get("physical_blockers", []):
+            if boundary["id"] in source_member_ids:
+                continue
+            overlap = _record_rect_overlap_area(boundary, gap_path["rect"])
+            if overlap > 0:
+                occupiers.append(
+                    {
+                        "id": boundary["id"],
+                        "kind": "physical_boundary_geometry",
                         "overlap_area": round(overlap, 4),
                     }
                 )
@@ -2044,6 +2353,18 @@ def _inferred_region_gap_path_occupancy_row(
         "inferred_region_gap_path_occupancy_evidence": evidence,
         "uncertainty": "overlap of inferred gap bands with object footprints and affordance zones; bbox union proxy, not navmesh clearance certification",
     }
+
+
+def _record_rect_overlap_area(record: dict, rect: Rect) -> float:
+    """Return overlap from exact projected components before using a bbox proxy."""
+    area = 0.0
+    for component in _record_component_shapes(record):
+        area += _shape_rect_overlap_area(component["exterior"], rect)
+        area -= sum(
+            _polygon_rect_overlap_area(hole, rect)
+            for hole in component["holes"]
+        )
+    return max(0.0, area)
 
 
 def _inferred_region_gap_path_free_space_overlap_row(
@@ -3182,6 +3503,9 @@ def _modal_path_graphs(scene: dict, graph: dict) -> dict:
 
 
 def _modal_graph_costs(scene: dict) -> dict[str, float]:
+    """Return legacy authored channel costs without inventing Neutral weights."""
+    if _is_neutral_analysis_view(scene):
+        return {"walk": 0.0, "visibility": 0.0}
     records = scene.get("boundaries", []) + scene.get("entries", [])
     if not records:
         return {"walk": 0.0, "visibility": 0.0}
@@ -3200,7 +3524,9 @@ def _path_geometry(scene: dict) -> dict:
 
 
 def _sampled_walkable_space(scene: dict, resolution: float | None = None) -> dict:
+    """Compute sampled channel proxies and retain explicit availability states."""
     width, height = scene["size"]
+    component_aware = _is_neutral_analysis_view(scene)
     resolution_descriptor = _sampled_grid_resolution(scene)
     if resolution is not None:
         resolution_descriptor = {
@@ -3212,12 +3538,21 @@ def _sampled_walkable_space(scene: dict, resolution: float | None = None) -> dic
     grid = SpatialGridBackend(width=width, height=height, resolution=resolution)
     domain_cells = _sampled_domain_cells(grid, scene)
     blockers = _sampled_blockers(scene, "walk_block")
-    blocker_ids = _mark_sampled_blockers(grid, blockers)
+    blocker_ids = _mark_sampled_blockers(
+        grid,
+        blockers,
+        component_aware=component_aware,
+    )
 
     entry_cells = sorted({
         cell
         for entry in scene.get("entries", [])
-        for cell in _seed_cells_for_record(grid, entry, domain_cells)
+        for cell in _seed_cells_for_record(
+            grid,
+            entry,
+            domain_cells,
+            component_aware=component_aware,
+        )
         if cell in domain_cells
     })
     entry_distances = _sampled_bfs_distances(grid, entry_cells, domain_cells)
@@ -3225,11 +3560,20 @@ def _sampled_walkable_space(scene: dict, resolution: float | None = None) -> dic
         grid.cells[row][col].reachable = True
     visibility_grid = SpatialGridBackend(width=width, height=height, resolution=resolution)
     visibility_blockers = _sampled_blockers(scene, "see_block")
-    visibility_blocker_ids = _mark_sampled_blockers(visibility_grid, visibility_blockers)
+    visibility_blocker_ids = _mark_sampled_blockers(
+        visibility_grid,
+        visibility_blockers,
+        component_aware=component_aware,
+    )
     visibility_entry_cells = sorted({
         cell
         for entry in scene.get("entries", [])
-        for cell in _seed_cells_for_record(visibility_grid, entry, domain_cells)
+        for cell in _seed_cells_for_record(
+            visibility_grid,
+            entry,
+            domain_cells,
+            component_aware=component_aware,
+        )
         if cell in domain_cells
     })
     visibility_distances = _sampled_bfs_distances(
@@ -3259,7 +3603,11 @@ def _sampled_walkable_space(scene: dict, resolution: float | None = None) -> dic
     path_cells = {
         cell
         for path in scene.get("paths", [])
-        for cell in _cells_for_record(grid, path)
+        for cell in _cells_for_record(
+            grid,
+            path,
+            component_aware=component_aware,
+        )
         if cell in domain_cells and grid.free(*cell)
     }
     reachable_path_cells = {
@@ -3273,6 +3621,7 @@ def _sampled_walkable_space(scene: dict, resolution: float | None = None) -> dic
             domain_cells,
             entry_distances,
             visibility_distances,
+            component_aware=component_aware,
         )
         for region in scene.get("regions", [])
     ]
@@ -3385,6 +3734,14 @@ def _sampled_walkable_space(scene: dict, resolution: float | None = None) -> dic
         else None
     )
     return {
+        "walk_status": (
+            "computed" if _channel_available(scene, "walk_channel") else "not_available"
+        ),
+        "visibility_status": (
+            "computed"
+            if _channel_available(scene, "visibility_channel")
+            else "not_available"
+        ),
         "resolution": float(resolution),
         "resolution_basis": resolution_descriptor["basis"],
         "resolution_evidence": resolution_descriptor["evidence"],
@@ -3587,14 +3944,25 @@ def _sampled_resolution_sensitivity(scene: dict, base_resolution: float) -> dict
 
 
 def _sampled_metric_summary(scene: dict, resolution: float) -> dict:
+    """Return legacy-compatible or Neutral-aware sampled sensitivity values."""
     width, height = scene["size"]
+    component_aware = _is_neutral_analysis_view(scene)
     grid = SpatialGridBackend(width=width, height=height, resolution=resolution)
     domain_cells = _sampled_domain_cells(grid, scene)
-    _mark_sampled_blockers(grid, _sampled_blockers(scene, "walk_block"))
+    _mark_sampled_blockers(
+        grid,
+        _sampled_blockers(scene, "walk_block"),
+        component_aware=component_aware,
+    )
     entry_cells = sorted({
         cell
         for entry in scene.get("entries", [])
-        for cell in _seed_cells_for_record(grid, entry, domain_cells)
+        for cell in _seed_cells_for_record(
+            grid,
+            entry,
+            domain_cells,
+            component_aware=component_aware,
+        )
         if cell in domain_cells
     })
     entry_distances = _sampled_bfs_distances(grid, entry_cells, domain_cells)
@@ -3603,7 +3971,11 @@ def _sampled_metric_summary(scene: dict, resolution: float) -> dict:
     path_cells = {
         cell
         for path in scene.get("paths", [])
-        for cell in _cells_for_record(grid, path)
+        for cell in _cells_for_record(
+            grid,
+            path,
+            component_aware=component_aware,
+        )
         if cell in domain_cells and grid.free(*cell)
     }
     region_reachability = [
@@ -3614,6 +3986,7 @@ def _sampled_metric_summary(scene: dict, resolution: float) -> dict:
             domain_cells,
             entry_distances,
             {},
+            component_aware=component_aware,
         )
         for region in scene.get("regions", [])
     ]
@@ -3646,18 +4019,47 @@ def _summary_range(summaries: list[dict], key: str) -> float:
 
 
 def _sampled_blockers(scene: dict, weight_key: str) -> list[dict]:
+    """Return deduplicated sampled blockers for one movement or sight channel."""
+    if _is_neutral_analysis_view(scene):
+        key = "walk_blockers" if weight_key == "walk_block" else "visibility_blockers"
+        return _deduplicate_records_by_id(list(scene.get(key, [])))
+    return _deduplicate_records_by_id(
+        list(scene.get("objects", []))
+        + _boundary_blockers(scene, weight_key)
+    )
+
+
+def _boundary_blockers(scene: dict, weight_key: str) -> list[dict]:
+    """Return evidence-based Neutral or weighted legacy boundary blockers."""
+    if _is_neutral_analysis_view(scene):
+        key = "walk_blockers" if weight_key == "walk_block" else "visibility_blockers"
+        return _deduplicate_records_by_id(list(scene.get(key, [])))
     room_area = scene["size"][0] * scene["size"][1]
-    blockers = list(scene.get("objects", []))
+    blockers = []
     for boundary in scene.get("boundaries", []):
         kind = boundary.get("metadata", {}).get("boundary-kind")
         if kind == "room":
             continue
         if boundary["rect"].area >= room_area * 0.5:
             continue
-        if boundary["weights"][weight_key] <= 0:
+        # Legacy authored boundaries retain their existing weighted semantics.
+        if float(boundary.get("weights", {}).get(weight_key, 0.0)) <= 0.0:
             continue
         blockers.append(boundary)
-    return blockers
+    return _deduplicate_records_by_id(blockers)
+
+
+def _deduplicate_records_by_id(records: list[dict]) -> list[dict]:
+    """Keep the first record for each stable id while preserving source order."""
+    deduplicated = []
+    seen_ids = set()
+    for record in records:
+        record_id = record["id"]
+        if record_id in seen_ids:
+            continue
+        seen_ids.add(record_id)
+        deduplicated.append(record)
+    return deduplicated
 
 
 def _sampled_clearance_to_walk_blockers(
@@ -3668,22 +4070,20 @@ def _sampled_clearance_to_walk_blockers(
     method: str,
     candidate_cells: set[tuple[int, int]] | None = None,
 ) -> dict:
-    blocker_shapes = [
-        (blocker["id"], _record_shape(blocker))
-        for blocker in blockers
-    ]
+    """Measure sampled clearance against component-aware blocker geometry."""
+    blocker_records = [(blocker["id"], blocker) for blocker in blockers]
     samples = []
     cells = domain_cells if candidate_cells is None else domain_cells & candidate_cells
     for row, col in sorted(cells):
         if not grid.free(row, col):
             continue
         point = grid.cell_center(row, col)
-        if not blocker_shapes:
+        if not blocker_records:
             continue
         blocker_id, distance = min(
             (
-                (blocker_id, _point_to_shape_gap(point, shape))
-                for blocker_id, shape in blocker_shapes
+                (blocker_id, _point_to_record_gap(point, blocker))
+                for blocker_id, blocker in blocker_records
             ),
             key=lambda item: (item[1], item[0]),
         )
@@ -3708,11 +4108,12 @@ def _sampled_clearance_to_walk_blockers(
         "min_clearance_samples": [
             sample for sample in samples if sample["distance"] == min_clearance
         ][:5],
-        "blocker_evidence": [blocker_id for blocker_id, _ in blocker_shapes],
+        "blocker_evidence": [blocker_id for blocker_id, _ in blocker_records],
     }
 
 
 def _point_to_shape_gap(point: tuple[float, float], shape: Rect | Polygon) -> float:
+    """Return point clearance to one legacy shape."""
     if isinstance(shape, Polygon):
         if shape.contains_point(*point):
             return 0.0
@@ -3724,18 +4125,40 @@ def _point_to_shape_gap(point: tuple[float, float], shape: Rect | Polygon) -> fl
     return _rect_gap(Rect(cx=point[0], cy=point[1], width=0.0, height=0.0), shape)
 
 
+def _point_to_record_gap(point: tuple[float, float], record: dict) -> float:
+    """Return point clearance to disconnected record geometry, including holes."""
+    from shapely.geometry import Point
+
+    return float(Point(point).distance(_record_shapely_geometry(record)))
+
+
 def _mark_sampled_blockers(
     grid: SpatialGridBackend,
     blockers: list[dict],
+    *,
+    component_aware: bool = False,
 ) -> list[str]:
+    """Mark legacy shapes or Neutral component geometry on a sampled grid."""
     blocker_ids = []
     for blocker in blockers:
         blocker_ids.append(blocker["id"])
-        grid.mark_occupied(blocker["id"], _record_shape(blocker))
+        if not component_aware:
+            # Legacy output is a frozen compatibility surface built on the
+            # grid backend's original single-shape occupancy semantics.
+            grid.mark_occupied(blocker["id"], _record_shape(blocker))
+            continue
+        # Evaluate the record union per cell so holes remove occupancy instead
+        # of being re-filled by an exterior bbox or convex hull.
+        for row, col in grid.iter_indices_in_rect(blocker["rect"]):
+            cell = grid.cell_rect(row, col)
+            coverage = _record_rect_overlap_area(blocker, cell) / max(cell.area, 1e-9)
+            if coverage >= OCCUPIED_CELL_COVERAGE_THRESHOLD:
+                grid.cells[row][col].occupied_by.add(blocker["id"])
     return blocker_ids
 
 
 def _path_geometry_descriptor(path: dict, blockers: list[dict]) -> dict:
+    """Describe path width, clearance, and blocker overlap evidence."""
     points = path.get("points") or []
     lengths = [
         ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
@@ -3758,7 +4181,6 @@ def _path_geometry_descriptor(path: dict, blockers: list[dict]) -> dict:
     path_area = path_polygon.area if path_polygon is not None else path["rect"].area
     blocker_overlap_samples = _path_blocker_overlap_samples(
         path,
-        path_polygon,
         blockers,
     )
     summed_blocker_overlap_area = sum(sample["area"] for sample in blocker_overlap_samples)
@@ -3793,26 +4215,17 @@ def _path_geometry_descriptor(path: dict, blockers: list[dict]) -> dict:
 
 
 def _path_clearance_blockers(scene: dict) -> list[dict]:
-    room_area = scene["size"][0] * scene["size"][1]
-    blockers = list(scene.get("objects", []))
-    for boundary in scene.get("boundaries", []):
-        kind = boundary.get("metadata", {}).get("boundary-kind")
-        if kind == "room":
-            continue
-        if boundary["rect"].area >= room_area * 0.5:
-            continue
-        if boundary["weights"]["walk_block"] <= 0:
-            continue
-        blockers.append(boundary)
-    return blockers
+    """Return every physical or legacy walk blocker once for path consumers."""
+    return _sampled_blockers(scene, "walk_block")
 
 
 def _path_clearance_samples(path: dict, blockers: list[dict]) -> list[dict]:
+    """Measure path clearance against complete blocker component geometry."""
     samples = [
         {
             "target_id": blocker["id"],
             "target_role": blocker["role"],
-            "distance": round(_path_record_gap(path, blocker["rect"]), 4),
+            "distance": round(_record_geometry_gap(path, blocker), 4),
         }
         for blocker in blockers
         if blocker["id"] != path["id"]
@@ -3821,21 +4234,79 @@ def _path_clearance_samples(path: dict, blockers: list[dict]) -> list[dict]:
 
 
 def _path_record_gap(path: dict, rect) -> float:
+    """Return the legacy path-to-rectangle gap fallback."""
     points = path.get("points") or []
     if len(points) < 2:
         return _rect_gap(path["rect"], rect)
     return _polygon_rect_gap(points, rect)
 
 
+def _record_geometry_gap(left: dict, right: dict) -> float:
+    """Return exact planar distance between two component-aware records."""
+    left_geometry = _record_shapely_geometry(left)
+    right_geometry = _record_shapely_geometry(right)
+    if left_geometry.is_empty or right_geometry.is_empty:
+        return _path_record_gap(left, right["rect"])
+    return float(left_geometry.distance(right_geometry))
+
+
 def _record_shape(record: dict) -> Rect | Polygon:
+    """Return the legacy single-shape fallback for records without components."""
     polygon = _path_polygon(record)
     return polygon if polygon is not None else record["rect"]
+
+
+def _record_component_shapes(record: dict) -> tuple[dict[str, object], ...]:
+    """Return disconnected exterior shapes and holes for one planar record."""
+    components = []
+    for component in record.get("geometry_components", []):
+        exterior_points = tuple(component.get("exterior", ()))
+        if len(exterior_points) < 3:
+            continue
+        holes = tuple(
+            Polygon(tuple(hole))
+            for hole in component.get("holes", ())
+            if len(hole) >= 3
+        )
+        components.append(
+            {
+                "exterior": Polygon(exterior_points),
+                "holes": holes,
+            }
+        )
+    if components:
+        return tuple(components)
+    return ({"exterior": _record_shape(record), "holes": ()},)
+
+
+def _record_shapely_geometry(record: dict):
+    """Build one Shapely geometry while retaining components and holes."""
+    from shapely.geometry import Polygon as ShapelyPolygon
+    from shapely.geometry import box
+    from shapely.ops import unary_union
+
+    polygons = []
+    for component in _record_component_shapes(record):
+        exterior = component["exterior"]
+        if isinstance(exterior, Rect):
+            polygons.append(box(exterior.left, exterior.top, exterior.right, exterior.bottom))
+            continue
+        polygons.append(
+            ShapelyPolygon(
+                exterior.points,
+                tuple(hole.points for hole in component["holes"]),
+            )
+        )
+    # Component union preserves disconnected topology while normalizing any
+    # accidental overlap between multiple geometry references of one record.
+    return unary_union([polygon for polygon in polygons if not polygon.is_empty])
 
 
 def _sampled_domain_cells(
     grid: SpatialGridBackend,
     scene: dict,
 ) -> set[tuple[int, int]]:
+    """Return sampled room-domain cells under the scene compatibility mode."""
     room = _room_boundary(scene)
     if room is None:
         return {
@@ -3843,7 +4314,13 @@ def _sampled_domain_cells(
             for row in range(grid.n_rows)
             for col in range(grid.n_cols)
         }
-    cells = set(_cells_for_record(grid, room))
+    cells = set(
+        _cells_for_record(
+            grid,
+            room,
+            component_aware=_is_neutral_analysis_view(scene),
+        )
+    )
     return cells or {
         (row, col)
         for row in range(grid.n_rows)
@@ -4051,18 +4528,16 @@ def _sampled_widest_clearance_from_starts(
     domain_cells: set[tuple[int, int]],
     blockers: list[dict],
 ) -> tuple[dict[tuple[int, int], float], dict[tuple[int, int], tuple[int, int] | None]]:
-    blocker_shapes = [
-        (blocker["id"], _record_shape(blocker))
-        for blocker in blockers
-    ]
+    """Find widest sampled routes using component-aware blocker clearance."""
+    blocker_records = [(blocker["id"], blocker) for blocker in blockers]
     clearances = {}
     for row, col in sorted(domain_cells):
-        if not grid.free(row, col) or not blocker_shapes:
+        if not grid.free(row, col) or not blocker_records:
             continue
         point = grid.cell_center(row, col)
         clearances[(row, col)] = min(
-            _point_to_shape_gap(point, shape)
-            for _, shape in blocker_shapes
+            _point_to_record_gap(point, blocker)
+            for _, blocker in blocker_records
         )
     best = {}
     previous = {}
@@ -4143,6 +4618,21 @@ def _negative_space_descriptor(
     *,
     regions: list[dict] | None = None,
 ) -> dict:
+    """Describe room free space while preserving exact blocker topology."""
+    if not _channel_available(scene, "analysis_domain"):
+        # A drawing canvas is not a factual room boundary. Short-circuiting here
+        # prevents both fabricated free-space evidence and needless cell topology.
+        return {
+            "status": "not_available",
+            "room_area": None,
+            "blocker_overlap_area": None,
+            "summed_blocker_overlap_area": None,
+            "negative_space_area": None,
+            "negative_space_area_ratio_proxy": None,
+            "blocker_evidence": [],
+            "method": "analysis_domain_minus_physical_occupancy",
+            "uncertainty": "needs an explicit analysis domain before describing negative space",
+        }
     room = _room_boundary(scene)
     room_polygon = _path_polygon(room) if room is not None else None
     room_rect = room["rect"] if room is not None else Rect(
@@ -4165,7 +4655,7 @@ def _negative_space_descriptor(
         }
 
     samples = []
-    blockers = _path_clearance_blockers(scene)
+    blockers = _physical_occupancy_blockers(scene)
     for blocker in blockers:
         area = _record_overlap_area(blocker, room_polygon, room_rect)
         if area <= 1e-9:
@@ -4379,48 +4869,32 @@ def _blocker_union_overlap_area(
     room_rect: Rect,
     room_polygon: Polygon | None,
 ) -> float:
-    xs = {room_rect.left, room_rect.right}
-    ys = {room_rect.top, room_rect.bottom}
-    shapes = []
-    seen_shapes = set()
-    for blocker in blockers:
-        overlap = _rect_intersection(room_rect, blocker["rect"])
-        if overlap is None:
-            continue
-        xs.update((overlap.left, overlap.right))
-        ys.update((overlap.top, overlap.bottom))
-        shape = _record_shape(blocker)
-        shape_key = _shape_key(shape)
-        if shape_key in seen_shapes:
-            continue
-        seen_shapes.add(shape_key)
-        shapes.append(shape)
-    area = 0.0
-    sorted_xs = sorted(xs)
-    sorted_ys = sorted(ys)
-    for left, right in zip(sorted_xs, sorted_xs[1:]):
-        for top, bottom in zip(sorted_ys, sorted_ys[1:]):
-            if right - left <= 1e-9 or bottom - top <= 1e-9:
-                continue
-            cell = Rect(
-                cx=(left + right) / 2,
-                cy=(top + bottom) / 2,
-                width=right - left,
-                height=bottom - top,
-            )
-            room_area = (
-                _polygon_rect_overlap_area(room_polygon, cell)
-                if room_polygon is not None
-                else _rect_overlap_area(room_rect, cell)
-            )
-            if room_area <= 1e-9:
-                continue
-            blocked_area = min(
-                room_area,
-                sum(_shape_rect_overlap_area(shape, cell) for shape in shapes),
-            )
-            area += blocked_area
-    return area
+    """Return unioned blocker area inside the room without filling topology gaps."""
+    room_shape = room_polygon if room_polygon is not None else room_rect
+    room_geometry = _shape_to_shapely_polygon(room_shape)
+    blocker_geometry = _records_shapely_union(blockers)
+    return float(room_geometry.intersection(blocker_geometry).area)
+
+
+def _physical_occupancy_blockers(scene: dict) -> list[dict]:
+    """Return geometry occupancy without asserting walk or visual permeability."""
+    if _is_neutral_analysis_view(scene):
+        return _deduplicate_records_by_id(
+            list(scene.get("objects", []))
+            + list(scene.get("physical_occupancy", scene.get("physical_blockers", [])))
+        )
+    return _path_clearance_blockers(scene)
+
+
+def _records_shapely_union(records: list[dict]):
+    """Union component-aware record geometries for central boolean consumers."""
+    from shapely.ops import unary_union
+
+    geometries = [
+        _record_shapely_geometry(record)
+        for record in _deduplicate_records_by_id(records)
+    ]
+    return unary_union([geometry for geometry in geometries if not geometry.is_empty])
 
 
 def _shape_key(shape: Rect | Polygon) -> tuple:
@@ -4436,19 +4910,15 @@ def _shape_key(shape: Rect | Polygon) -> tuple:
 
 
 def _polygon_blocker_overlap_risk_evidence(blockers: list[dict]) -> list[dict]:
-    polygon_blockers = []
-    for blocker in blockers:
-        shape = _record_shape(blocker)
-        if isinstance(shape, Polygon):
-            polygon_blockers.append((blocker, shape))
+    """Report overlaps between distinct component-aware blocker records."""
+    polygon_blockers = [
+        (blocker, _record_shapely_geometry(blocker))
+        for blocker in _deduplicate_records_by_id(blockers)
+    ]
     evidence = []
     for left_index, (left, left_shape) in enumerate(polygon_blockers):
         for right, right_shape in polygon_blockers[left_index + 1:]:
-            if _shape_key(left_shape) == _shape_key(right_shape):
-                continue
-            if _rect_intersection(left_shape.bounds, right_shape.bounds) is None:
-                continue
-            if not _polygons_overlap(left_shape, right_shape):
+            if left_shape.equals(right_shape) or left_shape.intersection(right_shape).area <= 1e-9:
                 continue
             evidence.append(
                 {
@@ -4479,27 +4949,38 @@ def _negative_space_rect_components(
     blockers: list[dict],
     room_polygon: Polygon | None,
 ) -> list[list[dict]]:
+    """Decompose free space while retaining blocker components and holes."""
+    from shapely.geometry import box
+
     xs = {room_rect.left, room_rect.right}
     ys = {room_rect.top, room_rect.bottom}
-    blocking_shapes = []
-    seen_shapes = set()
-    for blocker in blockers:
+    blocking_records = []
+    for blocker in _deduplicate_records_by_id(blockers):
         overlap = _rect_intersection(room_rect, blocker["rect"])
         if overlap is None:
             continue
-        shape = _record_shape(blocker)
-        shape_key = _shape_key(shape)
-        if shape_key in seen_shapes:
-            continue
-        seen_shapes.add(shape_key)
-        blocking_shapes.append(shape)
-        xs.update((overlap.left, overlap.right))
-        ys.update((overlap.top, overlap.bottom))
+        blocking_records.append(blocker)
+        # Component and hole coordinates partition the rect-cell proxy at every
+        # topology boundary instead of only at the enclosing record bbox.
+        for component in _record_component_shapes(blocker):
+            rings = [component["exterior"], *component["holes"]]
+            for ring in rings:
+                points = ring.points if isinstance(ring, Polygon) else (
+                    (ring.left, ring.top),
+                    (ring.right, ring.bottom),
+                )
+                xs.update(point[0] for point in points)
+                ys.update(point[1] for point in points)
     xs = sorted(xs)
     ys = sorted(ys)
+    room_geometry = _shape_to_shapely_polygon(
+        room_polygon if room_polygon is not None else room_rect
+    )
+    blocker_geometry = _records_shapely_union(blocking_records)
     cells = []
-    for left, right in zip(xs, xs[1:]):
-        for top, bottom in zip(ys, ys[1:]):
+    cell_index_by_grid_position = {}
+    for x_index, (left, right) in enumerate(zip(xs, xs[1:])):
+        for y_index, (top, bottom) in enumerate(zip(ys, ys[1:])):
             if right - left <= 1e-9 or bottom - top <= 1e-9:
                 continue
             cell = Rect(
@@ -4508,27 +4989,29 @@ def _negative_space_rect_components(
                 width=right - left,
                 height=bottom - top,
             )
-            area = (
-                _polygon_rect_overlap_area(room_polygon, cell)
-                if room_polygon is not None
-                else cell.area
-            )
-            blocker_area = sum(
-                _shape_rect_overlap_area(blocker, cell)
-                for blocker in blocking_shapes
-            )
+            cell_geometry = box(cell.left, cell.top, cell.right, cell.bottom)
+            area = room_geometry.intersection(cell_geometry).area
+            blocker_area = blocker_geometry.intersection(cell_geometry).area
             free_area = max(0.0, area - blocker_area)
             if free_area <= 1e-9:
                 continue
+            cell_index_by_grid_position[(x_index, y_index)] = len(cells)
             cells.append({"rect": cell, "area": free_area})
 
     adjacency = {index: set() for index in range(len(cells))}
-    for left_index, left in enumerate(cells):
-        for right_index in range(left_index + 1, len(cells)):
-            right = cells[right_index]
-            if _rects_share_edge(left["rect"], right["rect"]):
-                adjacency[left_index].add(right_index)
-                adjacency[right_index].add(left_index)
+    # Cells inherit the Cartesian partition indices above, so only immediate
+    # horizontal and vertical neighbours can share an edge. Index lookup keeps
+    # exact topology while avoiding an O(n^2) all-pairs scan on oblique layouts.
+    for (x_index, y_index), cell_index in cell_index_by_grid_position.items():
+        for neighbour_position in (
+            (x_index + 1, y_index),
+            (x_index, y_index + 1),
+        ):
+            neighbour_index = cell_index_by_grid_position.get(neighbour_position)
+            if neighbour_index is None:
+                continue
+            adjacency[cell_index].add(neighbour_index)
+            adjacency[neighbour_index].add(cell_index)
 
     components = []
     unseen = set(range(len(cells)))
@@ -5054,6 +5537,7 @@ def _cad_room_minus_blocker_polygon_evidence(
     room_polygon: Polygon | None,
     blockers: list[dict],
 ) -> list[dict]:
+    """Subtract component-aware blockers from the authored room polygon."""
     if room_polygon is None:
         return []
     from shapely.geometry import MultiPolygon as ShapelyMultiPolygon
@@ -5062,8 +5546,8 @@ def _cad_room_minus_blocker_polygon_evidence(
 
     room = ShapelyPolygon(room_polygon.points)
     blocker_polygons = [
-        _shape_to_shapely_polygon(_record_shape(blocker))
-        for blocker in blockers
+        _record_shapely_geometry(blocker)
+        for blocker in _deduplicate_records_by_id(blockers)
     ]
     blocker_polygons = [polygon for polygon in blocker_polygons if not polygon.is_empty]
     free_geometry = room
@@ -5116,19 +5600,20 @@ def _cad_room_minus_blocker_component_touch_evidence(
     entries: list[dict],
     regions: list[dict],
 ) -> list[dict]:
+    """Relate CAD free-space components to exact entry and region geometry."""
     evidence = []
     for item in cad_polygons:
         polygon = _cad_evidence_to_shapely_polygon(item)
+        # Touch evidence must not fill gaps between disconnected components or
+        # interior holes, because those gaps are part of the free-space result.
         entry_ids = sorted(
             entry["id"]
             for entry in entries
-            if polygon.intersects(_shape_to_shapely_polygon(_record_shape(entry)))
+            if polygon.intersects(_record_shapely_geometry(entry))
         )
         region_overlap_areas = {}
         for region in regions:
-            area = polygon.intersection(
-                _shape_to_shapely_polygon(_record_shape(region))
-            ).area
+            area = polygon.intersection(_record_shapely_geometry(region)).area
             if area > 1e-9:
                 region_overlap_areas[region["id"]] = round(area, 4)
         evidence.append(
@@ -5268,6 +5753,15 @@ def _component_centroid(component: list[dict]) -> tuple[float, float]:
 
 
 def _negative_space_graph(scene: dict, negative_space: dict) -> dict:
+    """Build topology only when a factual negative-space domain exists."""
+    if negative_space.get("status") == "not_available":
+        return {
+            "status": "not_available",
+            "nodes": [],
+            "edges": [],
+            "metrics": {},
+            "uncertainty": negative_space.get("uncertainty"),
+        }
     components = negative_space.get("components", [])
     component_rects_by_index = {
         item["component_index"]: item
@@ -5691,15 +6185,12 @@ def _record_overlap_area(
     clip_polygon: Polygon | None,
     clip_rect: Rect,
 ) -> float:
-    shape = _record_shape(record)
-    if isinstance(shape, Polygon):
-        if clip_polygon is not None:
-            return _polygon_overlap_area_by_rect_decomposition(shape, clip_polygon)
-        return _polygon_rect_overlap_area(shape, clip_rect)
-    return (
-        _polygon_rect_overlap_area(clip_polygon, shape)
-        if clip_polygon is not None
-        else _rect_overlap_area(clip_rect, shape)
+    """Return record overlap with a polygonal or rectangular clip domain."""
+    clip_shape = clip_polygon if clip_polygon is not None else clip_rect
+    return float(
+        _record_shapely_geometry(record)
+        .intersection(_shape_to_shapely_polygon(clip_shape))
+        .area
     )
 
 
@@ -5744,19 +6235,37 @@ def _rects_share_edge(a, b) -> bool:
 def _cells_for_record(
     grid: SpatialGridBackend,
     record: dict,
+    *,
+    component_aware: bool = False,
 ) -> list[tuple[int, int]]:
-    shape = _record_shape(record)
-    if isinstance(shape, Polygon):
-        return list(grid.iter_indices_in_polygon(shape))
-    return list(grid.iter_indices_in_rect(shape))
+    """Return legacy shape cells or exact Neutral component-union cells."""
+    if not component_aware:
+        shape = _record_shape(record)
+        if isinstance(shape, Polygon):
+            return list(grid.iter_indices_in_polygon(shape))
+        return list(grid.iter_indices_in_rect(shape))
+    # Neutral records can contain disconnected components and holes that the
+    # legacy single-shape iterator cannot represent without filling topology.
+    return [
+        (row, col)
+        for row, col in grid.iter_indices_in_rect(record["rect"])
+        if _record_rect_overlap_area(record, grid.cell_rect(row, col)) > 1e-9
+    ]
 
 
 def _seed_cells_for_record(
     grid: SpatialGridBackend,
     record: dict,
     domain_cells: set[tuple[int, int]],
+    *,
+    component_aware: bool = False,
 ) -> list[tuple[int, int]]:
-    cells = _cells_for_record(grid, record)
+    """Return entry seed cells while preserving the selected geometry mode."""
+    cells = _cells_for_record(
+        grid,
+        record,
+        component_aware=component_aware,
+    )
     if cells:
         return [cell for cell in cells if cell in domain_cells]
     row = min(grid.n_rows - 1, max(0, int(record["rect"].cy // grid.resolution)))
@@ -5789,10 +6298,17 @@ def _record_reachability(
     domain_cells: set[tuple[int, int]],
     entry_distances: dict[tuple[int, int], int],
     visibility_distances: dict[tuple[int, int], int],
+    *,
+    component_aware: bool = False,
 ) -> dict:
+    """Describe sampled region reachability under legacy or Neutral geometry."""
     cells = [
         cell
-        for cell in _cells_for_record(grid, record)
+        for cell in _cells_for_record(
+            grid,
+            record,
+            component_aware=component_aware,
+        )
         if cell in domain_cells and grid.free(*cell)
     ]
     reachable_cells = [
@@ -5844,18 +6360,15 @@ def _path_polygon(path: dict) -> Polygon | None:
 
 def _path_blocker_overlap_samples(
     path: dict,
-    path_polygon: Polygon | None,
     blockers: list[dict],
 ) -> list[dict]:
+    """Report component-aware blocker overlap for one authored path."""
     samples = []
+    path_geometry = _record_shapely_geometry(path)
     for blocker in blockers:
         if blocker["id"] == path["id"]:
             continue
-        area = (
-            _polygon_rect_overlap_area(path_polygon, blocker["rect"])
-            if path_polygon is not None
-            else _rect_overlap_area(path["rect"], blocker["rect"])
-        )
+        area = path_geometry.intersection(_record_shapely_geometry(blocker)).area
         if area <= 1e-9:
             continue
         samples.append(
@@ -5965,12 +6478,8 @@ def _path_region_boundary_cue_evidence(scene: dict, region_edges: list[dict]) ->
 
 
 def _line_of_sight_entry_region_evidence(scene: dict) -> list[dict]:
-    blockers = [
-        boundary
-        for boundary in scene.get("boundaries", [])
-        if boundary.get("metadata", {}).get("boundary-kind") != "room"
-        and boundary.get("weights", {}).get("see_block", 0.0) > 0
-    ]
+    """Describe entry-region centerlines against physical and legacy sight blockers."""
+    blockers = _boundary_blockers(scene, "see_block")
     evidence = []
     for region in scene.get("regions", []):
         samples = []
@@ -5981,9 +6490,9 @@ def _line_of_sight_entry_region_evidence(scene: dict) -> list[dict]:
                 evidence
                 for blocker in blockers
                 for evidence in [_line_of_sight_blocker_evidence(blocker, start, end)]
-                if not _rects_touch(entry["rect"], blocker["rect"])
+                if not _record_geometries_touch(entry, blocker)
                 and not _record_contains_point(blocker, start)
-                and evidence["intersection_points"]
+                and _has_forward_los_intersection(evidence)
             ]
             samples.append(
                 {
@@ -6004,12 +6513,8 @@ def _line_of_sight_entry_region_evidence(scene: dict) -> list[dict]:
 
 
 def _line_of_sight_region_pair_evidence(scene: dict) -> list[dict]:
-    blockers = [
-        boundary
-        for boundary in scene.get("boundaries", [])
-        if boundary.get("metadata", {}).get("boundary-kind") != "room"
-        and boundary.get("weights", {}).get("see_block", 0.0) > 0
-    ]
+    """Describe region-pair centerlines against physical and legacy sight blockers."""
+    blockers = _boundary_blockers(scene, "see_block")
     evidence = []
     for region_a, region_b in combinations(scene.get("regions", []), 2):
         start = (region_a["rect"].cx, region_a["rect"].cy)
@@ -6041,6 +6546,7 @@ def _line_of_sight_blocker_evidence(
     start: tuple[float, float],
     end: tuple[float, float],
 ) -> dict:
+    """Measure exact component intersections along one sight segment."""
     intersections = _record_line_intersections(record, start, end)
     distances = [
         round(hypot(point[0] - start[0], point[1] - start[1]), 4)
@@ -6058,7 +6564,23 @@ def _line_of_sight_blocker_evidence(
     }
 
 
+def _has_forward_los_intersection(evidence: dict) -> bool:
+    """Ignore zero-distance entry contact while retaining farther component hits."""
+    return any(
+        distance > 1e-9
+        for distance in evidence.get("intersection_distances_from_start", [])
+    )
+
+
+def _record_geometries_touch(left: dict, right: dict) -> bool:
+    """Test actual component geometry contact without using enclosing bboxes."""
+    return _record_shapely_geometry(left).intersects(
+        _record_shapely_geometry(right)
+    )
+
+
 def _line_of_sight_graph(scene: dict) -> dict:
+    """Build a visibility graph only when the active channel is evidenced."""
     nodes = [
         _line_of_sight_node(kind, record)
         for kind, records in (
@@ -6067,6 +6589,29 @@ def _line_of_sight_graph(scene: dict) -> dict:
         )
         for record in records
     ]
+    if not _channel_available(scene, "visibility_channel"):
+        return {
+            "status": "not_available",
+            "nodes": nodes,
+            "edges": [],
+            "metrics": {
+                "node_count": len(nodes),
+                "edge_count": 0,
+                "visible_edge_count": 0,
+                "blocked_edge_count": 0,
+                "visible_edge_ratio": None,
+                "blocked_edge_ratio": None,
+                "visible_edge_ids": [],
+                "blocked_edge_ids": [],
+                "blocking_boundary_ids": [],
+                "blocking_boundary_edge_evidence": [],
+                "mean_centerline_length": None,
+            },
+            "uncertainty": (
+                "requires explicit visual bands and usable closed manifold "
+                "mass geometry"
+            ),
+        }
     nodes_by_ref = {node["ref_id"]: node for node in nodes}
     edges = []
     for item in _line_of_sight_entry_region_evidence(scene):
@@ -6093,11 +6638,14 @@ def _line_of_sight_graph(scene: dict) -> dict:
                 item,
             )
         )
-    return {
+    result = {
         "nodes": nodes,
         "edges": edges,
         "metrics": _line_of_sight_graph_metrics(nodes, edges),
     }
+    if _is_neutral_analysis_view(scene):
+        result["status"] = "computed"
+    return result
 
 
 def _line_of_sight_node(kind: str, record: dict) -> dict:
@@ -6182,6 +6730,26 @@ def _line_of_sight_graph_metrics(nodes: list[dict], edges: list[dict]) -> dict:
 
 
 def _isovist_radial_proxy(scene: dict, ray_count: int = 8) -> dict:
+    """Sample radial sight rays against room and deduplicated blocker geometry."""
+    if not _channel_available(scene, "isovist_channel"):
+        return {
+            "status": "not_available",
+            "method": "radial_isovist_see_block_ray_intersection_proxy",
+            "ray_evidence": [],
+            "isovist_area_evidence": [],
+            "metrics": {
+                "vantage_count": 0,
+                "ray_count": 0,
+                "blocked_ray_count": 0,
+                "blocked_ray_ratio": None,
+                "mean_hit_distance": None,
+                "mean_hit_polygon_area": None,
+            },
+            "uncertainty": (
+                "requires explicit visual bands and usable closed manifold "
+                "mass geometry"
+            ),
+        }
     room = _room_boundary(scene)
     viewpoints = [
         (kind, record)
@@ -6209,12 +6777,7 @@ def _isovist_radial_proxy(scene: dict, ray_count: int = 8) -> dict:
             "uncertainty": "needs a room boundary and at least one entry or analysis region for radial isovist sampling",
         }
 
-    blockers = [
-        boundary
-        for boundary in scene.get("boundaries", [])
-        if boundary.get("metadata", {}).get("boundary-kind") != "room"
-        and boundary.get("weights", {}).get("see_block", 0.0) > 0
-    ]
+    blockers = _boundary_blockers(scene, "see_block")
     ray_length = max(hypot(*scene["size"]), hypot(room["rect"].width, room["rect"].height))
     ray_evidence = []
     for kind, record in viewpoints:
@@ -6337,42 +6900,50 @@ def _record_line_intersections(
     start: tuple[float, float],
     end: tuple[float, float],
 ) -> list[tuple[float, float]]:
-    points = record.get("points") or []
-    if len(points) >= 2:
-        intersections = [
-            _line_segment_intersection_point(start, end, a, b)
-            for a, b in _closed_edges(points)
-            if _segments_intersect(start, end, a, b)
-        ]
-        return _unique_points(
-            point for point in intersections if point is not None
+    """Intersect a segment with every exterior and hole boundary of a record."""
+    rings = []
+    for component in _record_component_shapes(record):
+        exterior = component["exterior"]
+        exterior_points = (
+            list(exterior.points)
+            if isinstance(exterior, Polygon)
+            else [
+                (exterior.left, exterior.top),
+                (exterior.right, exterior.top),
+                (exterior.right, exterior.bottom),
+                (exterior.left, exterior.bottom),
+            ]
         )
-    rect = record["rect"]
-    if rect.width <= 1e-9 or rect.height <= 1e-9:
-        return []
-    corners = [
-        (rect.left, rect.top),
-        (rect.right, rect.top),
-        (rect.right, rect.bottom),
-        (rect.left, rect.bottom),
-    ]
+        rings.append(exterior_points)
+        rings.extend(list(hole.points) for hole in component["holes"])
     intersections = [
         _line_segment_intersection_point(start, end, a, b)
-        for a, b in _closed_edges(corners)
+        for ring in rings
+        for a, b in _closed_edges(ring)
         if _segments_intersect(start, end, a, b)
     ]
-    if _point_in_rect(start, rect):
+    if _record_contains_point(record, start):
         intersections.append(start)
-    if _point_in_rect(end, rect):
+    if _record_contains_point(record, end):
         intersections.append(end)
     return _unique_points(point for point in intersections if point is not None)
 
 
 def _record_contains_point(record: dict, point: tuple[float, float]) -> bool:
-    points = record.get("points") or []
-    if len(points) >= 3:
-        return _point_in_polygon(point, points)
-    return _point_in_rect(point, record["rect"])
+    """Return whether a point lies in any component exterior but outside its holes."""
+    for component in _record_component_shapes(record):
+        exterior = component["exterior"]
+        inside_exterior = (
+            _point_in_polygon(point, list(exterior.points))
+            if isinstance(exterior, Polygon)
+            else _point_in_rect(point, exterior)
+        )
+        if not inside_exterior:
+            continue
+        if any(_point_in_polygon(point, list(hole.points)) for hole in component["holes"]):
+            continue
+        return True
+    return False
 
 
 def _path_connectivity_rows(
@@ -8054,6 +8625,26 @@ def _path_connectivity_rows(
     ]
 
 
+def _subject_interface_relation_row(
+    relations: list[dict],
+    scope: dict,
+) -> dict:
+    """Expose Neutral subject-interface descriptions as a non-scoring count row."""
+    return {
+        "view_id": "boundary_relations",
+        "metric": "subject_interface_relation_count",
+        "score": len(relations) if scope.get("status") == "computed" else None,
+        "status": scope.get("status", "not_available"),
+        "method": "weight_free_region_to_neutral_interface_relations",
+        "evidence": [relation["id"] for relation in relations],
+        "subject_interface_relations": relations,
+        "subject_interface_relation_scope": scope,
+        "scoring_role": "diagnostic",
+        "uncertainty": scope.get("uncertainty")
+        or "relation fields remain factual and unweighted",
+    }
+
+
 def _boundary_metrics_rows(scene: dict, graph: dict) -> list[dict]:
     boundaries = scene["boundaries"]
     entries = scene["entries"]
@@ -9075,6 +9666,15 @@ def _adapter_column_grid_handoff(rows: list[dict]) -> dict:
 
 
 def _adapter_material_calibration_handoff(scene: dict, rows: list[dict]) -> dict:
+    """Return legacy calibration evidence only when authored weights exist."""
+    if _is_neutral_analysis_view(scene):
+        # Neutral Scene descriptions carry measured channels, not authored
+        # aggregate weights, so this compatibility handoff is explicitly absent.
+        return {
+            "status": "not_available",
+            "method": "not_available_without_legacy_boundary_weights",
+            "uncertainty": "neutral_scene_has_no_authored_boundary_weights",
+        }
     boundary_rows = {
         row["metric"]: row
         for row in rows
@@ -9281,23 +9881,39 @@ def _adapter_route_topology_handoff(
         "method": "adapter_route_topology_handoff_from_existing_proxy_graphs",
         "cad_component_graph": {
             "method": cad_graph.get("method"),
-            "node_count": cad_graph.get("node_count", 0),
-            "edge_count": cad_graph.get("edge_count", 0),
+            "node_count": cad_graph.get("node_count"),
+            "edge_count": cad_graph.get("edge_count"),
             # Forward existing graph details for adapters without changing route logic.
             "items": {
                 "nodes": cad_graph.get("nodes", []),
                 "edges": cad_graph.get("edges", []),
             },
+            **(
+                {
+                    "status": "not_available",
+                    "uncertainty": cad_graph.get("uncertainty"),
+                }
+                if cad_graph.get("status") == "not_available"
+                else {}
+            ),
         },
         "free_space_polygon_graph": {
             "method": free_graph.get("method"),
-            "node_count": free_graph.get("node_count", 0),
-            "edge_count": free_graph.get("edge_count", 0),
+            "node_count": free_graph.get("node_count"),
+            "edge_count": free_graph.get("edge_count"),
             # Keep the rect-cell graph inspectable until a navmesh/skeleton replaces it.
             "items": {
                 "nodes": free_graph.get("nodes", []),
                 "edges": free_graph.get("edges", []),
             },
+            **(
+                {
+                    "status": "not_available",
+                    "uncertainty": free_graph.get("uncertainty"),
+                }
+                if free_graph.get("status") == "not_available"
+                else {}
+            ),
         },
         "inferred_gap_paths": {
             "method": "affordance_region_bbox_axis_gap_band_proxy",
@@ -9529,6 +10145,8 @@ def _adapter_evidence_geometry(
     spatial_networks: list[dict],
     boundary_semantics: list[dict],
 ) -> dict:
+    """Build compact evidence geometry without inventing unavailable topology."""
+    negative_space_available = negative_space.get("status") != "not_available"
     gap_path_occupancy = next(
         (
             row.get("inferred_region_gap_path_occupancy_evidence", [])
@@ -9770,20 +10388,49 @@ def _adapter_evidence_geometry(
                 "cad_room_minus_blocker_entry_connected_area_ratio"
             ),
         },
-        "cad_room_minus_blocker_component_graph": _cad_room_minus_blocker_component_graph(
-            negative_space.get(
-                "cad_room_minus_blocker_component_touch_evidence",
-                [],
+        "cad_room_minus_blocker_component_graph": (
+            _cad_room_minus_blocker_component_graph(
+                negative_space.get(
+                    "cad_room_minus_blocker_component_touch_evidence",
+                    [],
+                )
             )
+            if negative_space_available
+            else {
+                "status": "not_available",
+                "method": None,
+                "node_count": None,
+                "edge_count": None,
+                "nodes": [],
+                "edges": [],
+                "uncertainty": negative_space.get("uncertainty"),
+            }
         ),
-        "free_space_polygon_graph": negative_space.get(
-            "free_space_polygon_graph",
-            {},
+        "free_space_polygon_graph": (
+            negative_space.get("free_space_polygon_graph", {})
+            if negative_space_available
+            else {
+                "status": "not_available",
+                "method": None,
+                "node_count": None,
+                "edge_count": None,
+                "nodes": [],
+                "edges": [],
+                "uncertainty": negative_space.get("uncertainty"),
+            }
         ),
         "negative_space_graph": {
             "method": negative_space.get("component_method"),
-            "node_count": len(negative_space_graph.get("nodes", [])),
-            "edge_count": len(negative_space_graph.get("edges", [])),
+            "node_count": (
+                len(negative_space_graph.get("nodes", []))
+                if negative_space_available
+                else None
+            ),
+            "edge_count": (
+                len(negative_space_graph.get("edges", []))
+                if negative_space_available
+                else None
+            ),
             "nodes": [
                 {
                     "id": node["id"],
@@ -9802,6 +10449,14 @@ def _adapter_evidence_geometry(
                 }
                 for edge in negative_space_graph.get("edges", [])
             ],
+            **(
+                {
+                    "status": "not_available",
+                    "uncertainty": negative_space_graph.get("uncertainty"),
+                }
+                if not negative_space_available
+                else {}
+            ),
         },
         "uncertainty": "proxy evidence geometry for adapter handoff; not CAD boolean topology, navmesh, or live Rhino/BIM geometry",
     }
@@ -9867,6 +10522,7 @@ def _adapter_scene_records(scene: dict) -> list[dict]:
     return (
         scene.get("objects", [])
         + scene.get("boundaries", [])
+        + scene.get("boundary_facts", [])
         + scene.get("entries", [])
         + scene.get("paths", [])
         + scene.get("regions", [])

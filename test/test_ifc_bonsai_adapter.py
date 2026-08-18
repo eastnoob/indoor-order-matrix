@@ -608,7 +608,8 @@ def test_adapter_preserves_native_ifc_group_and_grid_axis_facts(tmp_path):
     assert scene.authored_groups[0].source_id == group.GlobalId
     assert scene.authored_groups[0].member_refs == (f"ifc-object:{furniture.GlobalId}",)
     assert scene.authored_grids[0].source_id == grid.GlobalId
-    assert scene.authored_grid_axes[0].branch_identifier == "A"
+    assert scene.authored_grid_axes[0].branch_identifier is None
+    assert scene.authored_grid_axes[0].provenance["axis_tag"] == "A"
     assert scene.authored_grid_axes[0].curve_points == ((0.0, 0.0, 0.0), (5.0, 0.0, 0.0))
     furniture_record = next(
         record for record in scene.source_objects if record.source_id == furniture.GlobalId

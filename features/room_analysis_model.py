@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from statistics import mean
 
+from .neutral_scene_views import AnalysisSceneInput, analysis_scene_view
+
 
 CONTRACT = {"id": "room_analysis_model", "version": 1}
 
 
-def build_room_analysis_model(scene: dict, matrix: dict) -> dict:
+def build_room_analysis_model(scene: AnalysisSceneInput, matrix: dict) -> dict:
     """Build the static room analysis model from neutral scene and matrix data."""
+    scene = analysis_scene_view(scene)
     metrics = _metric_records(matrix)
     return {
         "contract": dict(CONTRACT),
@@ -29,7 +32,8 @@ def _base_layer(scene: dict) -> dict:
         "room": {
             "id": "room",
             "bounds": {"width": width, "height": height},
-            "boundaries": list(scene.get("boundaries", [])),
+            "boundaries": list(scene.get("boundaries", []))
+            + list(scene.get("boundary_facts", [])),
         }
     }
 
@@ -50,11 +54,29 @@ def _object_layer(scene: dict, matrix: dict) -> dict:
 def _region_layer(scene: dict, matrix: dict) -> dict:
     """Return activity regions and whole-room fallback scopes."""
     scopes = list(matrix.get("region_position_grammar", {}).get("scopes", []))
+    # Direct Neutral Scene callers have no authored analysis regions, while the
+    # evaluator's compatibility scene may already contain the same inferred ids.
+    activity_regions = _unique_records(
+        list(scene.get("regions", [])) + list(matrix.get("inferred_regions", []))
+    )
     return {
-        "activity_regions": list(scene.get("regions", [])),
+        "activity_regions": activity_regions,
         "position_scopes": scopes,
         "room_scopes": [scope for scope in scopes if scope.get("kind") == "room_scope"],
     }
+
+
+def _unique_records(records: list[dict]) -> list[dict]:
+    """Preserve record order while removing duplicate stable ids."""
+    result = []
+    seen = set()
+    for record in records:
+        record_id = record.get("id")
+        if record_id in seen:
+            continue
+        seen.add(record_id)
+        result.append(record)
+    return result
 
 
 def _network_layer(matrix: dict) -> dict:
@@ -70,9 +92,16 @@ def _reference_layer(scene: dict, matrix: dict) -> dict:
     """Return independent reference systems for later alignment metrics."""
     return {
         "boundary_semantics": list(matrix.get("boundary_semantics", [])),
+        "subject_interface_relations": list(
+            matrix.get("subject_interface_relations", [])
+        ),
+        "subject_interface_relation_scope": dict(
+            matrix.get("subject_interface_relation_scope", {})
+        ),
         "column_grid": matrix.get("column_grid", {}),
         "column_axes": list(scene.get("column_axes", [])),
-        "boundaries": list(scene.get("boundaries", [])),
+        "boundaries": list(scene.get("boundaries", []))
+        + list(scene.get("boundary_facts", [])),
     }
 
 

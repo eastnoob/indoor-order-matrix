@@ -77,12 +77,37 @@ class ClearanceResult:
         }
 
 
+def component_shape(components: Iterable[Mapping[str, object]]):
+    """Build exact polygonal geometry from disconnected exteriors and holes."""
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+
+    polygons = []
+    for component in components:
+        exterior = component.get("exterior", ())
+        holes = component.get("holes", ())
+        if len(exterior) < 3:
+            continue
+        polygon = Polygon(exterior, holes)
+        if polygon.is_valid and not polygon.is_empty:
+            polygons.append(polygon)
+    return unary_union(polygons) if polygons else None
+
+
 def plan_projection(
     patch: MassPatch,
     analysis_plane: object | None = None,
     height_band: tuple[float, float] | None = None,
+    *,
+    height_tolerance: float = 1e-9,
 ) -> PlanProjection:
-    """Project substitute faces while preserving disconnected plan topology."""
+    """Project substitute faces while preserving disconnected plan topology.
+
+    Height-band projections require positive vertical overlap beyond the
+    supplied tolerance; contact with a support plane is not a collision.
+    """
+    if not math.isfinite(height_tolerance) or height_tolerance < 0.0:
+        raise ValueError("height_tolerance must be finite and non-negative")
     plane = analysis_plane
     clipped_polygons = []
     if height_band is None:
@@ -98,6 +123,18 @@ def plan_projection(
             )
         components = _polygon_components(projected_polygons)
     else:
+        if not _patch_overlaps_height_band(
+            patch,
+            plane,
+            height_band,
+            tolerance=height_tolerance,
+        ):
+            return PlanProjection(
+                patch.id,
+                (),
+                "no_positive_vertical_overlap_with_height_band",
+                (),
+            )
         # Clip each face against both height planes so a thin slice through a
         # sloped face is represented even when no source vertex lies in it.
         for first, second, third in patch.triangle_indices:
@@ -107,9 +144,22 @@ def plan_projection(
                 clipped_polygons.append(tuple((point[0], point[1]) for point in clipped))
         components = _polygon_components(clipped_polygons)
         if not components and patch.is_closed is True:
+            # Vertical shell faces collapse to plan lines after band clipping.
+            # Reconstruct the occupied cross-section before considering a full
+            # footprint fallback, so local high parts stay spatially local.
+            components = _height_band_cross_section_components(
+                patch,
+                plane,
+                height_band,
+            )
+        if (
+            not components
+            and patch.is_closed is True
+            and _patch_overlaps_height_band(patch, plane, height_band)
+        ):
             # A closed shell may expose only vertical faces at a thin slice;
-            # use its triangulated footprint as an explicit conservative
-            # fallback and keep the result auditable via the uncertainty code.
+            # use its footprint only when the requested band actually crosses
+            # the patch. This avoids promoting a low seat into an eye blocker.
             footprint_polygons = []
             for first, second, third in patch.triangle_indices:
                 footprint_polygons.append(
@@ -124,6 +174,26 @@ def plan_projection(
     if height_band is not None and components and not clipped_polygons:
         uncertainty = "height_band_surface_projection_fallback"
     return PlanProjection(patch.id, tuple(points), uncertainty, tuple(components))
+
+
+def _patch_overlaps_height_band(
+    patch: MassPatch,
+    analysis_plane: object | None,
+    height_band: tuple[float, float],
+    *,
+    tolerance: float = 1e-9,
+) -> bool:
+    """Return whether local height ranges overlap by more than tolerance."""
+    heights = [
+        _project_to_plane(vertex, analysis_plane)[2]
+        for vertex in patch.vertices
+    ]
+    if not heights:
+        return False
+    overlap = min(max(heights), height_band[1]) - max(
+        min(heights), height_band[0]
+    )
+    return overlap > tolerance
 
 
 def vertical_intervals_at(
@@ -366,6 +436,93 @@ def _clip_polygon_height(
     return result
 
 
+def _height_band_cross_section_components(
+    patch: MassPatch,
+    analysis_plane: object | None,
+    height_band: tuple[float, float],
+) -> tuple[dict[str, object], ...]:
+    """Recover local occupied plan faces from closed-mesh band cross-sections."""
+    from shapely.geometry import LineString
+    from shapely.ops import polygonize, unary_union
+
+    local_vertices = tuple(
+        _project_to_plane(vertex, analysis_plane)
+        for vertex in patch.vertices
+    )
+    if not local_vertices:
+        return ()
+    minimum = max(height_band[0], min(vertex[2] for vertex in local_vertices))
+    maximum = min(height_band[1], max(vertex[2] for vertex in local_vertices))
+    if maximum <= minimum + 1e-12:
+        return ()
+    events = sorted(
+        {minimum, maximum}
+        | {
+            vertex[2]
+            for vertex in local_vertices
+            if minimum < vertex[2] < maximum
+        }
+    )
+    sample_heights = [
+        (lower + upper) / 2.0
+        for lower, upper in zip(events, events[1:])
+        if upper > lower + 1e-12
+    ]
+    local_patch = MassPatch(
+        id=patch.id,
+        source_geometry_id=patch.source_geometry_id,
+        vertices=local_vertices,
+        triangle_indices=patch.triangle_indices,
+        is_manifold=patch.is_manifold,
+        is_closed=patch.is_closed,
+        provenance=patch.provenance,
+    )
+    occupied_faces = []
+    for height in sample_heights:
+        lines = []
+        for indices in patch.triangle_indices:
+            triangle = tuple(local_vertices[index] for index in indices)
+            points = _triangle_height_intersections(triangle, height)
+            if len(points) == 2:
+                lines.append(LineString(points))
+        if not lines:
+            continue
+        # Polygonized linework contains both occupied faces and enclosed holes;
+        # a 3D parity probe keeps only the physically occupied planar faces.
+        for face in polygonize(unary_union(lines)):
+            point = face.representative_point()
+            if _point_inside_closed_mesh(
+                local_patch,
+                (float(point.x), float(point.y), height),
+            ):
+                occupied_faces.append(face)
+    if not occupied_faces:
+        return ()
+    return _shapely_polygon_components(unary_union(occupied_faces))
+
+
+def _triangle_height_intersections(
+    triangle: tuple[tuple[float, float, float], ...],
+    height: float,
+) -> tuple[tuple[float, float], ...]:
+    """Return the two plan points where one triangle crosses a sample height."""
+    points = []
+    for start, end in zip(triangle, triangle[1:] + triangle[:1]):
+        if (start[2] < height < end[2]) or (end[2] < height < start[2]):
+            ratio = (height - start[2]) / (end[2] - start[2])
+            point = (
+                start[0] + ratio * (end[0] - start[0]),
+                start[1] + ratio * (end[1] - start[1]),
+            )
+            if not any(
+                math.isclose(point[0], existing[0], abs_tol=1e-9)
+                and math.isclose(point[1], existing[1], abs_tol=1e-9)
+                for existing in points
+            ):
+                points.append(point)
+    return tuple(points)
+
+
 def _polygon_components(
     polygons: Iterable[tuple[tuple[float, float], ...]],
 ) -> tuple[dict[str, object], ...]:
@@ -378,6 +535,11 @@ def _polygon_components(
     if not valid:
         return ()
     union = unary_union(valid)
+    return _shapely_polygon_components(union)
+
+
+def _shapely_polygon_components(union: object) -> tuple[dict[str, object], ...]:
+    """Serialize Shapely polygon components while preserving interior holes."""
     geometries = union.geoms if union.geom_type == "MultiPolygon" else (union,)
     components = []
     for geometry in geometries:
@@ -400,6 +562,7 @@ def _canonical_ring(coordinates: Iterable[tuple[float, float]]) -> tuple[tuple[f
     points = tuple((float(x), float(y)) for x, y in coordinates)
     if len(points) > 1 and points[0] == points[-1]:
         points = points[:-1]
+    points = _without_collinear_vertices(points)
     signed_area = sum(
         start[0] * end[1] - end[0] * start[1]
         for start, end in zip(points, points[1:] + points[:1])
@@ -408,6 +571,28 @@ def _canonical_ring(coordinates: Iterable[tuple[float, float]]) -> tuple[tuple[f
         points = tuple(reversed(points))
     start_index = min(range(len(points)), key=points.__getitem__)
     return points[start_index:] + points[:start_index]
+
+
+def _without_collinear_vertices(
+    points: tuple[tuple[float, float], ...],
+) -> tuple[tuple[float, float], ...]:
+    """Remove triangulation split points that do not change a closed ring."""
+    if len(points) <= 3:
+        return points
+    retained = []
+    for previous, current, following in zip(
+        points[-1:] + points[:-1],
+        points,
+        points[1:] + points[:1],
+    ):
+        cross = (
+            (current[0] - previous[0]) * (following[1] - current[1])
+            - (current[1] - previous[1]) * (following[0] - current[0])
+        )
+        if math.isclose(cross, 0.0, abs_tol=1e-9):
+            continue
+        retained.append(current)
+    return tuple(retained) if len(retained) >= 3 else points
 
 
 def _ray_hits_mesh(

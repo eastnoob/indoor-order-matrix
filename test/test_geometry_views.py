@@ -125,6 +125,33 @@ def test_sofa_seat_and_back_can_keep_distinct_local_height_views():
     assert back_result.intervals == ((0.0, 1.8),)
 
 
+def test_height_band_projection_keeps_only_high_back_in_one_sofa_mesh():
+    """One mesh with touching low/high parts must retain the local high slice."""
+    seat = _box_mesh(mesh_id="joined-sofa", top=0.45)
+    back = _box_mesh(mesh_id="joined-sofa", top=2.0)
+    back = replace(
+        back,
+        vertices=tuple((x + 2.0, y, z) for x, y, z in back.vertices),
+    )
+    offset = len(seat.vertices)
+    joined = replace(
+        seat,
+        vertices=seat.vertices + back.vertices,
+        triangle_indices=seat.triangle_indices + tuple(
+            tuple(index + offset for index in triangle)
+            for triangle in back.triangle_indices
+        ),
+    )
+
+    projection = plan_projection(
+        mass_patch_from_mesh(joined),
+        height_band=(1.5, 1.8),
+    )
+
+    assert len(projection.components) == 1
+    assert min(point[0] for point in projection.components[0]["exterior"]) >= 2.0
+
+
 def test_open_mesh_reports_uncertainty_instead_of_false_solid_clearance():
     """Missing closure must remain explicit when computing clearance evidence."""
     patch = mass_patch_from_mesh(

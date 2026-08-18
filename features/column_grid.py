@@ -6,10 +6,12 @@ from statistics import mean
 
 from .affordance.grid_backend import shape_overlap_area
 from .affordance.models import Polygon, Rect
+from .neutral_scene_views import AnalysisSceneInput, analysis_scene_view
 
 
-def column_grid_evidence(scene: dict) -> dict:
+def column_grid_evidence(scene: AnalysisSceneInput) -> dict:
     """Build neutral column-grid evidence from explicit authored axes."""
+    scene = analysis_scene_view(scene)
     axes = [_axis_record(axis) for axis in scene.get("column_axes", [])]
     if not axes:
         return {

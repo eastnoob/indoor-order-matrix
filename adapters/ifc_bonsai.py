@@ -758,10 +758,14 @@ def _native_grid_records(
                         id=axis_id,
                         source_id=f"ifc-step:{step_id}",
                         curve_points=points,
-                        branch_identifier=getattr(axis, "AxisTag", None),
+                        branch_identifier=None,
                         list_identifier=collection_name,
                         same_sense=same_sense,
-                        provenance={"method": "ifc4_grid_axis_curve", "schema": "IFC4"},
+                        provenance={
+                            "method": "ifc4_grid_axis_curve",
+                            "schema": "IFC4",
+                            "axis_tag": getattr(axis, "AxisTag", None),
+                        },
                     )
                 )
         grids.append(
