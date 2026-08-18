@@ -3407,3 +3407,24 @@
   combined tests, `631 passed in 315.57s` full Pixi suite, compileall and
   `git diff --check` passed. Independent spec and quality reviews approved the
   implementation with no remaining Critical or Important findings.
+
+2026-08-19, Gate 9 Blender description preview and notebook:
+
+- Added `adapters/blender_preview.py`, an output-only manifest/script layer.
+  It preserves source geometry and exposes inferred regions, two trend axes
+  with reported strengths, authored grid axes, gap paths, and boundary walking
+  and visual channel summaries in `OM_AnalysisPreview`. It does not infer facts,
+  add weights, or delete source objects.
+- Added `test/bim_description_demo.ipynb` and executed it to
+  `test/output/bim_description_demo.executed.ipynb`. The notebook reads the
+  generated IFC through the IFC adapter and Neutral Scene analysis, then emits
+  `test/output/bim_description_demo.visual.html`,
+  `test/output/bim_description_demo.visual.png`, and
+  `test/output/bim_description_demo_preview.py`.
+- Visual artifact summary: five inferred regions, six gap paths, four authored
+  grid axes, thirteen boundary channels, and fifteen source geometry records.
+- Gate 9 verification: `77 passed` focused preview/IFC/acceptance tests,
+  `635 passed in 309.36s` full Pixi suite, compileall and `git diff --check`
+  passed. Portable Blender process smoke verification was attempted with the
+  approved Blender 5.2 executable, but the execution approval service returned
+  HTTP 503 before launch; no success claim is made for that process check.

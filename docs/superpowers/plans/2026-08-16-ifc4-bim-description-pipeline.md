@@ -519,19 +519,19 @@ authority.
 - Create: `test/output/bim_description_demo.visual.png`
 - Create: `test/output/bim_description_demo.visual.html`
 
-- [ ] **Step 1: Write failing preview tests.**
+- [x] **Step 1: Write failing preview tests.**
 
 Assert that regeneration creates only `OM_AnalysisPreview`, keeps source IFC
 entity digest stable, and emits source geometry, inferred regions, two trend
 axes, authored grid axes, paths, and compact boundary-channel summaries.
 
-- [ ] **Step 2: Implement output-only preview.**
+- [x] **Step 2: Implement output-only preview.**
 
 Use result ids and source GlobalIds, never IFC classes for derived records. Draw
 the original geometry and overlays together. Keep legends compact and keep
 tables outside the main geometry view where possible.
 
-- [ ] **Step 3: Execute the notebook.**
+- [x] **Step 3: Execute the notebook.**
 
 Run:
 
@@ -546,13 +546,20 @@ Export the visual HTML/PNG using the repository's existing notebook flow.
 Run the generated acceptance scene with
 `D:\Blender\BlenderPortableLTS5.2\App\Blender64\blender.exe`, inspect plan and
 3D views, and confirm that source geometry, regions, both trend axes, grid,
-paths, and selected boundary channels are all visible and not replaced.
+paths, and selected boundary channels are all visible and not replaced. The
+generated script and manifest were verified, but the Blender process could not
+be launched in this run because the execution approval service returned HTTP
+503; this remains an environment-blocked smoke test.
 
-- [ ] **Step 5: Verify and self-review.**
+- [x] **Step 5: Verify and self-review.**
 
 Run focused preview tests, execute the notebook again, and run `pixi run
 pytest`. Grill Me: can a misleading overlay hide missing JSON evidence? The
-answer must be no; the notebook must read and display the serialized records.
+answer is no; the notebook reads and displays the serialized records.
+Verification so far: `78 passed` focused preview/IFC/acceptance tests,
+`635 passed in 309.36s` full suite before the review repairs, compileall
+passed, and executed notebook HTML/PNG artifacts were generated. This gate
+cannot checkpoint until the portable-Blender process smoke test passes.
 
 - [ ] **Step 6: Create the checkpoint.**
 
