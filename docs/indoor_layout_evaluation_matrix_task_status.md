@@ -3383,3 +3383,27 @@
   unavailable-topology propagation gap; it was repaired with a regression test
   and approved on final re-review with no remaining Critical or Important
   findings.
+
+2026-08-19, Gate 8 generated BIM acceptance scene:
+
+- Added a disposable generated three-dimensional acceptance scene covering an
+  explicit room domain, floor and walls, aligned/oblique/mixed furniture
+  groups, local sofa height bands, a low cabinet, a transparent partition, a
+  carpet surface, explicit 3D chair affordances, and authored column-grid
+  axes. The user's open Blender scene is never mutated.
+- The same semantic scene is exercised through both IFC4/Bonsai loading and
+  explicit Blender geometry loading. Both paths feed Neutral Scene analysis
+  directly, including groups, grid axes, surface/material facts, affordances,
+  and analysis-domain records; the Blender path is not merely a bbox check.
+- IFC tessellation validation is conservative: duplicate triangles and
+  separate closed shells touching only at a vertex are rejected, while valid
+  closed shells remain accepted. Acceptance tests generate fresh temporary
+  artifacts rather than reading ignored stale output files.
+- Deterministic JSON artifacts omit scoring and perceptual-weight keys. IFC
+  smoke evidence: schema IFC4, one IfcSpace, one IfcGrid, two IfcSpatialZone,
+  and eight IfcFurniture records. Portable Blender 5.2.0 LTS was verified and
+  Bonsai was discoverable.
+- Gate 8 verification: `8 passed` acceptance tests, `108 passed` focused
+  combined tests, `631 passed in 315.57s` full Pixi suite, compileall and
+  `git diff --check` passed. Independent spec and quality reviews approved the
+  implementation with no remaining Critical or Important findings.

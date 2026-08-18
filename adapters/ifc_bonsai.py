@@ -1637,15 +1637,16 @@ def _mesh_record(
                 raise ValueError(f"{label} index is outside vertices")
             indices.append(vertex_index)
         triangles.append(tuple(indices))
-    # The adapter records extraction provenance; topology truth is left to the
-    # geometry diagnostics rather than guessed from an IFC class label.
+    is_manifold, is_closed = _triangle_topology_flags(tuple(triangles))
+    # Edge incidence derives topology from the tessellation itself. This avoids
+    # both IFC-class guesses and the false unknowns that suppress height bands.
     return MeshGeometry3D(
         id=f"ifc-mesh:{source_id}",
         vertices=vertices,
         triangle_indices=tuple(triangles),
         normals=(),
-        is_manifold=None,
-        is_closed=None,
+        is_manifold=is_manifold,
+        is_closed=is_closed,
         local_to_world_provenance={
             "method": "ifc4_read_only_extraction",
             "source_global_id": source_id,
@@ -1660,6 +1661,62 @@ def _mesh_record(
             "transform_applied": transform_applied,
         },
         units=units,
+    )
+
+
+def _triangle_topology_flags(
+    triangles: tuple[tuple[int, int, int], ...],
+) -> tuple[bool, bool]:
+    """Derive conservative manifold and closed flags from triangle connectivity."""
+    normalized_triangles = [tuple(sorted(triangle)) for triangle in triangles]
+    if len(set(normalized_triangles)) != len(normalized_triangles):
+        return False, False
+    edge_counts: dict[tuple[int, int], int] = {}
+    edge_to_triangles: dict[tuple[int, int], list[int]] = {}
+    for triangle_index, triangle in enumerate(triangles):
+        for first, second in (
+            (triangle[0], triangle[1]),
+            (triangle[1], triangle[2]),
+            (triangle[2], triangle[0]),
+        ):
+            edge = tuple(sorted((first, second)))
+            edge_counts[edge] = edge_counts.get(edge, 0) + 1
+            edge_to_triangles.setdefault(edge, []).append(triangle_index)
+    if not edge_counts or any(count > 2 for count in edge_counts.values()):
+        return False, False
+
+    # Edge-connected components may be separate solids, but sharing a vertex
+    # would make the tessellation non-manifold at that touching point.
+    adjacency = [[] for _ in triangles]
+    for edge_triangles in edge_to_triangles.values():
+        for first in edge_triangles:
+            adjacency[first].extend(
+                second for second in edge_triangles if second != first
+            )
+    components: list[set[int]] = []
+    unseen = set(range(len(triangles)))
+    while unseen:
+        root = unseen.pop()
+        component = {root}
+        stack = [root]
+        while stack:
+            current = stack.pop()
+            for neighbor in adjacency[current]:
+                if neighbor in unseen:
+                    unseen.remove(neighbor)
+                    component.add(neighbor)
+                    stack.append(neighbor)
+        components.append(component)
+    component_vertices = [
+        {vertex for triangle_index in component for vertex in triangles[triangle_index]}
+        for component in components
+    ]
+    for index, vertices in enumerate(component_vertices):
+        if any(vertices.intersection(other) for other in component_vertices[index + 1 :]):
+            return False, False
+    return (
+        True,
+        all(count == 2 for count in edge_counts.values()),
     )
 
 

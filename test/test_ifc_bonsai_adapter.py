@@ -11,7 +11,12 @@ import sys
 import numpy as np
 import pytest
 
-from ..adapters.ifc_bonsai import IfcDependencyUnavailable, load_ifc_neutral_scene
+from ..adapters.ifc_bonsai import (
+    IfcDependencyUnavailable,
+    _mesh_record,
+    _triangle_topology_flags,
+    load_ifc_neutral_scene,
+)
 
 
 def _write_reopenable_ifc4(path: Path) -> str:
@@ -51,6 +56,54 @@ class _FakeIfcFile:
     def snapshot(self) -> str:
         """Return a stable JSON digest surrogate for no-mutation assertions."""
         return json.dumps(self.payload, sort_keys=True)
+
+
+def _box_triangles(offset: int = 0) -> tuple[tuple[int, int, int], ...]:
+    """Return the deterministic closed-box triangles used by topology tests."""
+    return tuple(
+        tuple(index + offset for index in triangle)
+        for triangle in (
+            (0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5),
+            (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6),
+            (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3),
+        )
+    )
+
+
+def test_triangle_topology_flags_reject_duplicate_triangles():
+    """Duplicate faces must never be reported as a closed manifold shell."""
+    flags = _triangle_topology_flags(_box_triangles() + (_box_triangles()[0],))
+
+    assert flags == (False, False)
+
+
+def test_triangle_topology_flags_reject_vertex_touching_shell_components():
+    """Disconnected shells sharing one vertex must remain conservatively invalid."""
+    # Replace one vertex of the second shell with vertex zero; edge components
+    # remain separate while their vertex sets now touch.
+    touching_shell = tuple(
+        tuple(0 if index == 8 else index for index in triangle)
+        for triangle in _box_triangles(8)
+    )
+
+    assert _triangle_topology_flags(_box_triangles() + touching_shell) == (False, False)
+
+
+def test_mesh_record_preserves_valid_closed_box_topology():
+    """A single valid closed box remains manifold and closed after normalization."""
+    mesh = _mesh_record(
+        "valid-box",
+        {
+            "vertices": (
+                (0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 1.0, 0.0),
+                (0.0, 0.0, 1.0), (1.0, 0.0, 1.0), (0.0, 1.0, 1.0), (1.0, 1.0, 1.0),
+            ),
+            "triangles": _box_triangles(),
+        },
+        "m",
+    )
+
+    assert (mesh.is_manifold, mesh.is_closed) == (True, True)
 
 
 def test_adapter_reports_missing_injected_ifcopenshell_dependency():

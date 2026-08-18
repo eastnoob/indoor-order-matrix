@@ -454,7 +454,7 @@ height-aware input.
 - Create: `test/output/blender_demo_description.json`
 - Create: `test/output/blender_demo_room_analysis_model.json`
 
-- [ ] **Step 1: Write failing acceptance assertions.**
+- [x] **Step 1: Write failing acceptance assertions.**
 
 Require the manifest ids and the assertions from the spec: local sofa height
 interval differences, carpet without mass, distinct cabinet/partition walking
@@ -462,20 +462,20 @@ and visual evidence, explicit affordances, three furniture ordering cases,
 internal/inter-region graphs, grid relations, provenance, uncertainty, and
 weight-free JSON outputs.
 
-- [ ] **Step 2: Generate the scene deterministically.**
+- [x] **Step 2: Generate the scene deterministically.**
 
 Create room/floor/walls; simple tables, chairs, sofa seat/back/arms, cabinet,
 carpet, transparent partition, explicit chair affordance volumes, and authored
 grid axes. Place aligned, oblique, and mixed groups using stable transforms.
 Write a temporary `.blend` or IFC fixture only as a generated artifact.
 
-- [ ] **Step 3: Run both supported paths where applicable.**
+- [x] **Step 3: Run both supported paths where applicable.**
 
 Analyze the generated IFC through `ifc_bonsai`; analyze explicitly selected
 Blender geometry through `blender_geometry`; compare shared description records
 where both paths describe the same facts. Save the two required JSON outputs.
 
-- [ ] **Step 4: Verify and self-review.**
+- [x] **Step 4: Verify and self-review.**
 
 Run the acceptance test and `pixi run pytest`. Re-run generation and compare
 JSON after removing only explicitly timestamped provenance. Grill Me: can the
@@ -489,6 +489,22 @@ jj commit -m "test: add generated three-dimensional BIM acceptance scene"
 ```
 
 Checkpoint: `JJ-08-acceptance-scene`.
+
+Verification evidence before checkpoint creation:
+
+- acceptance suite: `8 passed` with fresh temporary artifacts;
+- focused IFC, geometry-substitute, Neutral, and acceptance regression:
+  `108 passed`;
+- full suite after Gate 8: `631 passed in 315.57s` (`0:05:15`);
+- generated IFC reopens as IFC4 and contains the explicit room, authored grid,
+  affordance zones, and furniture records;
+- direct portable Blender smoke run: Blender `5.2.0 LTS`, Bonsai module
+  discoverable, with the repository-approved executable and extension path;
+- JSON parse, deterministic regeneration, topology edge-case tests,
+  docstring audit, and `git diff --check` passed;
+- independent spec and quality reviews approved after repairing dual-path
+  analysis, conservative tessellation topology flags, and stale-output test
+  isolation.
 
 ## Gate 9: Blender Preview And Notebook Inspection
 

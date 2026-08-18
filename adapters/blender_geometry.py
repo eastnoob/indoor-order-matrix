@@ -162,6 +162,11 @@ def _source_object_from_snapshot(
         source_class=None,
         world_transform=record.get("world_transform", _IDENTITY_4),
         geometry_refs=(mesh.id,) if mesh is not None else (),
+        group_refs=tuple(record.get("group_refs", ())),
+        material_refs=tuple(record.get("material_refs", ())),
+        surface_refs=tuple(record.get("surface_refs", ())),
+        authored_local_frame=record.get("authored_local_frame"),
+        factual_properties=record.get("factual_properties", {}),
         provenance=provenance,
         uncertainties=uncertainties,
     )
