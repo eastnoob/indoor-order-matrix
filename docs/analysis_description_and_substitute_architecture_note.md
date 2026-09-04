@@ -1,7 +1,7 @@
 # Analysis Description And Substitute Architecture Note
 
 Date: 2026-08-10
-Updated: 2026-08-16
+Updated: 2026-09-02
 
 ## Purpose
 
@@ -134,6 +134,19 @@ object that must be kept in sync.
 ### `MassPatch`
 
 Represents local physical mass derived from object geometry.
+
+Minimum validity definition:
+
+> A valid `MassPatch` is the smallest triangulated geometry, in a unified
+> coordinate system and unit, that can answer whether a plan position is
+> occupied, which height intervals are occupied there, and whether a queried
+> line of sight is blocked.
+
+This definition is about analysis observability rather than visual similarity.
+The proxy may be much simpler than the source geometry, but it must preserve
+the plan gaps, height changes, holes, and occluding surfaces that affect those
+queries. A single bounding box is therefore valid only when it preserves these
+observations within the declared geometric tolerance.
 
 Derived functional representations:
 
@@ -365,3 +378,189 @@ uses axis-aligned `Rect`/bbox records in several inference paths, reads authored
 aggregate score projection. `MassPatch`, `SurfacePatch`, `AffordanceZone`, and
 their plane-aware derived representations are the migration target, not names
 for capabilities already completed.
+
+## Grill-Me Correction: Clean Rhino/BIM Canonicalization
+
+The previous plan needed one important correction: a clean BIM model must not
+be created by deleting source layers, flattening every group, or assigning
+meaning from names alone. Cleaning is a non-destructive canonicalization step.
+It produces a small, typed BIM representation while preserving the original
+Rhino file and source identifiers for audit.
+
+The corrected decision is:
+
+1. Keep the imported Rhino document as a read-only source archive.
+2. Build a canonical BIM view from explicit VisualARQ/IFC semantics first.
+3. Use geometry and grouping only as secondary evidence for candidate
+   assemblies and classification.
+4. Send ambiguous candidates to a review list instead of silently guessing.
+5. Keep analyzer-derived regions, paths, trends, boundaries, fields, and
+   heatmaps outside the factual BIM model unless the user explicitly exports
+   an analysis snapshot.
+
+This prevents three common failures:
+
+- Rhino layers become mistaken for BIM classes.
+- Nested or overlapping Rhino groups cause duplicate furniture counts.
+- Detailed manufacturer meshes become dozens of false analysis objects.
+
+### Rhino Responsibilities
+
+Rhino layers control visibility, selection, display, and print organization.
+They are not the semantic model. Rhino groups are named/nestable selection
+sets, and blocks are reusable component definitions/instances. They are useful
+for source organization and repeated geometry, but neither one alone proves
+that an object is a wall, furniture item, assembly, or analysis region.
+
+The preferred source-to-BIM order is:
+
+```text
+VisualARQ object / explicit IFC type or tag
+    > explicit source metadata
+    > block definition and stable group evidence
+    > geometry heuristic
+    > manual review
+```
+
+The geometry heuristic can propose a result, but it must not overwrite
+explicit semantic input. Every canonical object keeps `source_ids`,
+`source_layer`, `source_group_ids`, `classification_method`, and
+`classification_confidence` so that the clean view remains reversible.
+
+### Canonical Rhino Layer Layout
+
+The clean view uses a deliberately small layer taxonomy:
+
+```text
+00_SOURCE_ARCHIVE       locked source import; never edited by the cleaner
+10_BIM
+  11_ARCHITECTURE       walls, slabs, openings, structural elements
+  12_FURNITURE          canonical furniture and furniture assemblies
+  13_SURFACES           floor finishes, carpets, surface fields
+  14_SITE_DECOR         plants and non-architectural scene elements
+  15_COMPONENTS         retained child parts that are not counted separately
+90_REFERENCE            authored axes, guides, source links, review marks
+99_ANALYSIS_PREVIEW     hidden derived overlays and disposable diagnostics
+```
+
+These layers are display containers only. Direct object/type metadata is the
+semantic source. A layer-to-IFC mapping may be used as an export fallback for
+untyped Rhino geometry, but it must be reported as lower-confidence provenance.
+
+### Canonical Object Boundary
+
+One canonical BIM object represents one functional physical unit for the
+analysis domain. A table with attached legs is one furniture object; a
+table-and-chair arrangement can additionally be represented as an authored
+assembly or group. Small meshes, fasteners, door hardware, and decorative
+parts remain child/source geometry unless they have independent spatial or
+functional meaning.
+
+For repeated furniture, prefer one reusable block/style definition plus
+instances. For a complex single object, keep the detailed geometry as its
+visual representation and derive hidden analysis representations from it.
+The canonical object boundary is therefore based on functional identity and
+analysis relevance, not on mesh count.
+
+### VisualARQ Decision
+
+VisualARQ is suitable for the Rhino-side authoring and normalization pass:
+
+- use native Wall, Slab, Door, Window, Column, Furniture, and Element objects
+  where their semantics fit;
+- use Furniture or Element styles backed by 3D/2D blocks for reusable objects;
+- use typed custom parameters for source ids, assembly roles, level, material,
+  and analysis handoff metadata;
+- use the VisualARQ IFC tag/type mechanism for objects that need an IFC export
+  category;
+- run persistent document mutation through a Rhino/VisualARQ command or
+  RhinoCommon script, not as an implicit Grasshopper-side mutation.
+
+VisualARQ custom parameters can be attached to ordinary Rhino geometry and
+exported as IFC properties. This makes them useful for traceability and
+project-specific facts, but they do not replace native IFC semantics where a
+native class exists.
+
+There is no accepted rule here that a Rhino layer, block, or VisualARQ style
+is itself a furniture group, activity region, boundary, or column-grid field.
+Those concepts remain Neutral Scene or analyzer records unless explicitly
+authored as factual BIM input.
+
+### Coffee-Shop Conversion Strategy
+
+For a model such as `materials/caffee-normal.3dm`, the first pass should be:
+
+1. Preserve the original file unchanged.
+2. Inventory layers, groups, blocks, object types, transforms, and source ids.
+3. Collapse repeated or nested source groups into candidate functional units.
+4. Classify obvious architectural objects and furniture through explicit
+   semantics before geometry heuristics.
+5. Attach detailed meshes as child/source geometry rather than counting each
+   mesh as a furniture object.
+6. Keep plants and decorative elements in a separate category; include them
+   in analysis only when the selected analysis policy allows it.
+7. Create a review report for untyped walls, doors, columns, groups, and
+   ambiguous assemblies.
+8. Export only the reviewed canonical view to IFC/Neutral Scene.
+
+The cleaner must not infer a column grid merely from a regular-looking set of
+objects. A user-authored grid remains an explicit reference input. If the
+source contains only Rhino curves, they can be imported as authored axis
+records; deriving a grid from columns is a later, clearly labeled inference
+mode.
+
+### Rejected Alternatives
+
+- **Delete-and-rebuild:** rejected because it destroys provenance and makes
+  classification errors irreversible.
+- **Layer-only BIM conversion:** rejected because layers are organization and
+  display controls, not a complete semantic contract.
+- **Every-group-is-an-object:** rejected because groups can be nested,
+  overlapping, or created only for selection.
+- **Every-mesh-is-an-object:** rejected because detailed parts would corrupt
+  furniture counts, regions, and paths.
+- **Grasshopper-only persistence:** rejected for the canonical document pass;
+  Grasshopper is useful for generation, but the persistent object handoff must
+  be explicit and auditable.
+
+### Research Record (2026-09-02)
+
+The official documentation supports the following operational conclusions:
+
+| Finding | Consequence |
+|---|---|
+| Rhino layers organize visibility, selection, display, and print | Do not use layer names as the sole BIM classifier |
+| Rhino groups are named/nestable selection sets | Treat groups as evidence, not guaranteed semantic objects |
+| Rhino blocks are reusable named component definitions and instances | Use blocks for repeated furniture/component geometry |
+| VisualARQ Furniture and Element support 2D/3D block-based styles | Use styles for canonical reusable visual/BIM representations |
+| VisualARQ custom parameters are typed and can be assigned to Rhino geometry | Store traceability and project facts without inventing native IFC classes |
+| VisualARQ IFC export can assign types by object or layer | Prefer object-level typing; use layer mapping only as a fallback |
+| VisualARQ API targets document-resident objects and is not recommended for ordinary Grasshopper temporary geometry | Run the canonicalization handoff as an explicit Rhino command/script |
+| Current VisualARQ pages advertise IFC 2x3 and IFC 4 support | Verify the installed translator and target schema before promising round-trip fidelity |
+
+Primary references:
+
+- Rhino layers: `https://docs.mcneel.com/rhino/8/help/en-us/commands/layer.htm`
+- Rhino blocks and groups: `https://docs.mcneel.com/rhino/8/help/en-us/seealso/sak_blocksgroups.htm`
+- VisualARQ features: `https://www.visualarq.com/features/`
+- VisualARQ Furniture styles: `https://help.visualarq.com/architectural-objects/furniture/furniture-styles/`
+- VisualARQ Element: `https://help.visualarq.com/architectural-objects/element/`
+- VisualARQ custom parameters and IFC export: `https://www.visualarq.com/feature/documentation/`
+- VisualARQ IFC translator: `https://help.visualarq.com/visualarq-tools/ifc-translator/`
+- VisualARQ API boundary: `https://www.visualarq.com/support/tip/is-there-an-api-or-sdk-for-visualarq/`
+
+### Grill-Me Self-Check Result
+
+- **Does cleaning alter the factual source?** No; the source archive is
+  immutable and canonical objects retain provenance.
+- **Can a wrong group or layer silently become a BIM object?** No; semantic
+  precedence and review status are explicit.
+- **Can detailed meshes be double-counted?** No; canonical functional units
+  own child/source geometry.
+- **Are analysis concepts being smuggled into BIM?** No; regions, paths,
+  trends, boundaries, fields, and heatmaps remain derived analyzer evidence.
+- **Can the same handoff work for Rhino, SVG, and IFC?** Yes; all adapters
+  target the Neutral Scene contract.
+- **Is the design overly complex?** No; it adds only canonicalization,
+  provenance, and review states; it does not add new proxy classes or a
+  second evaluator.

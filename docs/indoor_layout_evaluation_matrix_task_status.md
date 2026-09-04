@@ -3428,3 +3428,25 @@
   passed. Portable Blender process smoke verification was attempted with the
   approved Blender 5.2 executable, but the execution approval service returned
   HTTP 503 before launch; no success claim is made for that process check.
+
+2026-08-19, Gate 10 final cross-adapter audit:
+
+- Added `test/bim/final_verification.py` and
+  `test/test_final_verification.py`. The generated ignored artifact
+  `test/output/bim_acceptance_verification.json` is built from the actual
+  serialized description and preview records, not manually entered counts.
+- Final structural evidence: 15 source geometry records with 216 triangles,
+  5 inferred regions, 6 linked gap paths, 4 authored grid axes, and 14
+  boundary channels with geometry references. Preview and description outputs
+  contain no fitted perceptual weights; the room model's existing metric names
+  remain description-layer output and perception fitting remains deferred.
+- Final regression: `638 passed in 293.47s` under Pixi Python 3.12.13;
+  focused final-verification tests, compileall, JSON parsing, and diff checks
+  passed. Gate 9 checkpoint is `594b1d86`.
+- The final Blender process check was initially unavailable because the
+  execution approval service returned HTTP 503. A subsequent retry launched
+  `D:\Blender\BlenderPortableLTS5.2\App\Blender64\blender.exe` successfully
+  against the generated disposable acceptance scene. The script created the
+  `OM_AnalysisPreview` collection with 15 source objects, 5 regions, and 6
+  paths, then exited normally. The user's open Blender toy scene was not
+  loaded or modified.

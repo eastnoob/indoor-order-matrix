@@ -1,0 +1,457 @@
+{
+  "entity_counts": {
+    "IfcAxis2Placement3D": 10,
+    "IfcBuilding": 1,
+    "IfcBuildingStorey": 1,
+    "IfcCartesianPoint": 10,
+    "IfcCartesianPointList3D": 9,
+    "IfcDirection": 20,
+    "IfcFurniture": 9,
+    "IfcFurnitureType": 5,
+    "IfcGeometricRepresentationContext": 1,
+    "IfcGeometricRepresentationSubContext": 1,
+    "IfcGroup": 4,
+    "IfcIndexedPolygonalFace": 577374,
+    "IfcLocalPlacement": 9,
+    "IfcPolygonalFaceSet": 9,
+    "IfcProductDefinitionShape": 9,
+    "IfcProject": 1,
+    "IfcPropertySet": 13,
+    "IfcPropertySingleValue": 106,
+    "IfcRelAggregates": 3,
+    "IfcRelAssignsToGroup": 4,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcRelDefinesByProperties": 13,
+    "IfcRelDefinesByType": 5,
+    "IfcSIUnit": 1,
+    "IfcShapeRepresentation": 9,
+    "IfcSite": 1,
+    "IfcUnitAssignment": 1
+  },
+  "global_id_duplicates": [],
+  "group_membership": [
+    {
+      "group": {
+        "global_id": "1S4Z4ACKnLtPSxbNPDbjj6",
+        "id": 577599,
+        "name": "source_M01",
+        "type": "IfcGroup"
+      },
+      "members": [
+        {
+          "global_id": "2RphXxq5nRmBQPtKggKLec",
+          "id": 16,
+          "name": "M01_armchair_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0MfE4fWtLUERFYPGs_dpMo",
+          "id": 112861,
+          "name": "M01_armchair_02",
+          "type": "IfcFurniture"
+        }
+      ]
+    },
+    {
+      "group": {
+        "global_id": "2w38CyNGbJnQbFIzF1NlB_",
+        "id": 577607,
+        "name": "source_M03",
+        "type": "IfcGroup"
+      },
+      "members": [
+        {
+          "global_id": "0j0wuHJzXGAwW68OPTPvxu",
+          "id": 225705,
+          "name": "M03_diningtable_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "31jATLGAbL78vWNIvFmWCe",
+          "id": 283500,
+          "name": "M03_diningchair_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "3rfNseeBzNNRQqR1fQOhiU",
+          "id": 285239,
+          "name": "M03_diningchair_02",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0c8DoxYr1Ql923$WdgUDa7",
+          "id": 287081,
+          "name": "M03_diningchair_03",
+          "type": "IfcFurniture"
+        }
+      ]
+    },
+    {
+      "group": {
+        "global_id": "3KCvcMkC9GUQczcrj5wRPH",
+        "id": 577615,
+        "name": "source_M04",
+        "type": "IfcGroup"
+      },
+      "members": [
+        {
+          "global_id": "3yUZ6kqQrHAhbICsuMLnw0",
+          "id": 288909,
+          "name": "M04_bookshelf_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0mABrVsz5KPBO6Q3xHYFEm",
+          "id": 388109,
+          "name": "M04_bookshelf_02",
+          "type": "IfcFurniture"
+        }
+      ]
+    },
+    {
+      "group": {
+        "global_id": "0J5TbjdiTSXhyh9psSfg$C",
+        "id": 577623,
+        "name": "source_M05",
+        "type": "IfcGroup"
+      },
+      "members": [
+        {
+          "global_id": "35b56rc6TO$8XshNgOKThB",
+          "id": 487308,
+          "name": "M05_sofa_01",
+          "type": "IfcFurniture"
+        }
+      ]
+    }
+  ],
+  "path": "outputs\\baseRoom-2026-09-03\\baseRoom.furniture.ifc",
+  "reason": null,
+  "representations": {
+    "by_identifier_and_type": {
+      "Body:Tessellation": 9
+    },
+    "count": 9,
+    "products": [
+      {
+        "product": {
+          "global_id": "2RphXxq5nRmBQPtKggKLec",
+          "id": 16,
+          "name": "M01_armchair_01",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "0MfE4fWtLUERFYPGs_dpMo",
+          "id": 112861,
+          "name": "M01_armchair_02",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "0j0wuHJzXGAwW68OPTPvxu",
+          "id": 225705,
+          "name": "M03_diningtable_01",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "31jATLGAbL78vWNIvFmWCe",
+          "id": 283500,
+          "name": "M03_diningchair_01",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "3rfNseeBzNNRQqR1fQOhiU",
+          "id": 285239,
+          "name": "M03_diningchair_02",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "0c8DoxYr1Ql923$WdgUDa7",
+          "id": 287081,
+          "name": "M03_diningchair_03",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "3yUZ6kqQrHAhbICsuMLnw0",
+          "id": 288909,
+          "name": "M04_bookshelf_01",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "0mABrVsz5KPBO6Q3xHYFEm",
+          "id": 388109,
+          "name": "M04_bookshelf_02",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "35b56rc6TO$8XshNgOKThB",
+          "id": 487308,
+          "name": "M05_sofa_01",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      }
+    ]
+  },
+  "schema": "IFC4",
+  "source_header_filename": "",
+  "spatial_containment": [
+    {
+      "elements": [
+        {
+          "global_id": "2RphXxq5nRmBQPtKggKLec",
+          "id": 16,
+          "name": "M01_armchair_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0MfE4fWtLUERFYPGs_dpMo",
+          "id": 112861,
+          "name": "M01_armchair_02",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0j0wuHJzXGAwW68OPTPvxu",
+          "id": 225705,
+          "name": "M03_diningtable_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "31jATLGAbL78vWNIvFmWCe",
+          "id": 283500,
+          "name": "M03_diningchair_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "3rfNseeBzNNRQqR1fQOhiU",
+          "id": 285239,
+          "name": "M03_diningchair_02",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0c8DoxYr1Ql923$WdgUDa7",
+          "id": 287081,
+          "name": "M03_diningchair_03",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "3yUZ6kqQrHAhbICsuMLnw0",
+          "id": 288909,
+          "name": "M04_bookshelf_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0mABrVsz5KPBO6Q3xHYFEm",
+          "id": 388109,
+          "name": "M04_bookshelf_02",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "35b56rc6TO$8XshNgOKThB",
+          "id": 487308,
+          "name": "M05_sofa_01",
+          "type": "IfcFurniture"
+        }
+      ],
+      "structure": {
+        "global_id": "2udSq8mkbQwxg0XrW$uM_r",
+        "id": 12,
+        "name": "Level 1",
+        "type": "IfcBuildingStorey"
+      }
+    }
+  ],
+  "status": "passed",
+  "type_relations": [
+    {
+      "objects": [
+        {
+          "global_id": "2RphXxq5nRmBQPtKggKLec",
+          "id": 16,
+          "name": "M01_armchair_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0MfE4fWtLUERFYPGs_dpMo",
+          "id": 112861,
+          "name": "M01_armchair_02",
+          "type": "IfcFurniture"
+        }
+      ],
+      "type": {
+        "global_id": "330SKC0iPOSfG2sLmTvgR6",
+        "id": 112860,
+        "name": "armchair_type",
+        "type": "IfcFurnitureType"
+      }
+    },
+    {
+      "objects": [
+        {
+          "global_id": "0j0wuHJzXGAwW68OPTPvxu",
+          "id": 225705,
+          "name": "M03_diningtable_01",
+          "type": "IfcFurniture"
+        }
+      ],
+      "type": {
+        "global_id": "1rJNlZ8grQEfcb47xhZvSE",
+        "id": 283499,
+        "name": "diningTable_type",
+        "type": "IfcFurnitureType"
+      }
+    },
+    {
+      "objects": [
+        {
+          "global_id": "31jATLGAbL78vWNIvFmWCe",
+          "id": 283500,
+          "name": "M03_diningchair_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "3rfNseeBzNNRQqR1fQOhiU",
+          "id": 285239,
+          "name": "M03_diningchair_02",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0c8DoxYr1Ql923$WdgUDa7",
+          "id": 287081,
+          "name": "M03_diningchair_03",
+          "type": "IfcFurniture"
+        }
+      ],
+      "type": {
+        "global_id": "2JIZ2so$jGces_4C94eIHU",
+        "id": 285238,
+        "name": "diningChair_type",
+        "type": "IfcFurnitureType"
+      }
+    },
+    {
+      "objects": [
+        {
+          "global_id": "3yUZ6kqQrHAhbICsuMLnw0",
+          "id": 288909,
+          "name": "M04_bookshelf_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "0mABrVsz5KPBO6Q3xHYFEm",
+          "id": 388109,
+          "name": "M04_bookshelf_02",
+          "type": "IfcFurniture"
+        }
+      ],
+      "type": {
+        "global_id": "00KWrwmBzMufKk0aKa9nEp",
+        "id": 388108,
+        "name": "bookshelf_type",
+        "type": "IfcFurnitureType"
+      }
+    },
+    {
+      "objects": [
+        {
+          "global_id": "35b56rc6TO$8XshNgOKThB",
+          "id": 487308,
+          "name": "M05_sofa_01",
+          "type": "IfcFurniture"
+        }
+      ],
+      "type": {
+        "global_id": "1TXXyBaT9QYh0TmQ$lJNCk",
+        "id": 577592,
+        "name": "sofa_type",
+        "type": "IfcFurnitureType"
+      }
+    }
+  ],
+  "units": [
+    {
+      "name": "METRE",
+      "prefix": "MILLI",
+      "type": "IfcSIUnit",
+      "unit_type": "LENGTHUNIT"
+    }
+  ],
+  "validator_version": "0.8.5"
+}

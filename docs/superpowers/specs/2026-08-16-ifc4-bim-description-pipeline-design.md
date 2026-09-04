@@ -689,6 +689,18 @@ a later, separately reviewed change.
   truth.
 - SVG and IFC remain separate adapters to one analysis core.
 
+## Preview Delivery Contract
+
+The Blender description preview is a read-only presentation adapter over the
+serialized Neutral Scene and inference records. It must preserve source mesh
+triangle topology, show source geometry together with inferred regions, both
+trend axes, authored grid axes, gap paths, and boundary-channel markers, and
+write a deterministic preview manifest that the notebook reads back. Preview
+objects and materials are tagged and may be regenerated idempotently without
+touching unrelated source objects or materials. A generated Python script or
+HTML/PNG artifact is not evidence that Blender itself executed successfully;
+runtime smoke verification must be reported separately.
+
 ## Grill Me Self-Review
 
 - **Does the design reduce an uneven object to one height or bbox?** No. Local

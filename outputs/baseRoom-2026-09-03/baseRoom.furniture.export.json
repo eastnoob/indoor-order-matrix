@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "target": "outputs\\baseRoom-2026-09-03\\baseRoom.furniture.ifc",
+  "schema": "IFC4",
+  "furniture_count": 9,
+  "furniture_type_count": 5,
+  "group_count": 4,
+  "mesh_representation_count": 0,
+  "source_path": "D:\\PROJECTS\\RhinoGH\\IsPictureEnough\\stimuli\\baseRoom.3dm",
+  "source_object_count": 9,
+  "excluded_source_facts": {
+    "room_breps": [
+      {
+        "id": "7a3c2233-cd36-4b1e-917f-3f777d1358ca",
+        "layer": "room",
+        "bbox": {
+          "min": [
+            -14200.0,
+            -200.0,
+            3300.0
+          ],
+          "max": [
+            200.0,
+            42200.0,
+            3400.0
+          ]
+        }
+      },
+      {
+        "id": "a68da6a3-0a4c-4cf5-b030-a03127ce69ed",
+        "layer": "room",
+        "bbox": {
+          "min": [
+            -14200.0,
+            -200.0,
+            -100.0
+          ],
+          "max": [
+            200.0,
+            42200.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "e0812911-5739-4324-b454-bc6cec33b9c6",
+        "layer": "room",
+        "bbox": {
+          "min": [
+            -14200.0,
+            -200.0,
+            0.0
+          ],
+          "max": [
+            200.0,
+            42200.0,
+            3300.0000000000005
+          ]
+        }
+      }
+    ],
+    "unnamed_line_count": 96,
+    "unnamed_line_angle_bins_5deg": {
+      "0": 76,
+      "90": 20
+    },
+    "unnamed_line_length_range": [
+      250.0,
+      450.00000000000364
+    ],
+    "reason": "Room Breps and unnamed short lines lack explicit BIM role evidence; retained in preflight, excluded from furniture IFC export."
+  },
+  "import_status": "not_run"
+}

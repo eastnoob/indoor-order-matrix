@@ -1,0 +1,124 @@
+{
+  "status": "passed",
+  "source_path": "D:\\PROJECTS\\RhinoGH\\IsPictureEnough\\stimuli\\baseRoom.3dm",
+  "selected_primary_representation_count": 4,
+  "logical_furniture_count": 9,
+  "logical_furniture_ids": [
+    "M01_armchair_01",
+    "M01_armchair_02",
+    "M03_diningtable_01",
+    "M03_diningchair_01",
+    "M03_diningchair_02",
+    "M03_diningchair_03",
+    "M04_bookshelf_01",
+    "M04_bookshelf_02",
+    "M05_sofa_01"
+  ],
+  "selection_decisions": [
+    {
+      "model": "M01",
+      "candidates": [
+        "IPE::PREVIEW::S02::M01::GROUP",
+        "IPE::PREVIEW::S02::M01::VARIABLE"
+      ],
+      "selected": "IPE::PREVIEW::S02::M01::GROUP",
+      "reason": "GROUP preferred over VARIABLE as the primary source representation"
+    },
+    {
+      "model": "M03",
+      "candidates": [
+        "IPE::PREVIEW::S05::M03::GROUP",
+        "IPE::PREVIEW::S05::M03::VARIABLE"
+      ],
+      "selected": "IPE::PREVIEW::S05::M03::GROUP",
+      "reason": "GROUP preferred over VARIABLE as the primary source representation"
+    },
+    {
+      "model": "M04",
+      "candidates": [
+        "IPE::PREVIEW::S03::M04::GROUP",
+        "IPE::PREVIEW::S03::M04::VARIABLE"
+      ],
+      "selected": "IPE::PREVIEW::S03::M04::GROUP",
+      "reason": "GROUP preferred over VARIABLE as the primary source representation"
+    },
+    {
+      "model": "M05",
+      "candidates": [
+        "IPE::PREVIEW::S01::M05::VARIABLE",
+        "IPE::PREVIEW::S01::M05::GROUP"
+      ],
+      "selected": "IPE::PREVIEW::S01::M05::GROUP",
+      "reason": "GROUP preferred over VARIABLE as the primary source representation"
+    }
+  ],
+  "excluded_source_facts": {
+    "room_breps": [
+      {
+        "id": "7a3c2233-cd36-4b1e-917f-3f777d1358ca",
+        "layer": "room",
+        "bbox": {
+          "min": [
+            -14200.0,
+            -200.0,
+            3300.0
+          ],
+          "max": [
+            200.0,
+            42200.0,
+            3400.0
+          ]
+        }
+      },
+      {
+        "id": "a68da6a3-0a4c-4cf5-b030-a03127ce69ed",
+        "layer": "room",
+        "bbox": {
+          "min": [
+            -14200.0,
+            -200.0,
+            -100.0
+          ],
+          "max": [
+            200.0,
+            42200.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "e0812911-5739-4324-b454-bc6cec33b9c6",
+        "layer": "room",
+        "bbox": {
+          "min": [
+            -14200.0,
+            -200.0,
+            0.0
+          ],
+          "max": [
+            200.0,
+            42200.0,
+            3300.0000000000005
+          ]
+        }
+      }
+    ],
+    "unnamed_line_count": 96,
+    "unnamed_line_angle_bins_5deg": {
+      "0": 76,
+      "90": 20
+    },
+    "unnamed_line_length_range": [
+      250.0,
+      450.00000000000364
+    ],
+    "reason": "Room Breps and unnamed short lines lack explicit BIM role evidence; retained in preflight, excluded from furniture IFC export."
+  },
+  "export_scope": "logical furniture GEOMETRY branches only; no duplicate VARIABLE/GROUP previews",
+  "import_status": "not_run",
+  "notes": [
+    "GROUP is preferred when present; VARIABLE is used only for a model key without GROUP.",
+    "BBOX, BODY_PROXY, CONVEX, and ASYMMETRY are analysis representations, not additional furniture.",
+    "Room and axis-like source geometry requires explicit semantic confirmation before mapping to IFC Space, Wall, or Grid."
+  ]
+}

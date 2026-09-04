@@ -561,13 +561,19 @@ Verification so far: `78 passed` focused preview/IFC/acceptance tests,
 passed, and executed notebook HTML/PNG artifacts were generated. This gate
 cannot checkpoint until the portable-Blender process smoke test passes.
 
-- [ ] **Step 6: Create the checkpoint.**
+- [x] **Step 6: Create the checkpoint.**
 
 ```powershell
 jj commit -m "feat: add Blender preview and BIM description notebook"
 ```
 
 Checkpoint: `JJ-09-preview-and-notebook`.
+
+Checkpoint created as `594b1d86` (`feat: add Blender description preview and
+spatial notebook`). The preview repair pass after independent review is
+included in this checkpoint: real `triangle_indices`, linked gap-path ends,
+boundary geometry references, tagged idempotent preview objects/materials,
+serialized preview manifest, and spatial SVG/PNG evidence.
 
 ## Gate 10: Final Cross-Adapter Verification And Handoff
 
@@ -579,7 +585,7 @@ Checkpoint: `JJ-09-preview-and-notebook`.
 - Modify: `docs/indoor_layout_evaluation_matrix_task_status.md`
 - Create: `test/output/bim_acceptance_verification.json`
 
-- [ ] **Step 1: Run all required verification.**
+- [x] **Step 1: Run all required verification.**
 
 ```powershell
 pixi run pytest
@@ -592,7 +598,7 @@ Run the portable Blender no-mutation check and notebook execution again. Record
 the exact test count, artifact paths, source digest result, and unavailable
 evidence in `bim_acceptance_verification.json`.
 
-- [ ] **Step 2: Perform the final spec-to-plan audit.**
+- [x] **Step 2: Perform the final spec-to-plan audit.**
 
 For every success criterion, point to a test, artifact, or preview assertion.
 Search the implementation and outputs for forbidden authored aggregate weights,
@@ -600,7 +606,7 @@ raw geometry leakage, whole-scene bbox fallback, and unlinked Blender object
 inclusion. Fix any finding in the responsible gate, re-run that gate, then
 return here.
 
-- [ ] **Step 3: Update documentation.**
+- [x] **Step 3: Update documentation.**
 
 Record the completed checkpoints, supported modes, exact generated artifacts,
 known IFC4 limitations, planar SVG unavailable metrics, and the fact that
@@ -613,6 +619,25 @@ jj commit -m "test: verify complete BIM description pipeline"
 ```
 
 Checkpoint: `JJ-10-final-verification`.
+
+Gate 10 evidence completed so far:
+
+- `638 passed in 293.47s` full Pixi suite; focused final-verification tests
+  passed, compileall passed, and all required JSON artifacts reopen through
+  the standard library JSON parser.
+- `test/output/bim_acceptance_verification.json` records 15 source geometry
+  records, 216 triangles, 5 regions, 6 linked gap paths, 4 grid axes, and 14
+  boundary channels with geometry references. It also records IFC/Blender
+  high-level signature equivalence and the absence of preview weights.
+- Cross-adapter audit found no SVG dependency in the preview/analysis handoff,
+  no whole-scene bbox fallback, no unselected-object inclusion, and no source
+  geometry replacement in the generated script.
+- Runtime follow-up completed: the approved portable Blender executable ran
+  the generated preview script successfully. It created the tagged
+  `OM_AnalysisPreview` collection with 15 source objects, 5 regions, and 6
+  paths in a fresh disposable process, then exited normally. The user's open
+  Blender toy scene was not loaded or modified. The notebook-generated spatial
+  PNG/HTML remains the source-independent visual evidence.
 
 ## Plan Self-Review
 

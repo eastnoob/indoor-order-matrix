@@ -1,0 +1,1723 @@
+{
+  "authored_affordances": [
+    "chair_affordance_aligned",
+    "chair_affordance_oblique"
+  ],
+  "channel_evidence": {
+    "glass_partition": {
+      "method": "height_band_and_optical_channel_evidence",
+      "visible_transmittance": 0.82,
+      "visual": {
+        "band_id": "standing-eye",
+        "blocker_projections": [],
+        "geometry_status": "blocked",
+        "height_band": [
+          1.5,
+          1.8
+        ],
+        "optical_transmittance": 0.82,
+        "query_projection": {
+          "components": [
+            {
+              "exterior": [
+                [
+                  5.94,
+                  3.0
+                ],
+                [
+                  6.06,
+                  3.0
+                ],
+                [
+                  6.06,
+                  6.0
+                ],
+                [
+                  5.94,
+                  6.0
+                ]
+              ],
+              "holes": []
+            }
+          ],
+          "coordinates": [
+            [
+              5.94,
+              3.0
+            ],
+            [
+              6.06,
+              3.0
+            ],
+            [
+              6.06,
+              6.0
+            ],
+            [
+              5.94,
+              6.0
+            ]
+          ],
+          "source_patch_id": "mass-patch:ifc-mesh:0vFtgUmcrQJv5ZHHnQ3NKL",
+          "uncertainty": null
+        },
+        "query_projections": [
+          {
+            "components": [
+              {
+                "exterior": [
+                  [
+                    5.94,
+                    3.0
+                  ],
+                  [
+                    6.06,
+                    3.0
+                  ],
+                  [
+                    6.06,
+                    6.0
+                  ],
+                  [
+                    5.94,
+                    6.0
+                  ]
+                ],
+                "holes": []
+              }
+            ],
+            "coordinates": [
+              [
+                5.94,
+                3.0
+              ],
+              [
+                6.06,
+                3.0
+              ],
+              [
+                6.06,
+                6.0
+              ],
+              [
+                5.94,
+                6.0
+              ]
+            ],
+            "source_patch_id": "mass-patch:ifc-mesh:0vFtgUmcrQJv5ZHHnQ3NKL",
+            "uncertainty": null
+          }
+        ],
+        "status": "transmitting"
+      },
+      "walking": {
+        "blocker_projections": [
+          {
+            "components": [
+              {
+                "exterior": [
+                  [
+                    5.94,
+                    3.0
+                  ],
+                  [
+                    6.06,
+                    3.0
+                  ],
+                  [
+                    6.06,
+                    6.0
+                  ],
+                  [
+                    5.94,
+                    6.0
+                  ]
+                ],
+                "holes": []
+              }
+            ],
+            "coordinates": [
+              [
+                5.94,
+                3.0
+              ],
+              [
+                6.06,
+                3.0
+              ],
+              [
+                6.06,
+                6.0
+              ],
+              [
+                5.94,
+                6.0
+              ]
+            ],
+            "source_patch_id": "mass-patch:ifc-mesh:0vFtgUmcrQJv5ZHHnQ3NKL",
+            "uncertainty": null
+          }
+        ],
+        "collision_intervals": [
+          [
+            0.0,
+            2.4
+          ]
+        ],
+        "height_band": [
+          0.05,
+          1.0
+        ],
+        "profile_id": "adult-body",
+        "query_projection": {
+          "components": [
+            {
+              "exterior": [
+                [
+                  5.94,
+                  3.0
+                ],
+                [
+                  6.06,
+                  3.0
+                ],
+                [
+                  6.06,
+                  6.0
+                ],
+                [
+                  5.94,
+                  6.0
+                ]
+              ],
+              "holes": []
+            }
+          ],
+          "coordinates": [
+            [
+              5.94,
+              3.0
+            ],
+            [
+              6.06,
+              3.0
+            ],
+            [
+              6.06,
+              6.0
+            ],
+            [
+              5.94,
+              6.0
+            ]
+          ],
+          "source_patch_id": "mass-patch:ifc-mesh:0vFtgUmcrQJv5ZHHnQ3NKL",
+          "uncertainty": null
+        },
+        "query_projections": [
+          {
+            "components": [
+              {
+                "exterior": [
+                  [
+                    5.94,
+                    3.0
+                  ],
+                  [
+                    6.06,
+                    3.0
+                  ],
+                  [
+                    6.06,
+                    6.0
+                  ],
+                  [
+                    5.94,
+                    6.0
+                  ]
+                ],
+                "holes": []
+              }
+            ],
+            "coordinates": [
+              [
+                5.94,
+                3.0
+              ],
+              [
+                6.06,
+                3.0
+              ],
+              [
+                6.06,
+                6.0
+              ],
+              [
+                5.94,
+                6.0
+              ]
+            ],
+            "source_patch_id": "mass-patch:ifc-mesh:0vFtgUmcrQJv5ZHHnQ3NKL",
+            "uncertainty": null
+          }
+        ],
+        "radius": 0.3,
+        "status": "blocked"
+      }
+    },
+    "low_cabinet": {
+      "method": "height_band_and_optical_channel_evidence",
+      "visible_transmittance": null,
+      "visual": {
+        "band_id": "standing-eye",
+        "blocker_projections": [],
+        "geometry_status": "clear",
+        "height_band": [
+          1.5,
+          1.8
+        ],
+        "optical_transmittance": null,
+        "query_projection": {
+          "components": [],
+          "coordinates": [],
+          "source_patch_id": "mass-patch:ifc-mesh:1vR6eO5PnMW8u9gnAS6nDf",
+          "uncertainty": "no_positive_vertical_overlap_with_height_band"
+        },
+        "query_projections": [],
+        "status": "clear"
+      },
+      "walking": {
+        "blocker_projections": [
+          {
+            "components": [
+              {
+                "exterior": [
+                  [
+                    10.1,
+                    5.55
+                  ],
+                  [
+                    11.299999999999999,
+                    5.55
+                  ],
+                  [
+                    11.299999999999999,
+                    6.05
+                  ],
+                  [
+                    10.1,
+                    6.05
+                  ]
+                ],
+                "holes": []
+              }
+            ],
+            "coordinates": [
+              [
+                10.1,
+                5.55
+              ],
+              [
+                11.299999999999999,
+                5.55
+              ],
+              [
+                11.299999999999999,
+                6.05
+              ],
+              [
+                10.1,
+                6.05
+              ]
+            ],
+            "source_patch_id": "mass-patch:ifc-mesh:1vR6eO5PnMW8u9gnAS6nDf",
+            "uncertainty": null
+          }
+        ],
+        "collision_intervals": [
+          [
+            0.0,
+            0.9
+          ]
+        ],
+        "height_band": [
+          0.05,
+          1.0
+        ],
+        "profile_id": "adult-body",
+        "query_projection": {
+          "components": [
+            {
+              "exterior": [
+                [
+                  10.1,
+                  5.55
+                ],
+                [
+                  11.299999999999999,
+                  5.55
+                ],
+                [
+                  11.299999999999999,
+                  6.05
+                ],
+                [
+                  10.1,
+                  6.05
+                ]
+              ],
+              "holes": []
+            }
+          ],
+          "coordinates": [
+            [
+              10.1,
+              5.55
+            ],
+            [
+              11.299999999999999,
+              5.55
+            ],
+            [
+              11.299999999999999,
+              6.05
+            ],
+            [
+              10.1,
+              6.05
+            ]
+          ],
+          "source_patch_id": "mass-patch:ifc-mesh:1vR6eO5PnMW8u9gnAS6nDf",
+          "uncertainty": null
+        },
+        "query_projections": [
+          {
+            "components": [
+              {
+                "exterior": [
+                  [
+                    10.1,
+                    5.55
+                  ],
+                  [
+                    11.299999999999999,
+                    5.55
+                  ],
+                  [
+                    11.299999999999999,
+                    6.05
+                  ],
+                  [
+                    10.1,
+                    6.05
+                  ]
+                ],
+                "holes": []
+              }
+            ],
+            "coordinates": [
+              [
+                10.1,
+                5.55
+              ],
+              [
+                11.299999999999999,
+                5.55
+              ],
+              [
+                11.299999999999999,
+                6.05
+              ],
+              [
+                10.1,
+                6.05
+              ]
+            ],
+            "source_patch_id": "mass-patch:ifc-mesh:1vR6eO5PnMW8u9gnAS6nDf",
+            "uncertainty": null
+          }
+        ],
+        "radius": 0.3,
+        "status": "blocked"
+      }
+    }
+  },
+  "contract": {
+    "id": "bim_acceptance_description",
+    "version": 1
+  },
+  "cross_path_signatures": {
+    "authored_affordances_equivalent": true,
+    "grid_relations_equivalent": true,
+    "network_scopes_equivalent": true,
+    "ordering_equivalent": true
+  },
+  "fixture_ids": [
+    "aligned_chair",
+    "aligned_table_a",
+    "carpet",
+    "chair_affordance_aligned",
+    "chair_affordance_oblique",
+    "floor",
+    "glass_partition",
+    "grid_main",
+    "low_cabinet",
+    "mixed_table_a",
+    "mixed_table_b",
+    "oblique_chair",
+    "oblique_table_a",
+    "room",
+    "sofa",
+    "table_group_aligned",
+    "table_group_mixed",
+    "table_group_oblique",
+    "wall_north",
+    "wall_west"
+  ],
+  "grid_relations": {
+    "global": [
+      {
+        "agreement": 1.0,
+        "metric": "C_global",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+        "source": "explicit_column_axes",
+        "target_angle": 90.0,
+        "target_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_kind": "system",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 1.0,
+        "branch_id": "default_branch",
+        "metric": "C_global",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_angle": 90.0,
+        "target_id": "default_branch",
+        "target_kind": "branch",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 0.3333,
+        "metric": "C_global",
+        "region_angle": 30.0,
+        "region_id": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+        "source": "explicit_column_axes",
+        "target_angle": 90.0,
+        "target_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_kind": "system",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 0.3333,
+        "branch_id": "default_branch",
+        "metric": "C_global",
+        "region_angle": 30.0,
+        "region_id": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_angle": 90.0,
+        "target_id": "default_branch",
+        "target_kind": "branch",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 1.0,
+        "metric": "C_global",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+        "source": "explicit_column_axes",
+        "target_angle": 90.0,
+        "target_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_kind": "system",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 1.0,
+        "branch_id": "default_branch",
+        "metric": "C_global",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_angle": 90.0,
+        "target_id": "default_branch",
+        "target_kind": "branch",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 1.0,
+        "metric": "C_global",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+        "source": "explicit_column_axes",
+        "target_angle": 90.0,
+        "target_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_kind": "system",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 1.0,
+        "branch_id": "default_branch",
+        "metric": "C_global",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_angle": 90.0,
+        "target_id": "default_branch",
+        "target_kind": "branch",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 1.0,
+        "metric": "C_global",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+        "source": "explicit_column_axes",
+        "target_angle": 90.0,
+        "target_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_kind": "system",
+        "target_strength": 1.0
+      },
+      {
+        "agreement": 1.0,
+        "branch_id": "default_branch",
+        "metric": "C_global",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD",
+        "target_angle": 90.0,
+        "target_id": "default_branch",
+        "target_kind": "branch",
+        "target_strength": 1.0
+      }
+    ],
+    "local": [
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 11.31,
+            "region_area": 11.31,
+            "region_center_in_bay": true
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+        "scale": 0,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 11.31,
+            "region_area": 11.31,
+            "region_center_in_bay": true
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+        "scale": 1,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 11.31,
+            "region_area": 11.31,
+            "region_center_in_bay": true
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+        "scale": "all",
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 7.7707,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 0.3333,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 30.0,
+        "region_id": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+        "scale": 0,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 7.7707,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 0.3333,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 30.0,
+        "region_id": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+        "scale": 1,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 7.7707,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 0.3333,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 30.0,
+        "region_id": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+        "scale": "all",
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 14.6085,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+        "scale": 0,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 14.6085,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+        "scale": 1,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 14.6085,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+        "scale": "all",
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 1.8975,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+        "scale": 0,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 1.8975,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+        "scale": 1,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 1.8975,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+        "scale": "all",
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 6.5183,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+        "scale": 0,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 6.5183,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+        "scale": 1,
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      },
+      {
+        "bay_grammar": [
+          {
+            "bay_id": "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332",
+            "overlap_area": 0.0,
+            "region_area": 6.5183,
+            "region_center_in_bay": false
+          }
+        ],
+        "branch_angle": 90.0,
+        "branch_id": "default_branch",
+        "frame_agreement": 1.0,
+        "included_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "metric": "C_local_profile",
+        "region_angle": 0.0,
+        "region_id": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+        "scale": "all",
+        "seed_bay_ids": [
+          "bay_ifc-grid:08uwAVMF1R9fWWiCFs7HyD__default_branch__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:320__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:324__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:328__ifc-grid-axis:08uwAVMF1R9fWWiCFs7HyD:332"
+        ],
+        "source": "explicit_column_axes",
+        "system_id": "ifc-grid:08uwAVMF1R9fWWiCFs7HyD"
+      }
+    ],
+    "method": "authored_grid_axis_relation_views"
+  },
+  "height_queries": {
+    "sofa": {
+      "back_probe": {
+        "intervals": [
+          [
+            0.0,
+            1.2
+          ]
+        ],
+        "method": "vertical_triangle_intersections",
+        "point": [
+          8.0,
+          6.82
+        ],
+        "uncertainties": [
+          "open_or_nonmanifold_geometry"
+        ]
+      },
+      "seat_probe": {
+        "intervals": [
+          [
+            0.2,
+            0.65
+          ]
+        ],
+        "method": "vertical_triangle_intersections",
+        "point": [
+          8.0,
+          6.2
+        ],
+        "uncertainties": [
+          "open_or_nonmanifold_geometry"
+        ]
+      }
+    }
+  },
+  "input_modes": [
+    "ifc",
+    "blender_geometry"
+  ],
+  "ordering_cases": {
+    "aligned": {
+      "concentration": 1.0,
+      "group_id": "furniture_group_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+      "method": "member_frame_consensus",
+      "primary_angle": 0.0,
+      "secondary_angle": 90.0
+    },
+    "mixed": {
+      "concentration": 0.0,
+      "group_id": "furniture_group_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+      "method": "member_frame_consensus",
+      "primary_angle": 22.5,
+      "secondary_angle": 112.5
+    },
+    "oblique": {
+      "concentration": 1.0,
+      "group_id": "furniture_group_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+      "method": "member_frame_consensus",
+      "primary_angle": 30.0,
+      "secondary_angle": 120.0
+    }
+  },
+  "path_analyses": {
+    "blender_geometry": {
+      "authored_affordance_ids": [
+        "chair_affordance_aligned",
+        "chair_affordance_oblique"
+      ],
+      "grid_relations": {
+        "global": true,
+        "local": true
+      },
+      "network_scopes": [
+        "inter_region",
+        "region_internal"
+      ],
+      "ordering_cases": [
+        {
+          "concentration": 1.0,
+          "member_count": 1,
+          "primary_angle": 0.0,
+          "secondary_angle": 90.0
+        },
+        {
+          "concentration": 1.0,
+          "member_count": 1,
+          "primary_angle": 0.0,
+          "secondary_angle": 90.0
+        },
+        {
+          "concentration": 1.0,
+          "member_count": 2,
+          "primary_angle": 0.0,
+          "secondary_angle": 90.0
+        },
+        {
+          "concentration": 0.0,
+          "member_count": 2,
+          "primary_angle": 22.5,
+          "secondary_angle": 112.5
+        },
+        {
+          "concentration": 1.0,
+          "member_count": 2,
+          "primary_angle": 30.0,
+          "secondary_angle": 120.0
+        }
+      ],
+      "source": "blender_geometry"
+    },
+    "ifc": {
+      "authored_affordance_ids": [
+        "chair_affordance_aligned",
+        "chair_affordance_oblique"
+      ],
+      "grid_relations": {
+        "global": true,
+        "local": true
+      },
+      "network_scopes": [
+        "inter_region",
+        "region_internal"
+      ],
+      "ordering_cases": [
+        {
+          "concentration": 1.0,
+          "member_count": 1,
+          "primary_angle": 0.0,
+          "secondary_angle": 90.0
+        },
+        {
+          "concentration": 1.0,
+          "member_count": 1,
+          "primary_angle": 0.0,
+          "secondary_angle": 90.0
+        },
+        {
+          "concentration": 1.0,
+          "member_count": 2,
+          "primary_angle": 0.0,
+          "secondary_angle": 90.0
+        },
+        {
+          "concentration": 0.0,
+          "member_count": 2,
+          "primary_angle": 22.5,
+          "secondary_angle": 112.5
+        },
+        {
+          "concentration": 1.0,
+          "member_count": 2,
+          "primary_angle": 30.0,
+          "secondary_angle": 120.0
+        }
+      ],
+      "source": "ifc"
+    }
+  },
+  "provenance": {
+    "geometry_tolerance": 1e-06,
+    "ifc_artifact": "bim_acceptance.ifc",
+    "methods": [
+      "ifc4_native_adapter",
+      "explicit_blender_geometry_snapshot",
+      "neutral_scene_gate7_analysis"
+    ],
+    "source_ids": {
+      "aligned_chair": "2Rb6OOYhDKoBXk2mt_gQuS",
+      "aligned_table_a": "1cNDsAsHbKuxpuP4haL3lX",
+      "carpet": "2bJis0eovUhutk$A3K30aK",
+      "chair_affordance_aligned": "1oA6NrjiTPiu1D3MccVO16",
+      "chair_affordance_oblique": "2sdKRf8jPGwBU_HCbmQvmc",
+      "floor": "0TNwkrvT1LfAn2yC_XDR4U",
+      "glass_partition": "0vFtgUmcrQJv5ZHHnQ3NKL",
+      "grid_main": "08uwAVMF1R9fWWiCFs7HyD",
+      "low_cabinet": "1vR6eO5PnMW8u9gnAS6nDf",
+      "mixed_table_a": "0s74EmoenTmPz$naDst$dX",
+      "mixed_table_b": "3EgTowLuDSaQOH00Y4Bsd8",
+      "oblique_chair": "0zhms90DbOBfGMrqINmAGc",
+      "oblique_table_a": "1easxWbRzVNP2mVZZh37c2",
+      "room": "06jaHsdPnHZxO9dQHPZnev",
+      "sofa": "3oTJQm_Z1HjOacvtRrFvUi",
+      "table_group_aligned": "1RLjJfQoPMYhzgryEjvQ_A",
+      "table_group_mixed": "3mMwIhrYbH$gk7ta4HZSov",
+      "table_group_oblique": "1WdiYYY5XLdxy38IUmNWAk",
+      "wall_north": "0k0cuhlcHVhQYav10lIgV5",
+      "wall_west": "2FR78N6ibRIwXv$eWrY71J"
+    },
+    "topology_tolerance": 1e-06
+  },
+  "shared_facts": {
+    "all_match": true,
+    "compared_ids": [
+      "aligned_chair",
+      "aligned_table_a",
+      "carpet",
+      "chair_affordance_aligned",
+      "chair_affordance_oblique",
+      "glass_partition",
+      "low_cabinet",
+      "mixed_table_a",
+      "mixed_table_b",
+      "oblique_chair",
+      "oblique_table_a",
+      "room",
+      "sofa",
+      "wall_north",
+      "wall_west"
+    ],
+    "method": "world_mesh_bounds_cross_adapter_comparison",
+    "records": [
+      {
+        "blender_bounds": [
+          3.1,
+          1.7,
+          0.0,
+          3.7,
+          2.3,
+          0.9
+        ],
+        "id": "aligned_chair",
+        "ifc_bounds": [
+          3.1,
+          1.7,
+          0.0,
+          3.7,
+          2.3,
+          0.9
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          1.2,
+          1.6,
+          0.0,
+          2.8,
+          2.4,
+          0.75
+        ],
+        "id": "aligned_table_a",
+        "ifc_bounds": [
+          1.2,
+          1.6,
+          0.0,
+          2.8,
+          2.4,
+          0.75
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          0.55,
+          0.6,
+          0.0,
+          5.05,
+          3.8,
+          0.02
+        ],
+        "id": "carpet",
+        "ifc_bounds": [
+          0.55,
+          0.6,
+          0.0,
+          5.05,
+          3.8,
+          0.02
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          3.0,
+          0.8,
+          0.0,
+          3.8,
+          1.7,
+          1.2
+        ],
+        "id": "chair_affordance_aligned",
+        "ifc_bounds": [
+          3.0,
+          0.8,
+          0.0,
+          3.8,
+          1.7,
+          1.2
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          8.77859,
+          1.610289,
+          0.0,
+          9.92141,
+          2.789711,
+          1.2
+        ],
+        "id": "chair_affordance_oblique",
+        "ifc_bounds": [
+          8.77859,
+          1.610289,
+          0.0,
+          9.92141,
+          2.789711,
+          1.2
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          5.94,
+          3.0,
+          0.0,
+          6.06,
+          6.0,
+          2.4
+        ],
+        "id": "glass_partition",
+        "ifc_bounds": [
+          5.94,
+          3.0,
+          0.0,
+          6.06,
+          6.0,
+          2.4
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          10.1,
+          5.55,
+          0.0,
+          11.3,
+          6.05,
+          0.9
+        ],
+        "id": "low_cabinet",
+        "ifc_bounds": [
+          10.1,
+          5.55,
+          0.0,
+          11.3,
+          6.05,
+          0.9
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          2.2,
+          6.0,
+          0.0,
+          3.8,
+          6.8,
+          0.75
+        ],
+        "id": "mixed_table_a",
+        "ifc_bounds": [
+          2.2,
+          6.0,
+          0.0,
+          3.8,
+          6.8,
+          0.75
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          3.751472,
+          5.651472,
+          0.0,
+          5.448528,
+          7.348528,
+          0.75
+        ],
+        "id": "mixed_table_b",
+        "ifc_bounds": [
+          3.751472,
+          5.651472,
+          0.0,
+          5.448528,
+          7.348528,
+          0.75
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          8.590192,
+          2.390192,
+          0.0,
+          9.409808,
+          3.209808,
+          0.9
+        ],
+        "id": "oblique_chair",
+        "ifc_bounds": [
+          8.590192,
+          2.390192,
+          0.0,
+          9.409808,
+          3.209808,
+          0.9
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          6.90718,
+          1.35359,
+          0.0,
+          8.69282,
+          2.84641,
+          0.75
+        ],
+        "id": "oblique_table_a",
+        "ifc_bounds": [
+          6.90718,
+          1.35359,
+          0.0,
+          8.69282,
+          2.84641,
+          0.75
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          0.0,
+          0.0,
+          -0.02,
+          12.0,
+          9.0,
+          0.0
+        ],
+        "id": "room",
+        "ifc_bounds": [
+          0.0,
+          0.0,
+          -0.02,
+          12.0,
+          9.0,
+          0.0
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          6.8,
+          5.9,
+          0.0,
+          9.2,
+          6.9,
+          1.2
+        ],
+        "id": "sofa",
+        "ifc_bounds": [
+          6.8,
+          5.9,
+          0.0,
+          9.2,
+          6.9,
+          1.2
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          0.0,
+          8.8,
+          0.0,
+          12.0,
+          9.0,
+          3.0
+        ],
+        "id": "wall_north",
+        "ifc_bounds": [
+          0.0,
+          8.8,
+          0.0,
+          12.0,
+          9.0,
+          3.0
+        ],
+        "match": true
+      },
+      {
+        "blender_bounds": [
+          0.0,
+          0.0,
+          0.0,
+          0.2,
+          9.0,
+          3.0
+        ],
+        "id": "wall_west",
+        "ifc_bounds": [
+          0.0,
+          0.0,
+          0.0,
+          0.2,
+          9.0,
+          3.0
+        ],
+        "match": true
+      }
+    ]
+  },
+  "spatial_networks": [
+    {
+      "components": [
+        [
+          "furniture_affordance_extent_ifc-object:1cNDsAsHbKuxpuP4haL3lX"
+        ],
+        [
+          "furniture_affordance_extent_ifc-object:2Rb6OOYhDKoBXk2mt_gQuS"
+        ]
+      ],
+      "edges": [],
+      "id": "spatial_network_region_internal_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+      "metadata": {
+        "furniture_group_id": "furniture_group_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+        "method": "furniture_group_member_extent_overlap_network"
+      },
+      "nodes": [
+        {
+          "id": "furniture_affordance_extent_ifc-object:1cNDsAsHbKuxpuP4haL3lX",
+          "kind": "furniture_affordance_extent"
+        },
+        {
+          "id": "furniture_affordance_extent_ifc-object:2Rb6OOYhDKoBXk2mt_gQuS",
+          "kind": "furniture_affordance_extent"
+        }
+      ],
+      "scope": "region_internal"
+    },
+    {
+      "components": [
+        [
+          "furniture_affordance_extent_ifc-object:0zhms90DbOBfGMrqINmAGc",
+          "furniture_affordance_extent_ifc-object:1easxWbRzVNP2mVZZh37c2"
+        ]
+      ],
+      "edges": [
+        {
+          "a": "furniture_affordance_extent_ifc-object:0zhms90DbOBfGMrqINmAGc",
+          "b": "furniture_affordance_extent_ifc-object:1easxWbRzVNP2mVZZh37c2",
+          "id": "internal_relation_furniture_affordance_extent_ifc-object:0zhms90DbOBfGMrqINmAGc__furniture_affordance_extent_ifc-object:1easxWbRzVNP2mVZZh37c2",
+          "kind": "member_extent_overlap",
+          "overlap_area": 0.1269
+        }
+      ],
+      "id": "spatial_network_region_internal_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+      "metadata": {
+        "furniture_group_id": "furniture_group_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+        "method": "furniture_group_member_extent_overlap_network"
+      },
+      "nodes": [
+        {
+          "id": "furniture_affordance_extent_ifc-object:0zhms90DbOBfGMrqINmAGc",
+          "kind": "furniture_affordance_extent"
+        },
+        {
+          "id": "furniture_affordance_extent_ifc-object:1easxWbRzVNP2mVZZh37c2",
+          "kind": "furniture_affordance_extent"
+        }
+      ],
+      "scope": "region_internal"
+    },
+    {
+      "components": [
+        [
+          "furniture_affordance_extent_ifc-object:0s74EmoenTmPz$naDst$dX",
+          "furniture_affordance_extent_ifc-object:3EgTowLuDSaQOH00Y4Bsd8"
+        ]
+      ],
+      "edges": [
+        {
+          "a": "furniture_affordance_extent_ifc-object:0s74EmoenTmPz$naDst$dX",
+          "b": "furniture_affordance_extent_ifc-object:3EgTowLuDSaQOH00Y4Bsd8",
+          "id": "internal_relation_furniture_affordance_extent_ifc-object:0s74EmoenTmPz$naDst$dX__furniture_affordance_extent_ifc-object:3EgTowLuDSaQOH00Y4Bsd8",
+          "kind": "member_extent_overlap",
+          "overlap_area": 0.0388
+        }
+      ],
+      "id": "spatial_network_region_internal_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+      "metadata": {
+        "furniture_group_id": "furniture_group_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+        "method": "furniture_group_member_extent_overlap_network"
+      },
+      "nodes": [
+        {
+          "id": "furniture_affordance_extent_ifc-object:0s74EmoenTmPz$naDst$dX",
+          "kind": "furniture_affordance_extent"
+        },
+        {
+          "id": "furniture_affordance_extent_ifc-object:3EgTowLuDSaQOH00Y4Bsd8",
+          "kind": "furniture_affordance_extent"
+        }
+      ],
+      "scope": "region_internal"
+    },
+    {
+      "components": [
+        [
+          "furniture_affordance_extent_ifc-object:1vR6eO5PnMW8u9gnAS6nDf"
+        ]
+      ],
+      "edges": [],
+      "id": "spatial_network_region_internal_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+      "metadata": {
+        "furniture_group_id": "furniture_group_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+        "method": "furniture_group_member_extent_overlap_network"
+      },
+      "nodes": [
+        {
+          "id": "furniture_affordance_extent_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+          "kind": "furniture_affordance_extent"
+        }
+      ],
+      "scope": "region_internal"
+    },
+    {
+      "components": [
+        [
+          "furniture_affordance_extent_ifc-object:3oTJQm_Z1HjOacvtRrFvUi"
+        ]
+      ],
+      "edges": [],
+      "id": "spatial_network_region_internal_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+      "metadata": {
+        "furniture_group_id": "furniture_group_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+        "method": "furniture_group_member_extent_overlap_network"
+      },
+      "nodes": [
+        {
+          "id": "furniture_affordance_extent_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+          "kind": "furniture_affordance_extent"
+        }
+      ],
+      "scope": "region_internal"
+    },
+    {
+      "components": [
+        [
+          "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+          "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+          "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+          "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+          "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi"
+        ]
+      ],
+      "edges": [
+        {
+          "a": "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+          "b": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+          "id": "inferred_gap_path_ifc-group:1RLjJfQoPMYhzgryEjvQ_A__ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+          "kind": "gap_path",
+          "thickness": 1.7036
+        },
+        {
+          "a": "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+          "b": "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+          "id": "inferred_gap_path_ifc-group:1RLjJfQoPMYhzgryEjvQ_A__ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+          "kind": "gap_path",
+          "thickness": 1.7894
+        },
+        {
+          "a": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+          "b": "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+          "id": "inferred_gap_path_ifc-group:1WdiYYY5XLdxy38IUmNWAk__ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+          "kind": "gap_path",
+          "thickness": 1.3676
+        },
+        {
+          "a": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+          "b": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+          "id": "inferred_gap_path_ifc-group:1WdiYYY5XLdxy38IUmNWAk__ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+          "kind": "gap_path",
+          "thickness": 1.4176
+        },
+        {
+          "a": "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+          "b": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+          "id": "inferred_gap_path_ifc-group:3mMwIhrYbH$gk7ta4HZSov__ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+          "kind": "gap_path",
+          "thickness": 0.6757
+        },
+        {
+          "a": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+          "b": "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+          "id": "inferred_gap_path_ifc-object:3oTJQm_Z1HjOacvtRrFvUi__ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+          "kind": "gap_path",
+          "thickness": 0.45
+        }
+      ],
+      "id": "spatial_network_inter_region_gap_paths",
+      "metadata": {
+        "method": "shared_spatial_network_schema_from_furniture_groups_and_gap_paths"
+      },
+      "nodes": [
+        {
+          "id": "inferred_region_ifc-group:1RLjJfQoPMYhzgryEjvQ_A",
+          "kind": "activity_region_candidate"
+        },
+        {
+          "id": "inferred_region_ifc-group:1WdiYYY5XLdxy38IUmNWAk",
+          "kind": "activity_region_candidate"
+        },
+        {
+          "id": "inferred_region_ifc-group:3mMwIhrYbH$gk7ta4HZSov",
+          "kind": "activity_region_candidate"
+        },
+        {
+          "id": "inferred_region_ifc-object:1vR6eO5PnMW8u9gnAS6nDf",
+          "kind": "activity_region_candidate"
+        },
+        {
+          "id": "inferred_region_ifc-object:3oTJQm_Z1HjOacvtRrFvUi",
+          "kind": "activity_region_candidate"
+        }
+      ],
+      "scope": "inter_region"
+    }
+  ],
+  "surface_evidence": {
+    "carpet": {
+      "identity": "IfcCovering:FLOORING",
+      "mass_geometry_refs": [],
+      "method": "ifc4_surface_product",
+      "source_id": "2bJis0eovUhutk$A3K30aK",
+      "surface_geometry_refs": [
+        "ifc-mesh:2bJis0eovUhutk$A3K30aK"
+      ],
+      "uncertainties": []
+    }
+  },
+  "uncertainties": []
+}

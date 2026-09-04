@@ -117,6 +117,17 @@ through evidence geometry and route-topology handoffs.
 
 Column-grid field evidence is an additive continuous layer over the explicit axis/branch/bay scaffold. It summarizes local support, clarity, and strength at deterministic region probes, and it must not replace bay-based local profiles or force orthogonal snapping.
 
+## BIM Preview And Handoff Rule
+
+The Blender preview is an output-only inspection surface. It consumes a
+serialized preview manifest produced from Neutral Scene source geometry and
+inference evidence; it does not define regions, paths, trends, boundaries,
+grids, weights, or scores. Source meshes use their authored triangle topology,
+while derived overlays use separate tagged objects in `OM_AnalysisPreview`.
+Repeated generation may remove only objects and materials carrying the preview
+tag. Missing runtime Blender execution must remain an explicit verification
+limitation rather than being inferred from a successful Python manifest build.
+
 ## Region Trend Frame Rule
 
 Region trend is a two-axis frame inferred from activity-group frame evidence. The raw activity-group/frame angle remains auditable as `axis-original-angle` when a later correction is applied.
