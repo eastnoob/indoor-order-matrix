@@ -7,7 +7,10 @@ from math import atan2, cos, degrees, radians, sin
 from typing import TypeAlias
 
 from .affordance.models import Rect
-from .boundary_evidence import derive_boundary_evidence
+from .boundary_evidence import (
+    derive_boundary_evidence,
+    derive_boundary_evidence_for_collection,
+)
 from .geometry_substitutes import mass_patch_from_mesh, surface_patch_from_fact
 from .geometry_views import plan_projection
 from .scene_contract import NeutralSceneV2, SourceObject
@@ -265,14 +268,20 @@ def _neutral_channel_evidence(
             patch.source_geometry_id: transmittance
             for patch in patches
         }
-        patch_evidence = derive_boundary_evidence(
-            patches,
-            body_profiles=body_profiles,
-            visual_bands=visual_bands,
-            optical_transmittance_by_source=optical,
-            use_default_queries=False,
-            analysis_plane=scene.context.analysis_plane,
-            height_tolerance=scene.context.geometry_tolerance,
+        patch_evidence = (
+            (
+                derive_boundary_evidence_for_collection(
+                    patches,
+                    body_profiles=body_profiles,
+                    visual_bands=visual_bands,
+                    optical_transmittance=transmittance,
+                    use_default_queries=False,
+                    analysis_plane=scene.context.analysis_plane,
+                    height_tolerance=scene.context.geometry_tolerance,
+                ),
+            )
+            if patches
+            else ()
         )
         result[source.id] = _channel_evidence_payload(
             patch_evidence,

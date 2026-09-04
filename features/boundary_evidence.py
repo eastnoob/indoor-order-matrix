@@ -8,10 +8,240 @@ from collections.abc import Iterable, Mapping
 from typing import TypeAlias
 
 from .geometry_substitutes import MassPatch, SurfacePatch
-from .geometry_views import PlanProjection, plan_projection, vertical_intervals_at
+from .geometry_views import (
+    PlanProjection,
+    component_shape,
+    plan_projection,
+    vertical_intervals_at,
+)
+from .mass_patch_collection import (
+    merge_vertical_intervals,
+    union_plan_geometry,
+    vertical_intervals_at_collection,
+)
 
 
 Substitute: TypeAlias = MassPatch | SurfacePatch
+
+
+def _projection_from_shapely(
+    source_id: str,
+    geometry: object,
+) -> PlanProjection | None:
+    """Serialize a Shapely plan union into the neutral projection contract."""
+    if geometry is None or geometry.is_empty:
+        return None
+    geometries = (
+        geometry.geoms
+        if geometry.geom_type == "MultiPolygon"
+        else (geometry,)
+    )
+    components = []
+    for polygon in geometries:
+        if polygon.geom_type != "Polygon" or polygon.is_empty:
+            continue
+        components.append(
+            {
+                "exterior": tuple(
+                    (float(point[0]), float(point[1]))
+                    for point in polygon.exterior.coords[:-1]
+                ),
+                "holes": tuple(
+                    tuple(
+                        (float(point[0]), float(point[1]))
+                        for point in ring.coords[:-1]
+                    )
+                    for ring in polygon.interiors
+                ),
+            }
+        )
+    if not components:
+        return None
+    return PlanProjection(
+        source_patch_id=source_id,
+        coordinates=tuple(components[0]["exterior"]),
+        components=tuple(components),
+    )
+
+
+def _collection_band_projection(
+    patches: tuple[MassPatch, ...],
+    band: tuple[float, float],
+    analysis_plane: object | None,
+    height_tolerance: float,
+) -> PlanProjection | None:
+    """Union member projections for one walking or visual height band."""
+    components = [
+        component
+        for patch in patches
+        for component in plan_projection(
+            patch,
+            analysis_plane,
+            band,
+            height_tolerance=height_tolerance,
+        ).components
+    ]
+    return _projection_from_shapely(
+        "mass-patch-collection",
+        component_shape(components),
+    )
+
+
+def _collection_channel(
+    patches: tuple[MassPatch, ...],
+    intervals: tuple[tuple[float, float], ...],
+    queries: tuple[Mapping[str, object], ...],
+    *,
+    channel: str,
+    optical_transmittance: object,
+    analysis_plane: object | None,
+    height_tolerance: float,
+) -> tuple[Mapping[str, object], ...]:
+    """Derive one explicit channel over a patch union without a weight."""
+    results = []
+    for query in queries:
+        band = tuple(float(value) for value in query["height_band"])
+        projection = _collection_band_projection(
+            patches,
+            band,
+            analysis_plane,
+            height_tolerance,
+        )
+        blocked = bool(projection and projection.components)
+        if channel == "walking":
+            status = "blocked" if blocked else "clear"
+            payload = {
+                "profile_id": query["id"],
+                "height_band": band,
+                "radius": query.get("radius"),
+                "status": status,
+                "collision_intervals": tuple(
+                    interval for interval in intervals if _overlaps(interval, band)
+                ),
+                "query_projection": projection.to_dict() if projection else None,
+            }
+        else:
+            if not blocked:
+                status = "clear"
+            elif optical_transmittance is None:
+                status = "unknown"
+            elif float(optical_transmittance) == 0.0:
+                status = "blocked"
+            else:
+                status = "transmitting"
+            payload = {
+                "band_id": query["id"],
+                "height_band": band,
+                "geometry_status": "blocked" if blocked else "clear",
+                "optical_transmittance": optical_transmittance,
+                "status": status,
+                "query_projection": projection.to_dict() if projection else None,
+            }
+        results.append(payload)
+    return tuple(results)
+
+
+def derive_boundary_evidence_for_collection(
+    patches: Iterable[MassPatch],
+    *,
+    body_profiles: Iterable[Mapping[str, object]] = (),
+    visual_bands: Iterable[Mapping[str, object]] = (),
+    optical_transmittance: object = None,
+    use_default_queries: bool = True,
+    analysis_plane: object | None = None,
+    height_tolerance: float = 1e-9,
+) -> BoundaryEvidence:
+    """Derive one boundary record for an explicitly supplied logical collection."""
+    patches = tuple(patches)
+    if not patches:
+        raise ValueError("patches must contain at least one MassPatch")
+    profiles = _normalized_queries(
+        body_profiles,
+        default=_default_body_profile() if use_default_queries else None,
+        label="body_profile",
+    )
+    bands = _normalized_queries(
+        visual_bands,
+        default=_default_visual_band() if use_default_queries else None,
+        label="visual_band",
+    )
+    source_id = "mass-patch-collection:" + "|".join(patch.id for patch in patches)
+    projection = _projection_from_shapely(
+        source_id,
+        union_plan_geometry(patches, analysis_plane),
+    )
+    points = _representative_points(projection) if projection else ()
+    intervals = tuple(
+        vertical_intervals_at_collection(
+            patches,
+            point,
+            analysis_plane,
+        ).intervals
+        for point in points
+    )
+    merged_intervals = merge_vertical_intervals(
+        interval
+        for point_intervals in intervals
+        for interval in point_intervals
+    )
+    geometry_usable = all(
+        patch.is_closed is True and patch.is_manifold is True
+        for patch in patches
+    ) and bool(merged_intervals)
+    return BoundaryEvidence(
+        id=f"boundary-evidence:{source_id}",
+        source_refs=tuple(patch.id for patch in patches),
+        method="mass_patch_collection_union_evidence",
+        projection=projection,
+        representative_point=points[0] if points else None,
+        representative_points=points,
+        provenance={
+            "method": "mass_patch_collection_union",
+            "member_patch_ids": tuple(patch.id for patch in patches),
+        },
+        physical_continuity={
+            "mass_present": True,
+            "occupied_height": merged_intervals,
+            "component_count": len(projection.components) if projection else 0,
+            "thickness": (
+                max(interval[1] - interval[0] for interval in merged_intervals)
+                if merged_intervals
+                else None
+            ),
+            "is_closed": all(patch.is_closed is True for patch in patches),
+            "is_manifold": all(patch.is_manifold is True for patch in patches),
+            "channel_geometry_status": "usable" if geometry_usable else "unknown",
+        },
+        walking_permeability=_collection_channel(
+            patches,
+            merged_intervals,
+            profiles,
+            channel="walking",
+            optical_transmittance=optical_transmittance,
+            analysis_plane=analysis_plane,
+            height_tolerance=height_tolerance,
+        ),
+        visual_permeability=_collection_channel(
+            patches,
+            merged_intervals,
+            bands,
+            channel="visual",
+            optical_transmittance=optical_transmittance,
+            analysis_plane=analysis_plane,
+            height_tolerance=height_tolerance,
+        ),
+        gestalt_continuity={
+            "alignment": "not_evaluated",
+            "good_continuation": "collection_union",
+            "surface_identity": None,
+        },
+        tolerances={"height": height_tolerance, "distance": 1e-9},
+        uncertainties=(
+            ("open_or_nonmanifold_geometry",)
+            if not geometry_usable
+            else ()
+        ),
+    )
 
 
 def _json_value(value: object) -> object:

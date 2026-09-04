@@ -6,7 +6,10 @@ from dataclasses import replace
 import json
 import pytest
 
-from ..features.boundary_evidence import derive_boundary_evidence
+from ..features.boundary_evidence import (
+    derive_boundary_evidence,
+    derive_boundary_evidence_for_collection,
+)
 from ..features.geometry_substitutes import mass_patch_from_mesh, surface_patch_from_fact
 from ..features.scene_contract import AnalysisPlane, SurfaceFact
 from .test_geometry_substitutes import _box_mesh
@@ -214,3 +217,28 @@ def test_invalid_query_height_bands_are_rejected(height_band):
             (patch,),
             body_profiles=({"id": "invalid", "height_band": height_band},),
         )
+
+
+def test_collection_boundary_evidence_uses_union_height_and_plan():
+    """An explicit logical collection yields one non-duplicated boundary record."""
+    first = mass_patch_from_mesh(_box_mesh(mesh_id="seat", top=1.0))
+    second_mesh = _box_mesh(mesh_id="back", top=2.0)
+    second = mass_patch_from_mesh(
+        replace(
+            second_mesh,
+            vertices=tuple((x + 1.0, y, z) for x, y, z in second_mesh.vertices),
+        )
+    )
+
+    evidence = derive_boundary_evidence_for_collection(
+        (first, second),
+        body_profiles=({"id": "adult", "height_band": (0.0, 1.8), "radius": 0.3},),
+        visual_bands=({"id": "eye", "height_band": (1.5, 1.8)},),
+        optical_transmittance=0.0,
+    )
+
+    assert evidence.source_refs == (first.id, second.id)
+    assert evidence.physical_continuity["mass_present"] is True
+    assert evidence.physical_continuity["component_count"] == 1
+    assert evidence.walking_permeability[0]["status"] == "blocked"
+    assert evidence.visual_permeability[0]["status"] == "blocked"

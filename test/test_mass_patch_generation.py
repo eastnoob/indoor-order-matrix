@@ -8,8 +8,10 @@ from ..features.geometry_views import vertical_intervals_at
 from ..features.scene_contract import MeshGeometry3D
 from ..features.mass_patch_generation import (
     MassPatchGenerationConfig,
+    validate_mass_patch_collection_candidate,
     generate_mass_patches,
 )
+from ..features.geometry_substitutes import mass_patch_from_mesh
 
 
 def _box_mesh(*, mesh_id: str = "box", top: float = 1.0) -> MeshGeometry3D:
@@ -55,6 +57,29 @@ def _mesh_without_triangles() -> MeshGeometry3D:
         is_closed=None,
         local_to_world_provenance={"fixture": "empty"},
         source_representation_id="empty",
+        tessellation_settings={},
+        units="m",
+    )
+
+
+def _box_with_duplicate_vertex_indices() -> MeshGeometry3D:
+    """Build a box whose faces use duplicate coordinate vertices."""
+    source = _box_mesh(mesh_id="duplicate-index-box")
+    vertices = []
+    triangles = []
+    for triangle in source.triangle_indices:
+        offset = len(vertices)
+        vertices.extend(source.vertices[index] for index in triangle)
+        triangles.append((offset, offset + 1, offset + 2))
+    return MeshGeometry3D(
+        id="duplicate-index-box",
+        vertices=tuple(vertices),
+        triangle_indices=tuple(triangles),
+        normals=(),
+        is_manifold=True,
+        is_closed=True,
+        local_to_world_provenance={"fixture": "duplicate_vertex_indices"},
+        source_representation_id="duplicate-index-box",
         tessellation_settings={},
         units="m",
     )
@@ -254,6 +279,13 @@ def test_repeated_generation_is_deterministic():
     assert first == second
 
 
+def test_duplicate_coordinate_vertices_are_welded_before_connectivity_split():
+    """Duplicate face-local vertices must not fragment one physical solid."""
+    result = generate_mass_patches(_box_with_duplicate_vertex_indices())
+
+    assert len(result.patches) == 1
+
+
 def test_box_component_produces_a_smaller_oriented_box_candidate():
     """A box exposes an OBB candidate before candidate validation selects it."""
     result = generate_mass_patches(_box_mesh())
@@ -366,3 +398,76 @@ def test_selected_patch_provenance_contains_validation_configuration():
 
     assert patch.provenance["validation_config"]["sample_spacing"] == 0.25
     assert "validation_result" in patch.provenance
+
+
+def test_obb_failure_falls_back_to_exact_component(monkeypatch):
+    """A failed OBB solver must not abort exact MassPatch generation."""
+    import trimesh
+
+    def fail_obb(_mesh):
+        """Raise the same class of failure produced by an underconstrained fragment."""
+        raise ValueError("insufficient independent points")
+
+    monkeypatch.setattr(
+        trimesh.base.Trimesh,
+        "bounding_box_oriented",
+        property(fail_obb),
+    )
+
+    result = generate_mass_patches(_box_mesh())
+
+    assert len(result.patches) == 1
+    assert result.component_reports[0].selected_candidate == "exact_component"
+
+
+def test_overlapping_seat_and_back_boxes_use_collection_union():
+    """Overlapping candidate boxes remain one logical occupancy collection."""
+    source = _merge_meshes(
+        (
+            _translated_box(mesh_id="seat-source", offset=(0.0, 0.0, 1.0), size=(2.0, 2.0, 0.2)),
+            _translated_box(mesh_id="back-source", offset=(0.0, 1.8, 1.2), size=(2.0, 0.2, 1.5)),
+        ),
+        "seat-back-source",
+    )
+    candidates = (
+        mass_patch_from_mesh(
+            _translated_box(mesh_id="seat-candidate", offset=(0.0, 0.0, 1.0), size=(2.0, 2.0, 0.2))
+        ),
+        mass_patch_from_mesh(
+            _translated_box(mesh_id="back-candidate", offset=(0.0, 1.8, 1.2), size=(2.0, 0.2, 1.5))
+        ),
+    )
+
+    report = validate_mass_patch_collection_candidate(
+        source,
+        candidates,
+        MassPatchGenerationConfig(sample_spacing=0.1),
+    )
+
+    assert report.accepted is True
+    assert report.overlap_report["overlap_pair_count"] == 1
+
+
+def test_enclosing_box_that_fills_chair_leg_gap_is_rejected():
+    """A full chair envelope is rejected because it fills empty floor space."""
+    source = _chair_mesh()
+    enclosing = mass_patch_from_mesh(
+        _translated_box(
+            mesh_id="enclosing-chair",
+            offset=(0.0, 0.0, 0.0),
+            size=(2.0, 2.0, 2.7),
+        )
+    )
+
+    report = validate_mass_patch_collection_candidate(
+        source,
+        (enclosing,),
+        MassPatchGenerationConfig(sample_spacing=0.1),
+    )
+
+    assert report.accepted is False
+    assert report.rejection_reason in {
+        "plan_overreach",
+        "vertical_endpoint_error",
+        "occlusion_disagreement",
+    }
