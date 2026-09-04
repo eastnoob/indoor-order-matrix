@@ -152,6 +152,26 @@ def _has_non_degenerate_triangle(mesh: MeshGeometry3D) -> bool:
     return False
 
 
+def _non_degenerate_triangles(mesh: MeshGeometry3D) -> tuple[tuple[int, int, int], ...]:
+    """Return source faces that contribute measurable geometric area."""
+    triangles = []
+    for triangle in mesh.triangle_indices:
+        first, second, third = triangle
+        a = mesh.vertices[first]
+        b = mesh.vertices[second]
+        c = mesh.vertices[third]
+        ab = tuple(b[index] - a[index] for index in range(3))
+        ac = tuple(c[index] - a[index] for index in range(3))
+        cross = (
+            ab[1] * ac[2] - ab[2] * ac[1],
+            ab[2] * ac[0] - ab[0] * ac[2],
+            ab[0] * ac[1] - ab[1] * ac[0],
+        )
+        if sum(component * component for component in cross) > 0.0:
+            triangles.append(triangle)
+    return tuple(triangles)
+
+
 def _validate_source_mesh(mesh: MeshGeometry3D) -> None:
     """Reject source geometry that cannot support any spatial query."""
     if not isinstance(mesh, MeshGeometry3D):
@@ -162,17 +182,57 @@ def _validate_source_mesh(mesh: MeshGeometry3D) -> None:
         raise ValueError("mesh must contain at least one non-degenerate triangle")
 
 
-def generate_mass_patches(
-    mesh: MeshGeometry3D,
-    config: MassPatchGenerationConfig | None = None,
-) -> MassPatchGenerationResult:
-    """Generate the exact validated baseline for one source mesh."""
-    _validate_source_mesh(mesh)
-    config = config or MassPatchGenerationConfig()
-    # The exact source copy is the mandatory baseline before any simplification
-    # candidate is allowed to replace it.
-    patch = mass_patch_from_mesh(mesh)
-    exact_report = MassPatchCandidateReport(
+def _component_meshes(mesh: MeshGeometry3D) -> tuple[MeshGeometry3D, ...]:
+    """Split one source mesh into deterministic factual connectivity components."""
+    import numpy as np
+    import trimesh
+
+    source = trimesh.Trimesh(
+        vertices=np.asarray(mesh.vertices, dtype=float),
+        # Degenerate faces cannot contribute occupancy but can break the
+        # library's face-adjacency graph, so remove them before splitting.
+        faces=np.asarray(_non_degenerate_triangles(mesh), dtype=int),
+        process=False,
+    )
+    components = list(source.split(only_watertight=False))
+    # Geometry-based ordering makes the result independent of hash order or
+    # incidental face traversal order in the source adapter.
+    components.sort(
+        key=lambda component: (
+            tuple(float(value) for value in component.bounds[0]),
+            tuple(float(value) for value in component.bounds[1]),
+            len(component.vertices),
+            len(component.faces),
+        )
+    )
+    records = []
+    for index, component in enumerate(components):
+        records.append(
+            MeshGeometry3D(
+                id=f"{mesh.id}:component:{index}",
+                vertices=tuple(
+                    tuple(float(value) for value in vertex)
+                    for vertex in component.vertices
+                ),
+                triangle_indices=tuple(
+                    tuple(int(value) for value in triangle)
+                    for triangle in component.faces
+                ),
+                normals=(),
+                is_manifold=mesh.is_manifold,
+                is_closed=mesh.is_closed,
+                local_to_world_provenance=mesh.local_to_world_provenance,
+                source_representation_id=mesh.source_representation_id,
+                tessellation_settings=mesh.tessellation_settings,
+                units=mesh.units,
+            )
+        )
+    return tuple(records)
+
+
+def _exact_component_report() -> MassPatchCandidateReport:
+    """Build the zero-error report for the mandatory exact baseline."""
+    return MassPatchCandidateReport(
         candidate_method="exact_component",
         accepted=True,
         plan_recall=1.0,
@@ -181,19 +241,37 @@ def generate_mass_patches(
         gap_preservation_error=0.0,
         occlusion_disagreement=0.0,
     )
-    component_report = MassPatchComponentReport(
-        component_index=0,
-        candidate_methods=("exact_component",),
-        selected_candidate="exact_component",
-        candidate_reports=(exact_report,),
-        rejections={},
-        gap_preservation_error=0.0,
-    )
+
+
+def generate_mass_patches(
+    mesh: MeshGeometry3D,
+    config: MassPatchGenerationConfig | None = None,
+) -> MassPatchGenerationResult:
+    """Generate exact connected-component baselines for one source mesh."""
+    _validate_source_mesh(mesh)
+    config = config or MassPatchGenerationConfig()
+    patches = []
+    component_reports = []
+    for component_index, component in enumerate(_component_meshes(mesh)):
+        # The exact source component is the mandatory baseline before any
+        # simplification candidate is allowed to replace it.
+        patches.append(mass_patch_from_mesh(component))
+        exact_report = _exact_component_report()
+        component_reports.append(
+            MassPatchComponentReport(
+                component_index=component_index,
+                candidate_methods=("exact_component",),
+                selected_candidate="exact_component",
+                candidate_reports=(exact_report,),
+                rejections={},
+                gap_preservation_error=0.0,
+            )
+        )
     del config
     return MassPatchGenerationResult(
         source_mesh_id=mesh.id,
-        patches=(patch,),
-        component_reports=(component_report,),
+        patches=tuple(patches),
+        component_reports=tuple(component_reports),
     )
 
 
