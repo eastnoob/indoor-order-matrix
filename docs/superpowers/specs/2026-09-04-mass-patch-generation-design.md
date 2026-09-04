@@ -68,7 +68,9 @@ The configuration contains geometry tolerances only. It must not contain
 perceptual weights:
 
 - `linear_tolerance`;
-- `sample_spacing`, default `4 * linear_tolerance`;
+- `sample_spacing`, default `None`; when omitted, use the larger of
+  `4 * linear_tolerance` and one thirty-second of the combined plan-bound
+  span;
 - `minimum_plan_recall`, default `0.98`;
 - `maximum_plan_overreach`, default `0.02`;
 - `maximum_vertical_endpoint_error`, default `2 * linear_tolerance`;
@@ -122,9 +124,10 @@ geometry is a valid substitute, while false occupancy is not.
 ### 4. Validate candidates against the source
 
 Validation uses deterministic samples derived from the union of source and
-candidate plan bounds. Grid spacing is `sample_spacing`; every source and
-candidate plan vertex is also included as a sample, so narrow component edges
-are not represented only by a distant grid point. It compares source and
+candidate plan bounds. Grid spacing is the configured `sample_spacing`, or the
+adaptive spacing defined above when it is omitted; every source and candidate
+plan vertex is also included as a sample, so narrow component edges are not
+represented only by a distant grid point. It compares source and
 candidate independently in the analysis plane:
 
 - **Plan recall:** source-occupied sample positions also occupied by candidate.

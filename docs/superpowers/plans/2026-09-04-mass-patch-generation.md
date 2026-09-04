@@ -291,9 +291,11 @@ pixi run pytest test/test_mass_patch_generation.py -q
 
 - [ ] **Step 3: Implement deterministic samples**
 
-Build XY samples from the union of source/candidate bounds at
-`sample_spacing`, then append all source and candidate plan vertices. Use
-`vertical_intervals_at` for occupied height intervals and
+Build XY samples from the union of source/candidate bounds at the configured
+`sample_spacing`, or at the larger of `4 * linear_tolerance` and one
+thirty-second of the combined plan-bound span when it is omitted. Then append
+all source and candidate plan vertices. Use `vertical_intervals_at` for
+occupied height intervals and
 `occlusion_intersections` for deterministic ray checks. Keep plan recall,
 overreach, gap error, height endpoint error, and occlusion disagreement as
 separate report fields.
