@@ -5,11 +5,23 @@
 ## 核心原则
 
 - 源模型默认只读；每阶段独立执行、独立报告，不静默进入下一阶段。
+- `ifc-bim-conversion-workflow` 只是可选协调器；按请求选择独立 skill，不强制执行固定流水线。
 - 几何、图层名和对象名只是证据，不能单独证明 BIM 语义。
 - 用户提供的语义、分组、柱网和分析替身优先，缺失时才使用几何推断。
 - IFC 是事实来源；区域、路径、trend、边界证据、热图和评分是分析结果，默认不写回事实 IFC。
 - 描述层不含感知权重或最终评分。
 - 输出目录可选；未指定时使用 `<当前项目>/outputs/<模型名>/`，不覆盖已有结果；输出目录与导入目标相互独立。
+
+### 独立能力选择
+
+- 已经有替身，只想读取：`analysis-substitute-discovery`
+- 需要新生成 MassPatch：`masspatch-generation`
+- 需要写 IFC：`ifc-export`
+- 需要检查 IFC：`ifc-validation`
+- 需要改变 Bonsai 场景：`bonsai-import`
+- 需要确认 Bonsai 映射：`bonsai-verification`
+
+发现替身不会触发生成；导出可以只包含源产品；导入必须单独得到用户确认。
 
 ## 1. 环境预检
 
@@ -59,6 +71,21 @@ D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe
 至少保留项目及空间结构、单位、产品实体、类型关系、空间包含、用户定义组和来源信息。家具可使用 `IfcFurniture`/`IfcFurnitureType`，家具组使用 `IfcGroup`，显式柱网优先映射为 `IfcGrid`/`IfcGridAxis`。自定义事实属性使用 `OM_*`，不得冒用保留的 `Pset_*` 名称。
 
 输出目录不作为强制输入。未指定时，将 IFC、inspection、validation、映射和日志统一写入 `<当前项目>/outputs/<模型名>/`；若结果已存在，应创建独立运行目录或先询问是否覆盖。导出完成不等于自动导入。
+
+### MassPatch 的 IFC 表示
+
+如果用户明确要求导出已有的 MassPatch，优先把它写成同一个家具产品的第二个几何表示：
+
+```text
+IfcFurniture
+└── IfcProductDefinitionShape
+    ├── Body      // 可见家具几何
+    └── Analysis  // 分析用 MassPatch
+```
+
+这里的 `Analysis` 是项目约定的表示角色，不是 IFC 标准定义的 MassPatch 类型；`OM_*` 也是项目自定义事实属性。若目标软件不能可靠保留多表示，则才使用独立 `IfcBuildingElementProxy` sidecar，并明确记录它是兼容性产品，不是同一家具的第二个 IFC 表示。
+
+IFC 中的表示角色不会自动保证 Bonsai 隐藏分析几何。Bonsai 适配器必须主动选择 `Body` 作为默认可见表示，将 `Analysis` 保留给分析或显式检查视图。可见性不能仅凭 `Analysis` 或 `OM.VisibilityPolicy=analysis_only` 推断。
 
 ## 5. 独立检查与校验
 

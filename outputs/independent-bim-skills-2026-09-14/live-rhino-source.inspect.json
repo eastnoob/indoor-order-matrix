@@ -1,0 +1,220 @@
+{
+  "analysis_proxies": [],
+  "entity_counts": {
+    "IfcAxis2Placement3D": 4,
+    "IfcBuilding": 1,
+    "IfcBuildingStorey": 1,
+    "IfcCartesianPoint": 4,
+    "IfcCartesianPointList3D": 3,
+    "IfcDirection": 8,
+    "IfcFurniture": 3,
+    "IfcFurnitureType": 2,
+    "IfcGeometricRepresentationContext": 1,
+    "IfcGeometricRepresentationSubContext": 1,
+    "IfcGroup": 3,
+    "IfcIndexedPolygonalFace": 48954,
+    "IfcLocalPlacement": 3,
+    "IfcPolygonalFaceSet": 3,
+    "IfcProductDefinitionShape": 3,
+    "IfcProject": 1,
+    "IfcPropertySet": 6,
+    "IfcPropertySingleValue": 48,
+    "IfcRelAggregates": 3,
+    "IfcRelAssignsToGroup": 3,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcRelDefinesByProperties": 6,
+    "IfcRelDefinesByType": 2,
+    "IfcSIUnit": 1,
+    "IfcShapeRepresentation": 3,
+    "IfcSite": 1,
+    "IfcUnitAssignment": 1
+  },
+  "global_id_duplicates": [],
+  "group_membership": [
+    {
+      "group": {
+        "global_id": "3FGTnFVWvIwwz3aVcv2rhM",
+        "id": 49047,
+        "name": "source_rhino-group-0",
+        "type": "IfcGroup"
+      },
+      "members": [
+        {
+          "global_id": "3ckk5K4WvLDuCvEWtFkOO4",
+          "id": 16,
+          "name": "Chair_01",
+          "type": "IfcFurniture"
+        }
+      ]
+    },
+    {
+      "group": {
+        "global_id": "2ICqIY$C9I7wwE4XFEfcpT",
+        "id": 49055,
+        "name": "source_rhino-group-1",
+        "type": "IfcGroup"
+      },
+      "members": [
+        {
+          "global_id": "1Kc_LyR3vQhB4dkrrrYlFw",
+          "id": 23146,
+          "name": "Chair_02",
+          "type": "IfcFurniture"
+        }
+      ]
+    },
+    {
+      "group": {
+        "global_id": "3TLRyS4LrQsfBZG47K$uj0",
+        "id": 49063,
+        "name": "source_rhino-group-2",
+        "type": "IfcGroup"
+      },
+      "members": [
+        {
+          "global_id": "3QbZzL7yTLQvoGdTnreWYN",
+          "id": 46275,
+          "name": "Table_01",
+          "type": "IfcFurniture"
+        }
+      ]
+    }
+  ],
+  "path": "outputs\\independent-bim-skills-2026-09-14\\live-rhino-source.ifc",
+  "reason": null,
+  "representations": {
+    "by_identifier_and_type": {
+      "Body:Tessellation": 3
+    },
+    "count": 3,
+    "products": [
+      {
+        "product": {
+          "global_id": "3ckk5K4WvLDuCvEWtFkOO4",
+          "id": 16,
+          "name": "Chair_01",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "1Kc_LyR3vQhB4dkrrrYlFw",
+          "id": 23146,
+          "name": "Chair_02",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      },
+      {
+        "product": {
+          "global_id": "3QbZzL7yTLQvoGdTnreWYN",
+          "id": 46275,
+          "name": "Table_01",
+          "type": "IfcFurniture"
+        },
+        "representations": [
+          {
+            "identifier": "Body",
+            "item_count": 1,
+            "type": "Tessellation"
+          }
+        ]
+      }
+    ]
+  },
+  "schema": "IFC4",
+  "source_header_filename": "",
+  "spatial_containment": [
+    {
+      "elements": [
+        {
+          "global_id": "3ckk5K4WvLDuCvEWtFkOO4",
+          "id": 16,
+          "name": "Chair_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "1Kc_LyR3vQhB4dkrrrYlFw",
+          "id": 23146,
+          "name": "Chair_02",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "3QbZzL7yTLQvoGdTnreWYN",
+          "id": 46275,
+          "name": "Table_01",
+          "type": "IfcFurniture"
+        }
+      ],
+      "structure": {
+        "global_id": "2udSq8mkbQwxg0XrW$uM_r",
+        "id": 12,
+        "name": "Level 1",
+        "type": "IfcBuildingStorey"
+      }
+    }
+  ],
+  "status": "passed",
+  "type_relations": [
+    {
+      "objects": [
+        {
+          "global_id": "3ckk5K4WvLDuCvEWtFkOO4",
+          "id": 16,
+          "name": "Chair_01",
+          "type": "IfcFurniture"
+        },
+        {
+          "global_id": "1Kc_LyR3vQhB4dkrrrYlFw",
+          "id": 23146,
+          "name": "Chair_02",
+          "type": "IfcFurniture"
+        }
+      ],
+      "type": {
+        "global_id": "33OqanN0nOcOphbxKNHrvo",
+        "id": 23145,
+        "name": "ChairType",
+        "type": "IfcFurnitureType"
+      }
+    },
+    {
+      "objects": [
+        {
+          "global_id": "3QbZzL7yTLQvoGdTnreWYN",
+          "id": 46275,
+          "name": "Table_01",
+          "type": "IfcFurniture"
+        }
+      ],
+      "type": {
+        "global_id": "1M6bmxtLPImuyzmffBVhRu",
+        "id": 49043,
+        "name": "TableType",
+        "type": "IfcFurnitureType"
+      }
+    }
+  ],
+  "units": [
+    {
+      "name": "METRE",
+      "prefix": "MILLI",
+      "type": "IfcSIUnit",
+      "unit_type": "LENGTHUNIT"
+    }
+  ],
+  "validator_version": "0.8.5"
+}

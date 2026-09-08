@@ -121,6 +121,31 @@ def _relations(model: Any) -> dict[str, list[dict[str, object]]]:
     }
 
 
+def _analysis_proxies(model: Any) -> list[dict[str, object]]:
+    """Report explicit OM_AnalysisProxy bindings without changing the IFC model."""
+    proxies: list[dict[str, object]] = []
+    for entity in model.by_type("IfcBuildingElementProxy"):
+        for relation in getattr(entity, "IsDefinedBy", ()) or ():
+            definition = getattr(relation, "RelatingPropertyDefinition", None)
+            if (
+                definition is None
+                or not definition.is_a("IfcPropertySet")
+                or definition.Name != "OM_AnalysisProxy"
+            ):
+                continue
+            values = {}
+            for prop in definition.HasProperties or []:
+                value = getattr(prop.NominalValue, "wrappedValue", None)
+                values[prop.Name] = value
+            proxies.append(
+                {
+                    "proxy": _entity_ref(entity),
+                    "properties": values,
+                }
+            )
+    return proxies
+
+
 def _duplicate_global_ids(model: Any) -> list[dict[str, object]]:
     """Find repeated GlobalIds across rooted IFC entities."""
     entities_by_guid: defaultdict[str, list[dict[str, object]]] = defaultdict(list)
@@ -153,6 +178,7 @@ def inspect_ifc(path: Path) -> dict[str, object]:
         "representations": {},
         "units": [],
         "source_header_filename": None,
+        "analysis_proxies": [],
     }
     if not path.is_file():
         return report
@@ -208,6 +234,7 @@ def inspect_ifc(path: Path) -> dict[str, object]:
                 "representations": _representations(model),
                 "units": _units(model),
                 "source_header_filename": _header_filename(model),
+                "analysis_proxies": _analysis_proxies(model),
                 **_relations(model),
             }
         )

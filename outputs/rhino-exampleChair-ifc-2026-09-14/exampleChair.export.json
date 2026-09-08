@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "target": "outputs\\rhino-exampleChair-ifc-2026-09-14\\exampleChair.ifc",
+  "schema": "IFC4",
+  "furniture_count": 4,
+  "furniture_type_count": 1,
+  "group_count": 2,
+  "mesh_representation_count": 0,
+  "proxy_object_count": 4,
+  "proxy_bindings": [
+    {
+      "source_global_id": "171ce6ec-0ebc-4f4f-9528-1dc911a891fc",
+      "substitute_id": "Chair_W__MassPatch"
+    },
+    {
+      "source_global_id": "3e1ea9f5-0b9a-4c33-8c51-1bb5095a3dad",
+      "substitute_id": "Chair_S__MassPatch"
+    },
+    {
+      "source_global_id": "31f71d73-4995-4f4d-9b26-e21ab5d5d338",
+      "substitute_id": "Chair_E__MassPatch"
+    },
+    {
+      "source_global_id": "757e57d6-49d4-4dd7-b82b-130a63cc4526",
+      "substitute_id": "Chair_N__MassPatch"
+    }
+  ],
+  "source_path": "Rhino MCP armadillo:15001",
+  "source_object_count": 4,
+  "excluded_source_facts": {},
+  "import_status": "not_run"
+}

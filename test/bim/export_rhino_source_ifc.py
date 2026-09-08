@@ -58,15 +58,83 @@ def _type_name(record: dict[str, Any], kind: str) -> str:
     return f"{label.title()}Type"
 
 
-def write_ifc(source_path: Path, target_path: Path) -> dict[str, object]:
-    """Write one IFC4 file from normalized logical furniture records."""
+def _load_substitutes(path: Path | None) -> list[dict[str, Any]]:
+    """Load explicit MassPatch records without generating or inferring geometry."""
+    if path is None:
+        return []
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("substitutes", payload) if isinstance(payload, dict) else payload
+    if not isinstance(records, list):
+        raise ValueError("Substitute payload must be a list or contain a substitutes list")
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("Each substitute record must be an object")
+        required = ("source_global_id", "substitute_id", "vertices", "triangle_indices")
+        if any(not record.get(field) for field in required):
+            raise ValueError(f"Incomplete substitute record: {record.get('substitute_id')}")
+    return records
+
+
+def _assign_analysis_properties(
+    model: Any,
+    entity: Any,
+    binding: dict[str, Any],
+    *,
+    property_set_name: str = "OM_AnalysisProxy",
+) -> None:
+    """Store explicit source-to-analysis binding facts on the owning product."""
+    values = {
+        "OM_SourceGlobalId": binding["source_global_id"],
+        "OM_SubstituteKind": binding.get("substitute_kind", "MassPatch"),
+        "OM_AnalysisRole": binding.get(
+            "analysis_role", "analysis_geometry_substitute"
+        ),
+        "OM_VisibilityPolicy": binding.get("visibility_policy", "analysis_only"),
+    }
+    if property_set_name == "OM_AnalysisProxy":
+        values["OM_ProxyKind"] = values.pop("OM_SubstituteKind")
+        values["OM_Authoritative"] = "false"
+    properties = [
+        model.create_entity(
+            "IfcPropertySingleValue",
+            Name=key,
+            NominalValue=model.create_entity("IfcLabel", str(value)),
+        )
+        for key, value in values.items()
+    ]
+    property_set = model.create_entity(
+        "IfcPropertySet",
+        GlobalId=_stable_guid(f"{entity.GlobalId}:{property_set_name}"),
+        Name=property_set_name,
+        HasProperties=properties,
+    )
+    model.create_entity(
+        "IfcRelDefinesByProperties",
+        GlobalId=_stable_guid(f"{entity.GlobalId}:{property_set_name}:relation"),
+        RelatingPropertyDefinition=property_set,
+        RelatedObjects=[entity],
+    )
+
+
+def write_ifc(
+    source_path: Path,
+    target_path: Path,
+    *,
+    substitute_path: Path | None = None,
+    substitute_mode: str = "representation",
+) -> dict[str, object]:
+    """Write IFC4 furniture with optional same-product or sidecar analysis geometry."""
     import ifcopenshell
     from ifcopenshell.api.context import add_context
     from ifcopenshell.api.geometry import edit_object_placement
     from ifcopenshell.api.unit import add_si_unit, assign_unit
 
+    if substitute_mode not in {"representation", "sidecar"}:
+        raise ValueError("substitute_mode must be 'representation' or 'sidecar'")
+
     payload = _load_source(source_path)
     source_objects = payload["objects"]
+    substitutes = _load_substitutes(substitute_path)
     model = ifcopenshell.file(schema="IFC4")
     # Keep the exported file in metric IFC4 so Rhino millimetre coordinates
     # remain traceable through the placement conversion below.
@@ -80,6 +148,13 @@ def write_ifc(source_path: Path, target_path: Path) -> dict[str, object]:
         model,
         context_type="Model",
         context_identifier="Body",
+        target_view="MODEL_VIEW",
+        parent=model_context,
+    )
+    analysis_context = add_context(
+        model,
+        context_type="Model",
+        context_identifier="Analysis",
         target_view="MODEL_VIEW",
         parent=model_context,
     )
@@ -199,6 +274,95 @@ def write_ifc(source_path: Path, target_path: Path) -> dict[str, object]:
             },
         )
 
+    proxy_entities: list[Any] = []
+    analysis_representation_count = 0
+    analysis_representation_bindings: list[dict[str, str]] = []
+    for binding in substitutes:
+        source_global_id = str(binding["source_global_id"])
+        if source_global_id not in entities:
+            raise ValueError(
+                f"Substitute source_global_id is not a source furniture object: "
+                f"{source_global_id}"
+            )
+        vertices = [[float(value) / 1000.0 for value in vertex] for vertex in binding["vertices"]]
+        faces = [[int(index) for index in face] for face in binding["triangle_indices"]]
+        if substitute_mode == "representation":
+            source_entity = entities[source_global_id]
+            source_record = next(
+                record for record in source_objects if str(record["id"]) == source_global_id
+            )
+            _, _, source_origin = _localize_mesh(source_record)
+            # Substitute vertices are authored in world millimetres; convert them
+            # into the source product's local metre frame before attaching them.
+            local_vertices = [
+                [
+                    float(vertex[axis]) / 1000.0 - float(source_origin[axis])
+                    for axis in range(3)
+                ]
+                for vertex in binding["vertices"]
+            ]
+            _assign_mesh(model, analysis_context, source_entity, local_vertices, faces)
+            _assign_analysis_properties(
+                model,
+                source_entity,
+                binding,
+                property_set_name="OM_AnalysisRepresentation",
+            )
+            analysis_representation_count += 1
+            analysis_representation_bindings.append(
+                {
+                    "source_global_id": source_global_id,
+                    "substitute_id": str(binding["substitute_id"]),
+                }
+            )
+            continue
+        proxy = _create_root(
+            model,
+            "IfcBuildingElementProxy",
+            f"analysis_{binding['substitute_id']}",
+        )
+        proxy.ObjectType = "ANALYSIS_GEOMETRY_SUBSTITUTE"
+        proxy.Tag = str(binding["substitute_id"])
+        _assign_mesh(model, body_context, proxy, vertices, faces)
+        # A represented IfcProduct must have a placement, even when its mesh
+        # vertices are already expressed in the storey's world coordinates.
+        edit_object_placement(
+            model,
+            product=proxy,
+            matrix=[
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+            is_si=True,
+        )
+        _assign_analysis_properties(model, proxy, binding)
+        proxy_entities.append(proxy)
+
+    if proxy_entities:
+        model.create_entity(
+            "IfcRelContainedInSpatialStructure",
+            GlobalId=_stable_guid("baseRoom:storey-contains-analysis-proxies"),
+            RelatingStructure=storey,
+            RelatedElements=proxy_entities,
+        )
+        proxy_group = _create_root(model, "IfcGroup", "analysis_substitutes")
+        model.create_entity(
+            "IfcRelAssignsToGroup",
+            GlobalId=_stable_guid("baseRoom:analysis-substitutes"),
+            RelatingGroup=proxy_group,
+            RelatedObjects=proxy_entities,
+        )
+        _assign_layout_properties(
+            model,
+            proxy_group,
+            {
+                "SemanticStatus": "analysis-only",
+                "MemberCount": len(proxy_entities),
+            },
+        )
+
     target_path.parent.mkdir(parents=True, exist_ok=True)
     model.write(str(target_path))
     return {
@@ -209,6 +373,18 @@ def write_ifc(source_path: Path, target_path: Path) -> dict[str, object]:
         "furniture_type_count": len(model.by_type("IfcFurnitureType")),
         "group_count": len(model.by_type("IfcGroup")),
         "mesh_representation_count": len(model.by_type("IfcTriangulatedFaceSet")),
+        "proxy_object_count": len(proxy_entities),
+        "substitute_mode": substitute_mode,
+        "analysis_representation_count": analysis_representation_count,
+        "analysis_representation_bindings": analysis_representation_bindings,
+        "proxy_bindings": [
+            {
+                "source_global_id": binding["source_global_id"],
+                "substitute_id": binding["substitute_id"],
+            }
+            for binding in substitutes
+            if substitute_mode == "sidecar"
+        ],
         "source_path": payload.get("source_path"),
         "source_object_count": len(source_objects),
         "excluded_source_facts": payload.get("excluded_source_facts", {}),
@@ -221,8 +397,19 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("target", type=Path)
+    parser.add_argument("--substitutes", type=Path, default=None)
+    parser.add_argument(
+        "--substitute-mode",
+        choices=("representation", "sidecar"),
+        default="representation",
+    )
     args = parser.parse_args()
-    report = write_ifc(args.source, args.target)
+    report = write_ifc(
+        args.source,
+        args.target,
+        substitute_path=args.substitutes,
+        substitute_mode=args.substitute_mode,
+    )
     report_path = args.target.with_suffix(".export.json")
     report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(report, sort_keys=True))

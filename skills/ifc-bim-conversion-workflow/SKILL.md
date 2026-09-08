@@ -11,6 +11,24 @@ and validation, have standalone scripts. Preprocessing, export, and import are
 adapter or user-controlled phases; this skill does not itself invoke an
 importer. Every phase remains independently runnable. A phase never silently invokes the next phase. Source models are read-only by default; preprocessing requires an explicit user request.
 
+## Optional capability routing
+
+Select only the capability the request needs:
+
+| Need | Skill |
+| --- | --- |
+| Map complete logical products and repeated types | `bim-logical-object-mapping` |
+| Find an existing analysis substitute | `analysis-substitute-discovery` |
+| Create a new MassPatch substitute | `masspatch-generation` |
+| Write an IFC file | `ifc-export` |
+| Check IFC legality and facts | `ifc-validation` |
+| Change a Bonsai scene | `bonsai-import` |
+| Prove the active Bonsai mapping | `bonsai-verification` |
+
+Discovery never calls generation. Export consumes an explicitly supplied
+substitute report and remains valid with source products only. Import is never
+implied by export or validation.
+
 ## Source decision
 
 | Source | First choice | Fallback | BIM caution |
@@ -50,6 +68,12 @@ and import target are separate decisions: writing an IFC never implies import.
    IFC objects. Do not use a global coordinate quadrant as the sole ownership
    rule. Prefer explicit grouping, blocks/instances, parent-child relations,
    and names; use spatial/geometry inference only when its evidence is coherent.
+   For Rhino nested Blocks, use the existing project adapter
+   `features.rhino_block_mapping.normalize_rhino_blocks()` before this phase
+   consumes the report. It is a proposal-and-evidence step, not an automatic
+   semantic authority. Show `manual_review` records to the supervisor and
+   block automatic export until unresolved roots, representation roles, or
+   substitute bindings are confirmed.
 4. **Inspect and validate**: run inspection and validation independently.
    Validation failure blocks import. Validation failure or not_available blocks
    the import step before any mutation adapter can be called, even when geometry
@@ -116,6 +140,29 @@ Recommended source preparation, when available: group all parts of one furniture
 item, use a Block/Instance or parent-child hierarchy, and give logical products
 stable names such as `Chair_01` or `Table_01`. This is assistance, not a hard
 requirement.
+
+For a role-bearing nested Block, export one root logical product occurrence.
+`display_geometry` supplies its visible representation;
+`analysis_substitute` such as `MassPatch` remains analysis evidence and must
+not become a second furniture occurrence. When the target consumer supports
+multiple shape representations, export it as a second representation of the
+same product: `Body` for display geometry and project-convention `Analysis`
+for the MassPatch. `Analysis` is not an IFC-native MassPatch type and does not
+automatically hide the representation in Bonsai. A separate
+`IfcBuildingElementProxy` sidecar is an explicit compatibility fallback, and
+must be reported as a separate product linked to the source, never described
+as the same product's second IFC representation. Use `OM_*` custom property
+sets for factual project extensions, never `Pset_OM_*`. Block names alone must
+not determine an IFC entity or property set. The minimum role registry includes
+`OM.Role`, `OM.TypeKey`, `OM.InstanceId`, and `OM.RepresentationRole`.
+
+For multi-representation export, the adapter must preserve one logical product
+with one `IfcProductDefinitionShape` containing `Body` and `Analysis`; this is
+the same product's second shape representation, not a new occurrence. Bonsai
+visibility is an adapter responsibility: select `Body` as the default visible
+representation and retain `Analysis` for analysis or an explicit inspection
+view. Do not claim that an IFC role name or `OM.VisibilityPolicy` alone
+guarantees hidden analysis geometry.
 
 Read only the reference needed for the current phase:
 

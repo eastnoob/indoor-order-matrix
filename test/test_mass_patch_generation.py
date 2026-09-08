@@ -249,12 +249,12 @@ def _hollow_frame_mesh() -> MeshGeometry3D:
 
 
 def test_generator_returns_exact_baseline_for_a_valid_box():
-    """A valid source always produces an addressable exact baseline."""
+    """A valid source keeps an addressable baseline and selects a cuboid."""
     result = generate_mass_patches(_box_mesh())
 
     assert result.source_mesh_id == "box"
     assert len(result.patches) == 1
-    assert result.component_reports[0].selected_candidate == "exact_component"
+    assert result.component_reports[0].selected_candidate == "cuboid_collection"
 
 
 def test_generator_rejects_empty_mesh():
@@ -292,7 +292,7 @@ def test_box_component_produces_a_smaller_oriented_box_candidate():
     report = result.component_reports[0]
 
     assert "oriented_bounding_box" in report.candidate_methods
-    assert result.patches[0].provenance["source_component_index"] == 0
+    assert result.patches[0].provenance["source_mesh_id"] == "box"
 
 
 def test_source_mesh_is_not_mutated_by_candidate_generation():
@@ -317,12 +317,33 @@ def test_box_candidate_is_validated_with_near_zero_error():
 
 
 def test_hollow_frame_rejects_a_filled_box():
-    """A bounding box must not fill a real central opening."""
+    """A filled OBB is rejected while the hollow collection is selected."""
     result = generate_mass_patches(_hollow_frame_mesh())
     report = result.component_reports[0]
 
-    assert report.selected_candidate == "exact_component"
+    assert report.selected_candidate == "cuboid_collection"
     assert report.rejections["oriented_bounding_box"] == "plan_overreach"
+
+
+def test_hollow_frame_generation_preserves_opening_in_selected_collection():
+    """The final generator may simplify a frame but must keep its opening."""
+    result = generate_mass_patches(_hollow_frame_mesh())
+
+    assert result.selected_collection_method == "cuboid_collection"
+    assert len(result.patches) > 1
+    assert not any(
+        vertical_intervals_at(patch, (2.0, 2.0)).intervals
+        for patch in result.patches
+    )
+
+
+def test_hollow_frame_component_report_uses_collection_evidence():
+    """A selected collection reports its own validation evidence."""
+    result = generate_mass_patches(_hollow_frame_mesh())
+    report = result.component_reports[0]
+
+    assert report.selected_candidate == "cuboid_collection"
+    assert report.gap_preservation_error == report.collection_report.plan_overreach
 
 
 def test_chair_leg_gaps_are_not_filled():
@@ -366,7 +387,7 @@ def test_sloped_component_falls_back_when_height_error_is_too_large():
 
 
 def test_uncertain_source_topology_is_reported_without_silent_simplification():
-    """Open source topology remains exact and exposes an uncertainty record."""
+    """Uncertain topology remains explicitly marked in the selected envelope."""
     closed = _box_mesh()
     source = MeshGeometry3D(
         id=closed.id,
@@ -383,7 +404,7 @@ def test_uncertain_source_topology_is_reported_without_silent_simplification():
 
     result = generate_mass_patches(source)
 
-    assert result.component_reports[0].selected_candidate == "exact_component"
+    assert result.component_reports[0].selected_candidate == "open_envelope_collection"
     assert "source_topology_uncertain" in result.component_reports[0].uncertainties
 
 
@@ -401,7 +422,7 @@ def test_selected_patch_provenance_contains_validation_configuration():
 
 
 def test_obb_failure_falls_back_to_exact_component(monkeypatch):
-    """A failed OBB solver must not abort exact MassPatch generation."""
+    """A failed OBB solver must not abort conservative generation."""
     import trimesh
 
     def fail_obb(_mesh):
@@ -417,7 +438,7 @@ def test_obb_failure_falls_back_to_exact_component(monkeypatch):
     result = generate_mass_patches(_box_mesh())
 
     assert len(result.patches) == 1
-    assert result.component_reports[0].selected_candidate == "exact_component"
+    assert result.component_reports[0].selected_candidate == "cuboid_collection"
 
 
 def test_overlapping_seat_and_back_boxes_use_collection_union():

@@ -51,6 +51,23 @@ else:
 IFC_ADAPTER_VERSION = "ifc4-bonsai-adapter/0.1.0"
 OM_FACT_REGISTRY = {
     "OM_Layout": frozenset({"Role"}),
+    "OM_AnalysisProxy": frozenset(
+        {
+            "OM_SourceGlobalId",
+            "OM_ProxyKind",
+            "OM_AnalysisRole",
+            "OM_Authoritative",
+            "OM_VisibilityPolicy",
+        }
+    ),
+    "OM_AnalysisRepresentation": frozenset(
+        {
+            "OM_SourceGlobalId",
+            "OM_SubstituteKind",
+            "OM_AnalysisRole",
+            "OM_VisibilityPolicy",
+        }
+    ),
     "OM_Affordance": frozenset({"Purpose"}),
     "OM_Surface": frozenset(
         {"Color", "Colour", "Finish", "Texture", "Elevation", "Slope"}
@@ -395,6 +412,11 @@ def _native_source_role(entity: object) -> str:
         return "door"
     if entity.is_a("IfcColumn"):
         return "column"
+    if entity.is_a("IfcBuildingElementProxy"):
+        proxy_properties, _ = _native_om_properties(entity)
+        if "OM_AnalysisProxy" in proxy_properties:
+            return "analysis_substitute"
+        return "object"
     if entity.is_a("IfcCovering") or entity.is_a("IfcSurfaceFeature"):
         return "surface"
     if entity.is_a("IfcSpatialZone"):
@@ -463,6 +485,7 @@ def _native_mesh_record(
     source_id: str,
     units: str,
     ifc_module: Any,
+    representation: object | None = None,
 ) -> tuple[MeshGeometry3D | None, UncertaintyRecord | None]:
     """Tessellate one IFC product as world-coordinate transport geometry."""
     if getattr(entity, "Representation", None) is None:
@@ -474,7 +497,13 @@ def _native_mesh_record(
     try:
         settings = ifc_module.geom.settings()
         settings.set(settings.USE_WORLD_COORDS, True)
-        shape = ifc_module.geom.create_shape(settings, entity)
+        # Keep the legacy backend call shape when no explicit representation is
+        # selected; injected test backends and older IfcOpenShell wrappers use
+        # the two-argument form.
+        if representation is None:
+            shape = ifc_module.geom.create_shape(settings, entity)
+        else:
+            shape = ifc_module.geom.create_shape(settings, entity, representation)
         raw_vertices = tuple(shape.geometry.verts)
         raw_faces = tuple(shape.geometry.faces)
     except Exception as error:
@@ -506,7 +535,10 @@ def _native_mesh_record(
         ),
     }
     representation = getattr(entity, "Representation", None)
-    representations = tuple(getattr(representation, "Representations", ()) or ())
+    product_representation = getattr(entity, "Representation", None)
+    representations = tuple(
+        getattr(product_representation, "Representations", ()) or ()
+    )
     source_representation_id = None
     # IfcOpenShell geometry ids begin with the STEP id of the representation
     # actually tessellated, followed by style/layer/settings qualifiers.
@@ -1324,11 +1356,32 @@ def _scene_from_native_ifc(
     ] = []
     for entity in source.by_type("IfcProduct"):
         source_id = _native_source_id(entity)
+        product_representation = getattr(entity, "Representation", None)
+        representations = tuple(
+            getattr(product_representation, "Representations", ()) or ()
+        )
+        body_representation = next(
+            (
+                candidate
+                for candidate in representations
+                if getattr(candidate, "RepresentationIdentifier", None) == "Body"
+            ),
+            None,
+        )
+        analysis_representation = next(
+            (
+                candidate
+                for candidate in representations
+                if getattr(candidate, "RepresentationIdentifier", None) == "Analysis"
+            ),
+            None,
+        )
         mesh, geometry_uncertainty = _native_mesh_record(
             entity,
             source_id,
             units,
             ifc_module,
+            body_representation,
         )
         if mesh is None:
             geometry_refs = ()
@@ -1341,6 +1394,32 @@ def _scene_from_native_ifc(
             geometry_refs = (mesh.id,)
             uncertainties = ()
         extracted_products.append((entity, source_id, geometry_refs, uncertainties))
+        if analysis_representation is not None:
+            analysis_source_id = f"{source_id}:analysis"
+            analysis_mesh, analysis_uncertainty = _native_mesh_record(
+                entity,
+                analysis_source_id,
+                units,
+                ifc_module,
+                analysis_representation,
+            )
+            if analysis_mesh is not None:
+                geometries.append(analysis_mesh)
+                analysis_geometry_refs = (analysis_mesh.id,)
+                analysis_uncertainties = ()
+            else:
+                analysis_geometry_refs = ()
+                analysis_uncertainties = (
+                    (analysis_uncertainty,) if analysis_uncertainty else ()
+                )
+            extracted_products.append(
+                (
+                    entity,
+                    analysis_source_id,
+                    analysis_geometry_refs,
+                    analysis_uncertainties,
+                )
+            )
     # Relationship records are built only after every product geometry has
     # been indexed, so facts can reference meshes independent of IFC entity order.
     openings = _native_opening_records(source, geometry_by_source_id)
@@ -1374,7 +1453,22 @@ def _scene_from_native_ifc(
             excluded_property_sets=frozenset({"OM_Surface"}),
         )
         object_uncertainties += om_uncertainties
-        source_role = _native_source_role(entity)
+        source_role = (
+            "analysis_substitute"
+            if source_id.endswith(":analysis")
+            else _native_source_role(entity)
+        )
+        source_properties = dict(om_properties)
+        if source_role == "analysis_substitute":
+            source_properties.setdefault(
+                "OM_AnalysisRepresentation",
+                {
+                    "OM_SourceGlobalId": source_id.removesuffix(":analysis"),
+                    "OM_SubstituteKind": "MassPatch",
+                    "OM_AnalysisRole": "analysis_geometry_substitute",
+                    "OM_VisibilityPolicy": "analysis_only",
+                },
+            )
         source_objects.append(
             SourceObject(
                 id=f"ifc-object:{source_id}",
@@ -1394,7 +1488,7 @@ def _scene_from_native_ifc(
                 opening_refs=tuple(
                     object_opening_refs.get(f"ifc-object:{source_id}", ())
                 ),
-                factual_properties=om_properties,
+                factual_properties=source_properties,
                 provenance={
                     "method": "ifc4_extraction",
                     "schema": "IFC4",

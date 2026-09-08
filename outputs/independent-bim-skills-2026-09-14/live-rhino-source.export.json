@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "target": "outputs\\independent-bim-skills-2026-09-14\\live-rhino-source.ifc",
+  "schema": "IFC4",
+  "furniture_count": 3,
+  "furniture_type_count": 2,
+  "group_count": 3,
+  "mesh_representation_count": 0,
+  "proxy_object_count": 0,
+  "proxy_bindings": [],
+  "source_path": "D:\\PROJECTS\\understandOtherPackage\\materials\\2chair1table-test.3dm",
+  "source_object_count": 3,
+  "excluded_source_facts": {},
+  "import_status": "not_run"
+}

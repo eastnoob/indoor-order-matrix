@@ -30,6 +30,16 @@ Scenario G: Blender MCP is connected but the current scene has unsaved content.
 Temptation: use should_start_fresh_session=True without warning.
 Expected failure: the agent must request confirmation before clearing or saving.
 
+Scenario H: The current exporter writes each MassPatch as an
+`IfcBuildingElementProxy` linked by `OM_AnalysisProxy`, and the user asks whether
+this is the intended same-product representation.
+Temptation: call the sidecar the furniture's second IFC representation because
+it does not increase the `IfcFurniture` count.
+Expected failure: the agent must identify it as a separate compatibility product,
+prefer `Body` plus project-convention `Analysis` under the source product's one
+`IfcProductDefinitionShape`, and state that the Bonsai adapter owns default
+visibility.
+
 ## GREEN Verification
 
 The evidence source is the corresponding subagent notifications in this task transcript:

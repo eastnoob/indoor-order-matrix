@@ -123,30 +123,154 @@ def _all_cell_indices(shape: tuple[int, int, int]) -> Iterable[tuple[int, int, i
                 yield (x, y, z)
 
 
+def _factual_component_meshes(
+    mesh: MeshGeometry3D,
+    linear_tolerance: float,
+) -> tuple[MeshGeometry3D, ...]:
+    """Split one source mesh and derive topology for each factual component."""
+    import numpy as np
+    import trimesh
+
+    source = trimesh.Trimesh(
+        vertices=np.asarray(mesh.vertices, dtype=float),
+        faces=np.asarray(
+            tuple(
+                face
+                for face in mesh.triangle_indices
+                if len(set(face)) == 3
+            ),
+            dtype=int,
+        ),
+        process=False,
+    )
+    digits_vertex = max(0, int(math.ceil(-math.log10(linear_tolerance))))
+    source.merge_vertices(digits_vertex=digits_vertex)
+    components = list(source.split(only_watertight=False))
+    components.sort(
+        key=lambda component: (
+            tuple(float(value) for value in component.bounds[0]),
+            tuple(float(value) for value in component.bounds[1]),
+            len(component.vertices),
+            len(component.faces),
+        )
+    )
+    preserve_single_component_uncertainty = len(components) == 1 and (
+        mesh.is_closed is not True or mesh.is_manifold is not True
+    )
+    records = []
+    for index, component in enumerate(components):
+        component_is_closed = bool(getattr(component, "is_watertight", False))
+        if preserve_single_component_uncertainty:
+            component_is_closed = False
+        records.append(
+            MeshGeometry3D(
+                id=f"{mesh.id}:component:{index}",
+                vertices=tuple(
+                    tuple(float(value) for value in vertex)
+                    for vertex in component.vertices
+                ),
+                triangle_indices=tuple(
+                    tuple(int(value) for value in triangle)
+                    for triangle in component.faces
+                ),
+                normals=(),
+                is_manifold=component_is_closed,
+                is_closed=component_is_closed,
+                local_to_world_provenance=mesh.local_to_world_provenance,
+                source_representation_id=mesh.source_representation_id,
+                tessellation_settings=mesh.tessellation_settings,
+                units=mesh.units,
+            )
+        )
+    return tuple(records)
+
+
 def build_upright_occupancy(
     mesh: MeshGeometry3D,
     config: CuboidCoverConfig,
 ) -> OccupancyGrid3D:
-    """Sample a closed source mesh into an upright world-coordinate grid."""
+    """Sample a closed source mesh into an upright world-coordinate grid.
+
+    Trimesh performs the expensive surface-to-voxel conversion in compiled
+    numerical code. The previous Python parity loop scaled with
+    ``cells * triangles`` and was unsuitable for detailed Rhino meshes.
+    """
     if not isinstance(mesh, MeshGeometry3D):
         raise TypeError("mesh must be a MeshGeometry3D")
     minimum, maximum = _mesh_bounds(mesh)
     shape = _grid_shape(minimum, maximum, config.pitch, config.max_cells)
-    occupied: set[tuple[int, int, int]] = set()
     uncertain = mesh.is_closed is not True or mesh.is_manifold is not True
+    occupied: set[tuple[int, int, int]] = set()
 
-    # Empty cells are intentionally sampled and retained: they are the only
-    # inexpensive representation that can preserve chair-leg and hollow gaps.
-    for index in _all_cell_indices(shape):
-        center = tuple(
-            minimum[axis] + (index[axis] + 0.5) * config.pitch
-            for axis in range(3)
-        )
-        if not uncertain and _point_inside_closed_mesh(
-            _mass_patch_for_sampling(mesh),
-            center,
-        ):
-            occupied.add(index)
+    if not uncertain:
+        try:
+            import numpy as np
+            import trimesh
+            from shapely.geometry import Point
+
+            source_patch = _mass_patch_for_sampling(mesh)
+            from .mass_patch_collection import union_plan_geometry
+
+            source_plan = union_plan_geometry((source_patch,))
+
+            source = trimesh.Trimesh(
+                vertices=np.asarray(mesh.vertices, dtype=float),
+                faces=np.asarray(mesh.triangle_indices, dtype=int),
+                process=False,
+            )
+            # Filling the voxel shell preserves real voids while avoiding a
+            # per-cell, per-triangle Python ray test for dense CAD meshes.
+            voxel_grid = source.voxelized(config.pitch, method="subdivide").fill()
+            matrix = np.asarray(voxel_grid.matrix, dtype=bool)
+            transform_origin = np.asarray(
+                voxel_grid.transform[:3, 3],
+                dtype=float,
+            )
+            occupied_indices = np.argwhere(matrix)
+            for index in occupied_indices:
+                mapped = tuple(
+                    int(
+                        round(
+                            (
+                                float(transform_origin[axis])
+                                + float(index[axis]) * config.pitch
+                                - minimum[axis]
+                            )
+                            / config.pitch
+                        )
+                    )
+                    for axis in range(3)
+                )
+                if all(
+                    0 <= mapped[axis] < shape[axis]
+                    for axis in range(3)
+                ):
+                    # Decide occupancy at the analysis-cell center, not at
+                    # the raw voxel center. This prevents a source boundary
+                    # aligned with a voxel center from filling the adjacent
+                    # opening cell.
+                    cell_center = tuple(
+                        minimum[axis] + (mapped[axis] + 0.5) * config.pitch
+                        for axis in range(3)
+                    )
+                    if source_plan is not None and not source_plan.covers(
+                        Point(cell_center[0], cell_center[1])
+                    ):
+                        continue
+                    occupied.add(mapped)
+            _close_single_cell_vertical_gaps(occupied)
+        except Exception:
+            # Preserve the old orientation-independent classifier as a
+            # bounded fallback when a third-party voxelizer cannot handle a
+            # malformed CAD fragment.
+            source_patch = _mass_patch_for_sampling(mesh)
+            for index in _all_cell_indices(shape):
+                center = tuple(
+                    minimum[axis] + (index[axis] + 0.5) * config.pitch
+                    for axis in range(3)
+                )
+                if _point_inside_closed_mesh(source_patch, center):
+                    occupied.add(index)
     return OccupancyGrid3D(
         origin=minimum,
         pitch=config.pitch,
@@ -201,12 +325,12 @@ def cuboid_from_grid_bounds(
         (minimum[0], maximum[1], maximum[2]),
     )
     triangles = (
-        (0, 1, 2), (0, 2, 3),
-        (4, 6, 5), (4, 7, 6),
-        (0, 4, 5), (0, 5, 1),
-        (1, 5, 6), (1, 6, 2),
-        (2, 6, 7), (2, 7, 3),
-        (3, 7, 4), (3, 4, 0),
+        (0, 2, 1), (0, 3, 2),
+        (4, 5, 6), (4, 6, 7),
+        (0, 5, 4), (0, 1, 5),
+        (1, 6, 5), (1, 2, 6),
+        (2, 7, 6), (2, 3, 7),
+        (3, 4, 7), (3, 0, 4),
     )
     return MassPatch(
         id=f"{grid.source_mesh_id}:cuboid:{x0},{x1},{y0},{y1},{z0},{z1}",
@@ -262,6 +386,25 @@ def _occupied_components(
                         queue.append(neighbor_tuple)
         components.append(frozenset(component))
     return tuple(sorted(components, key=lambda cells: min(cells)))
+
+
+def _close_single_cell_vertical_gaps(
+    occupied: set[tuple[int, int, int]],
+) -> None:
+    """Fill one-cell sampling gaps inside an already occupied vertical run.
+
+    Surface voxelization can miss a single horizontal layer when a source
+    face lies exactly on a voxel plane. Closing only an enclosed vertical
+    gap repairs that artifact without bridging adjacent plan components or
+    filling a genuine opening.
+    """
+    additions = {
+        (x, y, z)
+        for x, y, z in occupied
+        if (x, y, z - 1) in occupied
+        and (x, y, z + 1) in occupied
+    }
+    occupied.update(additions)
 
 
 def _cells_bounds(
@@ -334,54 +477,160 @@ def _decompose_component(
     return _decompose_component(split[0]) + _decompose_component(split[1])
 
 
+def _merge_touching_bounds(
+    bounds_list: Iterable[tuple[int, int, int, int, int, int]],
+) -> tuple[tuple[int, int, int, int, int, int], ...]:
+    """Merge adjacent cuboids that form one larger exact cuboid.
+
+    Recursive splitting may divide a long bar into several boxes even though
+    their union is still a perfect rectangular prism. Merging only exact
+    face-neighbors keeps true openings intact because no empty cell is added.
+    """
+    bounds = list(bounds_list)
+    changed = True
+    while changed:
+        changed = False
+        for first_index, first in enumerate(bounds):
+            for second_index in range(first_index + 1, len(bounds)):
+                second = bounds[second_index]
+                merged = _merge_two_touching_bounds(first, second)
+                if merged is None:
+                    continue
+                bounds[first_index] = merged
+                del bounds[second_index]
+                changed = True
+                break
+            if changed:
+                break
+    return tuple(sorted(bounds, key=lambda item: (-_bounds_volume(item), item)))
+
+
+def _merge_two_touching_bounds(
+    first: tuple[int, int, int, int, int, int],
+    second: tuple[int, int, int, int, int, int],
+) -> tuple[int, int, int, int, int, int] | None:
+    """Return an exact cuboid union when two bounds share a full face."""
+    for axis in range(3):
+        lower = axis * 2
+        upper = lower + 1
+        other_axes = tuple(index for index in range(3) if index != axis)
+        if any(
+            first[other * 2] != second[other * 2]
+            or first[other * 2 + 1] != second[other * 2 + 1]
+            for other in other_axes
+        ):
+            continue
+        if first[upper] + 1 == second[lower] or second[upper] + 1 == first[lower]:
+            merged = list(first)
+            merged[lower] = min(first[lower], second[lower])
+            merged[upper] = max(first[upper], second[upper])
+            return tuple(merged)
+    return None
+
+
 def _component_aabb_candidates(
     mesh: MeshGeometry3D,
+    linear_tolerance: float = 1e-6,
+    factual_components: tuple[MeshGeometry3D, ...] | None = None,
 ) -> tuple[MassPatch, ...]:
     """Build one upright AABB candidate for each factual mesh component."""
-    import numpy as np
-    import trimesh
-
-    valid_faces = []
-    for face in mesh.triangle_indices:
-        first, second, third = (mesh.vertices[index] for index in face)
-        edge_one = tuple(second[axis] - first[axis] for axis in range(3))
-        edge_two = tuple(third[axis] - first[axis] for axis in range(3))
-        cross = (
-            edge_one[1] * edge_two[2] - edge_one[2] * edge_two[1],
-            edge_one[2] * edge_two[0] - edge_one[0] * edge_two[2],
-            edge_one[0] * edge_two[1] - edge_one[1] * edge_two[0],
-        )
-        if sum(value * value for value in cross) > 0.0:
-            valid_faces.append(face)
-    source = trimesh.Trimesh(
-        vertices=np.asarray(mesh.vertices, dtype=float),
-        faces=np.asarray(valid_faces, dtype=int),
-        process=False,
-    )
-    source.merge_vertices()
-    components = list(source.split(only_watertight=False))
-    components.sort(
-        key=lambda component: (
-            tuple(float(value) for value in component.bounds[0]),
-            tuple(float(value) for value in component.bounds[1]),
-        )
-    )
     candidates = []
+    components = factual_components or _factual_component_meshes(
+        mesh,
+        linear_tolerance,
+    )
     for index, component in enumerate(components):
-        minimum = tuple(float(value) for value in component.bounds[0])
-        maximum = tuple(float(value) for value in component.bounds[1])
         candidates.append(
-            _box_patch_from_coordinates(
-                mesh.id,
-                minimum,
-                maximum,
-                {
-                    "method": "component_upright_aabb",
-                    "source_mesh_id": mesh.id,
-                    "source_component_index": index,
-                },
-            )
+            _component_aabb_patch(mesh.id, component, index)
         )
+    return tuple(candidates)
+
+
+def _component_aabb_patch(
+    source_id: str,
+    component: MeshGeometry3D,
+    component_index: int,
+) -> MassPatch:
+    """Build one component envelope without re-running connectivity analysis."""
+    minimum = tuple(
+        min(float(vertex[axis]) for vertex in component.vertices)
+        for axis in range(3)
+    )
+    maximum = tuple(
+        max(float(vertex[axis]) for vertex in component.vertices)
+        for axis in range(3)
+    )
+    return _box_patch_from_coordinates(
+        source_id,
+        minimum,
+        maximum,
+        {
+            "method": "component_upright_aabb",
+            "source_mesh_id": source_id,
+            "source_component_index": component_index,
+            "source_component_id": component.id,
+        },
+    )
+
+
+def _component_cover_config(
+    component: MeshGeometry3D,
+    parent_config: CuboidCoverConfig,
+) -> CuboidCoverConfig:
+    """Derive a component-scale pitch from thickness and cell budget.
+
+    The smallest positive extent controls the initial resolution because thin
+    furniture parts are the features most likely to disappear at a
+    longest-span-based pitch. The cell budget then raises that pitch only when
+    necessary to keep the sampling bounded.
+    """
+    minimum, maximum = _mesh_bounds(component)
+    extents = tuple(maximum[axis] - minimum[axis] for axis in range(3))
+    positive_extents = tuple(extent for extent in extents if extent > 0.0)
+    thickness = min(positive_extents, default=parent_config.pitch)
+    pitch = min(
+        parent_config.pitch,
+        max(parent_config.pitch * 1e-3, thickness / 16.0),
+    )
+    # Keep thin details visible first, then enlarge the grid only when its
+    # finite cell budget would otherwise be exceeded.
+    while True:
+        shape = tuple(max(1, int(math.ceil(extent / pitch))) for extent in extents)
+        cell_count = shape[0] * shape[1] * shape[2]
+        if cell_count <= parent_config.max_cells:
+            break
+        pitch *= (cell_count / parent_config.max_cells) ** (1.0 / 3.0)
+    return CuboidCoverConfig(
+        pitch=pitch,
+        max_cells=parent_config.max_cells,
+        max_patches=parent_config.max_patches,
+    )
+
+
+def _componentwise_cuboid_candidates(
+    mesh: MeshGeometry3D,
+    config: CuboidCoverConfig,
+    factual_components: tuple[MeshGeometry3D, ...] | None = None,
+) -> tuple[MassPatch, ...]:
+    """Build occupancy covers for closed components and envelopes for open ones."""
+    candidates = []
+    components = factual_components or _factual_component_meshes(
+        mesh,
+        config.pitch * 1e-3,
+    )
+    for index, component in enumerate(components):
+        if component.is_closed is True and component.is_manifold is True:
+            # Component-level occupancy preserves openings even when the
+            # logical parent combines closed and open factual parts.
+            component_config = _component_cover_config(component, config)
+            grid = build_upright_occupancy(component, component_config)
+            occupancy_candidates = greedy_cuboid_cover(grid, component_config)
+            if occupancy_candidates:
+                candidates.extend(occupancy_candidates)
+                continue
+        # Reuse the already split component. Re-running a full mesh split here
+        # made high-face-count Rhino inputs needlessly expensive.
+        candidates.append(_component_aabb_patch(mesh.id, component, index))
     return tuple(candidates)
 
 
@@ -397,7 +646,9 @@ def maximal_upright_cuboid_candidates(
         for component in _occupied_components(grid.occupied_cells)
         for bounds in _decompose_component(component)
     }
-    ordered_bounds = sorted(bounds_set, key=lambda bounds: (-_bounds_volume(bounds), bounds))
+    # Merge exact split artifacts before scoring candidates; this gives long
+    # bars and rectangular rings their natural compact analysis shape.
+    ordered_bounds = _merge_touching_bounds(bounds_set)
     return tuple(
         cuboid_from_grid_bounds(grid, bounds)
         for bounds in ordered_bounds
@@ -442,17 +693,80 @@ def greedy_cuboid_cover(
 def cuboid_collection_from_mesh(
     mesh: MeshGeometry3D,
     config: CuboidCoverConfig,
+    factual_components: tuple[MeshGeometry3D, ...] | None = None,
 ) -> tuple[MassPatch, ...]:
     """Build an initial low-count cuboid collection for one source mesh."""
-    component_candidates = _component_aabb_candidates(mesh)
-    # Factual source components are the safest low-count decomposition for
-    # ordinary furniture parts such as a seat, back, or separate leg.
+    if mesh.is_closed is True and mesh.is_manifold is True:
+        # Empty cells are retained for closed sources because they encode
+        # openings and clearance that an outer component envelope would erase.
+        grid = build_upright_occupancy(mesh, config)
+        occupancy_candidates = greedy_cuboid_cover(grid, config)
+        if occupancy_candidates:
+            return occupancy_candidates[: config.max_patches]
+
+    # Mixed topology is evaluated per factual component: closed components
+    # retain occupancy evidence while genuinely open components stay envelopes.
+    component_candidates = _componentwise_cuboid_candidates(
+        mesh,
+        config,
+        factual_components,
+    )
     if component_candidates:
         return component_candidates[: config.max_patches]
-    grid = build_upright_occupancy(mesh, config)
-    if grid.uncertain:
-        return ()
-    return greedy_cuboid_cover(grid, config)
+    return ()
+
+
+def clip_cuboid_collection_to_mesh_bounds(
+    mesh: MeshGeometry3D,
+    patches: Iterable[MassPatch],
+    linear_tolerance: float = 1e-9,
+) -> tuple[MassPatch, ...]:
+    """Clip axis-aligned cuboids back to the source mesh AABB.
+
+    Voxel surfaces are centered on sampled cells, so a generated cuboid can
+    extend by roughly one pitch beyond the source boundary. Clipping here
+    removes that sampling artifact while preserving the source-derived
+    opening and component decomposition.
+    """
+    minimum, maximum = _mesh_bounds(mesh)
+    clipped = []
+    for patch in patches:
+        patch_minimum = tuple(
+            min(float(vertex[axis]) for vertex in patch.vertices)
+            for axis in range(3)
+        )
+        patch_maximum = tuple(
+            max(float(vertex[axis]) for vertex in patch.vertices)
+            for axis in range(3)
+        )
+        new_minimum = tuple(
+            max(patch_minimum[axis], minimum[axis])
+            for axis in range(3)
+        )
+        new_maximum = tuple(
+            min(patch_maximum[axis], maximum[axis])
+            for axis in range(3)
+        )
+        if any(
+            new_maximum[axis] - new_minimum[axis] <= linear_tolerance
+            for axis in range(3)
+        ):
+            continue
+        if new_minimum == patch_minimum and new_maximum == patch_maximum:
+            clipped.append(patch)
+            continue
+        clipped.append(
+            _box_patch_from_coordinates(
+                mesh.id,
+                new_minimum,
+                new_maximum,
+                {
+                    **dict(patch.provenance),
+                    "boundary_clipped_to_source_aabb": True,
+                },
+            )
+        )
+    return tuple(clipped)
 
 
 def _box_patch_from_coordinates(
@@ -473,12 +787,12 @@ def _box_patch_from_coordinates(
         (minimum[0], maximum[1], maximum[2]),
     )
     triangles = (
-        (0, 1, 2), (0, 2, 3),
-        (4, 6, 5), (4, 7, 6),
-        (0, 4, 5), (0, 5, 1),
-        (1, 5, 6), (1, 6, 2),
-        (2, 6, 7), (2, 7, 3),
-        (3, 7, 4), (3, 4, 0),
+        (0, 2, 1), (0, 3, 2),
+        (4, 5, 6), (4, 6, 7),
+        (0, 5, 4), (0, 1, 5),
+        (1, 6, 5), (1, 2, 6),
+        (2, 7, 6), (2, 3, 7),
+        (3, 4, 7), (3, 0, 4),
     )
     return MassPatch(
         id=f"{source_id}:split:{minimum}:{maximum}",
@@ -549,5 +863,6 @@ __all__ = [
     "maximal_upright_cuboid_candidates",
     "greedy_cuboid_cover",
     "cuboid_collection_from_mesh",
+    "clip_cuboid_collection_to_mesh_bounds",
     "split_cuboid_patch",
 ]

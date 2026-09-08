@@ -16,6 +16,9 @@ from .mass_patch_collection import (
 )
 from .mass_patch_cuboid_cover import (
     CuboidCoverConfig,
+    _component_cover_config,
+    _component_aabb_patch,
+    clip_cuboid_collection_to_mesh_bounds,
     cuboid_collection_from_mesh,
     split_cuboid_patch,
 )
@@ -40,6 +43,7 @@ class MassPatchGenerationConfig:
     sample_spacing: float | None = None
     minimum_plan_recall: float = 0.98
     maximum_plan_overreach: float = 0.02
+    maximum_uncertain_plan_overreach: float = 0.35
     maximum_vertical_endpoint_error: float | None = None
     maximum_occlusion_disagreement: float = 0.02
     cuboid_pitch: float | None = None
@@ -70,6 +74,7 @@ class MassPatchGenerationConfig:
         for name in (
             "minimum_plan_recall",
             "maximum_plan_overreach",
+            "maximum_uncertain_plan_overreach",
             "maximum_occlusion_disagreement",
         ):
             value = float(getattr(self, name))
@@ -125,6 +130,7 @@ class MassPatchComponentReport:
     rejections: Mapping[str, str]
     gap_preservation_error: float
     uncertainties: tuple[str, ...] = ()
+    collection_report: MassPatchCollectionCandidateReport | None = None
 
     def to_dict(self) -> dict[str, object]:
         """Return a JSON-compatible component report."""
@@ -138,6 +144,11 @@ class MassPatchComponentReport:
             "rejections": dict(self.rejections),
             "gap_preservation_error": self.gap_preservation_error,
             "uncertainties": self.uncertainties,
+            "collection_report": (
+                self.collection_report.to_dict()
+                if self.collection_report is not None
+                else None
+            ),
         }
 
 
@@ -154,6 +165,7 @@ class MassPatchCollectionCandidateReport:
     gap_preservation_error: float | None
     occlusion_disagreement: float | None
     overlap_report: Mapping[str, object]
+    uncertainties: tuple[str, ...] = ()
     rejection_reason: str | None = None
 
     def to_dict(self) -> dict[str, object]:
@@ -168,6 +180,7 @@ class MassPatchCollectionCandidateReport:
             "gap_preservation_error": self.gap_preservation_error,
             "occlusion_disagreement": self.occlusion_disagreement,
             "overlap_report": dict(self.overlap_report),
+            "uncertainties": self.uncertainties,
             "rejection_reason": self.rejection_reason,
         }
 
@@ -279,8 +292,20 @@ def _component_meshes(
             len(component.faces),
         )
     )
+    # A single-component record has no aggregate ambiguity, so an explicit
+    # uncertain source flag remains authoritative. For multi-component logical
+    # objects, topology must be derived per component because the parent flag
+    # may only describe the aggregate object.
+    preserve_single_component_uncertainty = len(components) == 1 and (
+        mesh.is_closed is not True or mesh.is_manifold is not True
+    )
     records = []
     for index, component in enumerate(components):
+        # Each factual split component keeps its own topology facts; the parent
+        # mesh can be open even when one specific component is watertight.
+        component_is_closed = bool(getattr(component, "is_watertight", False))
+        if preserve_single_component_uncertainty:
+            component_is_closed = False
         records.append(
             MeshGeometry3D(
                 id=f"{mesh.id}:component:{index}",
@@ -293,8 +318,8 @@ def _component_meshes(
                     for triangle in component.faces
                 ),
                 normals=(),
-                is_manifold=mesh.is_manifold,
-                is_closed=mesh.is_closed,
+                is_manifold=component_is_closed,
+                is_closed=component_is_closed,
                 local_to_world_provenance=mesh.local_to_world_provenance,
                 source_representation_id=mesh.source_representation_id,
                 tessellation_settings=mesh.tessellation_settings,
@@ -350,6 +375,7 @@ def _validation_config_dict(
         "sample_spacing": config.sample_spacing,
         "minimum_plan_recall": config.minimum_plan_recall,
         "maximum_plan_overreach": config.maximum_plan_overreach,
+        "maximum_uncertain_plan_overreach": config.maximum_uncertain_plan_overreach,
         "maximum_vertical_endpoint_error": config.maximum_vertical_endpoint_error,
         "maximum_occlusion_disagreement": config.maximum_occlusion_disagreement,
         "cuboid_pitch": config.cuboid_pitch,
@@ -700,12 +726,21 @@ def validate_mass_patch_collection_candidate(
     source: MeshGeometry3D | MassPatch,
     candidates: Iterable[MassPatch],
     config: MassPatchGenerationConfig,
+    source_components: tuple[MeshGeometry3D, ...] | None = None,
 ) -> MassPatchCollectionCandidateReport:
-    """Compare one candidate collection against the complete source object."""
+    """Compare one candidate collection against the source geometry.
+
+    Callers that already split a high-face-count source can pass those factual
+    components directly. This preserves the same evidence while avoiding a
+    second connectivity analysis.
+    """
     source_patches = (
         tuple(
             mass_patch_from_mesh(component)
-            for component in _component_meshes(source, config.linear_tolerance)
+            for component in (
+                source_components
+                or _component_meshes(source, config.linear_tolerance)
+            )
         )
         if isinstance(source, MeshGeometry3D)
         else (source,)
@@ -827,6 +862,87 @@ def validate_mass_patch_collection_candidate(
         gap_preservation_error=plan_overreach,
         occlusion_disagreement=occlusion_disagreement,
         overlap_report=overlap_report,
+        rejection_reason=reason,
+    )
+
+
+def validate_open_mass_patch_collection_candidate(
+    source: MeshGeometry3D | MassPatch,
+    candidates: Iterable[MassPatch],
+    config: MassPatchGenerationConfig,
+    source_components: tuple[MeshGeometry3D, ...] | None = None,
+) -> MassPatchCollectionCandidateReport:
+    """Compare an uncertain open source against conservative envelope candidates."""
+    source_patches = (
+        tuple(
+            mass_patch_from_mesh(component)
+            for component in (
+                source_components
+                or _component_meshes(source, config.linear_tolerance)
+            )
+        )
+        if isinstance(source, MeshGeometry3D)
+        else (source,)
+    )
+    candidates = tuple(candidates)
+    overlap_report = collection_overlap_report(candidates)
+    if not candidates:
+        return MassPatchCollectionCandidateReport(
+            candidate_method="open_envelope_collection",
+            accepted=False,
+            patch_count=0,
+            plan_recall=0.0,
+            plan_overreach=0.0,
+            vertical_endpoint_error=None,
+            gap_preservation_error=1.0,
+            occlusion_disagreement=None,
+            overlap_report=overlap_report,
+            uncertainties=("open_envelope_uncertain",),
+            rejection_reason="empty_collection",
+        )
+
+    samples = _collection_plan_sample_points(source_patches, candidates, config)
+    source_plan = union_plan_geometry(source_patches)
+    candidate_plan = union_plan_geometry(candidates)
+    from shapely.geometry import Point
+
+    # Open geometry is checked only as a plan envelope. Closed-solid height
+    # and occlusion claims are intentionally excluded from this evidence mode.
+    plan_states = tuple(
+        (
+            bool(source_plan is not None and source_plan.covers(Point(point))),
+            bool(candidate_plan is not None and candidate_plan.covers(Point(point))),
+        )
+        for point in samples
+    )
+    source_occupied = sum(source_state for source_state, _ in plan_states)
+    candidate_occupied = sum(candidate_state for _, candidate_state in plan_states)
+    matching_occupied = sum(
+        source_state and candidate_state
+        for source_state, candidate_state in plan_states
+    )
+    false_occupied = sum(
+        not source_state and candidate_state
+        for source_state, candidate_state in plan_states
+    )
+    plan_recall = matching_occupied / source_occupied if source_occupied else 1.0
+    plan_overreach = false_occupied / candidate_occupied if candidate_occupied else 0.0
+    reason = None
+    if plan_recall < config.minimum_plan_recall:
+        reason = "plan_recall"
+    elif plan_overreach > config.maximum_plan_overreach:
+        reason = "plan_overreach"
+    return MassPatchCollectionCandidateReport(
+        candidate_method="open_envelope_collection",
+        accepted=reason is None,
+        patch_count=len(candidates),
+        plan_recall=plan_recall,
+        plan_overreach=plan_overreach,
+        vertical_endpoint_error=None,
+        gap_preservation_error=plan_overreach,
+        occlusion_disagreement=None,
+        overlap_report=overlap_report,
+        uncertainties=("open_envelope_uncertain",),
         rejection_reason=reason,
     )
 
@@ -993,17 +1109,6 @@ def _patch_complexity(patch: MassPatch) -> tuple[int, int]:
     return (len(patch.triangle_indices), len(patch.vertices))
 
 
-def _collection_complexity(
-    patches: Iterable[MassPatch],
-) -> tuple[int, int]:
-    """Return aggregate triangle and vertex complexity for a collection."""
-    complexities = tuple(_patch_complexity(patch) for patch in patches)
-    return (
-        sum(complexity[0] for complexity in complexities),
-        sum(complexity[1] for complexity in complexities),
-    )
-
-
 def _cuboid_cover_config(
     mesh: MeshGeometry3D,
     config: MassPatchGenerationConfig,
@@ -1062,9 +1167,11 @@ def generate_mass_patches(
     config = config or MassPatchGenerationConfig()
     patches = []
     component_reports = []
-    for component_index, component in enumerate(
-        _component_meshes(mesh, config.linear_tolerance)
-    ):
+    # Split once and reuse factual components across reports and candidates;
+    # high-face-count Rhino objects should not repeat connectivity analysis.
+    components = _component_meshes(mesh, config.linear_tolerance)
+    cover_config = _cuboid_cover_config(mesh, config)
+    for component_index, component in enumerate(components):
         # The exact source component is the mandatory baseline before any
         # simplification candidate is allowed to replace it.
         exact_patch = _annotate_generated_patch(
@@ -1079,38 +1186,153 @@ def generate_mass_patches(
         selected_patch = exact_patch
         selected_method = "exact_component"
         rejections = {}
-        obb = _oriented_box_candidate(component)
-        if obb is not None:
-            obb = _annotate_generated_patch(
-                obb,
-                source_mesh_id=mesh.id,
-                component_index=component_index,
-                candidate_method="oriented_bounding_box",
-            )
-            candidate_methods.append("oriented_bounding_box")
-            obb_report = validate_mass_patch_candidate(component, obb, config)
-            candidate_reports.append(obb_report)
-            if obb_report.accepted and _patch_complexity(obb) < _patch_complexity(
-                exact_patch
-            ):
-                selected_patch = obb
-                selected_method = "oriented_bounding_box"
-            elif not obb_report.accepted:
-                rejections["oriented_bounding_box"] = (
-                    obb_report.rejection_reason or "rejected"
-                )
-        patches.append(selected_patch)
-        selected_report = next(
-            report
-            for report in candidate_reports
-            if report.candidate_method == selected_method
-        )
-        selected_patch = _attach_validation_provenance(
-            selected_patch,
+        collection_report = None
+        selected_collection_patches: tuple[MassPatch, ...] = ()
+
+        # Validate each factual component independently. A mixed logical
+        # object may contain closed furniture parts and open exported shells;
+        # one uncertain shell must not discard valid cuboid covers for every
+        # other component.
+        component_cover_config = _component_cover_config(component, cover_config)
+        component_validation_config = replace(
             config,
-            selected_report,
+            maximum_vertical_endpoint_error=max(
+                float(config.maximum_vertical_endpoint_error),
+                component_cover_config.pitch * 1.5,
+            ),
+            cuboid_pitch=component_cover_config.pitch,
         )
-        patches[-1] = selected_patch
+        parent_topology_uncertain = (
+            mesh.is_closed is not True or mesh.is_manifold is not True
+        )
+        if parent_topology_uncertain:
+            # An uncertain logical parent should not force every high-face
+            # child through closed-solid voxelization. Start with a cheap
+            # component envelope; refine only when its plan overreach proves
+            # that the envelope would erase meaningful empty space.
+            component_candidates = (
+                _component_aabb_patch(mesh.id, component, component_index),
+            )
+        else:
+            component_candidates = cuboid_collection_from_mesh(
+                component,
+                component_cover_config,
+                factual_components=(component,),
+            )
+        component_candidates = clip_cuboid_collection_to_mesh_bounds(
+            component,
+            component_candidates,
+            linear_tolerance=config.linear_tolerance,
+        )
+        if (
+            component.is_closed is True
+            and component.is_manifold is True
+            and not parent_topology_uncertain
+        ):
+            collection_report = validate_mass_patch_collection_candidate(
+                component,
+                component_candidates,
+                component_validation_config,
+                source_components=(component,),
+            )
+            if collection_report.accepted:
+                selected_collection_patches = tuple(
+                    _annotate_collection_patch(
+                        patch,
+                        mesh.id,
+                        component_validation_config,
+                        collection_report,
+                    )
+                    for patch in component_candidates
+                )
+                selected_method = "cuboid_collection"
+            else:
+                rejections["cuboid_collection"] = (
+                    collection_report.rejection_reason or "rejected"
+                )
+        else:
+            # Open or uncertain components cannot support closed-solid claims,
+            # but a bounded envelope is still more useful than copying a
+            # detailed display mesh. Use a separate uncertainty tolerance so
+            # strict closed-source evidence remains unchanged.
+            open_validation_config = replace(
+                component_validation_config,
+                maximum_plan_overreach=(
+                    config.maximum_uncertain_plan_overreach
+                ),
+            )
+            collection_report = validate_open_mass_patch_collection_candidate(
+                component,
+                component_candidates,
+                open_validation_config,
+                source_components=(component,),
+            )
+            if collection_report.accepted:
+                selected_collection_patches = tuple(
+                    _annotate_collection_patch(
+                        patch,
+                        mesh.id,
+                        open_validation_config,
+                        collection_report,
+                    )
+                    for patch in component_candidates
+                )
+                selected_method = "open_envelope_collection"
+            else:
+                rejections["open_envelope_collection"] = (
+                    collection_report.rejection_reason or "rejected"
+                )
+        if not parent_topology_uncertain:
+            # An uncertain logical parent already selects component envelopes;
+            # OBB validation would add expensive ray tests without improving
+            # the conservative result or its uncertainty provenance.
+            obb = _oriented_box_candidate(component)
+            if obb is not None:
+                obb = _annotate_generated_patch(
+                    obb,
+                    source_mesh_id=mesh.id,
+                    component_index=component_index,
+                    candidate_method="oriented_bounding_box",
+                )
+                candidate_methods.append("oriented_bounding_box")
+                obb_report = validate_mass_patch_candidate(component, obb, config)
+                candidate_reports.append(obb_report)
+                if obb_report.accepted and _patch_complexity(obb) <= _patch_complexity(
+                    exact_patch
+                ):
+                    if selected_method == "exact_component":
+                        # Equal complexity still favors the generated regular
+                        # proxy because it is the stable analysis representation.
+                        selected_patch = obb
+                        selected_method = "oriented_bounding_box"
+                elif not obb_report.accepted:
+                    rejections["oriented_bounding_box"] = (
+                        obb_report.rejection_reason or "rejected"
+                    )
+        if selected_collection_patches:
+            patches.extend(selected_collection_patches)
+        else:
+            patches.append(selected_patch)
+        selected_report = (
+            collection_report
+            if selected_method in {
+                "cuboid_collection",
+                "open_envelope_collection",
+            }
+            and collection_report is not None
+            else next(
+                report
+                for report in candidate_reports
+                if report.candidate_method == selected_method
+            )
+        )
+        if not selected_collection_patches:
+            selected_patch = _attach_validation_provenance(
+                selected_patch,
+                config,
+                selected_report,
+            )
+            patches[-1] = selected_patch
         component_reports.append(
             MassPatchComponentReport(
                 component_index=component_index,
@@ -1125,6 +1347,7 @@ def generate_mass_patches(
                     or component.is_manifold is not True
                     else ()
                 ),
+                collection_report=collection_report,
             )
         )
     selected_collection_method = "componentwise"
@@ -1145,6 +1368,12 @@ def generate_mass_patches(
         cover_candidates = cuboid_collection_from_mesh(
             mesh,
             cover_config,
+            factual_components=components,
+        )
+        cover_candidates = clip_cuboid_collection_to_mesh_bounds(
+            mesh,
+            cover_candidates,
+            linear_tolerance=config.linear_tolerance,
         )
         collection_report = validate_mass_patch_collection_candidate(
             mesh,
@@ -1162,12 +1391,11 @@ def generate_mass_patches(
                 refined,
                 cuboid_validation_config,
             )
-            exact_complexity = _collection_complexity(patches)
-            candidate_complexity = _collection_complexity(refined)
-            if (
-                len(refined) < len(patches)
-                or candidate_complexity <= exact_complexity
-            ):
+            # Exact source components are the fidelity fallback, not a
+            # competing cuboid candidate; a validated occupancy collection
+            # is the intended low-complexity proxy even when its raw triangle
+            # count exceeds one detailed source component.
+            if refined_report.accepted:
                 selected_patches = tuple(
                     _annotate_collection_patch(
                         patch,
@@ -1179,6 +1407,49 @@ def generate_mass_patches(
                 )
                 selected_collection_method = "cuboid_collection"
                 collection_report = refined_report
+    elif len(components) == 1:
+        # Open or mixed-topology sources can still support a conservative
+        # envelope collection, but the result must stay labeled as uncertain.
+        cover_config = _cuboid_cover_config(mesh, config)
+        open_candidates = cuboid_collection_from_mesh(
+            mesh,
+            cover_config,
+            factual_components=components,
+        )
+        open_candidates = clip_cuboid_collection_to_mesh_bounds(
+            mesh,
+            open_candidates,
+            linear_tolerance=config.linear_tolerance,
+        )
+        if open_candidates:
+            open_report = validate_open_mass_patch_collection_candidate(
+                mesh,
+                open_candidates,
+                config,
+                source_components=components,
+            )
+            # Keep rejected evidence visible so a conservative fallback is
+            # explainable instead of looking like a silent generation failure.
+            collection_report = open_report
+            if open_report.accepted:
+                selected_patches = tuple(
+                    _annotate_collection_patch(
+                        patch,
+                        mesh.id,
+                        config,
+                        open_report,
+                    )
+                    for patch in open_candidates
+                )
+                selected_collection_method = "open_envelope_collection"
+                collection_report = open_report
+    if len(components) == 1 and component_reports[0].collection_report is not None:
+        collection_report = component_reports[0].collection_report
+        if component_reports[0].selected_candidate in {
+            "cuboid_collection",
+            "open_envelope_collection",
+        }:
+            selected_collection_method = component_reports[0].selected_candidate
     return MassPatchGenerationResult(
         source_mesh_id=mesh.id,
         patches=selected_patches,
@@ -1197,5 +1468,6 @@ __all__ = [
     "MassPatchCollectionCandidateReport",
     "refine_cuboid_collection",
     "validate_mass_patch_collection_candidate",
+    "validate_open_mass_patch_collection_candidate",
     "generate_mass_patches",
 ]

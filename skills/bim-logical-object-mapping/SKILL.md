@@ -83,6 +83,20 @@ Use `scripts/normalize_logical_objects.py` with a JSON source containing
 stdlib-only and emits the required normalized JSON plus merged geometry when
 source meshes are present.
 
+For Rhino nested Blocks, first use the project adapter
+`features.rhino_block_mapping.normalize_rhino_blocks()`. It recursively reads
+Block instances and converts only explicit
+`OM.RepresentationRole=display_geometry` members into the existing
+`groups`/`components` contract. The adapter preserves representation records,
+block paths, and `manual_review` evidence; it does not replace this
+normalizer's type-family or occurrence algorithm.
+
+The adapter recognizes `display_geometry`, `analysis_substitute`, and
+`affordance` roles. A child without a role is not guessed. It becomes a
+supervisor-review record and blocks automatic export until confirmed or edited
+by the user. Rhino names remain labels; machine semantics come from the
+registered `OM.*` properties.
+
 The conversion workflow must run this skill before selecting an IFC exporter.
 The exporter consumes the normalized report; export, validation, and import
 remain independent phases.
