@@ -17,6 +17,7 @@ Select only the capability the request needs:
 
 | Need | Skill |
 | --- | --- |
+| Read Rhino/VisualARQ authored source facts | `visualarq-source-adapter` |
 | Map complete logical products and repeated types | `bim-logical-object-mapping` |
 | Find an existing analysis substitute | `analysis-substitute-discovery` |
 | Create a new MassPatch substitute | `masspatch-generation` |
@@ -33,7 +34,7 @@ implied by export or validation.
 
 | Source | First choice | Fallback | BIM caution |
 | --- | --- | --- | --- |
-| Rhino | existing project adapter | native IFC exporter, then IfcOpenShell | geometry and layer names do not establish BIM semantics |
+| Rhino | `visualarq-source-adapter`, then existing project adapter | native IFC exporter, then IfcOpenShell | geometry and layer names do not establish BIM semantics |
 | Blender | existing project adapter | native IFC exporter, then IfcOpenShell | use Blender+Bonsai only for an IFC project import |
 | Other | existing project adapter | native exporter, then IfcOpenShell | require explicit provenance and semantic evidence |
 

@@ -1,0 +1,40 @@
+{
+  "source_application": "Rhino",
+  "source_name": "visualarq-contract-room.3dm",
+  "source_path": "fixture://visualarq-contract-room.3dm",
+  "provider": "fixture",
+  "objects": [
+    {
+      "id": "chair-01",
+      "name": "Chair",
+      "object_type": "InstanceReference",
+      "instance_definition": "ChairBlock",
+      "instance_path": ["Room", "Furniture", "ChairBlock"],
+      "user_text": {"IfcEntity": "IfcFurnishingElement"},
+      "analysis_participation": "include",
+      "geometry_summary": {"bbox": [500, 500, 800]}
+    },
+    {
+      "id": "wall-01",
+      "name": "Wall",
+      "object_type": "Brep",
+      "user_text": {"OM.IfcEntity": "IfcWall"},
+      "geometry_summary": {"bbox": [5000, 200, 2800]}
+    },
+    {
+      "id": "plant-01",
+      "name": "Plant",
+      "object_type": "Mesh",
+      "user_text": {"IfcEntity": "IfcFurnishingElement"},
+      "analysis_participation": "exclude"
+    },
+    {
+      "id": "untyped-01",
+      "name": "Decorative mesh",
+      "object_type": "Mesh"
+    }
+  ],
+  "visualarq_guides": [
+    {"id": "guide-a", "name": "A"}
+  ]
+}

@@ -14,14 +14,19 @@
 
 ### 独立能力选择
 
+- Rhino/VisualARQ 源对象读取：`visualarq-source-adapter`
 - 已经有替身，只想读取：`analysis-substitute-discovery`
 - 需要新生成 MassPatch：`masspatch-generation`
 - 需要写 IFC：`ifc-export`
-- 需要检查 IFC：`ifc-validation`
-- 需要改变 Bonsai 场景：`bonsai-import`
-- 需要确认 Bonsai 映射：`bonsai-verification`
+- 需要检查 IFC：`ifc-validation`（当前仓库未安装对应 skill，使用现有校验脚本）
+- 需要改变 Bonsai 场景：`bonsai-import`（当前仓库未安装对应 skill，需显式选择适配器）
+- 需要确认 Bonsai 映射：`bonsai-verification`（当前仓库未安装对应 skill，使用现有核验脚本）
 
 发现替身不会触发生成；导出可以只包含源产品；导入必须单独得到用户确认。
+
+VisualARQ/Rhino 源读取阶段只生成中性 source JSON，不导出 IFC、不生成
+MassPatch，也不导入 Bonsai。读取结果随后交给
+`bim-logical-object-mapping`，而不是直接把每个 Rhino 对象写成 IFC 家具。
 
 ## 1. 环境预检
 
