@@ -30,6 +30,13 @@ Discovery never calls generation. Export consumes an explicitly supplied
 substitute report and remains valid with source products only. Import is never
 implied by export or validation.
 
+The default export policy is full export: every source object with usable
+geometry is written once. Authored IFC classes are preserved; objects without
+valid authored semantics become `IfcBuildingElementProxy` with
+`analysis_participation=unknown`. This preserves visual completeness without
+guessing a wall, chair, or other specific class. Untyped proxies are excluded
+from layout analysis unless an explicit downstream rule includes them.
+
 ## Source decision
 
 | Source | First choice | Fallback | BIM caution |

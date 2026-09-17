@@ -56,6 +56,11 @@ Rhino/VisualARQ -> visualarq-source-adapter -> bim-logical-object-mapping -> ifc
 
 Each arrow is an explicit handoff. Export, IFC validation, Bonsai import, and post-import verification are separate skills or scripts and are never implied by this adapter.
 
+The next export phase is full-export by default. It consumes usable geometry
+from the source/mapping payload, preserves authored IFC classes, and sends
+untyped objects to `IfcBuildingElementProxy`; this adapter itself still does
+not export anything.
+
 ## Common Mistakes
 
 - exporting every Rhino mesh as furniture;

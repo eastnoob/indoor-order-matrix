@@ -18,16 +18,114 @@ from convert_rhino_fixture_to_ifc import (
 )
 
 
+# Only IFC product occurrences belong in the generic source-object loop. Grid
+# axes and other non-products remain owned by their dedicated IFC structures.
+SUPPORTED_PRODUCT_CLASSES = frozenset(
+    {
+        "IfcFurniture",
+        "IfcFurnishingElement",
+        "IfcEquipmentElement",
+        "IfcElectricalElement",
+        "IfcWall",
+        "IfcDoor",
+        "IfcWindow",
+        "IfcColumn",
+        "IfcBeam",
+        "IfcSlab",
+        "IfcRoof",
+        "IfcStair",
+        "IfcRailing",
+        "IfcOpeningElement",
+        "IfcBuildingElementProxy",
+    }
+)
+FURNITURE_CLASSES = frozenset({"IfcFurniture", "IfcFurnishingElement"})
+# These source labels are seen in VisualARQ, but they are not IFC4 entity
+# declarations in the locked IfcOpenShell schema. They remain source facts and
+# use the proxy fallback rather than creating an illegal IFC4 class.
+IFC4_EXPORT_PRODUCT_CLASSES = SUPPORTED_PRODUCT_CLASSES - {
+    "IfcEquipmentElement",
+    "IfcElectricalElement",
+}
+
+
 def _load_source(path: Path) -> dict[str, Any]:
-    """Load and validate the normalized Rhino source payload."""
+    """Load and validate source records that are ready for IFC serialization."""
     payload = json.loads(path.read_text(encoding="utf-8"))
     objects = payload.get("objects")
     if not isinstance(objects, list) or not objects:
-        raise ValueError("The Rhino source payload has no logical furniture objects")
+        raise ValueError("The Rhino source payload has no exportable objects")
     for record in objects:
-        if not record.get("id") or not record.get("vertices") or not record.get("faces"):
-            raise ValueError(f"Incomplete logical furniture record: {record.get('id')}")
+        if not record.get("id"):
+            raise ValueError(f"Source record has no id: {record}")
     return payload
+
+
+def _select_ifc_product_class(record: dict[str, Any]) -> tuple[str, str]:
+    """Return an authored product class or the untyped proxy fallback."""
+    semantics = record.get("source_semantics")
+    authored = semantics.get("ifc_entity") if isinstance(semantics, dict) else None
+    authored = authored or record.get("ifc_entity")
+    if not authored or str(authored).lower() == "unknown":
+        # The source adapter uses ``unknown`` as an explicit absence marker;
+        # it must not be reported as a conflicting authored semantic label.
+        authored = None
+    if authored in IFC4_EXPORT_PRODUCT_CLASSES:
+        return str(authored), "authored"
+    if authored:
+        return "IfcBuildingElementProxy", "review"
+    # Legacy normalized furniture payloads predate source-semantic records.
+    # Keep that explicit contract working without weakening the new adapter:
+    # a new source record always carries source_semantics, even when unknown.
+    if "source_semantics" not in record and str(record.get("kind", "")).lower() in {
+        "chair",
+        "table",
+        "furniture",
+    }:
+        return "IfcFurniture", "authored"
+    return "IfcBuildingElementProxy", "untyped"
+
+
+def _assign_source_properties(
+    model: Any, entity: Any, record: dict[str, Any], status: str
+) -> None:
+    """Persist source provenance and semantic status on every exported product."""
+    semantics = record.get("source_semantics")
+    semantics = semantics if isinstance(semantics, dict) else {}
+    provenance = record.get("provenance")
+    provenance = provenance if isinstance(provenance, dict) else {}
+    values = {
+        "SourceId": record.get("id", ""),
+        "SourceName": record.get("name") or record.get("source_name", ""),
+        "SourceLayer": record.get("layer", ""),
+        "SourceGeometryKind": record.get("source_kind") or record.get("geometry_type", ""),
+        "AuthoredIfcEntity": semantics.get("ifc_entity") or record.get("ifc_entity", ""),
+        "AuthoredIfcEntitySource": semantics.get("ifc_entity_source", "none"),
+        "TargetIfcEntity": entity.is_a(),
+        "SemanticStatus": status,
+        "AnalysisParticipation": record.get("analysis_participation", "unknown"),
+        "SourceProvider": provenance.get("provider") or record.get("source_provider", ""),
+    }
+    properties = [
+        model.create_entity(
+            "IfcPropertySingleValue",
+            Name=key,
+            NominalValue=model.create_entity("IfcLabel", str(value)),
+        )
+        for key, value in values.items()
+    ]
+    property_set = model.create_entity(
+        "IfcPropertySet",
+        GlobalId=_stable_guid(f"{entity.GlobalId}:OM_Source"),
+        Name="OM_Source",
+        HasProperties=properties,
+    )
+    model.create_entity(
+        "IfcRelDefinesByProperties",
+        GlobalId=_stable_guid(f"{entity.GlobalId}:OM_Source:relation"),
+        RelatingPropertyDefinition=property_set,
+        RelatedObjects=[entity],
+    )
 
 
 def _occurrence_name(
@@ -123,7 +221,7 @@ def write_ifc(
     substitute_path: Path | None = None,
     substitute_mode: str = "representation",
 ) -> dict[str, object]:
-    """Write IFC4 furniture with optional same-product or sidecar analysis geometry."""
+    """Write IFC4 products with optional same-product or sidecar analysis geometry."""
     import ifcopenshell
     from ifcopenshell.api.context import add_context
     from ifcopenshell.api.geometry import edit_object_placement
@@ -186,15 +284,34 @@ def write_ifc(
     group_members: dict[str, list[Any]] = defaultdict(list)
     type_entities: dict[str, Any] = {}
     kind_ordinals: dict[str, int] = defaultdict(int)
+    entity_counts: dict[str, int] = defaultdict(int)
+    untyped_count = 0
+    review_count = 0
+    geometry_skipped_count = 0
 
     for record in source_objects:
+        if not record.get("vertices") or not record.get("faces"):
+            # Keep non-mesh source facts in the report, but do not fabricate a
+            # zero-area IFC product for points, curves, or failed tessellation.
+            geometry_skipped_count += 1
+            continue
         logical_id = str(record["id"])
         kind = str(record.get("kind", "furniture"))
         kind_ordinals[kind] += 1
         occurrence_name = _occurrence_name(record, kind, kind_ordinals[kind])
-        entity = _create_root(model, "IfcFurniture", occurrence_name)
+        ifc_class, semantic_status = _select_ifc_product_class(record)
+        entity = _create_root(model, ifc_class, occurrence_name)
+        # Rhino names are presentation labels and are often repeated. Use the
+        # stable source id for IFC identity so duplicate names cannot violate
+        # IfcRoot.UR1 in a full-scene export.
+        entity.GlobalId = _stable_guid(f"source-occurrence:{logical_id}")
         entity.Tag = logical_id
         entity.ObjectType = kind
+        entity_counts[ifc_class] += 1
+        if semantic_status == "untyped":
+            untyped_count += 1
+        elif semantic_status == "review":
+            review_count += 1
         # Store each logical product as one IFC object; source mesh parts are
         # merged before export so chair legs or proxy branches cannot become
         # accidental furniture entities.
@@ -225,16 +342,18 @@ def write_ifc(
                 "GeometryBranch": "GEOMETRY",
             },
         )
-        # Use the normalized type family as the type key; broad semantic kind
-        # remains the backward-compatible fallback for legacy source records.
-        type_family_id = str(record.get("type_family_id") or kind)
-        type_family_name = _type_name(record, kind)
-        type_entity = type_entities.get(type_family_id)
-        if type_entity is None:
-            type_entity = _create_root(model, "IfcFurnitureType", type_family_name)
-            type_entity.Name = type_family_name
-            type_entities[type_family_id] = type_entity
-        type_members[type_family_id].append(entity)
+        _assign_source_properties(model, entity, record, semantic_status)
+        # Generic proxies and building products must not acquire fabricated
+        # furniture type families merely because they share source geometry.
+        if ifc_class in FURNITURE_CLASSES:
+            type_family_id = str(record.get("type_family_id") or kind)
+            type_family_name = _type_name(record, kind)
+            type_entity = type_entities.get(type_family_id)
+            if type_entity is None:
+                type_entity = _create_root(model, "IfcFurnitureType", type_family_name)
+                type_entity.Name = type_family_name
+                type_entities[type_family_id] = type_entity
+            type_members[type_family_id].append(entity)
         group_members[str(record.get("source_model", "unassigned"))].append(entity)
         entities[logical_id] = entity
 
@@ -371,6 +490,10 @@ def write_ifc(
         "schema": model.schema,
         "furniture_count": len(model.by_type("IfcFurniture")),
         "furniture_type_count": len(model.by_type("IfcFurnitureType")),
+        "entity_counts": dict(sorted(entity_counts.items())),
+        "untyped_count": untyped_count,
+        "review_count": review_count,
+        "geometry_skipped_count": geometry_skipped_count,
         "group_count": len(model.by_type("IfcGroup")),
         "mesh_representation_count": len(model.by_type("IfcTriangulatedFaceSet")),
         "proxy_object_count": len(proxy_entities),
