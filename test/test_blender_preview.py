@@ -32,6 +32,19 @@ def _fixture_inputs() -> tuple[dict, dict]:
         ],
     }
     matrix = {
+        "furniture_groups": [
+            {
+                "id": "group-1",
+                "member_ids": ["table-1"],
+                "rect": {"cx": 1.0, "cy": 0.5, "width": 2.0, "height": 1.0},
+                "metadata": {
+                    "group-axis-angle": "30",
+                    "group-secondary-axis-angle": "120",
+                    "group-axis-strength": "0.9",
+                    "group-axis-member-alignment": "0.8",
+                },
+            }
+        ],
         "inferred_regions": [
             {
                 "id": "region-1",
@@ -69,6 +82,9 @@ def test_preview_manifest_contains_source_and_derived_evidence() -> None:
     assert manifest["source_geometry"][0]["faces"] == [[0, 1, 2], [0, 2, 3]]
     assert manifest["regions"][0]["trend_axes"][0]["strength"] == 0.8
     assert len(manifest["regions"][0]["trend_axes"]) == 2
+    assert manifest["furniture_groups"][0]["id"] == "group-1"
+    assert manifest["furniture_groups"][0]["trend_axes"][0]["angle"] == 30.0
+    assert manifest["furniture_groups"][0]["trend_axes"][1]["angle"] == 120.0
     assert manifest["grid_axes"][0]["id"] == "axis-x"
     assert manifest["paths"][0]["thickness"] == 0.6
     assert manifest["paths"][0]["region_ids"] == ["region-1", "region-2"]
@@ -101,6 +117,7 @@ def test_preview_script_is_deterministic_and_output_only(tmp_path: Path) -> None
     assert "for obj in tuple(collection.objects)" in script
     assert "obj.get(\"om_analysis_preview\")" in script
     assert "OM_Boundary_" in script
+    assert "OM_GroupTrend_" in script
 
 
 def test_preview_html_contains_spatial_svg(tmp_path: Path) -> None:

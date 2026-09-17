@@ -28,6 +28,7 @@ def test_skill_defines_the_neutral_contract_and_safety_rules() -> None:
         "visualarq_guides",
         "never establish an IFC class",
         "bim-logical-object-mapping",
-        "15002",
+        "currently advertised by `list_slots`",
+        "10500",
     ):
         assert phrase in text

@@ -1,0 +1,350 @@
+{
+  "contract": {
+    "deferred": [
+      "affordance",
+      "regions",
+      "paths",
+      "groups",
+      "scores"
+    ],
+    "name": "ifc_furniture_analysis_preflight",
+    "scope": [
+      "ifc_read",
+      "furniture_selection",
+      "analysis_pairing",
+      "geometry_facts"
+    ],
+    "version": 1
+  },
+  "furniture": {
+    "formal_count": 93,
+    "missing_analysis": [],
+    "missing_analysis_geometry": [],
+    "missing_body_geometry": [],
+    "sample_pair_checks": [
+      {
+        "analysis": {
+          "center": [
+            20.8984873046875,
+            10.9943359375,
+            0.35635998399555685
+          ],
+          "diagonal": 1.6534290185318339,
+          "dimensions": [
+            1.0551816406250012,
+            1.0551816406249994,
+            0.7120469997823239
+          ],
+          "is_closed": true,
+          "is_manifold": true,
+          "max": [
+            21.426078125,
+            11.5219267578125,
+            0.7123834838867188
+          ],
+          "min": [
+            20.370896484375,
+            10.4667451171875,
+            0.0003364841043949127
+          ],
+          "triangle_count": 96,
+          "vertex_count": 52
+        },
+        "bbox_overlap_ratio": 1.0,
+        "body": {
+          "center": [
+            20.8984873046875,
+            10.9943359375,
+            0.3563599839806557
+          ],
+          "diagonal": 1.653429018544668,
+          "dimensions": [
+            1.0551816406250012,
+            1.0551816406249994,
+            0.7120469998121262
+          ],
+          "is_closed": true,
+          "is_manifold": true,
+          "max": [
+            21.426078125,
+            11.5219267578125,
+            0.7123834838867188
+          ],
+          "min": [
+            20.370896484375,
+            10.4667451171875,
+            0.0003364840745925903
+          ],
+          "triangle_count": 2744,
+          "vertex_count": 1378
+        },
+        "normalized_center_distance": 9.012262222105263e-12,
+        "source_id": "3OLlHrz$HKEOZBMZRUg6wV",
+        "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+      },
+      {
+        "analysis": {
+          "center": [
+            22.5106494140625,
+            8.968279296875,
+            0.3567207089662552
+          ],
+          "diagonal": 1.6534290123328534,
+          "dimensions": [
+            1.0551816406250012,
+            1.0551816406250012,
+            0.7120469853878022
+          ],
+          "is_closed": true,
+          "is_manifold": true,
+          "max": [
+            23.038240234375,
+            9.4958701171875,
+            0.7127442016601563
+          ],
+          "min": [
+            21.98305859375,
+            8.4406884765625,
+            0.000697216272354126
+          ],
+          "triangle_count": 96,
+          "vertex_count": 52
+        },
+        "bbox_overlap_ratio": 1.0,
+        "body": {
+          "center": [
+            22.5106494140625,
+            8.968279296875,
+            0.3567207089662552
+          ],
+          "diagonal": 1.6534290123328534,
+          "dimensions": [
+            1.0551816406250012,
+            1.0551816406250012,
+            0.7120469853878022
+          ],
+          "is_closed": true,
+          "is_manifold": true,
+          "max": [
+            23.038240234375,
+            9.4958701171875,
+            0.7127442016601563
+          ],
+          "min": [
+            21.98305859375,
+            8.4406884765625,
+            0.000697216272354126
+          ],
+          "triangle_count": 2744,
+          "vertex_count": 1378
+        },
+        "normalized_center_distance": 0.0,
+        "source_id": "1i8516qIfLqOoKBoEXy1Lf",
+        "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+      },
+      {
+        "analysis": {
+          "center": [
+            11.864849609375,
+            11.4231982421875,
+            0.3514805135726929
+          ],
+          "diagonal": 1.0687387228250353,
+          "dimensions": [
+            0.4745898437499996,
+            0.6019765624999991,
+            0.7447087726593017
+          ],
+          "is_closed": true,
+          "is_manifold": true,
+          "max": [
+            12.10214453125,
+            11.7241865234375,
+            0.7238348999023437
+          ],
+          "min": [
+            11.6275546875,
+            11.1222099609375,
+            -0.02087387275695801
+          ],
+          "triangle_count": 792,
+          "vertex_count": 412
+        },
+        "bbox_overlap_ratio": 0.9996945768160477,
+        "body": {
+          "center": [
+            11.8622314453125,
+            11.42298046875,
+            0.3533720102310181
+          ],
+          "diagonal": 1.0509260260416615,
+          "dimensions": [
+            0.4826816406250014,
+            0.558484374999999,
+            0.7480368633270263
+          ],
+          "is_closed": false,
+          "is_manifold": false,
+          "max": [
+            12.103572265625,
+            11.70222265625,
+            0.7273904418945313
+          ],
+          "min": [
+            11.620890625,
+            11.14373828125,
+            -0.020646421432495118
+          ],
+          "triangle_count": 22991,
+          "vertex_count": 11625
+        },
+        "normalized_center_distance": 0.003029063876804507,
+        "source_id": "2_2WrhfCzI3PPTghrQu0OV",
+        "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+      },
+      {
+        "analysis": {
+          "center": [
+            11.125,
+            9.9231982421875,
+            0.35602349853515636
+          ],
+          "diagonal": 1.2775018301500978,
+          "dimensions": [
+            0.75,
+            0.75,
+            0.7120469970703123
+          ],
+          "is_closed": true,
+          "is_manifold": true,
+          "max": [
+            11.5,
+            10.2981982421875,
+            0.7120469970703125
+          ],
+          "min": [
+            10.75,
+            9.5481982421875,
+            1.7053025658242405e-16
+          ],
+          "triangle_count": 96,
+          "vertex_count": 52
+        },
+        "bbox_overlap_ratio": 1.0,
+        "body": {
+          "center": [
+            11.125,
+            9.9231982421875,
+            0.35602349853515625
+          ],
+          "diagonal": 1.277501830150098,
+          "dimensions": [
+            0.75,
+            0.75,
+            0.7120469970703125
+          ],
+          "is_closed": true,
+          "is_manifold": true,
+          "max": [
+            11.5,
+            10.2981982421875,
+            0.7120469970703125
+          ],
+          "min": [
+            10.75,
+            9.5481982421875,
+            0.0
+          ],
+          "triangle_count": 2744,
+          "vertex_count": 1378
+        },
+        "normalized_center_distance": 8.690578740655993e-17,
+        "source_id": "36AP0KOTXUgQp7KOIr7JFF",
+        "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+      },
+      {
+        "analysis": {
+          "center": [
+            18.8173974609375,
+            5.204821044921875,
+            0.3903331825733185
+          ],
+          "diagonal": 1.2430194531285188,
+          "dimensions": [
+            0.682607421874998,
+            0.6887231445312505,
+            0.777692033290863
+          ],
+          "is_closed": true,
+          "is_manifold": true,
+          "max": [
+            19.158701171875,
+            5.5491826171875,
+            0.77917919921875
+          ],
+          "min": [
+            18.47609375,
+            4.86045947265625,
+            0.0014871659278869634
+          ],
+          "triangle_count": 96,
+          "vertex_count": 52
+        },
+        "bbox_overlap_ratio": 0.9986298400071032,
+        "body": {
+          "center": [
+            18.828118164062502,
+            5.197942626953125,
+            0.3891058758124709
+          ],
+          "diagonal": 1.2184718697747237,
+          "dimensions": [
+            0.6616152343750024,
+            0.6639350585937498,
+            0.7785430091172456
+          ],
+          "is_closed": false,
+          "is_manifold": true,
+          "max": [
+            19.15892578125,
+            5.52991015625,
+            0.7783773803710937
+          ],
+          "min": [
+            18.497310546875,
+            4.86597509765625,
+            -0.00016562874615192412
+          ],
+          "triangle_count": 40328,
+          "vertex_count": 20195
+        },
+        "normalized_center_distance": 0.010294752257334894,
+        "source_id": "1cAcWEhv1Ht9oROeBb8Vno",
+        "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+      }
+    ],
+    "with_analysis_representation": 93
+  },
+  "scene": {
+    "analysis_domain_available": false,
+    "authored_affordance_count": 0,
+    "geometry_count": 449,
+    "source_object_count": 453,
+    "source_role_counts": {
+      "analysis_substitute": 93,
+      "column": 16,
+      "door": 6,
+      "furniture": 93,
+      "grid": 1,
+      "object": 229,
+      "slab": 1,
+      "spatial_container": 3,
+      "wall": 11
+    }
+  },
+  "source": {
+    "path": "outputs\\full-rhino-ifc-2026-09-21\\live-rhino-10500-full.ifc",
+    "schema": "IFC4"
+  },
+  "status": "passed"
+}

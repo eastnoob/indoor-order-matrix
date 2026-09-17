@@ -1397,7 +1397,12 @@ def _pca_frame_stats(points: list[tuple[float, float]]) -> dict:
 
 
 def _furniture_group_frame(members: list[dict], extents: list[dict]) -> dict:
-    """Compute one furniture-group frame from affordance extent geometry."""
+    """Compute a group trend from terminal member and affordance geometry.
+
+    Historical or authored orientation fields are intentionally excluded from
+    the analytical frame.  Each member contributes one geometry-derived frame
+    so mesh tessellation cannot become an implicit weight.
+    """
     points = [
         point
         for extent in extents
@@ -1416,6 +1421,8 @@ def _furniture_group_frame(members: list[dict], extents: list[dict]) -> dict:
         # evidence for shape diagnostics and fallback when no member frame exists.
         angle = member_frame["angle"]
         strength = member_frame["strength"]
+        # Preserve the legacy basis label for downstream readers; the adjacent
+        # terminal-geometry field states the actual analytical source.
         basis = "member_frame_consensus"
     else:
         angle = stats["angle"]
@@ -1431,6 +1438,8 @@ def _furniture_group_frame(members: list[dict], extents: list[dict]) -> dict:
         "primary_extent": stats["primary_extent"],
         "secondary_extent": stats["secondary_extent"],
         "basis": basis,
+        "terminal_geometry_basis": "final_member_masspatch_and_affordance_geometry",
+        "member_terminal_trend_coherence": member_alignment,
     }
 
 
@@ -1441,6 +1450,9 @@ def _group_frame_metadata(frame: dict) -> dict:
         "group-secondary-axis-angle": str(round((frame["angle"] + 90.0) % 180.0, 4)),
         "group-axis-strength": str(round(frame["strength"], 4)),
         "group-axis-basis": frame["basis"],
+        "group_terminal_trend": str(round(frame["angle"], 4)),
+        "member_terminal_trend_coherence": str(round(frame["member_terminal_trend_coherence"], 4)),
+        "group_terminal_trend_basis": frame["terminal_geometry_basis"],
         "group-axis-primary-extent": str(round(frame["primary_extent"], 4)),
         "group-axis-secondary-extent": str(round(frame["secondary_extent"], 4)),
         "group-axis-clarity": str(round(frame["clarity"], 4)),
@@ -1681,22 +1693,58 @@ def _orthogonal_frame_angle(angle: float) -> float:
 
 
 def _record_frame_angle(record: dict) -> float:
-    """Return the local frame angle for one furniture affordance record."""
+    """Return the terminal frame angle derived from final planar geometry."""
+    points = _record_points(record)
+    if len(points) >= 3:
+        # Final projected geometry is authoritative; orientation metadata is
+        # retained only as provenance and must not steer trend calculations.
+        if record.get("metadata", {}).get("frame-source") != "terminal_projected_analysis_geometry":
+            return _record_orientation(record) % 180.0
+        return _geometry_frame(points)["angle"] % 180.0
+    # Legacy records without terminal points retain their compatibility frame;
+    # Neutral Scene records always carry projected Analysis geometry.
     return _record_orientation(record) % 180.0
 
 
 def _record_frame_weight(record: dict) -> float:
-    """Weight member-frame evidence by its own geometric clarity."""
+    """Weight terminal member evidence by geometry-derived aspect clarity."""
     metadata = record.get("metadata", {})
-    try:
-        primary = float(metadata["frame-primary-extent"])
-        secondary = float(metadata["frame-secondary-extent"])
-    except (KeyError, TypeError, ValueError):
-        rect = record["rect"]
-        primary, secondary = rect.width, rect.height
+    points = _record_points(record)
+    if len(points) >= 3 and record.get("metadata", {}).get("frame-source") == "terminal_projected_analysis_geometry":
+        frame = _geometry_frame(points)
+        primary, secondary = frame["primary_extent"], frame["secondary_extent"]
+    else:
+        try:
+            primary = float(metadata["frame-primary-extent"])
+            secondary = float(metadata["frame-secondary-extent"])
+        except (KeyError, TypeError, ValueError):
+            rect = record["rect"]
+            primary, secondary = rect.width, rect.height
     short = max(min(primary, secondary), 1e-9)
     aspect = max(primary, secondary) / short
     return max(0.0, aspect - 1.0)
+
+
+def _geometry_frame(points: list[tuple[float, float]]) -> dict[str, float]:
+    """Derive a terminal two-axis frame and extents from final plan points."""
+    if len(points) < 2:
+        return {"angle": 0.0, "primary_extent": 0.0, "secondary_extent": 0.0}
+    center_x = mean(point[0] for point in points)
+    center_y = mean(point[1] for point in points)
+    covariance_xx = mean((x - center_x) ** 2 for x, _y in points)
+    covariance_yy = mean((y - center_y) ** 2 for _x, y in points)
+    covariance_xy = mean(
+        (x - center_x) * (y - center_y) for x, y in points
+    )
+    angle = degrees(
+        0.5 * atan2(2.0 * covariance_xy, covariance_xx - covariance_yy)
+    ) % 180.0
+    primary_extent, secondary_extent = _frame_extents(points, angle)
+    return {
+        "angle": angle,
+        "primary_extent": primary_extent,
+        "secondary_extent": secondary_extent,
+    }
 
 
 def _record_points(record: dict) -> list[tuple[float, float]]:

@@ -18,6 +18,9 @@
 - Important geometry conversion, semantic selection, IFC serialization, and adapter handoff blocks have English-first comments.
 - No missing semantic label may be guessed from name, layer, or geometry.
 - Untyped objects default to `IfcBuildingElementProxy` and `analysis_participation=unknown`.
+- Nested furniture analysis branches are kept in `analysis_substitutes` and
+  attached to the same product's `Analysis` representation; they are not
+  flattened into `Body` or exported as duplicate furniture.
 
 ---
 
@@ -69,7 +72,10 @@ Create the selected IFC class for each source record. Create `IfcFurnitureType` 
 
 - [ ] **Step 3: Attach common source properties**
 
-Add `OM_Source` properties for source id, layer, geometry kind, authored label, semantic status, analysis participation, source path, and provider. Keep the existing layout properties for backward compatibility.
+Keep IFC identity in native fields and write source id, authored label,
+semantic status, analysis participation, source path, and provider into the
+adjacent export report's `source_map`. Do not add a mandatory `OM_Source`
+property set to every IFC product.
 
 - [ ] **Step 4: Add report distributions**
 
@@ -156,3 +162,12 @@ Confirm every exported product has one source id, typed labels were not collapse
 pixi run pytest test/test_rhino_source_ifc_full_export.py test/test_full_ifc_export_skill_contract.py skills/visualarq-source-adapter/tests skills/ifc-bim-conversion-workflow/tests -q
 git diff --check
 ```
+
+### Task 6: Validate nested furniture representations
+
+- [x] Capture nested Rhino furniture branches without mutating the document.
+- [x] Keep display geometry in `Body` and embedded MassPatch geometry in
+  `Analysis`.
+- [x] Confirm each furniture occurrence is exported once and receives both
+  representations when a nested proxy exists.
+- [x] Run independent IFC inspection and EXPRESS validation on the live export.

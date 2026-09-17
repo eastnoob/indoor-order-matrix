@@ -649,10 +649,18 @@ def _frame_from_angles(angles: list[float]) -> dict:
     """Average orthogonal trend frames so perpendicular axes share a frame."""
     if not angles:
         return {"angle": 0.0, "strength": 0.0}
+    # Axis directions are undirected, so 180 degrees must be the same input as
+    # 0 degrees before the four-angle average; otherwise signed zero can turn
+    # a horizontal IFC branch into a false 90-degree trend.
+    normalized_angles = [float(angle) % 180.0 for angle in angles]
+    normalized_angles = [
+        0.0 if abs(angle) <= 1e-9 or abs(angle - 180.0) <= 1e-9 else angle
+        for angle in normalized_angles
+    ]
     # Quadrupled angles collapse 0/90-degree orthogonal grid directions into a
     # single frame while preserving oblique branch trends.
-    x = mean(cos(radians(angle * 4.0)) for angle in angles)
-    y = mean(sin(radians(angle * 4.0)) for angle in angles)
+    x = mean(cos(radians(angle * 4.0)) for angle in normalized_angles)
+    y = mean(sin(radians(angle * 4.0)) for angle in normalized_angles)
     angle = (degrees(atan2(y, x)) / 4.0) % 90.0
     return {"angle": round(angle, 4), "strength": round((x * x + y * y) ** 0.5, 4)}
 

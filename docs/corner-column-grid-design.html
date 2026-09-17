@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>转角柱网设计记录</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    body { max-width: 980px; margin: 0 auto; padding: 2rem; color: #1f2937; line-height: 1.65; }
+    h1, h2 { color: #111827; line-height: 1.25; }
+    h1 { border-bottom: 2px solid #d1d5db; padding-bottom: .6rem; }
+    code { background: #f3f4f6; padding: .12rem .3rem; border-radius: 3px; }
+    pre { background: #111827; color: #f9fafb; padding: 1rem; overflow-x: auto; border-radius: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #d1d5db; padding: .55rem .7rem; text-align: left; vertical-align: top; }
+    th { background: #f3f4f6; }
+    .note { border-left: 4px solid #2563eb; padding: .6rem 1rem; background: #eff6ff; }
+    .warning { border-left: 4px solid #d97706; padding: .6rem 1rem; background: #fffbeb; }
+  </style>
+</head>
+<body>
+  <h1>转角柱网设计记录</h1>
+  <p><strong>状态：</strong>Future design note; not implemented.</p>
+  <p><strong>Scope：</strong>描述带转角、折线轴线或多个局部柱网系统的 IFC 柱网分析，不改变当前直线正交柱网算法。</p>
+
+  <div class="note">
+    当前项目的原则是：IFC <code>IfcGrid</code> 和 <code>IfcGridAxis</code> 是事实输入；
+    <code>branch</code>、<code>bay</code>、<code>column field</code> 和 trend 是分析器产生的证据层记录。
+  </div>
+
+  <h2>1. 当前限制</h2>
+  <ul>
+    <li>当前代码能够处理水平/竖直或其他直线轴线组成的正交柱网。</li>
+    <li>一条折线 <code>IfcGridAxis</code> 当前主要按首尾方向计算角度，不能可靠表达中间转角。</li>
+    <li>IFC 的 U/V/W 列表能够表达轴线列表，但不能自动表达复杂转角处的局部 branch。</li>
+    <li>因此，当前不能把一个折线轴线直接当成一个单一 trend。</li>
+  </ul>
+
+  <h2>2. 需要区分的转角类型</h2>
+  <table>
+    <thead><tr><th>类型</th><th>含义</th><th>处理策略</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>正交双向网</td>
+        <td>两组互相垂直的直线轴，例如 U/V。</td>
+        <td>保持现有逻辑；将两组视为一个正交 frame。</td>
+      </tr>
+      <tr>
+        <td>折线轴线</td>
+        <td>单条轴线包含两个或多个方向段。</td>
+        <td>先按几何方向变化拆成连续直线段，再建立 branch。</td>
+      </tr>
+      <tr>
+        <td>局部柱网转角</td>
+        <td>同一空间内有两个或多个局部柱网系统，在转角处衔接。</td>
+        <td>每个局部系统建立独立 branch/field，再计算系统之间的衔接关系。</td>
+      </tr>
+      <tr>
+        <td>非正交交汇</td>
+        <td>不同方向的轴线在局部交汇，但不构成标准 U/V 网。</td>
+        <td>保留各自方向，不强制正交化；输出多方向 trend 和清晰度。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. 目标分析层级</h2>
+  <pre>IfcGridAxis
+  -> axis segments       # straight geometric segments
+  -> branch              # parallel, same-direction segments
+  -> local column field   # connected branches in one local system
+  -> grid system          # authored or derived collection of fields
+  -> global trend         # whole-grid directional summary</pre>
+
+  <p>转角处不应被压缩为一个平均角度。它应保留：</p>
+  <ul>
+    <li>每个 segment 的方向和有效长度；</li>
+    <li>每个 branch 的方向、间距、清晰度和强度；</li>
+    <li>相邻 field 之间的连接点、角度差和衔接连续性；</li>
+    <li>全局 trend 及其由多个局部 trend 汇总得到的支持度。</li>
+  </ul>
+
+  <h2>4. 几何拆分原则</h2>
+  <ol>
+    <li>读取 IFC 轴线的真实曲线，而不是读取 Blender 视口中的显示网格。</li>
+    <li>将曲线分解为连续线段；非常短的噪声段只作为不确定性记录，不直接创建 branch。</li>
+    <li>对相邻线段计算方向变化；方向基本连续的段可以合并，方向发生明显变化的位置形成 corner node。</li>
+    <li>平行且间距逻辑一致的段归入同一 branch。</li>
+    <li>具有共同 bay 结构或几何连接的 branch 组成 local column field。</li>
+    <li>不同 field 不强制合并；只通过连接、方向差和距离生成 field-to-field 关系。</li>
+  </ol>
+
+  <h2>5. Trend 输出</h2>
+  <table>
+    <thead><tr><th>输出</th><th>含义</th></tr></thead>
+    <tbody>
+      <tr><td><code>primary_angle</code></td><td>局部或全局最主要的轴向。</td></tr>
+      <tr><td><code>secondary_angle</code></td><td>正交网中的副轴；非正交系统不强制设为 90 度。</td></tr>
+      <tr><td><code>strength</code></td><td>方向证据的集中程度，同时考虑有效轴线长度，不能只按轴线数量。</td></tr>
+      <tr><td><code>clarity</code></td><td>局部轴线是否支持少数清晰方向；转角越多，单一 trend clarity 越低。</td></tr>
+      <tr><td><code>field_support</code></td><td>该 trend 在空间探针或局部区域中被柱网几何支持的程度。</td></tr>
+      <tr><td><code>corner_continuity</code></td><td>转角两侧 field 是否通过几何和 bay 结构连续衔接。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. 与家具组的关系</h2>
+  <p>家具组不直接改变柱网。分析器分别描述：</p>
+  <pre>FurnitureGroup frame -> local column field frame
+FurnitureGroup position -> nearest bay / field support
+FurnitureGroup trend -> global grid trend</pre>
+  <p>对于转角柱网，同一个家具组可以同时受到多个 local field 的影响；结果应保留多个局部关系，不能只选一个最近的柱跨。</p>
+
+  <h2>7. 未来实现顺序</h2>
+  <ol>
+    <li>扩展 IFC 轴线读取，保留完整曲线点和单位信息。</li>
+    <li>增加 axis segment 提取器和 corner node 记录。</li>
+    <li>将 branch 从单一 <code>branch-id</code> 扩展为几何和列表信息共同决定。</li>
+    <li>在 branch 之上构建 local column field 和 field adjacency graph。</li>
+    <li>改造 trend 汇总，使其同时输出局部 trend、全局 trend 和 clarity/strength。</li>
+    <li>增加转角柱网、L 形轴线、多个局部网和非正交网的 pytest 与可视化验收。</li>
+  </ol>
+
+  <div class="warning">
+    验收标准：不能只验证“生成了一个角度”。必须验证转角前后的方向、branch 数量、field 边界、局部/全局 trend、强度与清晰度，以及家具组分别受到哪些 field 影响。
+  </div>
+</body>
+</html>

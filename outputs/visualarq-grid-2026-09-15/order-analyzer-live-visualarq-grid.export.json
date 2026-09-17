@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "target": "C:\\Users\\tianf\\AppData\\Local\\Temp\\order-analyzer-live-visualarq-grid.ifc",
+  "schema": "IFC4",
+  "furniture_count": 1,
+  "furniture_type_count": 1,
+  "group_count": 1,
+  "grid_count": 1,
+  "mesh_representation_count": 0,
+  "proxy_object_count": 0,
+  "substitute_mode": "representation",
+  "analysis_representation_count": 0,
+  "analysis_representation_bindings": [],
+  "proxy_bindings": [],
+  "source_path": null,
+  "source_object_count": 1,
+  "excluded_source_facts": {},
+  "import_status": "not_run"
+}

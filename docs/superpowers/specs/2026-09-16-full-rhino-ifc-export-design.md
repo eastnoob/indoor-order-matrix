@@ -9,10 +9,14 @@ Make the Rhino/VisualARQ workflow export every source object by default while pr
 1. Every source object with usable geometry is exported exactly once as one IFC product occurrence.
 2. An exact authored `IfcEntity` or `OM.IfcEntity` label selects the corresponding supported IFC product class.
 3. An object without a valid authored IFC class is exported as `IfcBuildingElementProxy` with `semantic_status=untyped` and `analysis_participation=unknown`.
-4. Existing source identity, name, layer, geometry kind, source properties, and provenance are stored as factual project properties.
+4. Existing source identity, name, layer, geometry kind, source properties, and provenance are preserved in the external export report.
 5. Untyped objects are retained in the IFC but are not treated as furniture, region members, paths, or analysis inputs by default.
 6. The exporter reports counts by IFC entity, untyped objects, objects lacking geometry, and review records.
 7. The source adapter remains read-only. Export, IFC validation, and Bonsai import remain independent phases.
+8. When a furniture block contains a nested analysis branch such as `BODYPROXY`,
+   the source payload preserves it as `analysis_substitutes`. The exporter
+   writes that geometry as the same product's `Analysis` representation and
+   never counts it as a second furniture occurrence.
 
 ## Scope
 
@@ -35,21 +39,16 @@ The initial product registry includes `IfcFurniture`, `IfcFurnishingElement`, `I
 
 ## Geometry Contract
 
-The exporter consumes source records with `vertices` and triangular `faces`. A live Rhino capture may derive these from Mesh, Brep, Extrusion, and InstanceReference geometry using RhinoCommon meshing, while preserving the source object id and transform. Unsupported or empty geometry becomes a review record and is not silently emitted as a zero-geometry product.
+The exporter consumes source records with `vertices` and triangular `faces`. A live Rhino capture may derive these from Mesh, Brep, Extrusion, and InstanceReference geometry using RhinoCommon meshing, while preserving the source object id and transform. For furniture records, display branches populate `vertices`/`faces`, while nested analysis branches populate `analysis_substitutes`. Unsupported or empty geometry becomes a review record and is not silently emitted as a zero-geometry product.
 
-## Properties
+## Traceability
 
-Every exported object receives `OM_Source` with:
-
-- source id;
-- source name and layer;
-- source geometry kind;
-- authored IFC label and label source;
-- semantic status: `authored`, `untyped`, or `review`;
-- analysis participation: `include`, `exclude`, or `unknown`;
-- source path and provider.
-
-The properties are provenance and conversion facts. They are not a substitute for IFC relationships and do not assign perceptual weights.
+The IFC model keeps native identity fields such as `GlobalId`, `Name`,
+`ObjectType`, and `Tag` when available. The exporter writes source ids,
+authored labels, semantic status, analysis participation, provider, and the
+source-to-IFC mapping into the adjacent `.export.json` report under
+`source_map`. It must not attach a mandatory project-specific `OM_Source`
+property set to every IFC product.
 
 ## Analysis Boundary
 

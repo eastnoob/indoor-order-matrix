@@ -5,9 +5,16 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
+
+# The exporter is a documented standalone script, so add the repository root
+# before importing shared adapters when Python starts from test/bim.
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from convert_rhino_fixture_to_ifc import (
     _assign_layout_properties,
@@ -16,6 +23,7 @@ from convert_rhino_fixture_to_ifc import (
     _localize_mesh,
     _stable_guid,
 )
+from adapters.rhino_visualarq_grid import normalize_visualarq_guides
 
 
 # Only IFC product occurrences belong in the generic source-object loop. Grid
@@ -86,48 +94,6 @@ def _select_ifc_product_class(record: dict[str, Any]) -> tuple[str, str]:
     return "IfcBuildingElementProxy", "untyped"
 
 
-def _assign_source_properties(
-    model: Any, entity: Any, record: dict[str, Any], status: str
-) -> None:
-    """Persist source provenance and semantic status on every exported product."""
-    semantics = record.get("source_semantics")
-    semantics = semantics if isinstance(semantics, dict) else {}
-    provenance = record.get("provenance")
-    provenance = provenance if isinstance(provenance, dict) else {}
-    values = {
-        "SourceId": record.get("id", ""),
-        "SourceName": record.get("name") or record.get("source_name", ""),
-        "SourceLayer": record.get("layer", ""),
-        "SourceGeometryKind": record.get("source_kind") or record.get("geometry_type", ""),
-        "AuthoredIfcEntity": semantics.get("ifc_entity") or record.get("ifc_entity", ""),
-        "AuthoredIfcEntitySource": semantics.get("ifc_entity_source", "none"),
-        "TargetIfcEntity": entity.is_a(),
-        "SemanticStatus": status,
-        "AnalysisParticipation": record.get("analysis_participation", "unknown"),
-        "SourceProvider": provenance.get("provider") or record.get("source_provider", ""),
-    }
-    properties = [
-        model.create_entity(
-            "IfcPropertySingleValue",
-            Name=key,
-            NominalValue=model.create_entity("IfcLabel", str(value)),
-        )
-        for key, value in values.items()
-    ]
-    property_set = model.create_entity(
-        "IfcPropertySet",
-        GlobalId=_stable_guid(f"{entity.GlobalId}:OM_Source"),
-        Name="OM_Source",
-        HasProperties=properties,
-    )
-    model.create_entity(
-        "IfcRelDefinesByProperties",
-        GlobalId=_stable_guid(f"{entity.GlobalId}:OM_Source:relation"),
-        RelatingPropertyDefinition=property_set,
-        RelatedObjects=[entity],
-    )
-
-
 def _occurrence_name(
     record: dict[str, Any], kind: str, ordinal: int
 ) -> str:
@@ -165,12 +131,108 @@ def _load_substitutes(path: Path | None) -> list[dict[str, Any]]:
     if not isinstance(records, list):
         raise ValueError("Substitute payload must be a list or contain a substitutes list")
     for record in records:
-        if not isinstance(record, dict):
-            raise ValueError("Each substitute record must be an object")
-        required = ("source_global_id", "substitute_id", "vertices", "triangle_indices")
-        if any(not record.get(field) for field in required):
-            raise ValueError(f"Incomplete substitute record: {record.get('substitute_id')}")
+        _validate_substitute_record(record)
     return records
+
+
+def _validate_substitute_record(record: object) -> None:
+    """Validate one explicit or embedded analysis substitute record."""
+    if not isinstance(record, dict):
+        raise ValueError("Each substitute record must be an object")
+    required = ("source_global_id", "substitute_id", "vertices", "triangle_indices")
+    if any(not record.get(field) for field in required):
+        raise ValueError(f"Incomplete substitute record: {record.get('substitute_id')}")
+
+
+def _embedded_substitutes(source_objects: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Extract authored nested proxy branches from their owning source objects."""
+    embedded: list[dict[str, Any]] = []
+    for source in source_objects:
+        raw = source.get("analysis_substitutes")
+        if raw is None and source.get("analysis_substitute") is not None:
+            raw = source["analysis_substitute"]
+        if raw is None:
+            continue
+        records = [raw] if isinstance(raw, dict) else raw
+        if not isinstance(records, list):
+            raise ValueError(
+                f"analysis_substitutes must be a list for source {source.get('id')}"
+            )
+        for substitute in records:
+            if not isinstance(substitute, dict):
+                raise ValueError("Each embedded substitute record must be an object")
+            normalized = dict(substitute)
+            normalized["source_global_id"] = str(source["id"])
+            _validate_substitute_record(normalized)
+            embedded.append(normalized)
+    return embedded
+
+
+def _authored_furniture_groups(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return validated explicit furniture-group source records only."""
+    records = payload.get("furniture_groups", [])
+    if records is None:
+        return []
+    if not isinstance(records, list):
+        raise ValueError("furniture_groups must be a list when supplied")
+    validated: list[dict[str, Any]] = []
+    for record in records:
+        if not isinstance(record, dict) or not record.get("id"):
+            raise ValueError("Each furniture group requires a stable id")
+        member_ids = record.get("member_ids")
+        if not isinstance(member_ids, list):
+            raise ValueError(
+                f"Furniture group {record['id']} must provide member_ids as a list"
+            )
+        validated.append(record)
+    return validated
+
+
+def _ifc_grid_axis(model: Any, record: dict[str, Any]) -> Any:
+    """Create one native IFC grid axis from normalized Rhino millimetre points."""
+    points = [
+        model.create_entity(
+            "IfcCartesianPoint",
+            Coordinates=(float(point[0]), float(point[1])),
+        )
+        for point in record["curve_points"]
+    ]
+    curve = model.create_entity("IfcPolyline", Points=points)
+    return model.create_entity(
+        "IfcGridAxis",
+        AxisTag=str(record["tag"]),
+        AxisCurve=curve,
+        SameSense=bool(record.get("same_sense", True)),
+    )
+
+
+def _create_visualarq_grid(model: Any, payload: dict[str, Any]) -> Any | None:
+    """Serialize optional VisualARQ Guide evidence as one native IFC grid."""
+    from ifcopenshell.api.geometry import edit_object_placement
+
+    guide_records = payload.get("visualarq_guides") or ()
+    if not guide_records:
+        return None
+    normalized = normalize_visualarq_guides(guide_records)
+    grid = _create_root(model, "IfcGrid", str(normalized["name"]))
+    grid.UAxes = [_ifc_grid_axis(model, axis) for axis in normalized["u_axes"]]
+    grid.VAxes = [_ifc_grid_axis(model, axis) for axis in normalized["v_axes"]]
+    if normalized["w_axes"]:
+        grid.WAxes = [_ifc_grid_axis(model, axis) for axis in normalized["w_axes"]]
+    # IFC requires a placement even though the imported Guide points are
+    # already expressed in the storey's coordinate system.
+    edit_object_placement(
+        model,
+        product=grid,
+        matrix=[
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        is_si=True,
+    )
+    return grid
 
 
 def _assign_analysis_properties(
@@ -232,7 +294,12 @@ def write_ifc(
 
     payload = _load_source(source_path)
     source_objects = payload["objects"]
+    furniture_groups = _authored_furniture_groups(payload)
     substitutes = _load_substitutes(substitute_path)
+    # A Rhino furniture block may carry its MassPatch as a nested proxy branch.
+    # Keep the branch attached to its source occurrence while retaining the
+    # older explicit sidecar input for providers that cannot embed it.
+    substitutes.extend(_embedded_substitutes(source_objects))
     model = ifcopenshell.file(schema="IFC4")
     # Keep the exported file in metric IFC4 so Rhino millimetre coordinates
     # remain traceable through the placement conversion below.
@@ -279,15 +346,20 @@ def write_ifc(
         RelatedObjects=[storey],
     )
 
+    # Grid semantics belong to IFC itself. VisualARQ-specific recognition ends
+    # before this point, so downstream Bonsai and analysis code see IfcGrid.
+    grid = _create_visualarq_grid(model, payload)
+
     entities: dict[str, Any] = {}
     type_members: dict[str, list[Any]] = defaultdict(list)
-    group_members: dict[str, list[Any]] = defaultdict(list)
     type_entities: dict[str, Any] = {}
     kind_ordinals: dict[str, int] = defaultdict(int)
     entity_counts: dict[str, int] = defaultdict(int)
     untyped_count = 0
     review_count = 0
     geometry_skipped_count = 0
+    source_map: list[dict[str, str]] = []
+    furniture_group_review: list[dict[str, object]] = []
 
     for record in source_objects:
         if not record.get("vertices") or not record.get("faces"):
@@ -340,9 +412,25 @@ def write_ifc(
                 "TypeFamilyId": str(record.get("type_family_id") or kind),
                 "CanonicalObject": "true",
                 "GeometryBranch": "GEOMETRY",
+                # Keep analysis participation as a factual source property;
+                # downstream analyzers can exclude decoration without
+                # confusing it with IFC semantic classification.
+                "AnalysisParticipation": str(
+                    record.get("analysis_participation", "unknown")
+                ),
             },
         )
-        _assign_source_properties(model, entity, record, semantic_status)
+        # Source traceability is report-level data, not IFC analysis semantics.
+        # Keeping it outside the model avoids adding a project-specific
+        # property set to every product while preserving deterministic lookup.
+        source_map.append(
+            {
+                "source_id": logical_id,
+                "ifc_global_id": entity.GlobalId,
+                "ifc_entity": ifc_class,
+                "semantic_status": semantic_status,
+            }
+        )
         # Generic proxies and building products must not acquire fabricated
         # furniture type families merely because they share source geometry.
         if ifc_class in FURNITURE_CLASSES:
@@ -352,15 +440,22 @@ def write_ifc(
             if type_entity is None:
                 type_entity = _create_root(model, "IfcFurnitureType", type_family_name)
                 type_entity.Name = type_family_name
+                # Type display names may repeat across families (for example,
+                # two chair definitions both rendered as ``ChairType``).
+                # IFC identity must follow the authored family key, not the
+                # human-facing label, otherwise Bonsai/validators see a
+                # duplicate IfcRoot.GlobalId.
+                type_entity.GlobalId = _stable_guid(f"baseRoom:type:{type_family_id}")
                 type_entities[type_family_id] = type_entity
             type_members[type_family_id].append(entity)
-        group_members[str(record.get("source_model", "unassigned"))].append(entity)
         entities[logical_id] = entity
 
     for type_family_id, type_entity in type_entities.items():
         model.create_entity(
             "IfcRelDefinesByType",
-            GlobalId=_stable_guid(f"baseRoom:type:{type_family_id}"),
+            # The relationship is a separate IfcRoot and must not reuse the
+            # type entity's GUID namespace, even when both use one family key.
+            GlobalId=_stable_guid(f"baseRoom:type-relation:{type_family_id}"),
             RelatingType=type_entity,
             RelatedObjects=type_members[type_family_id],
         )
@@ -371,14 +466,55 @@ def write_ifc(
         RelatingStructure=storey,
         RelatedElements=list(entities.values()),
     )
+    if grid is not None:
+        model.create_entity(
+            "IfcRelContainedInSpatialStructure",
+            GlobalId=_stable_guid("baseRoom:storey-contains-grid"),
+            RelatingStructure=storey,
+            RelatedElements=[grid],
+        )
 
-    # Preserve source-model membership as IFC groups without treating GROUP
-    # and VARIABLE preview representations as separate physical products.
-    for source_model, members in sorted(group_members.items()):
-        group = _create_root(model, "IfcGroup", f"source_{source_model}")
+    furniture_group_count = 0
+    seen_group_ids: set[str] = set()
+    for group_record in furniture_groups:
+        group_id = str(group_record["id"])
+        if group_id in seen_group_ids:
+            furniture_group_review.append(
+                {"group_id": group_id, "reason": "duplicate_group_id"}
+            )
+            continue
+        seen_group_ids.add(group_id)
+        members = []
+        for member_id in group_record["member_ids"]:
+            entity = entities.get(str(member_id))
+            if entity is not None and entity.is_a() in FURNITURE_CLASSES:
+                members.append(entity)
+            else:
+                furniture_group_review.append(
+                    {
+                        "group_id": group_id,
+                        "member_id": str(member_id),
+                        "reason": "missing_or_non_furniture_member",
+                    }
+                )
+        if not members:
+            furniture_group_review.append(
+                {"group_id": group_id, "reason": "no_valid_furniture_members"}
+            )
+            continue
+        # The authored outer Rhino Block is a logical container. Its stable
+        # occurrence id defines the group identity; it never becomes a product
+        # or acquires flattened container geometry in the IFC model.
+        group = _create_root(
+            model,
+            "IfcGroup",
+            str(group_record.get("name") or group_record.get("display_name") or "Furniture group"),
+        )
+        group.GlobalId = _stable_guid(f"furniture-group:{group_id}")
+        group.ObjectType = "furniture_group"
         model.create_entity(
             "IfcRelAssignsToGroup",
-            GlobalId=_stable_guid(f"baseRoom:group:{source_model}"),
+            GlobalId=_stable_guid(f"furniture-group:{group_id}:members"),
             RelatingGroup=group,
             RelatedObjects=members,
         )
@@ -386,12 +522,13 @@ def write_ifc(
             model,
             group,
             {
-                "SourceModel": source_model,
-                "SourceRepresentationPolicy": "GROUP preferred; VARIABLE not duplicated",
+                "GroupRole": "furniture_group",
                 "MemberCount": len(members),
-                "SemanticStatus": "source-normalized",
+                "SourceGroupId": group_id,
+                "SemanticStatus": "authored",
             },
         )
+        furniture_group_count += 1
 
     proxy_entities: list[Any] = []
     analysis_representation_count = 0
@@ -495,6 +632,10 @@ def write_ifc(
         "review_count": review_count,
         "geometry_skipped_count": geometry_skipped_count,
         "group_count": len(model.by_type("IfcGroup")),
+        "furniture_group_count": furniture_group_count,
+        "furniture_group_review": furniture_group_review,
+        "source_model_group_count": 0,
+        "grid_count": len(model.by_type("IfcGrid")),
         "mesh_representation_count": len(model.by_type("IfcTriangulatedFaceSet")),
         "proxy_object_count": len(proxy_entities),
         "substitute_mode": substitute_mode,
@@ -510,6 +651,7 @@ def write_ifc(
         ],
         "source_path": payload.get("source_path"),
         "source_object_count": len(source_objects),
+        "source_map": source_map,
         "excluded_source_facts": payload.get("excluded_source_facts", {}),
         "import_status": "not_run",
     }

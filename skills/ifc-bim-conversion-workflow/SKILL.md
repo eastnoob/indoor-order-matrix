@@ -149,6 +149,15 @@ item, use a Block/Instance or parent-child hierarchy, and give logical products
 stable names such as `Chair_01` or `Table_01`. This is assistance, not a hard
 requirement.
 
+An authored furniture group is a separate relationship, not a furniture type
+or a physical aggregate. Use exactly `OM.Role = furniture_group` on an outer
+Rhino Block. A value on its Block Definition is inherited as a default; a
+value on an occurrence overrides it. The exporter writes one geometry-free
+`IfcGroup` with `ObjectType=furniture_group` and one `IfcRelAssignsToGroup`
+relation to the nested furniture occurrences. It does not infer furniture
+groups from names, layers, ordinary Rhino groups, proximity, or geometry.
+Unmarked Blocks keep their normal export behavior.
+
 For a role-bearing nested Block, export one root logical product occurrence.
 `display_geometry` supplies its visible representation;
 `analysis_substitute` such as `MassPatch` remains analysis evidence and must
@@ -171,6 +180,18 @@ visibility is an adapter responsibility: select `Body` as the default visible
 representation and retain `Analysis` for analysis or an explicit inspection
 view. Do not claim that an IFC role name or `OM.VisibilityPolicy` alone
 guarantees hidden analysis geometry.
+
+The source adapter must preserve nested analysis branches instead of merging
+them into display geometry. A source record may carry an
+`analysis_substitutes` list for embedded MassPatch/BODYPROXY geometry; the
+exporter attaches each record to the same logical product's `Analysis`
+representation. The normal result is one `IfcFurniture` with `Body` and
+`Analysis`, not an additional `IfcBuildingElementProxy` furniture-like
+occurrence. The `sidecar` mode remains available only when a consumer cannot
+retain multiple representations.
+
+Source-to-IFC traceability is kept in the external export report rather than
+as a mandatory `OM_Source` property set on every IFC product.
 
 Read only the reference needed for the current phase:
 

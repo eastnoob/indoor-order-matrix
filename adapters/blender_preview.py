@@ -62,19 +62,34 @@ def _rect_points(record: object) -> list[list[float]]:
 
 
 def _trend_axes(region: object) -> list[dict[str, object]]:
-    """Expose both region trend axes without inventing a perceptual score."""
+    """Expose a two-axis trend frame without inventing a perceptual score."""
     metadata = _value(region, "metadata", {}) or {}
     trend = _value(region, "trend", {}) or {}
-    primary = float(metadata.get("axis-angle", trend.get("primary_angle", 0.0)))
-    secondary = float(metadata.get("secondary-axis-angle", trend.get("secondary_angle", primary + 90.0)))
-    primary_strength = float(metadata.get("axis-strength", metadata.get("axis-trend-strength", trend.get("primary_strength", 0.0))))
+    primary = float(metadata.get("axis-angle", metadata.get("group-axis-angle", trend.get("primary_angle", 0.0))))
+    secondary = float(metadata.get("secondary-axis-angle", metadata.get("group-secondary-axis-angle", trend.get("secondary_angle", primary + 90.0))))
+    primary_strength = float(metadata.get("axis-strength", metadata.get("axis-trend-strength", metadata.get("group-axis-strength", trend.get("primary_strength", 0.0)))))
     # A region trend is an orthogonal frame, so its clarity belongs to both
     # frame axes unless the analysis explicitly reports separate strengths.
-    secondary_strength = float(metadata.get("secondary-axis-strength", trend.get("secondary_strength", primary_strength)))
+    secondary_strength = float(metadata.get("secondary-axis-strength", metadata.get("group-axis-strength", trend.get("secondary_strength", primary_strength))))
     return [
         {"angle": primary, "strength": primary_strength, "axis": "primary"},
         {"angle": secondary, "strength": secondary_strength, "axis": "secondary"},
     ]
+
+
+def _group_preview_records(matrix: Mapping[str, object]) -> list[dict[str, object]]:
+    """Serialize furniture-group terminal frames for output-only previews."""
+    records = []
+    for group in matrix.get("furniture_groups", ()) or ():
+        records.append(
+            {
+                "id": str(_value(group, "id", "")),
+                "member_ids": [str(item) for item in (_value(group, "member_ids", ()) or ())],
+                "points": _rect_points(group),
+                "trend_axes": _trend_axes(group),
+            }
+        )
+    return records
 
 
 def build_preview_manifest(scene: object, matrix: Mapping[str, object]) -> dict[str, object]:
@@ -123,6 +138,7 @@ def build_preview_manifest(scene: object, matrix: Mapping[str, object]) -> dict[
                 "trend_axes": _trend_axes(region),
             }
         )
+    furniture_groups = _group_preview_records(matrix)
     paths = []
     for path in matrix.get("gap_paths", matrix.get("inferred_region_gap_paths", ())) or ():
         region_ids = list(_value(path, "region_ids", ()) or ())
@@ -171,6 +187,7 @@ def build_preview_manifest(scene: object, matrix: Mapping[str, object]) -> dict[
         "collection": "OM_AnalysisPreview",
         "source_geometry": source_geometry,
         "regions": regions,
+        "furniture_groups": furniture_groups,
         "paths": paths,
         "grid_axes": grid_axes,
         "boundary_channels": boundary_channels,
@@ -265,6 +282,17 @@ def build_preview():
                 length = 0.7 * max(0.15, float(axis["strength"]))
                 angle = radians(float(axis["angle"]))
                 _curve(collection, "OM_Trend_" + region["id"] + "_" + axis["axis"], [[cx - cos(angle)*length, cy - sin(angle)*length, 0.08], [cx + cos(angle)*length, cy + sin(angle)*length, 0.08]], trend_material, 0.05)
+    # Furniture groups use the same two-axis frame geometry as regions, but
+    # remain a separate overlay layer so group and region semantics stay clear.
+    for group in MANIFEST["furniture_groups"]:
+        points = group["points"]
+        if len(points) >= 2:
+            cx = sum(point[0] for point in points[:-1]) / max(1, len(points) - 1)
+            cy = sum(point[1] for point in points[:-1]) / max(1, len(points) - 1)
+            for axis in group["trend_axes"]:
+                length = 0.7 * max(0.15, float(axis["strength"]))
+                angle = radians(float(axis["angle"]))
+                _curve(collection, "OM_GroupTrend_" + group["id"] + "_" + axis["axis"], [[cx - cos(angle)*length, cy - sin(angle)*length, 0.11], [cx + cos(angle)*length, cy + sin(angle)*length, 0.11]], trend_material, 0.045)
     for axis in MANIFEST["grid_axes"]:
         _curve(collection, "OM_Grid_" + axis["id"], axis["curve_points"], grid_material, 0.035)
     for path in MANIFEST["paths"]:
@@ -278,7 +306,7 @@ def build_preview():
             z = max(vertex[2] for vertex in vertices) + 0.12
             _curve(collection, "OM_Boundary_" + channel["id"] + "_a", [[cx - 0.15, cy - 0.15, z], [cx + 0.15, cy + 0.15, z]], boundary_material, 0.045)
             _curve(collection, "OM_Boundary_" + channel["id"] + "_b", [[cx - 0.15, cy + 0.15, z], [cx + 0.15, cy - 0.15, z]], boundary_material, 0.045)
-    return {{"collection": collection.name, "counts": {{"source": len(MANIFEST["source_geometry"]), "regions": len(MANIFEST["regions"]), "paths": len(MANIFEST["paths"])}}}}
+    return {{"collection": collection.name, "counts": {{"source": len(MANIFEST["source_geometry"]), "regions": len(MANIFEST["regions"]), "furniture_groups": len(MANIFEST["furniture_groups"]), "paths": len(MANIFEST["paths"])}}}}
 
 RESULT = build_preview()
 print(json.dumps(RESULT, sort_keys=True))

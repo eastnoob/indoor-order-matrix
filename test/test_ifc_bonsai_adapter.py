@@ -642,6 +642,7 @@ def test_adapter_preserves_native_ifc_group_and_grid_axis_facts(tmp_path):
     furniture.GlobalId = ifcopenshell.guid.new()
     group = model.create_entity("IfcGroup", Name="Dining set")
     group.GlobalId = ifcopenshell.guid.new()
+    group.ObjectType = "furniture_group"
     model.create_entity("IfcRelAssignsToGroup", RelatingGroup=group, RelatedObjects=[furniture])
     grid = model.create_entity("IfcGrid", Name="Structural axes")
     grid.GlobalId = ifcopenshell.guid.new()
@@ -659,6 +660,7 @@ def test_adapter_preserves_native_ifc_group_and_grid_axis_facts(tmp_path):
     scene = load_ifc_neutral_scene(path)
 
     assert scene.authored_groups[0].source_id == group.GlobalId
+    assert scene.authored_groups[0].group_role == "furniture_group"
     assert scene.authored_groups[0].member_refs == (f"ifc-object:{furniture.GlobalId}",)
     assert scene.authored_grids[0].source_id == grid.GlobalId
     assert scene.authored_grid_axes[0].branch_identifier is None

@@ -726,7 +726,14 @@ def _native_group_records(source: object) -> tuple[AuthoredGroup, ...]:
                 id=f"ifc-group:{source_id}",
                 source_id=source_id,
                 member_refs=tuple(members),
-                group_role="ifc_group",
+                # IFC groups are generally unconstrained. Preserve the one
+                # explicit layout role so downstream analysis can distinguish
+                # authored furniture groups from arbitrary project groups.
+                group_role=(
+                    "furniture_group"
+                    if getattr(group, "ObjectType", None) == "furniture_group"
+                    else "ifc_group"
+                ),
                 provenance={"method": "ifc4_group_assignment", "schema": "IFC4"},
             )
         )
@@ -1407,6 +1414,20 @@ def _scene_from_native_ifc(
                 geometries.append(analysis_mesh)
                 analysis_geometry_refs = (analysis_mesh.id,)
                 analysis_uncertainties = ()
+                # The terminal Analysis representation is the analytical
+                # source for the owning furniture object. Keep the Body mesh
+                # available for audit, but hand the furniture record the final
+                # world-space MassPatch so downstream trend inference cannot
+                # fall back to placement or historical orientation.
+                for index, (candidate, candidate_id, _refs, _uncertainties) in enumerate(extracted_products):
+                    if candidate_id == source_id:
+                        extracted_products[index] = (
+                            candidate,
+                            candidate_id,
+                            analysis_geometry_refs,
+                            analysis_uncertainties,
+                        )
+                        break
             else:
                 analysis_geometry_refs = ()
                 analysis_uncertainties = (

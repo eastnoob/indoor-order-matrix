@@ -1,0 +1,2177 @@
+{
+  "contract": {
+    "deferred": [
+      "affordance",
+      "regions",
+      "paths",
+      "groups",
+      "scores"
+    ],
+    "input_geometry": "Analysis MassPatch",
+    "name": "ifc_single_furniture_frame_analysis",
+    "secondary_cross_check": "Body",
+    "version": 1
+  },
+  "furniture": [
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0203EkXI1SKB_IocqNQkpZ:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02187522633568493,
+        "eigenvalue_secondary": 0.019151495751099222,
+        "orientation_strength": 0.06638918358683836,
+        "plan_area_evidence": 0.6043813198890667,
+        "primary_angle_degrees": 129.1654174993002,
+        "primary_extent": 0.5083965534923447,
+        "secondary_angle_degrees": 39.16541749930019,
+        "secondary_extent": 0.49457749659454464,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.09129051600962157,
+        "orientation_strength": 0.04581639284885031,
+        "primary_angle_degrees": 129.07412698329057
+      },
+      "source_id": "0203EkXI1SKB_IocqNQkpZ",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:02zAOx1A9PzxDMy8GcBAp3:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.020407563297807067,
+        "eigenvalue_secondary": 0.011904312335999088,
+        "orientation_strength": 0.2631617878880263,
+        "plan_area_evidence": 0.4697356224877835,
+        "primary_angle_degrees": 16.80003545152918,
+        "primary_extent": 0.5786918043402665,
+        "secondary_angle_degrees": 106.80003545152918,
+        "secondary_extent": 0.46290582888364984,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.494021014498259,
+        "orientation_strength": 0.19479773824645957,
+        "primary_angle_degrees": 23.29405646602745
+      },
+      "source_id": "02zAOx1A9PzxDMy8GcBAp3",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:04degx$DTQjRBTgw$IB__$:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162103372881352,
+        "eigenvalue_secondary": 0.01716862601087645,
+        "orientation_strength": 0.18883391518105955,
+        "plan_area_evidence": 0.6263937896938322,
+        "primary_angle_degrees": 38.672810120404144,
+        "primary_extent": 0.6019753217877408,
+        "secondary_angle_degrees": 128.67281012040414,
+        "secondary_extent": 0.4751923554606874,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7288364245555385,
+        "orientation_strength": 0.10152045262227515,
+        "primary_angle_degrees": 37.943973695848605
+      },
+      "source_id": "04degx$DTQjRBTgw$IB__$",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:09HZkLWoPNRPwggQ1Cx1jp:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166025843305396,
+        "eigenvalue_secondary": 0.017173696850369607,
+        "orientation_strength": 0.1887666825491452,
+        "plan_area_evidence": 0.6265340592484481,
+        "primary_angle_degrees": 39.816269396471014,
+        "primary_extent": 0.6020225006394746,
+        "secondary_angle_degrees": 129.816269396471,
+        "secondary_extent": 0.47498590906203475,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6916098833010338,
+        "orientation_strength": 0.10144501514857278,
+        "primary_angle_degrees": 39.12465951316998
+      },
+      "source_id": "09HZkLWoPNRPwggQ1Cx1jp",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0CwDCvqe1KyObyl3DfXztD:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162265308012827,
+        "eigenvalue_secondary": 0.017168682147379308,
+        "orientation_strength": 0.1888354417074426,
+        "plan_area_evidence": 0.6263958542041785,
+        "primary_angle_degrees": 38.672937572680375,
+        "primary_extent": 0.6019762389502326,
+        "secondary_angle_degrees": 128.67293757268038,
+        "secondary_extent": 0.4751928962628522,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7290739703554152,
+        "orientation_strength": 0.10152302859350992,
+        "primary_angle_degrees": 37.94386360232496
+      },
+      "source_id": "0CwDCvqe1KyObyl3DfXztD",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0DFaGC2znQCBo3gmIbaqD4:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875245802100225,
+        "eigenvalue_secondary": 0.019151498209714516,
+        "orientation_strength": 0.06638956266189036,
+        "plan_area_evidence": 0.6043819843292224,
+        "primary_angle_degrees": 129.16543810573157,
+        "primary_extent": 0.5083967211921898,
+        "secondary_angle_degrees": 39.16543810573157,
+        "secondary_extent": 0.49457749658879635,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.09051829594974947,
+        "orientation_strength": 0.045817155039692595,
+        "primary_angle_degrees": 129.07491980978182
+      },
+      "source_id": "0DFaGC2znQCBo3gmIbaqD4",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0G42QJEmnMMA124Pyjim8u:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885674156590419,
+        "eigenvalue_secondary": 0.03885668428784526,
+        "orientation_strength": 7.370420015267271e-07,
+        "plan_area_evidence": 1.5608746449069963,
+        "primary_angle_degrees": 152.01217541714504,
+        "primary_extent": 0.9823024130095153,
+        "secondary_angle_degrees": 62.012175417145045,
+        "secondary_extent": 0.9823017526915159,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 40.88309277347017,
+        "orientation_strength": 1.0198052288797049e-05,
+        "primary_angle_degrees": 12.8952681906152
+      },
+      "source_id": "0G42QJEmnMMA124Pyjim8u",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0G7vv8jTzNQ9GJi8EFKyLF:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166036704216792,
+        "eigenvalue_secondary": 0.017173687958307114,
+        "orientation_strength": 0.18876714030651065,
+        "plan_area_evidence": 0.6265340075364118,
+        "primary_angle_degrees": 39.81615051213537,
+        "primary_extent": 0.6020235624789265,
+        "secondary_angle_degrees": 129.81615051213538,
+        "secondary_extent": 0.4749868279345639,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6912469948021069,
+        "orientation_strength": 0.10144538072593118,
+        "primary_angle_degrees": 39.124903517333266
+      },
+      "source_id": "0G7vv8jTzNQ9GJi8EFKyLF",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0H5JvgpgHNCBcEHqwd$$61:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516210248188289,
+        "eigenvalue_secondary": 0.017168659359298493,
+        "orientation_strength": 0.18883296153692167,
+        "plan_area_evidence": 0.6263934480876927,
+        "primary_angle_degrees": 38.67298876610473,
+        "primary_extent": 0.6019759345667772,
+        "secondary_angle_degrees": 128.67298876610474,
+        "secondary_extent": 0.4751917385724127,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7287841001082924,
+        "orientation_strength": 0.10151912417464366,
+        "primary_angle_degrees": 37.94420466599644
+      },
+      "source_id": "0H5JvgpgHNCBcEHqwd$$61",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0HX9hfzhHGNxX4WwuN1WRW:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673557379464,
+        "eigenvalue_secondary": 0.038856727616977574,
+        "orientation_strength": 1.0238659746434207e-07,
+        "plan_area_evidence": 1.5608748903241154,
+        "primary_angle_degrees": 179.99999999199713,
+        "primary_extent": 0.7500000001047571,
+        "secondary_angle_degrees": 89.99999999199713,
+        "secondary_extent": 0.7500000001047573,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 23.96000296496436,
+        "orientation_strength": 1.032308078922685e-05,
+        "primary_angle_degrees": 156.03999702703277
+      },
+      "source_id": "0HX9hfzhHGNxX4WwuN1WRW",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0HdVvUWiDSWBlowowft0gY:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516225142738228,
+        "eigenvalue_secondary": 0.017168661919883026,
+        "orientation_strength": 0.18883574379610363,
+        "plan_area_evidence": 0.6263946580343241,
+        "primary_angle_degrees": 38.672681204898325,
+        "primary_extent": 0.6019762352816578,
+        "secondary_angle_degrees": 128.6726812048983,
+        "secondary_extent": 0.47519449445358575,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7287356930858522,
+        "orientation_strength": 0.10152242730510054,
+        "primary_angle_degrees": 37.94394551181247
+      },
+      "source_id": "0HdVvUWiDSWBlowowft0gY",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0Hq1yV2YbQMxGEskDnVVDR:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025165862687577135,
+        "eigenvalue_secondary": 0.017173703067633297,
+        "orientation_strength": 0.18876338189558073,
+        "plan_area_evidence": 0.6265327281541845,
+        "primary_angle_degrees": 39.81619126290898,
+        "primary_extent": 0.6020203745152735,
+        "secondary_angle_degrees": 129.81619126290897,
+        "secondary_extent": 0.4749863881856804,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6915461556976794,
+        "orientation_strength": 0.10144231962771903,
+        "primary_angle_degrees": 39.1246451072113
+      },
+      "source_id": "0Hq1yV2YbQMxGEskDnVVDR",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0I0FWDu0zNGAP4snhN3D2Z:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856725467027405,
+        "eigenvalue_secondary": 0.038856716583787025,
+        "orientation_strength": 1.1430764294717574e-07,
+        "plan_area_evidence": 1.5608759751558305,
+        "primary_angle_degrees": 164.4905835132117,
+        "primary_extent": 1.0455484775379293,
+        "secondary_angle_degrees": 74.4905835132117,
+        "secondary_extent": 1.0455483469731135,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 30.78949168563574,
+        "orientation_strength": 1.0288626212928238e-05,
+        "primary_angle_degrees": 15.280075198847435
+      },
+      "source_id": "0I0FWDu0zNGAP4snhN3D2Z",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0I6QTlf$9VZex7QZ3jsc9$:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856745586295996,
+        "eigenvalue_secondary": 0.03885672056489546,
+        "orientation_strength": 3.219699463949587e-07,
+        "plan_area_evidence": 1.5608739785320735,
+        "primary_angle_degrees": 118.99741107332144,
+        "primary_extent": 1.0195587842357483,
+        "secondary_angle_degrees": 28.997411073321445,
+        "secondary_extent": 1.0195587842357519,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 36.854184835657634,
+        "orientation_strength": 1.0288274774600793e-05,
+        "primary_angle_degrees": 155.85159590897908
+      },
+      "source_id": "0I6QTlf$9VZex7QZ3jsc9$",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0IWJkY7CjQuQUBRiIdduey:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856821687571444,
+        "eigenvalue_secondary": 0.038856661099879716,
+        "orientation_strength": 2.06640708877088e-06,
+        "plan_area_evidence": 1.560874695668222,
+        "primary_angle_degrees": 78.45160026952529,
+        "primary_extent": 1.0553746617701645,
+        "secondary_angle_degrees": 168.45160026952527,
+        "secondary_extent": 1.0553729333254687,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 57.79326279735059,
+        "orientation_strength": 9.440830603817679e-06,
+        "primary_angle_degrees": 20.658337472174694
+      },
+      "source_id": "0IWJkY7CjQuQUBRiIdduey",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0POBNdrQnVAwImVhMC1wFB:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166041821457742,
+        "eigenvalue_secondary": 0.017173720562867513,
+        "orientation_strength": 0.188766322919873,
+        "plan_area_evidence": 0.626534514095306,
+        "primary_angle_degrees": 39.81616724656259,
+        "primary_extent": 0.6020228125081175,
+        "secondary_angle_degrees": 129.8161672465626,
+        "secondary_extent": 0.47498732391093235,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6915561276887061,
+        "orientation_strength": 0.10144473728720671,
+        "primary_angle_degrees": 39.12461111887389
+      },
+      "source_id": "0POBNdrQnVAwImVhMC1wFB",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0U67vqghTP5wX5PuYyx6FS:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02040756329780705,
+        "eigenvalue_secondary": 0.011904312335999086,
+        "orientation_strength": 0.26316178788802586,
+        "plan_area_evidence": 0.4697356224877835,
+        "primary_angle_degrees": 16.800035451529208,
+        "primary_extent": 0.5786918043402665,
+        "secondary_angle_degrees": 106.80003545152921,
+        "secondary_extent": 0.46290582888364984,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.49402101449823,
+        "orientation_strength": 0.19479773824645955,
+        "primary_angle_degrees": 23.294056466027424
+      },
+      "source_id": "0U67vqghTP5wX5PuYyx6FS",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0V74e2PP1Rsg31UaEtiXNA:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856743045261904,
+        "eigenvalue_secondary": 0.03885672549962735,
+        "orientation_strength": 2.257734068281275e-07,
+        "plan_area_evidence": 1.5608753415107732,
+        "primary_angle_degrees": 107.25768259197753,
+        "primary_extent": 0.9757352638946242,
+        "secondary_angle_degrees": 17.257682591977527,
+        "secondary_extent": 0.9757357301935379,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 88.15368137693555,
+        "orientation_strength": 9.864383260309119e-06,
+        "primary_angle_degrees": 15.411363968913081
+      },
+      "source_id": "0V74e2PP1Rsg31UaEtiXNA",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0W5qQflNXGd8fzcDBUiGxD:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875300452092503,
+        "eigenvalue_secondary": 0.019151529164148057,
+        "orientation_strength": 0.0663900016994303,
+        "plan_area_evidence": 0.604382807813644,
+        "primary_angle_degrees": 129.16588550787773,
+        "primary_extent": 0.5084003622368369,
+        "secondary_angle_degrees": 39.16588550787773,
+        "secondary_extent": 0.4945790107463317,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.08879216533821932,
+        "orientation_strength": 0.045816251029827816,
+        "primary_angle_degrees": 129.0770933425395
+      },
+      "source_id": "0W5qQflNXGd8fzcDBUiGxD",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0dSLdCmVbJIgA9YQ2gsaZB:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885674558629596,
+        "eigenvalue_secondary": 0.038856720564895524,
+        "orientation_strength": 3.2196994514295643e-07,
+        "plan_area_evidence": 1.5608739785320769,
+        "primary_angle_degrees": 118.99741117233248,
+        "primary_extent": 1.0195587847410437,
+        "secondary_angle_degrees": 28.997411172332477,
+        "secondary_extent": 1.0195587847410401,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 36.85418473714307,
+        "orientation_strength": 1.028827477466833e-05,
+        "primary_angle_degrees": 155.85159590947555
+      },
+      "source_id": "0dSLdCmVbJIgA9YQ2gsaZB",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0hCng6P5rGePnhuxjjGnUb:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673557379465,
+        "eigenvalue_secondary": 0.03885672761697757,
+        "orientation_strength": 1.0238659755363025e-07,
+        "plan_area_evidence": 1.5608748903241154,
+        "primary_angle_degrees": 179.9999999899964,
+        "primary_extent": 0.7500000001309459,
+        "secondary_angle_degrees": 89.99999998999641,
+        "secondary_extent": 0.7500000001309468,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 23.960002962963642,
+        "orientation_strength": 1.032308078922685e-05,
+        "primary_angle_degrees": 156.03999702703277
+      },
+      "source_id": "0hCng6P5rGePnhuxjjGnUb",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0iD6I2UYDTovF7j8i$qHgq:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162262570596047,
+        "eigenvalue_secondary": 0.017168671865361446,
+        "orientation_strength": 0.18883567801528486,
+        "plan_area_evidence": 0.6263955057506564,
+        "primary_angle_degrees": 38.67283191822534,
+        "primary_extent": 0.6019762374397963,
+        "secondary_angle_degrees": 128.67283191822534,
+        "secondary_extent": 0.4751937120179912,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7289223333809431,
+        "orientation_strength": 0.1015229401539478,
+        "primary_angle_degrees": 37.9439095848444
+      },
+      "source_id": "0iD6I2UYDTovF7j8i$qHgq",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0jCvJn8PHTMPqZgAhxvAmw:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516209631994189,
+        "eigenvalue_secondary": 0.01716861107906135,
+        "orientation_strength": 0.18883419938001697,
+        "plan_area_evidence": 0.6263925218524934,
+        "primary_angle_degrees": 89.92217239699369,
+        "primary_extent": 0.6019760071438753,
+        "secondary_angle_degrees": 179.9221723969937,
+        "secondary_extent": 0.47519118702196295,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7289390611669688,
+        "orientation_strength": 0.10152007595558364,
+        "primary_angle_degrees": 89.19323333582672
+      },
+      "source_id": "0jCvJn8PHTMPqZgAhxvAmw",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0sEDic9P9VBhHEKQ1q5xBu:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166043791424862,
+        "eigenvalue_secondary": 0.01717366370134405,
+        "orientation_strength": 0.18876795715808395,
+        "plan_area_evidence": 0.6265340543355941,
+        "primary_angle_degrees": 39.81606258103732,
+        "primary_extent": 0.6020243118984219,
+        "secondary_angle_degrees": 129.81606258103733,
+        "secondary_extent": 0.4749877578308084,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6911714772943824,
+        "orientation_strength": 0.10144543641484328,
+        "primary_angle_degrees": 39.12489110374294
+      },
+      "source_id": "0sEDic9P9VBhHEKQ1q5xBu",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0w6woL6ofUShvTVj4i0JyT:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166045394874454,
+        "eigenvalue_secondary": 0.01717371895434373,
+        "orientation_strength": 0.18876643654910438,
+        "plan_area_evidence": 0.6265349815969461,
+        "primary_angle_degrees": 39.81634527596317,
+        "primary_extent": 0.6020225012256297,
+        "secondary_angle_degrees": 129.81634527596316,
+        "secondary_extent": 0.4749850723065965,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6914943381017054,
+        "orientation_strength": 0.10144518553819451,
+        "primary_angle_degrees": 39.12485093786147
+      },
+      "source_id": "0w6woL6ofUShvTVj4i0JyT",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0w73roT7HHwxarMGo0zq3s:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673557379465,
+        "eigenvalue_secondary": 0.03885672761697757,
+        "orientation_strength": 1.0238659755363025e-07,
+        "plan_area_evidence": 1.5608748903241154,
+        "primary_angle_degrees": 179.9999999899964,
+        "primary_extent": 0.7500000001309459,
+        "secondary_angle_degrees": 89.99999998999641,
+        "secondary_extent": 0.7500000001309466,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 23.960002962963642,
+        "orientation_strength": 1.032308078922685e-05,
+        "primary_angle_degrees": 156.03999702703277
+      },
+      "source_id": "0w73roT7HHwxarMGo0zq3s",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0x0NCWNN9V8QdgQG125jse:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856747468190164,
+        "eigenvalue_secondary": 0.03885670173797241,
+        "orientation_strength": 5.88446635973951e-07,
+        "plan_area_evidence": 1.5608750707550054,
+        "primary_angle_degrees": 82.55336338431825,
+        "primary_extent": 1.060236301152015,
+        "secondary_angle_degrees": 172.55336338431823,
+        "secondary_extent": 1.060236301152015,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 66.32668612572033,
+        "orientation_strength": 9.77755371723471e-06,
+        "primary_angle_degrees": 16.22667725859791
+      },
+      "source_id": "0x0NCWNN9V8QdgQG125jse",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:0xS$7fo$fGRxaMDzLI6z7g:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885676137250013,
+        "eigenvalue_secondary": 0.03885664837343439,
+        "orientation_strength": 1.4540484855469298e-06,
+        "plan_area_evidence": 1.560875045028686,
+        "primary_angle_degrees": 11.348376778052792,
+        "primary_extent": 1.0133658610893264,
+        "secondary_angle_degrees": 101.3483767780528,
+        "secondary_extent": 1.0133652862734532,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 3.4286253282674863,
+        "orientation_strength": 1.172762376382526e-05,
+        "primary_angle_degrees": 14.77700210632029
+      },
+      "source_id": "0xS$7fo$fGRxaMDzLI6z7g",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:11XWT5iajI2h1sIWaAReeo:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875291313403024,
+        "eigenvalue_secondary": 0.01915151548342349,
+        "orientation_strength": 0.06639014933500069,
+        "plan_area_evidence": 0.6043824075999267,
+        "primary_angle_degrees": 129.16635169515675,
+        "primary_extent": 0.5084047728970917,
+        "secondary_angle_degrees": 39.16635169515675,
+        "secondary_extent": 0.49457825341358586,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.09029497673364517,
+        "orientation_strength": 0.04581605944198368,
+        "primary_angle_degrees": 129.0760567184231
+      },
+      "source_id": "11XWT5iajI2h1sIWaAReeo",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1237jQAj5UE9PLBpobQjoN:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875281280909417,
+        "eigenvalue_secondary": 0.01915156648821026,
+        "orientation_strength": 0.06638859529318415,
+        "plan_area_evidence": 0.6043837605056772,
+        "primary_angle_degrees": 129.16642943664178,
+        "primary_extent": 0.508404788791891,
+        "secondary_angle_degrees": 39.16642943664178,
+        "secondary_extent": 0.4945790105230117,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.08970530778739771,
+        "orientation_strength": 0.0458172083285215,
+        "primary_angle_degrees": 129.07672412885438
+      },
+      "source_id": "1237jQAj5UE9PLBpobQjoN",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:13wnGtZG5ObxSPBX5CkcvE:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516223160552965,
+        "eigenvalue_secondary": 0.01716864647254143,
+        "orientation_strength": 0.18883579778916013,
+        "plan_area_evidence": 0.6263955077877036,
+        "primary_angle_degrees": 38.67294007526483,
+        "primary_extent": 0.6019777638406971,
+        "secondary_angle_degrees": 128.67294007526482,
+        "secondary_extent": 0.47519127526974003,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7288552045574832,
+        "orientation_strength": 0.10152353789023984,
+        "primary_angle_degrees": 37.94408487070735
+      },
+      "source_id": "13wnGtZG5ObxSPBX5CkcvE",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:19n9$I$V9RMgNGIMeMMZ_7:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856739642679744,
+        "eigenvalue_secondary": 0.03885671151634672,
+        "orientation_strength": 3.61923612995308e-07,
+        "plan_area_evidence": 1.560876527099607,
+        "primary_angle_degrees": 67.62477676989973,
+        "primary_extent": 1.0167238144065198,
+        "secondary_angle_degrees": 157.6247767698997,
+        "secondary_extent": 1.0167221942051494,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 51.211685475098434,
+        "orientation_strength": 1.040782853773987e-05,
+        "primary_angle_degrees": 16.413091294801287
+      },
+      "source_id": "19n9$I$V9RMgNGIMeMMZ_7",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1AnPhYZtrKbAGq$1tFyjfr:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856777147606644,
+        "eigenvalue_secondary": 0.03885667560258106,
+        "orientation_strength": 1.3066595548639827e-06,
+        "plan_area_evidence": 1.5608755690269467,
+        "primary_angle_degrees": 57.49402889800666,
+        "primary_extent": 0.9477306768364713,
+        "secondary_angle_degrees": 147.49402889800666,
+        "secondary_extent": 0.9477293284742174,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 39.074245659182466,
+        "orientation_strength": 1.0710720922397838e-05,
+        "primary_angle_degrees": 18.41978323882419
+      },
+      "source_id": "1AnPhYZtrKbAGq$1tFyjfr",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1HO56iMFPHkhJ8WYrxSQ5y:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.020407674246184674,
+        "eigenvalue_secondary": 0.011904319666787917,
+        "orientation_strength": 0.2631640313593534,
+        "plan_area_evidence": 0.4697372596102966,
+        "primary_angle_degrees": 16.800293942897024,
+        "primary_extent": 0.5786928297138214,
+        "secondary_angle_degrees": 106.80029394289703,
+        "secondary_extent": 0.4629073772554033,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.4937054054038015,
+        "orientation_strength": 0.19479912641459607,
+        "primary_angle_degrees": 23.29399934830083
+      },
+      "source_id": "1HO56iMFPHkhJ8WYrxSQ5y",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1Pz0fioT1UIewjqYqby48E:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166056524707606,
+        "eigenvalue_secondary": 0.017173715028182223,
+        "orientation_strength": 0.1887667600317952,
+        "plan_area_evidence": 0.626534857072832,
+        "primary_angle_degrees": 39.81621871674241,
+        "primary_extent": 0.6020231255668769,
+        "secondary_angle_degrees": 129.8162187167424,
+        "secondary_extent": 0.474987301141951,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6913895460993658,
+        "orientation_strength": 0.10144514703286067,
+        "primary_angle_degrees": 39.124829170643046
+      },
+      "source_id": "1Pz0fioT1UIewjqYqby48E",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1Vr6V$jtjSKw$0bocgNpRh:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02040769667209068,
+        "eigenvalue_secondary": 0.01190431871270627,
+        "orientation_strength": 0.2631645800523268,
+        "plan_area_evidence": 0.4697377478191836,
+        "primary_angle_degrees": 16.800222073848428,
+        "primary_extent": 0.578692652533519,
+        "secondary_angle_degrees": 106.80022207384843,
+        "secondary_extent": 0.46290707122142694,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493805471874822,
+        "orientation_strength": 0.19480011988867796,
+        "primary_angle_degrees": 23.29402754572324
+      },
+      "source_id": "1Vr6V$jtjSKw$0bocgNpRh",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1Vxc$gprbKoeAJAhhzt3nd:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856741565921074,
+        "eigenvalue_secondary": 0.038856684287838325,
+        "orientation_strength": 7.370423079009692e-07,
+        "plan_area_evidence": 1.5608746449069963,
+        "primary_angle_degrees": 152.01216140624274,
+        "primary_extent": 0.9823023151696404,
+        "secondary_angle_degrees": 62.01216140624274,
+        "secondary_extent": 0.9823016548515895,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 41.08905560499193,
+        "orientation_strength": 1.0229052262856492e-05,
+        "primary_angle_degrees": 13.10121701123468
+      },
+      "source_id": "1Vxc$gprbKoeAJAhhzt3nd",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1Wu7Fbm99HDB0sDai$WHft:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516604290441888,
+        "eigenvalue_secondary": 0.017173673744974603,
+        "orientation_strength": 0.1887676581689823,
+        "plan_area_evidence": 0.6265346659679407,
+        "primary_angle_degrees": 39.815901316015015,
+        "primary_extent": 0.6020224977811246,
+        "secondary_angle_degrees": 129.81590131601502,
+        "secondary_extent": 0.47498900426087776,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6910499339765366,
+        "orientation_strength": 0.10144457175847159,
+        "primary_angle_degrees": 39.12485138203848
+      },
+      "source_id": "1Wu7Fbm99HDB0sDai$WHft",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1XpdWfAq1JM97UV_GPC2C6:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162249006149932,
+        "eigenvalue_secondary": 0.01716862938216069,
+        "orientation_strength": 0.18883661120050438,
+        "plan_area_evidence": 0.6263952145729059,
+        "primary_angle_degrees": 38.67286754648305,
+        "primary_extent": 0.6019759328355967,
+        "secondary_angle_degrees": 128.67286754648305,
+        "secondary_extent": 0.4751922164782716,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7286997076464345,
+        "orientation_strength": 0.10152417840053764,
+        "primary_angle_degrees": 37.94416783883661
+      },
+      "source_id": "1XpdWfAq1JM97UV_GPC2C6",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1a0WsCSy5Q5ATeC63vCWBg:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02040752735728963,
+        "eigenvalue_secondary": 0.01190431282023275,
+        "orientation_strength": 0.26316094937149725,
+        "plan_area_evidence": 0.4697350332601082,
+        "primary_angle_degrees": 16.800072166226208,
+        "primary_extent": 0.5786900250903635,
+        "secondary_angle_degrees": 106.80007216622622,
+        "secondary_extent": 0.4629059852226174,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493925476905815,
+        "orientation_strength": 0.19479774534339472,
+        "primary_angle_degrees": 23.293997643132013
+      },
+      "source_id": "1a0WsCSy5Q5ATeC63vCWBg",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1bFTAtC2TSsullhNa50O_W:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885677714760662,
+        "eigenvalue_secondary": 0.03885667560258122,
+        "orientation_strength": 1.306659552635687e-06,
+        "plan_area_evidence": 1.5608755690269474,
+        "primary_angle_degrees": 57.49402886462153,
+        "primary_extent": 0.9477306765589724,
+        "secondary_angle_degrees": 147.49402886462153,
+        "secondary_extent": 0.9477293281967221,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 39.07424562833533,
+        "orientation_strength": 1.0710720921575723e-05,
+        "primary_angle_degrees": 18.419783236286197
+      },
+      "source_id": "1bFTAtC2TSsullhNa50O_W",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1bQXij4szOxPfoy6zZ5cOp:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162261203764247,
+        "eigenvalue_secondary": 0.0171686520423873,
+        "orientation_strength": 0.18883620853853594,
+        "plan_area_evidence": 0.6263957856225965,
+        "primary_angle_degrees": 38.67299649489292,
+        "primary_extent": 0.6019762397916963,
+        "secondary_angle_degrees": 128.6729964948929,
+        "secondary_extent": 0.47519206011199344,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7289308617810306,
+        "orientation_strength": 0.10152372038996073,
+        "primary_angle_degrees": 37.94406563311189
+      },
+      "source_id": "1bQXij4szOxPfoy6zZ5cOp",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1cAcWEhv1Ht9oROeBb8Vno:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02187526813327089,
+        "eigenvalue_secondary": 0.01915148944570457,
+        "orientation_strength": 0.06639029863188964,
+        "plan_area_evidence": 0.6043815356521602,
+        "primary_angle_degrees": 129.16543818233413,
+        "primary_extent": 0.5083971003925507,
+        "secondary_angle_degrees": 39.16543818233413,
+        "secondary_extent": 0.49457749658877503,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.08910378243851369,
+        "orientation_strength": 0.04581563578340701,
+        "primary_angle_degrees": 129.07633439989561
+      },
+      "source_id": "1cAcWEhv1Ht9oROeBb8Vno",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1dvep9mePPLwBAG42EO1tw:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885682168757155,
+        "eigenvalue_secondary": 0.03885666109987964,
+        "orientation_strength": 2.0664070911776226e-06,
+        "plan_area_evidence": 1.5608746956682216,
+        "primary_angle_degrees": 78.45160024493076,
+        "primary_extent": 1.0553746617247697,
+        "secondary_angle_degrees": 168.45160024493077,
+        "secondary_extent": 1.055372933280065,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 57.79326276435606,
+        "orientation_strength": 9.440830603524866e-06,
+        "primary_angle_degrees": 20.658337480574698
+      },
+      "source_id": "1dvep9mePPLwBAG42EO1tw",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1eTOOnWpHS9hYqq9YIqKLc:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02187524628659911,
+        "eigenvalue_secondary": 0.01915157928201892,
+        "orientation_strength": 0.06638746641571891,
+        "plan_area_evidence": 0.604383005393982,
+        "primary_angle_degrees": 129.16622925215938,
+        "primary_extent": 0.5084033489591473,
+        "secondary_angle_degrees": 39.16622925215938,
+        "secondary_extent": 0.4945790106103818,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.08872615655181448,
+        "orientation_strength": 0.045815487732788575,
+        "primary_angle_degrees": 129.07750309560757
+      },
+      "source_id": "1eTOOnWpHS9hYqq9YIqKLc",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1gdl$NIz5H4gBYH8z_VINb:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885677600834115,
+        "eigenvalue_secondary": 0.038856690684713306,
+        "orientation_strength": 1.0979258998578467e-06,
+        "plan_area_evidence": 1.5608759066843998,
+        "primary_angle_degrees": 70.13680185394249,
+        "primary_extent": 1.0289877394711233,
+        "secondary_angle_degrees": 160.13680185394247,
+        "secondary_extent": 1.0289871143333897,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 52.055837086540535,
+        "orientation_strength": 1.0192868043726983e-05,
+        "primary_angle_degrees": 18.080964767401955
+      },
+      "source_id": "1gdl$NIz5H4gBYH8z_VINb",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1i8516qIfLqOoKBoEXy1Lf:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885675705284733,
+        "eigenvalue_secondary": 0.038856704192966746,
+        "orientation_strength": 6.80189503074442e-07,
+        "plan_area_evidence": 1.5608751887760175,
+        "primary_angle_degrees": 126.79083455064159,
+        "primary_extent": 0.7805362808074889,
+        "secondary_angle_degrees": 36.79083455064159,
+        "secondary_extent": 0.7805362808074889,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 67.31014459552922,
+        "orientation_strength": 9.670482798522438e-06,
+        "primary_angle_degrees": 14.10097914617082
+      },
+      "source_id": "1i8516qIfLqOoKBoEXy1Lf",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1kPHxaaZPMlxYAipM6a$lP:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885676491475864,
+        "eigenvalue_secondary": 0.038856719105279984,
+        "orientation_strength": 5.894662840769948e-07,
+        "plan_area_evidence": 1.5608764283447272,
+        "primary_angle_degrees": 44.65585822086291,
+        "primary_extent": 0.8182197834480256,
+        "secondary_angle_degrees": 134.6558582208629,
+        "secondary_extent": 0.8182190970741221,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 28.23362362916038,
+        "orientation_strength": 1.0912282797426435e-05,
+        "primary_angle_degrees": 16.42223459170253
+      },
+      "source_id": "1kPHxaaZPMlxYAipM6a$lP",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1rwXYkREfTExLwzqWs8i$E:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875275415916533,
+        "eigenvalue_secondary": 0.01915154176824368,
+        "orientation_strength": 0.06638910436182803,
+        "plan_area_evidence": 0.6043824988913532,
+        "primary_angle_degrees": 129.16609955459361,
+        "primary_extent": 0.5084030995208124,
+        "secondary_angle_degrees": 39.166099554593615,
+        "secondary_extent": 0.4945779451328658,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.08951174257154548,
+        "orientation_strength": 0.04581553954319225,
+        "primary_angle_degrees": 129.07658781202207
+      },
+      "source_id": "1rwXYkREfTExLwzqWs8i$E",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1v4ElB$MbOng3zPXbYgloj:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673801478837,
+        "eigenvalue_secondary": 0.038856692329424944,
+        "orientation_strength": 5.87869602781015e-07,
+        "plan_area_evidence": 1.560874734283448,
+        "primary_angle_degrees": 160.39690106716242,
+        "primary_extent": 1.0301454575747293,
+        "secondary_angle_degrees": 70.39690106716242,
+        "secondary_extent": 1.030145457574731,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 33.313375506899376,
+        "orientation_strength": 1.036491479748672e-05,
+        "primary_angle_degrees": 13.710276574061792
+      },
+      "source_id": "1v4ElB$MbOng3zPXbYgloj",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:1xklkrXnXTxQ21xGCnUVkJ:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875241117653602,
+        "eigenvalue_secondary": 0.019151481944085693,
+        "orientation_strength": 0.06638987884723434,
+        "plan_area_evidence": 0.6043816032276158,
+        "primary_angle_degrees": 129.16551606126055,
+        "primary_extent": 0.5083977341880308,
+        "secondary_angle_degrees": 39.16551606126055,
+        "secondary_extent": 0.49457749656646044,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.08975267034503531,
+        "orientation_strength": 0.04581751526827295,
+        "primary_angle_degrees": 129.0757633909155
+      },
+      "source_id": "1xklkrXnXTxQ21xGCnUVkJ",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:21QCRvu_zTYg0DXjVoHAYF:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856738061157796,
+        "eigenvalue_secondary": 0.03885670943554715,
+        "orientation_strength": 3.6834822756203184e-07,
+        "plan_area_evidence": 1.560874991895677,
+        "primary_angle_degrees": 147.75787358068288,
+        "primary_extent": 0.9499145150149975,
+        "secondary_angle_degrees": 57.75787358068288,
+        "secondary_extent": 0.9499145150149992,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 46.529458123143115,
+        "orientation_strength": 1.0071489468659925e-05,
+        "primary_angle_degrees": 14.287331703825988
+      },
+      "source_id": "21QCRvu_zTYg0DXjVoHAYF",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:22Sg3wpBbKowEAN41vZsgT:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162088430267026,
+        "eigenvalue_secondary": 0.017168651414475853,
+        "orientation_strength": 0.18883291539691557,
+        "plan_area_evidence": 0.6263935364351287,
+        "primary_angle_degrees": 38.672697250766646,
+        "primary_extent": 0.6019741004264567,
+        "secondary_angle_degrees": 128.67269725076665,
+        "secondary_extent": 0.4751936081344761,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7287153486262383,
+        "orientation_strength": 0.10151919064795091,
+        "primary_angle_degrees": 37.94398190214041
+      },
+      "source_id": "22Sg3wpBbKowEAN41vZsgT",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:25vIkV3CrP9OpRvt8K7_K$:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516603156648281,
+        "eigenvalue_secondary": 0.017173663254457586,
+        "orientation_strength": 0.18876773547437936,
+        "plan_area_evidence": 0.626533743010043,
+        "primary_angle_degrees": 39.8161447531979,
+        "primary_extent": 0.6020235624342973,
+        "secondary_angle_degrees": 129.8161447531979,
+        "secondary_extent": 0.4749874977646069,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6914721090995855,
+        "orientation_strength": 0.10144534787302026,
+        "primary_angle_degrees": 39.12467264409831
+      },
+      "source_id": "25vIkV3CrP9OpRvt8K7_K$",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:27ueDW6OLT0PK99BkUY$Xg:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.020407587801185532,
+        "eigenvalue_secondary": 0.01190431587487096,
+        "orientation_strength": 0.2631622083169181,
+        "plan_area_evidence": 0.46973544321906496,
+        "primary_angle_degrees": 16.80010943907452,
+        "primary_extent": 0.5786921278738024,
+        "secondary_angle_degrees": 106.80010943907452,
+        "secondary_extent": 0.46290642619751976,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493923301905312,
+        "orientation_strength": 0.1947976170800977,
+        "primary_angle_degrees": 23.294032740979823
+      },
+      "source_id": "27ueDW6OLT0PK99BkUY$Xg",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2HqMVWajrGTeZF8jf5A5Wi:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875215449981958,
+        "eigenvalue_secondary": 0.01915148525049644,
+        "orientation_strength": 0.06638920880746715,
+        "plan_area_evidence": 0.6043810191631331,
+        "primary_angle_degrees": 129.165733219718,
+        "primary_extent": 0.5083998800407352,
+        "secondary_angle_degrees": 39.16573321971799,
+        "secondary_extent": 0.4945774964994101,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.09075750917801884,
+        "orientation_strength": 0.04581638225156185,
+        "primary_angle_degrees": 129.07497571053997
+      },
+      "source_id": "2HqMVWajrGTeZF8jf5A5Wi",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2MUflxzkTGrg9kXrDrvCI5:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885674558629596,
+        "eigenvalue_secondary": 0.03885672056489554,
+        "orientation_strength": 3.2196994508350673e-07,
+        "plan_area_evidence": 1.5608739785320769,
+        "primary_angle_degrees": 118.99741117839511,
+        "primary_extent": 1.0195587847719825,
+        "secondary_angle_degrees": 28.99741117839511,
+        "secondary_extent": 1.0195587847719807,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 36.85418473108081,
+        "orientation_strength": 1.0288274774668176e-05,
+        "primary_angle_degrees": 155.85159590947592
+      },
+      "source_id": "2MUflxzkTGrg9kXrDrvCI5",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2RVjyT9STN7wSpVJJhti2o:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166025595361324,
+        "eigenvalue_secondary": 0.017173697504894246,
+        "orientation_strength": 0.18876665942151216,
+        "plan_area_evidence": 0.6265342046546948,
+        "primary_angle_degrees": 39.816473944960364,
+        "primary_extent": 0.6020228148785769,
+        "secondary_angle_degrees": 129.81647394496036,
+        "secondary_extent": 0.4749837027524819,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6919339809326814,
+        "orientation_strength": 0.10144458290414922,
+        "primary_angle_degrees": 39.12453996402768
+      },
+      "source_id": "2RVjyT9STN7wSpVJJhti2o",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2UVLsJ$unGRhwr6jdWKxIj:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516590371961585,
+        "eigenvalue_secondary": 0.01717369074321199,
+        "orientation_strength": 0.18876451411032402,
+        "plan_area_evidence": 0.6265327654895779,
+        "primary_angle_degrees": 39.81619134213267,
+        "primary_extent": 0.6020203745158916,
+        "secondary_angle_degrees": 129.81619134213267,
+        "secondary_extent": 0.4749867626234492,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.691589374502982,
+        "orientation_strength": 0.10144305462048982,
+        "primary_angle_degrees": 39.12460196762969
+      },
+      "source_id": "2UVLsJ$unGRhwr6jdWKxIj",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2VwiZXq6TJRf2qs_moVA$b:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885674938359862,
+        "eigenvalue_secondary": 0.03885670148050349,
+        "orientation_strength": 6.164067430059513e-07,
+        "plan_area_evidence": 1.5608746081047067,
+        "primary_angle_degrees": 17.792457214710485,
+        "primary_extent": 0.9718108838980903,
+        "secondary_angle_degrees": 107.79245721471048,
+        "secondary_extent": 0.9718121121594034,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 2.595417139313607,
+        "orientation_strength": 1.0935152186484983e-05,
+        "primary_angle_degrees": 15.197040075396878
+      },
+      "source_id": "2VwiZXq6TJRf2qs_moVA$b",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2X0WCX5XzVzxWlVAGXvq4J:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162096319941887,
+        "eigenvalue_secondary": 0.017168611079061355,
+        "orientation_strength": 0.1888341993800168,
+        "plan_area_evidence": 0.6263925218524934,
+        "primary_angle_degrees": 89.9221723969937,
+        "primary_extent": 0.6019760071438736,
+        "secondary_angle_degrees": 179.9221723969937,
+        "secondary_extent": 0.47519118702196295,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7289390611669688,
+        "orientation_strength": 0.10152007595558356,
+        "primary_angle_degrees": 89.19323333582673
+      },
+      "source_id": "2X0WCX5XzVzxWlVAGXvq4J",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2ZxN9$JEnHU9MXAvvUJr48:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885674558629596,
+        "eigenvalue_secondary": 0.038856720564895524,
+        "orientation_strength": 3.2196994514295643e-07,
+        "plan_area_evidence": 1.5608739785320769,
+        "primary_angle_degrees": 118.99741117233248,
+        "primary_extent": 1.0195587847410437,
+        "secondary_angle_degrees": 28.997411172332477,
+        "secondary_extent": 1.0195587847410401,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 36.85472812331531,
+        "orientation_strength": 1.0287601399468655e-05,
+        "primary_angle_degrees": 155.8521392956478
+      },
+      "source_id": "2ZxN9$JEnHU9MXAvvUJr48",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2_2WrhfCzI3PPTghrQu0OV:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162096319941887,
+        "eigenvalue_secondary": 0.017168611079061355,
+        "orientation_strength": 0.1888341993800168,
+        "plan_area_evidence": 0.6263925218524934,
+        "primary_angle_degrees": 89.92217239699369,
+        "primary_extent": 0.6019760071438753,
+        "secondary_angle_degrees": 179.9221723969937,
+        "secondary_extent": 0.47519118702196295,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.728939061166983,
+        "orientation_strength": 0.10152007595558324,
+        "primary_angle_degrees": 89.1932333358267
+      },
+      "source_id": "2_2WrhfCzI3PPTghrQu0OV",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2ap$jWdHDI68VzexKAfHea:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875294238650252,
+        "eigenvalue_secondary": 0.0191515857741594,
+        "orientation_strength": 0.0663883888718918,
+        "plan_area_evidence": 0.6043834592657088,
+        "primary_angle_degrees": 129.16662049710584,
+        "primary_extent": 0.508407955773964,
+        "secondary_angle_degrees": 39.16662049710584,
+        "secondary_extent": 0.49457870204642873,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.09004125355440351,
+        "orientation_strength": 0.04581708772549044,
+        "primary_angle_degrees": 129.07657924355144
+      },
+      "source_id": "2ap$jWdHDI68VzexKAfHea",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2gPT0Yn81HPQKhp2IRlcj9:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885676527478206,
+        "eigenvalue_secondary": 0.03885672716761843,
+        "orientation_strength": 4.903545372986304e-07,
+        "plan_area_evidence": 1.5608755290145864,
+        "primary_angle_degrees": 53.377588511659354,
+        "primary_extent": 0.9110992629936678,
+        "secondary_angle_degrees": 143.37758851165935,
+        "secondary_extent": 0.9110991623855877,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 37.236539150577066,
+        "orientation_strength": 1.0336528731250333e-05,
+        "primary_angle_degrees": 16.14104936108229
+      },
+      "source_id": "2gPT0Yn81HPQKhp2IRlcj9",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2hmwMzEgjGh9PGOVyrF19v:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162198082109188,
+        "eigenvalue_secondary": 0.017168663564461045,
+        "orientation_strength": 0.18883467538147314,
+        "plan_area_evidence": 0.6263942567081439,
+        "primary_angle_degrees": 38.672841877900794,
+        "primary_extent": 0.6019762375822673,
+        "secondary_angle_degrees": 128.6728418779008,
+        "secondary_extent": 0.47519203345105954,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7287593208416681,
+        "orientation_strength": 0.10152403066647055,
+        "primary_angle_degrees": 37.944082557059126
+      },
+      "source_id": "2hmwMzEgjGh9PGOVyrF19v",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2iM0Cs1pvILxzhfIX9MMzJ:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166013398856962,
+        "eigenvalue_secondary": 0.01717373786835885,
+        "orientation_strength": 0.1887652924566571,
+        "plan_area_evidence": 0.6265350966405857,
+        "primary_angle_degrees": 39.816403967948034,
+        "primary_extent": 0.6020225016782987,
+        "secondary_angle_degrees": 129.81640396794802,
+        "secondary_extent": 0.47498461866610686,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6917237887151089,
+        "orientation_strength": 0.1014446861078049,
+        "primary_angle_degrees": 39.124680179232925
+      },
+      "source_id": "2iM0Cs1pvILxzhfIX9MMzJ",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2ibEc7IqvIWPntZKg9RMeE:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.020407587801185532,
+        "eigenvalue_secondary": 0.01190431587487096,
+        "orientation_strength": 0.2631622083169181,
+        "plan_area_evidence": 0.46973544321906496,
+        "primary_angle_degrees": 16.80010943907452,
+        "primary_extent": 0.5786921278738006,
+        "secondary_angle_degrees": 106.80010943907452,
+        "secondary_extent": 0.46290642619751954,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493923301905227,
+        "orientation_strength": 0.19479761708009866,
+        "primary_angle_degrees": 23.294032740979763
+      },
+      "source_id": "2ibEc7IqvIWPntZKg9RMeE",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2jAIzcMA1G1xdS3wWCzooM:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885674558629596,
+        "eigenvalue_secondary": 0.03885672056489554,
+        "orientation_strength": 3.2196994508350673e-07,
+        "plan_area_evidence": 1.5608739785320769,
+        "primary_angle_degrees": 118.99741117839511,
+        "primary_extent": 1.0195587847719825,
+        "secondary_angle_degrees": 28.99741117839511,
+        "secondary_extent": 1.0195587847719807,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 36.85418473029131,
+        "orientation_strength": 1.0288274774451107e-05,
+        "primary_angle_degrees": 155.85159590868642
+      },
+      "source_id": "2jAIzcMA1G1xdS3wWCzooM",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2jKGGwRhXV$AHHqu9do2Di:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673104032971,
+        "eigenvalue_secondary": 0.03885673104032971,
+        "orientation_strength": 0.0,
+        "plan_area_evidence": 1.5608752322463997,
+        "primary_angle_degrees": 0.0,
+        "primary_extent": 0.75,
+        "secondary_angle_degrees": 90.0,
+        "secondary_extent": 0.75,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 23.971550030342684,
+        "orientation_strength": 1.0318564649164294e-05,
+        "primary_angle_degrees": 156.02844996965732
+      },
+      "source_id": "2jKGGwRhXV$AHHqu9do2Di",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2kADoDx1PN_hE1YcPUpG7V:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673557379465,
+        "eigenvalue_secondary": 0.03885672761697757,
+        "orientation_strength": 1.0238659755363025e-07,
+        "plan_area_evidence": 1.5608748903241154,
+        "primary_angle_degrees": 179.9999999899964,
+        "primary_extent": 0.7500000001309459,
+        "secondary_angle_degrees": 89.99999998999641,
+        "secondary_extent": 0.7500000001309466,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 23.960002962963642,
+        "orientation_strength": 1.032308078922685e-05,
+        "primary_angle_degrees": 156.03999702703277
+      },
+      "source_id": "2kADoDx1PN_hE1YcPUpG7V",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2qUGePwbPPzOw$E8jFuZip:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162141768102955,
+        "eigenvalue_secondary": 0.01716866891668639,
+        "orientation_strength": 0.18883344594883572,
+        "plan_area_evidence": 0.6263941660590172,
+        "primary_angle_degrees": 38.672806771137445,
+        "primary_extent": 0.6019759319666207,
+        "secondary_angle_degrees": 128.67280677113746,
+        "secondary_extent": 0.47519352496333944,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7287870208744138,
+        "orientation_strength": 0.1015209594135907,
+        "primary_angle_degrees": 37.94401975026303
+      },
+      "source_id": "2qUGePwbPPzOw$E8jFuZip",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2qp3SozszTERSewJdvrr$L:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02040766512787834,
+        "eigenvalue_secondary": 0.011904321647558636,
+        "orientation_strength": 0.2631637459936013,
+        "plan_area_evidence": 0.46973680459272843,
+        "primary_angle_degrees": 16.800227020644847,
+        "primary_extent": 0.5786935996101956,
+        "secondary_angle_degrees": 106.80022702064485,
+        "secondary_extent": 0.46290709228598104,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493935951941978,
+        "orientation_strength": 0.1947993988077756,
+        "primary_angle_degrees": 23.294162972586836
+      },
+      "source_id": "2qp3SozszTERSewJdvrr$L",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2rXFrjf1vQQelll1Rj$7q9:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162235038419994,
+        "eigenvalue_secondary": 0.01716866757620454,
+        "orientation_strength": 0.1888352708891643,
+        "plan_area_evidence": 0.6263952763833998,
+        "primary_angle_degrees": 38.67285168611156,
+        "primary_extent": 0.6019773052645245,
+        "secondary_angle_degrees": 128.67285168611156,
+        "secondary_extent": 0.4751925679493203,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7287013283211579,
+        "orientation_strength": 0.10152277878580197,
+        "primary_angle_degrees": 37.9441503577904
+      },
+      "source_id": "2rXFrjf1vQQelll1Rj$7q9",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:2yrL$M3P1JTA55WN_T5ZDj:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875240290591486,
+        "eigenvalue_secondary": 0.019151542448720228,
+        "orientation_strength": 0.06638828735799021,
+        "plan_area_evidence": 0.6043819187307359,
+        "primary_angle_degrees": 129.1662345433351,
+        "primary_extent": 0.5084038195029601,
+        "secondary_angle_degrees": 39.166234543335094,
+        "secondary_extent": 0.49457825346281936,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.0909270562720792,
+        "orientation_strength": 0.04581454062409071,
+        "primary_angle_degrees": 129.07530748706301
+      },
+      "source_id": "2yrL$M3P1JTA55WN_T5ZDj",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:36AP0KOTXUgQp7KOIr7JFF:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673104032971,
+        "eigenvalue_secondary": 0.03885673104032971,
+        "orientation_strength": 7.150490169385865e-18,
+        "plan_area_evidence": 1.5608752322463997,
+        "primary_angle_degrees": 0.0,
+        "primary_extent": 0.75,
+        "secondary_angle_degrees": 90.0,
+        "secondary_extent": 0.75,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 23.971550030060826,
+        "orientation_strength": 1.0318564649184655e-05,
+        "primary_angle_degrees": 156.02844996993917
+      },
+      "source_id": "36AP0KOTXUgQp7KOIr7JFF",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3C84K3dSrP5vaUjO5LIkX0:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.020407527357289634,
+        "eigenvalue_secondary": 0.011904312820232747,
+        "orientation_strength": 0.2631609493714975,
+        "plan_area_evidence": 0.4697350332601082,
+        "primary_angle_degrees": 16.800072166226204,
+        "primary_extent": 0.5786900250903635,
+        "secondary_angle_degrees": 106.8000721662262,
+        "secondary_extent": 0.4629059852226174,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493925476905815,
+        "orientation_strength": 0.19479774534339472,
+        "primary_angle_degrees": 23.293997643132013
+      },
+      "source_id": "3C84K3dSrP5vaUjO5LIkX0",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3F0ZbQ6RHObgHU1ANRdFT5:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516226554062767,
+        "eigenvalue_secondary": 0.017168659382384724,
+        "orientation_strength": 0.1888360855044152,
+        "plan_area_evidence": 0.6263958765926375,
+        "primary_angle_degrees": 38.67306635409479,
+        "primary_extent": 0.6019762407885239,
+        "secondary_angle_degrees": 128.6730663540948,
+        "secondary_extent": 0.47519190194291383,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.728891209317176,
+        "orientation_strength": 0.10152335360369229,
+        "primary_angle_degrees": 37.94417514477762
+      },
+      "source_id": "3F0ZbQ6RHObgHU1ANRdFT5",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3FY5fdJfnKcuSaVccPsxGB:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856731040329925,
+        "eigenvalue_secondary": 0.0388567310403297,
+        "orientation_strength": 2.767933704946301e-15,
+        "plan_area_evidence": 1.5608752322463997,
+        "primary_angle_degrees": 0.0,
+        "primary_extent": 0.75,
+        "secondary_angle_degrees": 90.0,
+        "secondary_extent": 0.75,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 23.971550036921826,
+        "orientation_strength": 1.0318564646873644e-05,
+        "primary_angle_degrees": 156.02844996307817
+      },
+      "source_id": "3FY5fdJfnKcuSaVccPsxGB",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3FoNeRPyfSEPytvBOjbcQC:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.020407693306655504,
+        "eigenvalue_secondary": 0.011904323104599083,
+        "orientation_strength": 0.2631643316167237,
+        "plan_area_evidence": 0.4697378091790691,
+        "primary_angle_degrees": 16.800190330730796,
+        "primary_extent": 0.5786925742762428,
+        "secondary_angle_degrees": 106.8001903307308,
+        "secondary_extent": 0.4629069360521245,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493729351858008,
+        "orientation_strength": 0.1948003881390516,
+        "primary_angle_degrees": 23.293919682588808
+      },
+      "source_id": "3FoNeRPyfSEPytvBOjbcQC",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3FyxehNbTTmBiKrL_htP$Y:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856745586295996,
+        "eigenvalue_secondary": 0.03885672056489546,
+        "orientation_strength": 3.219699463718908e-07,
+        "plan_area_evidence": 1.5608739785320735,
+        "primary_angle_degrees": 118.99741108140725,
+        "primary_extent": 1.019558784277013,
+        "secondary_angle_degrees": 28.99741108140725,
+        "secondary_extent": 1.019558784277013,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 36.854184828169224,
+        "orientation_strength": 1.028827477476146e-05,
+        "primary_angle_degrees": 155.85159590957647
+      },
+      "source_id": "3FyxehNbTTmBiKrL_htP$Y",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3Gf7ZyiOrLARShl_LbXK_t:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885671445040147,
+        "eigenvalue_secondary": 0.038856644228333126,
+        "orientation_strength": 9.036035700193685e-07,
+        "plan_area_evidence": 1.560873881376386,
+        "primary_angle_degrees": 94.3447482104089,
+        "primary_extent": 0.804662760879508,
+        "secondary_angle_degrees": 4.344748210408909,
+        "secondary_extent": 0.8046618611053269,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 58.832450032528826,
+        "orientation_strength": 9.449188744687926e-06,
+        "primary_angle_degrees": 153.17719824293772
+      },
+      "source_id": "3Gf7ZyiOrLARShl_LbXK_t",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3KyiHww3fHxQIVTwaFElc0:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025162251931109828,
+        "eigenvalue_secondary": 0.01716864242364514,
+        "orientation_strength": 0.1888363009879752,
+        "plan_area_evidence": 0.6263950996170068,
+        "primary_angle_degrees": 38.6729540837228,
+        "primary_extent": 0.6019759340717385,
+        "secondary_angle_degrees": 128.6729540837228,
+        "secondary_extent": 0.4751927687814037,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7292137247490871,
+        "orientation_strength": 0.10152421868625776,
+        "primary_angle_degrees": 37.94374035897371
+      },
+      "source_id": "3KyiHww3fHxQIVTwaFElc0",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3OLlHrz$HKEOZBMZRUg6wV:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673988898958,
+        "eigenvalue_secondary": 0.03885671843099489,
+        "orientation_strength": 2.7611684194338394e-07,
+        "plan_area_evidence": 1.5608750578823087,
+        "primary_angle_degrees": 141.5892812807635,
+        "primary_extent": 0.8937098228420393,
+        "secondary_angle_degrees": 51.58928128076349,
+        "secondary_extent": 0.893709822842041,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 52.787591105351794,
+        "orientation_strength": 9.718171751352619e-06,
+        "primary_angle_degrees": 14.37687238611528
+      },
+      "source_id": "3OLlHrz$HKEOZBMZRUg6wV",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3UXfDyKAHRreTSwe9OyZoO:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02516208918426206,
+        "eigenvalue_secondary": 0.017168619184596213,
+        "orientation_strength": 0.18883383500254525,
+        "plan_area_evidence": 0.6263926144037254,
+        "primary_angle_degrees": 89.92213853279812,
+        "primary_extent": 0.6019750300988829,
+        "secondary_angle_degrees": 179.9221385327981,
+        "secondary_extent": 0.4751914484865267,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.7288100388480103,
+        "orientation_strength": 0.10152015871256352,
+        "primary_angle_degrees": 89.1933284939501
+      },
+      "source_id": "3UXfDyKAHRreTSwe9OyZoO",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3jYt4R3DXGSxTqsLV$WH08:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885674893514086,
+        "eigenvalue_secondary": 0.03885672339524001,
+        "orientation_strength": 3.286418697390481e-07,
+        "plan_area_evidence": 1.5608763535671235,
+        "primary_angle_degrees": 66.51829806189572,
+        "primary_extent": 1.0106998545525876,
+        "secondary_angle_degrees": 156.51829806189573,
+        "secondary_extent": 1.0106998545525876,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 50.60490779338819,
+        "orientation_strength": 1.0145700460790037e-05,
+        "primary_angle_degrees": 15.913390268507525
+      },
+      "source_id": "3jYt4R3DXGSxTqsLV$WH08",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3miUTgtMTUvBOE2iC8H5ax:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.038856745586295996,
+        "eigenvalue_secondary": 0.03885672056489546,
+        "orientation_strength": 3.219699463949587e-07,
+        "plan_area_evidence": 1.5608739785320735,
+        "primary_angle_degrees": 118.99741107332144,
+        "primary_extent": 1.0195587842357483,
+        "secondary_angle_degrees": 28.997411073321445,
+        "secondary_extent": 1.0195587842357483,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 36.854184836069976,
+        "orientation_strength": 1.0288274774702236e-05,
+        "primary_angle_degrees": 155.85159590939142
+      },
+      "source_id": "3miUTgtMTUvBOE2iC8H5ax",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3mx3VsLXjPkfz04mAwF39c:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885673104032973,
+        "eigenvalue_secondary": 0.0388567310403297,
+        "orientation_strength": 2.6795997420675404e-16,
+        "plan_area_evidence": 1.5608752322463997,
+        "primary_angle_degrees": 0.0,
+        "primary_extent": 0.75,
+        "secondary_angle_degrees": 90.0,
+        "secondary_extent": 0.75,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 23.971550030089702,
+        "orientation_strength": 1.031856464906329e-05,
+        "primary_angle_degrees": 156.0284499699103
+      },
+      "source_id": "3mx3VsLXjPkfz04mAwF39c",
+      "type_ref": "ifc-type:02iimVgufPifzwCxP5ELBn"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3q0OAtWQzV1gahoZ5hiGmq:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.021875298967725085,
+        "eigenvalue_secondary": 0.01915154037185243,
+        "orientation_strength": 0.0663896766048249,
+        "plan_area_evidence": 0.6043835197429662,
+        "primary_angle_degrees": 129.1654673965825,
+        "primary_extent": 0.5083975763275985,
+        "secondary_angle_degrees": 39.1654673965825,
+        "secondary_extent": 0.494578253734101,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.08867013234888077,
+        "orientation_strength": 0.04581822241774523,
+        "primary_angle_degrees": 129.07679726423362
+      },
+      "source_id": "3q0OAtWQzV1gahoZ5hiGmq",
+      "type_ref": "ifc-type:1Z_XZ4eTTLlw6drBRHfIcZ"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3rSmS1kQDS0hhVcw4QjxvH:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02040766512787834,
+        "eigenvalue_secondary": 0.011904321647558636,
+        "orientation_strength": 0.2631637459936013,
+        "plan_area_evidence": 0.46973680459272843,
+        "primary_angle_degrees": 16.800227020644847,
+        "primary_extent": 0.5786935996101956,
+        "secondary_angle_degrees": 106.80022702064485,
+        "secondary_extent": 0.46290709228598104,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493935951942035,
+        "orientation_strength": 0.1947993988077748,
+        "primary_angle_degrees": 23.294162972586875
+      },
+      "source_id": "3rSmS1kQDS0hhVcw4QjxvH",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3xSmd88OvVSRqa8c5cy7Kt:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.02040769667209068,
+        "eigenvalue_secondary": 0.01190431871270627,
+        "orientation_strength": 0.2631645800523268,
+        "plan_area_evidence": 0.4697377478191836,
+        "primary_angle_degrees": 16.800222073848428,
+        "primary_extent": 0.578692652533519,
+        "secondary_angle_degrees": 106.80022207384843,
+        "secondary_extent": 0.46290707122142694,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 6.493805471874623,
+        "orientation_strength": 0.19480011988867882,
+        "primary_angle_degrees": 23.29402754572306
+      },
+      "source_id": "3xSmd88OvVSRqa8c5cy7Kt",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3xdpqtA7jOVflxwRHs0EML:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.03885676327321982,
+        "eigenvalue_secondary": 0.038856696216205695,
+        "orientation_strength": 8.628751643022076e-07,
+        "plan_area_evidence": 1.5608758178920734,
+        "primary_angle_degrees": 57.079124692829744,
+        "primary_extent": 0.9442575976973657,
+        "secondary_angle_degrees": 147.07912469282974,
+        "secondary_extent": 0.9442563680754308,
+        "triangle_count": 96,
+        "vertex_count": 52
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 39.45673724219927,
+        "orientation_strength": 1.0727138971035555e-05,
+        "primary_angle_degrees": 17.622387450630473
+      },
+      "source_id": "3xdpqtA7jOVflxwRHs0EML",
+      "type_ref": "ifc-type:3b6Z$89zXUAOfOQkOrShWd"
+    },
+    {
+      "analysis_frame": {
+        "analysis_mesh_id": "ifc-mesh:3zZmCwtljOLABzOcNao1jH:analysis",
+        "basis": "analysis_masspatch_area_weighted_pca",
+        "eigenvalue_primary": 0.025166028491990528,
+        "eigenvalue_secondary": 0.017173723777834587,
+        "orientation_strength": 0.18876597725990785,
+        "plan_area_evidence": 0.6265346321697234,
+        "primary_angle_degrees": 39.8164479742034,
+        "primary_extent": 0.6020225020172809,
+        "secondary_angle_degrees": 129.8164479742034,
+        "secondary_extent": 0.4749842785338316,
+        "triangle_count": 792,
+        "vertex_count": 412
+      },
+      "body_cross_check": {
+        "angle_delta_degrees": 0.6916217984778115,
+        "orientation_strength": 0.10144409217712692,
+        "primary_angle_degrees": 39.12482617572559
+      },
+      "source_id": "3zZmCwtljOLABzOcNao1jH",
+      "type_ref": "ifc-type:0CQNbVpWbIHAOwE_PGaqiM"
+    }
+  ],
+  "missing_analysis": [],
+  "missing_geometry": [],
+  "scene": {
+    "analysis_domain_available": false,
+    "authored_affordance_count": 0,
+    "formal_furniture_count": 93,
+    "frame_result_count": 93
+  },
+  "source": {
+    "path": "outputs\\full-rhino-ifc-2026-09-21\\live-rhino-10500-full.ifc",
+    "schema": "IFC4"
+  },
+  "status": "passed",
+  "summary": {
+    "analysis_missing_count": 0,
+    "geometry_missing_count": 0,
+    "orientation_strength_max": 0.2631645800523268,
+    "orientation_strength_mean": 0.10617231335339662,
+    "orientation_strength_median": 0.06638987884723434,
+    "orientation_strength_min": 0.0
+  }
+}

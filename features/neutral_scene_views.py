@@ -749,20 +749,12 @@ def _source_record(
     facts = _source_facts(source)
     group = _text_fact(facts, "group") or group_by_member.get(source.id) or source.id
     region = _text_fact(facts, "region") or group
+    # Terminal projected geometry is authoritative for Neutral Scene analysis;
+    # authored local orientation is retained only as audit provenance.
     authored_orientation = _authored_orientation(source)
-    if authored_orientation is None:
-        frame = _geometry_frame(hull)
-        orientation = frame["angle"]
-        frame_source = "projected_geometry_pca"
-    else:
-        primary_extent, secondary_extent = _frame_extents(hull, authored_orientation)
-        frame = {
-            "angle": authored_orientation,
-            "primary_extent": primary_extent,
-            "secondary_extent": secondary_extent,
-        }
-        orientation = authored_orientation
-        frame_source = "authored_local_frame"
+    frame = _geometry_frame(hull)
+    orientation = frame["angle"]
+    frame_source = "terminal_projected_analysis_geometry"
     metadata = {
         **facts,
         "role": _text_fact(facts, "role") or role,
@@ -772,6 +764,11 @@ def _source_record(
         "frame-primary-extent": str(round(frame["primary_extent"], 8)),
         "frame-secondary-extent": str(round(frame["secondary_extent"], 8)),
         "frame-source": frame_source,
+        "historical-orientation": (
+            str(round(authored_orientation, 8))
+            if authored_orientation is not None
+            else None
+        ),
         "geometry-view": "neutral_scene_plan_projection",
     }
     record = {

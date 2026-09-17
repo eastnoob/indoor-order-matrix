@@ -90,6 +90,15 @@ may supply the same value through `AnalysisContext`.
 
 Activity groups are first-class inference evidence between individual furniture extents and activity region candidates. A group affordance extent is a union envelope of member furniture affordance extents. Pairwise overlaps/intersections are relation evidence, not the definition of the group extent.
 
+An authored IFC `IfcGroup` with `ObjectType = furniture_group` is a factual
+FurnitureGroup membership declaration. It is created only from the explicit
+Rhino `OM.Role = furniture_group` marker on an outer Block container and has
+no product geometry of its own. It is distinct from inferred activity groups,
+activity regions, paths, trends, and evaluation values. Block Definition User
+Text supplies reusable defaults and Block Instance User Text overrides them;
+names, layers, proximity, geometry, and ordinary Rhino groups never infer this
+relationship.
+
 Spatial networks use one shared evidence schema for different scopes. `region_internal` networks describe relationships inside one activity group, while `inter_region` networks describe gap-path connectivity between activity region candidates.
 
 Boundary semantics are derived evidence from measured geometry, surface facts, openings, permeability observations, and spatial relations. They keep physical continuity, walk permeability, visual permeability, and Gestalt continuity separate and do not collapse them into a boundary weight or grouping strength.
@@ -129,6 +138,29 @@ tag. Missing runtime Blender execution must remain an explicit verification
 limitation rather than being inferred from a successful Python manifest build.
 
 ## Region Trend Frame Rule
+
+Terminal furniture and furniture-group direction is derived from final
+world-space `Analysis` `MassPatch` plan geometry in the analysis coordinate
+system. Member terminal frames are recomputed from that geometry for group
+trend and coherence; authored local orientation, placement rotation, block
+axes, and transform history remain provenance-only audit fields and must not
+affect trend, strength, clarity, coherence, or column-grid alignment. When
+terminal geometry is unavailable, the adapter exposes an explicit uncertainty
+or documented geometry fallback rather than fabricating a historical direction.
+
+### Single-Furniture Frame Rule
+
+Single-furniture orientation is a description-layer fact, separate from group
+or region trend. Compute it from the furniture's authored or imported
+`Analysis` `MassPatch` plan projection; use `Body` only as an audit comparison.
+Use area-weighted 2D PCA over the MassPatch triangles so tessellation density
+does not become a hidden weight. Report a primary axis, its orthogonal
+secondary axis, both extents, eigenvalues, and the continuous orientation
+strength `(lambda_primary - lambda_secondary) / (lambda_primary +
+lambda_secondary)`. A square or circular proxy may retain a deterministic
+angle for rendering, but its near-zero strength states that the direction is
+not informative. Furniture count, group membership, affordance, and region
+membership must not affect this single-object strength.
 
 Region trend is a two-axis frame inferred from activity-group frame evidence. The raw activity-group/frame angle remains auditable as `axis-original-angle` when a later correction is applied.
 

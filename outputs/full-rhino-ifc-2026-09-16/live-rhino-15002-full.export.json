@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "target": "outputs\\full-rhino-ifc-2026-09-16\\live-rhino-15002-full.ifc",
+  "schema": "IFC4",
+  "furniture_count": 0,
+  "furniture_type_count": 1,
+  "entity_counts": {
+    "IfcBuildingElementProxy": 329,
+    "IfcFurnishingElement": 27
+  },
+  "untyped_count": 143,
+  "review_count": 186,
+  "geometry_skipped_count": 5,
+  "group_count": 1,
+  "grid_count": 0,
+  "mesh_representation_count": 0,
+  "proxy_object_count": 0,
+  "substitute_mode": "representation",
+  "analysis_representation_count": 0,
+  "analysis_representation_bindings": [],
+  "proxy_bindings": [],
+  "source_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\test\\output\\testRoom-0916.3dm",
+  "source_object_count": 361,
+  "excluded_source_facts": {},
+  "import_status": "not_run"
+}
