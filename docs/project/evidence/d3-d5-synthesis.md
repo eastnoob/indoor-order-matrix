@@ -2,7 +2,7 @@
 
 ## 结论摘要
 
-本轮形成 24 条证据记录：18 条官方文档核验、3 条全文来源（含 2 条开放全文实验和 1 条空间统计原文）、1 条摘要级来源、2 条不可访问/缺失来源。证据能支撑 IFC4 对象、放置、几何表示、群组、网格和区域实体的事实边界，以及常用几何库的算法行为；不能支撑“家具布局指标具有心理感知效度”。
+本轮形成 32 条证据记录：20 条官方文档核验、5 条全文来源（含 2 条开放全文实验、1 条空间统计原文和 2 条动作空间 BIM 原文）、5 条摘要级来源、2 条不可访问/缺失来源。证据能支撑 IFC4 对象、放置、几何表示、群组、网格和区域实体的事实边界，以及常用几何库的算法行为；不能支撑“家具布局指标具有心理感知效度”。
 
 建议一个窄的 D8–D10 纵向切片：
 
@@ -24,6 +24,10 @@
 | distance/overlap/clearance | E-GEO-003、E-IFC-008 | 几何谓词 + 项目阈值 | 约束结果，不是人的可用区 | 否 |
 | graph/path | E-GEO-004 | 需先定义 graph domain | 无域不计算 | 否 |
 | IfcSpatialZone/IfcZone | E-IFC-005 | 只保留明确来源的区域 | Zone 不产生自有几何；不生成 affordance | 否 |
+
+| Pset_SpaceOccupancyRequirements | E-BIM-001/002 | IFC 空间活动/占用事实 | 可记录活动人数/面积/净空；不是家具 affordance | 后续 |
+| derived action-space collider | E-BIM-004/005 | 从动作测量或角色 profile 生成派生体 | 可作为 authored/derived geometry；不是 IFC 原生 furniture schema | 否（后续） |
+| IfcSpace extension proposal | E-BIM-003 | 研究型扩展线索 | 摘要级，不能进入 IFC4 事实合同 | 否 |
 | IfcCovering/SurfaceFeature | E-IFC-006 | 可作表面/边界候选 | 不等于视觉/行为边界 | 否 |
 | visual complexity/symmetry perception | E-PER-001/002 | 不纳入工程分数 | 外部背景，不能迁移效度 | 否 |
 | point-pattern order/J-function | E-PER-003 | 不直接采用 | 原文不可得且非家具验证 | 否 |
@@ -41,7 +45,8 @@
 2. 每个几何结果保留 `source_representation`、`representation_context`、`source_global_ids`、`algorithm`、`tolerance` 和状态。
 3. 空点集、点数不足、共线、各向同性、无效多边形、不连通图分别输出 undefined/invalid/no_path；不可静默转成 0。
 4. Convex hull 仅是包络候选；PCA 仅是方差方向候选；Shapely 谓词仅是平面几何关系；NetworkX 只在显式图域中求路径。
-5. IFC Clearance、IfcSpatialZone、IfcCovering、IfcSurfaceFeature 都要保留原实体身份；不能把它们自动改写成 affordance 或心理边界。
+5. IFC Clearance、IfcSpatialZone、IfcCovering、IfcSurfaceFeature 和 Pset_SpaceOccupancyRequirements 都要保留原实体身份；不能把它们自动改写成家具 affordance 或心理边界。
+6. 目前最接近项目需求的外部先例是 Selin & Rossi 的动作空间 IFC/3D collider 方法；它支持派生几何 provenance，不是 IFC 原生家具语义。
 
 ## D5 软件边界
 
@@ -59,6 +64,7 @@
 6. 确认真实 acceptance IFC 是否先独立修复；研究期间不修复 IFC。
 7. 确认 Bonsai live import 是后续 gate 还是不在首片范围。
 8. 若后续需要心理研究，负责人需指定家具/建筑刺激、观察者任务和外部实验，不得从本账本推导效度。
+9. Chaabane 2023 的 IfcSpace 扩展研究全文仍需取得；它是最直接的活动/拓扑要求先例。
 
 ## 完成检查（执行记录）
 

@@ -44,10 +44,20 @@
 | S-033 | `PMC4593740 Bayesian hierarchical grouping full text` | 良好延续分组实验 | PMC 入口 reCAPTCHA；未纳入证据 |
 | S-034 | `site:arxiv.org 2609.00065 Scientific Agent Skills` | 核验引用管理技能出处 | arXiv v2 页面全文元数据可读；仅作为研究流程出处，不计入领域证据 |
 
+| S-037 | Consensus：`BIM furniture affordance zone clearance space planning` | 寻找家具 affordance/clearance 直接研究 | 找到规则检查、空间规划、动作空间和通用设计候选；均需逐条核验 DOI/全文 |
+| S-038 | Consensus：`IfcSpace activities topological requirements closeness accessibility minimum required area BIM nursing home` | 寻找 IfcSpace 活动/拓扑扩展 | 找到 Chaabane et al. 2023，DOI 10.1007/978-3-031-25182-5_47；摘要可读，全文 ScanSci 失败 |
+| S-039 | Consensus：`"Simulation of Universal Design by a Functional Design Method"` | 寻找动作空间 IFC 原文 | 找到 Selin & Rossi 2016 DOI 10.15439/2016F306；ScanSci 成功下载并人工阅读 |
+| S-040 | Consensus：`"The functional design method for buildings" gamification BIM` | 追踪动作空间/IFC 工程先例 | 找到 Selin & Rossi 2018 DOI 10.15439/2018F162；ScanSci 成功下载并人工阅读 |
+| S-041 | buildingSMART IFC4 FINAL：`Pset_SpaceOccupancyRequirements`、`IfcSpace` | 核验原生活动/占用 schema | 官方全文可读；存在 OccupancyType、OccupancyNumber、AreaPerOccupant、MinimumHeadroom；未发现家具 affordance/clearance 实体 |
+| S-042 | Consensus：`"Rule-based compliance checking and generative design for building interiors using BIM"` | 规则语言/室内合规 | DOI 10.1016/j.autcon.2020.103368，摘要可读，ScanSci 未找到 PDF |
+| S-043 | Consensus：`"Application of Universal Design in the Design of Apartment Kitchens"` | 清空地面/触及/膝部空间 | DOI 10.3130/jaabe.15.403，摘要可读，ScanSci 未找到 PDF |
+| S-044 | Consensus：`"Design for maintenance accessibility using BIM tools"` | 维护可达性与规则集 | DOI 10.1108/f-09-2011-0078，摘要可读，ScanSci 未找到 PDF |
+
 ## 访问失败与补救
 
 - PMC/Europe PMC：reCAPTCHA 或 500；处理为 `inaccessible`/`abstract_only`，不引用搜索片段。
 - Protonotarios 出版商/PMC：保留 DOI 与摘要级结论，禁止写入未读公式。van Lieshout 原文已由 ScanSci OpenAlexOA 下载并检查。
+- Chaabane 2023 Springer chapter、Sydora 2020、Kang 2016、Liu 2014：均找到 DOI，但本轮 ScanSci legal_only 未取得 PDF；保持 abstract_only。
 - Blender 官方发布页：HTTP 402；只保留本机指定便携版版本观察。
 - 未找到直接 IFC 家具 affordance zone 原文：不把项目假设升级为 IFC 事实，列入负责人材料清单。
 

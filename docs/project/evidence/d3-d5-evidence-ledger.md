@@ -423,6 +423,135 @@
 | distance/overlap/clearance | 在同一分析平面/坐标系 | 阈值带单位 | 任一几何缺失 → not_available | 无效多边形先报告 invalid，不静默修复 |
 | path/graph | 方向只影响节点/边定义 | 权重需单位或无量纲声明 | 无图域 → not_applicable | 不连通 → no_path，不记为零 |
 
+
+### E-BIM-001
+- date：2026-09-27
+- question：IFC4 是否有空间活动/占用需求的原生属性集？
+- claim：Pset_SpaceOccupancyRequirements 可分配给 IfcSpace、IfcSpatialZone、IfcZone，包含 OccupancyType、OccupancyNumber、OccupancyTimePerDay、AreaPerOccupant 和 MinimumHeadroom 等属性。
+- evidence_class：IFC_SCHEMA
+- source：buildingSMART IFC4 FINAL — Pset_SpaceOccupancyRequirements
+- version/year：IFC4 FINAL（访问 2026-09-27）
+- locator：[Pset_SpaceOccupancyRequirements](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/FINAL/HTML/schema/ifcproductextension/pset/pset_spaceoccupancyrequirements.htm)，§5.4.5.18，属性表
+- access_status：official_doc_verified
+- short_excerpt_or_paraphrase：属性集描述空间结构元素中发生/预期发生的工作活动，并给出占用人数、单位面积和最低净空等需求。
+- supports：活动/占用需求可以作为 IFC 空间属性事实记录。
+- does_not_support：不是家具实例的 affordance 区，也不是通用 clearance 几何。
+- confidence：high
+- limitations：属性集没有定义家具周边操作多边形、人体姿态轨迹或感知边界。
+- follow_up：D6 若需要活动需求，优先引用该属性集并另存派生几何 provenance。
+
+### E-BIM-002
+- date：2026-09-27
+- question：IfcSpace 是否能承载功能空间和家具包含关系？
+- claim：IfcSpace 表示为建筑功能提供面积/体积的空间；家具等产品可通过 IfcRelContainedInSpatialStructure 作为空间容器内容关联；IfcSpace 可使用 Pset_SpaceOccupancyRequirements。
+- evidence_class：IFC_SCHEMA
+- source：buildingSMART IFC4 FINAL — IfcSpace
+- version/year：IFC4 FINAL（访问 2026-09-27）
+- locator：[IfcSpace](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/FINAL/HTML/schema/ifcproductextension/lexical/ifcspace.htm)，语义定义、Spatial Container、Property Sets for Objects、FootPrint/Body geometry
+- access_status：official_doc_verified
+- short_excerpt_or_paraphrase：IfcSpace 是空间结构和空间容器；其几何、放置和边界有独立约束。
+- supports：空间级活动/占用事实、家具包含关系和空间几何抽取。
+- does_not_support：不自动生成家具 affordance zone、操作空间或行为路径。
+- confidence：high
+- limitations：空间容器关系不等同家具使用关系；实现协议可能限制空间重叠和边界。
+- follow_up：保持 `space_fact` 与 `derived_affordance_region` 两层。
+
+### E-BIM-003
+- date：2026-09-27
+- question：是否有研究把活动/拓扑要求扩展到 IfcSpace？
+- claim：Chaabane 等提出扩展 IfcSpace 以记录活动及 closeness、accessibility、minimum required area 等拓扑/安全要求，并在 Revit/Dynamo 中检查走道宽度、门宽、房间面积和最短距离。
+- evidence_class：BIM_INTEROP
+- source：Chaabane et al., “Building Information Model and Safety Requirements for Spatial Program Validation”
+- version/year：2023，Book chapter，DOI 10.1007/978-3-031-25182-5_47
+- locator：[DOI](https://doi.org/10.1007/978-3-031-25182-5_47)；Consensus record [paper](https://consensus.app/papers/details/b7068f1b2766526296b726307102f32b/?utm_source=chatgpt)
+- access_status：abstract_only
+- short_excerpt_or_paraphrase：摘要明确描述 IfcSpace 扩展、活动、接近性/可达性和最小面积要求；全文未取得。
+- supports：直接提供“空间需求扩展层”的研究线索。
+- does_not_support：不能证明该扩展属于 IFC4 标准，也不能核验属性名、数据类型或验证结果。
+- confidence：medium
+- limitations：仅摘要级；Springer PDF 的 ScanSci legal_only 下载失败。
+- follow_up：若要采用，需项目负责人提供全文或作者稿。
+
+### E-BIM-004
+- date：2026-09-27
+- question：人体动作空间能否被建成 IFC/3D 空间对象？
+- claim：Selin & Rossi 的 Functional Design Method 从真实动作视频估计三维最大空间需求，生成 IFC 兼容的 3D 空间对象，并将其作为游戏 collider 检验动作是否适合设计空间。
+- evidence_class：BIM_INTEROP
+- source：Selin & Rossi, “Simulation of Universal Design by a Functional Design Method and by Gamification of Building Information Modeling”
+- version/year：2016，FedCSIS，DOI 10.15439/2016F306
+- locator：[DOI](https://doi.org/10.15439/2016F306)；[开放全文](https://annals-csis.org/proceedings/2016/pliks/306.pdf)；ScanSci PDF/Markdown：`C:\Users\tianf\Downloads\d3-d5-evidence-papers\Selin2016_Simulation.*`，Markdown §§I–III、§§C–D
+- access_status：full_text_verified
+- short_excerpt_or_paraphrase：方法用至少两个正交摄像机记录动作，在 x/y/z 中测量空间需求并生成 3D 对象；示例包括轮椅使用者和助手。
+- supports：affordance/clearance 可作为项目派生几何，并保存动作、角色和测量 provenance。
+- does_not_support：不证明该对象是 IFC 原生家具语义，也不提供普适人体阈值或心理效度。
+- confidence：medium
+- limitations：原型/试点方法，动作类型和测量精度有限；不是家具专用 schema。
+- follow_up：可作为 `derived_action_space` 外部证据，不可命名为 IFC 原生 affordance。
+
+### E-BIM-005
+- date：2026-09-27
+- question：IFC 几何、转换和动作空间是否在真实建筑试点中联用？
+- claim：Selin & Rossi 2018 在超市疏散试点中使用 IFC 子模型、IfcConvert、XML 元数据和 Unity；按 avatar profile 放置描述动作空间的 colliders，并记录疏散结果。
+- evidence_class：BIM_INTEROP
+- source：Selin & Rossi, “The Functional Design Method for Buildings (FDM) with Gamification of Information Models and AI Help to Design Safer Buildings”
+- version/year：2018，FedCSIS，DOI 10.15439/2018F162
+- locator：[DOI](https://doi.org/10.15439/2018F162)；ScanSci PDF/Markdown：`C:\Users\tianf\Downloads\d3-d5-evidence-papers\Selin2018_Functional.*`，Markdown §§I–III、§§B–D
+- access_status：full_text_verified
+- short_excerpt_or_paraphrase：论文明确把 IFC 子模型转换为 OBJ/XML，在 Unity 中用带 profile 的 avatar collider 表示移动空间需求。
+- supports：工程上可把动作空间作为与家具/墙体几何分离的派生层，并记录 adapter 转换链。
+- does_not_support：不支持 Bonsai/IfcOpenShell 当前版本行为，也不证明碰撞结果符合 IFC 标准。
+- confidence：medium
+- limitations：应急疏散场景和 Unity 原型与本项目静态家具分析不同；collider 精度由作者称为相对常规级别。
+- follow_up：只作为外部工程先例，不能直接导入项目阈值。
+
+### E-BIM-006
+- date：2026-09-27
+- question：BIM 规则语言能否表达室内空间合规约束？
+- claim：Sydora & Stroulia 提出用于室内设计规则的领域语言，并以厨房和客厅布局案例进行规则检查与生成设计。
+- evidence_class：BIM_INTEROP
+- source：Sydora & Stroulia, “Rule-based compliance checking and generative design for building interiors using BIM”
+- version/year：2020，Automation in Construction，DOI 10.1016/j.autcon.2020.103368
+- locator：[DOI](https://doi.org/10.1016/j.autcon.2020.103368)；Consensus record [paper](https://consensus.app/papers/details/b09f746b4d8655aca22831ed0d1f1106/?utm_source=chatgpt)
+- access_status：abstract_only
+- short_excerpt_or_paraphrase：摘要说明同一规则语言用于模型检查和生成布局；全文未取得。
+- supports：项目可把规则/阈值作为显式工程配置，而不是感知权重。
+- does_not_support：不提供本项目家具 clearance 规则，也不证明 IFC 原生属性映射。
+- confidence：low
+- limitations：仅摘要级；规则具体内容和几何实现未核验。
+- follow_up：若需要规则语言设计，先取得全文并逐条映射。
+
+### E-BIM-007
+- date：2026-09-27
+- question：通用设计研究如何定义清空地面/触及范围？
+- claim：Kang & Lee 用 clear floor space、work flow、reach range、knee clearance 等标准分析公寓厨房布局。
+- evidence_class：BIM_INTEROP
+- source：Kang & Lee, “Application of Universal Design in the Design of Apartment Kitchens”
+- version/year：2016，Journal of Asian Architecture and Building Engineering，DOI 10.3130/jaabe.15.403
+- locator：[DOI](https://doi.org/10.3130/jaabe.15.403)；Consensus record [paper](https://consensus.app/papers/details/95bb9441a11b501da16874e97f42e709/?utm_source=chatgpt)
+- access_status：abstract_only
+- short_excerpt_or_paraphrase：摘要按轮椅用户移动标准分析清空地面、工作三角、触及范围和膝部空间。
+- supports：通用设计约束是外部规范/人因背景，可作为未来 authored requirement 的候选来源。
+- does_not_support：不支持 IFC schema、家具通用阈值或本项目心理效度。
+- confidence：low
+- limitations：摘要级且场景限于韩国公寓厨房；ScanSci 未找到 PDF。
+- follow_up：负责人若要采用人因约束，需指定规范版本和适用用户群。
+
+### E-BIM-008
+- date：2026-09-27
+- question：BIM 是否能表达维护可达性而不仅是几何碰撞？
+- claim：Liu & Issa 讨论用 BIM 工具和规则集检查维护可达性；普通 clash detection 不一定发现 accessibility 问题。
+- evidence_class：BIM_INTEROP
+- source：Liu & Issa, “Design for maintenance accessibility using BIM tools”
+- version/year：2014，Facilities，DOI 10.1108/f-09-2011-0078
+- locator：[DOI](https://doi.org/10.1108/f-09-2011-0078)；Consensus record [paper](https://consensus.app/papers/details/ae5262d2138c5f45a658fd2042e8ab3c/?utm_source=chatgpt)
+- access_status：abstract_only
+- short_excerpt_or_paraphrase：摘要以排风机维护为案例，指出需有相应规则集才能检查可达性。
+- supports：clearance/可达性必须绑定目的和规则集，不应只做几何相交。
+- does_not_support：不支持家具使用区或 IFC 原生 affordance schema。
+- confidence：low
+- limitations：摘要级且场景为设备维护；ScanSci 未找到 PDF。
+- follow_up：不要把维护可达性规则直接迁移为家具行为规则。
+
 ## 不可访问原文清单
 
 1. Protonotarios et al. 2014 点模式秩序论文全文：出版商需购买；PMC/Europe PMC 请求失败。
