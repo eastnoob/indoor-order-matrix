@@ -127,7 +127,7 @@ Required inputs:
 - analysis frame, axis, unit, and tolerance;
 - stable object identities and source provenance.
 
-The result must make its comparison basis explicit: anchor definition, sequence construction, tie handling, tolerance, and whether the reported value is a sequence/inversion summary or a spacing-deviation summary. The exact formula is a D8–D10 decision, not an adapter-specific choice.
+The result must make its comparison basis explicit: anchor definition, sequence construction, tie handling, tolerance, and whether the reported value is a sequence/inversion summary or a spacing-deviation summary. The exact formula is a descriptor decision, not an adapter-specific choice.
 
 Required failure behavior:
 
@@ -150,6 +150,28 @@ Required inputs:
 The result must expose member support, primary/secondary frame or equivalent directional representation, strength/concentration, geometric basis, and excluded-member reasons. Directional evidence must come from normalized geometry, not stale transform history. Circular, square, isotropic, missing, or insufficient geometry may produce `undefined` directional strength while remaining valid object facts.
 
 The exact estimator (for example area-weighted 2D PCA or a member-frame consensus) must be selected and tested in D8–D10. The contract requires that the choice be versioned and auditable; it does not assume the existing trend implementation is correct.
+
+## Descriptor implementation design gate
+
+An algorithm decision record is not sufficient authorization to write code. After
+the owner approves a descriptor decision, the next artifact must be a separate
+implementation design table for that descriptor. The table is reviewed before
+production code begins.
+
+Each implementation design table must specify:
+
+- the exact function boundary and input/output fields;
+- pseudocode or a stepwise calculation order;
+- status and reason behavior for every failure class;
+- tie, tolerance, missing-data, and degeneracy handling;
+- provenance and parameter requirements;
+- mathematical invariants and hand-computable examples;
+- a focused test matrix and explicit non-goals.
+
+The implementation design stage is documentation-only. It may clarify an
+already-approved algorithm, but it may not silently change the scientific
+decision. If the table exposes an unresolved choice, implementation stops and
+the owner decision record is reopened.
 
 ## Incremental delivery and hard stops
 
@@ -234,7 +256,8 @@ A passing test demonstrates computational behavior under the contract. It does n
 
 ## Open decisions carried into the workplan
 
-1. Select the exact `relative-order` formula and default analysis-axis policy.
+1. Review the implementation design table for the owner-approved
+   `relative-order` formula and explicit-axis policy before coding.
 2. Select the `authored_group_local_trend` estimator and degeneracy thresholds.
 3. Decide how multiple authored-group memberships are represented in group-level aggregation.
 4. Decide whether rich IFC repair gates the first implementation fixture or runs as a parallel acceptance task.

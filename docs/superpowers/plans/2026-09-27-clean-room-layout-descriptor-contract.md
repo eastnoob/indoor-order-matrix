@@ -174,6 +174,36 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 ---
 
+### Task 3b: Write and review the relative-order implementation design (Checkpoint 3 design gate)
+
+**Files:**
+- Create: `docs/project/d6-relative-order-implementation-design.md`
+- Modify: `docs/project/d6-relative-order-decision.md` only to record the explicit owner approval
+- Test: document self-check and hand-computable examples; no production test code
+
+**Interfaces:**
+- Produces the implementation-level contract consumed by Task 4.
+
+- [ ] **Step 1: Record the approved owner decision**
+
+  Update the decision record with the selected `relative-order/v1` order-consistency formula, partial-tie policy, explicit-axis policy, anchor definition, and transform semantics. Do not introduce a new formula.
+
+- [ ] **Step 2: Create the implementation design table**
+
+  Document the exact function boundary, calculation order, status/reason matrix, tie metadata, provenance fields, invariants, hand-computable examples, focused test matrix, and non-goals. Distinguish the declared object sequence from any stable identifier used only for metadata.
+
+- [ ] **Step 3: Self-review the design table**
+
+  Check that it is implementable without importing IFC, SVG, legacy evaluator, or trend code; that every unresolved choice is surfaced; and that it does not claim psychological validity.
+
+- [ ] **Step 4: Commit**
+
+  Commit as `docs: design relative-order implementation`.
+
+**STOP FOR OWNER REVIEW:** no relative-order production code may be written until the implementation design table is approved.
+
+---
+
 ### Task 4: Implement relative-order and its tests (Checkpoint 3, first descriptor)
 
 **Files:**
@@ -385,6 +415,8 @@ Task 0
   -> STOP/review
   -> Task 3 (formula decision)
   -> STOP/owner decision
+  -> Task 3b (relative-order implementation design)
+  -> STOP/owner review
   -> Task 4 (relative-order)
   -> STOP/review
   -> Task 5 (group trend)
