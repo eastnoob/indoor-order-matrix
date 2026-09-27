@@ -1,0 +1,29 @@
+{
+  "schema": "relative-order-design-artifact-manifest/v1",
+  "generated_at_utc": "2026-09-27T22:14:23.096197+00:00",
+  "commands": {
+    "numeric_oracle": "pixi run python scripts/design/relative_order/run_numeric_oracle.py --output docs/project/evidence/d6-relative-order-oracle.json",
+    "blender_diagnostic": "D:\\Blender\\BlenderPortableLTS5.2\\App\\Blender64\\blender.exe -b -noaudio -P scripts/design/relative_order/render_relative_order_blender.py -- --fixture scripts/design/relative_order/fixtures.json --output-dir outputs/design/relative_order"
+  },
+  "runtime": {
+    "python_environment": "Pixi locked environment",
+    "blender_executable": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+    "blender_version": "Blender 5.2.0 LTS"
+  },
+  "tracked_inputs_and_oracle": {
+    "scripts/design/relative_order/fixtures.json": "51d4c7dd5fefa146fd305e176d9e69e41ff20a8d2404a75357f45eb089b435ce",
+    "scripts/design/relative_order/run_numeric_oracle.py": "80973ee705d2ec623d62f32b4ebfe50aa2080624cec77390b552b8e45e633827",
+    "scripts/design/relative_order/render_relative_order_blender.py": "336b84bcd66e5707778ab9451ea0f84f620f0d6db14ec807c954e9926bc6cad0",
+    "docs/project/d6-relative-order-design-experiment.md": "72f58203705f8bbfba69f373490f6bab20b498946a8ec94febe78a2d2d7797ec",
+    "docs/project/d6-relative-order-decision.md": "d964b1326eea23d3e8d992ea4f00b993476c49d45bf542b31f69571eb0744f84",
+    "docs/project/evidence/d6-relative-order-oracle.json": "81c4df5d6390ef05794c4fa8052a291cf12398be517440bdb1395da15918ca87"
+  },
+  "ignored_generated_outputs": {
+    "outputs/design/relative_order/relative_order_diagnostic.blend": "3e80b2be1109463962fa3862211187547c3295f74c46663995c08bc67b6fa358",
+    "outputs/design/relative_order/relative_order_diagnostic.png": "e5acf4eba8f0d562016a2bfcf13413e18ad5279fd92e57b2d7e2f01db703ba74",
+    "outputs/design/relative_order/blender_metadata.json": "7439c679d6d7ef29d91b189da36d7adf45edb282ead726de5f8c80d214118cdf",
+    "outputs/design/relative_order/blender_run.log": "dc17d74eec6945516165bd5310ae67a50daf1731c4fc8bca0df8275ed4ad0e75"
+  },
+  "retention": "Binary Blender scene/render/log files remain in Git-ignored outputs/design/relative_order; regenerate and verify them from the tracked fixture, scripts, commands, and hashes.",
+  "limitations": "Headless render inspected as an image; interactive Blender viewport/UI inspection was not performed."
+}

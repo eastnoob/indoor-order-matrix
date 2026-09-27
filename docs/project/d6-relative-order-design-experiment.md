@@ -1,158 +1,253 @@
-# D6 relative-order candidate design experiment
+# D6 relative-order design experiment follow-up
 
-**Status:** design-only evidence for owner review; Task 3a complete, Task 3b not started
-**Date:** 2026-09-27
-**Scope:** compare order consistency (Candidate A) with normalized spacing consistency (Candidate B) for the clean-room relative-order descriptor.
+**Status:** revised design-only evidence for owner review; Task 3b is not started
+**Date:** 2026-09-28
+**Scope:** harden the relative-order comparison around tie semantics, external reference order, anchor sensitivity, status states, reproducibility, and Blender diagnostics.
 
-This record is an algorithm comparison. It does not establish psychological or perceptual validity and does not authorize production implementation.
+This artifact does not authorize production implementation and does not establish psychological or perceptual validity.
 
-## Method and skill record
+## Skills read and used
 
-- experimental-design: fixed the input unit, factors, deterministic fixture set, expected invariants, output measures, decision rule, and replication command before interpreting values. No randomization was needed because this is a deterministic computational probe; the seed is therefore not applicable.
-- scientific-critical-thinking: keeps evidence, observations, interpretations, unresolved owner decisions, and claims outside scope in separate sections.
-- scientific-visualization: records the source fixture, anchor transform, analysis axis, tie overlay, Blender settings, generated scene, render, and inspection limitation as provenance.
-- superpowers:executing-plans: this is Checkpoint 3 design phase only. The required STOP FOR DESIGN REVIEW is preserved below; no implementation design table or production code is created.
+- Project experimental-design at .agents/skills/experimental-design/SKILL.md: fixed the unit of comparison, factors, deterministic fixtures, expected invariants, output measures, and decision rule before interpreting results. No randomization or seed is applicable because this is a deterministic computational probe.
+- Project scientific-critical-thinking at .agents/skills/scientific-critical-thinking/SKILL.md: separated external evidence, repository facts, numerical observations, engineering interpretation, unresolved owner decisions, and unsupported claims.
+- Project scientific-visualization at .agents/skills/scientific-visualization/SKILL.md: preserved input and transform provenance, added direct reference/observed labels, checked overlap and contrast in the rendered capture, and recorded the headless inspection limit.
+- superpowers:verification-before-completion: required fresh oracle, Blender, checksum, diff, and file-scope commands before reporting results.
+- grill-me: read at C:\Users\tianf\.codex\skills\grill-me\SKILL.md and applied its hostile reverse-review questions below. This API exposes no separate /grilling command, so the review is recorded as an explicit self-audit rather than claimed as an interactive session.
 
-The experimental-design workflow was used as procedural guidance. The skill library is documented by Kassis et al. (2026), [arXiv:2609.00065](https://doi.org/10.48550/arXiv.2609.00065).
+The scientific skill guidance is cited in the earlier design record and remains procedural guidance, not evidence for the metric.
 
-## Inputs and factors
+Software/procedure reference: Kassis, T., Agarwal, V., He, Y., Patel, D., & Brueckner, A. M. (2026). Scientific Agent Skills: A Library of Procedural Knowledge for Research Agents. arXiv:2609.00065. https://doi.org/10.48550/arXiv.2609.00065
 
-Each fixture has declared object order (A, B, C), projected plan vertices, source unit, a positive source-to-analysis scale, AnalysisFrame.origin, an explicit unit axis, and tolerance 0.1 in analysis units. The anchor is the arithmetic mean of all finite projected vertices. The scalar position is:
+## Data contract under review
 
-    position_i = dot(anchor_i - frame_origin, axis_unit)
+The descriptor compares geometry against an externally supplied reference sequence.
 
-The probe uses only the geometry transform represented in each fixture. It does not infer an axis from object IDs, drawing order, or world-X. Missing geometry is excluded with a reason when two usable objects remain; invalid geometry is a hard invalid result. This is an experiment choice that remains subject to owner review.
+    reference_order = [object_id_1, object_id_2, ..., object_id_n]
 
-### Candidate formulas
+The reference sequence is not inferred from geometry. It is not:
 
-**Candidate A - inversion-rate/order-consistency (relative-order/v1 candidate)**
+| possible source | role in this experiment |
+|---|---|
+| external reference order | authoritative comparison sequence |
+| IFC entity/file order | source fact only; never a semantic ordering |
+| authored IfcGroup member order | source membership/provenance only; not used unless explicitly supplied as the reference |
+| lexical object-ID order | metadata lookup only; never a fallback |
+| geometry-inferred order | observed projection used for comparison; never the reference |
 
-    inversions = count(position_i > position_j for i < j and |position_i-position_j| > tolerance)
-    comparable_pairs = count(the same non-tied pairs)
-    value = 1 - inversions / comparable_pairs
+The fixture records the contract explicitly:
 
-Tied pairs are excluded from the denominator and retained as stable tie blocks. No object ID breaks a tie. If no comparable pair remains, the result is undefined.
+    reference_order: ["A", "B", "C"]
+    reference_order_provenance:
+      kind: external_reference_order
+      source: design_fixture
+      stable_key: fixture.reference_order
+      not_from: [ifc_entity_order, authored_group_member_order,
+                 object_id_lexical_order, geometry_inference]
 
-**Candidate B - normalized adjacent spacing consistency**
+A case may override the reference order with its own externally supplied list. A missing or malformed reference order returns not_evaluated. The result records the exact sequence and provenance. The non_dictionary_reference_order fixture uses zeta, alpha, middle to prove that lexical sorting is not occurring.
 
-    gap_i = abs(position_(i+1) - position_i)
-    gap_mean = mean(gap_i)
-    deviation = mean(abs(gap_i - gap_mean)) / gap_mean
-    value = 1 - min(1, deviation)
+The observed sequence is obtained only after anchor projection. The metric therefore answers: “Does the projected geometry follow the externally provided reference order along the declared axis?” It does not discover a true or intrinsic order in an unlabelled scene.
 
-If the gap mean is not positive, the result is undefined. Candidate B is included to test the spacing alternative; it is not proposed as an additional descriptor in this task.
+## Inputs and transforms
 
-## Expected invariants and decision rule
+Each case supplies projected plan vertices, optional explicit triangles, source unit, positive source-to-analysis scale, AnalysisFrame.origin, an explicit unit axis, tolerance 0.1 in analysis units, object records, and the external reference sequence.
 
-The probe was expected to show:
+The arithmetic anchor is:
 
-1. aligned order gives A=1;
-2. reversed order gives A=0 while B may remain 1;
-3. uneven gaps change B but not A when pair order is unchanged;
-4. translation and positive unit conversion preserve both values;
-5. rotating geometry and the explicit axis together preserves both values;
-6. keeping the old axis fixed after rotation can change or remove comparability;
-7. axis reversal changes directional A deliberately;
-8. partial ties retain tie metadata and exclude tied A pairs;
-9. all ties, fewer than two usable objects, and invalid geometry never become numeric zero.
+    anchor = arithmetic mean of all finite projected plan vertices
 
-The selection rule is to retain the candidate that answers the declared sequence-direction question, preserves the listed geometric invariants, exposes ties and failure states, and does not introduce ID ordering. A candidate that only measures spacing cannot satisfy the sequence-direction requirement; spacing remains a separate deferred question.
+The optional area-weighted anchor is computed only when explicit triangle coordinates are present:
 
-## Reproducible numerical oracle
+    anchor = sum(triangle_area * triangle_centroid) / sum(triangle_area)
 
-Files:
+The scalar coordinate is:
 
-- Fixture: scripts/design/relative_order/fixtures.json
-- Oracle: scripts/design/relative_order/run_numeric_oracle.py
-- Output: outputs/design/relative_order/numeric_oracle.json
+    position_i = dot(anchor_i - AnalysisFrame.origin, AxisSpec.unit_vector)
 
-Command:
+The oracle does not infer a missing axis, multiply an unknown placement transform, or substitute an object ID or source placement point.
 
-    pixi run python scripts/design/relative_order/run_numeric_oracle.py --output outputs/design/relative_order/numeric_oracle.json
+## Tie semantics comparison
 
-The script contains assertion-based hand checks and exits non-zero if the oracle drifts from the expected invariants.
+The earlier oracle formed connected components implicitly. That is removed from the selected calculation.
 
-### Numerical observations
+### Pairwise tie edges
 
-| case | usable positions (analysis units) | Candidate A | Candidate B | status / metadata |
-|---|---:|---:|---:|---|
-| aligned | (0, 1, 2) | 1.0 | 1.0 | computed |
-| reversed | (2, 1, 0) | 0.0 | 1.0 | B cannot distinguish reversal |
-| uneven spacing | (0, 2, 5) | 1.0 | 0.8 | A ignores spacing by design |
-| partial ties | (0, 0.05, 1) | 1.0 | 0.1 | tie block [A, B]; A has 2 comparable pairs |
-| all ties | (1, 1, 1) | undefined | undefined | no comparable pair; zero gap reference |
-| translation | (0, 1, 2) after common frame translation | 1.0 | 1.0 | same as aligned |
-| positive scale / unit conversion | (0, 1, 2) after cm to m | 1.0 | 1.0 | same as aligned |
-| geometry + frame rotation | (0, 1, 2) on rotated axis | 1.0 | 1.0 | same as aligned |
-| geometry rotation with fixed old axis | (0, 0, 0) within tolerance | undefined | undefined | expected axis-sensitive loss of comparability |
-| axis reversal | (-0, -1, -2) | 0.0 | 1.0 | direction is explicit and intentional |
-| degenerate geometry | A,C usable; B invalid | invalid | invalid | malformed geometry is not silently dropped |
-| missing geometry | A,C usable; B unavailable | 1.0 | 1.0 | B excluded with reason; two usable objects remain |
+For each pair i < j, the pair is tied when abs(position_i - position_j) is less than or equal to tolerance. The inclusive boundary uses a small floating-point comparison guard so a mathematical equality at tolerance is not lost to binary rounding.
 
-The raw anchors, positions, tie blocks, excluded IDs, and invalid reasons are retained in the JSON output.
+Candidate A then excludes only that pair from the comparable-pair denominator:
 
-## Blender geometry diagnostic
+    inversions = count(non-tied pairs with position_i > position_j)
+    comparable_pairs = count(non-tied pairs)
+    order_consistency = 1 - inversions / comparable_pairs
 
-The portable Blender requirement was attempted and completed with the specified executable:
+The numerator is the inversion count among non-tied pairs. Tied pairs contribute neither an inversion nor a denominator term. Tie edges are retained in reference-order traversal order. If no comparable pair remains, Candidate A is undefined. A partial tie remains computed when another comparable pair exists.
+
+### Interval/block/transitive comparison
+
+For audit only, the direct edges are also connected into transitive blocks. A-B and B-C therefore make [A, B, C] one block even when A-C exceeds tolerance. The transitive candidate excludes all pairs inside that block. It is never silently used for the selected result.
+
+### Chained-tie observation
+
+The chained_ties fixture uses positions (0, 0.05, 0.11) with tolerance 0.1:
+
+- pairwise edges: A-B and B-C;
+- A-C is not tied;
+- pairwise Candidate A: computed, value 1.0, one comparable pair;
+- transitive-block Candidate A: undefined, because all three are merged;
+- Candidate B: undefined because its mean adjacent gap is below the spacing reference threshold.
+
+The pairwise result preserves the only directly comparable relation and avoids inventing a three-object equivalence class. This is the provisional tie semantic for relative-order/v1. Owner approval is still required because the choice changes undefined versus partial-computed behavior.
+
+## Anchor sensitivity experiment
+
+The tessellation_sparse and tessellation_dense fixtures describe the same rectangle triangles for object A but use different boundary vertex sampling densities. Object B is at x=0.5 and object C at x=2.5.
+
+| fixture | arithmetic anchor A | arithmetic Candidate A | area-weighted Candidate A |
+|---|---:|---:|---:|
+| tessellation_sparse | x=0.0 | 1.0 | 1.0 |
+| tessellation_dense | x=0.6666667 | 0.6666667 | 1.0 |
+
+The dense boundary samples are all on one rectangle edge. The arithmetic mean therefore changes even though the explicit triangle geometry is unchanged, and the observed arithmetic order changes from fully aligned to one inversion. The area-weighted triangle centroid is invariant for the two tessellations.
+
+Current design conclusion:
+
+- arithmetic mean remains a simple candidate fact and is retained in the oracle for comparison;
+- it is not yet safe to treat it as the final representative point because the fixture demonstrates tessellation-density sensitivity;
+- area-weighted triangle centroid is the stronger geometry-preserving candidate when explicit triangles are available;
+- the current canonical geometry contract can support the area-weighted method only when triangles and their coordinates are present;
+- where only vertices are present, the area-weighted method is not_available rather than fabricated;
+- volume-weighted centroid is outside this 2D plan slice and would require an explicit 3D solid/volume contract.
+
+This is an anchor semantic gap. It reopens owner approval before Task 3b.
+
+## Minimal status model
+
+The result keeps the contract status vocabulary and uses completeness metadata for partial computation.
+
+| condition | status | completeness | result |
+|---|---|---|---|
+| valid axis/reference, all members usable, comparable pairs exist | computed | complete | numeric values |
+| valid axis/reference, some missing members excluded, at least two usable members remain | computed | partial | numeric values plus excluded IDs |
+| fewer than two usable members | undefined | not_applicable | null values plus count/missing reasons |
+| all usable positions tied or no comparable pair | undefined | not_applicable | null values plus tie edges |
+| no projectable geometry for any member | not_available | not_applicable | null values plus missing reasons |
+| malformed/degenerate geometry or invalid axis | invalid | not_computable | null values plus invalid reasons |
+| missing/invalid external reference order or missing explicit axis | not_evaluated | not_applicable | null values plus provenance reason |
+
+Invalid geometry is a descriptor-level failure even if other objects are usable. Missing geometry is excluded at object level; two usable objects plus one missing object is computed with completeness partial. When every object is unavailable, the descriptor is not_available. Numeric zero is never substituted for any of these states.
+
+## Fixture coverage and oracle assertions
+
+Fixture input, design question, expected status, expected values, and rationale are stored in scripts/design/relative_order/fixtures.json. The deterministic oracle asserts every declared expected status/value and adds focused assertions for tie edges, reference sequence, tolerance boundary, and tessellation invariance.
+
+| fixture | design question | expected result |
+|---|---|---|
+| aligned | sequence direction | A=1, B=1, computed complete |
+| reversed | distinguish reversal | A=0, B=1 |
+| uneven_spacing | separate spacing effect | A=1, B=0.8 |
+| partial_ties | pairwise partial ties | A=1, tie edge A-B |
+| chained_ties | non-transitive tolerance | pairwise A=1; transitive A undefined |
+| all_ties | no comparable pair | undefined |
+| tolerance_boundary | inclusive boundary | A-B tie at exactly tolerance |
+| translation | common translation | unchanged |
+| nonzero_frame_origin | frame subtraction | unchanged |
+| positive_scale_unit_conversion | positive unit conversion | unchanged |
+| geometry_frame_rotation | rotate geometry and axis | unchanged |
+| geometry_rotation_fixed_axis | fixed-axis sensitivity | undefined due tied projections |
+| axis_reversal | explicit direction | A=0 |
+| non_dictionary_reference_order | no lexical fallback | supplied zeta, alpha, middle is used verbatim |
+| missing_reference_order | reference is mandatory | not_evaluated |
+| axis_missing | no implicit axis | not_evaluated |
+| axis_zero, axis_non_unit | axis validation | invalid |
+| one_usable | insufficient object count | undefined |
+| missing_geometry | two usable plus one missing | computed, completeness partial |
+| all_geometry_missing | no projectable geometry | not_available |
+| degenerate_geometry | malformed geometry | invalid |
+| tessellation_sparse/dense | representative-point sensitivity | arithmetic changes; area-weighted remains aligned |
+
+Reproducible oracle command:
+
+    pixi run python scripts/design/relative_order/run_numeric_oracle.py --output docs/project/evidence/d6-relative-order-oracle.json
+
+The tracked oracle output includes the fixture SHA-256, reference-order provenance, selected tie semantics, all raw result metadata, and both anchor methods.
+
+## Blender diagnostic review
+
+The portable Blender command is:
 
     D:\Blender\BlenderPortableLTS5.2\App\Blender64\blender.exe -b -noaudio -P scripts/design/relative_order/render_relative_order_blender.py -- --fixture scripts/design/relative_order/fixtures.json --output-dir outputs/design/relative_order
 
-Generated artifacts:
+The scene now labels reference order and observed +axis projection order separately. It shows:
 
-- Generator: scripts/design/relative_order/render_relative_order_blender.py
-- Fixture: scripts/design/relative_order/fixtures.json
-- Scene: outputs/design/relative_order/relative_order_diagnostic.blend
-- Render/capture: outputs/design/relative_order/relative_order_diagnostic.png
-- Settings and provenance: outputs/design/relative_order/blender_metadata.json
+- blue anchors and labels;
+- green declared positive axis and direction arrow;
+- red reversed axis;
+- orange pairwise tie ring;
+- frame-origin markers;
+- aligned, rotated-plus-translated, and partial-tie panels;
+- explicit text distinguishing reference A -> B -> C from observed order.
 
-The render shows blue anchors, green positive-axis arrows, a red reversed-axis arrow, orange tie ring, frame-origin markers, and a panel with geometry and frame rotated together. The translated-frame panel keeps the same order while changing the frame origin, making the transform convention visible.
+The output files are:
 
-The image was inspected in this session. Interactive Blender viewport/UI inspection was not performed. The run emitted unrelated installed-addon registration warnings in background mode; the design script itself saved the scene and render with exit code 0. Therefore this is a headless render diagnostic, not a claim of live Blender UI verification.
+- outputs/design/relative_order/relative_order_diagnostic.blend
+- outputs/design/relative_order/relative_order_diagnostic.png
+- outputs/design/relative_order/blender_metadata.json
+- outputs/design/relative_order/blender_run.log
 
-![Relative-order Blender diagnostic](../../outputs/design/relative_order/relative_order_diagnostic.png)
+The image is a computational variable diagnostic only. It does not depict a human judgment, perceptual order, usability, or psychological effect. Headless image inspection was performed; interactive Blender viewport/UI inspection was not performed. Installed add-ons emit background registration warnings, but the design script must still exit zero and save the scene/render.
+
+## Persistent provenance and artifact policy
+
+outputs/design/relative_order is Git-ignored. It remains a replay workspace for the binary scene, render, and logs. The tracked artifacts are:
+
+- docs/project/evidence/d6-relative-order-oracle.json
+- docs/project/evidence/d6-relative-order-artifact-manifest.json
+
+The manifest records the exact regeneration commands, portable Blender version, Python/Pixi command, input fixture SHA-256, script SHA-256 values, tracked oracle SHA-256, and the ignored scene/render/metadata/log paths with their SHA-256 values. Another session can verify the tracked inputs and regenerate the ignored binary outputs. Binary files are intentionally not committed; their retention and verification are limited by the manifest and local output directory.
 
 ## Evidence classes
 
 ### D3-D5 external evidence
 
-docs/project/evidence/d3-d5-synthesis.md records that the external literature and official IFC/software sources do not distinguish inversion/order consistency from spacing consistency for this project, and do not establish psychological validity for a furniture-layout descriptor. Those sources justify keeping the metric as an engineering descriptor with explicit provenance; they do not select a formula.
+docs/project/evidence/d3-d5-synthesis.md does not select inversion consistency over spacing consistency and does not establish psychological validity for a furniture-layout metric. It supports keeping this as an auditable engineering descriptor only.
 
 ### Repository and runtime facts
 
-- The clean-room contract requires an explicit AxisSpec, analysis-unit frame origin, arithmetic-mean anchor, one complete SourceGeometry3D.world_transform, explicit tie metadata, and distinct status values.
-- docs/project/d6-relative-order-decision.md records Candidate A as provisional, with spacing deferred.
-- The repository uses Pixi with Python 3.12. The numerical command ran through Pixi.
-- The portable Blender executable reports Blender 5.2.0 LTS.
+The clean-room contract requires explicit AxisSpec, analysis-unit frame origin, provenance, distinct status values, and no production implementation before owner approval. The repository uses Pixi Python 3.12 and the required portable Blender 5.2.0 LTS.
 
-### Numerical probe observations
+### Numerical observations
 
-The table above is direct output from the deterministic oracle. The strongest discriminator is the reversed fixture: Candidate A changes from 1 to 0, while Candidate B remains 1. Translation, positive scale/unit conversion, and joint geometry/frame rotation preserve both values. Fixed-axis rotation and explicit axis reversal demonstrate that direction is a declared variable rather than an implicit world axis.
-
-### Blender geometry diagnostics
-
-The render makes the computational variables inspectable: axis direction, anchor positions, tie region, frame origin, and rotated geometry. It supports checking the intended inputs and transforms only. It does not measure perception or human judgments.
+Pairwise tie edges preserve A-C in the chained fixture; transitive blocks do not. Arithmetic anchors change under uneven vertex sampling; area-weighted triangle centroids do not for the supplied same triangles. Translation, non-zero frame origin, positive unit conversion, joint rotation, and explicit axis reversal retain their expected behavior.
 
 ### Engineering interpretation
 
-Under the stated question, Candidate A is the only candidate that directly reports agreement with the declared sequence direction. Candidate B is useful evidence that spacing is a different descriptor question: it treats aligned and reversed arrangements identically and reacts to uneven gaps. The numerical comparison therefore supports retaining the provisional Candidate A selection for relative-order/v1, while keeping spacing consistency out of this slice.
+Candidate A remains the better answer to the declared reference-sequence question than spacing consistency. Its final tie semantics and anchor representative are not approved. The experiment now exposes the anchor counterexample instead of hiding it.
 
-This result is conditional on the tie and missing-geometry policies written above. It does not authorize production code or the implementation design table.
+### Owner decisions still required
 
-### Questions still requiring owner decision
-
-1. Should a partial tie remain computed when at least one comparable pair exists, or should any tie make the complete relative-order result undefined?
-2. Is excluding not_available objects acceptable when two usable anchors remain, or should any missing member make the whole result not_available?
-3. Should Candidate B remain only a deferred design reference, or should a separately named spacing descriptor be planned later?
-4. Is the explicit-axis policy confirmed with no implicit default, including for adapters that author a default axis?
-
-If any answer changes the metric meaning or status semantics, reopen the owner decision before Task 3b.
+1. Select pairwise tie edges or interval/block/transitive ties for the final descriptor.
+2. Decide whether missing geometry is excluded with computed/partial when two usable objects remain, and confirm invalid geometry is descriptor-level invalid.
+3. Select arithmetic vertex mean or area-weighted triangle centroid as the normative anchor; decide whether vertex-only inputs may use the former as an explicit fallback.
+4. Approve the formal reference-order input contract and provenance fields.
+5. Approve the tracked-manifest plus ignored-binary retention strategy.
+6. Approve whether the design is mature enough to enter Task 3b implementation design.
 
 ### Claims this experiment cannot support
 
-It cannot show that people perceive a layout as ordered, regular, balanced, usable, or aesthetically coherent. It cannot validate a psychological scale, infer affordance, establish a human threshold, or transfer results from the synthetic fixtures to real rooms. A later human experiment would require a separate stimulus, task, observer, and validity design.
+It cannot establish that people perceive a layout as ordered, regular, balanced, usable, or aesthetically coherent. It cannot validate a psychological scale, infer affordance, set human thresholds, or transfer synthetic-fixture behavior to real rooms.
 
-## Checkpoint and stop
+## Grill-me reverse review
 
-Task 3a produced design evidence only. No features/, adapters/, or test/ module was modified. No implementation design table was created.
+- Did the record turn a provisional selection into a production specification? No; the anchor and tie decisions are explicitly reopened.
+- Did it confuse reference order with intrinsic order? No; reference order is an external input with provenance, and missing order is not_evaluated.
+- Did it silently retain connected-component ties? No; pairwise edges are selected provisionally and transitive blocks are comparison-only.
+- Did it omit edge cases? The fixture table includes every requested boundary and the oracle asserts each expected state/value.
+- Did it smuggle psychological validity into the metric? No; the interpretation and limitation sections reject that inference.
+- Can another session reproduce the evidence? Yes for tracked inputs and oracle; ignored Blender binaries are verified/recreated through the tracked manifest.
+- Did it modify production code, adapters, tests, IFC, Bonsai, or dependencies? The intended diff is restricted to design documents, design scripts/fixtures, and the manifest/oracle evidence.
 
-**STOP FOR DESIGN REVIEW** - owner review is required before creating d6-relative-order-implementation-design.md, beginning Task 3b, or writing descriptor production code.
+## Stop condition
+
+This follow-up remains design-only. Do not create d6-relative-order-implementation-design.md and do not begin Task 3b.
+
+**STOP FOR DESIGN REVIEW**

@@ -1,19 +1,82 @@
 {
-  "schema": "relative-order-design-fixture/v1",
+  "schema": "relative-order-design-fixture/v2",
   "tolerance": 0.1,
-  "declared_object_ids": ["A", "B", "C"],
   "cases": [
     {
       "id": "aligned",
       "description": "Declared sequence follows the positive axis.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
-        "B": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
-        "C": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "design_question": "declared sequence direction",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "all comparable pairs follow the positive axis",
+        "completeness": "complete"
       }
     },
     {
@@ -21,12 +84,76 @@
       "description": "Declared sequence is opposite to the positive axis.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]},
-        "B": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
-        "C": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "design_question": "direction reversal discriminator",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 0.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "sequence is fully opposite while spacing remains uniform",
+        "completeness": "complete"
       }
     },
     {
@@ -34,12 +161,76 @@
       "description": "Order is aligned but adjacent gaps differ.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
-        "B": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]},
-        "C": {"geometry_status": "computed", "vertices": [[4.9, -0.1], [5.1, -0.1], [5.0, 0.1]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              4.9,
+              -0.1
+            ],
+            [
+              5.1,
+              -0.1
+            ],
+            [
+              5.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "design_question": "spacing is separate from order",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 0.8,
+        "reason_contains": "pair order is aligned while adjacent gaps differ",
+        "completeness": "complete"
       }
     },
     {
@@ -47,12 +238,76 @@
       "description": "A and B are tied within tolerance; C remains comparable.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
-        "B": {"geometry_status": "computed", "vertices": [[-0.05, -0.1], [0.15, -0.1], [0.05, 0.1]]},
-        "C": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.05,
+              -0.1
+            ],
+            [
+              0.15,
+              -0.1
+            ],
+            [
+              0.05,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "design_question": "partial tie handling",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 0.1,
+        "reason_contains": "A and B are tied; A-C and B-C remain comparable",
+        "completeness": "complete"
       }
     },
     {
@@ -60,12 +315,76 @@
       "description": "All usable positions are tied.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
-        "B": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
-        "C": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "design_question": "all pairs tied",
+      "expected": {
+        "status": "undefined",
+        "candidate_a_status": "undefined",
+        "candidate_a_value": null,
+        "candidate_b_status": "undefined",
+        "candidate_b_value": null,
+        "reason_contains": "no comparable pair remains",
+        "completeness": "not_applicable"
       }
     },
     {
@@ -73,12 +392,76 @@
       "description": "Aligned case translated with its frame origin.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [10.0, -4.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        10.0,
+        -4.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[9.9, -4.1], [10.1, -4.1], [10.0, -3.9]]},
-        "B": {"geometry_status": "computed", "vertices": [[10.9, -4.1], [11.1, -4.1], [11.0, -3.9]]},
-        "C": {"geometry_status": "computed", "vertices": [[11.9, -4.1], [12.1, -4.1], [12.0, -3.9]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              9.9,
+              -4.1
+            ],
+            [
+              10.1,
+              -4.1
+            ],
+            [
+              10.0,
+              -3.9
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              10.9,
+              -4.1
+            ],
+            [
+              11.1,
+              -4.1
+            ],
+            [
+              11.0,
+              -3.9
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              11.9,
+              -4.1
+            ],
+            [
+              12.1,
+              -4.1
+            ],
+            [
+              12.0,
+              -3.9
+            ]
+          ]
+        }
+      },
+      "design_question": "common translation invariance",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "positions and frame origin share a translation",
+        "completeness": "complete"
       }
     },
     {
@@ -86,12 +469,76 @@
       "description": "Centimetre source coordinates converted to metre analysis units.",
       "source_unit": "cm",
       "unit_to_analysis": 0.01,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[-10.0, -10.0], [10.0, -10.0], [0.0, 10.0]]},
-        "B": {"geometry_status": "computed", "vertices": [[90.0, -10.0], [110.0, -10.0], [100.0, 10.0]]},
-        "C": {"geometry_status": "computed", "vertices": [[190.0, -10.0], [210.0, -10.0], [200.0, 10.0]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -10.0,
+              -10.0
+            ],
+            [
+              10.0,
+              -10.0
+            ],
+            [
+              0.0,
+              10.0
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              90.0,
+              -10.0
+            ],
+            [
+              110.0,
+              -10.0
+            ],
+            [
+              100.0,
+              10.0
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              190.0,
+              -10.0
+            ],
+            [
+              210.0,
+              -10.0
+            ],
+            [
+              200.0,
+              10.0
+            ]
+          ]
+        }
+      },
+      "design_question": "positive unit conversion invariance",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "positive cm-to-m conversion preserves pair signs and normalized gaps",
+        "completeness": "complete"
       }
     },
     {
@@ -99,12 +546,76 @@
       "description": "Geometry and explicit axis rotate together by 90 degrees.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [0.0, 1.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        1.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[0.1, -0.1], [0.1, 0.1], [-0.1, 0.0]]},
-        "B": {"geometry_status": "computed", "vertices": [[0.1, 0.9], [0.1, 1.1], [-0.1, 1.0]]},
-        "C": {"geometry_status": "computed", "vertices": [[0.1, 1.9], [0.1, 2.1], [-0.1, 2.0]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              0.1
+            ],
+            [
+              -0.1,
+              0.0
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.1,
+              0.9
+            ],
+            [
+              0.1,
+              1.1
+            ],
+            [
+              -0.1,
+              1.0
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.1,
+              1.9
+            ],
+            [
+              0.1,
+              2.1
+            ],
+            [
+              -0.1,
+              2.0
+            ]
+          ]
+        }
+      },
+      "design_question": "joint geometry and frame rotation",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "rotated geometry is evaluated on the rotated explicit axis",
+        "completeness": "complete"
       }
     },
     {
@@ -112,12 +623,76 @@
       "description": "The same rotated geometry is measured against the unrotated axis.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[0.1, -0.1], [0.1, 0.1], [-0.1, 0.0]]},
-        "B": {"geometry_status": "computed", "vertices": [[0.1, 0.9], [0.1, 1.1], [-0.1, 1.0]]},
-        "C": {"geometry_status": "computed", "vertices": [[0.1, 1.9], [0.1, 2.1], [-0.1, 2.0]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              0.1
+            ],
+            [
+              -0.1,
+              0.0
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.1,
+              0.9
+            ],
+            [
+              0.1,
+              1.1
+            ],
+            [
+              -0.1,
+              1.0
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.1,
+              1.9
+            ],
+            [
+              0.1,
+              2.1
+            ],
+            [
+              -0.1,
+              2.0
+            ]
+          ]
+        }
+      },
+      "design_question": "fixed-axis rotation sensitivity",
+      "expected": {
+        "status": "undefined",
+        "candidate_a_status": "undefined",
+        "candidate_a_value": null,
+        "candidate_b_status": "undefined",
+        "candidate_b_value": null,
+        "reason_contains": "all projected positions become tied on the old axis",
+        "completeness": "not_applicable"
       }
     },
     {
@@ -125,12 +700,76 @@
       "description": "The declared axis points opposite to the aligned sequence.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [-1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        -1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
-        "B": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
-        "C": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "design_question": "explicit axis direction",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 0.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "negating the axis reverses directional order but not gaps",
+        "completeness": "complete"
       }
     },
     {
@@ -138,12 +777,72 @@
       "description": "B has fewer than three usable plan vertices.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
-        "B": {"geometry_status": "invalid", "vertices": [[1.0, 0.0], [1.0, 0.0]]},
-        "C": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "invalid",
+          "vertices": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "design_question": "invalid geometry handling",
+      "expected": {
+        "status": "invalid",
+        "candidate_a_status": "invalid",
+        "candidate_a_value": null,
+        "candidate_b_status": "invalid",
+        "candidate_b_value": null,
+        "reason_contains": "malformed geometry reaches the descriptor",
+        "completeness": "not_computable"
       }
     },
     {
@@ -151,13 +850,1108 @@
       "description": "B has no source geometry and cannot supply an anchor.",
       "source_unit": "m",
       "unit_to_analysis": 1.0,
-      "frame_origin": [0.0, 0.0],
-      "axis": [1.0, 0.0],
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
       "objects": {
-        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
-        "B": {"geometry_status": "not_available", "vertices": []},
-        "C": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]}
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "not_available",
+          "vertices": []
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "design_question": "two usable objects plus missing geometry",
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "the missing member is excluded and two usable anchors remain",
+        "completeness": "partial"
+      }
+    },
+    {
+      "id": "chained_ties",
+      "description": "A-B and B-C are pairwise tied, while A-C exceeds tolerance.",
+      "design_question": "non-transitive tolerance semantics",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.05,
+              -0.1
+            ],
+            [
+              0.15000000000000002,
+              -0.1
+            ],
+            [
+              0.05,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.009999999999999995,
+              -0.1
+            ],
+            [
+              0.21000000000000002,
+              -0.1
+            ],
+            [
+              0.11,
+              0.1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "undefined",
+        "candidate_b_value": null,
+        "reason_contains": "pairwise edges do not form a transitive block",
+        "completeness": "complete"
+      }
+    },
+    {
+      "id": "axis_missing",
+      "description": "No explicit AxisSpec is supplied.",
+      "design_question": "missing explicit axis",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": null,
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "not_evaluated",
+        "candidate_a_status": "not_evaluated",
+        "candidate_a_value": null,
+        "candidate_b_status": "not_evaluated",
+        "candidate_b_value": null,
+        "reason_contains": "reference axis is missing",
+        "completeness": "not_applicable"
+      }
+    },
+    {
+      "id": "axis_zero",
+      "description": "Axis vector has zero length.",
+      "design_question": "zero axis validation",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "invalid",
+        "candidate_a_status": "invalid",
+        "candidate_a_value": null,
+        "candidate_b_status": "invalid",
+        "candidate_b_value": null,
+        "reason_contains": "axis is not a finite unit vector",
+        "completeness": "not_applicable"
+      }
+    },
+    {
+      "id": "axis_non_unit",
+      "description": "Axis vector is finite but not normalized.",
+      "design_question": "non-unit axis validation",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        2.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "invalid",
+        "candidate_a_status": "invalid",
+        "candidate_a_value": null,
+        "candidate_b_status": "invalid",
+        "candidate_b_value": null,
+        "reason_contains": "axis is not a finite unit vector",
+        "completeness": "not_applicable"
+      }
+    },
+    {
+      "id": "one_usable",
+      "description": "Only one object has usable geometry.",
+      "design_question": "insufficient usable object count",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "not_available",
+          "vertices": []
+        },
+        "C": {
+          "geometry_status": "not_available",
+          "vertices": []
+        }
+      },
+      "expected": {
+        "status": "undefined",
+        "candidate_a_status": "undefined",
+        "candidate_a_value": null,
+        "candidate_b_status": "undefined",
+        "candidate_b_value": null,
+        "reason_contains": "fewer than two usable objects",
+        "completeness": "not_applicable"
+      }
+    },
+    {
+      "id": "all_geometry_missing",
+      "description": "No object has projectable geometry.",
+      "design_question": "not-available versus insufficient data",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "not_available",
+          "vertices": []
+        },
+        "B": {
+          "geometry_status": "not_available",
+          "vertices": []
+        },
+        "C": {
+          "geometry_status": "not_available",
+          "vertices": []
+        }
+      },
+      "expected": {
+        "status": "not_available",
+        "candidate_a_status": "not_available",
+        "candidate_a_value": null,
+        "candidate_b_status": "not_available",
+        "candidate_b_value": null,
+        "reason_contains": "no usable geometry",
+        "completeness": "not_applicable"
+      }
+    },
+    {
+      "id": "tolerance_boundary",
+      "description": "One pair differs by exactly the inclusive tolerance.",
+      "design_question": "inclusive tie boundary",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.0,
+              -0.1
+            ],
+            [
+              0.2,
+              -0.1
+            ],
+            [
+              0.1,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 0.2,
+        "reason_contains": "absolute difference equal to tolerance is tied",
+        "completeness": "complete"
+      }
+    },
+    {
+      "id": "non_dictionary_reference_order",
+      "description": "Reference order deliberately differs from lexical object-ID order.",
+      "design_question": "external order provenance versus ID sorting",
+      "reference_order": [
+        "zeta",
+        "alpha",
+        "middle"
+      ],
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "zeta": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "alpha": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "middle": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "input reference order is used verbatim",
+        "completeness": "complete"
+      }
+    },
+    {
+      "id": "missing_reference_order",
+      "description": "Objects exist but no external reference sequence is supplied.",
+      "design_question": "reference order is mandatory input",
+      "reference_order": null,
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.1,
+              -0.1
+            ],
+            [
+              0.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.9,
+              -0.1
+            ],
+            [
+              1.1,
+              -0.1
+            ],
+            [
+              1.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              1.9,
+              -0.1
+            ],
+            [
+              2.1,
+              -0.1
+            ],
+            [
+              2.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "not_evaluated",
+        "candidate_a_status": "not_evaluated",
+        "candidate_a_value": null,
+        "candidate_b_status": "not_evaluated",
+        "candidate_b_value": null,
+        "reason_contains": "reference order is missing",
+        "completeness": "not_applicable"
+      }
+    },
+    {
+      "id": "nonzero_frame_origin",
+      "description": "Projection uses a non-zero analysis-frame origin.",
+      "design_question": "frame-origin subtraction",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        5.0,
+        2.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              4.9,
+              -0.1
+            ],
+            [
+              5.1,
+              -0.1
+            ],
+            [
+              5.0,
+              0.1
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              5.9,
+              -0.1
+            ],
+            [
+              6.1,
+              -0.1
+            ],
+            [
+              6.0,
+              0.1
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              6.9,
+              -0.1
+            ],
+            [
+              7.1,
+              -0.1
+            ],
+            [
+              7.0,
+              0.1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 1.0,
+        "reason_contains": "frame origin is subtracted in analysis units",
+        "completeness": "complete"
+      }
+    },
+    {
+      "id": "tessellation_sparse",
+      "description": "Same rectangle triangles with sparse versus uneven boundary vertex sampling.",
+      "design_question": "anchor representative sensitivity to vertex sampling density",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -1.0,
+              -0.5
+            ],
+            [
+              1.0,
+              -0.5
+            ],
+            [
+              1.0,
+              0.5
+            ],
+            [
+              -1.0,
+              0.5
+            ]
+          ],
+          "triangles": [
+            [
+              [
+                -1.0,
+                -0.5
+              ],
+              [
+                1.0,
+                -0.5
+              ],
+              [
+                1.0,
+                0.5
+              ]
+            ],
+            [
+              [
+                -1.0,
+                -0.5
+              ],
+              [
+                1.0,
+                0.5
+              ],
+              [
+                -1.0,
+                0.5
+              ]
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.4,
+              -0.1
+            ],
+            [
+              0.6,
+              -0.1
+            ],
+            [
+              0.5,
+              0.1
+            ]
+          ],
+          "triangles": [
+            [
+              [
+                0.4,
+                -0.1
+              ],
+              [
+                0.6,
+                -0.1
+              ],
+              [
+                0.5,
+                0.1
+              ]
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              2.4,
+              -0.1
+            ],
+            [
+              2.6,
+              -0.1
+            ],
+            [
+              2.5,
+              0.1
+            ]
+          ],
+          "triangles": [
+            [
+              [
+                2.4,
+                -0.1
+              ],
+              [
+                2.6,
+                -0.1
+              ],
+              [
+                2.5,
+                0.1
+              ]
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 1.0,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 0.4,
+        "area_weighted_candidate_a_value": 1.0,
+        "reason_contains": "area-weighted triangles preserve the same rectangle centroid",
+        "completeness": "complete"
+      }
+    },
+    {
+      "id": "tessellation_dense",
+      "description": "Same rectangle triangles with sparse versus uneven boundary vertex sampling.",
+      "design_question": "anchor representative sensitivity to vertex sampling density",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0
+      ],
+      "objects": {
+        "A": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              -1.0,
+              -0.5
+            ],
+            [
+              1.0,
+              -0.5
+            ],
+            [
+              1.0,
+              0.5
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              -0.30000000000000004
+            ],
+            [
+              1.0,
+              -0.2
+            ],
+            [
+              1.0,
+              -0.09999999999999998
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.09999999999999998
+            ],
+            [
+              1.0,
+              0.20000000000000007
+            ],
+            [
+              1.0,
+              0.30000000000000004
+            ],
+            [
+              1.0,
+              0.4
+            ]
+          ],
+          "triangles": [
+            [
+              [
+                -1.0,
+                -0.5
+              ],
+              [
+                1.0,
+                -0.5
+              ],
+              [
+                1.0,
+                0.5
+              ]
+            ],
+            [
+              [
+                -1.0,
+                -0.5
+              ],
+              [
+                1.0,
+                0.5
+              ],
+              [
+                -1.0,
+                0.5
+              ]
+            ]
+          ]
+        },
+        "B": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              0.4,
+              -0.1
+            ],
+            [
+              0.6,
+              -0.1
+            ],
+            [
+              0.5,
+              0.1
+            ]
+          ],
+          "triangles": [
+            [
+              [
+                0.4,
+                -0.1
+              ],
+              [
+                0.6,
+                -0.1
+              ],
+              [
+                0.5,
+                0.1
+              ]
+            ]
+          ]
+        },
+        "C": {
+          "geometry_status": "computed",
+          "vertices": [
+            [
+              2.4,
+              -0.1
+            ],
+            [
+              2.6,
+              -0.1
+            ],
+            [
+              2.5,
+              0.1
+            ]
+          ],
+          "triangles": [
+            [
+              [
+                2.4,
+                -0.1
+              ],
+              [
+                2.6,
+                -0.1
+              ],
+              [
+                2.5,
+                0.1
+              ]
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "status": "computed",
+        "candidate_a_status": "computed",
+        "candidate_a_value": 0.6666666666666666,
+        "candidate_b_status": "computed",
+        "candidate_b_value": 0.15384615384615385,
+        "area_weighted_candidate_a_value": 1.0,
+        "reason_contains": "area-weighted triangles preserve the same rectangle centroid",
+        "completeness": "complete"
       }
     }
-  ]
+  ],
+  "reference_order": [
+    "A",
+    "B",
+    "C"
+  ],
+  "reference_order_provenance": {
+    "kind": "external_reference_order",
+    "source": "design_fixture",
+    "stable_key": "fixture.reference_order",
+    "not_from": [
+      "ifc_entity_order",
+      "authored_group_member_order",
+      "object_id_lexical_order",
+      "geometry_inference"
+    ]
+  }
 }

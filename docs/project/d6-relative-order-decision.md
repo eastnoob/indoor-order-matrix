@@ -1,6 +1,6 @@
 # D6 relative-order decision record
 
-**Status:** provisional owner selection; computational design experiment and implementation design review remain before production implementation
+**Status:** provisional owner selection reopened after Task 3a follow-up; computational design and implementation design review remain before production implementation
 
 **Scope:** the first clean-room relative arrangement descriptor
 **Contract boundary:** this document defines computable layout evidence. It
@@ -232,3 +232,25 @@ are reviewed. The final approval record must contain:
 - any changed anchor or transform semantics.
 
 Only after that approval may Task 4 add production code or descriptor tests.
+
+## Task 3a follow-up reopening (2026-09-28)
+
+The follow-up experiment in `docs/project/d6-relative-order-design-experiment.md`
+found two design choices that the original provisional record did not settle:
+
+1. A tolerance relation is not transitive. In the chained fixture, A-B and B-C
+   are tied while A-C is not. Pairwise tie edges keep A-C comparable and yield
+   Candidate A = 1.0; connected interval/block semantics merge all three and
+   yield `undefined`. The oracle now compares both explicitly and no longer
+   silently adopts connected components.
+2. The arithmetic mean of vertices is sensitive to tessellation density. Two
+   records with the same explicit triangles produce different arithmetic
+   anchors and different Candidate A values, while the area-weighted triangle
+   centroid remains stable. The canonical contract can support the latter only
+   when explicit triangles are present.
+
+Therefore Candidate A remains the provisional formula direction, but the owner
+decision is reopened for tie semantics, anchor representative, missing-geometry
+partial status, reference-order provenance, and persistent design artifacts.
+No production implementation or Task 3b design table is authorized by this
+follow-up.

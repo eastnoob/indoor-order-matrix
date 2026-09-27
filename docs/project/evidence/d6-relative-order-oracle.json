@@ -1,0 +1,4236 @@
+{
+  "anchor_methods": [
+    "arithmetic_mean",
+    "area_weighted_triangle_centroid"
+  ],
+  "fixture": "D:/PROJECTS/understandOtherPackage/order_analyzer/scripts/design/relative_order/fixtures.json",
+  "fixture_sha256": "51d4c7dd5fefa146fd305e176d9e69e41ff20a8d2404a75357f45eb089b435ce",
+  "reference_order": [
+    "A",
+    "B",
+    "C"
+  ],
+  "reference_order_provenance": {
+    "kind": "external_reference_order",
+    "not_from": [
+      "ifc_entity_order",
+      "authored_group_member_order",
+      "object_id_lexical_order",
+      "geometry_inference"
+    ],
+    "source": "design_fixture",
+    "stable_key": "fixture.reference_order"
+  },
+  "results": {
+    "aligned": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              1.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              1.0,
+              1.0
+            ],
+            "mean_gap": 1.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 1.0,
+            "C": 2.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          1.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          2.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          1.0,
+          1.0
+        ],
+        "mean_gap": 1.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 1.0,
+        "C": 2.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    },
+    "all_geometry_missing": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "geometry not available",
+            "B": "geometry not available",
+            "C": "geometry not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "geometry not available",
+            "B": "geometry not available",
+            "C": "geometry not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        }
+      },
+      "anchors": {},
+      "candidate_a": {
+        "status": "not_available",
+        "value": null
+      },
+      "candidate_b": {
+        "status": "not_available",
+        "value": null
+      },
+      "completeness": "not_applicable",
+      "excluded": {
+        "A": "geometry not available",
+        "B": "geometry not available",
+        "C": "geometry not available"
+      },
+      "invalid": {},
+      "positions": {},
+      "reason": "no usable geometry",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "not_available"
+    },
+    "all_ties": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              1.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              1.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              1.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 0,
+            "inversions": 0,
+            "status": "undefined",
+            "tie_edges": [
+              [
+                "A",
+                "B"
+              ],
+              [
+                "A",
+                "C"
+              ],
+              [
+                "B",
+                "C"
+              ]
+            ],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [
+              [
+                "A",
+                "B",
+                "C"
+              ]
+            ],
+            "value": null
+          },
+          "candidate_b": {
+            "gaps": [
+              0.0,
+              0.0
+            ],
+            "mean_gap": 0.0,
+            "normalized_deviation": null,
+            "status": "undefined",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 1.0,
+            "B": 1.0,
+            "C": 1.0
+          },
+          "reason": "no comparable pair remains",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "undefined",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 0,
+              "inversions": 0,
+              "status": "undefined",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ],
+                [
+                  "A",
+                  "C"
+                ],
+                [
+                  "B",
+                  "C"
+                ]
+              ],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              ],
+              "value": null
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 0,
+              "inversions": 0,
+              "status": "undefined",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ],
+                [
+                  "A",
+                  "C"
+                ],
+                [
+                  "B",
+                  "C"
+                ]
+              ],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              ],
+              "value": null
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          1.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          1.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          1.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 0,
+        "inversions": 0,
+        "status": "undefined",
+        "tie_edges": [
+          [
+            "A",
+            "B"
+          ],
+          [
+            "A",
+            "C"
+          ],
+          [
+            "B",
+            "C"
+          ]
+        ],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "value": null
+      },
+      "candidate_b": {
+        "gaps": [
+          0.0,
+          0.0
+        ],
+        "mean_gap": 0.0,
+        "normalized_deviation": null,
+        "status": "undefined",
+        "value": null
+      },
+      "completeness": "not_applicable",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 1.0,
+        "B": 1.0,
+        "C": 1.0
+      },
+      "reason": "no comparable pair remains",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "undefined",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 0,
+          "inversions": 0,
+          "status": "undefined",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "A",
+              "C"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [
+            [
+              "A",
+              "B",
+              "C"
+            ]
+          ],
+          "value": null
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 0,
+          "inversions": 0,
+          "status": "undefined",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "A",
+              "C"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [
+            [
+              "A",
+              "B",
+              "C"
+            ]
+          ],
+          "value": null
+        }
+      }
+    },
+    "axis_missing": {
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "candidate_a": {
+            "status": "not_evaluated",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_evaluated",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "reason": "reference axis is missing",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_evaluated"
+        },
+        "arithmetic_mean": {
+          "candidate_a": {
+            "status": "not_evaluated",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_evaluated",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "reason": "reference axis is missing",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_evaluated"
+        }
+      },
+      "candidate_a": {
+        "status": "not_evaluated",
+        "value": null
+      },
+      "candidate_b": {
+        "status": "not_evaluated",
+        "value": null
+      },
+      "completeness": "not_applicable",
+      "reason": "reference axis is missing",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "not_evaluated"
+    },
+    "axis_non_unit": {
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "candidate_a": {
+            "status": "invalid",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "invalid",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "reason": "axis is not a finite unit vector",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "invalid"
+        },
+        "arithmetic_mean": {
+          "candidate_a": {
+            "status": "invalid",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "invalid",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "reason": "axis is not a finite unit vector",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "invalid"
+        }
+      },
+      "candidate_a": {
+        "status": "invalid",
+        "value": null
+      },
+      "candidate_b": {
+        "status": "invalid",
+        "value": null
+      },
+      "completeness": "not_applicable",
+      "reason": "axis is not a finite unit vector",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "invalid"
+    },
+    "axis_reversal": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              1.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 3,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 0.0
+          },
+          "candidate_b": {
+            "gaps": [
+              1.0,
+              1.0
+            ],
+            "mean_gap": 1.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": -0.0,
+            "B": -1.0,
+            "C": -2.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 3,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 0.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 3,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 0.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          1.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          2.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 3,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 0.0
+      },
+      "candidate_b": {
+        "gaps": [
+          1.0,
+          1.0
+        ],
+        "mean_gap": 1.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": -0.0,
+        "B": -1.0,
+        "C": -2.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 3,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 0.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 3,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 0.0
+        }
+      }
+    },
+    "axis_zero": {
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "candidate_a": {
+            "status": "invalid",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "invalid",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "reason": "axis is not a finite unit vector",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "invalid"
+        },
+        "arithmetic_mean": {
+          "candidate_a": {
+            "status": "invalid",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "invalid",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "reason": "axis is not a finite unit vector",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "invalid"
+        }
+      },
+      "candidate_a": {
+        "status": "invalid",
+        "value": null
+      },
+      "candidate_b": {
+        "status": "invalid",
+        "value": null
+      },
+      "completeness": "not_applicable",
+      "reason": "axis is not a finite unit vector",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "invalid"
+    },
+    "chained_ties": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              0.05000000000000001,
+              -0.03333333333333333
+            ],
+            "C": [
+              0.11,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 1,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [
+              [
+                "A",
+                "B"
+              ],
+              [
+                "B",
+                "C"
+              ]
+            ],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [
+              [
+                "A",
+                "B",
+                "C"
+              ]
+            ],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              0.05000000000000001,
+              0.05999999999999999
+            ],
+            "mean_gap": 0.055,
+            "normalized_deviation": null,
+            "status": "undefined",
+            "value": null
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 0.05000000000000001,
+            "C": 0.11
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 1,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ],
+                [
+                  "B",
+                  "C"
+                ]
+              ],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              ],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 0,
+              "inversions": 0,
+              "status": "undefined",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ],
+                [
+                  "B",
+                  "C"
+                ]
+              ],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              ],
+              "value": null
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          0.05000000000000001,
+          -0.03333333333333333
+        ],
+        "C": [
+          0.11,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 1,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [
+          [
+            "A",
+            "B"
+          ],
+          [
+            "B",
+            "C"
+          ]
+        ],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          0.05000000000000001,
+          0.05999999999999999
+        ],
+        "mean_gap": 0.055,
+        "normalized_deviation": null,
+        "status": "undefined",
+        "value": null
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 0.05000000000000001,
+        "C": 0.11
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 1,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [
+            [
+              "A",
+              "B",
+              "C"
+            ]
+          ],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 0,
+          "inversions": 0,
+          "status": "undefined",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [
+            [
+              "A",
+              "B",
+              "C"
+            ]
+          ],
+          "value": null
+        }
+      }
+    },
+    "degenerate_geometry": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "invalid",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "invalid",
+            "value": null
+          },
+          "completeness": "not_computable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {
+            "B": "geometry status is invalid"
+          },
+          "positions": {},
+          "reason": "invalid geometry reached descriptor",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "invalid"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "status": "invalid",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "invalid",
+            "value": null
+          },
+          "completeness": "not_computable",
+          "excluded": {},
+          "invalid": {
+            "B": "geometry status is invalid"
+          },
+          "positions": {
+            "A": 0.0,
+            "C": 2.0
+          },
+          "reason": "invalid geometry reached descriptor",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "invalid"
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          2.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "status": "invalid",
+        "value": null
+      },
+      "candidate_b": {
+        "status": "invalid",
+        "value": null
+      },
+      "completeness": "not_computable",
+      "excluded": {},
+      "invalid": {
+        "B": "geometry status is invalid"
+      },
+      "positions": {
+        "A": 0.0,
+        "C": 2.0
+      },
+      "reason": "invalid geometry reached descriptor",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "invalid"
+    },
+    "geometry_frame_rotation": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.03333333333333333,
+              0.0
+            ],
+            "B": [
+              0.03333333333333333,
+              1.0
+            ],
+            "C": [
+              0.03333333333333333,
+              2.0
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              1.0,
+              1.0
+            ],
+            "mean_gap": 1.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 1.0,
+            "C": 2.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.03333333333333333,
+          0.0
+        ],
+        "B": [
+          0.03333333333333333,
+          1.0
+        ],
+        "C": [
+          0.03333333333333333,
+          2.0
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          1.0,
+          1.0
+        ],
+        "mean_gap": 1.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 1.0,
+        "C": 2.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    },
+    "geometry_rotation_fixed_axis": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.03333333333333333,
+              0.0
+            ],
+            "B": [
+              0.03333333333333333,
+              1.0
+            ],
+            "C": [
+              0.03333333333333333,
+              2.0
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 0,
+            "inversions": 0,
+            "status": "undefined",
+            "tie_edges": [
+              [
+                "A",
+                "B"
+              ],
+              [
+                "A",
+                "C"
+              ],
+              [
+                "B",
+                "C"
+              ]
+            ],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [
+              [
+                "A",
+                "B",
+                "C"
+              ]
+            ],
+            "value": null
+          },
+          "candidate_b": {
+            "gaps": [
+              0.0,
+              0.0
+            ],
+            "mean_gap": 0.0,
+            "normalized_deviation": null,
+            "status": "undefined",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.03333333333333333,
+            "B": 0.03333333333333333,
+            "C": 0.03333333333333333
+          },
+          "reason": "no comparable pair remains",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "undefined",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 0,
+              "inversions": 0,
+              "status": "undefined",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ],
+                [
+                  "A",
+                  "C"
+                ],
+                [
+                  "B",
+                  "C"
+                ]
+              ],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              ],
+              "value": null
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 0,
+              "inversions": 0,
+              "status": "undefined",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ],
+                [
+                  "A",
+                  "C"
+                ],
+                [
+                  "B",
+                  "C"
+                ]
+              ],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              ],
+              "value": null
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.03333333333333333,
+          0.0
+        ],
+        "B": [
+          0.03333333333333333,
+          1.0
+        ],
+        "C": [
+          0.03333333333333333,
+          2.0
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 0,
+        "inversions": 0,
+        "status": "undefined",
+        "tie_edges": [
+          [
+            "A",
+            "B"
+          ],
+          [
+            "A",
+            "C"
+          ],
+          [
+            "B",
+            "C"
+          ]
+        ],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "value": null
+      },
+      "candidate_b": {
+        "gaps": [
+          0.0,
+          0.0
+        ],
+        "mean_gap": 0.0,
+        "normalized_deviation": null,
+        "status": "undefined",
+        "value": null
+      },
+      "completeness": "not_applicable",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.03333333333333333,
+        "B": 0.03333333333333333,
+        "C": 0.03333333333333333
+      },
+      "reason": "no comparable pair remains",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "undefined",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 0,
+          "inversions": 0,
+          "status": "undefined",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "A",
+              "C"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [
+            [
+              "A",
+              "B",
+              "C"
+            ]
+          ],
+          "value": null
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 0,
+          "inversions": 0,
+          "status": "undefined",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "A",
+              "C"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [
+            [
+              "A",
+              "B",
+              "C"
+            ]
+          ],
+          "value": null
+        }
+      }
+    },
+    "missing_geometry": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "geometry not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 1,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              2.0
+            ],
+            "mean_gap": 2.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "partial",
+          "excluded": {
+            "B": "geometry not available"
+          },
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "C": 2.0
+          },
+          "reason": "some reference-order members were excluded",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 1,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 1,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          2.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 1,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          2.0
+        ],
+        "mean_gap": 2.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "partial",
+      "excluded": {
+        "B": "geometry not available"
+      },
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "C": 2.0
+      },
+      "reason": "some reference-order members were excluded",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 1,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 1,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    },
+    "missing_reference_order": {
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "candidate_a": {
+            "status": "not_evaluated",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_evaluated",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "reason": "reference order is missing",
+          "reference_order": null,
+          "reference_order_provenance": {
+            "override": true,
+            "source": "case.reference_order"
+          },
+          "status": "not_evaluated"
+        },
+        "arithmetic_mean": {
+          "candidate_a": {
+            "status": "not_evaluated",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_evaluated",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "reason": "reference order is missing",
+          "reference_order": null,
+          "reference_order_provenance": {
+            "override": true,
+            "source": "case.reference_order"
+          },
+          "status": "not_evaluated"
+        }
+      },
+      "candidate_a": {
+        "status": "not_evaluated",
+        "value": null
+      },
+      "candidate_b": {
+        "status": "not_evaluated",
+        "value": null
+      },
+      "completeness": "not_applicable",
+      "reason": "reference order is missing",
+      "reference_order": null,
+      "reference_order_provenance": {
+        "override": true,
+        "source": "case.reference_order"
+      },
+      "status": "not_evaluated"
+    },
+    "non_dictionary_reference_order": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "alpha": "triangle representation is not available",
+            "middle": "triangle representation is not available",
+            "zeta": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "zeta",
+            "alpha",
+            "middle"
+          ],
+          "reference_order_provenance": {
+            "override": true,
+            "source": "case.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "alpha": [
+              1.0,
+              -0.03333333333333333
+            ],
+            "middle": [
+              2.0,
+              -0.03333333333333333
+            ],
+            "zeta": [
+              0.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              1.0,
+              1.0
+            ],
+            "mean_gap": 1.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "alpha": 1.0,
+            "middle": 2.0,
+            "zeta": 0.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "zeta",
+            "alpha",
+            "middle"
+          ],
+          "reference_order_provenance": {
+            "override": true,
+            "source": "case.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "alpha": [
+          1.0,
+          -0.03333333333333333
+        ],
+        "middle": [
+          2.0,
+          -0.03333333333333333
+        ],
+        "zeta": [
+          0.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          1.0,
+          1.0
+        ],
+        "mean_gap": 1.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "alpha": 1.0,
+        "middle": 2.0,
+        "zeta": 0.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "zeta",
+        "alpha",
+        "middle"
+      ],
+      "reference_order_provenance": {
+        "override": true,
+        "source": "case.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    },
+    "nonzero_frame_origin": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              5.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              6.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              7.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              1.0,
+              1.0
+            ],
+            "mean_gap": 1.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 1.0,
+            "C": 2.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          5.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          6.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          7.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          1.0,
+          1.0
+        ],
+        "mean_gap": 1.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 1.0,
+        "C": 2.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    },
+    "one_usable": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "geometry not available",
+            "C": "geometry not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "status": "undefined",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "undefined",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "B": "geometry not available",
+            "C": "geometry not available"
+          },
+          "invalid": {},
+          "positions": {
+            "A": 0.0
+          },
+          "reason": "fewer than two usable objects",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "undefined"
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "status": "undefined",
+        "value": null
+      },
+      "candidate_b": {
+        "status": "undefined",
+        "value": null
+      },
+      "completeness": "not_applicable",
+      "excluded": {
+        "B": "geometry not available",
+        "C": "geometry not available"
+      },
+      "invalid": {},
+      "positions": {
+        "A": 0.0
+      },
+      "reason": "fewer than two usable objects",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "undefined"
+    },
+    "partial_ties": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              0.049999999999999996,
+              -0.03333333333333333
+            ],
+            "C": [
+              1.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 2,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [
+              [
+                "A",
+                "B"
+              ]
+            ],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [
+              [
+                "A",
+                "B"
+              ]
+            ],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              0.049999999999999996,
+              0.95
+            ],
+            "mean_gap": 0.5,
+            "normalized_deviation": 0.8999999999999999,
+            "status": "computed",
+            "value": 0.10000000000000009
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 0.049999999999999996,
+            "C": 1.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 2,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ]
+              ],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B"
+                ]
+              ],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 2,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ]
+              ],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B"
+                ]
+              ],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          0.049999999999999996,
+          -0.03333333333333333
+        ],
+        "C": [
+          1.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 2,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          0.049999999999999996,
+          0.95
+        ],
+        "mean_gap": 0.5,
+        "normalized_deviation": 0.8999999999999999,
+        "status": "computed",
+        "value": 0.10000000000000009
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 0.049999999999999996,
+        "C": 1.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 2,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 2,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "value": 1.0
+        }
+      }
+    },
+    "positive_scale_unit_conversion": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              1.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              1.0,
+              1.0
+            ],
+            "mean_gap": 1.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 1.0,
+            "C": 2.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          1.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          2.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          1.0,
+          1.0
+        ],
+        "mean_gap": 1.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 1.0,
+        "C": 2.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    },
+    "reversed": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              2.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              1.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              0.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 3,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 0.0
+          },
+          "candidate_b": {
+            "gaps": [
+              1.0,
+              1.0
+            ],
+            "mean_gap": 1.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 2.0,
+            "B": 1.0,
+            "C": 0.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 3,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 0.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 3,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 0.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          2.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          1.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          0.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 3,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 0.0
+      },
+      "candidate_b": {
+        "gaps": [
+          1.0,
+          1.0
+        ],
+        "mean_gap": 1.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 2.0,
+        "B": 1.0,
+        "C": 0.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 3,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 0.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 3,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 0.0
+        }
+      }
+    },
+    "tessellation_dense": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {
+            "A": [
+              0.0,
+              0.0
+            ],
+            "B": [
+              0.5,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.5,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              0.5,
+              2.0
+            ],
+            "mean_gap": 1.25,
+            "normalized_deviation": 0.6,
+            "status": "computed",
+            "value": 0.4
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 0.5,
+            "C": 2.5
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.6666666666666666,
+              0.03333333333333334
+            ],
+            "B": [
+              0.5,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.5,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 1,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 0.6666666666666667
+          },
+          "candidate_b": {
+            "gaps": [
+              0.16666666666666663,
+              2.0
+            ],
+            "mean_gap": 1.0833333333333333,
+            "normalized_deviation": 0.8461538461538463,
+            "status": "computed",
+            "value": 0.15384615384615374
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.6666666666666666,
+            "B": 0.5,
+            "C": 2.5
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 1,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 0.6666666666666667
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 1,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 0.6666666666666667
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.6666666666666666,
+          0.03333333333333334
+        ],
+        "B": [
+          0.5,
+          -0.03333333333333333
+        ],
+        "C": [
+          2.5,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 1,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 0.6666666666666667
+      },
+      "candidate_b": {
+        "gaps": [
+          0.16666666666666663,
+          2.0
+        ],
+        "mean_gap": 1.0833333333333333,
+        "normalized_deviation": 0.8461538461538463,
+        "status": "computed",
+        "value": 0.15384615384615374
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.6666666666666666,
+        "B": 0.5,
+        "C": 2.5
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 1,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 0.6666666666666667
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 1,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 0.6666666666666667
+        }
+      }
+    },
+    "tessellation_sparse": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {
+            "A": [
+              0.0,
+              0.0
+            ],
+            "B": [
+              0.5,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.5,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              0.5,
+              2.0
+            ],
+            "mean_gap": 1.25,
+            "normalized_deviation": 0.6,
+            "status": "computed",
+            "value": 0.4
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 0.5,
+            "C": 2.5
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              0.0
+            ],
+            "B": [
+              0.5,
+              -0.03333333333333333
+            ],
+            "C": [
+              2.5,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              0.5,
+              2.0
+            ],
+            "mean_gap": 1.25,
+            "normalized_deviation": 0.6,
+            "status": "computed",
+            "value": 0.4
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 0.5,
+            "C": 2.5
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          0.0
+        ],
+        "B": [
+          0.5,
+          -0.03333333333333333
+        ],
+        "C": [
+          2.5,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          0.5,
+          2.0
+        ],
+        "mean_gap": 1.25,
+        "normalized_deviation": 0.6,
+        "status": "computed",
+        "value": 0.4
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 0.5,
+        "C": 2.5
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    },
+    "tolerance_boundary": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              0.10000000000000002,
+              -0.03333333333333333
+            ],
+            "C": [
+              1.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 2,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [
+              [
+                "A",
+                "B"
+              ]
+            ],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [
+              [
+                "A",
+                "B"
+              ]
+            ],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              0.10000000000000002,
+              0.9
+            ],
+            "mean_gap": 0.5,
+            "normalized_deviation": 0.8,
+            "status": "computed",
+            "value": 0.19999999999999996
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 0.10000000000000002,
+            "C": 1.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 2,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ]
+              ],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B"
+                ]
+              ],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 2,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [
+                [
+                  "A",
+                  "B"
+                ]
+              ],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [
+                [
+                  "A",
+                  "B"
+                ]
+              ],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          0.10000000000000002,
+          -0.03333333333333333
+        ],
+        "C": [
+          1.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 2,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          0.10000000000000002,
+          0.9
+        ],
+        "mean_gap": 0.5,
+        "normalized_deviation": 0.8,
+        "status": "computed",
+        "value": 0.19999999999999996
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 0.10000000000000002,
+        "C": 1.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 2,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 2,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "value": 1.0
+        }
+      }
+    },
+    "translation": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              10.0,
+              -4.033333333333333
+            ],
+            "B": [
+              11.0,
+              -4.033333333333333
+            ],
+            "C": [
+              12.0,
+              -4.033333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              1.0,
+              1.0
+            ],
+            "mean_gap": 1.0,
+            "normalized_deviation": 0.0,
+            "status": "computed",
+            "value": 1.0
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 1.0,
+            "C": 2.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          10.0,
+          -4.033333333333333
+        ],
+        "B": [
+          11.0,
+          -4.033333333333333
+        ],
+        "C": [
+          12.0,
+          -4.033333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          1.0,
+          1.0
+        ],
+        "mean_gap": 1.0,
+        "normalized_deviation": 0.0,
+        "status": "computed",
+        "value": 1.0
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 1.0,
+        "C": 2.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    },
+    "uneven_spacing": {
+      "anchor_method": "arithmetic_mean",
+      "anchor_methods": {
+        "area_weighted_triangle_centroid": {
+          "anchor_method": "area_weighted_triangle_centroid",
+          "anchors": {},
+          "candidate_a": {
+            "status": "not_available",
+            "value": null
+          },
+          "candidate_b": {
+            "status": "not_available",
+            "value": null
+          },
+          "completeness": "not_applicable",
+          "excluded": {
+            "A": "triangle representation is not available",
+            "B": "triangle representation is not available",
+            "C": "triangle representation is not available"
+          },
+          "invalid": {},
+          "positions": {},
+          "reason": "no usable geometry",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "not_available"
+        },
+        "arithmetic_mean": {
+          "anchor_method": "arithmetic_mean",
+          "anchors": {
+            "A": [
+              0.0,
+              -0.03333333333333333
+            ],
+            "B": [
+              2.0,
+              -0.03333333333333333
+            ],
+            "C": [
+              5.0,
+              -0.03333333333333333
+            ]
+          },
+          "candidate_a": {
+            "comparable_pairs": 3,
+            "inversions": 0,
+            "status": "computed",
+            "tie_edges": [],
+            "tie_semantics": "pairwise_edges",
+            "transitive_blocks": [],
+            "value": 1.0
+          },
+          "candidate_b": {
+            "gaps": [
+              2.0,
+              3.0
+            ],
+            "mean_gap": 2.5,
+            "normalized_deviation": 0.2,
+            "status": "computed",
+            "value": 0.8
+          },
+          "completeness": "complete",
+          "excluded": {},
+          "invalid": {},
+          "positions": {
+            "A": 0.0,
+            "B": 2.0,
+            "C": 5.0
+          },
+          "reason": "all reference-order members are usable",
+          "reference_order": [
+            "A",
+            "B",
+            "C"
+          ],
+          "reference_order_provenance": {
+            "override": false,
+            "source": "fixture.reference_order"
+          },
+          "status": "computed",
+          "tie_semantics_comparison": {
+            "pairwise_edges": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "pairwise_edges",
+              "transitive_blocks": [],
+              "value": 1.0
+            },
+            "transitive_blocks": {
+              "comparable_pairs": 3,
+              "inversions": 0,
+              "status": "computed",
+              "tie_edges": [],
+              "tie_semantics": "transitive_blocks",
+              "transitive_blocks": [],
+              "value": 1.0
+            }
+          }
+        }
+      },
+      "anchors": {
+        "A": [
+          0.0,
+          -0.03333333333333333
+        ],
+        "B": [
+          2.0,
+          -0.03333333333333333
+        ],
+        "C": [
+          5.0,
+          -0.03333333333333333
+        ]
+      },
+      "candidate_a": {
+        "comparable_pairs": 3,
+        "inversions": 0,
+        "status": "computed",
+        "tie_edges": [],
+        "tie_semantics": "pairwise_edges",
+        "transitive_blocks": [],
+        "value": 1.0
+      },
+      "candidate_b": {
+        "gaps": [
+          2.0,
+          3.0
+        ],
+        "mean_gap": 2.5,
+        "normalized_deviation": 0.2,
+        "status": "computed",
+        "value": 0.8
+      },
+      "completeness": "complete",
+      "excluded": {},
+      "invalid": {},
+      "positions": {
+        "A": 0.0,
+        "B": 2.0,
+        "C": 5.0
+      },
+      "reason": "all reference-order members are usable",
+      "reference_order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "reference_order_provenance": {
+        "override": false,
+        "source": "fixture.reference_order"
+      },
+      "status": "computed",
+      "tie_semantics_comparison": {
+        "pairwise_edges": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "pairwise_edges",
+          "transitive_blocks": [],
+          "value": 1.0
+        },
+        "transitive_blocks": {
+          "comparable_pairs": 3,
+          "inversions": 0,
+          "status": "computed",
+          "tie_edges": [],
+          "tie_semantics": "transitive_blocks",
+          "transitive_blocks": [],
+          "value": 1.0
+        }
+      }
+    }
+  },
+  "schema": "relative-order-design-oracle/v2",
+  "selected_tie_semantics_for_candidate_a": "pairwise_edges",
+  "tolerance": 0.1
+}

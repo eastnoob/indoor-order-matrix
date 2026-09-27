@@ -6,8 +6,8 @@ not a perceptual validity experiment.
 """
 
 import argparse
+import hashlib
 import json
-import math
 import sys
 from pathlib import Path
 
@@ -81,8 +81,20 @@ def add_tie_ring(center, radius, mat, name):
     ring.data.materials.append(mat)
 
 
-def add_panel(panel_origin, title, positions, axis, axis_color, tie_center=None, tie_radius=0.0, panel_name="panel"):
-    """Create a labelled panel with local anchors and an explicit analysis axis."""
+def add_panel(
+    panel_origin,
+    title,
+    positions,
+    axis,
+    axis_color,
+    reference_label,
+    observed_label,
+    tie_center=None,
+    tie_radius=0.0,
+    axis_length=2.7,
+    panel_name="panel",
+):
+    """Create a panel that separates reference order from observed projection order."""
     ox, oy = panel_origin
     points = [(ox + x, oy + y) for x, y in positions]
     for label, point in zip(("A", "B", "C"), points):
@@ -93,8 +105,10 @@ def add_panel(panel_origin, title, positions, axis, axis_color, tie_center=None,
     origin_marker.name = f"{panel_name}_frame_origin"
     origin_marker.data.materials.append(title_material)
     add_text("O", (frame_origin[0] - 0.16, frame_origin[1] - 0.16), 0.15, title_material, f"{panel_name}_origin_label")
-    add_arrow(frame_origin, axis, 2.7, axis_color, f"{panel_name}_axis")
-    add_text(title, (ox, oy + 1.18), 0.25, title_material, f"{panel_name}_title")
+    add_arrow(frame_origin, axis, axis_length, axis_color, f"{panel_name}_axis")
+    add_text(title, (ox, oy + 1.30), 0.22, title_material, f"{panel_name}_title")
+    add_text(reference_label, (ox, oy + 1.02), 0.16, title_material, f"{panel_name}_reference_order")
+    add_text(observed_label, (ox, oy + 0.80), 0.16, axis_color, f"{panel_name}_observed_order")
     add_text("+ direction", (ox + axis[0] * 1.30, oy - 0.93 + axis[1] * 1.30), 0.16, axis_color, f"{panel_name}_direction_label")
     if tie_center is not None:
         add_tie_ring((ox + tie_center[0], oy + tie_center[1]), tie_radius, tie_material, f"{panel_name}_tie_region")
@@ -110,6 +124,8 @@ def main():
     argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
     args = parser.parse_args(argv)
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    fixture_bytes = args.fixture.read_bytes()
+    fixture_data = json.loads(fixture_bytes)
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     global anchor_material, axis_material, reverse_material, tie_material, title_material
@@ -131,9 +147,19 @@ def main():
     light.data.shape = "DISK"
     light.data.size = 12.0
 
-    add_panel((-3.7, 2.0), "aligned | A=1, B=1", [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0)], (1.0, 0.0), axis_material, panel_name="aligned")
-    add_panel((3.5, 2.0), "rotated geometry + translated frame | A=1, B=1", [(0.0, 0.0), (0.0, 1.0), (0.0, 2.0)], (0.0, 1.0), axis_material, panel_name="rotated")
-    add_panel((0.0, -2.1), "partial tie + axis reversal", [(0.0, 0.0), (0.05, 0.0), (1.0, 0.0)], (1.0, 0.0), axis_material, tie_center=(0.025, 0.0), tie_radius=0.30, panel_name="ties")
+    add_panel(
+        (-3.7, 2.0), "aligned | A=1, B=1", [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0)],
+        (1.0, 0.0), axis_material, "reference: A -> B -> C", "observed +axis: A -> B -> C", panel_name="aligned"
+    )
+    add_panel(
+        (3.5, 2.0), "rotated geometry + translated frame", [(0.0, -0.70), (0.0, -0.20), (0.0, 0.30)],
+        (0.0, 1.0), axis_material, "reference: A -> B -> C", "observed +axis: A -> B -> C", axis_length=1.3, panel_name="rotated"
+    )
+    add_panel(
+        (0.0, -2.1), "partial tie + axis reversal", [(0.0, 0.0), (0.05, 0.0), (1.0, 0.0)],
+        (1.0, 0.0), axis_material, "reference: A -> B -> C", "observed +axis: A ~ B < C",
+        tie_center=(0.025, 0.0), tie_radius=0.30, panel_name="ties"
+    )
     add_arrow((-1.0, -2.85), (-1.0, 0.0), 2.7, reverse_material, "reversed_axis")
     add_text("reversed axis", (-2.15, -2.85), 0.18, reverse_material, "reversed_axis_label")
     add_text("blue = anchor   green/red = declared direction   orange ring = tied region", (0.0, -3.35), 0.18, title_material, "legend")
@@ -171,6 +197,9 @@ def main():
     metadata = {
         "schema": "relative-order-blender-diagnostic/v1",
         "fixture": str(args.fixture.resolve()).replace("\\", "/"),
+        "fixture_sha256": hashlib.sha256(fixture_bytes).hexdigest(),
+        "reference_order": fixture_data.get("reference_order"),
+        "tolerance": fixture_data.get("tolerance"),
         "script": str(Path(__file__).resolve()).replace("\\", "/"),
         "scene": str(blend_path).replace("\\", "/"),
         "render": str(Path(scene.render.filepath).resolve()).replace("\\", "/"),
