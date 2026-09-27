@@ -209,11 +209,11 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 - [ ] **Step 1: Define the comparison before running it**
 
-  Record the factors, hand-built and synthetic fixtures, expected invariants, tie cases, transform cases, output measures, decision rule, seed, and limitations. Do not use human-perception language as an outcome measure.
+  Record the factors, hand-built and synthetic fixtures, expected invariants, tie cases, transform cases, output measures, decision rule, seed, sequence provenance, and limitations. Do not use human-perception language as an outcome measure.
 
 - [ ] **Step 2: Run the smallest sufficient probes**
 
-  Compare the candidates on aligned, reversed, uneven, tied, translated, rotated, and degenerate layouts. Include a chained-tie case such as A~B and B~C while A is not tied to C; define whether tie metadata is pairwise, interval-based, or transitive before interpreting the result. Use the portable Blender probe for the spatial variables and keep a scriptable numerical oracle for every result. Show the resulting scene or capture to the owner before closing the design phase; if inspection is unavailable, record that limitation and do not claim visual verification.
+  Compare the candidates on aligned, reversed, uneven, tied, translated, rotated, and degenerate layouts. Include a chained-tie case such as A~B and B~C while A is not tied to C; define whether tie metadata is pairwise, interval-based, or transitive before interpreting the result. Add missing and invalid AxisSpec, fewer than two usable objects, exact tolerance-boundary differences, non-dictionary object IDs, non-zero frame origin with unit conversion, and tessellation-varied geometry for anchor sensitivity. Record where the declared comparison sequence comes from. Use the portable Blender probe for the spatial variables and keep a scriptable numerical oracle for every result. Show the resulting scene or capture to the owner before closing the design phase; if inspection is unavailable, record that limitation and do not claim visual verification.
 
 - [ ] **Step 3: Record observations and evidence classes**
 

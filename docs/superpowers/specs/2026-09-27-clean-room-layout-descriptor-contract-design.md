@@ -123,6 +123,10 @@ Purpose: describe a relative arrangement along an explicitly declared analysis a
 Required inputs:
 
 - at least two usable object anchors derived from normalized plan geometry;
+- an externally supplied comparison sequence with documented provenance; the
+  sequence must come from an experiment condition, authored relation, or other
+  explicit caller input and may not be inferred from object IDs, drawing order,
+  or adapter traversal;
 - normalized plan geometry or an explicitly documented anchor fallback;
 - analysis frame, axis, unit, and tolerance;
 - stable object identities and source provenance.
@@ -135,6 +139,10 @@ Required failure behavior:
 - unavailable or non-projectable geometry: `not_available` or `invalid` with reason;
 - ties within tolerance: retain tie metadata and do not invent an order;
 - non-finite values: `invalid`.
+
+If the comparison sequence is absent or its provenance is unknown, the result is
+`not_evaluated`. A computed value must never be presented as an intrinsic order
+of an unlabeled scene when it only measures agreement with an external sequence.
 
 ### `authored_group_local_trend`
 
@@ -191,6 +199,13 @@ state its inputs, varied factors, expected invariants, observed outputs,
 decision rule, random seed when applicable, and limitations. A hand example may
 be one arm of the comparison, but it does not replace a reproducible probe when
 the alternatives have materially different behavior.
+
+This comparison includes anchor construction whenever source geometry may have
+different vertex sampling densities. Arithmetic vertex means, area-weighted
+centroids, and other candidates must either be compared on tessellation-varied
+fixtures or explicitly excluded with a documented reason. It also includes
+tolerance sensitivity near the tie boundary and the provenance of any external
+comparison sequence.
 
 Blender may be used in this phase to make geometry, axes, anchors, ties,
 degeneracy, and transform effects visible. Blender previews are diagnostic
