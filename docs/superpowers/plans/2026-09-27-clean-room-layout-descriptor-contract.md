@@ -6,7 +6,7 @@
 
 **Architecture:** New canonical records and algorithms are the normative layer. IFC and SVG adapters translate into those records; they do not compute adapter-specific metrics. Existing NeutralSceneV2, evaluator payloads, helpers, fixtures, and tests are migration candidates or reference evidence only. Delivery proceeds through hard-stopped checkpoints so a failed contract or descriptor does not trigger a big-bang rewrite.
 
-**Tech Stack:** Python 3.12 under Pixi, standard-library dataclasses/JSON, existing `numpy`, `shapely`, and `ifcopenshell` only when a task requires them, pytest, IFC4 fixtures, and SVG fixtures. Use only `D:\Blender\BlenderPortableLTS5.2\App\Blender64\blender.exe` for any later Blender task; this plan does not invoke Blender.
+**Tech Stack:** Python 3.12 under Pixi, standard-library dataclasses/JSON, existing `numpy`, `shapely`, and `ifcopenshell` only when a task requires them, pytest, IFC4 fixtures, and SVG fixtures. Design probes may use only `D:\Blender\BlenderPortableLTS5.2\App\Blender64\blender.exe`; realization tasks do not require Blender unless a separately approved verification step adds it.
 
 **Spec:** `docs/superpowers/specs/2026-09-27-clean-room-layout-descriptor-contract-design.md`
 
@@ -22,6 +22,23 @@
 - `undefined`, `invalid`, `not_available`, and `not_evaluated` remain distinct from numeric zero.
 - Every checkpoint ends with targeted tests or a documented reason it cannot yet be tested.
 - The executor may run several tasks in one session, but must stop at each `STOP FOR REVIEW` marker and report the commit, tests, changed files, and open decisions before continuing.
+
+## Design/realization rule
+
+Each metric, estimator, adapter, or coordinate convention has two phases:
+
+1. **Design:** exploratory scripts, synthetic fixtures, hand calculations, and
+   Blender diagnostics are allowed; production modules and production tests are
+   not. If plausible alternatives differ materially, a reproducible comparison
+   experiment is mandatory.
+2. **Realization:** after the owner approves the design table, implement the
+   exact approved semantics with production code and tests. Any implementation
+   ambiguity reopens design instead of being resolved silently in code.
+
+Blender design probes must use only
+`D:\Blender\BlenderPortableLTS5.2\App\Blender64\blender.exe`, retain their
+script/fixture/settings/output provenance, and be described as computational
+diagnostics rather than perceptual validation.
 
 ## Review Focus
 
@@ -145,7 +162,7 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 ---
 
-### Task 3: Define the relative-order algorithm before implementing it (Checkpoint 0 decision)
+### Task 3: Record initial relative-order candidate designs (Checkpoint 3 design baseline)
 
 **Files:**
 - Create: `docs/project/d6-relative-order-decision.md`
@@ -158,9 +175,9 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
   Compare inversion-rate/order-consistency and spacing-deviation summaries using the same small point fixtures. Record required anchors, axis declaration, tie handling, normalization, and interpretation limits.
 
-- [ ] **Step 2: Select one formula and one default-axis policy**
+- [ ] **Step 2: Record candidate choices and provisional policy**
 
-  Do not select a formula because it matches an existing evaluator row. If evidence cannot distinguish the candidates, mark the decision owner question and stop.
+  Do not treat a formula as final because it matches an existing evaluator row. If evidence cannot distinguish the candidates, mark the decision owner question and carry it into Task 3a.
 
 - [ ] **Step 3: Record invariants and failure cases**
 
@@ -170,7 +187,38 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
   Commit as `docs: decide relative-order contract`.
 
-**STOP FOR OWNER DECISION:** no relative-order production code may be written until the formula document is approved.
+**STOP FOR DESIGN REVIEW:** no relative-order production code may be written until the candidate comparison experiment and design table are approved.
+
+---
+
+### Task 3a: Compare relative-order candidate designs (Checkpoint 3 design phase)
+
+**Files:**
+- Create: `docs/project/d6-relative-order-design-experiment.md`
+- Create: exploratory scripts/fixtures in a clearly marked design-only location
+- Optional outputs: Blender scene, render, or viewport capture with replay metadata
+- Modify: none of the production `features/`, `adapters/`, or `test/` modules
+
+**Interfaces:**
+- Produces a reproducible comparison of order-consistency and spacing-consistency candidates for design review.
+
+- [ ] **Step 1: Define the comparison before running it**
+
+  Record the factors, hand-built and synthetic fixtures, expected invariants, tie cases, transform cases, output measures, decision rule, seed, and limitations. Do not use human-perception language as an outcome measure.
+
+- [ ] **Step 2: Run the smallest sufficient probes**
+
+  Compare the candidates on aligned, reversed, uneven, tied, translated, rotated, and degenerate layouts. Use Blender only when a spatial variable or transform is clearer in a visible scene; keep a scriptable numerical oracle for every result. When Blender is used, show the resulting scene or capture to the owner before closing the design phase.
+
+- [ ] **Step 3: Record observations and evidence classes**
+
+  Separate external evidence, repository facts, computational observations, engineering interpretation, and unresolved owner decisions. Preserve raw inputs and generated outputs.
+
+- [ ] **Step 4: Commit design evidence**
+
+  Commit as `docs: compare relative-order design candidates`.
+
+**STOP FOR DESIGN REVIEW:** do not finalize the implementation design table or write descriptor production code until the probe results have been reviewed.
 
 ---
 
@@ -184,9 +232,9 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 **Interfaces:**
 - Produces the implementation-level contract consumed by Task 4.
 
-- [ ] **Step 1: Record the approved owner decision**
+- [ ] **Step 1: Record the approved owner decision after Task 3a review**
 
-  Update the decision record with the selected `relative-order/v1` order-consistency formula, partial-tie policy, explicit-axis policy, anchor definition, and transform semantics. Do not introduce a new formula.
+  Update the decision record with the selected `relative-order/v1` order-consistency formula, partial-tie policy, explicit-axis policy, anchor definition, and transform semantics. Do not introduce a new formula unless Task 3a exposed a counterexample that reopens the decision.
 
 - [ ] **Step 2: Create the implementation design table**
 
@@ -415,6 +463,8 @@ Task 0
   -> STOP/review
   -> Task 3 (formula decision)
   -> STOP/owner decision
+  -> Task 3a (relative-order design experiment)
+  -> STOP/design review
   -> Task 3b (relative-order implementation design)
   -> STOP/owner review
   -> Task 4 (relative-order)

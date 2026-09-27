@@ -173,6 +173,48 @@ already-approved algorithm, but it may not silently change the scientific
 decision. If the table exposes an unresolved choice, implementation stops and
 the owner decision record is reopened.
 
+## Design and realization phases
+
+Every major metric or adapter has two separate phases. They must not be merged
+because a candidate appears easy to implement.
+
+### Design phase
+
+The design phase may create exploratory scripts, synthetic fixtures, hand
+calculations, geometry probes, Blender scenes, renders, and comparison tables.
+These artifacts are evidence for a design decision, not production APIs.
+
+When two or more plausible definitions, estimators, coordinate conventions, or
+variable constructions could produce different results, an explicit comparison
+experiment is required before the design table is approved. The experiment must
+state its inputs, varied factors, expected invariants, observed outputs,
+decision rule, random seed when applicable, and limitations. A hand example may
+be one arm of the comparison, but it does not replace a reproducible probe when
+the alternatives have materially different behavior.
+
+Blender may be used in this phase to make geometry, axes, anchors, ties,
+degeneracy, and transform effects visible. Blender previews are diagnostic
+evidence about the computational variables. They are not evidence of human
+perceptual validity. A preview must retain its generating script, input fixture,
+settings, output path, and provenance so it can be replayed.
+
+The design phase ends only when the owner has a reviewable design table that
+separates verified external evidence, repository and runtime facts,
+computational observations from exploratory probes, engineering choices,
+unresolved owner decisions, and claims that require a later human experiment.
+
+### Realization phase
+
+The realization phase implements the approved design table with production code,
+contract tests, regression tests, and adapters. It must not change the metric's
+meaning, formula, axis policy, tie policy, or status semantics. If realization
+reveals an ambiguity or a counterexample to the approved design, it stops and
+reopens the design phase; it must not silently repair the specification in code.
+
+Exploratory scripts may be promoted only after they pass the same contract and
+provenance review as any other migrated behavior. A script that only supports a
+design decision remains reference evidence.
+
 ## Incremental delivery and hard stops
 
 This design must be delivered as a sequence of independently reviewable slices. It is not a big-bang rewrite and no later slice may be started because an earlier slice is inconvenient.
@@ -189,9 +231,15 @@ Implement and test the smallest canonical records with hand-built Python fixture
 
 Add the IFC adapter and its contract tests first, then add the SVG oracle adapter. Each adapter must independently produce canonical facts and normalized geometry before any descriptor algorithm is added. Cross-adapter comparison is a separate test task.
 
-### Checkpoint 3 — One descriptor at a time
+### Checkpoint 3 — Design, then realize one descriptor at a time
 
-Implement `relative-order` with hand-computable fixtures and explicit failure states. Only after it passes should `authored_group_local_trend` be implemented. A failed descriptor checkpoint stops the slice; it does not trigger a rewrite of unrelated layers.
+For each descriptor, first compare plausible definitions with reproducible
+fixtures or exploratory scripts, including Blender diagnostics when geometry
+variables need visual inspection. Then produce the implementation design table
+and obtain owner review. Only after that approval may the descriptor be
+implemented with hand-computable fixtures and explicit failure states. A failed
+design or realization checkpoint stops the slice; it does not trigger a rewrite
+of unrelated layers.
 
 ### Checkpoint 4 — Selective migration and comparison
 
@@ -239,7 +287,8 @@ The implementation plan must include:
 4. Descriptor tests for `relative-order` and `authored_group_local_trend` with hand-computable fixtures.
 5. Migration comparison tests showing which current outputs are preserved, changed, or intentionally discarded.
 6. Full existing test-suite execution only after targeted contract tests pass.
-7. Independent review of the diff, migration ledger, test output, and claims before moving to D8–D10.
+7. Reproducible design-probe scripts and, where used, Blender preview artifacts with input/output provenance.
+8. Independent review of the diff, migration ledger, design tables, probe outputs, test output, and claims before moving to D8–D10.
 
 A passing test demonstrates computational behavior under the contract. It does not demonstrate psychological validity.
 
@@ -252,6 +301,9 @@ A passing test demonstrates computational behavior under the contract. It does n
 - The clean-room boundary excludes affordance, perception, Bonsai UI, and broad future metrics.
 - The workplan can name exact files and tests without inventing unresolved semantics.
 - Delivery is divided into the hard-stopped checkpoints above; no big-bang rewrite is planned.
+- Every metric and adapter has a documented design phase before its realization phase.
+- When candidate designs differ materially, a reproducible comparison experiment is recorded before owner approval.
+- Blender previews, when used, are diagnostic computational evidence and are not presented as perceptual validation.
 - No production code is changed by the design stage.
 
 ## Open decisions carried into the workplan
