@@ -1,0 +1,163 @@
+{
+  "schema": "relative-order-design-fixture/v1",
+  "tolerance": 0.1,
+  "declared_object_ids": ["A", "B", "C"],
+  "cases": [
+    {
+      "id": "aligned",
+      "description": "Declared sequence follows the positive axis.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
+        "B": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
+        "C": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]}
+      }
+    },
+    {
+      "id": "reversed",
+      "description": "Declared sequence is opposite to the positive axis.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]},
+        "B": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
+        "C": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]}
+      }
+    },
+    {
+      "id": "uneven_spacing",
+      "description": "Order is aligned but adjacent gaps differ.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
+        "B": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]},
+        "C": {"geometry_status": "computed", "vertices": [[4.9, -0.1], [5.1, -0.1], [5.0, 0.1]]}
+      }
+    },
+    {
+      "id": "partial_ties",
+      "description": "A and B are tied within tolerance; C remains comparable.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
+        "B": {"geometry_status": "computed", "vertices": [[-0.05, -0.1], [0.15, -0.1], [0.05, 0.1]]},
+        "C": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]}
+      }
+    },
+    {
+      "id": "all_ties",
+      "description": "All usable positions are tied.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
+        "B": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
+        "C": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]}
+      }
+    },
+    {
+      "id": "translation",
+      "description": "Aligned case translated with its frame origin.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [10.0, -4.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[9.9, -4.1], [10.1, -4.1], [10.0, -3.9]]},
+        "B": {"geometry_status": "computed", "vertices": [[10.9, -4.1], [11.1, -4.1], [11.0, -3.9]]},
+        "C": {"geometry_status": "computed", "vertices": [[11.9, -4.1], [12.1, -4.1], [12.0, -3.9]]}
+      }
+    },
+    {
+      "id": "positive_scale_unit_conversion",
+      "description": "Centimetre source coordinates converted to metre analysis units.",
+      "source_unit": "cm",
+      "unit_to_analysis": 0.01,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[-10.0, -10.0], [10.0, -10.0], [0.0, 10.0]]},
+        "B": {"geometry_status": "computed", "vertices": [[90.0, -10.0], [110.0, -10.0], [100.0, 10.0]]},
+        "C": {"geometry_status": "computed", "vertices": [[190.0, -10.0], [210.0, -10.0], [200.0, 10.0]]}
+      }
+    },
+    {
+      "id": "geometry_frame_rotation",
+      "description": "Geometry and explicit axis rotate together by 90 degrees.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [0.0, 1.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[0.1, -0.1], [0.1, 0.1], [-0.1, 0.0]]},
+        "B": {"geometry_status": "computed", "vertices": [[0.1, 0.9], [0.1, 1.1], [-0.1, 1.0]]},
+        "C": {"geometry_status": "computed", "vertices": [[0.1, 1.9], [0.1, 2.1], [-0.1, 2.0]]}
+      }
+    },
+    {
+      "id": "geometry_rotation_fixed_axis",
+      "description": "The same rotated geometry is measured against the unrotated axis.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[0.1, -0.1], [0.1, 0.1], [-0.1, 0.0]]},
+        "B": {"geometry_status": "computed", "vertices": [[0.1, 0.9], [0.1, 1.1], [-0.1, 1.0]]},
+        "C": {"geometry_status": "computed", "vertices": [[0.1, 1.9], [0.1, 2.1], [-0.1, 2.0]]}
+      }
+    },
+    {
+      "id": "axis_reversal",
+      "description": "The declared axis points opposite to the aligned sequence.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [-1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
+        "B": {"geometry_status": "computed", "vertices": [[0.9, -0.1], [1.1, -0.1], [1.0, 0.1]]},
+        "C": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]}
+      }
+    },
+    {
+      "id": "degenerate_geometry",
+      "description": "B has fewer than three usable plan vertices.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
+        "B": {"geometry_status": "invalid", "vertices": [[1.0, 0.0], [1.0, 0.0]]},
+        "C": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]}
+      }
+    },
+    {
+      "id": "missing_geometry",
+      "description": "B has no source geometry and cannot supply an anchor.",
+      "source_unit": "m",
+      "unit_to_analysis": 1.0,
+      "frame_origin": [0.0, 0.0],
+      "axis": [1.0, 0.0],
+      "objects": {
+        "A": {"geometry_status": "computed", "vertices": [[-0.1, -0.1], [0.1, -0.1], [0.0, 0.1]]},
+        "B": {"geometry_status": "not_available", "vertices": []},
+        "C": {"geometry_status": "computed", "vertices": [[1.9, -0.1], [2.1, -0.1], [2.0, 0.1]]}
+      }
+    }
+  ]
+}
