@@ -2,7 +2,7 @@
 
 ## 结论摘要
 
-本轮形成 34 条证据记录：20 条官方文档核验、9 条全文来源（6 条外部感知/空间统计论文和 3 条 BIM/动作空间原文）、4 条摘要级来源、1 条不可访问记录。负责人提供的 Protonotarios 2014、Wagemans 2012、Froyen 2015 与 Chaabane 2023 PDF 已逐节核验；证据仍不能支撑“家具布局指标具有心理感知效度”。
+本轮形成 35 条证据记录：20 条官方文档核验、9 条全文来源（6 条外部感知/空间统计论文和 3 条 BIM/动作空间原文）、5 条摘要级来源、1 条不可访问记录。负责人提供的 Protonotarios 2014、Wagemans 2012、Froyen 2015 与 Chaabane 2023 PDF 已逐节核验；Consensus 最后一轮新增 Na/Buruzs 线索；证据仍不能支撑“家具布局指标具有心理感知效度”。
 
 建议一个窄的 D8–D10 纵向切片：
 
@@ -34,6 +34,7 @@
 | Gestalt grouping/continuity | E-PER-005 | 仅保留术语和外部背景 | 全文综述明确存在任务/刺激依赖；不证明家具边界或连续性算法 | 否 |
 | Bayesian grouping / object decomposition | E-PER-006 | 不直接采用 | 计算视觉模型的分组后验；不等于 authored IfcGroup、家具识别或行为区域 | 否 |
 | BIM kitchen spatial-pattern score | E-BIM-009 | 作为检索候选 | 摘要高度匹配厨房/BIM/评分，但具体模式、权重、IFC 和占据几何未核验 | 否 |
+| IfcSpace function/accessibility graph | E-BIM-010 | 作为空间事实/派生图候选 | 摘要支持房间功能和可达性图研究，不支持家具 affordance/clearance 原生实体 | 否 |
 | Bonsai live import | E-SW-003/004 | 暂不执行 | 文档行为已知，现场行为未验证 | 否 |
 
 ## D3 术语裁决
@@ -68,6 +69,7 @@
 7. 确认 Bonsai live import 是后续 gate 还是不在首片范围。
 8. 若后续需要心理研究，负责人需指定家具/建筑刺激、观察者任务和外部实验，不得从本账本推导效度。
 9. Na et al. 2020（DOI 10.1016/j.autcon.2020.103290）全文仍需取得；它是目前最匹配“厨房/BIM/空间评分”的候选。
+10. Buruzs et al. 2022（DOI 10.3390/en15082937）全文仍需取得；它是目前最直接的 IFC/IfcSpace/房间功能/可达性图候选。
 
 ## 完成检查（执行记录）
 

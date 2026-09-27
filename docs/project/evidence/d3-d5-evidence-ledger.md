@@ -584,6 +584,22 @@
 - limitations：当前只有摘要/网页章节片段，不能把其评分公式或厨房阈值写入项目合同。
 - follow_up：优先取得全文；重点核对是否使用 IFC、空间占据/可供区域定义、模式抽取算法和“human architects”比较的实际任务。
 
+### E-BIM-010
+- date：2026-09-27
+- question：IFC/BIM 是否有从 IfcSpace 推断厨房、客厅等房间功能并计算空间可达性的方法？
+- claim：Buruzs 等提出三步 IFC BIM 丰富方法：检测/注入 IfcSpace、从空间几何计算基于可达性的空间连接图、用图卷积网络分类房间功能（如 kitchen、living room、foyer）。
+- evidence_class：BIM_INTEROP
+- source：Buruzs, Sipetic, Blank-Landeshammer & Zucker, “IFC BIM Model Enrichment with Space Function Information Using Graph Neural Networks”
+- version/year：Energies 2022, 15:2937, DOI 10.3390/en15082937
+- locator：[DOI](https://doi.org/10.3390/en15082937)；Consensus fetched record；Consensus paper record [paper](https://consensus.app/papers/ifc-bim-model-enrichment-with-space-function-information-buruzs-sipetic/692f9b350c515a0b8a25d562ee1a4512/?utm_source=chatgpt)
+- access_status：abstract_only
+- short_excerpt_or_paraphrase：摘要描述从 IFC 几何派生 IfcSpace 和 accessibility graph，再用 GCN 分类住宅建筑中的空间功能；结果报告加权 GCN 对分类精度有轻微提升。
+- supports：IfcSpace 功能信息和空间连接/可达性可以作为 BIM 派生层研究；它比泛化的室内规则论文更接近 IFC 语义。
+- does_not_support：不支持家具 affordance/clearance 原生实体、人体动作空间、家具周边操作多边形或心理感知效度。
+- confidence：medium（Consensus 摘要和 DOI/元数据已核验，全文未取得）
+- limitations：房间功能分类不是家具使用区；摘要不能核验 IfcSpace 注入算法、训练数据、几何阈值或 IFC schema 修改方式。
+- follow_up：若要扩展项目 `space_fact` 层，优先取得全文，核对其 IfcSpace、可达性图和住宅 IFC 数据处理方式。
+
 ## 不可访问原文清单
 
 1. Na et al. 2020 `10.1016/j.autcon.2020.103290` 全文：厨房/BIM/评分高度匹配，但当前仍为摘要级，需全文核对 IFC、空间占据和具体评分公式。

@@ -57,6 +57,10 @@
 | S-047 | 负责人提供本地原文：`C:\Users\tianf\Downloads\Building Information Model and Safety Requirements for Spatial Program Validation _ Springer Nature Link.pdf` | 补齐 Chaabane 2023 IfcSpace/安全需求论文全文 | `pdfinfo`：17 页、未加密；SHA256 `F8A998E4AEE943BF8A286C897BBB538229643257B136C5F6EDB7C7ACCFBA8D25`；`pdftotext -layout` 后核对 §§1.3、2、3、3.2、4–5。状态 `full_text_verified`，更新 E-BIM-003 |
 | S-048 | 负责人提供本地原文：`C:\Users\tianf\Downloads\froyen2015.pdf` | 补齐 PMC4593740 对应的 Bayesian Hierarchical Grouping 原文 | `pdfinfo`：23 页、未加密；SHA256 `9EC468CB47A913E809434C59237349E69C0D160F1491DB31B8DF1DB177AADBA9`；`pdftotext -layout` 后核对 Abstract、Computational Framework、BHG applications、Discussion/Conclusion。状态 `full_text_verified`，新增 E-PER-006 |
 | S-049 | `"Performance evaluation of building designs with BIM-based spatial patterns" apartment kitchen` | 定位负责人记忆中的“厨房/房间 + BIM + 空间评分”论文 | 找到 Na, Hong, Jung & Lee 2020，Automation in Construction 118:103290，DOI `10.1016/j.autcon.2020.103290`；摘要明确写 apartment kitchen、standard patterns、BIM model、evaluation logic 和 performance scores；全文尚未取得，登记 E-BIM-009 `abstract_only` |
+| S-050 | Consensus：`BIM kitchen layout spatial patterns performance evaluation occupancy affordance clearance` | 最后一轮锁定厨房/BIM/评分候选 | Na et al. 2020 排名第一并已 `fetch`；9 citations，Automation in Construction 118:103290，DOI `10.1016/j.autcon.2020.103290`；同轮命中 Sydora & Stroulia 2020（107 citations，DOI `10.1016/j.autcon.2020.103368`） |
+| S-051 | Consensus：`BIM interior design kitchen layout human activity space occupancy accessibility score` | 检查空间占据、房间功能和可达性方向 | 命中 Buruzs et al. 2022，DOI `10.3390/en15082937`；摘要描述 IfcSpace 注入、accessibility graph 和 kitchen/living/foyer 功能分类；已 `fetch`，登记 E-BIM-010 `abstract_only` |
+| S-052 | Consensus：`BIM furniture clearance affordance zone interior layout rule checking` | 最后核查家具 affordance/clearance 原生 schema | 命中 Sydora 规则语言、Solihin & Eastman 规则分类等通用规则检查；未命中 IFC 原生家具 affordance/clearance 实体；保持 E-GAP-001 |
+| S-053 | Consensus：`"spatial performance" apartment kitchen BIM patterns` | 复核用户记忆中的厨房性能论文 | Na et al. 2020 再次为首个精确命中；另命中 2026 空间图工作，但超出本轮 D3–D5 时间范围，不纳入账本 |
 
 ## 访问失败与补救
 
@@ -65,6 +69,7 @@
 - 负责人提供的 Protonotarios 与 Wagemans PDF 已通过页数、未加密状态、SHA256 和 `pdftotext` 全文核对；本地 PDF 是本轮的原文访问来源，不把早先的搜索片段或失败状态当作当前证据。
 - Chaabane 2023 Springer chapter：原先 ScanSci 未取得 PDF，本轮负责人提供 PDF 后已全文核验，E-BIM-003 升为 `full_text_verified`。Sydora 2020、Kang 2016、Liu 2014 仍为 `abstract_only`。
 - Na et al. 2020：ScienceDirect/机构记录可核验 DOI 和摘要；全文尚未取得，不能引用具体评分公式、空间占据定义或 IFC 映射。
+- Consensus 最后一轮：Na et al. 2020 是“厨房/BIM/空间模式/评分”的最强匹配；Buruzs et al. 2022 是“IFC/IfcSpace/可达性图/房间功能”的更直接候选；二者均未证明家具 affordance/clearance 原生 schema。
 - Blender 官方发布页：HTTP 402；只保留本机指定便携版版本观察。
 - 未找到直接 IFC 家具 affordance zone 原文：不把项目假设升级为 IFC 事实，列入负责人材料清单。
 
@@ -75,6 +80,7 @@
 - 软件官方文档：见 E-SW-001 至 E-SW-004。
 - 全文感知论文：见 E-PER-001 至 E-PER-006（E-PER-003、E-PER-005、E-PER-006 为负责人提供 PDF 后核验）。
 - 全文 BIM/空间需求论文：见 E-BIM-003 至 E-BIM-005；摘要级候选包括 E-BIM-006 至 E-BIM-009；E-GAP-001 仍表示缺少直接家具 affordance schema。
+- Consensus 最后一轮新增：E-BIM-010；Na/Sydora/Buruzs 的 Consensus fetched 记录均保留 DOI、题名和原文入口。
 
 | S-035 | ScanSci `legal_only` 下载：`10.1111/j.1467-9574.1996.tb01501.x`、`10.3389/fpsyg.2015.00734`、`10.1371/journal.pone.0185276` | 验证可访问原文 | 3 篇成功；van Lieshout、Katkov、Gartus PDF+Markdown 写入 `C:\Users\tianf\Downloads\d3-d5-evidence-papers`；Protonotarios `10.1098/rsif.2014.0342` 失败（无 PDF/Cloudflare，Unpaywall 邮箱配置缺失） |
 | S-036 | ScanSci `legal_only` 下载：`10.1037/a0029333` | Gestalt 综述全文 | 失败：Cloudflare；不安装 CloakBrowser、不配置代理、不启用灰色源 |
