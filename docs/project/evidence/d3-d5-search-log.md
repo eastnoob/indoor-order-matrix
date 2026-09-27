@@ -29,7 +29,7 @@
 | S-018 | `layout order regularity spatial arrangement metric paper open access` | 布局秩序指标 | 命中点模式与图像研究，但没有家具布局验证；逐条降级为摘要或工程候选 |
 | S-019 | `good continuation visual grouping empirical study Frontiers full text` | 连续性实验全文 | 结果偏视觉刺激/图像导引；没有家具/BIM 场景，未用于切片 |
 | S-020 | `visual grouping proximity similarity continuity symmetry open access journal` | Gestalt 术语复核 | 多为综述或观点；关键原文访问受限，登记 E-PER-005 |
-| S-021 | `spatial regularity metric point pattern original research open access` | 点模式规则性原始论文 | 找到 van Lieshout & Baddeley DOI；Wiley 只可读摘要，E-PER-004 |
+| S-021 | `spatial regularity metric point pattern original research open access` | 点模式规则性原始论文 | 找到 van Lieshout & Baddeley DOI；后续 ScanSci 以 OpenAlexOA 下载并人工检查全文，更新 E-PER-004 |
 | S-022 | `official SciPy ConvexHull documentation Qhull degeneracy coplanar points` | 算法正确性和退化 | SciPy 官方文档全文可读；E-GEO-001 |
 | S-023 | `official scikit-learn PCA documentation SVD principal components` | 主方向定义 | scikit-learn 官方文档全文可读；E-GEO-002 |
 | S-024 | `official Shapely buffer distance documentation geometry predicates intersects` | 几何谓词 | Shapely 2.1.2 官方 API 可读；E-GEO-003 |
@@ -47,7 +47,7 @@
 ## 访问失败与补救
 
 - PMC/Europe PMC：reCAPTCHA 或 500；处理为 `inaccessible`/`abstract_only`，不引用搜索片段。
-- Wiley/出版商付费页：保留 DOI 与摘要级结论，禁止写入未读公式。
+- Protonotarios 出版商/PMC：保留 DOI 与摘要级结论，禁止写入未读公式。van Lieshout 原文已由 ScanSci OpenAlexOA 下载并检查。
 - Blender 官方发布页：HTTP 402；只保留本机指定便携版版本观察。
 - 未找到直接 IFC 家具 affordance zone 原文：不把项目假设升级为 IFC 事实，列入负责人材料清单。
 
@@ -57,4 +57,7 @@
 - 算法官方文档：见 E-GEO-001 至 E-GEO-004。
 - 软件官方文档：见 E-SW-001 至 E-SW-004。
 - 全文感知论文：见 E-PER-001、E-PER-002。
-- 摘要/不可访问论文：见 E-PER-003 至 E-PER-005。
+- 摘要/不可访问论文：见 E-PER-003、E-PER-005。
+
+| S-035 | ScanSci `legal_only` 下载：`10.1111/j.1467-9574.1996.tb01501.x`、`10.3389/fpsyg.2015.00734`、`10.1371/journal.pone.0185276` | 验证可访问原文 | 3 篇成功；van Lieshout、Katkov、Gartus PDF+Markdown 写入 `C:\Users\tianf\Downloads\d3-d5-evidence-papers`；Protonotarios `10.1098/rsif.2014.0342` 失败（无 PDF/Cloudflare，Unpaywall 邮箱配置缺失） |
+| S-036 | ScanSci `legal_only` 下载：`10.1037/a0029333` | Gestalt 综述全文 | 失败：Cloudflare；不安装 CloakBrowser、不配置代理、不启用灰色源 |

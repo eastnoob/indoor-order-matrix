@@ -336,18 +336,18 @@
 ### E-PER-004
 - date：2026-09-27
 - question：空间规则性统计 J-function 是否可直接作为项目指标？
-- claim：van Lieshout & Baddeley 摘要将 J=1 解释为 Poisson，J<1 为聚集，J>1 为规则；全文未取得。
+- claim：van Lieshout & Baddeley 定义 J(r)=(1-G(r))/(1-F(r))；Poisson 时 J=1，J<1 表示聚集，J>1 表示规则/抑制，并讨论边界校正估计。
 - evidence_class：PERCEPTION_EMPIRICAL
 - source：van Lieshout & Baddeley, “A nonparametric measure of spatial interaction in point patterns”
 - version/year：Statistica Neerlandica 1996, DOI 10.1111/j.1467-9574.1996.tb01501.x
-- locator：[DOI](https://doi.org/10.1111/j.1467-9574.1996.tb01501.x)，Wiley abstract page
-- access_status：abstract_only
-- short_excerpt_or_paraphrase：只保留摘要对 J-function 方向性解释。
-- supports：规则/聚集术语有点模式统计背景。
+- locator：[DOI](https://doi.org/10.1111/j.1467-9574.1996.tb01501.x)；ScanSci 下载全文 `C:\Users\tianf\Downloads\d3-d5-evidence-papers\vanLieshout1996_Nonparametric.pdf` / `.md`，§1、Definition 1、§5.1、§6
+- access_status：full_text_verified
+- short_excerpt_or_paraphrase：全文给出 J 的定义、Poisson/聚集/规则解释、F/G 的边界校正估计，并警告不规则窗口与高维边界效应。
+- supports：规则/聚集术语的点模式统计定义、估计方法和边界效应。
 - does_not_support：不支持有限房间边界、家具语义、观察者效度或本项目阈值。
 - confidence：low
-- limitations：仅摘要可读；有限房间边界和家具语义未验证。
-- follow_up：不得在 D8–D10 直接采用 J-function，除非完成边界校正和原文核查。
+- limitations：研究对象是平稳点过程和点模式；有限室内边界、家具语义、非平稳布局和心理效度仍未验证。
+- follow_up：不得在 D8–D10 直接采用 J-function；若未来研究需用，必须先定义有限房间边界校正。
 
 ### E-PER-005
 - date：2026-09-27
@@ -426,8 +426,7 @@
 ## 不可访问原文清单
 
 1. Protonotarios et al. 2014 点模式秩序论文全文：出版商需购买；PMC/Europe PMC 请求失败。
-2. van Lieshout & Baddeley 1996 J-function 原文：Wiley 仅摘要可读。
-3. Gestalt 分组综述与 PMC4593740：当前 PMC 入口 reCAPTCHA，无法核验全文。
+2. Gestalt 分组综述与 PMC4593740：当前 PMC 入口 reCAPTCHA/Cloudflare，无法核验全文。
 4. BIM 家具 affordance/clearance 的直接 IFC 原文：检索未找到可访问权威原文，需负责人提供 DOI/PDF/schema。
 5. Blender 5.2 官方发布页：当前访问返回 402；仅把本机便携版 `--version` 作为环境观察，不作官方发布证据。
 
