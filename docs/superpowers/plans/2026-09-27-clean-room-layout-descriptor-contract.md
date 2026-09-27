@@ -213,11 +213,11 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 - [ ] **Step 2: Run the smallest sufficient probes**
 
-  Compare the candidates on aligned, reversed, uneven, tied, translated, rotated, and degenerate layouts. Use the portable Blender probe for the spatial variables and keep a scriptable numerical oracle for every result. Show the resulting scene or capture to the owner before closing the design phase; if inspection is unavailable, record that limitation and do not claim visual verification.
+  Compare the candidates on aligned, reversed, uneven, tied, translated, rotated, and degenerate layouts. Include a chained-tie case such as A~B and B~C while A is not tied to C; define whether tie metadata is pairwise, interval-based, or transitive before interpreting the result. Use the portable Blender probe for the spatial variables and keep a scriptable numerical oracle for every result. Show the resulting scene or capture to the owner before closing the design phase; if inspection is unavailable, record that limitation and do not claim visual verification.
 
 - [ ] **Step 3: Record observations and evidence classes**
 
-  Separate external evidence, repository facts, computational observations, engineering interpretation, and unresolved owner decisions. Preserve raw inputs and generated outputs.
+  Separate external evidence, repository facts, computational observations, engineering interpretation, and unresolved owner decisions. Preserve raw inputs and generated outputs. Track the output or place a compact manifest/result in a tracked evidence path; an ignored local output alone is not durable evidence.
 
 - [ ] **Step 4: Commit design evidence**
 

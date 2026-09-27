@@ -198,6 +198,12 @@ evidence about the computational variables. They are not evidence of human
 perceptual validity. A preview must retain its generating script, input fixture,
 settings, output path, and provenance so it can be replayed.
 
+Design outputs that support a decision must be durable: either track the output
+in Git or copy a compact manifest/result into a tracked project evidence path.
+An ignored local image or blend file alone is not sufficient evidence for a
+later session. If a binary preview is intentionally not tracked, the manifest
+must include the exact replay command and a checksum or equivalent identity.
+
 The design phase ends only when the owner has a reviewable design table that
 separates verified external evidence, repository and runtime facts,
 computational observations from exploratory probes, engineering choices,
