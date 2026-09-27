@@ -139,6 +139,14 @@ def _freeze_json(value: object, path: str) -> FrozenJsonValue:
     raise TypeError(f"{path} has unsupported value type {type(value).__name__}")
 
 
+def _json_object(value: object, path: str) -> Mapping[str, FrozenJsonValue]:
+    """Freeze one JSON object and reject non-object provenance payloads."""
+    frozen = _freeze_json(value, path)
+    if not isinstance(frozen, Mapping):
+        raise ValueError(f"{path} must be a JSON object")
+    return frozen
+
+
 def _json_value(value: object, path: str = "") -> JsonValue:
     """Convert frozen record state to ordinary JSON-compatible containers."""
     if isinstance(value, Enum):
@@ -264,7 +272,7 @@ class AnalysisFrame(_Record):
         object.__setattr__(self, "topology_tolerance", _number(self.topology_tolerance, "analysis_frame.topology_tolerance", positive=True))
         if self.plane not in {"xy", "xz", "yz"}:
             raise ValueError("analysis_frame.plane must be one of xy, xz, yz")
-        object.__setattr__(self, "provenance", _freeze_json(self.provenance, "analysis_frame.provenance"))
+        object.__setattr__(self, "provenance", _json_object(self.provenance, "analysis_frame.provenance"))
 
     @classmethod
     def from_dict(cls, data: object) -> "AnalysisFrame":
@@ -317,7 +325,7 @@ class SourceObjectFact(_Record):
         object.__setattr__(self, "geometry_refs", _refs(self.geometry_refs, "source_object.geometry_refs", sort=True))
         object.__setattr__(self, "authored_group_refs", _refs(self.authored_group_refs, "source_object.authored_group_refs", sort=True))
         object.__setattr__(self, "source_unit", _unit(self.source_unit, "source_object.source_unit"))
-        object.__setattr__(self, "provenance", _freeze_json(self.provenance, "source_object.provenance"))
+        object.__setattr__(self, "provenance", _json_object(self.provenance, "source_object.provenance"))
 
     @classmethod
     def from_dict(cls, data: object) -> "SourceObjectFact":
@@ -360,7 +368,7 @@ class SourceGeometry3D(_Record):
         object.__setattr__(self, "source_representation", _text(self.source_representation, "source_geometry.source_representation"))
         object.__setattr__(self, "source_unit", _unit(self.source_unit, "source_geometry.source_unit"))
         object.__setattr__(self, "world_transform", cast(Matrix4, _matrix(self.world_transform, "source_geometry.world_transform", 4)))
-        object.__setattr__(self, "provenance", _freeze_json(self.provenance, "source_geometry.provenance"))
+        object.__setattr__(self, "provenance", _json_object(self.provenance, "source_geometry.provenance"))
 
     @classmethod
     def from_dict(cls, data: object) -> "SourceGeometry3D":
@@ -415,7 +423,7 @@ class PlanGeometry(_Record):
         if status is not ResultStatus.COMPUTED and reason is None:
             raise ValueError("plan_geometry.reason is required for non-computed geometry")
         object.__setattr__(self, "reason", reason)
-        object.__setattr__(self, "provenance", _freeze_json(self.provenance, "plan_geometry.provenance"))
+        object.__setattr__(self, "provenance", _json_object(self.provenance, "plan_geometry.provenance"))
 
     @classmethod
     def from_dict(cls, data: object) -> "PlanGeometry":
@@ -437,7 +445,7 @@ class AuthoredGroupFact(_Record):
         object.__setattr__(self, "group_id", _text(self.group_id, "authored_group.group_id"))
         object.__setattr__(self, "member_object_ids", _refs(self.member_object_ids, "authored_group.member_object_ids", sort=True))
         object.__setattr__(self, "source_reference", _text(self.source_reference, "authored_group.source_reference"))
-        object.__setattr__(self, "provenance", _freeze_json(self.provenance, "authored_group.provenance"))
+        object.__setattr__(self, "provenance", _json_object(self.provenance, "authored_group.provenance"))
 
     @classmethod
     def from_dict(cls, data: object) -> "AuthoredGroupFact":
@@ -479,7 +487,7 @@ class CanonicalScene(_Record):
                 "authored_groups": lambda item: item.group_id,
             }[name]
             object.__setattr__(self, name, tuple(sorted(records, key=key)))
-        object.__setattr__(self, "provenance", _freeze_json(self.provenance, "canonical_scene.provenance"))
+        object.__setattr__(self, "provenance", _json_object(self.provenance, "canonical_scene.provenance"))
         _validate_scene_references(self)
 
     @property
@@ -540,10 +548,10 @@ class DescriptorResult(_Record):
         object.__setattr__(self, "algorithm_id", _text(self.algorithm_id, "descriptor_result.algorithm_id"))
         if self.unit is not None:
             object.__setattr__(self, "unit", _unit(self.unit, "descriptor_result.unit"))
-        object.__setattr__(self, "parameters", _freeze_json(self.parameters, "descriptor_result.parameters"))
+        object.__setattr__(self, "parameters", _json_object(self.parameters, "descriptor_result.parameters"))
         object.__setattr__(self, "object_ids", _refs(self.object_ids, "descriptor_result.object_ids", sort=True))
         object.__setattr__(self, "group_ids", _refs(self.group_ids, "descriptor_result.group_ids", sort=True))
-        object.__setattr__(self, "provenance", _freeze_json(self.provenance, "descriptor_result.provenance"))
+        object.__setattr__(self, "provenance", _json_object(self.provenance, "descriptor_result.provenance"))
         if not isinstance(self.warnings, (list, tuple)) or any(not isinstance(item, str) or not item.strip() for item in self.warnings):
             raise ValueError("descriptor_result.warnings must contain non-empty strings")
         object.__setattr__(self, "warnings", tuple(self.warnings))

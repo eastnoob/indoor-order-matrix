@@ -148,6 +148,8 @@ def test_rejects_empty_ids_nonfinite_values_invalid_units_and_bad_frames() -> No
         SourceObjectFact(" ")
     with pytest.raises(ValueError, match="finite"):
         SourceObjectFact("object", provenance={"bad": math.inf})
+    with pytest.raises(ValueError, match="JSON object"):
+        SourceObjectFact("object", provenance=[])
     with pytest.raises(ValueError, match="unit"):
         AnalysisFrame(
             "frame",
