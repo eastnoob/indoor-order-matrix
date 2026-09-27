@@ -362,8 +362,24 @@
 - supports：视觉分组术语、外部实验背景以及“不要把线索或效应跨刺激直接迁移”的批判性边界。
 - does_not_support：不支持家具 affordance/clearance、IFC schema、几何算法正确性或本项目心理效度。
 - confidence：high（限于综述所覆盖的视觉知觉文献）
-- limitations：综述对象是视觉刺激与图形–背景组织，不是建筑布局；PMC4593740 仍未取得全文，不能把该条目与本综述混为已核验证据。
-- follow_up：保留为外部感知背景；若后续需要 PMC4593740 的具体实验，负责人仍需提供该原文或作者稿。
+- limitations：综述对象是视觉刺激与图形–背景组织，不是建筑布局；它不覆盖 Froyen 等人的具体 BHG 计算模型。
+- follow_up：保留为外部感知背景；Froyen 2015 已作为独立 E-PER-006 全文记录，不与本综述合并。
+
+### E-PER-006
+- date：2026-09-27
+- question：贝叶斯层次分组能否把图像元素分解为候选对象？
+- claim：Froyen、Feldman 与 Singh 提出 Bayesian Hierarchical Grouping（BHG），把图像视为多个生成源的混合，并用层次聚类近似后验，从而为点聚类、轮廓整合、部件分解和形状补全产生分层分组解释。
+- evidence_class：PERCEPTION_EMPIRICAL
+- source：Froyen, Feldman & Singh, “Bayesian Hierarchical Grouping: Perceptual Grouping as Mixture Estimation”
+- version/year：Psychological Review 2015, 122(4), 575–597, DOI 10.1037/a0039540
+- locator：[DOI](https://doi.org/10.1037/a0039540)；负责人提供原文 `C:\Users\tianf\Downloads\froyen2015.pdf`（23 页，SHA256 `9EC468CB47A913E809434C59237349E69C0D160F1491DB31B8DF1DB177AADBA9`）；Abstract、“The Computational Framework”、BHG applications、Discussion/Conclusion；文本核对 `froyen2015.txt` lines 12–33, 167–236, 248–365, 594–770, 917–956
+- access_status：full_text_verified
+- short_excerpt_or_paraphrase：框架估计每个图像元素属于哪个生成源，并输出树状层次和候选分组的后验概率；作者用点聚类、轮廓/线段整合、形状部件和补全示例说明方法。
+- supports：外部计算视觉先例：分组可以作为带概率和层次的对象归属问题来建模。
+- does_not_support：不支持家具对象识别、IFC/BIM affordance、clearance、空间占据或本项目心理效度；论文讨论的是视觉图像元素而非室内布局。
+- confidence：high（限于论文模型和示例范围）
+- limitations：示例依赖模型设定、生成源类别和先验；论文不是家具/建筑实验，也没有项目所需的人体活动空间测量。
+- follow_up：可作为 D3 分组/聚类的外部背景，不进入 D8–D10 首片，也不能把 BHG 后验当作 authored IfcGroup。
 
 ### E-GAP-001
 - date：2026-09-27
@@ -459,18 +475,18 @@
 ### E-BIM-003
 - date：2026-09-27
 - question：是否有研究把活动/拓扑要求扩展到 IfcSpace？
-- claim：Chaabane 等提出扩展 IfcSpace 以记录活动及 closeness、accessibility、minimum required area 等拓扑/安全要求，并在 Revit/Dynamo 中检查走道宽度、门宽、房间面积和最短距离。
+- claim：Chaabane 等提出扩展 IfcSpace 以记录活动及 closeness、accessibility、minimum required area 等拓扑/安全要求，并在 Revit/Dynamo 中检查走道宽度、门宽、房间面积、房间接近性和自然采光。
 - evidence_class：BIM_INTEROP
 - source：Chaabane et al., “Building Information Model and Safety Requirements for Spatial Program Validation”
 - version/year：2023，Book chapter，DOI 10.1007/978-3-031-25182-5_47
-- locator：[DOI](https://doi.org/10.1007/978-3-031-25182-5_47)；Consensus record [paper](https://consensus.app/papers/details/b7068f1b2766526296b726307102f32b/?utm_source=chatgpt)
-- access_status：abstract_only
-- short_excerpt_or_paraphrase：摘要明确描述 IfcSpace 扩展、活动、接近性/可达性和最小面积要求；全文未取得。
-- supports：直接提供“空间需求扩展层”的研究线索。
-- does_not_support：不能证明该扩展属于 IFC4 标准，也不能核验属性名、数据类型或验证结果。
-- confidence：medium
-- limitations：仅摘要级；Springer PDF 的 ScanSci legal_only 下载失败。
-- follow_up：若要采用，需项目负责人提供全文或作者稿。
+- locator：[DOI](https://doi.org/10.1007/978-3-031-25182-5_47)；负责人提供原文 `C:\Users\tianf\Downloads\Building Information Model and Safety Requirements for Spatial Program Validation _ Springer Nature Link.pdf`（17 页，SHA256 `F8A998E4AEE943BF8A286C897BBB538229643257B136C5F6EDB7C7ACCFBA8D25`）；§1.3、§2、§3、§3.2、§4–§5；文本核对同名 `.txt` lines 171–198, 235–300, 326–356
+- access_status：full_text_verified
+- short_excerpt_or_paraphrase：案例是老年护理院，不是厨房。作者把未来活动及相关安全要求作为 IfcSpace 扩展/空间属性输入，通过 Excel→Revit→Dynamo 流程检查卫生间尺寸、设备/人员门宽、走廊宽度 2.20 m、房间接近性、房间面积和外墙窗等规则。
+- supports：BIM 中可把活动、占用/空间需求和派生 clearance/可达性规则作为显式工程层，并对空间布局做可重复检查。
+- does_not_support：作者明确提出的是 IfcSpace 扩展/补充模型，不是 IFC4 已有的家具 affordance 原生实体；不支持心理感知效度、家具通用阈值或本项目 D8–D10 验收阈值。
+- confidence：high（论文方法/案例范围内）
+- limitations：单一 Revit/Dynamo closed-BIM 平台；案例为养老院职业安全；规则来自项目/专家/规范背景，不能直接迁移到家具使用区。
+- follow_up：保留为 `space_requirement` 与 `derived_clearance_rule` 的外部先例；若采用，必须把 authored requirement 与 IFC 原生属性分层。
 
 ### E-BIM-004
 - date：2026-09-27
@@ -552,10 +568,26 @@
 - limitations：摘要级且场景为设备维护；ScanSci 未找到 PDF。
 - follow_up：不要把维护可达性规则直接迁移为家具行为规则。
 
+### E-BIM-009
+- date：2026-09-27
+- question：是否有“BIM + 厨房空间 + 空间性能/占据模式”研究，计算布局评分？
+- claim：Na 等提出以标准空间模式、BIM 模型和评价逻辑组成的预占用评价方法，从 BIM 提取三维空间模式并按方程与权重计算性能分数；摘要报告了公寓厨房案例，且原型分数与建筑师评价相近。
+- evidence_class：BIM_INTEROP
+- source：Na, Hong, Jung & Lee, “Performance evaluation of building designs with BIM-based spatial patterns”
+- version/year：Automation in Construction 2020, 118:103290, DOI 10.1016/j.autcon.2020.103290
+- locator：[DOI](https://doi.org/10.1016/j.autcon.2020.103290)；ScienceDirect article/abstract；Sejong University bibliographic record
+- access_status：abstract_only
+- short_excerpt_or_paraphrase：摘要和章节摘要说明方法由 standard patterns、BIM model、evaluation logic 三部分组成，案例限于 apartment kitchen spaces，比较提取的模式与标准模式并计算性能分数。
+- supports：这是目前与“厨房/房间布局 + BIM + 模式提取/评分”最匹配的候选；可作为空间关系与工程评分层的检索入口。
+- does_not_support：摘要不能核验具体模式、clearance/occupancy 几何、权重、数据集、建筑师评价协议或 IFC 使用；“与建筑师相近”不等于心理感知效度。
+- confidence：medium（题名、DOI 和摘要已核验；全文未取得）
+- limitations：当前只有摘要/网页章节片段，不能把其评分公式或厨房阈值写入项目合同。
+- follow_up：优先取得全文；重点核对是否使用 IFC、空间占据/可供区域定义、模式抽取算法和“human architects”比较的实际任务。
+
 ## 不可访问原文清单
 
-1. Gestalt 相关条目 PMC4593740：当前 PMC 入口 reCAPTCHA/Cloudflare，无法核验全文；Wagemans 2012 综述已由负责人提供 PDF 并完成全文核验。
-2. BIM 家具 affordance/clearance 的直接 IFC 原文：检索未找到可访问权威原文，需负责人提供 DOI/PDF/schema。
+1. Na et al. 2020 `10.1016/j.autcon.2020.103290` 全文：厨房/BIM/评分高度匹配，但当前仍为摘要级，需全文核对 IFC、空间占据和具体评分公式。
+2. BIM 家具 affordance/clearance 的直接 IFC 原生 schema：Chaabane 是 IfcSpace 扩展先例，不是家具原生实体；仍需更直接的 schema/作者稿。
 3. Blender 5.2 官方发布页：当前访问返回 402；仅把本机便携版 `--version` 作为环境观察，不作官方发布证据。
 
 ## 研究流程出处（非领域证据）

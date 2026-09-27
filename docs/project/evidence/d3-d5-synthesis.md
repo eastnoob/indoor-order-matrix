@@ -2,7 +2,7 @@
 
 ## 结论摘要
 
-本轮形成 32 条证据记录：20 条官方文档核验、7 条全文来源（5 条外部感知/空间统计论文和 2 条动作空间 BIM 原文）、4 条摘要级来源、1 条不可访问记录。负责人提供的 Protonotarios 2014 与 Wagemans 2012 PDF 已逐节核验；证据仍不能支撑“家具布局指标具有心理感知效度”。
+本轮形成 34 条证据记录：20 条官方文档核验、9 条全文来源（6 条外部感知/空间统计论文和 3 条 BIM/动作空间原文）、4 条摘要级来源、1 条不可访问记录。负责人提供的 Protonotarios 2014、Wagemans 2012、Froyen 2015 与 Chaabane 2023 PDF 已逐节核验；证据仍不能支撑“家具布局指标具有心理感知效度”。
 
 建议一个窄的 D8–D10 纵向切片：
 
@@ -27,11 +27,13 @@
 
 | Pset_SpaceOccupancyRequirements | E-BIM-001/002 | IFC 空间活动/占用事实 | 可记录活动人数/面积/净空；不是家具 affordance | 后续 |
 | derived action-space collider | E-BIM-004/005 | 从动作测量或角色 profile 生成派生体 | 可作为 authored/derived geometry；不是 IFC 原生 furniture schema | 否（后续） |
-| IfcSpace extension proposal | E-BIM-003 | 研究型扩展线索 | 摘要级，不能进入 IFC4 事实合同 | 否 |
+| IfcSpace extension proposal | E-BIM-003 | 研究型扩展先例 | 全文显示是 IfcSpace 补充/扩展和 Revit/Dynamo closed-BIM 规则，不是 IFC4 家具原生 schema | 否 |
 | IfcCovering/SurfaceFeature | E-IFC-006 | 可作表面/边界候选 | 不等于视觉/行为边界 | 否 |
 | visual complexity/symmetry perception | E-PER-001/002 | 不纳入工程分数 | 外部背景，不能迁移效度 | 否 |
 | point-pattern order/J-function | E-PER-003/004 | 不直接采用 | 点模式心理量表和 J-function 只在其刺激/点过程范围内成立，非家具验证 | 否 |
 | Gestalt grouping/continuity | E-PER-005 | 仅保留术语和外部背景 | 全文综述明确存在任务/刺激依赖；不证明家具边界或连续性算法 | 否 |
+| Bayesian grouping / object decomposition | E-PER-006 | 不直接采用 | 计算视觉模型的分组后验；不等于 authored IfcGroup、家具识别或行为区域 | 否 |
+| BIM kitchen spatial-pattern score | E-BIM-009 | 作为检索候选 | 摘要高度匹配厨房/BIM/评分，但具体模式、权重、IFC 和占据几何未核验 | 否 |
 | Bonsai live import | E-SW-003/004 | 暂不执行 | 文档行为已知，现场行为未验证 | 否 |
 
 ## D3 术语裁决
@@ -57,7 +59,7 @@
 
 ## 未决问题与负责人材料请求
 
-1. 请提供 BIM 家具 affordance/clearance 直接原文（DOI、作者稿或企业 schema）；目前仍只有检索失败记录。
+1. 请提供 BIM 家具 affordance/clearance 直接原文（DOI、作者稿或企业 schema）；Chaabane 只证明 IfcSpace 扩展和空间规则，仍不是家具原生实体。
 2. 是否允许 IFC4 通用 Clearance 作为家具约束输入？若不允许，确认 `OM_` authored affordance schema。
 3. 首片字段是否采用 `relative-order` 命名？确认分析轴、容差、单位和 tie/重复处理。
 4. 确认 MassPatch 来源（实体几何或已生成 neutral geometry）、PCA 退化阈值、无效几何策略。
@@ -65,7 +67,7 @@
 6. 确认真实 acceptance IFC 是否先独立修复；研究期间不修复 IFC。
 7. 确认 Bonsai live import 是后续 gate 还是不在首片范围。
 8. 若后续需要心理研究，负责人需指定家具/建筑刺激、观察者任务和外部实验，不得从本账本推导效度。
-9. Chaabane 2023 的 IfcSpace 扩展研究全文仍需取得；它是最直接的活动/拓扑要求先例。
+9. Na et al. 2020（DOI 10.1016/j.autcon.2020.103290）全文仍需取得；它是目前最匹配“厨房/BIM/空间评分”的候选。
 
 ## 完成检查（执行记录）
 
@@ -76,6 +78,7 @@
 - [x] 未把摘要、搜索片段、README 或记忆作为原文证据。
 - [x] 不可访问原文和负责人材料请求已列出。
 - [x] 负责人提供的 Protonotarios 2014 与 Wagemans 2012 原文已核验并写入账本；未把其外部感知结果扩展为家具心理效度。
+- [x] 负责人提供的 Chaabane 2023 与 Froyen 2015 原文已核验；已区分 IfcSpace 工程扩展、BHG 计算视觉模型和项目自身推断。
 - [x] 未修改生产代码、未安装依赖、未修复 IFC、未执行 Bonsai 导入、未进入 D6。
 - [ ] 负责人确认首片字段、容差和输入材料后，才允许进入 D6。
 
