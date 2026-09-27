@@ -320,18 +320,18 @@
 ### E-PER-003
 - date：2026-09-27
 - question：点模式秩序是否有原始量表？
-- claim：Protonotarios 等摘要描述以 Poisson 与 Bravais lattice 为锚点的点模式秩序尺度，并使用 Delaunay 三角形熵；全文未能取得。
+- claim：Protonotarios 等通过成对排序建立点模式秩序的 Bradley–Terry 间隔量表，以 Poisson 与 Bravais lattice 为锚点；Delaunay 三角形熵（DTE）在该点模式刺激族上最接近观察者量表。
 - evidence_class：PERCEPTION_EMPIRICAL
 - source：Protonotarios et al., “An absolute interval scale of order for point patterns”
 - version/year：Journal of the Royal Society Interface 2014, DOI 10.1098/rsif.2014.0342
-- locator：[DOI](https://doi.org/10.1098/rsif.2014.0342)；Europe PMC/PMC 原文请求被 reCAPTCHA/500 阻断，出版商显示需购买
-- access_status：abstract_only
-- short_excerpt_or_paraphrase：仅使用摘要/元数据记录研究对象和量表锚点，不记录公式细节。
-- supports：点模式“秩序”可被外部实验操作化的线索。
-- does_not_support：不支持家具布局、算法公式复现或心理效度迁移。
-- confidence：low
-- limitations：仅摘要可读，方法细节、样本质量和公式无法核验。
-- follow_up：项目负责人若需要引用公式，须提供可访问全文或作者稿。
+- locator：[DOI](https://doi.org/10.1098/rsif.2014.0342)；负责人提供原文 `C:\Users\tianf\Downloads\protonotarios2014.pdf`（13 页，SHA256 `0040AC70F9582666F283604A5602F8C60B858AA775EBDCC28C9F0587F870DF84`）；§§2.1–2.2、§§3.1–3.2、§4，PDF pp. 3–8；文本核对 `protonotarios2014.txt` lines 190–220, 300–350, 403–451, 524–606
+- access_status：full_text_verified
+- short_excerpt_or_paraphrase：20 名参与者对 20 个点模式进行成对排序；模式来自晶格抖动、仿射拉伸、增删点和非线性变形。观察者量表约 9.86 jnds；DTE 的交叉验证误差约 0.49 jnd，锚点为 Poisson=0、完美晶格=10。
+- supports：点模式秩序可在特定合成刺激族中被心理物理量表化；DTE 可作为该刺激族的算法候选。
+- does_not_support：不支持家具布局、BIM、清除/可用区、通用算法正确性或本项目心理效度。
+- confidence：high（限于论文自身的点模式范围）
+- limitations：刺激是二维点模式而非家具/室内场景；观察任务、量表锚点和 DTE 参数都不能直接迁移到本项目；论文中的 Drosophila 应用也不是布局验证。
+- follow_up：仅保留为外部感知背景；D8–D10 不采用 DTE 或其 jnd 数值，除非另有家具刺激实验。
 
 ### E-PER-004
 - date：2026-09-27
@@ -352,18 +352,18 @@
 ### E-PER-005
 - date：2026-09-27
 - question：Gestalt 连续性能否证明家具边界？
-- claim：检索到的 Gestalt 分组综述/研究涉及邻近、相似、闭合、良好延续等视觉刺激，但关键 PMC 原文当前被 reCAPTCHA 阻断。
+- claim：Wagemans 等综述系统讨论邻近、相似、共同命运、良好延续、闭合、对称和图形–背景组织，并明确指出线索交互、任务/刺激依赖和跨范式推广仍有限。
 - evidence_class：PERCEPTION_EMPIRICAL
-- source：Gestalt grouping review/search set（PMC 2012；PMC4593740）
-- version/year：2012–2015（原文版本无法核验）
-- locator：检索日志中的 PMC 入口；当前访问返回 reCAPTCHA，无可核验全文段落
-- access_status：inaccessible
-- short_excerpt_or_paraphrase：只记录检索方向，不把搜索片段当作证据。
-- supports：无可直接用于本项目的可访问证据。
-- does_not_support：不能支撑几何连续性算法或家具边界事实。
-- confidence：low
-- limitations：原文不可访问，无法核验刺激、样本、任务或效应量。
-- follow_up：若需要心理背景，项目负责人提供 PDF/作者稿后重新核验。
+- source：Wagemans et al., “A Century of Gestalt Psychology in Visual Perception: I. Perceptual Grouping and Figure-Ground Organization”
+- version/year：Psychological Bulletin 2012, 138, 1172–1217, DOI 10.1037/a0029333
+- locator：[DOI](https://doi.org/10.1037/a0029333)；负责人提供原文 `C:\Users\tianf\Downloads\wagemans2012.pdf`（47 页，SHA256 `B3ACA166C0EDF76C0877FE6D4CD21BA72D081F6AE14F4C78FAD837A0F3B72043`）；Abstract、§3 “Perceptual Grouping”、§3.3 contour integration、§7.3 limitations/conclusion；文本核对 `wagemans2012.txt` lines 27–45, 560–603, 1083–1169, 2070–2180, 2221–2345
+- access_status：full_text_verified
+- short_excerpt_or_paraphrase：综述把 proximity、similarity、good continuation、closure、symmetry 等作为视觉分组线索，并指出不同任务/刺激会改变线索作用；轮廓研究常用 Gabor snakes，不能直接等同真实家具边界。
+- supports：视觉分组术语、外部实验背景以及“不要把线索或效应跨刺激直接迁移”的批判性边界。
+- does_not_support：不支持家具 affordance/clearance、IFC schema、几何算法正确性或本项目心理效度。
+- confidence：high（限于综述所覆盖的视觉知觉文献）
+- limitations：综述对象是视觉刺激与图形–背景组织，不是建筑布局；PMC4593740 仍未取得全文，不能把该条目与本综述混为已核验证据。
+- follow_up：保留为外部感知背景；若后续需要 PMC4593740 的具体实验，负责人仍需提供该原文或作者稿。
 
 ### E-GAP-001
 - date：2026-09-27
@@ -554,10 +554,9 @@
 
 ## 不可访问原文清单
 
-1. Protonotarios et al. 2014 点模式秩序论文全文：出版商需购买；PMC/Europe PMC 请求失败。
-2. Gestalt 分组综述与 PMC4593740：当前 PMC 入口 reCAPTCHA/Cloudflare，无法核验全文。
-4. BIM 家具 affordance/clearance 的直接 IFC 原文：检索未找到可访问权威原文，需负责人提供 DOI/PDF/schema。
-5. Blender 5.2 官方发布页：当前访问返回 402；仅把本机便携版 `--version` 作为环境观察，不作官方发布证据。
+1. Gestalt 相关条目 PMC4593740：当前 PMC 入口 reCAPTCHA/Cloudflare，无法核验全文；Wagemans 2012 综述已由负责人提供 PDF 并完成全文核验。
+2. BIM 家具 affordance/clearance 的直接 IFC 原文：检索未找到可访问权威原文，需负责人提供 DOI/PDF/schema。
+3. Blender 5.2 官方发布页：当前访问返回 402；仅把本机便携版 `--version` 作为环境观察，不作官方发布证据。
 
 ## 研究流程出处（非领域证据）
 

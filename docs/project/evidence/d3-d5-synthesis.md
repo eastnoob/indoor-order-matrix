@@ -2,7 +2,7 @@
 
 ## 结论摘要
 
-本轮形成 32 条证据记录：20 条官方文档核验、5 条全文来源（含 2 条开放全文实验、1 条空间统计原文和 2 条动作空间 BIM 原文）、5 条摘要级来源、2 条不可访问/缺失来源。证据能支撑 IFC4 对象、放置、几何表示、群组、网格和区域实体的事实边界，以及常用几何库的算法行为；不能支撑“家具布局指标具有心理感知效度”。
+本轮形成 32 条证据记录：20 条官方文档核验、7 条全文来源（5 条外部感知/空间统计论文和 2 条动作空间 BIM 原文）、4 条摘要级来源、1 条不可访问记录。负责人提供的 Protonotarios 2014 与 Wagemans 2012 PDF 已逐节核验；证据仍不能支撑“家具布局指标具有心理感知效度”。
 
 建议一个窄的 D8–D10 纵向切片：
 
@@ -30,7 +30,8 @@
 | IfcSpace extension proposal | E-BIM-003 | 研究型扩展线索 | 摘要级，不能进入 IFC4 事实合同 | 否 |
 | IfcCovering/SurfaceFeature | E-IFC-006 | 可作表面/边界候选 | 不等于视觉/行为边界 | 否 |
 | visual complexity/symmetry perception | E-PER-001/002 | 不纳入工程分数 | 外部背景，不能迁移效度 | 否 |
-| point-pattern order/J-function | E-PER-003 | 不直接采用 | 原文不可得且非家具验证 | 否 |
+| point-pattern order/J-function | E-PER-003/004 | 不直接采用 | 点模式心理量表和 J-function 只在其刺激/点过程范围内成立，非家具验证 | 否 |
+| Gestalt grouping/continuity | E-PER-005 | 仅保留术语和外部背景 | 全文综述明确存在任务/刺激依赖；不证明家具边界或连续性算法 | 否 |
 | Bonsai live import | E-SW-003/004 | 暂不执行 | 文档行为已知，现场行为未验证 | 否 |
 
 ## D3 术语裁决
@@ -56,7 +57,7 @@
 
 ## 未决问题与负责人材料请求
 
-1. 请提供 BIM 家具 affordance/clearance 直接原文（DOI、作者稿或企业 schema）；目前只有检索失败记录。
+1. 请提供 BIM 家具 affordance/clearance 直接原文（DOI、作者稿或企业 schema）；目前仍只有检索失败记录。
 2. 是否允许 IFC4 通用 Clearance 作为家具约束输入？若不允许，确认 `OM_` authored affordance schema。
 3. 首片字段是否采用 `relative-order` 命名？确认分析轴、容差、单位和 tie/重复处理。
 4. 确认 MassPatch 来源（实体几何或已生成 neutral geometry）、PCA 退化阈值、无效几何策略。
@@ -74,6 +75,7 @@
 - [x] IFC/BIM、几何算法、软件行为、心理实验和工程推断已分栏。
 - [x] 未把摘要、搜索片段、README 或记忆作为原文证据。
 - [x] 不可访问原文和负责人材料请求已列出。
+- [x] 负责人提供的 Protonotarios 2014 与 Wagemans 2012 原文已核验并写入账本；未把其外部感知结果扩展为家具心理效度。
 - [x] 未修改生产代码、未安装依赖、未修复 IFC、未执行 Bonsai 导入、未进入 D6。
 - [ ] 负责人确认首片字段、容差和输入材料后，才允许进入 D6。
 

@@ -52,11 +52,14 @@
 | S-042 | Consensus：`"Rule-based compliance checking and generative design for building interiors using BIM"` | 规则语言/室内合规 | DOI 10.1016/j.autcon.2020.103368，摘要可读，ScanSci 未找到 PDF |
 | S-043 | Consensus：`"Application of Universal Design in the Design of Apartment Kitchens"` | 清空地面/触及/膝部空间 | DOI 10.3130/jaabe.15.403，摘要可读，ScanSci 未找到 PDF |
 | S-044 | Consensus：`"Design for maintenance accessibility using BIM tools"` | 维护可达性与规则集 | DOI 10.1108/f-09-2011-0078，摘要可读，ScanSci 未找到 PDF |
+| S-045 | 负责人提供本地原文：`C:\Users\tianf\Downloads\protonotarios2014.pdf` | 补齐 Protonotarios 2014 点模式秩序论文全文 | `pdfinfo`：13 页、未加密；SHA256 `0040AC70F9582666F283604A5602F8C60B858AA775EBDCC28C9F0587F870DF84`；`pdftotext -layout` 后逐节核对 §§2.1–2.2、§§3.1–3.2、§4。状态 `full_text_verified`，更新 E-PER-003 |
+| S-046 | 负责人提供本地原文：`C:\Users\tianf\Downloads\wagemans2012.pdf` | 补齐 Wagemans 2012 Gestalt 综述全文 | `pdfinfo`：47 页、未加密；SHA256 `B3ACA166C0EDF76C0877FE6D4CD21BA72D081F6AE14F4C78FAD837A0F3B72043`；`pdftotext -layout` 后逐节核对 Abstract、§3、§3.3、§7.3。状态 `full_text_verified`，更新 E-PER-005 |
 
 ## 访问失败与补救
 
 - PMC/Europe PMC：reCAPTCHA 或 500；处理为 `inaccessible`/`abstract_only`，不引用搜索片段。
-- Protonotarios 出版商/PMC：保留 DOI 与摘要级结论，禁止写入未读公式。van Lieshout 原文已由 ScanSci OpenAlexOA 下载并检查。
+- Protonotarios 出版商/PMC：原先的全文检索失败仍保留在 S-030/S-031；本轮负责人提供 PDF 后完成全文核验，E-PER-003 已从 `abstract_only` 升为 `full_text_verified`。van Lieshout 原文已由 ScanSci OpenAlexOA 下载并检查。
+- 负责人提供的 Protonotarios 与 Wagemans PDF 已通过页数、未加密状态、SHA256 和 `pdftotext` 全文核对；本地 PDF 是本轮的原文访问来源，不把早先的搜索片段或失败状态当作当前证据。
 - Chaabane 2023 Springer chapter、Sydora 2020、Kang 2016、Liu 2014：均找到 DOI，但本轮 ScanSci legal_only 未取得 PDF；保持 abstract_only。
 - Blender 官方发布页：HTTP 402；只保留本机指定便携版版本观察。
 - 未找到直接 IFC 家具 affordance zone 原文：不把项目假设升级为 IFC 事实，列入负责人材料清单。
@@ -66,8 +69,8 @@
 - IFC4 官方实体页面：见账本 E-IFC-001 至 E-IFC-008。
 - 算法官方文档：见 E-GEO-001 至 E-GEO-004。
 - 软件官方文档：见 E-SW-001 至 E-SW-004。
-- 全文感知论文：见 E-PER-001、E-PER-002。
-- 摘要/不可访问论文：见 E-PER-003、E-PER-005。
+- 全文感知论文：见 E-PER-001 至 E-PER-005（其中 E-PER-003、E-PER-005 为负责人提供 PDF 后核验）。
+- 摘要/不可访问论文：见 E-BIM-003、E-BIM-006 至 E-BIM-008，以及 E-GAP-001；PMC4593740 仍不可访问。
 
 | S-035 | ScanSci `legal_only` 下载：`10.1111/j.1467-9574.1996.tb01501.x`、`10.3389/fpsyg.2015.00734`、`10.1371/journal.pone.0185276` | 验证可访问原文 | 3 篇成功；van Lieshout、Katkov、Gartus PDF+Markdown 写入 `C:\Users\tianf\Downloads\d3-d5-evidence-papers`；Protonotarios `10.1098/rsif.2014.0342` 失败（无 PDF/Cloudflare，Unpaywall 邮箱配置缺失） |
 | S-036 | ScanSci `legal_only` 下载：`10.1037/a0029333` | Gestalt 综述全文 | 失败：Cloudflare；不安装 CloakBrowser、不配置代理、不启用灰色源 |
