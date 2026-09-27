@@ -35,7 +35,7 @@ The repository already contains multiple adapters, a NeutralSceneV2 record famil
 
 ## Non-goals
 
-- Psychological validation, human labels, experiment design, power analysis, or Bayesian calibration.
+- Psychological validation, human labels, human-study design, power analysis, or Bayesian calibration. Computational design probes for choosing an algorithm remain in scope; they are not human-validity experiments.
 - Furniture affordance generation, clearance interpretation as human usability, route/path inference, boundary channels, visual complexity, or perception weighting.
 - Repairing the rich acceptance IFC.
 - Live Bonsai UI/import verification.
@@ -122,7 +122,7 @@ Purpose: describe a relative arrangement along an explicitly declared analysis a
 
 Required inputs:
 
-- at least two usable object anchors or intervals;
+- at least two usable object anchors derived from normalized plan geometry;
 - normalized plan geometry or an explicitly documented anchor fallback;
 - analysis frame, axis, unit, and tolerance;
 - stable object identities and source provenance.
@@ -202,6 +202,9 @@ The design phase ends only when the owner has a reviewable design table that
 separates verified external evidence, repository and runtime facts,
 computational observations from exploratory probes, engineering choices,
 unresolved owner decisions, and claims that require a later human experiment.
+When a visual probe is used, the owner must be shown the result or a reproducible
+capture and may approve, reject, or request a different variable construction
+before the design table is finalized.
 
 ### Realization phase
 
@@ -304,12 +307,13 @@ A passing test demonstrates computational behavior under the contract. It does n
 - Every metric and adapter has a documented design phase before its realization phase.
 - When candidate designs differ materially, a reproducible comparison experiment is recorded before owner approval.
 - Blender previews, when used, are diagnostic computational evidence and are not presented as perceptual validation.
-- No production code is changed by the design stage.
+- No production code is changed during a metric, estimator, adapter, or migration design stage; previously approved realization checkpoints remain valid.
 
 ## Open decisions carried into the workplan
 
-1. Review the implementation design table for the owner-approved
-   `relative-order` formula and explicit-axis policy before coding.
+1. Complete the candidate-design experiment, then record the final
+   `relative-order` formula and explicit-axis policy and review its
+   implementation design table before coding.
 2. Select the `authored_group_local_trend` estimator and degeneracy thresholds.
 3. Decide how multiple authored-group memberships are represented in group-level aggregation.
 4. Decide whether rich IFC repair gates the first implementation fixture or runs as a parallel acceptance task.

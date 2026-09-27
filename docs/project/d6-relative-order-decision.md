@@ -1,6 +1,6 @@
 # D6 relative-order decision record
 
-**Status:** owner decision required before production implementation
+**Status:** provisional owner selection; computational design experiment and implementation design review remain before production implementation
 
 **Scope:** the first clean-room relative arrangement descriptor
 **Contract boundary:** this document defines computable layout evidence. It
@@ -9,14 +9,16 @@ does not claim psychological or perceptual validity.
 ## Decision question
 
 The clean-room contract needs one `relative-order` algorithm, but the D3–D5
-evidence does not distinguish the two candidate families below. The choice
-must therefore be made by the owner after reviewing the hand-calculable
-comparison. No existing evaluator row is used as a selection criterion.
+evidence does not distinguish the two candidate families below. The owner has
+made a provisional selection for the first design probe; the selection remains
+subject to the reproducible computational comparison required by the design
+workflow. No existing evaluator row is used as a selection criterion.
 
-> **OWNER DECISION QUESTION:** Should the first descriptor report (A)
-> sequence/order consistency, (B) normalized spacing deviation, or retain both
-> as separately named descriptors? Until this is answered, no
-> `compute_relative_order(...)` production implementation may be written.
+> **PROVISIONAL OWNER SELECTION:** Use (A) sequence/order consistency as
+> `relative-order/v1`; keep spacing consistency separate and deferred. The
+> selection must be checked by the Task 3a computational design experiment.
+> No `compute_relative_order(...)` production implementation may be written
+> until that experiment and the implementation design table are approved.
 
 ## Shared input contract
 
@@ -90,7 +92,7 @@ The result status vocabulary is:
 | condition | status | value |
 |---|---|---|
 | usable inputs and selected formula evaluated | `computed` | numeric value in the formula's declared range |
-| fewer than two usable objects; all usable positions tied; or spacing has no positive reference gap | `undefined` | `null` |
+| fewer than two usable objects or all usable positions tied | `undefined` | `null` |
 | non-finite coordinate, invalid transform, or malformed geometry reaches the descriptor | `invalid` | `null` |
 | geometry is absent or cannot be projected by the source representation | `not_available` | `null` |
 | no explicit axis or no approved algorithm selection | `not_evaluated` | `null` |
@@ -114,10 +116,11 @@ order_consistency = 1 - inversions / comparable_pairs
 ```
 
 The value is in `[0, 1]`, where `1` means every comparable pair follows the
-declared sequence and `0` means every comparable pair is reversed. A result
-with no comparable pair is `undefined`; a partial tie set remains auditable,
-but the first slice should return `undefined` whenever a tie prevents a stable
-sequence rather than filling the tie with an id-based order.
+declared sequence and `0` means every comparable pair is reversed. Tied pairs
+are excluded from `comparable_pairs` and retained as tie-block metadata. A
+result with no comparable pair is `undefined`; a partial tie set remains
+computable when at least one comparable pair exists. No tie is filled with an
+id-based order.
 
 This is a sequence agreement summary. It does not measure equal spacing.
 
@@ -129,7 +132,7 @@ Use the same declared sequence `(A, B, C)` and `tolerance = 0.1`:
 |---|---:|---|---:|---:|
 | A1 aligned | `(0, 1, 2)` | all forward | `0 / 3` | `1` |
 | A2 reversed | `(2, 1, 0)` | all reversed | `3 / 3` | `0` |
-| A3 partial tie | `(0, 0.05, 1)` | `A~B`, `A<C`, `B<C` | tie blocks prevent a stable sequence | `undefined` |
+| A3 partial tie | `(0, 0.05, 1)` | `A~B`, `A<C`, `B<C` | `0 / 2` | `1` |
 | A4 duplicate | `(1, 1, 1)` | all tied | `0 / 0` | `undefined` |
 
 The same points translated by `+10` become `(10, 11, 12)` and retain value `1`.
@@ -204,8 +207,8 @@ The implementation review must check these examples before accepting a formula:
    projected order/gaps may change and that change is expected.
 3. **Axis reversal:** replacing the unit vector with its negative reverses
    directional order and is not silently normalized away.
-4. **Duplicate/tied positions:** preserve tie blocks and return the documented
-   undefined behavior where the formula cannot determine a unique order.
+4. **Duplicate/tied positions:** preserve tie blocks, exclude tied pairs, and
+   return `undefined` only when no comparable pair remains.
 5. **Fewer than two objects:** return `undefined` with no numeric substitute.
 6. **Missing geometry:** return `not_available` with source and geometry
    provenance; do not create an anchor at `(0, 0)`.
@@ -217,8 +220,8 @@ The implementation review must check these examples before accepting a formula:
 
 ## Owner approval record
 
-This document intentionally leaves the formula selection open. The owner must
-record:
+The owner selection is provisional until the design experiment and design table
+are reviewed. The final approval record must contain:
 
 - selected algorithm id and formula;
 - whether ties make the complete result `undefined` or permit a partial

@@ -40,6 +40,11 @@ Blender design probes must use only
 script/fixture/settings/output provenance, and be described as computational
 diagnostics rather than perceptual validation.
 
+Design-only scripts are still project-owned code: give them English-first
+docstrings/comments, deterministic command-line entry points where practical,
+and enough metadata to replay the exact probe. They must remain outside
+production import paths until separately approved.
+
 ## Review Focus
 
 - Legacy leakage: new canonical modules must not import evaluator score dictionaries or use SVG element names as semantics; test: import and fixture tests run without the legacy evaluator.
@@ -196,7 +201,7 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 **Files:**
 - Create: `docs/project/d6-relative-order-design-experiment.md`
 - Create: exploratory scripts/fixtures in a clearly marked design-only location
-- Optional outputs: Blender scene, render, or viewport capture with replay metadata
+- Required attempt for spatial variables: Blender scene, render, or viewport capture with replay metadata; record an explicit limitation if the UI cannot be inspected reliably
 - Modify: none of the production `features/`, `adapters/`, or `test/` modules
 
 **Interfaces:**
@@ -208,7 +213,7 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 - [ ] **Step 2: Run the smallest sufficient probes**
 
-  Compare the candidates on aligned, reversed, uneven, tied, translated, rotated, and degenerate layouts. Use Blender only when a spatial variable or transform is clearer in a visible scene; keep a scriptable numerical oracle for every result. When Blender is used, show the resulting scene or capture to the owner before closing the design phase.
+  Compare the candidates on aligned, reversed, uneven, tied, translated, rotated, and degenerate layouts. Use the portable Blender probe for the spatial variables and keep a scriptable numerical oracle for every result. Show the resulting scene or capture to the owner before closing the design phase; if inspection is unavailable, record that limitation and do not claim visual verification.
 
 - [ ] **Step 3: Record observations and evidence classes**
 
@@ -282,43 +287,93 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 ---
 
-### Task 5: Define and implement authored-group local trend (Checkpoint 3, second descriptor)
+### Task 5a: Compare authored-group trend candidate designs (Checkpoint 3 design phase)
 
 **Files:**
-- Create: `docs/project/d6-group-trend-decision.md`
+- Create: `docs/project/d6-group-trend-design-experiment.md`
+- Create: design-only scripts/fixtures and optional Blender diagnostics
+- Modify: none of the production `features/`, `adapters/`, or `test/` modules
+
+**Interfaces:**
+- Produces a reproducible comparison of candidate trend estimators and membership policies.
+
+- [ ] **Step 1: Compare candidate estimators**
+
+  Compare area-weighted plan-geometry PCA and member-frame consensus on directional, square, circular, isotropic, opposing, and mixed-member fixtures.
+
+- [ ] **Step 2: Compare membership and degeneracy policies**
+
+  Probe multiple-group membership, missing geometry, insufficient members, and degenerate direction support. Record the decision rule and limitations.
+
+- [ ] **Step 3: Record computational observations**
+
+  Preserve scripts, fixtures, numerical outputs, and any Blender diagnostic scene. Separate computational behavior from perceptual claims.
+
+- [ ] **Step 4: Commit and stop**
+
+  Commit as `docs: compare authored-group trend designs`.
+
+**STOP FOR DESIGN REVIEW:** do not write the trend implementation design table or production code.
+
+---
+
+### Task 5b: Write and review the authored-group trend implementation design
+
+**Files:**
+- Create: `docs/project/d6-group-trend-implementation-design.md`
+- Modify: `docs/project/d6-group-trend-design-experiment.md` only to record owner-approved decisions
+- Test: document self-check and hand-computable examples; no production test code
+
+**Interfaces:**
+- Produces the implementation-level contract for `compute_authored_group_local_trend(...)`.
+
+- [ ] **Step 1: Define estimator, eligibility, degeneracy, strength, and membership semantics**
+- [ ] **Step 2: Record status/reason and provenance matrices**
+- [ ] **Step 3: Record focused test matrix and explicit non-goals**
+- [ ] **Step 4: Commit as `docs: design authored-group trend implementation`**
+
+**STOP FOR OWNER REVIEW:** no trend production code may be written until the design table is approved.
+
+---
+
+### Task 5c: Implement authored-group local trend (Checkpoint 3 realization)
+
+**Files:**
 - Modify: `features/canonical_layout_descriptors.py`
 - Modify: `test/test_canonical_layout_descriptors.py`
 
 **Interfaces:**
 - `compute_authored_group_local_trend(scene: CanonicalScene, *, group_id: str, estimator_id: str, tolerance: float) -> DescriptorResult`
 
-- [ ] **Step 1: Compare estimators**
-
-  Compare area-weighted plan-geometry PCA and member-frame consensus on hand-built directional, square, circular, isotropic, and mixed-member examples. The decision must state why one estimator is selected for the first slice.
-
-- [ ] **Step 2: Decide multiple-group membership behavior**
-
-  Choose one: repeat per group scope, report one object result with multiple group references, or exclude from group aggregation. Record the choice and rationale.
-
-- [ ] **Step 3: Write failing trend tests**
-
-  Cover one directional member, aligned members, opposing members, circular/square members, missing geometry, mixed valid/invalid members, empty groups, and multiple group membership.
-
-- [ ] **Step 4: Implement the selected estimator**
-
-  Keep member eligibility, degeneracy, strength, and excluded-member reasons in the result provenance. Do not reuse current trend dictionaries as input.
-
-- [ ] **Step 5: Run focused tests and commit**
-
-  Run: `pixi run pytest test/test_canonical_layout_descriptors.py -q`
-  Expected: relative-order and local-trend tests pass.
-  Commit as `feat: add canonical authored-group trend descriptor`.
+- [ ] **Step 1: Write tests from the approved design table**
+- [ ] **Step 2: Implement only the approved estimator and policies**
+- [ ] **Step 3: Run `pixi run pytest test/test_canonical_layout_descriptors.py -q`**
+- [ ] **Step 4: Commit as `feat: add canonical authored-group trend descriptor`**
 
 **STOP FOR REVIEW:** do not migrate current trend code until the clean-room descriptor passes.
 
 ---
 
-### Task 6: Add the IFC adapter bridge (Checkpoint 2, one adapter)
+### Task 6a: Design the IFC adapter mapping (Checkpoint 2 design phase)
+
+**Files:**
+- Create: `docs/project/d6-ifc-adapter-design.md`
+- Create: design-only extraction probes or fixture manifests as needed
+- Modify: none of the production adapter or test modules
+
+**Interfaces:**
+- Produces the IFC-to-canonical mapping table and missing/invalid behavior contract.
+
+- [ ] **Step 1: Map IFC facts, placement, units, representations, and explicit groups**
+- [ ] **Step 2: Compare representation/placement alternatives with the small IFC fixture**
+- [ ] **Step 3: Record failure states, provenance, rich-IFC exclusion, and any Blender/Bonsai diagnostic observations**
+- [ ] **Step 4: Commit as `docs: design canonical IFC adapter`**
+
+**STOP FOR DESIGN REVIEW:** no IFC adapter production code may be written until the mapping design is approved.
+
+---
+
+### Task 6b: Add the IFC adapter bridge (Checkpoint 2 realization)
 
 **Files:**
 - Create: `adapters/canonical_layout_ifc.py`
@@ -353,7 +408,26 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 ---
 
-### Task 7: Add the SVG oracle adapter (Checkpoint 2, second adapter)
+### Task 7a: Design the SVG oracle mapping (Checkpoint 2 design phase)
+
+**Files:**
+- Create: `docs/project/d6-svg-adapter-design.md`
+- Create: design-only fixture manifests or parser probes as needed
+- Modify: none of the production adapter or test modules
+
+**Interfaces:**
+- Produces the SVG-to-canonical mapping table and equivalence comparison plan.
+
+- [ ] **Step 1: Define fixture semantics without treating SVG IDs or draw order as meaning**
+- [ ] **Step 2: Define unsupported-element, transform, unit, and missing-geometry behavior**
+- [ ] **Step 3: Define the IFC/SVG equivalence comparison before implementation**
+- [ ] **Step 4: Commit as `docs: design canonical SVG oracle`**
+
+**STOP FOR DESIGN REVIEW:** no SVG adapter production code may be written until the mapping design is approved.
+
+---
+
+### Task 7b: Add the SVG oracle adapter (Checkpoint 2 realization)
 
 **Files:**
 - Create: `adapters/canonical_layout_svg.py`
@@ -388,7 +462,26 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 ---
 
-### Task 8: Selectively migrate or discard current behavior (Checkpoint 4)
+### Task 8a: Design selective migration decisions (Checkpoint 4 design phase)
+
+**Files:**
+- Modify: `docs/project/d6-migration-ledger.md`
+- Create: `docs/project/d6-migration-design.md`
+- Test: comparison plan and fixture inventory only; no migration code
+
+**Interfaces:**
+- Produces a reviewable migrate/wrap/rewrite/discard/reference-only decision for each proposed component.
+
+- [ ] **Step 1: Compare current behavior with the approved canonical contracts**
+- [ ] **Step 2: Record evidence, contract violations, replacement path, and rollback boundary**
+- [ ] **Step 3: Choose only the smallest candidate for the first realization**
+- [ ] **Step 4: Commit as `docs: design selective migration decisions`**
+
+**STOP FOR OWNER REVIEW:** no legacy helper may be moved or wrapped until the migration design is approved.
+
+---
+
+### Task 8b: Selectively migrate or discard current behavior (Checkpoint 4 realization)
 
 **Files:**
 - Modify: `docs/project/d6-migration-ledger.md`
@@ -461,21 +554,31 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 Task 0
   -> Tasks 1-2 (Checkpoint 1)
   -> STOP/review
-  -> Task 3 (formula decision)
-  -> STOP/owner decision
+  -> Task 3 (initial candidate design)
+  -> STOP/design review
   -> Task 3a (relative-order design experiment)
   -> STOP/design review
   -> Task 3b (relative-order implementation design)
   -> STOP/owner review
-  -> Task 4 (relative-order)
+  -> Task 6a (IFC adapter design)
+  -> STOP/design review
+  -> Task 6b (IFC adapter realization)
   -> STOP/review
-  -> Task 5 (group trend)
+  -> Task 7a (SVG adapter design)
+  -> STOP/design review
+  -> Task 7b (SVG adapter realization + equivalence)
   -> STOP/review
-  -> Task 6 (IFC adapter)
+  -> Task 4 (relative-order realization)
   -> STOP/review
-  -> Task 7 (SVG adapter + equivalence)
+  -> Task 5a (trend design experiment)
+  -> STOP/design review
+  -> Task 5b (trend implementation design)
+  -> STOP/owner review
+  -> Task 5c (trend realization)
   -> STOP/review
-  -> Task 8 (selective migration)
+  -> Task 8a (migration design)
+  -> STOP/owner review
+  -> Task 8b (selective migration realization)
   -> STOP/review
   -> Task 9 (acceptance)
 ```
@@ -490,7 +593,9 @@ The executor must return after each stop:
 - changed files;
 - exact test commands and results;
 - migration classifications changed;
+- design scripts, preview artifacts, and design-table paths when the task is in the design phase;
 - unresolved decisions;
+- explicit phase status: design-only, owner-approved design, or realization;
 - whether the next checkpoint is safe to start.
 
 No task is complete because code exists; it is complete only when its focused tests and provenance/status review pass.
