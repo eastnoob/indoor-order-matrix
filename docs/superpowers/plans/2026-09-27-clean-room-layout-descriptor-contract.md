@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` or `superpowers:subagent-driven-development` to execute this plan task-by-task. The plan is intentionally incremental: stop at every checkpoint and wait for review before starting the next checkpoint.
 
-**Goal:** Implement the first clean-room canonical contract for IFC/SVG layout descriptors, then add one adapter and one descriptor at a time while retaining only current behavior that passes the new contract.
+**Goal:** Design and implement a machine-only canonical contract for IFC/SVG layout descriptions, compare deterministic and Bayesian scene-self-description candidates, and add one adapter and one descriptor at a time while retaining only current behavior that passes the new contract.
 
 **Architecture:** New canonical records and algorithms are the normative layer. IFC and SVG adapters translate into those records; they do not compute adapter-specific metrics. Existing NeutralSceneV2, evaluator payloads, helpers, fixtures, and tests are migration candidates or reference evidence only. Delivery proceeds through hard-stopped checkpoints so a failed contract or descriptor does not trigger a big-bang rewrite.
 
@@ -18,6 +18,11 @@
 - Do not modify the vendored OCTA toolbox.
 - Do not repair the rich IFC or run Bonsai import in Checkpoints 0–4.
 - Do not claim psychological or perceptual validity.
+- Do not use human participants, human labels, human ratings, or human-calibrated
+  parameters anywhere in computation, model selection, or acceptance. The
+  project produces scene descriptors for a separate downstream experiment.
+- Bayesian work in this plan means scene-self-description from geometry and
+  source facts. It is not Bayesian calibration of perception.
 - Every new or modified project-owned function has an English-first docstring; important geometry, provenance, status, and adapter handoff steps have English-first intent comments.
 - `undefined`, `invalid`, `not_available`, and `not_evaluated` remain distinct from numeric zero.
 - Every checkpoint ends with targeted tests or a documented reason it cannot yet be tested.
@@ -254,6 +259,63 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
   Commit as `docs: design relative-order implementation`.
 
 **STOP FOR OWNER REVIEW:** no relative-order production code may be written until the implementation design table is approved.
+
+### Task 3c: Design Bayesian scene-self-description competition and fusion (Checkpoint 3 design phase)
+
+**Files:**
+- Create: `docs/project/d6-bayesian-self-description-design.md`
+- Create: design-only synthetic fixtures/probes in a clearly marked location
+- Modify: none of the production `features/`, `adapters/`, or `test/` modules
+
+**Interfaces:**
+- Produces a design comparison between the deterministic relative-order
+  baseline and one or more Bayesian scene-self-description candidates. It does
+  not implement a Bayesian model.
+
+- [ ] **Step 1: Define the scene estimand before choosing a model**
+
+  State whether the candidate infers an axis, an order, a trend, a grouping,
+  or a joint latent arrangement. Define the observable canonical inputs,
+  latent variables, priors, likelihood, posterior outputs, identifiability
+  limits, and explicit low-information states. Do not use human judgments as
+  data or targets.
+
+- [ ] **Step 2: Build synthetic computational truth**
+
+  Generate deterministic scenes with known latent parameters and perturb them
+  with translation, rotation, scale, tessellation changes, missing geometry,
+  noise, and contradictory members. Retain the generating parameters as the
+  computational reference, separate from the model output.
+
+- [ ] **Step 3: Compare candidate families**
+
+  Compare the deterministic conditional descriptor and the Bayesian candidate
+  using latent-quantity recovery, invariance, robustness, posterior calibration
+  against synthetic truth, identifiability, reproducibility, and computational
+  cost. A visually plausible render is not sufficient evidence.
+
+- [ ] **Step 4: Decide competition versus fusion**
+
+  If candidates estimate different quantities, retain separate outputs. If
+  they estimate the same quantity, compare them before considering posterior
+  model averaging or another fusion rule. Any fusion design must preserve model
+  identity, weights or posterior probabilities, uncertainty, provenance, and
+  the benchmark used to choose it.
+
+- [ ] **Step 5: Record the boundary**
+
+  State explicitly that a scene posterior describes computational uncertainty,
+  not human perception, usability, order judgment, or psychological validity.
+  Downstream human experiments are external consumers, not part of this
+  project's model fitting or acceptance.
+
+- [ ] **Step 6: Commit and stop**
+
+  Commit as `docs: design Bayesian scene self-description track`.
+
+**STOP FOR DESIGN REVIEW:** do not implement Bayesian code, fusion code, or a
+trend-derived default axis until this synthetic comparison and owner review
+are complete.
 
 ---
 
@@ -560,6 +622,8 @@ Task 0
   -> STOP/design review
   -> Task 3b (relative-order implementation design)
   -> STOP/owner review
+  -> Task 3c (Bayesian scene-self-description competition/fusion design)
+  -> STOP/design review
   -> Task 6a (IFC adapter design)
   -> STOP/design review
   -> Task 6b (IFC adapter realization)

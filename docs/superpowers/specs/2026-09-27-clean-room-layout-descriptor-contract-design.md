@@ -20,6 +20,24 @@ SVG oracle ───┘                              ├─> relative-order
 
 This design describes computable layout evidence. It does not claim psychological or perceptual validity.
 
+## Owner clarification: machine-only scene self-description
+
+The project itself has no human participants, human labels, human dependent
+variables, or human-calibrated parameters. It produces quantitative
+descriptions of a furniture layout for consumption by a separate downstream
+experiment. That downstream use is outside this project's computation and
+acceptance criteria; the archived raw requirements remain unchanged.
+
+The Bayesian idea is therefore not a future perception-calibration layer. It is
+an in-project candidate family for letting the scene infer latent structure
+from its own geometry. Deterministic descriptors and Bayesian scene
+self-description must compete on the same canonical inputs before either is
+selected for a combined production path. Fusion is allowed only when the
+candidates estimate the same declared quantity and their uncertainty and
+provenance can be retained; otherwise their outputs remain separate evidence
+channels. No human observation may be used as a prior, likelihood, training
+target, or calibration target.
+
 ## Problem
 
 The repository already contains multiple adapters, a NeutralSceneV2 record family, geometry substitutes, trend evidence, and evaluator rows. Those artifacts are useful observations, but their historical boundaries and names must not silently become the scientific contract. D6 therefore needs a clean definition of what is factual input, what is normalized geometry, what is derived evidence, what is a descriptor result, and what is unavailable.
@@ -31,11 +49,16 @@ The repository already contains multiple adapters, a NeutralSceneV2 record famil
 - Keep factual source objects separate from derived geometry and descriptor values.
 - Make the first two descriptors independently testable and exportable.
 - Provide an explicit migration ledger for useful current behavior.
+- Compare deterministic descriptors with Bayesian scene-self-description
+  candidates using synthetic computational truth, then retain separate outputs
+  or fuse them only under an explicit model-combination decision.
 - Permit later descriptors without making them part of this first contract.
 
 ## Non-goals
 
-- Psychological validation, human labels, human-study design, power analysis, or Bayesian calibration. Computational design probes for choosing an algorithm remain in scope; they are not human-validity experiments.
+- Psychological validation, human labels, human-study design, power analysis,
+  or calibration against human judgments. Bayesian scene-self-description
+  design is in scope; human-calibrated Bayesian modeling is not.
 - Furniture affordance generation, clearance interpretation as human usability, route/path inference, boundary channels, visual complexity, or perception weighting.
 - Repairing the rich acceptance IFC.
 - Live Bonsai UI/import verification.
@@ -158,6 +181,34 @@ Required inputs:
 The result must expose member support, primary/secondary frame or equivalent directional representation, strength/concentration, geometric basis, and excluded-member reasons. Directional evidence must come from normalized geometry, not stale transform history. Circular, square, isotropic, missing, or insufficient geometry may produce `undefined` directional strength while remaining valid object facts.
 
 The exact estimator (for example area-weighted 2D PCA or a member-frame consensus) must be selected and tested in D8–D10. The contract requires that the choice be versioned and auditable; it does not assume the existing trend implementation is correct.
+
+## Bayesian scene-self-description track
+
+This track treats the scene as the source of its own latent description. A
+candidate model may infer an axis, an order, a group structure, a trend, or a
+joint latent arrangement from canonical geometry and source provenance. It
+must report the posterior, model assumptions, priors, likelihood, identifiable
+quantities, and failure/low-information states. A posterior is uncertainty
+about a computational scene description; it is not a perceptual probability.
+
+The design comparison must use synthetic scenes with known generating
+parameters and perturbations for translation, rotation, scale, tessellation,
+missing geometry, and contradictory members. It must evaluate recovery of the
+declared latent quantity, invariance, robustness, posterior calibration against
+the synthetic truth, identifiability, and reproducibility. No human labels or
+human ratings are admissible evaluation targets.
+
+The deterministic relative-order descriptor remains a transparent conditional
+baseline: it receives an explicit axis and reference order. A Bayesian model
+may later infer those quantities, but it must emit the same canonical
+`AxisSpec`/order representations or an explicitly different latent-result
+record. It may not silently replace a missing caller input.
+
+Candidate competition and fusion are separate decisions. If models estimate
+different quantities, keep both outputs. If they estimate the same quantity,
+compare them before considering posterior model averaging or another fusion
+rule. Fusion must preserve model identity, weights or posterior probabilities,
+uncertainty, and the synthetic benchmark used to choose it.
 
 ## Descriptor implementation design gate
 
@@ -323,6 +374,10 @@ A passing test demonstrates computational behavior under the contract. It does n
 - IFC and SVG have equivalent adapter obligations.
 - Current implementation is classified as migration candidates rather than assumed foundation.
 - The clean-room boundary excludes affordance, perception, Bonsai UI, and broad future metrics.
+- The project has no human-in-the-loop computation; downstream human studies
+  are external consumers of the descriptors, not training or acceptance data.
+- Deterministic and Bayesian scene-self-description candidates have an explicit
+  competition/fusion design gate before a combined production path.
 - The workplan can name exact files and tests without inventing unresolved semantics.
 - Delivery is divided into the hard-stopped checkpoints above; no big-bang rewrite is planned.
 - Every metric and adapter has a documented design phase before its realization phase.
@@ -335,11 +390,15 @@ A passing test demonstrates computational behavior under the contract. It does n
 1. Complete the candidate-design experiment, then record the final
    `relative-order` formula and explicit-axis policy and review its
    implementation design table before coding.
-2. Select the `authored_group_local_trend` estimator and degeneracy thresholds.
-3. Decide how multiple authored-group memberships are represented in group-level aggregation.
-4. Decide whether rich IFC repair gates the first implementation fixture or runs as a parallel acceptance task.
-5. Define the canonical record location and serialization format after reviewing existing project conventions.
+2. Define the Bayesian scene-self-description estimand(s), priors, likelihood,
+   synthetic truth, and competition criteria against deterministic baselines.
+3. Decide whether any candidates estimate the same quantity and, if so, whether
+   fusion is justified or separate outputs are retained.
+4. Select the `authored_group_local_trend` estimator and degeneracy thresholds.
+5. Decide how multiple authored-group memberships are represented in group-level aggregation.
+6. Decide whether rich IFC repair gates the first implementation fixture or runs as a parallel acceptance task.
+7. Define the canonical record location and serialization format after reviewing existing project conventions.
 
 ## Evidence boundary
 
-D3–D5 evidence supports IFC semantics, geometry algorithm limitations, and separation from perception claims. It does not prove that either descriptor predicts human judgments. Any later perceptual validation is a separate experiment and must not be added to this contract as an implicit acceptance criterion.
+D3–D5 evidence supports IFC semantics, geometry algorithm limitations, and separation from perception claims. It does not yet select a Bayesian self-description model, prior, likelihood, or fusion rule. It also does not prove that any descriptor predicts human judgments. Any later perceptual validation is a separate external use and must not be added to this contract as an implicit acceptance criterion.
