@@ -98,6 +98,8 @@ probe 仅用于候选比较、数值 oracle、退化/缩放/旋转/缺失/tessel
 
 ## 6. 下一 session 的具体任务
 
+交给另一名独立设计人员或审核 session。不要指定其必须使用某个 skill；要求其先判断任务需要，自行选择并组合合适的审查、科学批判、实验设计、简洁报告等 skill。当前作者的建议只能作为待质询材料，不得当作答案照抄。
+
 可将以下文本作为独立审查 session 的任务：
 
 > 请按本笔记的阅读顺序审核 D6 Task 3d。先核查实现事实，再质询家具组之间 inferred group 的目标、代表几何和候选算法。只接受 IfcGroup.ObjectType=furniture_group 为 IFC 候选入口；affordance 为外部输入；IFC 主验收，SVG 仅 2D oracle。请逐项输出原设计、当前实现事实、建议修订、反例、待 owner 裁决。比较 connected components 与 complete-link 的适用边界，不直接选默认阈值。明确 hard partition/overlapping membership、未分组节点、partial/invalid、共享 member、阻隔与 3D 关系的政策。最后给出接受、需修订或暂缓的理由。不要进入 Task 3c、implementation design、生产代码或 descriptor API 实现。以 STOP FOR DESIGN REVIEW 结束。
