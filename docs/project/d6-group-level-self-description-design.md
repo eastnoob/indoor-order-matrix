@@ -2,6 +2,8 @@
 
 > 2026-09-28 E8b/E10b 收口更新：当前裁决见 [总控证据收口](d6-group-level-design-decision.md)。本轮证据审查收口，整体设计仍为 REVISE；E10b 仅验已声明 SVG facts，contact/overlap 退回修订，完整双 adapter parity 与 inferred-group selector 未冻结。下文保留历史裁决，不据此自动进入实现。
 
+> 2026-09-28 objective-design 更新：目标语义设计见 [inferred group 目标语义设计表](d6-group-level-objective-design.md)。推荐统一 pairwise relation computation，加 local-neighborhood 与 candidate views；单一 inferred-group selector 仍未冻结。
+
 - **状态：** design-only；A–G 裁决见第 13 节，设计比较仍待完成。STOP FOR DESIGN REVIEW。
 - **当前裁决优先级：** 第 13 节依据用户本轮授权作出设计裁决；第 1–12 节保留为历史讨论，不再把已裁决事项重复列作 owner 待决。批准设计政策不等于批准算法实现或声称实验通过。
 - **后续澄清：** 见 [独立设计审查交接](d6-inferred-group-design-review-handoff.md)。用户已明确 IFC 家具组候选入口、家具组之间的几何推断、外部 affordance 和 SVG 仅作 2D oracle；这些澄清优先于本文旧表述。算法和待决政策仍未批准。

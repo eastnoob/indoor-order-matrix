@@ -1,6 +1,6 @@
 # Clean-Room Layout Descriptor Contract Implementation Plan
 
-> **Current design gate (2026-09-28):** E8b/E10b evidence review is closed with scoped approvals; the contact/overlap design-probe defect is fixed for axis-aligned cases. Read [the controlling review decision](../../project/d6-group-level-design-decision.md) before executing any later task. The inferred-group objective remains the next design gate; no Task 3c, implementation design, descriptor API, or production work is authorized by this update. Inferred grouping and Bayesian comparison remain project goals.
+> **Current design gate (2026-09-28):** E8b/E10b evidence review is closed with scoped approvals; the contact/overlap design-probe defect is fixed for axis-aligned cases. Read [the controlling review decision](../../project/d6-group-level-design-decision.md) and [the objective design table](../../project/d6-group-level-objective-design.md) before executing any later task. The inferred-group objective remains the next design gate; no Task 3c, implementation design, descriptor API, or production work is authorized by this update. Inferred grouping and Bayesian comparison remain project goals.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` or `superpowers:subagent-driven-development` to execute this plan task-by-task. The plan is intentionally incremental: stop at every checkpoint and wait for review before starting the next checkpoint.
 
