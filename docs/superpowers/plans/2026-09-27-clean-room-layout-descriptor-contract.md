@@ -1,5 +1,7 @@
 # Clean-Room Layout Descriptor Contract Implementation Plan
 
+> **Current design gate (2026-09-28):** E8b/E10b evidence review is closed with scoped approvals; Task 3d remains REVISE. Read [the controlling review decision](../../project/d6-group-level-design-decision.md) before executing any later task. First resolve the design-probe contact/overlap defect and the inferred-group objective; no Task 3c, implementation design, descriptor API, or production work is authorized by this update. Inferred grouping and Bayesian comparison remain project goals.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` or `superpowers:subagent-driven-development` to execute this plan task-by-task. The plan is intentionally incremental: stop at every checkpoint and wait for review before starting the next checkpoint.
 
 **Goal:** Design and implement a machine-only canonical contract for IFC/SVG layout descriptions, compare deterministic and Bayesian scene-self-description candidates, and add one adapter and one descriptor at a time while retaining only current behavior that passes the new contract.
