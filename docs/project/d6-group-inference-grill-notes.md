@@ -102,4 +102,26 @@ authored furniture groups
 
 本轮只确认：角色并列输出优先；primary role 暂缓；机器学习与 Bayesian 需要围绕同一明确 estimand 比较。未选算法，未实现模型，未进入 production design。
 
+## 8. 路径澄清（2026-09-29）
+
+用户确认的主路径仍是：
+
+```text
+已确定的 furniture-group nodes
+→ 已确定的 group geometry/trend
+→ 已确定并保留的 group relation evidence
+→ 仍在设计的 inferred-group synthesis
+```
+
+本轮讨论的 `SpaceCandidate`、空间角色和多角色输出没有替代 inferred-group synthesis。它们属于 synthesis 的关系上下文：空空间可以解释组间分隔、连接或内部空间，但不改变家具组是最小家具节点，也不单独成为项目首要模型目标。
+
+因此后续 grill 顺序修正为：
+
+1. 定义 inferred group 要表达的对象；
+2. 定义空空间如何作为分隔/连接证据；
+3. 比较关系合成规则；
+4. 最后再判断 deterministic、Bayesian、机器学习或 hybrid 哪种方法适合。
+
+**当前路径未改变；空间角色是 inferred-group 设计的一部分，不是另起任务。**
+
 **STOP FOR GRILL-ME DISCUSSION**
