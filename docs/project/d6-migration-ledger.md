@@ -26,6 +26,17 @@
 - `normalized_boundary_gap` 和 `inter-region gap-path graph` 并存，节点 scope、观测和用途不同。
 - IFC/SVG parity 是实现阶段验收门。probe 只做候选比较、数值 oracle、退化/缩放/旋转/缺失/tessellation 检查和可视化诊断。
 
+## 本轮设计裁决（Task 3d）
+
+- 首个 deterministic trend 使用 `group_frame`（`4θ`、modulo 90°）；`group_axis`（`2θ`、modulo 180°）保留为独立描述量。
+- Bayesian 首模与 deterministic baseline 使用同一 estimand：`P(group_frame | member geometry, missingness, reliability)`。
+- authored furniture-group nodes 先固定，再生成 pairwise relation graph；connected-components 仅 chaining baseline，complete-link/max-span 必须比较。
+- 首轮 membership 禁用 trend/frame/coherence/strength；shared authored member 的零 gap/overlap 仅作 diagnostic。
+- `partial/missing` 可保留在 relation graph，但不能作为完整 membership evidence；`invalid` 只作 diagnostic，不进入正式 candidate generation。
+- representative 使用 additive support、area-weighted center、within/between covariance；union 延后，overlap 不从首阶段 normalized-gap denominator 扣除。
+- IFC 是 3D、Z、clearance、barrier 和混合指标的唯一验收来源；SVG 只验等价 2D canonical facts。
+- probe schema v2 纳入角度周期、状态混合、overlap/union、尺度、multi-membership、chaining/complete-link、barrier、level、stacking 和 IFC/SVG 2D parity；仍不是 production API 或准确率证据。
+
 ## 停止条件
 
-owner 未批准 trend estimand、overlap/union 语义、invalid-member 下游消费策略和 IFC/SVG parity fixtures 前，不进入 Task 3c、implementation design、descriptor API 或 production algorithm。
+设计裁决已记录，但最终 candidate selector、输出 partition policy、multi-scale denominator、shared-member 后续证据政策、union topology 及 IFC/SVG fixture acceptance 仍未冻结。完成这些设计门前，不进入 Task 3c、implementation design、descriptor API 或 production algorithm。
