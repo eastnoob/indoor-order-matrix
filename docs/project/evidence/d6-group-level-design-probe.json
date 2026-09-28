@@ -1,0 +1,684 @@
+{
+  "design_contract": {
+    "bayesian_estimands": {
+      "axis": "P(group_axis | member geometry, missingness, reliability)",
+      "boundary": "gap and overlap are geometry observations; edge is a geometry relation, not authored membership; posterior is not human perception probability",
+      "frame": "P(group_frame | member geometry, missingness, reliability)",
+      "neighbor": "P(group_edge | group geometry, gap, overlap, uncertainty)"
+    },
+    "evidence_fields": {
+      "coherence": "directional member agreement",
+      "directional_member_support": "directional member count or declared reliability weight",
+      "strength": "deterministic geometry evidence scalar, never a probability",
+      "support_area": "geometry area",
+      "uncertainty": "future interval or posterior; absent in this deterministic probe"
+    },
+    "graph_boundary": {
+      "coexistence": "both graphs remain; neither replaces the other",
+      "inter_region_gap_path_graph": {
+        "nodes": "activity-region candidates",
+        "observes": "free space, occupancy, path width, connectivity"
+      },
+      "normalized_boundary_gap": {
+        "nodes": "furniture groups",
+        "observes": "geometric proximity, boundary gap, overlap"
+      }
+    },
+    "probe_production_boundary": {
+      "probe_may_support": [
+        "candidate comparison",
+        "numeric oracle",
+        "degeneracy, scaling, rotation, missingness, and tessellation checks",
+        "visual diagnosis"
+      ],
+      "probe_must_not_be_interpreted_as": [
+        "production API",
+        "default psychological threshold",
+        "Bayesian prior",
+        "real-scene accuracy",
+        "human perceptual validity evidence"
+      ]
+    },
+    "representative_geometry": {
+      "between_member_covariance": "area-weighted covariance of member centers",
+      "center": "area-weighted member centroid",
+      "covariance": "within_member_covariance plus between_member_covariance",
+      "excluded_member_reasons": "member-id keyed reason map; invalid is never rewritten as missing",
+      "geometry_completeness": "complete, partial, not_applicable, or not_computable",
+      "invalid_member_policy": "any invalid member makes group geometry invalid; valid support may remain diagnostic",
+      "normalized_gap_denominator": "sqrt(support_area_i + support_area_j); overlap does not change denominator in first stage",
+      "overlap_area": null,
+      "overlap_area_status": "not_computed",
+      "support_area": "additive sum of usable member areas; overlap is not subtracted",
+      "union_area_status": "deferred",
+      "within_member_covariance": "area-weighted mean of member-internal covariance"
+    },
+    "trend_estimands": {
+      "current_implementation_fact": "features/column_grid.py::_frame_from_angles uses 4theta; this probe member consensus uses 2theta",
+      "group_axis": {
+        "definition": "single undirected principal axis",
+        "encoding": "doubled-angle 2theta, modulo 180deg",
+        "equivalence": "0deg and 180deg equivalent; 90deg differs from 0deg",
+        "recommendation": "independent descriptor only; never alias group_frame"
+      },
+      "group_frame": {
+        "definition": "orthogonal two-axis frame",
+        "encoding": "quadrupled-angle 4theta, modulo 90deg",
+        "equivalence": "0deg and 90deg equivalent",
+        "recommendation": "compatibility deterministic baseline for current column-grid trend"
+      }
+    }
+  },
+  "design_review_revision": "2026-09-28-group-estimand-gate",
+  "fixture": "D:/PROJECTS/understandOtherPackage/order_analyzer/scripts/design/group_level/fixtures.json",
+  "fixture_sha256": "6fdb21f38a49f073cdc08b7f5c9ee26fd2ac00b9f7636bc060563daf6209d8b1",
+  "limitations": [
+    "synthetic geometry truth is computational and contains no human labels",
+    "rectangle fixture shorthand is expanded before the comparison",
+    "member support is retained as a multi-part collection; overlaps are not unioned"
+  ],
+  "planned_follow_up_fixtures": [
+    {
+      "cases": [
+        "0deg",
+        "90deg",
+        "180deg",
+        "270deg"
+      ],
+      "id": "orthogonal_angle_cycle",
+      "status": "planned"
+    },
+    {
+      "id": "axis_frame_difference",
+      "status": "planned"
+    },
+    {
+      "id": "valid_missing_invalid_members",
+      "status": "planned"
+    },
+    {
+      "id": "overlapping_members",
+      "status": "planned"
+    },
+    {
+      "id": "additive_vs_union_area",
+      "status": "planned"
+    },
+    {
+      "id": "unequal_size_normalized_gap",
+      "status": "planned"
+    },
+    {
+      "id": "multiple_authored_membership",
+      "status": "planned"
+    },
+    {
+      "id": "disconnected_neighbor_components",
+      "status": "planned"
+    },
+    {
+      "acceptance_gate": true,
+      "id": "ifc_svg_equivalent_canonical_facts",
+      "status": "planned"
+    }
+  ],
+  "results": {
+    "neighbor_cases": {
+      "knn_tie": {
+        "knn": {
+          "directed": {
+            "T0": [
+              "T1",
+              "T2"
+            ],
+            "T1": [
+              "T0"
+            ],
+            "T2": [
+              "T0"
+            ]
+          },
+          "edges": [
+            "T0--T1",
+            "T0--T2"
+          ]
+        },
+        "normalized_gap": {
+          "edges": [],
+          "relations": []
+        },
+        "raw_gap": {
+          "edges": []
+        },
+        "representative_centers": {
+          "T0": [
+            0.0,
+            0.0
+          ],
+          "T1": [
+            2.0,
+            0.0
+          ],
+          "T2": [
+            0.0,
+            2.0
+          ]
+        },
+        "truth_edges": []
+      },
+      "local_components": {
+        "knn": {
+          "directed": {
+            "A": [
+              "F"
+            ],
+            "B": [
+              "F"
+            ],
+            "C": [
+              "F"
+            ],
+            "D": [
+              "E"
+            ],
+            "E": [
+              "D"
+            ],
+            "F": [
+              "A"
+            ]
+          },
+          "edges": [
+            "A--F",
+            "B--F",
+            "C--F",
+            "D--E"
+          ]
+        },
+        "normalized_gap": {
+          "edges": [
+            "A--B",
+            "A--F",
+            "D--E"
+          ],
+          "relations": [
+            {
+              "edge": "A--B",
+              "gap": 0.3999999999999999,
+              "member_pair": {
+                "first_member": "A1",
+                "second_member": "B1"
+              },
+              "normalized_gap": 0.28284271247461895,
+              "overlap": false
+            },
+            {
+              "edge": "A--F",
+              "gap": 0.0,
+              "member_pair": {
+                "first_member": "A1",
+                "second_member": "F1"
+              },
+              "normalized_gap": 0.0,
+              "overlap": true
+            },
+            {
+              "edge": "D--E",
+              "gap": 0.40000000000000036,
+              "member_pair": {
+                "first_member": "D1",
+                "second_member": "E1"
+              },
+              "normalized_gap": 0.28284271247461923,
+              "overlap": false
+            }
+          ]
+        },
+        "raw_gap": {
+          "edges": [
+            "A--B",
+            "A--F",
+            "B--F",
+            "D--E"
+          ]
+        },
+        "representative_centers": {
+          "A": [
+            0.0,
+            0.0
+          ],
+          "B": [
+            1.4,
+            0.0
+          ],
+          "C": [
+            0.0,
+            1.6
+          ],
+          "D": [
+            6.0,
+            0.0
+          ],
+          "E": [
+            7.4,
+            0.0
+          ],
+          "F": [
+            0.20000000000000004,
+            0.20000000000000004
+          ]
+        },
+        "truth_edges": [
+          "A--B",
+          "A--F",
+          "D--E"
+        ]
+      },
+      "local_components_scaled": {
+        "knn": {
+          "directed": {
+            "A": [
+              "F"
+            ],
+            "B": [
+              "F"
+            ],
+            "C": [
+              "F"
+            ],
+            "D": [
+              "E"
+            ],
+            "E": [
+              "D"
+            ],
+            "F": [
+              "A"
+            ]
+          },
+          "edges": [
+            "A--F",
+            "B--F",
+            "C--F",
+            "D--E"
+          ]
+        },
+        "normalized_gap": {
+          "edges": [
+            "A--B",
+            "A--F",
+            "D--E"
+          ],
+          "relations": [
+            {
+              "edge": "A--B",
+              "gap": 1.5999999999999996,
+              "member_pair": {
+                "first_member": "A1",
+                "second_member": "B1"
+              },
+              "normalized_gap": 0.28284271247461895,
+              "overlap": false
+            },
+            {
+              "edge": "A--F",
+              "gap": 0.0,
+              "member_pair": {
+                "first_member": "A1",
+                "second_member": "F1"
+              },
+              "normalized_gap": 0.0,
+              "overlap": true
+            },
+            {
+              "edge": "D--E",
+              "gap": 1.6000000000000014,
+              "member_pair": {
+                "first_member": "D1",
+                "second_member": "E1"
+              },
+              "normalized_gap": 0.28284271247461923,
+              "overlap": false
+            }
+          ]
+        },
+        "raw_gap": {
+          "edges": [
+            "A--F"
+          ]
+        },
+        "representative_centers": {
+          "A": [
+            0.0,
+            0.0
+          ],
+          "B": [
+            5.6,
+            0.0
+          ],
+          "C": [
+            0.0,
+            6.4
+          ],
+          "D": [
+            24.0,
+            0.0
+          ],
+          "E": [
+            29.6,
+            0.0
+          ],
+          "F": [
+            0.8000000000000002,
+            0.8000000000000002
+          ]
+        },
+        "truth_edges": [
+          "A--B",
+          "A--F",
+          "D--E"
+        ]
+      }
+    },
+    "trend_cases": {
+      "contradictory": {
+        "geometry_pca": {
+          "angle": 0.0,
+          "basis": "area_weighted_group_pca",
+          "status": "computed",
+          "strength": 0.5985221674876849
+        },
+        "member_consensus": {
+          "angle": 3.0616169978683916e-17,
+          "basis": "member_frame_consensus",
+          "member_support": 4,
+          "status": "computed",
+          "strength": 0.49999999999999933
+        },
+        "representative": {
+          "center": [
+            2.5,
+            0.5
+          ],
+          "completeness": "complete",
+          "covariance": [
+            [
+              3.380208333333334,
+              0.0
+            ],
+            [
+              0.0,
+              0.8489583333333333
+            ]
+          ],
+          "excluded": {},
+          "status": "computed",
+          "support_area": 4.0
+        },
+        "trend_completeness": "complete",
+        "vertex_unweighted_pca": {
+          "angle": 0.0,
+          "basis": "vertex_unweighted_pca",
+          "status": "computed",
+          "strength": 0.5759493670886076
+        }
+      },
+      "directional": {
+        "geometry_pca": {
+          "angle": 3.1229688880281077,
+          "basis": "area_weighted_group_pca",
+          "status": "computed",
+          "strength": 0.9885376741779826
+        },
+        "member_consensus": {
+          "angle": 1.8390334675096777e-17,
+          "basis": "member_frame_consensus",
+          "member_support": 3,
+          "status": "computed",
+          "strength": 1.0
+        },
+        "representative": {
+          "center": [
+            2.5,
+            0.0
+          ],
+          "completeness": "complete",
+          "covariance": [
+            [
+              4.5,
+              -0.08333333333333331
+            ],
+            [
+              -0.08333333333333331,
+              0.027499999999999997
+            ]
+          ],
+          "excluded": {},
+          "status": "computed",
+          "support_area": 3.0
+        },
+        "trend_completeness": "complete",
+        "vertex_unweighted_pca": {
+          "angle": 3.125250592274101,
+          "basis": "vertex_unweighted_pca",
+          "status": "computed",
+          "strength": 0.9740997458620907
+        }
+      },
+      "isotropic": {
+        "geometry_pca": {
+          "angle": 0.0,
+          "basis": "area_weighted_group_pca",
+          "status": "computed",
+          "strength": 0.7714285714285714
+        },
+        "member_consensus": {
+          "basis": "member_frame_consensus",
+          "member_support": 0,
+          "status": "undefined",
+          "strength": 0.0
+        },
+        "representative": {
+          "center": [
+            0.75,
+            0.0
+          ],
+          "completeness": "complete",
+          "covariance": [
+            [
+              0.6458333333333333,
+              0.0
+            ],
+            [
+              0.0,
+              0.08333333333333333
+            ]
+          ],
+          "excluded": {},
+          "status": "computed",
+          "support_area": 2.0
+        },
+        "trend_completeness": "not_applicable",
+        "vertex_unweighted_pca": {
+          "angle": 0.0,
+          "basis": "vertex_unweighted_pca",
+          "status": "computed",
+          "strength": 0.5294117647058824
+        }
+      },
+      "missing_member": {
+        "geometry_pca": {
+          "angle": 0.0,
+          "basis": "area_weighted_group_pca",
+          "status": "computed",
+          "strength": 0.8823529411764707
+        },
+        "member_consensus": {
+          "angle": 0.0,
+          "basis": "member_frame_consensus",
+          "member_support": 1,
+          "status": "computed",
+          "strength": 1.0
+        },
+        "representative": {
+          "center": [
+            0.0,
+            0.0
+          ],
+          "completeness": "partial",
+          "covariance": [
+            [
+              0.3333333333333333,
+              0.0
+            ],
+            [
+              0.0,
+              0.020833333333333332
+            ]
+          ],
+          "excluded": {
+            "missing": "analysis projection absent"
+          },
+          "status": "computed",
+          "support_area": 1.0
+        },
+        "trend_completeness": "partial",
+        "vertex_unweighted_pca": {
+          "angle": 0.0,
+          "basis": "vertex_unweighted_pca",
+          "status": "computed",
+          "strength": 0.8823529411764706
+        }
+      },
+      "symmetric": {
+        "geometry_pca": {
+          "angle": 1.5707963267948966,
+          "basis": "area_weighted_group_pca",
+          "status": "computed",
+          "strength": 0.7384615384615385
+        },
+        "member_consensus": {
+          "angle": null,
+          "basis": "member_frame_consensus",
+          "member_support": 2,
+          "status": "undefined",
+          "strength": 8.779179622599402e-17
+        },
+        "representative": {
+          "center": [
+            0.0,
+            1.0
+          ],
+          "completeness": "complete",
+          "covariance": [
+            [
+              0.17708333333333331,
+              2.0816681711721685e-17
+            ],
+            [
+              2.0816681711721685e-17,
+              1.177083333333333
+            ]
+          ],
+          "excluded": {},
+          "status": "computed",
+          "support_area": 2.0
+        },
+        "trend_completeness": "not_applicable",
+        "vertex_unweighted_pca": {
+          "angle": 1.5707963267948966,
+          "basis": "vertex_unweighted_pca",
+          "status": "computed",
+          "strength": 0.48484848484848486
+        }
+      },
+      "tessellation_dense": {
+        "geometry_pca": {
+          "angle": 0.5235987755982988,
+          "basis": "area_weighted_group_pca",
+          "status": "computed",
+          "strength": 0.8823529411764705
+        },
+        "member_consensus": {
+          "angle": 0.5235987755982988,
+          "basis": "member_frame_consensus",
+          "member_support": 1,
+          "status": "computed",
+          "strength": 1.0
+        },
+        "representative": {
+          "center": [
+            0.0,
+            0.0
+          ],
+          "completeness": "complete",
+          "covariance": [
+            [
+              0.25520833333333337,
+              0.13531646934131852
+            ],
+            [
+              0.13531646934131852,
+              0.09895833333333331
+            ]
+          ],
+          "excluded": {},
+          "status": "computed",
+          "support_area": 1.0
+        },
+        "trend_completeness": "complete",
+        "vertex_unweighted_pca": {
+          "angle": 0.6200817768620495,
+          "basis": "vertex_unweighted_pca",
+          "status": "computed",
+          "strength": 0.9074452455408245
+        }
+      },
+      "tessellation_sparse": {
+        "geometry_pca": {
+          "angle": 0.5235987755982988,
+          "basis": "area_weighted_group_pca",
+          "status": "computed",
+          "strength": 0.8823529411764705
+        },
+        "member_consensus": {
+          "angle": 0.5235987755982988,
+          "basis": "member_frame_consensus",
+          "member_support": 1,
+          "status": "computed",
+          "strength": 1.0
+        },
+        "representative": {
+          "center": [
+            0.0,
+            0.0
+          ],
+          "completeness": "complete",
+          "covariance": [
+            [
+              0.25520833333333337,
+              0.13531646934131852
+            ],
+            [
+              0.13531646934131852,
+              0.09895833333333331
+            ]
+          ],
+          "excluded": {},
+          "status": "computed",
+          "support_area": 1.0
+        },
+        "trend_completeness": "complete",
+        "vertex_unweighted_pca": {
+          "angle": 0.5235987755982988,
+          "basis": "vertex_unweighted_pca",
+          "status": "computed",
+          "strength": 0.8823529411764706
+        }
+      }
+    }
+  },
+  "schema": "group-level-design-probe/v1",
+  "selected_neighbor_baseline": "normalized_boundary_gap",
+  "selected_trend_baseline": "member_frame_consensus"
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "group-level-design-artifact-manifest/v1",
+  "generated_utc": "2026-09-28T10:40:07.7129409Z",
+  "fixture": "scripts/design/group_level/fixtures.json",
+  "probe": "scripts/design/group_level/run_group_level_probe.py",
+  "blender_script": "scripts/design/group_level/render_group_level_blender.py",
+  "probe_output": "docs/project/evidence/d6-group-level-design-probe.json",
+  "output_dir": "outputs/design/group_level",
+  "commands": [
+    "pixi run python scripts/design/group_level/run_group_level_probe.py --output docs/project/evidence/d6-group-level-design-probe.json",
+    "D:\\Blender\\BlenderPortableLTS5.2\\App\\Blender64\\blender.exe -b -noaudio -P scripts/design/group_level/render_group_level_blender.py -- --fixture scripts/design/group_level/fixtures.json --output-dir outputs/design/group_level"
+  ],
+  "sha256": {
+    "scripts/design/group_level/render_group_level_blender.py": "b4e5a8a2610e582bbdb16b439e3c1b8a1eb4159254e6e6cb6b315e679fec8890",
+    "docs/project/evidence/d6-group-level-design-probe.json": "c16509af99cbc7e3eb57841cf30f910e818f7ff84d23c4a9a5ea81e3209c6f61",
+    "scripts/design/group_level/run_group_level_probe.py": "42d40d85d79e8f5a4a9c3397456f0076161bcb5b114fd2bd351fdcffbc876669",
+    "scripts/design/group_level/fixtures.json": "6fdb21f38a49f073cdc08b7f5c9ee26fd2ac00b9f7636bc060563daf6209d8b1"
+  }
+}
