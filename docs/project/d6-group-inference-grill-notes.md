@@ -124,4 +124,43 @@ authored furniture groups
 
 **当前路径未改变；空间角色是 inferred-group 设计的一部分，不是另起任务。**
 
+## 9. Inferred group 的工作判断（2026-09-29）
+
+### 用户补充
+
+用户同意先设计和比较空间角色推断，并指出：
+
+> 组在我的愿景中，甚至可以没有一个明确的边界，而是一个场，一个概率组合
+
+### 总控判断
+
+“几何上可以合并”与“被同一空间结构组织”不应被当成两个互斥产品目标：
+
+1. **几何关系是观察层。** 距离、接触、重叠、Z、clearance、阻隔、方向和类型相似性提供可审计 evidence channels。
+2. **空间角色是组织层。** 空空间的连续性、宽度分布、瓶颈、连通性、边界和邻接家具组，形成 `SpaceCandidate` 及其 role evidence。
+3. **inferred group 是软组织场。** 它描述家具组节点在同一空间组织中的关联强度、可能的多尺度组合和不确定性，不默认输出清晰 partition 或唯一边界。
+
+因此，若必须说明优先级：**组级解释优先采用空间组织场；几何关系是其基础观测和必要证据，类型/几何相似性是附加证据通道。** 这不是让空间标签覆盖几何，而是让“同一空间结构”成为 group-level estimand，避免把几何相似家具隔着明显空间分隔强行合并。
+
+冲突时保留分通道结果：例如几何相似性高、空间分隔强，则输出“相似但空间组织分离”；几何相似性低、共同空间组织强，则允许形成较弱或多峰的 inferred association。不得把冲突压成一个无 provenance 的分数。
+
+### 暂定模型对象
+
+```text
+P(organization relation / soft membership
+  | group geometry, space-role evidence, type evidence, missingness, uncertainty)
+```
+
+这只是 estimand 方向，不是已批准公式、prior 或 Bayesian 实现。确定性版本可先输出连续 evidence vector 和多尺度候选；Bayesian 版本可输出 edge/posterior 或 soft membership。两者必须保留各自 provenance，不能把强度字段叫作概率。
+
+### 为什么不先把它做成纯几何聚类
+
+- 纯几何相似会把被宽阔连续空间分隔的相似家具误合并；
+- 纯路径/空间标签会把几何上无关的家具仅因同处一块空区而合并；
+- 场模型允许关系强弱、重叠候选、多峰和无明确边界，同时保留两类失败原因。
+
+因此当前不是选择“几何”或“空间结构”，而是决定：几何负责观测，空间场负责高层组织解释。
+
+**本节是总控工作判断，待后续 synthetic comparison 和设计审查验证；不进入生产实现。**
+
 **STOP FOR GRILL-ME DISCUSSION**
