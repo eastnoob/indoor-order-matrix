@@ -163,4 +163,15 @@ P(organization relation / soft membership
 
 **本节是总控工作判断，待后续 synthetic comparison 和设计审查验证；不进入生产实现。**
 
+## 10. 双层场定义（2026-09-29）
+
+用户同意保留两层场：
+
+1. **空间场**：定义在 `AnalysisDomain` 上，描述空区的连续性、宽度分布、瓶颈、连通、分隔和空间角色证据。
+2. **组关系场**：定义在 authored furniture-group graph 上，描述组与组之间的软关联、重叠候选、多尺度关系和不确定性。
+
+两层通过家具组与空间实体的邻接、边界、穿越和阻隔关系连接。空间实体不是家具组成员；组关系场不能替代空间场，空间场也不能静默改写 authored membership。
+
+这是一项已确认的设计方向，不是 production API、概率公式或算法选择。
+
 **STOP FOR GRILL-ME DISCUSSION**
