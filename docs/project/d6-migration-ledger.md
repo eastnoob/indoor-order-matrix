@@ -2,6 +2,8 @@
 
 本表只记录设计候选的迁移裁决。`migrate`、`wrap`、`rewrite`、`discard`、`reference_only` 是设计状态，不是已授权实现。现有代码和测试是 reference evidence；任何迁移都必须通过 canonical contract 和独立测试。
 
+后续用户澄清与独立审查见 [设计交接笔记](d6-inferred-group-design-review-handoff.md)。候选仅为明确的 IFC `furniture_group`；inferred group 发生在家具组之间；IFC/SVG parity 限于等价 canonical 2D facts，3D/混合指标由 IFC fixtures 验收。这些边界优先于下表的宽泛旧表述，尚未批准的算法不因此冻结。
+
 | capability | current location / fact | classification | reason | implementation gate / owner question |
 |---|---|---|---|---|
 | affordance zones 与 union envelope | `features/scene_inference.py`；architecture memory 定义 furniture affordance extent 为 union envelope | `reference_only` | D6 3d 首 slice 只消费 canonical member support；affordance/use-zone 和 region extent 属后续 region/path scope | 后续 region/path task 决定是否迁移；union topology 仍需 owner 冻结 |

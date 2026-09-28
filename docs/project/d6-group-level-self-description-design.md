@@ -1,6 +1,7 @@
 # D6 Task 3d：家具组层面的场景自描述设计
 
 - **状态：** design-only，等待 owner review
+- **后续澄清：** 见 [独立设计审查交接](d6-inferred-group-design-review-handoff.md)。用户已明确 IFC 家具组候选入口、家具组之间的几何推断、外部 affordance 和 SVG 仅作 2D oracle；这些澄清优先于本文旧表述。算法和待决政策仍未批准。
 - **日期：** 2026-09-28
 - **范围：** canonical plan geometry → authored furniture group → representative geometry → group trend → neighboring-group relations
 - **实现边界：** 本任务只修订设计、probe 证据和迁移裁决；不修改 `features/`、adapter、正式测试、IFC 或 SVG 生产路径。
