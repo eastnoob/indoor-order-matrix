@@ -1,0 +1,1243 @@
+{
+  "schema": "d6-inferred-group-followup-fixtures/v5",
+  "analysis_frame": {
+    "id": "fixture-plan-xy",
+    "plane": "XY",
+    "unit": "m",
+    "origin": [
+      0.0,
+      0.0
+    ]
+  },
+  "tolerance": {
+    "geometry": 1e-09,
+    "clearance": 1e-09,
+    "z": 1e-06
+  },
+  "formal_channels": [
+    "geometry_2d",
+    "clearance_3d",
+    "z_compatibility",
+    "wall_opening_barrier"
+  ],
+  "diagnostic_channels": [
+    "external_affordance"
+  ],
+  "e8_aggregation_cases": [
+    {
+      "id": "near_far_multi_member",
+      "question": "one near member pair and one far pair separate any/min from max/all-pairs",
+      "thresholds": {
+        "gap_2d": 0.6,
+        "clearance_3d": 0.6
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A_NEAR",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "A_FAR",
+              "status": "computed",
+              "box": {
+                "center": [
+                  6.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B_NEAR",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "B_FAR_1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  8.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "B_FAR_2",
+              "status": "computed",
+              "box": {
+                "center": [
+                  -8.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overlap_plus_far",
+      "question": "one overlap pair and one non-overlap pair expose any/min versus max/all-pairs",
+      "thresholds": {
+        "gap_2d": 0.6,
+        "clearance_3d": 0.6
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A_OVERLAP",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "A_FAR",
+              "status": "computed",
+              "box": {
+                "center": [
+                  5.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B_OVERLAP",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.5,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "B_FAR",
+              "status": "computed",
+              "box": {
+                "center": [
+                  8.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_z_levels",
+      "question": "different member levels make any compatible pair differ from all-pairs Z compatibility",
+      "thresholds": {
+        "gap_2d": 0.6,
+        "clearance_3d": 0.6
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A_LOW",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "A_HIGH",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  2.0,
+                  3.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B_LOW",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "B_HIGH",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  2.0,
+                  3.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "disconnected_members",
+      "question": "a disconnected group should not be represented by one minimum pair alone",
+      "thresholds": {
+        "gap_2d": 0.6,
+        "clearance_3d": 0.6
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A_LEFT",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "A_RIGHT",
+              "status": "computed",
+              "box": {
+                "center": [
+                  10.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B_CENTER",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unequal_rotated_transform",
+      "question": "unequal-size members retain normalized aggregate observations under rigid transform and positive scale",
+      "thresholds": {
+        "gap_2d": 1.5,
+        "clearance_3d": 1.5
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A_BIG",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  2.0,
+                  2.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B_SMALL",
+              "status": "computed",
+              "box": {
+                "center": [
+                  3.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "transform_checks": [
+        "identity",
+        "rotate_90_translate",
+        "positive_scale_2"
+      ],
+      "member_order_variants": [
+        "declared",
+        "reversed"
+      ],
+      "id_rename_variant": "renamed"
+    },
+    {
+      "id": "partial_member_support",
+      "question": "one missing member makes a pairwise summary partial and blocks formal membership",
+      "thresholds": {
+        "gap_2d": 0.6,
+        "clearance_3d": 0.6
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A_VALID",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "A_MISSING",
+              "status": "not_available",
+              "reason": "member_geometry_absent"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B_VALID",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "no_usable_members",
+      "question": "no usable member pair returns not_available instead of a numeric aggregate",
+      "thresholds": {
+        "gap_2d": 0.6,
+        "clearance_3d": 0.6
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A_MISSING",
+              "status": "not_available",
+              "reason": "member_geometry_absent"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B_MISSING",
+              "status": "not_available",
+              "reason": "member_geometry_absent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared_member_dependency",
+      "question": "a shared authored member is provenance-visible but cannot create a formal self-pair",
+      "thresholds": {
+        "gap_2d": 0.6,
+        "clearance_3d": 0.6
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "SHARED_1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "SHARED_1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "e9_channel_cases": [
+    {
+      "id": "all_channels_available",
+      "question": "all formal channels available permits a computed formal edge",
+      "channel_status": {
+        "geometry_2d": "computed",
+        "clearance_3d": "computed",
+        "z_compatibility": "computed",
+        "wall_opening_barrier": "computed",
+        "external_affordance": "not_available"
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "missing_2d_geometry",
+      "question": "missing plan geometry cannot be treated as clear, false, or zero",
+      "channel_status": {
+        "geometry_2d": "not_available",
+        "clearance_3d": "not_available",
+        "z_compatibility": "not_available",
+        "wall_opening_barrier": "not_available",
+        "external_affordance": "not_available"
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A1",
+              "status": "not_available",
+              "reason": "plan_projection_absent"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "missing_3d_clearance",
+      "question": "2D evidence does not substitute for missing 3D clearance",
+      "channel_status": {
+        "geometry_2d": "computed",
+        "clearance_3d": "not_available",
+        "z_compatibility": "computed",
+        "wall_opening_barrier": "computed",
+        "external_affordance": "not_available"
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "missing_z_interval",
+      "question": "missing Z interval keeps 2D diagnostic but blocks formal membership",
+      "channel_status": {
+        "geometry_2d": "computed",
+        "clearance_3d": "computed",
+        "z_compatibility": "not_available",
+        "wall_opening_barrier": "computed",
+        "external_affordance": "not_available"
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "missing_wall_barrier",
+      "question": "missing barrier observation is not equivalent to an open wall",
+      "channel_status": {
+        "geometry_2d": "computed",
+        "clearance_3d": "computed",
+        "z_compatibility": "computed",
+        "wall_opening_barrier": "not_available",
+        "external_affordance": "not_available"
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "missing_external_affordance",
+      "question": "external affordance is diagnostic-only in this membership slice",
+      "channel_status": {
+        "geometry_2d": "computed",
+        "clearance_3d": "computed",
+        "z_compatibility": "computed",
+        "wall_opening_barrier": "computed",
+        "external_affordance": "not_available"
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "invalid_geometry",
+      "question": "invalid geometry remains diagnostic-only even when a second group is valid",
+      "channel_status": {
+        "geometry_2d": "invalid",
+        "clearance_3d": "invalid",
+        "z_compatibility": "invalid",
+        "wall_opening_barrier": "computed",
+        "external_affordance": "not_available"
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A1",
+              "status": "invalid",
+              "reason": "non_finite_geometry"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "partial_group_support",
+      "question": "partial support yields partial relation and no formal edge",
+      "channel_status": {
+        "geometry_2d": "partial",
+        "clearance_3d": "partial",
+        "z_compatibility": "partial",
+        "wall_opening_barrier": "computed",
+        "external_affordance": "not_available"
+      },
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "A1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            {
+              "id": "A_MISSING",
+              "status": "not_available",
+              "reason": "clearance_projection_absent"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "B1",
+              "status": "computed",
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "e10b_svg_adapter": {
+    "path": "scripts/design/group_level/e10b_independent_svg_fixture.svg",
+    "source_length_unit": "m",
+    "analysis_length_unit": "m",
+    "geometry_tolerance": 1e-06,
+    "topology_tolerance": 1e-06,
+    "expected": {
+      "analysis_plane_name": "SVG XY analysis plane",
+      "world_coordinate_system_name": "SVG user space",
+      "group_membership": {
+        "svg_group_alpha": [
+          "svg_furniture_a1",
+          "svg_furniture_a2"
+        ],
+        "svg_group_beta": [
+          "svg_furniture_b1"
+        ]
+      },
+      "objects": {
+        "svg_furniture_a1": {
+          "center": [
+            1.5,
+            1.5
+          ],
+          "area": 1.0,
+          "group_refs": [
+            "svg_group_alpha"
+          ],
+          "representative_status": "computed"
+        },
+        "svg_furniture_a2": {
+          "center": [
+            2.8,
+            1.6
+          ],
+          "area": 0.96,
+          "group_refs": [
+            "svg_group_alpha"
+          ],
+          "representative_status": "computed"
+        },
+        "svg_furniture_b1": {
+          "center": [
+            6.75,
+            1.875
+          ],
+          "area": 1.125,
+          "group_refs": [
+            "svg_group_beta"
+          ],
+          "representative_status": "computed"
+        }
+      },
+      "pair": {
+        "members": [
+          "svg_furniture_a1",
+          "svg_furniture_a2"
+        ],
+        "raw_gap": 0.4,
+        "normalized_gap": 0.2773500981126146,
+        "overlap": false,
+        "contact": false,
+        "intersection_area": 0.0,
+        "near": false
+      },
+      "opening_count": 1,
+      "planar_only_channels": {
+        "z_interval": "not_available",
+        "clearance_3d": "not_available",
+        "wall_opening_barrier": "not_available"
+      }
+    },
+    "contact_overlap_cases": [
+      {
+        "id": "separated",
+        "left": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "right": [
+          1.2,
+          0,
+          2.2,
+          1
+        ],
+        "tolerance": 1e-06,
+        "expected": {
+          "intersection_area": 0.0,
+          "overlap": false,
+          "contact": false,
+          "near": false
+        }
+      },
+      {
+        "id": "edge_touch",
+        "left": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "right": [
+          1,
+          0,
+          2,
+          1
+        ],
+        "tolerance": 1e-06,
+        "expected": {
+          "intersection_area": 0.0,
+          "overlap": false,
+          "contact": true,
+          "near": false
+        }
+      },
+      {
+        "id": "corner_touch",
+        "left": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "right": [
+          1,
+          1,
+          2,
+          2
+        ],
+        "tolerance": 1e-06,
+        "expected": {
+          "intersection_area": 0.0,
+          "overlap": false,
+          "contact": true,
+          "near": false
+        }
+      },
+      {
+        "id": "positive_area_overlap",
+        "left": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "right": [
+          0.5,
+          0,
+          1.5,
+          1
+        ],
+        "tolerance": 1e-06,
+        "expected": {
+          "intersection_area": 0.5,
+          "overlap": true,
+          "contact": false,
+          "near": false
+        }
+      },
+      {
+        "id": "tolerance_near",
+        "left": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "right": [
+          1.0000005,
+          0,
+          2.0000005,
+          1
+        ],
+        "tolerance": 1e-06,
+        "expected": {
+          "intersection_area": 0.0,
+          "overlap": false,
+          "contact": false,
+          "near": true
+        }
+      }
+    ]
+  }
+}

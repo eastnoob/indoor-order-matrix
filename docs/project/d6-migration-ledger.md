@@ -39,6 +39,6 @@
 
 ## 停止条件
 
-2026-09-28 E8b/E10b 总控收口见 [设计裁决](d6-group-level-design-decision.md)：批准 pairwise observations 分层、已测状态边界、IFC 输入事实和 SVG 分离矩形对照；E10b contact/overlap probe 退回修订。当前未完成同场景双 adapter parity。暂缓 selector 不等于删除 inferred-group 或 Bayesian 目标；迁移分类保持不变。
+2026-09-28 E8b/E10b 总控收口见 [设计裁决](d6-group-level-design-decision.md)：批准 pairwise observations 分层、已测状态边界、IFC 输入事实和 SVG 分离矩形对照；design probe 已补齐轴对齐 contact/overlap/near 反例。当前未完成同场景双 adapter parity。暂缓 selector 不等于删除 inferred-group 或 Bayesian 目标；迁移分类保持不变。
 
 设计裁决已记录，但最终 candidate selector、输出 partition policy、multi-scale denominator、shared-member 后续证据政策、union topology 及 IFC/SVG fixture acceptance 仍未冻结。完成这些设计门前，不进入 Task 3c、implementation design、descriptor API 或 production algorithm。

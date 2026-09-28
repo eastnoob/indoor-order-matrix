@@ -1,0 +1,90 @@
+{
+  "schema": "d6-inferred-group-design-artifact-manifest/v4",
+  "design_only": true,
+  "generated_at": "2026-09-28",
+  "commands": [
+    "pixi run python scripts/design/group_level/run_inferred_group_experiment.py --fixtures scripts/design/group_level/inferred_group_experiment_fixtures.json --output docs/project/evidence/d6-inferred-group-design-experiment.json --visual-dir docs/project/evidence",
+    "pixi run python scripts/design/group_level/run_group_level_probe.py --output <temporary-probe-output>",
+    "pixi run python scripts/design/group_level/run_group_level_followup_probe.py --fixtures scripts/design/group_level/inferred_group_followup_fixtures.json --output docs/project/evidence/d6-inferred-group-design-followup.json --svg-output docs/project/evidence/d6-e10-bim-acceptance-svg-2d-canonical.svg --svg-json-output docs/project/evidence/d6-e10-bim-acceptance-svg-2d-canonical.json",
+    "pixi run python -c \"from adapters.svg_scene import load_svg_neutral_scene; load_svg_neutral_scene('scripts/design/group_level/e10b_independent_svg_fixture.svg', source_length_unit='m', analysis_length_unit='m')\"",
+    "pixi run python -m py_compile scripts/design/group_level/run_group_level_probe.py scripts/design/group_level/run_group_level_followup_probe.py",
+    "JSON/XML parse, probe assertions, and fixture/artifact hash checks",
+    "git diff --check",
+    "scope audit",
+    "contact/overlap axis-aligned counterexamples: separated, edge-touch, corner-touch, positive-area-overlap, tolerance-near"
+  ],
+  "artifacts": [
+    {
+      "path": "scripts/design/group_level/inferred_group_experiment_fixtures.json",
+      "sha256": "28d8cf6ccfb5dcdf3068a82a6e615a7768a93328df1433426e57a3944d5c2a36",
+      "bytes": 7951
+    },
+    {
+      "path": "scripts/design/group_level/run_inferred_group_experiment.py",
+      "sha256": "2c4bf0ec03c85be08835d17800ce92367cac5956c07728a7f15eeb2addfa1ec0",
+      "bytes": 23993
+    },
+    {
+      "path": "docs/project/d6-inferred-group-design-experiment-record.md",
+      "sha256": "f8f833c3636c423652248b175479f99e1ed620989ee3db0a380b58e71723388e",
+      "bytes": 27646
+    },
+    {
+      "path": "docs/project/evidence/d6-inferred-group-design-experiment.json",
+      "sha256": "ab3e29b351f9c808472f1e6d11c3fbf09a2c7fd0f32995596e2434862367f829",
+      "bytes": 21251
+    },
+    {
+      "path": "docs/project/evidence/d6-inferred-group-candidates.svg",
+      "sha256": "4a13e7708bb68add6d04ab3b438d210c101446cc8a13c20cdb9c86ca46f58244",
+      "bytes": 1828
+    },
+    {
+      "path": "docs/project/evidence/d6-inferred-group-channels.svg",
+      "sha256": "ce7bd06c90e42b34ca6592d9c8a3b0d970eaaa3ac5a211acc615aac9450fce3d",
+      "bytes": 2109
+    },
+    {
+      "path": "scripts/design/group_level/inferred_group_followup_fixtures.json",
+      "sha256": "d46d87f7ef49e6f720d7ffa436a00516d8b03bee6e3c81b512810a498d0e13a9",
+      "bytes": 28733
+    },
+    {
+      "path": "scripts/design/group_level/run_group_level_followup_probe.py",
+      "sha256": "e2a301608ab805aa10d5015675699c8bfc1c4e58372a19dba667a006f5149cf3",
+      "bytes": 45883
+    },
+    {
+      "path": "docs/project/evidence/d6-inferred-group-design-followup.json",
+      "sha256": "a1f46cbf36ced46161117fdf295981518ff5d5184a609e96c104766975b65dc3",
+      "bytes": 292412
+    },
+    {
+      "path": "docs/project/evidence/d6-e10-bim-acceptance-svg-2d-canonical.json",
+      "sha256": "c2fa791dd5980570581445524d7b9e567e579a7ce4868b0e1dcf8b95d6771e8d",
+      "bytes": 85430
+    },
+    {
+      "path": "docs/project/evidence/d6-e10-bim-acceptance-svg-2d-canonical.svg",
+      "sha256": "9556f5afd929d1d005573b0fe237f8856fd2894dee31a8c0bff15fa8b5bde3f3",
+      "bytes": 14954
+    },
+    {
+      "path": "scripts/design/group_level/e10b_independent_svg_fixture.svg",
+      "sha256": "6df86f2a6fb380b34d16354a27ac04d9109b6e0aa98a8a462a7f85f91545553c",
+      "bytes": 728
+    },
+    {
+      "path": "docs/project/d6-group-level-design-decision.md",
+      "sha256": "317129fb7621391dc7d0d529e48da1e1fe2c47ec38f0b7a1543b991149eaa383",
+      "bytes": 7085
+    }
+  ],
+  "forbidden_scopes": [
+    "features/",
+    "adapters/",
+    "test/",
+    "production API",
+    "IFC/SVG production path"
+  ]
+}

@@ -36,24 +36,23 @@
 | E10 IFC primary audit | 批准已审计事实 | IFC4、37 strict furniture groups、95 furniture、11 walls、6 doors，毫米转米比例 0.001；当前样本 opening/void/fill 关系均为 0。 |
 | E10 opening/barrier | 暂缓验收 | door geometry 不是 opening relation。缺关系保持 `not_available`；不能以 synthetic opening 或 SVG opening 替代实际 IFC 验收。 |
 | E10b SVG adapter 加载及分离矩形 2D 对照 | 批准已测结果 | 2 groups、3 furniture、1 opening；A1/A2 raw gap 0.4、normalized gap 0.2773500981，仅针对该 fixture 和其归一化定义。 |
-| E10b contact/overlap 一般语义 | 退回修订 | 当前 probe 把边界接触归入 overlap；分离矩形断言不足以验收接触、穿插或一般 multi-part geometry。见下一节。 |
+| E10b contact/overlap 轴对齐 probe | 批准本轮修订结果 | 已加入 separated、edge-touch、corner-touch、positive-area-overlap、tolerance-near 五个反例；contact、overlap、near 分列。仅覆盖轴对齐 box probe，不冻结一般多边形/多部件语义。 |
 | 完整 IFC/SVG parity | 暂缓 | 仍缺同场景、独立输入、显式对应的双 adapter 对照；当前 bbox center、member gap 不等于 group representative 和组级 normalized-gap 契约已冻结。 |
 
-## 4. 独立复核发现：contact/overlap 未分离
+## 4. 独立复核与修订：contact/overlap 已分离
 
-`scripts/design/group_level/run_group_level_followup_probe.py::_adapter_pair_facts()` 使用非负分离距离 `dx/dy`，再以 `dx <= tolerance and dy <= tolerance` 判 overlap，以 `gap <= tolerance and not overlap` 判 contact。由于 `gap = hypot(dx, dy)`，满足 contact 距离条件时必满足上述 overlap 条件，因此 contact 无法为 true。
+原版 `scripts/design/group_level/run_group_level_followup_probe.py::_adapter_pair_facts()` 使用非负分离距离 `dx/dy`，以 `dx <= tolerance and dy <= tolerance` 判 overlap；由于 `gap = hypot(dx, dy)`，contact 无法为 true。该问题已在 design probe 中修订，未改 production code。
 
-可复现反例：矩形 `[0,0,1,1]` 与 `[1,0,2,1]` 仅共享一条边；正面积交集为 0，当前公式输出 overlap=true、contact=false。本轮独立算术检查复现了该结果。原 fixture 中两个矩形分离，因此它的 false/false 断言仍成立，不能据此宣称接触语义已验收。
+修订后的 probe 使用正面积交集、零边界间隙和正间隙容差三种事实分开判定：`overlap` 为正面积交集超过面积容差；`contact` 为无正面积交集且零边界间隙；`near` 为无 overlap/contact 且正间隙不超过几何容差。五个最小反例全部通过；现有独立 SVG 的 A1/A2 仍为 separated。
 
-此缺陷位于设计 probe，本轮不修改脚本。下一设计修订应先明确 overlap 是否指正面积相交、contact 是否指无正面积相交的边界接触，以及容差邻近如何单列；至少覆盖 separated、edge-touch、corner-touch、positive-area-overlap 和 tolerance 两侧。用面积与边界事实建立独立 oracle，不能仅复制当前 boolean 公式。首轮可限定轴对齐矩形，必须声明该限制。
+限制：当前反例 oracle 限定轴对齐矩形；旋转多边形、非凸 polygon、mesh 接触和 multi-part topology 仍需后续设计门。该修订不选择 inferred-group selector，也不扩大 E10b 的 2D parity 范围。
 
 ## 5. 后续顺序与退出条件
 
-1. **小范围 probe 修订**：修复上一节语义缺口，补最小反例，更新 evidence/hash，独立复核。停止于设计审查；不改生产代码。
-2. **完成合成 group 的目标设计**：由总控提出可计算的目标和设计表，例如局部连通、全组紧密或多尺度层级分别描述什么。说明长排、桥接、局部近而其余远等案例为何应合并、保留重叠或不裁决。先写目标，再决定哪个实验能区分方案；不得因测试通过或视觉喜好直接选 min/all-pairs。用户只需审阅重要目标取舍，不需提供标签。
-3. **保留 Bayesian 竞争**：继续已登记的 frame/edge estimand、依赖与 missingness 设计。概率模型不能替代 group-edge 含义的定义；尚不实现，也不从 synthetic 阈值生成 prior。
-4. **补实际来源验收**：opening 关系和双 adapter 同场景 parity 各自作为有明确输入的验证任务；没有输入就保留暂缓，不反复运行同一缺失样本。
-5. 目标、算法选择、状态、公式/归一化、验收范围组成完整设计表并通过审阅后，才进入 implementation design。不得从本轮有限批准自动跳阶段。
+1. **形成合成 group 的目标设计表**：由总控提出可计算的目标和设计表，例如局部连通、全组紧密或多尺度层级分别描述什么。说明长排、桥接、局部近而其余远案例为何应合并、保留重叠或不裁决。先写目标，再决定实验如何区分方案；不得因测试通过或视觉喜好直接选 min/all-pairs。用户只需审阅重要目标取舍，不需提供标签。
+2. **保留 Bayesian 竞争**：继续已登记的 frame/edge estimand、依赖与 missingness 设计。概率模型不能替代 group-edge 含义定义；尚不实现，也不从 synthetic 阈值生成 prior。
+3. **补实际来源验收**：opening 关系和双 adapter 同场景 parity 各自作为有明确输入的验证任务；没有输入就保留暂缓，不反复运行同一缺失样本。
+4. 目标、算法选择、状态、公式/归一化、验收范围组成完整设计表并通过审阅后，才进入 implementation design。不得从本轮有限批准自动跳阶段。
 
 停止增加无判别目标的 E8 样本；这不禁止为明确的新假设做实验。当前只是证据批次收口，最终 inferred-group 功能没有被放弃。
 
