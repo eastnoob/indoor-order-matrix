@@ -1,24 +1,30 @@
 # D6 relative-order decision record
 
-**Status:** provisional owner selection reopened after Task 3a follow-up; computational design and implementation design review remain before production implementation
+**Status:** benchmark-only design record; not the primary furniture-group product target
 
-**Scope:** the first clean-room relative arrangement descriptor
+**Scope:** deterministic arithmetic oracle for labeled synthetic relative-arrangement fixtures
 **Contract boundary:** this document defines computable layout evidence. It
 does not claim psychological or perceptual validity.
 
 ## Decision question
 
-The clean-room contract needs one `relative-order` algorithm, but the D3–D5
-evidence does not distinguish the two candidate families below. The owner has
-made a provisional selection for the first design probe; the selection remains
-subject to the reproducible computational comparison required by the design
-workflow. No existing evaluator row is used as a selection criterion.
+The benchmark oracle needs one `relative-order` algorithm, but the D3–D5
+evidence does not distinguish the two candidate families below. No existing
+evaluator row is used as a selection criterion.
 
-> **PROVISIONAL OWNER SELECTION:** Use (A) sequence/order consistency as
+> **BENCHMARK ORACLE SELECTION:** Use (A) sequence/order consistency as
 > `relative-order/v1`; keep spacing consistency separate and deferred. The
-> selection must be checked by the Task 3a computational design experiment.
-> No `compute_relative_order(...)` production implementation may be written
-> until that experiment and the implementation design table are approved.
+> selection is checked by the Task 3a computational design experiment. This
+> choice applies only to labeled synthetic oracle fixtures.
+
+## Owner correction (2026-09-28)
+
+The production target is group-level scene self-description without an external
+object order. The minimum unit is a furniture group; its direction comes from
+trend evidence, and neighboring groups form local relations. This record is
+retained because its labeled sequence fixtures test inversion, tie, transform,
+and anchor arithmetic. It is not the production contract until a separate
+group-level design review explicitly reopens that decision.
 
 ## Shared input contract
 
@@ -218,10 +224,10 @@ The implementation review must check these examples before accepting a formula:
    basis; object ids are only tie metadata and must not become an accidental
    semantic ordering.
 
-## Owner approval record
+## Benchmark oracle approval record
 
-The owner selection is provisional until the design experiment and design table
-are reviewed. The final approval record must contain:
+The benchmark choice is provisional until the design experiment is reviewed.
+The final oracle record must contain:
 
 - selected algorithm id and formula;
 - whether ties make the complete result `undefined` or permit a partial
@@ -231,7 +237,8 @@ are reviewed. The final approval record must contain:
 - confirmation of the explicit-axis/no-implicit-default policy;
 - any changed anchor or transform semantics.
 
-Only after that approval may Task 4 add production code or descriptor tests.
+Only after that approval may a benchmark oracle implementation or tests be
+added. It does not authorize production group descriptors.
 
 ## Task 3a follow-up reopening (2026-09-28)
 
@@ -249,8 +256,8 @@ found two design choices that the original provisional record did not settle:
    centroid remains stable. The canonical contract can support the latter only
    when explicit triangles are present.
 
-Therefore Candidate A remains the provisional formula direction, but the owner
-decision is reopened for tie semantics, anchor representative, missing-geometry
-partial status, reference-order provenance, and persistent design artifacts.
-No production implementation or Task 3b design table is authorized by this
-follow-up.
+Therefore Candidate A remains the provisional benchmark formula direction, but
+the owner decision is reopened for tie semantics, anchor representative,
+missing-geometry partial status, reference-order provenance, and persistent
+design artifacts. No production implementation or Task 3b benchmark design
+table is authorized by this follow-up.

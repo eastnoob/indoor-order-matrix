@@ -14,8 +14,9 @@ The first slice is deliberately narrow:
 ```text
 IFC4 adapter ─┐
               ├─> canonical scene facts ─> normalized plan geometry
-SVG oracle ───┘                              ├─> relative-order
-                                             └─> authored-group local trend
+SVG oracle ───┘                              ├─> furniture-group geometry/trend
+                                             ├─> neighboring-group relations
+                                             └─> scene self-description candidates
 ```
 
 This design describes computable layout evidence. It does not claim psychological or perceptual validity.
@@ -38,6 +39,23 @@ provenance can be retained; otherwise their outputs remain separate evidence
 channels. No human observation may be used as a prior, likelihood, training
 target, or calibration target.
 
+## Owner correction: group-level scene description is the product target
+
+The minimum analysis unit is a furniture group. A group receives a geometric
+representative and a trend-derived direction or orientation evidence. Groups
+then form explicit, computable neighboring relations. The project does not
+assume an externally supplied object order and does not use external order as
+the product estimand.
+
+The previous `relative-order` experiment remains useful as a deterministic
+formula oracle: it tests pairwise ordering arithmetic on labeled synthetic
+points. It is not the core furniture-layout descriptor and must not require a
+human-provided sequence in the production path.
+
+If a trend estimator returns an undirected axis, the result must retain axis
+symmetry or report both directions. It must not invent a positive direction
+without a declared scene fact or a separate inference rule.
+
 ## Problem
 
 The repository already contains multiple adapters, a NeutralSceneV2 record family, geometry substitutes, trend evidence, and evaluator rows. Those artifacts are useful observations, but their historical boundaries and names must not silently become the scientific contract. D6 therefore needs a clean definition of what is factual input, what is normalized geometry, what is derived evidence, what is a descriptor result, and what is unavailable.
@@ -47,7 +65,9 @@ The repository already contains multiple adapters, a NeutralSceneV2 record famil
 - Use one descriptor algorithm for normalized IFC and SVG inputs.
 - Preserve source identity, coordinate transforms, units, geometry settings, authored group membership, and missing-state reasons.
 - Keep factual source objects separate from derived geometry and descriptor values.
-- Make the first two descriptors independently testable and exportable.
+- Make initial group-level descriptors independently testable and exportable.
+- Make furniture-group geometry, trend evidence, and neighboring-group
+  relations the primary scene-description units.
 - Provide an explicit migration ledger for useful current behavior.
 - Compare deterministic descriptors with Bayesian scene-self-description
   candidates using synthetic computational truth, then retain separate outputs
@@ -119,7 +139,10 @@ An authored group record contains:
 - source object type/role when present;
 - provenance and membership warnings.
 
-Group membership is a source fact. It does not imply adjacency, activity, usability, visual grouping, or perceptual unity. Inferred groups are outside this slice.
+Group membership is a source fact when supplied by IFC or another adapter. It
+does not imply adjacency, activity, usability, visual grouping, or perceptual
+unity. Inferred groups are a separate candidate result and must not overwrite
+authored membership.
 
 ### 5. Descriptor results
 
@@ -137,19 +160,18 @@ Every descriptor result contains:
 
 Result records are analysis outputs. They are not written back into factual IFC by default.
 
-## First descriptor contracts
+## Initial group-level descriptor contracts
 
-### `relative-order`
+### `relative-order` benchmark oracle
 
-Purpose: describe a relative arrangement along an explicitly declared analysis axis. The name is an engineering descriptor and must not be presented as a human order judgment.
+Purpose: provide a deterministic arithmetic oracle for labeled synthetic
+sequences. It is not the primary furniture-group scene descriptor.
 
 Required inputs:
 
 - at least two usable object anchors derived from normalized plan geometry;
-- an externally supplied comparison sequence with documented provenance; the
-  sequence must come from an experiment condition, authored relation, or other
-  explicit caller input and may not be inferred from object IDs, drawing order,
-  or adapter traversal;
+- a declared comparison sequence only for benchmark fixtures, with documented
+  provenance; production group self-description must not require this input;
 - normalized plan geometry or an explicitly documented anchor fallback;
 - analysis frame, axis, unit, and tolerance;
 - stable object identities and source provenance.
@@ -163,9 +185,9 @@ Required failure behavior:
 - ties within tolerance: retain tie metadata and do not invent an order;
 - non-finite values: `invalid`.
 
-If the comparison sequence is absent or its provenance is unknown, the result is
+If the benchmark sequence is absent or its provenance is unknown, the oracle is
 `not_evaluated`. A computed value must never be presented as an intrinsic order
-of an unlabeled scene when it only measures agreement with an external sequence.
+of an unlabeled scene.
 
 ### `authored_group_local_trend`
 
@@ -180,7 +202,17 @@ Required inputs:
 
 The result must expose member support, primary/secondary frame or equivalent directional representation, strength/concentration, geometric basis, and excluded-member reasons. Directional evidence must come from normalized geometry, not stale transform history. Circular, square, isotropic, missing, or insufficient geometry may produce `undefined` directional strength while remaining valid object facts.
 
-The exact estimator (for example area-weighted 2D PCA or a member-frame consensus) must be selected and tested in D8–D10. The contract requires that the choice be versioned and auditable; it does not assume the existing trend implementation is correct.
+The exact estimator (for example area-weighted 2D PCA or a member-frame consensus) must be selected and tested in the group-level design gate. The contract requires that the choice be versioned and auditable; it does not assume the existing trend implementation is correct.
+
+### `neighboring_group_relations` candidate
+
+Purpose: describe pairwise and local relations between furniture groups using
+only canonical group geometry and trend evidence. Candidate relations may
+include distance, boundary gap, relative orientation, overlap, alignment, and
+local consistency. The neighbor rule, directionality, scale, multiple-neighbor
+policy, and aggregation method require a design experiment. This candidate
+must not use authored membership as a hidden adjacency rule and must not
+collapse all pairwise relations into one score before the estimand is defined.
 
 ## Bayesian scene-self-description track
 
@@ -198,11 +230,11 @@ declared latent quantity, invariance, robustness, posterior calibration against
 the synthetic truth, identifiability, and reproducibility. No human labels or
 human ratings are admissible evaluation targets.
 
-The deterministic relative-order descriptor remains a transparent conditional
-baseline: it receives an explicit axis and reference order. A Bayesian model
-may later infer those quantities, but it must emit the same canonical
-`AxisSpec`/order representations or an explicitly different latent-result
-record. It may not silently replace a missing caller input.
+The deterministic group-trend and neighboring-relation descriptors are the
+transparent baselines. A Bayesian model may infer a latent axis, group
+structure, or relation field from the same canonical group geometry. It must
+emit an explicitly different latent-result record when its estimand differs;
+it may not silently turn a benchmark reference order into production input.
 
 Candidate competition and fusion are separate decisions. If models estimate
 different quantities, keep both outputs. If they estimate the same quantity,
@@ -359,7 +391,9 @@ The implementation plan must include:
 1. Contract tests for required fields, status propagation, units, frames, provenance, and strict serialization.
 2. IFC and SVG adapter tests that produce equivalent canonical inputs for equivalent fixtures.
 3. Property-style or parameterized geometry checks for translation, rotation, scale policy, ties, duplicate positions, missing geometry, non-finite values, degeneracy, and multiple group membership.
-4. Descriptor tests for `relative-order` and `authored_group_local_trend` with hand-computable fixtures.
+4. Descriptor tests for group trend and neighboring-group relations with
+   hand-computable fixtures. Keep `relative-order` tests in the benchmark
+   oracle path.
 5. Migration comparison tests showing which current outputs are preserved, changed, or intentionally discarded.
 6. Full existing test-suite execution only after targeted contract tests pass.
 7. Reproducible design-probe scripts and, where used, Blender preview artifacts with input/output provenance.
@@ -387,17 +421,20 @@ A passing test demonstrates computational behavior under the contract. It does n
 
 ## Open decisions carried into the workplan
 
-1. Complete the candidate-design experiment, then record the final
-   `relative-order` formula and explicit-axis policy and review its
-   implementation design table before coding.
+1. Define the furniture-group representative, trend estimator, and
+   neighboring-relation policy through a reproducible design experiment.
 2. Define the Bayesian scene-self-description estimand(s), priors, likelihood,
    synthetic truth, and competition criteria against deterministic baselines.
 3. Decide whether any candidates estimate the same quantity and, if so, whether
    fusion is justified or separate outputs are retained.
-4. Select the `authored_group_local_trend` estimator and degeneracy thresholds.
-5. Decide how multiple authored-group memberships are represented in group-level aggregation.
-6. Decide whether rich IFC repair gates the first implementation fixture or runs as a parallel acceptance task.
-7. Define the canonical record location and serialization format after reviewing existing project conventions.
+4. Decide how multiple authored-group memberships and inferred groups are
+   represented in group-level aggregation.
+5. Decide whether the relative-order oracle remains benchmark-only or receives
+   a separate future product interpretation.
+6. Decide whether rich IFC repair gates the first implementation fixture or
+   runs as a parallel acceptance task.
+7. Define the canonical record location and serialization format after
+   reviewing existing project conventions.
 
 ## Evidence boundary
 

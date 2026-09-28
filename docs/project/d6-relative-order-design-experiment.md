@@ -1,10 +1,14 @@
 # D6 relative-order design experiment follow-up
 
-**Status:** revised design-only evidence for owner review; Task 3b is not started
+**Status:** revised design-only benchmark evidence; not the primary furniture-group product path
 **Date:** 2026-09-28
-**Scope:** harden the relative-order comparison around tie semantics, external reference order, anchor sensitivity, status states, reproducibility, and Blender diagnostics.
+**Scope:** harden a labeled relative-order oracle around tie semantics, anchor sensitivity, status states, reproducibility, and Blender diagnostics. It does not define production group self-description.
 
 This artifact does not authorize production implementation and does not establish psychological or perceptual validity.
+
+The external `reference_order` in this artifact is synthetic benchmark input.
+Production furniture-group description must derive group trend and neighboring
+relations from canonical scene geometry without requiring that sequence.
 
 ## Skills read and used
 

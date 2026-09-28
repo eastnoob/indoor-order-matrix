@@ -23,6 +23,10 @@
   project produces scene descriptors for a separate downstream experiment.
 - Bayesian work in this plan means scene-self-description from geometry and
   source facts. It is not Bayesian calibration of perception.
+- The primary product unit is furniture group. External reference order is
+  benchmark-only input for the relative-order oracle, not production input.
+- Group trend and neighboring-group relations must be designed before any
+  descriptor realization.
 - Every new or modified project-owned function has an English-first docstring; important geometry, provenance, status, and adapter handoff steps have English-first intent comments.
 - `undefined`, `invalid`, `not_available`, and `not_evaluated` remain distinct from numeric zero.
 - Every checkpoint ends with targeted tests or a documented reason it cannot yet be tested.
@@ -232,7 +236,73 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 ---
 
+### Task 3d: Design furniture-group trend and neighboring relations (new primary slice)
+
+**Files:**
+- Create: `docs/project/d6-group-level-self-description-design.md`
+- Create: design-only fixtures and deterministic probes in a marked location
+- Modify: none of the production `features/`, `adapters/`, or `test/` modules
+
+**Interfaces:**
+- Produces the design table for group-level scene description. It does not
+  implement trend, neighbor graphs, Bayesian inference, or fusion.
+
+- [ ] **Step 1: Freeze group unit and provenance**
+
+  Define whether the first slice consumes authored `IfcGroup` membership,
+  another explicit source relation, or a separately inferred grouping. Keep
+  authored membership and inferred membership in different records. Define
+  representative geometry, group center/support, missing states, and multiple
+  membership behavior.
+
+- [ ] **Step 2: Compare trend estimators**
+
+  Compare the smallest defensible group-direction candidates, such as
+  area-weighted plan PCA and member-frame consensus. Include directional,
+  isotropic, symmetric, contradictory, missing, and tessellation-varied groups.
+  Preserve undirected-axis ambiguity; never invent a sign without a declared
+  rule.
+
+- [ ] **Step 3: Compare neighbor rules**
+
+  Compare at least two explicit rules, such as k-nearest group centers,
+  distance-radius neighbors, Delaunay neighbors, or boundary-gap neighbors.
+  Record scale, ties, directionality, multiple-neighbor policy, overlap,
+  disconnected groups, and edge provenance. Do not use source traversal or
+  object IDs as adjacency.
+
+- [ ] **Step 4: Define local aggregation**
+
+  Decide whether output remains pairwise, becomes a per-group profile, or is
+  summarized at scene level. Test double counting, group-size bias,
+  tessellation sensitivity, missing groups, and contradictory relations.
+  Do not create one total score until its estimand is explicit.
+
+- [ ] **Step 5: Prepare Bayesian competition boundary**
+
+  State which group-level quantity a Bayesian candidate would estimate. Keep
+  deterministic trend/neighbor outputs as baselines. Define synthetic truth
+  and comparison measures without human labels or ratings. Do not implement
+  the Bayesian candidate in this task.
+
+- [ ] **Step 6: Visualize and stop**
+
+  Use the portable Blender for a deterministic group/trend/neighbor diagnostic.
+  Record provenance and limitations. Commit as:
+
+  `docs: design group-level scene description`
+
+**STOP FOR DESIGN REVIEW:** do not start the current relative-order production
+path, Bayesian implementation, or fusion design until this group-level design
+is reviewed.
+
+---
+
 ### Task 3b: Write and review the relative-order implementation design (Checkpoint 3 design gate)
+
+This task is retained for the labeled relative-order benchmark oracle. It is
+not the primary furniture-group product path and is paused until the owner
+reopens it explicitly.
 
 **Files:**
 - Create: `docs/project/d6-relative-order-implementation-design.md`
@@ -260,7 +330,7 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 **STOP FOR OWNER REVIEW:** no relative-order production code may be written until the implementation design table is approved.
 
-### Task 3c: Design Bayesian scene-self-description competition and fusion (Checkpoint 3 design phase)
+### Task 3c: Design Bayesian group-level scene-self-description competition and fusion (Checkpoint 3 design phase)
 
 **Files:**
 - Create: `docs/project/d6-bayesian-self-description-design.md`
@@ -268,14 +338,14 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 - Modify: none of the production `features/`, `adapters/`, or `test/` modules
 
 **Interfaces:**
-- Produces a design comparison between the deterministic relative-order
-  baseline and one or more Bayesian scene-self-description candidates. It does
-  not implement a Bayesian model.
+- Produces a design comparison between deterministic group trend/neighbor
+  descriptors and one or more Bayesian group-level scene-self-description
+  candidates. It does not implement a Bayesian model.
 
 - [ ] **Step 1: Define the scene estimand before choosing a model**
 
-  State whether the candidate infers an axis, an order, a trend, a grouping,
-  or a joint latent arrangement. Define the observable canonical inputs,
+  State whether the candidate infers a group axis, a local relation field, a
+  grouping, or a joint latent arrangement. Define the observable canonical inputs,
   latent variables, priors, likelihood, posterior outputs, identifiability
   limits, and explicit low-information states. Do not use human judgments as
   data or targets.
@@ -289,7 +359,7 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
 
 - [ ] **Step 3: Compare candidate families**
 
-  Compare the deterministic conditional descriptor and the Bayesian candidate
+  Compare the deterministic group-level descriptor and the Bayesian candidate
   using latent-quantity recovery, invariance, robustness, posterior calibration
   against synthetic truth, identifiability, reproducibility, and computational
   cost. A visually plausible render is not sufficient evidence.
@@ -314,23 +384,30 @@ Continue to Task 1 in the same execution session unless the ledger exposes a sco
   Commit as `docs: design Bayesian scene self-description track`.
 
 **STOP FOR DESIGN REVIEW:** do not implement Bayesian code, fusion code, or a
-trend-derived default axis until this synthetic comparison and owner review
-are complete.
+trend-derived default axis or neighbor rule until this synthetic comparison
+and owner review are complete.
 
 ---
 
-### Task 4: Implement relative-order and its tests (Checkpoint 3, first descriptor)
+### Task 4: Implement approved group-level descriptors and their tests (Checkpoint 3, first descriptor)
+
+The old relative-order implementation task remains benchmark-only until the
+group-level design gate approves a product descriptor and its implementation
+table.
 
 **Files:**
 - Create: `features/canonical_layout_descriptors.py`
 - Test: `test/test_canonical_layout_descriptors.py`
 
 **Interfaces:**
-- `compute_relative_order(scene: CanonicalScene, *, object_ids: Sequence[str], axis: AxisSpec, tolerance: float, algorithm_id: str) -> DescriptorResult`
+- The production interface is selected by Task 3d and Task 3c. Do not reserve
+  the old `compute_relative_order(...)` interface for the group-level product.
 
-- [ ] **Step 1: Write failing hand-computable tests**
+- [ ] **Step 1: Write failing hand-computable tests from the approved group-level design**
 
-  Cover aligned order, reversed order, equal/tied positions, translation, explicit rotated axis, missing geometry, insufficient objects, and non-finite input. Assert value, status, parameters, and provenance.
+  Cover group representatives, trend degeneracy, neighbor ties, missing groups,
+  disconnected groups, contradictory relations, transform invariants, and
+  non-finite input. Assert value, status, parameters, and provenance.
 
 - [ ] **Step 2: Implement only the approved formula**
 
@@ -339,17 +416,21 @@ are complete.
 - [ ] **Step 3: Run focused tests**
 
   Run: `pixi run pytest test/test_canonical_layout_descriptors.py -q`
-  Expected: all relative-order tests pass.
+  Expected: all approved group-level descriptor tests pass.
 
 - [ ] **Step 4: Commit**
 
-  Commit as `feat: add canonical relative-order descriptor`.
+  Commit as `feat: add canonical group-level descriptors`.
 
-**STOP FOR REVIEW:** do not start group-trend work until relative-order passes independent review.
+**STOP FOR REVIEW:** do not start migration or Bayesian realization until the
+approved group-level descriptors pass independent review.
 
 ---
 
 ### Task 5a: Compare authored-group trend candidate designs (Checkpoint 3 design phase)
+
+This task is subsumed by Task 3d. Execute it separately only if the owner
+reopens trend estimator comparison after the group-level design review.
 
 **Files:**
 - Create: `docs/project/d6-group-trend-design-experiment.md`
@@ -620,9 +701,9 @@ Task 0
   -> STOP/design review
   -> Task 3a (relative-order design experiment)
   -> STOP/design review
-  -> Task 3b (relative-order implementation design)
-  -> STOP/owner review
-  -> Task 3c (Bayesian scene-self-description competition/fusion design)
+  -> Task 3d (group-level trend and neighboring-relation design)
+  -> STOP/design review
+  -> Task 3c (Bayesian group-level scene-self-description competition/fusion design)
   -> STOP/design review
   -> Task 6a (IFC adapter design)
   -> STOP/design review
@@ -632,13 +713,7 @@ Task 0
   -> STOP/design review
   -> Task 7b (SVG adapter realization + equivalence)
   -> STOP/review
-  -> Task 4 (relative-order realization)
-  -> STOP/review
-  -> Task 5a (trend design experiment)
-  -> STOP/design review
-  -> Task 5b (trend implementation design)
-  -> STOP/owner review
-  -> Task 5c (trend realization)
+  -> Task 4 (approved group-level descriptor realization)
   -> STOP/review
   -> Task 8a (migration design)
   -> STOP/owner review
