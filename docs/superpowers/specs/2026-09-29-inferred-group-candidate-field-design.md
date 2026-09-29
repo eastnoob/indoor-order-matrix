@@ -80,25 +80,31 @@ candidate_id
 members
 scale_descriptor
 co_membership_evidence       # deterministic support, not probability
-positive_support_vector
-negative_evidence_vector
-space_role_refs
-mutual_exclusion_conflicts
+positive_support_vector      # sorted channel records with provenance/status
+negative_evidence_vector     # sorted channel records with provenance/status
+space_role_refs              # sorted role references, never a hidden label
+mutual_exclusion_conflicts   # sorted veto references and source provenance
 missingness
-status = overlapping | unassigned | weak | ambiguous | diagnostic_only
+evidence_status              # computed | partial | not_available | invalid | not_evaluated
+candidate_status              # overlapping | unassigned | weak | ambiguous | diagnostic_only
 provenance
 ```
 
 The exact aggregation of `R_ij` into candidate evidence is deliberately an
-experiment factor. No `formal_membership_edge` is created by this design.
+experiment factor. The probe may report several named aggregation recipes in
+parallel (for example `all_pairs`, `max_span`, `min_gap`, or
+`complete_link_diagnostic`), but it must never silently select one. Every
+recipe record carries a recipe id, parameters, supporting observations, and
+provenance. No `formal_membership_edge` is created by this design.
 
 ## 5. Candidate mechanisms to compare
 
 ### A. Multi-scale relation-field baseline (recommended first)
 
 Build a group relation graph whose edges retain the complete evidence vector.
-Declare scale from the scene's observed gap/clearance distribution and local
-field persistence, rather than from a fixed distance. At each declared scale,
+The probe compares named scale recipes in parallel: `relative_gap_rank`,
+`local_persistence_window`, and `space_profile_rank`. Each recipe records its
+parameters and provenance; no recipe is the default. At each declared scale,
 produce candidate views and retain the evidence that supports or separates each
 candidate. Connected components are only a chaining diagnostic. Complete-link
 and max-span are bounded-cohesion diagnostics; none is silently promoted to a
@@ -126,8 +132,9 @@ This option can express multi-level dependence, posterior multimodality, and
 uncertainty. It requires a declared generative model, prior, likelihood,
 spatial dependence structure, identifiability checks, posterior predictive
 checks, and synthetic calibration. Existing evidence supports this as a
-methodological candidate, not as a validated furniture model. It is not the
-first production implementation.
+methodological candidate, not as a validated furniture model. This checkpoint
+only records contract feasibility; it does not run a posterior prototype or
+invent a prior/likelihood before an owner freezes the estimand.
 
 ### C. Unsupervised ML/community candidate view
 
@@ -138,9 +145,10 @@ algorithm is selected here.
 
 This option may discover patterns that a hand-specified rule misses, but it
 needs a validation target, is sensitive to representation and hyperparameters,
-and can silently force clusters. It is therefore a comparison baseline only;
-it cannot define the production contract without an independent synthetic
-evaluation and an explainable evidence projection.
+and can silently force clusters. It is therefore a comparison diagnostic only.
+The probe must record the feature representation, algorithm, hyperparameters,
+seed, and validation target before running it; without those, it is `not_run`.
+It cannot define the production contract or select a best clustering.
 
 ## 6. Recommended design position
 
@@ -151,9 +159,10 @@ not declare A, B, or C correct merely because it produces a partition.
 
 The first candidate-field result should be a set of named views at declared
 relative scales. Each view retains candidate membership support vectors,
-separator/connector role references, conflict provenance, missingness, and
-whether the result is overlapping, weak, ambiguous, or unassigned. It should
-not output a single `group_id` assignment for every authored node.
+separator/connector role references, conflict provenance, missingness, evidence
+status, and whether the interpretation is overlapping, weak, ambiguous,
+unassigned, or diagnostic-only. It should not output a single `group_id`
+assignment for every authored node.
 
 ## 7. Empty-space field policy
 
@@ -191,6 +200,16 @@ The experiment must preserve these rules:
 7. Candidate support is not probability. Bayesian posterior fields, if added,
    remain model-specific and separate.
 
+Evidence status and candidate interpretation status are separate. A candidate
+with an invalid required channel is retained for audit with
+`evidence_status="invalid"` and `candidate_status="diagnostic_only"`. A
+candidate with partial required evidence is retained with
+`evidence_status="partial"` and cannot be promoted beyond a weak or diagnostic
+interpretation. Missing optional evidence may leave a candidate weak, but it
+must remain visible. If a mutual-exclusion veto removes a candidate from a
+usable view, the record remains as `candidate_status="unassigned"` or
+`diagnostic_only` with sorted veto references; it is never silently dropped.
+
 ## 9. Design experiment
 
 The experimental unit is a complete synthetic layout fixture. Members and pairs
@@ -216,11 +235,14 @@ computational truth file that is not read by the candidate mechanism.
 The probe compares:
 
 - D0: evidence-only relation/local-neighborhood view;
-- D1: multi-scale relation-field candidate views using relative distribution
-  descriptors and persistence;
-- B1: a declared latent-membership model contract or, if the installed
-  runtime permits, a small synthetic posterior prototype;
-- M1: an installed-runtime ML/community diagnostic, with no new dependency.
+- D1: multi-scale relation-field candidate views using the named relative-scale
+  recipes and parallel aggregation recipes;
+- B1: a latent-membership model contract/feasibility record only. It is
+  `not_run` until an owner approves the estimand, prior, likelihood, and spatial
+  dependence structure;
+- M1: an installed-runtime ML/community diagnostic only when its feature
+  representation, algorithm, hyperparameters, seed, and validation target are
+  pre-registered. Otherwise it is `not_run`.
 
 If B1 or M1 cannot run without installing a dependency or inventing a model
 prior, the probe records that limitation rather than substituting a fake result.
@@ -239,6 +261,11 @@ The probe reports:
 - for Bayesian candidates only: identifiability, posterior predictive behavior,
   multimodality, and synthetic calibration;
 - computational cost and dependency burden.
+
+Until the scale and aggregation gates are frozen, every recipe must be reported
+side by side with stable recipe ids and parameters. A probe may discover that
+the recipes disagree; that disagreement is an `ambiguous` design result, not a
+reason to choose the smallest gap or the first connected component.
 
 No human visual judgment, human label, or psychological dependent variable is
 required for this experiment. Blender or SVG rendering is optional diagnostic

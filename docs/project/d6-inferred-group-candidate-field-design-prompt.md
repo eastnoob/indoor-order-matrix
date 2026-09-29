@@ -26,7 +26,7 @@ model。
 
 - D0：evidence-only relation/local-neighborhood view；
 - D1：使用同场景相对尺度和 persistence 的 multi-scale relation-field candidate view；
-- B1：latent-membership Bayesian contract 或在现有环境允许时运行的最小 synthetic posterior prototype；
+- B1：latent-membership Bayesian contract/feasibility record；本 checkpoint 不运行 posterior prototype；
 - M1：仅在已有依赖可用时运行的 ML/community diagnostic。
 
 若 B1/M1 需要安装依赖、补造 prior、补造训练标签或选择未批准的模型，记录
@@ -61,7 +61,8 @@ model。
 - translation、rotation+frame、unit scale、ID/traversal reorder。
 
 每个 fixture 单独保存 computational truth。truth 不得被 candidate mechanism 读取，
-成员和 pair 不是独立统计样本。
+成员和 pair 不是独立统计样本。truth 是算法评估用的生成参数或结构标签，
+不是人工标签，也不是心理真值；输出审计必须确认机制没有读取 truth。
 
 ## Task 2：运行 D0/D1 probe
 
@@ -69,13 +70,23 @@ model。
 
 D1 只能实验性地产生 candidate views：
 
-- scale 必须来自场景内 gap/clearance 的相对分布或声明的 persistence；
+- 必须并列报告具名 scale recipes：`relative_gap_rank`、
+  `local_persistence_window`、`space_profile_rank`；每个 recipe 保存参数和
+  provenance，agent 不得默选 quantile、窗口宽度或 persistence 规则；
 - 不能写死米数阈值；
 - 保留完整 positive/negative vectors、space role refs、missingness、conflicts；
+- candidate aggregation 也必须并列报告 `all_pairs`、`max_span`、`min_gap`、
+  `complete_link_diagnostic` 等具名 recipe；不允许把其中一个偷偷选成正式规则；
 - CC 只能作为 chaining diagnostic；complete-link/max-span 只能作为 bounded-cohesion
   对照；不得选为正式规则；
 - 输出 candidate status、provenance 和 supporting observations；
 - 不生成 production `formal_membership_edge`。
+
+`co_membership_evidence`、positive/negative vectors 和 `space_role_refs` 必须
+稳定排序，保留 channel/status/source refs；它们不是 probability。对每个
+candidate 同时输出 `evidence_status` 与 `candidate_status`：invalid required
+channel 必须是 `invalid + diagnostic_only`；partial 必须保留 reason；mutual-
+exclusion veto 必须保留 source refs，即使最终是 `unassigned`。
 
 ## Task 3：记录 B1/M1 可行性边界
 
@@ -88,12 +99,19 @@ D1 只能实验性地产生 candidate views：
 - 是否能表达 multimodality、低信息和不可辨识；
 - 是否能做 synthetic calibration / posterior predictive check。
 
+本 checkpoint B1 强制为 `not_run`，除非 owner 在新的设计记录中明确批准
+estimand、prior、likelihood 和 spatial dependence；不得自行运行 posterior。
+
 对 M1 至少记录：
 
 - 输入特征和表示；
 - 是否有训练目标或独立 computational truth；
 - 对 hyperparameter、表示变化和 cluster 数的敏感性；
 - 是否能保留 evidence provenance 和 ambiguous output。
+
+没有预注册 feature representation、algorithm、hyperparameters、seed 和
+validation target 时，M1 必须为 `not_run`；即使运行，也只能是
+`diagnostic_only`，不得选择“最佳 clustering”作为结论。
 
 ## Task 4：输出实验记录
 
