@@ -1,0 +1,151 @@
+{
+  "artifacts": [
+    {
+      "bytes": 17127,
+      "path": "scripts/design/group_level/run_ifc_three_group_smoke.py",
+      "sha256": "cd30a7c75938593c78e00756a27c25a0247290c424fbe20f5c9dbaf0aa9d305a"
+    },
+    {
+      "bytes": 14105,
+      "path": "scripts/design/group_level/render_ifc_three_group_smoke.py",
+      "sha256": "4c58a39c372baa5ec0565554ac96ef1a496b88627803fe798302dcd5929c17d9"
+    },
+    {
+      "bytes": 3851,
+      "path": "docs/project/evidence/d6-ifc-three-group-smoke-report.md",
+      "sha256": "b09fe44a83b9b2ca4969526864eaee6181666d168af414ba70e2577f6d22558d"
+    },
+    {
+      "bytes": 173337,
+      "path": "outputs/design/ifc_three_group_smoke/inventory.json",
+      "sha256": "5a34908be0e6f76f2035cb013df743bf1888bdb7ff20c96b39fee2a5d4b7f9a3"
+    },
+    {
+      "bytes": 14883637,
+      "path": "outputs/design/ifc_three_group_smoke/sample_scene.json",
+      "sha256": "af9947ca41b0ccd44e0377cee3e864c77c176b955db62c5a17c69bcec26f8b77"
+    },
+    {
+      "bytes": 51069,
+      "path": "outputs/design/ifc_three_group_smoke/description.json",
+      "sha256": "0d42c1327833d1dd962ef148e2984f109ab0fb3cf4dfe68aad196202464387e5"
+    },
+    {
+      "bytes": 11241,
+      "path": "outputs/design/ifc_three_group_smoke/audit.json",
+      "sha256": "6e76b9f08247c6260d6c2aae25436d3f60ec98ccf6dfb34cd42c3e060ff0cda8"
+    },
+    {
+      "bytes": 545803,
+      "path": "outputs/design/ifc_three_group_smoke/source_sample.png",
+      "sha256": "3a5ead283dae390ab1e069f24b88a831548322ca8c5b50bb338d3498b9561a23"
+    },
+    {
+      "bytes": 553965,
+      "path": "outputs/design/ifc_three_group_smoke/analysis_sample.png",
+      "sha256": "ca959cbeca963a7dd83074e6b178596b2bfca49c18bf93ae8029eb46ba553ef5"
+    },
+    {
+      "bytes": 2093560,
+      "path": "outputs/design/ifc_three_group_smoke/three_group_smoke.blend",
+      "sha256": "f636f41e5d4e168bb7a888cc2d7e12b91c9bf31e3b530796de004b90a0136d51"
+    }
+  ],
+  "checks": {
+    "analysis_mesh_count": 7,
+    "blend": {
+      "analysis_objects": 7,
+      "body_objects": 7,
+      "camera_objects": 1,
+      "mesh_objects": 14,
+      "source_identity_metadata": true
+    },
+    "body_mesh_count": 7,
+    "candidate_view_status": "deferred",
+    "labels_within_frame_visual_review": true,
+    "placement_checks": 3,
+    "placement_max_abs_vertex_error_m": 0.0,
+    "png_dimensions": {
+      "analysis_sample.png": [
+        1200,
+        800
+      ],
+      "source_sample.png": [
+        1200,
+        800
+      ]
+    },
+    "png_nonuniform": {
+      "analysis_sample.png": true,
+      "source_sample.png": true
+    },
+    "space_status": "not_available",
+    "three_dimensional_status": "not_available"
+  },
+  "commands": [
+    {
+      "command": "pixi run python scripts/design/group_level/run_ifc_three_group_smoke.py self-check",
+      "exit_code": 0
+    },
+    {
+      "command": "pixi run python scripts/design/group_level/run_ifc_three_group_smoke.py inventory --ifc outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc --output-dir outputs/design/ifc_three_group_smoke",
+      "exit_code": 0
+    },
+    {
+      "command": "pixi run python scripts/design/group_level/run_ifc_three_group_smoke.py probe --ifc outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc --output-dir outputs/design/ifc_three_group_smoke",
+      "exit_code": 0
+    },
+    {
+      "command": "D:\\Blender\\BlenderPortableLTS5.2\\App\\Blender64\\blender.exe --background --factory-startup --python scripts/design/group_level/render_ifc_three_group_smoke.py -- --input-dir outputs/design/ifc_three_group_smoke --output-dir outputs/design/ifc_three_group_smoke",
+      "exit_code": 0
+    },
+    {
+      "command": "pixi run python scripts/design/group_level/run_ifc_three_group_smoke.py verify --ifc outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc --output-dir outputs/design/ifc_three_group_smoke",
+      "exit_code": 0
+    },
+    {
+      "command": "pixi run pytest test/test_group_self_description.py test/test_canonical_layout_contract.py test/test_canonical_layout_geometry.py -q",
+      "exit_code": 0,
+      "result": "52 passed"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "generated_utc": "2026-09-29T00:00:00Z",
+  "schema": "d6-ifc-three-group-smoke-artifact-manifest/v1",
+  "scope": {
+    "authorized_deliverables": [
+      "scripts/design/group_level/run_ifc_three_group_smoke.py",
+      "scripts/design/group_level/render_ifc_three_group_smoke.py",
+      "docs/project/evidence/d6-ifc-three-group-smoke-report.md",
+      "docs/project/evidence/d6-ifc-three-group-smoke-artifact-manifest.json"
+    ],
+    "read_only_source_and_model": true,
+    "stop_marker": "STOP FOR THREE-GROUP IFC INPUT REVIEW",
+    "unmodified_existing_dirty_files": true
+  },
+  "selected_groups": [
+    "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+    "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+    "ifc-group:0AG_FU1oHHxh9s_mH9GMgP"
+  ],
+  "self_hash": {
+    "excluded": true,
+    "path": "docs/project/evidence/d6-ifc-three-group-smoke-artifact-manifest.json",
+    "reason": "manifest cannot contain its own final digest"
+  },
+  "source": {
+    "bytes": 408617800,
+    "path": "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  },
+  "versions": {
+    "adapter": "ifc4-bonsai-adapter/0.1.0",
+    "blender": "5.2.0 LTS (hash fbe6228777e7 built 2026-07-14 01:35:40)",
+    "ifc_schema": "IFC4",
+    "ifcopenshell": "0.8.5",
+    "python": "3.12.13 (pixi lock)"
+  }
+}
