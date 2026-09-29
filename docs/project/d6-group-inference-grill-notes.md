@@ -351,3 +351,26 @@ F1 组织/角色场 + inferred-group candidates
 - 后续 probe 必须区分“未标记对象”“已标记但字段缺失”“已标记且字段完整”三种情形，并验证 context 加入或移除不会改变 authored membership。
 
 **STOP FOR GRILL-ME DISCUSSION**
+
+## 17. Context 参照的逐指标 allowlist（2026-09-29）
+
+### 用户裁决
+
+用户同意采用逐指标 allowlist：未入选家具组分析节点的 context 对象，不默认参与所有空间场计算；只有被某项指标明确允许时，才作为该指标的几何或拓扑参照。
+
+### 首轮允许的 context 通道
+
+- **局部 alignment / frame reference**：墙体、柱、明确的结构边界等可提供局部方向参照；输出必须标记 `context_reference` 和参照来源。
+- **AnalysisDomain 边界、opening/barrier 和自由空间拓扑**：明确承担边界或阻隔角色的对象可影响 domain、可穿越性、瓶颈和 gap-path 观测。
+- **physical occupancy / clearance**：只有被明确声明为物理占用或阻挡体的 context 几何才能进入相应计算；不能因为对象存在于场景中就自动成为 blocker。
+
+### 明确禁止的 context 通道
+
+- 不成为 authored furniture-group node；
+- 不进入 furniture-group pairwise membership 或 inferred-group candidate；
+- 不提供家具类型相似性、标签一致性或语义同类证据；
+- 不通过名称、图层、普通 `IfcGroup` 或旧 region fallback 改写分析资格。
+
+这条 allowlist 仍是设计基线，不是 production API。后续 probe 需要验证：加入/移除同一 context 对象只改变它被允许的指标；不会改变 authored membership、标签竞争或候选级互斥结果。
+
+**STOP FOR GRILL-ME DISCUSSION**
