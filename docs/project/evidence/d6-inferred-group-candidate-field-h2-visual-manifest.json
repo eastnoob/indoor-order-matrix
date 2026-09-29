@@ -1,0 +1,82 @@
+{
+  "artifacts": [
+    {
+      "aggregation_recipe": "all_pairs",
+      "bytes": 4321,
+      "family": "gap-jump",
+      "path": "docs/project/evidence/d6-h2-gap-jump-seed303.svg",
+      "recipe_id": "relative_gap_rank",
+      "scale_parameters": {
+        "bound": 2.254376832100142,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "6b434b04e6b25bca5787a12f0ee5094b5b723fbc3a4eb6d2ac94513afa3cf27e",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3563,
+      "family": "bridge-chain",
+      "path": "docs/project/evidence/d6-h2-bridge-chain-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.88631685,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "9a00ed1c1f1e6b5824455ebd8776987be419f9ce5bb10577bf5558cce3654dec",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3357,
+      "family": "overlapping-candidates",
+      "path": "docs/project/evidence/d6-h2-overlapping-candidates-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.7360946,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "2233e4cf78168e2a6855ef53fa0c02583d42d509f188816198a95fb947835f93",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3092,
+      "family": "space-conflict",
+      "path": "docs/project/evidence/d6-h2-space-conflict-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.47382844500000004,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "e290ef0c45e7e8db6e514d95c69fee481aba3351393dc38ed14c546a103c57bd",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "all_pairs",
+      "bytes": 3187,
+      "family": "missing-invalid",
+      "path": "docs/project/evidence/d6-h2-missing-invalid-seed303.svg",
+      "recipe_id": "relative_gap_rank",
+      "scale_parameters": {
+        "bound": 0.3779266818667012,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "5fcb4a3063ab6573c9f671efa61811f5547a5c5379b93e0fad1b3ab18d952f9c",
+      "truth_label": "evaluation-side structural truth"
+    }
+  ],
+  "blender": {
+    "reason": "2D deterministic SVG diagnostics satisfy the optional visualization path",
+    "status": "not_run"
+  },
+  "interpretation": "Geometry and variable diagnostics only; no psychological validity or production accuracy claim.",
+  "schema": "d6-inferred-group-candidate-field-h2-visual-manifest/v1",
+  "scoring_sha256": "a57160a590f7b0f743642e9a36cbabf6b3c8d917a9271b2b10bc5815f61d5a54",
+  "status": "design_only_stop_for_design_review"
+}

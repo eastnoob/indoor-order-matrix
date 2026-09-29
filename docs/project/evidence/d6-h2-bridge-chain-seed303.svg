@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="700" viewBox="0 0 1060 700">
+<rect width="1060" height="700" fill="#fff"/>
+<text x="35" y="40" font-size="23" font-family="sans-serif">D6 H2 bridge-chain | seed 303</text>
+<text x="35" y="70" font-size="15" font-family="sans-serif">recipe: space_profile_rank {'bound': 0.88631685, 'quantile': 0.5} / min_gap</text>
+<text x="35" y="96" font-size="14" font-family="sans-serif">Gray boxes: authored furniture groups; colored edges: emitted candidate sets; red dashed: hard veto pair.</text>
+<line x1="100.00" y1="460.00" x2="196.90" y2="432.03" stroke="#1677b7" stroke-width="5" opacity="0.65"/>
+<line x1="196.90" y1="432.03" x2="298.00" y2="436.52" stroke="#7b4eb2" stroke-width="6" opacity="0.65"/>
+<rect x="63.00" y="438.00" width="74" height="44" rx="7" fill="#eceff1" stroke="#303030" stroke-width="2"/>
+<text x="100.00" y="465.00" text-anchor="middle" font-size="16" font-family="sans-serif">A</text>
+<text x="100.00" y="499.00" text-anchor="middle" font-size="11" font-family="sans-serif">computed</text>
+<rect x="159.90" y="410.03" width="74" height="44" rx="7" fill="#eceff1" stroke="#303030" stroke-width="2"/>
+<text x="196.90" y="437.03" text-anchor="middle" font-size="16" font-family="sans-serif">B</text>
+<text x="196.90" y="471.03" text-anchor="middle" font-size="11" font-family="sans-serif">computed</text>
+<rect x="261.00" y="414.52" width="74" height="44" rx="7" fill="#eceff1" stroke="#303030" stroke-width="2"/>
+<text x="298.00" y="441.52" text-anchor="middle" font-size="16" font-family="sans-serif">C</text>
+<text x="298.00" y="475.52" text-anchor="middle" font-size="11" font-family="sans-serif">computed</text>
+<rect x="603.00" y="406.87" width="74" height="44" rx="7" fill="#eceff1" stroke="#303030" stroke-width="2"/>
+<text x="640.00" y="433.87" text-anchor="middle" font-size="16" font-family="sans-serif">D</text>
+<text x="640.00" y="467.87" text-anchor="middle" font-size="11" font-family="sans-serif">computed</text>
+<rect x="700" y="118" width="325" height="505" fill="#f8fafb" stroke="#ccd2d6"/>
+<text x="716" y="145" font-size="13" font-family="sans-serif">Emitted candidate sets:</text>
+<text x="716" y="169" font-size="13" font-family="sans-serif">1. A + B [overlapping]</text>
+<text x="716" y="193" font-size="13" font-family="sans-serif">2. B + C [overlapping]</text>
+<text x="716" y="217" font-size="13" font-family="sans-serif"></text>
+<text x="716" y="241" font-size="13" font-family="sans-serif">Evaluation-side structural truth:</text>
+<text x="716" y="265" font-size="13" font-family="sans-serif">A + B</text>
+<text x="716" y="289" font-size="13" font-family="sans-serif">B + C</text>
+<text x="716" y="313" font-size="13" font-family="sans-serif"></text>
+<text x="716" y="337" font-size="13" font-family="sans-serif">Unassigned: D</text>
+<text x="716" y="361" font-size="13" font-family="sans-serif"></text>
+<text x="716" y="385" font-size="13" font-family="sans-serif">Empty-space roles (evidence only):</text>
+<text x="716" y="409" font-size="13" font-family="sans-serif">activity_space_candidate</text>
+<text x="716" y="433" font-size="13" font-family="sans-serif">separator_space</text>
+<text x="716" y="457" font-size="13" font-family="sans-serif"></text>
+<text x="716" y="481" font-size="13" font-family="sans-serif">Context: none</text>
+<text x="35" y="660" font-size="13" font-family="sans-serif">Structural truth is evaluation-side computation, not a human correct answer or psychological validation.</text>
+</svg>

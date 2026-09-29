@@ -1,0 +1,236 @@
+{
+  "artifact_sha256": {
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json": "39637335819ccea94ee8fd55006a95682e1d5df2df1bc339565af1f6cc8c6133",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-report.md": "0f899fb11572b070238e8af0073c4804b004458665048c0ef9f59accfd345f68",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json": "a57160a590f7b0f743642e9a36cbabf6b3c8d917a9271b2b10bc5815f61d5a54",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json": "baffe5e80af32ae57fc3dae42bfa8a800186f9d66acd7a21ec242dfebb0a72cd",
+    "scripts/design/group_level/inferred_group_candidate_field_fixtures.json": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+    "scripts/design/group_level/inferred_group_candidate_field_h1b_computational_truth.json": "bea8bad8dd6c40fb2d5e7bdc28c0b5229f6af2a93e89affb72211aa3f91911a3",
+    "scripts/design/group_level/inferred_group_candidate_field_h1b_holdout_fixtures.json": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce",
+    "scripts/design/group_level/run_inferred_group_candidate_field_h2.py": "e2f9ee326d81485f058c69eb158c5397d7e86187d853bd8d3f0d40cb9d40cc5e"
+  },
+  "date": "2026-09-29",
+  "development_seeds": [
+    101,
+    202
+  ],
+  "estimand": "membership-level candidate member sets; overlap and unassigned allowed",
+  "hard_gates": {
+    "checks": [
+      "authored/context separation",
+      "hard mutual-exclusion veto with source reference",
+      "categorical missing/invalid/partial/not_available propagation",
+      "invariance and deterministic reproducibility",
+      "truth isolation",
+      "overlap/ambiguity/weak/unassigned/singleton diagnostic retained"
+    ],
+    "holdout_passed": 16
+  },
+  "holdout_replicas": 16,
+  "holdout_seeds": [
+    303,
+    404
+  ],
+  "mechanisms": {
+    "B1": "not_run",
+    "D0": "computed",
+    "D1": "computed",
+    "M1": "not_run"
+  },
+  "recipe_disagreement": [
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 9,
+      "replica_id": "bridge_chain:holdout:303"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 9,
+      "replica_id": "bridge_chain:holdout:404"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 1,
+      "replica_id": "context_perturbation:holdout:303"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 1,
+      "replica_id": "context_perturbation:holdout:404"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 12,
+      "replica_id": "gap_jump:holdout:303"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 12,
+      "replica_id": "gap_jump:holdout:404"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 5,
+      "replica_id": "geometry_conflict:holdout:303"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 5,
+      "replica_id": "geometry_conflict:holdout:404"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 9,
+      "replica_id": "minority_mixed:holdout:303"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 8,
+      "replica_id": "minority_mixed:holdout:404"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 2,
+      "replica_id": "missing_invalid:holdout:303"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 2,
+      "replica_id": "missing_invalid:holdout:404"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 5,
+      "replica_id": "overlapping_candidates:holdout:303"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 4,
+      "replica_id": "overlapping_candidates:holdout:404"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 3,
+      "replica_id": "space_conflict:holdout:303"
+    },
+    {
+      "all_44_views_preserved": true,
+      "distinct_candidate_set_outputs": 3,
+      "replica_id": "space_conflict:holdout:404"
+    }
+  ],
+  "registered_aggregations": [
+    "all_pairs",
+    "max_span",
+    "min_gap",
+    "complete_link_diagnostic"
+  ],
+  "registered_scales": [
+    "relative_gap_rank",
+    "local_persistence_window",
+    "space_profile_rank"
+  ],
+  "roles": {
+    "debug_only": [
+      "development_reference"
+    ],
+    "excluded": [
+      "replication_only",
+      "invariance_only"
+    ],
+    "scored": [
+      "generalization_holdout"
+    ]
+  },
+  "schema": "d6-inferred-group-candidate-field-h2-experiment/v1",
+  "scope_audit": {
+    "blender": {
+      "reason": "2D deterministic SVG diagnostics satisfy the optional visualization path",
+      "status": "not_run"
+    },
+    "features_adapters_tests_neutral_scene_api_dependencies": "not_modified",
+    "known_probe_limitation": "geometry-conflict TALL|ROUNDISH space relation uses a noncanonical key and remains unavailable",
+    "numerical_threshold": "not_selected",
+    "production_selector": "not_modified",
+    "winner": "not_selected"
+  },
+  "scored_views": 704,
+  "status": "design_only_stop_for_design_review",
+  "truth": {
+    "candidate_probe_access": false,
+    "kind": "evaluation-side structural truth; not a human correct answer",
+    "scoring_access": true
+  },
+  "visual_artifacts": [
+    {
+      "aggregation_recipe": "all_pairs",
+      "bytes": 4321,
+      "family": "gap-jump",
+      "path": "docs/project/evidence/d6-h2-gap-jump-seed303.svg",
+      "recipe_id": "relative_gap_rank",
+      "scale_parameters": {
+        "bound": 2.254376832100142,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "6b434b04e6b25bca5787a12f0ee5094b5b723fbc3a4eb6d2ac94513afa3cf27e",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3563,
+      "family": "bridge-chain",
+      "path": "docs/project/evidence/d6-h2-bridge-chain-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.88631685,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "9a00ed1c1f1e6b5824455ebd8776987be419f9ce5bb10577bf5558cce3654dec",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3357,
+      "family": "overlapping-candidates",
+      "path": "docs/project/evidence/d6-h2-overlapping-candidates-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.7360946,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "2233e4cf78168e2a6855ef53fa0c02583d42d509f188816198a95fb947835f93",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3092,
+      "family": "space-conflict",
+      "path": "docs/project/evidence/d6-h2-space-conflict-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.47382844500000004,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "e290ef0c45e7e8db6e514d95c69fee481aba3351393dc38ed14c546a103c57bd",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "all_pairs",
+      "bytes": 3187,
+      "family": "missing-invalid",
+      "path": "docs/project/evidence/d6-h2-missing-invalid-seed303.svg",
+      "recipe_id": "relative_gap_rank",
+      "scale_parameters": {
+        "bound": 0.3779266818667012,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "5fcb4a3063ab6573c9f671efa61811f5547a5c5379b93e0fad1b3ab18d952f9c",
+      "truth_label": "evaluation-side structural truth"
+    }
+  ]
+}
