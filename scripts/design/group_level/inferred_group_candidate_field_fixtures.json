@@ -59,11 +59,25 @@
     ],
     "aggregation": [
       {
-        "id": "all_pairs",
+        "id": "selected_relation_connected",
         "parameters": {
-          "rule": "all internal pair keys must be selected"
+          "rule": "selected relation graph connected components; retain selected relation ids only"
         },
-        "provenance": "parallel aggregation comparison; no production choice"
+        "provenance": "parallel aggregation comparison; selected-relation structure only; no production choice"
+      },
+      {
+        "id": "all_internal_pairs",
+        "parameters": {
+          "rule": "every unordered internal pair must be selected, available, status=computed/valid, and have finite normalized gap"
+        },
+        "provenance": "strict all-internal diagnostic only; no production choice"
+      },
+      {
+        "id": "complete_link_diagnostic",
+        "parameters": {
+          "rule": "maximal cliques of selected pair graph"
+        },
+        "provenance": "chaining/complete-link diagnostic only"
       },
       {
         "id": "max_span",
@@ -78,13 +92,6 @@
           "rule": "retain each selected pair as a two-member candidate"
         },
         "provenance": "witness diagnostic only"
-      },
-      {
-        "id": "complete_link_diagnostic",
-        "parameters": {
-          "rule": "maximal cliques of selected pair graph"
-        },
-        "provenance": "chaining/complete-link diagnostic only"
       }
     ]
   },

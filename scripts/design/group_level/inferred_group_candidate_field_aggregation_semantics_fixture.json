@@ -1,8 +1,17 @@
 {
-  "schema": "d6-inferred-group-candidate-field-aggregation-semantics-fixture/v1",
+  "schema": "d6-inferred-group-candidate-field-aggregation-semantics-fixture/v2",
   "id": "aggregation_semantics_chain",
-  "group_ids": ["A", "B", "C", "D"],
-  "selected_relation_ids": ["A|B", "B|C", "C|D"],
+  "group_ids": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "selected_relation_ids": [
+    "A|B",
+    "B|C",
+    "C|D"
+  ],
   "normalized_gaps": {
     "A|B": 1.0,
     "A|C": 2.0,
@@ -12,10 +21,417 @@
     "C|D": 1.0
   },
   "span_bound": 2.0,
-  "expected_membersets": {
-    "all_pairs": [["A", "B", "C", "D"]],
-    "max_span": [["A", "B", "C"], ["B", "C", "D"]],
-    "complete_link_diagnostic": [["A", "B"], ["B", "C"], ["C", "D"]]
-  },
+  "cases": [
+    {
+      "id": "baseline",
+      "selected_relation_ids": [
+        "A|B",
+        "B|C",
+        "C|D"
+      ],
+      "relation_status": {
+        "A|B": "computed",
+        "A|C": "computed",
+        "A|D": "computed",
+        "B|C": "computed",
+        "B|D": "computed",
+        "C|D": "computed"
+      },
+      "normalized_gaps": {
+        "A|B": 1.0,
+        "A|C": 2.0,
+        "A|D": 3.0,
+        "B|C": 1.0,
+        "B|D": 2.0,
+        "C|D": 1.0
+      },
+      "expected": {
+        "selected_relation_connected": {
+          "membersets": [
+            [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B",
+              "B|C",
+              "C|D"
+            ]
+          ],
+          "status": [
+            "weak"
+          ],
+          "overlap_policy": "overlap_allowed"
+        },
+        "all_internal_pairs": {
+          "membersets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ],
+            [
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B"
+            ],
+            [
+              "B|C"
+            ],
+            [
+              "C|D"
+            ]
+          ],
+          "status": [
+            "weak"
+          ],
+          "overlap_policy": "overlap_allowed"
+        },
+        "complete_link_diagnostic": {
+          "membersets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ],
+            [
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B"
+            ],
+            [
+              "B|C"
+            ],
+            [
+              "C|D"
+            ]
+          ],
+          "status": [
+            "diagnostic_only"
+          ],
+          "overlap_policy": "overlap_allowed"
+        },
+        "max_span": {
+          "membersets": [
+            [
+              "A",
+              "B",
+              "C"
+            ],
+            [
+              "B",
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B",
+              "A|C",
+              "B|C"
+            ],
+            [
+              "B|C",
+              "B|D",
+              "C|D"
+            ]
+          ],
+          "status": [
+            "weak"
+          ],
+          "overlap_policy": "overlap_allowed"
+        },
+        "min_gap": {
+          "membersets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ],
+            [
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B"
+            ],
+            [
+              "B|C"
+            ],
+            [
+              "C|D"
+            ]
+          ],
+          "status": [
+            "weak"
+          ],
+          "overlap_policy": "overlap_allowed"
+        }
+      }
+    },
+    {
+      "id": "missing_internal_pair",
+      "selected_relation_ids": [
+        "A|B",
+        "B|C",
+        "C|D"
+      ],
+      "relation_status": {
+        "A|B": "computed",
+        "A|C": "not_available",
+        "A|D": "computed",
+        "B|C": "computed",
+        "B|D": "computed",
+        "C|D": "computed"
+      },
+      "normalized_gaps": {
+        "A|B": 1.0,
+        "A|D": 3.0,
+        "B|C": 1.0,
+        "B|D": 2.0,
+        "C|D": 1.0
+      },
+      "expected_all_internal_rejected_pair": "A|C",
+      "expected": {
+        "selected_relation_connected": {
+          "membersets": [
+            [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B",
+              "B|C",
+              "C|D"
+            ]
+          ],
+          "status": [
+            "weak"
+          ],
+          "overlap_policy": "overlap_allowed"
+        },
+        "all_internal_pairs": {
+          "membersets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ],
+            [
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B"
+            ],
+            [
+              "B|C"
+            ],
+            [
+              "C|D"
+            ]
+          ],
+          "status": [
+            "weak"
+          ],
+          "overlap_policy": "overlap_allowed"
+        }
+      }
+    },
+    {
+      "id": "invalid_internal_pair",
+      "selected_relation_ids": [
+        "A|B",
+        "A|C",
+        "B|C",
+        "C|D"
+      ],
+      "relation_status": {
+        "A|B": "computed",
+        "A|C": "invalid",
+        "A|D": "computed",
+        "B|C": "computed",
+        "B|D": "computed",
+        "C|D": "computed"
+      },
+      "normalized_gaps": {
+        "A|B": 1.0,
+        "A|C": 2.0,
+        "A|D": 3.0,
+        "B|C": 1.0,
+        "B|D": 2.0,
+        "C|D": 1.0
+      },
+      "expected_all_internal_rejected_pair": "A|C",
+      "expected": {
+        "selected_relation_connected": {
+          "membersets": [
+            [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B",
+              "A|C",
+              "B|C",
+              "C|D"
+            ]
+          ],
+          "status": [
+            "diagnostic_only"
+          ],
+          "overlap_policy": "overlap_allowed"
+        },
+        "all_internal_pairs": {
+          "membersets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ],
+            [
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B"
+            ],
+            [
+              "B|C"
+            ],
+            [
+              "C|D"
+            ]
+          ],
+          "status": [
+            "weak"
+          ],
+          "overlap_policy": "overlap_allowed"
+        }
+      }
+    },
+    {
+      "id": "partial_internal_pair",
+      "selected_relation_ids": [
+        "A|B",
+        "A|C",
+        "B|C",
+        "C|D"
+      ],
+      "relation_status": {
+        "A|B": "computed",
+        "A|C": "partial",
+        "A|D": "computed",
+        "B|C": "computed",
+        "B|D": "computed",
+        "C|D": "computed"
+      },
+      "normalized_gaps": {
+        "A|B": 1.0,
+        "A|C": 2.0,
+        "A|D": 3.0,
+        "B|C": 1.0,
+        "B|D": 2.0,
+        "C|D": 1.0
+      },
+      "expected_all_internal_rejected_pair": "A|C",
+      "expected": {
+        "selected_relation_connected": {
+          "membersets": [
+            [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B",
+              "A|C",
+              "B|C",
+              "C|D"
+            ]
+          ],
+          "status": [
+            "partial"
+          ],
+          "overlap_policy": "overlap_allowed"
+        },
+        "all_internal_pairs": {
+          "membersets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ],
+            [
+              "C",
+              "D"
+            ]
+          ],
+          "relation_ids": [
+            [
+              "A|B"
+            ],
+            [
+              "B|C"
+            ],
+            [
+              "C|D"
+            ]
+          ],
+          "status": [
+            "weak"
+          ],
+          "overlap_policy": "overlap_allowed"
+        }
+      }
+    }
+  ],
   "interpretation": "Design assertion fixture only; deterministic structural semantics, not production policy or psychological truth."
 }

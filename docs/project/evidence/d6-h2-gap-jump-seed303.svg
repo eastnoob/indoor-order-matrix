@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1060" height="700" viewBox="0 0 1060 700">
 <rect width="1060" height="700" fill="#fff"/>
 <text x="35" y="40" font-size="23" font-family="sans-serif">D6 H2 gap-jump | seed 303</text>
-<text x="35" y="70" font-size="15" font-family="sans-serif">recipe: relative_gap_rank {'bound': 2.254376832100142, 'quantile': 0.5} / all_pairs</text>
+<text x="35" y="70" font-size="15" font-family="sans-serif">recipe: relative_gap_rank {'bound': 2.254376832100142, 'quantile': 0.5} / selected_relation_connected</text>
 <text x="35" y="96" font-size="14" font-family="sans-serif">Geometry/variable diagnostic only; not psychological validity evidence or production accuracy.</text>
 <text x="35" y="118" font-size="14" font-family="sans-serif">Gray boxes: authored furniture groups; colored edges: emitted candidate sets; red dashed: hard veto pair.</text>
 <line x1="100.00" y1="460.00" x2="208.61" y2="430.39" stroke="#1677b7" stroke-width="5" opacity="0.65"/>

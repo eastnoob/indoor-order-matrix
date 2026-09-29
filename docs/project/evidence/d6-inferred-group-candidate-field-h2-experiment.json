@@ -1,16 +1,18 @@
 {
   "artifact_sha256": {
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json": "007a82220156ebd8ace148c272e96c2a2bf9a89a991151058d82f9cdb5b008fe",
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-report.md": "8f083f1b831b54bf4115c8b6e0f7f6313e739883ec6aaec72fcf01522436ae80",
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json": "0d597f349a5ff53f63b0b5e900db54f166bcce5caa113a9f4632fc9169a4debe",
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json": "732143307888fbab833ded9be5d03004c2501c7602ebd760919561f76adf7bd7",
-    "scripts/design/group_level/inferred_group_candidate_field_aggregation_semantics_fixture.json": "d94c1750b7c8745f68169270c27672fdef12fc0e66ab7c4b3b21badb80f4d37e",
-    "scripts/design/group_level/inferred_group_candidate_field_canonical_space_key_fixture.json": "893a4fc6e415e205aaaa604a87f998ab5cf62aa821ab8d1d11bc05f2e2f45d7b",
-    "scripts/design/group_level/inferred_group_candidate_field_fixtures.json": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json": "7be3e53ee83efc53ae8f3de4dac31f10be90a12f8d25afaed638aca267e7959b",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-design-review.md": "2cf9352a6c7e719c923a63ef9633ef25bc1e8c8c87ff6fed084af46484ddb531",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-report.md": "3bfb7b7a97459966738156be3d974a1ce08a22be4f154f8820fd1c20c06273df",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json": "7f4ca9b533819414c5c5c5fd42dc5565282c6ba53dac8b139e48a29ea9a62c86",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json": "2336237cf8a119c050777a86378d29e3b6bded6256c6a1be44d003c0847cf8eb",
+    "scripts/design/group_level/inferred_group_candidate_field_aggregation_semantics_fixture.json": "62e3486696d8056561306ff541eef402c28e1a0121ed50c4067cd0ec7a337e01",
+    "scripts/design/group_level/inferred_group_candidate_field_canonical_space_key_fixture.json": "56fa47298eedf046522382d2c11da9d93a56516dfe4b2b3e9baef67df9d874ff",
+    "scripts/design/group_level/inferred_group_candidate_field_fixtures.json": "6199c764aaf28c999b10194deaed33b92314c4f448c3b091af9234b342d5944a",
     "scripts/design/group_level/inferred_group_candidate_field_h1b_computational_truth.json": "bea8bad8dd6c40fb2d5e7bdc28c0b5229f6af2a93e89affb72211aa3f91911a3",
     "scripts/design/group_level/inferred_group_candidate_field_h1b_holdout_fixtures.json": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce",
-    "scripts/design/group_level/run_inferred_group_candidate_field_h2.py": "5a51ee9f62fe97d5e915aab04d9a768304cc6865c48048e13b1f1a9ce1d03e59",
-    "scripts/design/group_level/run_inferred_group_candidate_field_probe.py": "97aa2cd4f2d15a09d11090961db64ca917d2287830b5c862f883f4dd64e124ce"
+    "scripts/design/group_level/inferred_group_candidate_field_status_matrix_fixture.json": "bb51b444d92d602e233244cd859967d57278533ce5f81a389d04ff3ca90671ec",
+    "scripts/design/group_level/run_inferred_group_candidate_field_h2.py": "74b97cd462f31ab051a443be935088bc223c9b4b3e65f68959fcb815ca3793bb",
+    "scripts/design/group_level/run_inferred_group_candidate_field_probe.py": "dbdea79926164c50ba3b1d222130072d7953db30c82902b351307315d5e7c39f"
   },
   "date": "2026-09-29",
   "development_seeds": [
@@ -18,10 +20,11 @@
     202
   ],
   "effective_aggregation_semantics": {
-    "all_pairs": "selected-relation connected structure with explicit relation ids",
+    "all_internal_pairs": "maximal candidate sets whose every unordered internal pair is selected, available, computed/valid, and has finite normalized gap",
     "complete_link_diagnostic": "maximal clique of selected-pair graph",
     "max_span": "connected candidate with maximum internal normalized gap within gap-unit bound",
-    "min_gap": "selected-pair witness; not a group partition"
+    "min_gap": "selected-pair witness; not a group partition",
+    "selected_relation_connected": "selected-relation connected structure with explicit relation ids"
   },
   "estimand": "membership-level candidate member sets; overlap and unassigned allowed",
   "hard_gates": {
@@ -48,91 +51,92 @@
   },
   "recipe_disagreement": [
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 9,
       "replica_id": "bridge_chain:holdout:303"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 9,
       "replica_id": "bridge_chain:holdout:404"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 1,
       "replica_id": "context_perturbation:holdout:303"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 1,
       "replica_id": "context_perturbation:holdout:404"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 14,
       "replica_id": "gap_jump:holdout:303"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 15,
       "replica_id": "gap_jump:holdout:404"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 5,
       "replica_id": "geometry_conflict:holdout:303"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 5,
       "replica_id": "geometry_conflict:holdout:404"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 10,
       "replica_id": "minority_mixed:holdout:303"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 8,
       "replica_id": "minority_mixed:holdout:404"
     },
     {
-      "all_44_views_preserved": true,
-      "distinct_candidate_set_outputs": 2,
+      "all_55_views_preserved": true,
+      "distinct_candidate_set_outputs": 1,
       "replica_id": "missing_invalid:holdout:303"
     },
     {
-      "all_44_views_preserved": true,
-      "distinct_candidate_set_outputs": 2,
+      "all_55_views_preserved": true,
+      "distinct_candidate_set_outputs": 1,
       "replica_id": "missing_invalid:holdout:404"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 5,
       "replica_id": "overlapping_candidates:holdout:303"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 4,
       "replica_id": "overlapping_candidates:holdout:404"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 3,
       "replica_id": "space_conflict:holdout:303"
     },
     {
-      "all_44_views_preserved": true,
+      "all_55_views_preserved": true,
       "distinct_candidate_set_outputs": 3,
       "replica_id": "space_conflict:holdout:404"
     }
   ],
   "registered_aggregations": [
-    "all_pairs",
+    "selected_relation_connected",
+    "all_internal_pairs",
+    "complete_link_diagnostic",
     "max_span",
-    "min_gap",
-    "complete_link_diagnostic"
+    "min_gap"
   ],
   "registered_scales": [
     "relative_gap_rank",
@@ -161,7 +165,7 @@
     "known_probe_limitation": "space-key canonicalization accepts legacy unordered fixture keys; H1b input bytes remain unchanged",
     "numerical_threshold": "not_selected",
     "production_selector": "not_modified",
-    "registry_rule_discrepancy": "all_pairs registry text says all internal pair keys selected; repaired effective semantics is selected-relation connected structure; requires design review",
+    "registry_rule_discrepancy": "resolved by splitting selected_relation_connected and all_internal_pairs; both remain design diagnostics",
     "repair_scope": [
       "aggregation semantics",
       "canonical unordered space-key lookup",
@@ -170,7 +174,7 @@
     ],
     "winner": "not_selected"
   },
-  "scored_views": 704,
+  "scored_views": 880,
   "status": "design_only_stop_for_design_review",
   "truth": {
     "candidate_probe_access": false,
@@ -179,8 +183,8 @@
   },
   "visual_artifacts": [
     {
-      "aggregation_recipe": "all_pairs",
-      "bytes": 4298,
+      "aggregation_recipe": "selected_relation_connected",
+      "bytes": 4316,
       "family": "gap-jump",
       "path": "docs/project/evidence/d6-h2-gap-jump-seed303.svg",
       "recipe_id": "relative_gap_rank",
@@ -189,7 +193,7 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "f43ef1132e652af2d465c392f85bd4e44c65c65ba374cf95b188b3fee3cde6b3",
+      "sha256": "9754a297f4436a0d75120f6694126d55e1331c89f7c67d722e3431df363e2fbb",
       "truth_label": "evaluation-side structural truth"
     },
     {
@@ -235,17 +239,17 @@
       "truth_label": "evaluation-side structural truth"
     },
     {
-      "aggregation_recipe": "all_pairs",
-      "bytes": 3351,
+      "aggregation_recipe": "selected_relation_connected",
+      "bytes": 3169,
       "family": "missing-invalid",
       "path": "docs/project/evidence/d6-h2-missing-invalid-seed303.svg",
       "recipe_id": "relative_gap_rank",
       "scale_parameters": {
-        "bound": 0.3779266818667012,
+        "bound": null,
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "1484aa9fbaa4da7aaba4a131277689506cbca841f14e9f99b701168b364194d3",
+      "sha256": "cb8e3993d0272251a1d8dbc1a31ca8e281250849c8aa9ce5181eab719e776890",
       "truth_label": "evaluation-side structural truth"
     }
   ]

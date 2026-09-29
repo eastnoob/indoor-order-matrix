@@ -1,21 +1,142 @@
 {
-  "schema": "d6-inferred-group-candidate-field-canonical-space-key-fixture/v1",
+  "schema": "d6-inferred-group-candidate-field-canonical-space-key-fixture/v2",
   "id": "canonical_space_key_geometry_conflict",
   "family": "canonical-space-key",
   "analysis_domain": "explicit",
   "groups": [
-    {"id": "CUBE", "members": [{"id": "CUBEm", "center": [0.0, 0.0], "size": [1.0, 0.5], "type": "table"}]},
-    {"id": "TALL", "members": [{"id": "TALLm", "center": [2.0, 0.0], "size": [0.5, 1.0], "type": "table"}]},
-    {"id": "ROUNDISH", "members": [{"id": "ROUNDm", "points": [[3.5, -0.5], [4.5, 0.0], [3.5, 0.5], [2.5, 0.0]], "type": "table"}]}
+    {
+      "id": "CUBE",
+      "members": [
+        {
+          "id": "CUBEm",
+          "center": [
+            0.0,
+            0.0
+          ],
+          "size": [
+            1.0,
+            0.5
+          ],
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "TALL",
+      "members": [
+        {
+          "id": "TALLm",
+          "center": [
+            2.0,
+            0.0
+          ],
+          "size": [
+            0.5,
+            1.0
+          ],
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "ROUNDISH",
+      "members": [
+        {
+          "id": "ROUNDm",
+          "points": [
+            [
+              3.5,
+              -0.5
+            ],
+            [
+              4.5,
+              0.0
+            ],
+            [
+              3.5,
+              0.5
+            ],
+            [
+              2.5,
+              0.0
+            ]
+          ],
+          "type": "table"
+        }
+      ]
+    },
+    {
+      "id": "PLAIN",
+      "members": [
+        {
+          "id": "PLAINm",
+          "center": [
+            6.0,
+            0.0
+          ],
+          "size": [
+            1.0,
+            0.5
+          ],
+          "type": "table"
+        }
+      ]
+    }
   ],
   "space_relations": {
-    "CUBE|TALL": {"profile": 0.7, "role_refs": ["connector_space"]},
-    "TALL|ROUNDISH": {"profile": 0.3, "role_refs": ["separator_space"]}
+    "CUBE|TALL": {
+      "profile": 0.7,
+      "role_refs": [
+        "connector_space"
+      ]
+    },
+    "TALL|ROUNDISH": {
+      "profile": 0.3,
+      "role_refs": [
+        "separator_space"
+      ],
+      "source_refs": [
+        "space:forward-source"
+      ]
+    },
+    "TALL|PLAIN": {
+      "profile": 0.6,
+      "role_refs": [
+        "connector_space"
+      ],
+      "source_refs": [
+        "space:plain-source"
+      ]
+    },
+    "ROUNDISH|TALL": {
+      "profile": 0.9,
+      "role_refs": [
+        "activity_space_candidate"
+      ],
+      "source_refs": [
+        "space:reverse-source"
+      ]
+    }
   },
   "expected": {
-    "canonical_pair_id": "ROUNDISH|TALL",
-    "source_pair_id": "TALL|ROUNDISH",
-    "profile": 0.3
+    "reverse_only": {
+      "canonical_pair_id": "PLAIN|TALL",
+      "source_pair_ids": [
+        "TALL|PLAIN"
+      ],
+      "status": "computed",
+      "profile": 0.6
+    },
+    "conflict": {
+      "canonical_pair_id": "ROUNDISH|TALL",
+      "source_pair_ids": [
+        "ROUNDISH|TALL",
+        "TALL|ROUNDISH"
+      ],
+      "status": "conflict",
+      "profile": null,
+      "conflict": true
+    }
   },
-  "interpretation": "Design assertion fixture only; legacy unordered key resolves to canonical lookup key."
+  "interpretation": "Design assertion fixture only; canonical lookup preserves every source key and reports conflicting multi-source records explicitly."
 }

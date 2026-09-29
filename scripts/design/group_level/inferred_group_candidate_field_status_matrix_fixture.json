@@ -1,0 +1,97 @@
+{
+  "schema": "d6-inferred-group-candidate-field-status-matrix-fixture/v1",
+  "id": "status_matrix",
+  "channel_contract": {
+    "relation_geometry": {"required_for_geometry_recipes": true, "missing_behavior": "exclude_from_strict_all_internal_pairs; preserve status in connected diagnostics"},
+    "space_profile": {"required_for_space_profile_rank": true, "missing_behavior": "remain unselected/not_available; never substitute zero"},
+    "semantic_label": {"required_for_all_recipes": false, "mismatch_behavior": "soft_negative_evidence"},
+    "explicit_mutual_exclusion": {"required_for_all_recipes": false, "behavior": "candidate-level veto diagnostic with source refs"}
+  },
+  "cases": [
+    {
+      "id": "selected_missing_relation",
+      "relation_status": "missing",
+      "relation_missingness": ["required_relation_absent"],
+      "candidate_members": ["A", "B"],
+      "candidate_status": "partial",
+      "evidence_status": "partial",
+      "numeric_gap": null,
+      "interpretation": "A selected key without its required relation record cannot become computed evidence or a strict all-internal candidate."
+    },
+    {
+      "id": "relation_unavailable",
+      "relation_status": "not_available",
+      "relation_missingness": [
+        "relation_not_computable"
+      ],
+      "candidate_members": [
+        "A"
+      ],
+      "candidate_status": "unassigned",
+      "evidence_status": "not_available",
+      "numeric_gap": null,
+      "interpretation": "No numeric imputation; singleton is unassigned."
+    },
+    {
+      "id": "selected_invalid_relation",
+      "relation_status": "invalid",
+      "relation_missingness": ["invalid_geometry"],
+      "candidate_members": ["A", "B"],
+      "candidate_status": "diagnostic_only",
+      "evidence_status": "invalid",
+      "numeric_gap": null,
+      "interpretation": "Selected relation remains visible in connected diagnostics but is ineligible for strict all_internal_pairs."
+    },
+    {
+      "id": "selected_unavailable_relation",
+      "relation_status": "not_available",
+      "relation_missingness": ["required_geometry_unavailable"],
+      "candidate_members": ["A", "B"],
+      "candidate_status": "partial",
+      "evidence_status": "partial",
+      "numeric_gap": null,
+      "interpretation": "Selected connected diagnostic remains partial; strict all-internal candidate is rejected."
+    },
+    {
+      "id": "candidate_required_pair_incomplete",
+      "relation_status": "partial",
+      "relation_missingness": [
+        "projection_absent"
+      ],
+      "candidate_members": [
+        "A",
+        "B",
+        "C"
+      ],
+      "candidate_status": "partial",
+      "evidence_status": "partial",
+      "numeric_gap": null,
+      "interpretation": "Required internal pair remains partial; candidate is not computed."
+    },
+    {
+      "id": "singleton_without_internal_relation",
+      "relation_status": "not_available",
+      "relation_missingness": [
+        "no_internal_relation"
+      ],
+      "candidate_members": [
+        "A"
+      ],
+      "candidate_status": "unassigned",
+      "evidence_status": "not_available",
+      "numeric_gap": null,
+      "interpretation": "Singleton has no internal relation and stays unassigned."
+    }
+  ],
+  "forbidden_substitutions": [
+    "missing_as_zero",
+    "not_available_as_computed",
+    "partial_as_computed"
+  ],
+  "conflict_policy": {
+    "canonical_space_key_conflict": "retain all source records and mark conflict; profile remains null",
+    "soft_semantic_disagreement": "negative evidence only",
+    "explicit_mutual_exclusion": "candidate-level veto diagnostic; does not rewrite authored membership"
+  },
+  "interpretation": "Design-only categorical status fixture; no production policy or psychological validity claim."
+}

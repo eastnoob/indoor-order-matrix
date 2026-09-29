@@ -1,8 +1,8 @@
 {
   "artifacts": [
     {
-      "aggregation_recipe": "all_pairs",
-      "bytes": 4298,
+      "aggregation_recipe": "selected_relation_connected",
+      "bytes": 4316,
       "family": "gap-jump",
       "path": "docs/project/evidence/d6-h2-gap-jump-seed303.svg",
       "recipe_id": "relative_gap_rank",
@@ -11,7 +11,7 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "f43ef1132e652af2d465c392f85bd4e44c65c65ba374cf95b188b3fee3cde6b3",
+      "sha256": "9754a297f4436a0d75120f6694126d55e1331c89f7c67d722e3431df363e2fbb",
       "truth_label": "evaluation-side structural truth"
     },
     {
@@ -57,17 +57,17 @@
       "truth_label": "evaluation-side structural truth"
     },
     {
-      "aggregation_recipe": "all_pairs",
-      "bytes": 3351,
+      "aggregation_recipe": "selected_relation_connected",
+      "bytes": 3169,
       "family": "missing-invalid",
       "path": "docs/project/evidence/d6-h2-missing-invalid-seed303.svg",
       "recipe_id": "relative_gap_rank",
       "scale_parameters": {
-        "bound": 0.3779266818667012,
+        "bound": null,
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "1484aa9fbaa4da7aaba4a131277689506cbca841f14e9f99b701168b364194d3",
+      "sha256": "cb8e3993d0272251a1d8dbc1a31ca8e281250849c8aa9ce5181eab719e776890",
       "truth_label": "evaluation-side structural truth"
     }
   ],
@@ -77,6 +77,6 @@
   },
   "interpretation": "Geometry and variable diagnostics only; no psychological validity or production accuracy claim.",
   "schema": "d6-inferred-group-candidate-field-h2-visual-manifest/v2",
-  "scoring_sha256": "0d597f349a5ff53f63b0b5e900db54f166bcce5caa113a9f4632fc9169a4debe",
+  "scoring_sha256": "7f4ca9b533819414c5c5c5fd42dc5565282c6ba53dac8b139e48a29ea9a62c86",
   "status": "design_only_stop_for_design_review"
 }

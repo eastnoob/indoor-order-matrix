@@ -25,6 +25,7 @@ from features.group_self_description import describe_group_relations
 ROOT = Path(__file__).resolve().parents[3]
 AGGREGATION_SEMANTICS_FIXTURE = Path(__file__).with_name("inferred_group_candidate_field_aggregation_semantics_fixture.json")
 CANONICAL_SPACE_KEY_FIXTURE = Path(__file__).with_name("inferred_group_candidate_field_canonical_space_key_fixture.json")
+STATUS_MATRIX_FIXTURE = Path(__file__).with_name("inferred_group_candidate_field_status_matrix_fixture.json")
 
 
 def _polygon(center: list[float], size: list[float]) -> list[list[float]]:
@@ -86,26 +87,28 @@ def _quantile(values: list[float], quantile: float) -> float | None:
 
 
 def _space_record(fixture: dict[str, Any], pair_key: str) -> dict[str, Any]:
-    """Return explicit space-field evidence while preserving unavailable state."""
+    """Return canonicalized space evidence with every source key and explicit conflicts."""
     canonical_pair_key = _pair_key(*pair_key.split("|", 1))
-    raw = fixture.get("space_relations", {}).get(canonical_pair_key)
-    source_pair_key = canonical_pair_key
-    if raw is None:
-        # Preserve legacy fixture bytes while accepting noncanonical key order at the design boundary.
-        for candidate_key, candidate_value in fixture.get("space_relations", {}).items():
-            if "|" in candidate_key and _pair_key(*candidate_key.split("|", 1)) == canonical_pair_key:
-                raw, source_pair_key = candidate_value, candidate_key
-                break
-    raw = raw or {}
+    sources = [(key, value) for key, value in fixture.get("space_relations", {}).items()
+               if "|" in key and _pair_key(*key.split("|", 1)) == canonical_pair_key]
+    source_records = [{"source_pair_id": key, "record": value} for key, value in sources]
+    raw = sources[0][1] if sources else {}
+    signatures = {json.dumps(value, sort_keys=True, separators=(",", ":")) for _, value in sources}
+    conflict = len(signatures) > 1
+    status = "conflict" if conflict else raw.get("status", "computed" if raw else "not_available")
     return {
-        "status": raw.get("status", "computed" if raw else "not_available"),
-        "role_refs": sorted(str(item) for item in raw.get("role_refs", [])),
-        "profile": raw.get("profile"),
-        "barrier": raw.get("barrier"),
-        "source_refs": sorted(str(item) for item in raw.get("source_refs", [])),
+        "status": status,
+        "role_refs": sorted({str(item) for _, value in sources for item in value.get("role_refs", [])}) if not conflict else [],
+        "profile": None if conflict else raw.get("profile"),
+        "barrier": None if conflict else raw.get("barrier"),
+        "source_refs": sorted({str(item) for _, value in sources for item in value.get("source_refs", [])}),
         "provenance": {"source": "fixture-space-field", "fixture_id": fixture["id"],
-                       "pair_id": canonical_pair_key, "source_pair_id": source_pair_key,
-                       "key_normalized": source_pair_key != canonical_pair_key},
+                       "pair_id": canonical_pair_key,
+                       "source_pair_id": sources[0][0] if len(sources) == 1 else None,
+                       "source_pair_ids": [key for key, _ in sources],
+                       "source_records": source_records,
+                       "key_normalized": any(key != canonical_pair_key for key, _ in sources),
+                       "key_conflict": conflict},
     }
 
 
@@ -138,9 +141,11 @@ def _relation_vectors(fixture: dict[str, Any], evidence: dict[str, Any]) -> dict
         geometry = {"channel": "relation_geometry", "status": relation["status"], "observations": observations, "source_refs": [item["witness"] for item in observations]}
         semantic = {"channel": "semantic", "status": relation["semantic_channel_status"], "negative": relation["negative_evidence"], "conflicts": relation["semantic_conflicts"], "source_refs": sorted(item.get("source", "") for item in relation["semantic_conflicts"])}
         positive = [geometry]
+        negative = []
         if space["status"] == "computed":
             positive.append({"channel": "space_field", **space})
-        negative = []
+        elif space["status"] == "conflict":
+            negative.append({"channel": "space_field", **space})
         if relation["negative_evidence"]:
             negative.append({"channel": "semantic", "records": relation["negative_evidence"]})
         if space["barrier"] == "blocked":
@@ -150,7 +155,7 @@ def _relation_vectors(fixture: dict[str, Any], evidence: dict[str, Any]) -> dict
             "positive_support_vector": sorted(positive, key=lambda item: item["channel"]),
             "negative_evidence_vector": sorted(negative, key=lambda item: item["channel"]),
             "space_role_refs": space["role_refs"], "space_record": space,
-            "missingness": sorted({item["reason"] for item in observations if item.get("reason")} | ({"space_field_unavailable"} if space["status"] != "computed" else set())),
+            "missingness": sorted({item["reason"] for item in observations if item.get("reason")} | ({"space_field_conflict"} if space["status"] == "conflict" else {"space_field_unavailable"} if space["status"] != "computed" else set())),
             "status": relation["status"], "semantic_conflicts": relation["semantic_conflicts"],
             "raw_boundary_gaps": sorted(item["raw_boundary_gap"] for item in observations if item.get("raw_boundary_gap") is not None),
             "normalized_gaps": sorted(item["normalized_boundary_gap"] for item in observations if item.get("normalized_boundary_gap") is not None),
@@ -161,17 +166,22 @@ def _relation_vectors(fixture: dict[str, Any], evidence: dict[str, Any]) -> dict
 
 def _numeric_gap(vector: dict[str, Any]) -> float | None:
     """Return the minimum computed normalized gap for one group pair."""
+    # ponytail: minimum member gap is a diagnostic shortcut; upgrade to an explicit
+    # group-level gap definition before any production selector uses this value.
     gaps = vector["normalized_gaps"]
     return min(gaps) if gaps else None
 
 
 def _edge_map(vectors: dict[str, dict[str, Any]]) -> dict[str, float]:
     """Return pair keys and finite normalized gaps for scale recipes."""
-    return {key: gap for key, vector in vectors.items() if (gap := _numeric_gap(vector)) is not None}
+    return {key: gap for key, vector in vectors.items()
+            if vector.get("status") == "computed" and (gap := _numeric_gap(vector)) is not None and math.isfinite(gap)}
 
 
 def _ranked_neighbors(ids: list[str], vectors: dict[str, dict[str, Any]]) -> dict[str, dict[str, int]]:
     """Rank each group's computed neighbors by normalized gap and stable id."""
+    # Equal gaps are deterministically ordered by neighbor id; this keeps output
+    # reproducible while leaving tie semantics as an explicit design limitation.
     ranks = {group_id: {} for group_id in ids}
     for group_id in ids:
         neighbors = []
@@ -180,7 +190,7 @@ def _ranked_neighbors(ids: list[str], vectors: dict[str, dict[str, Any]]) -> dic
                 continue
             neighbor = vector["group_b"] if vector["group_a"] == group_id else vector["group_a"]
             gap = _numeric_gap(vector)
-            if gap is not None:
+            if vector.get("status") == "computed" and gap is not None and math.isfinite(gap):
                 neighbors.append((gap, neighbor))
         for rank, (_, neighbor) in enumerate(sorted(neighbors), start=1):
             ranks[group_id][neighbor] = rank
@@ -213,10 +223,17 @@ def _scale_views(fixture: dict[str, Any], vectors: dict[str, dict[str, Any]], re
                                 selected.append(key)
                     views.append(_scale_view(fixture, vectors, recipe, {"window": window, "persistence": persistence}, sorted(selected)))
         elif recipe_id == "space_profile_rank":
-            profiles = [vector["space_record"]["profile"] for vector in vectors.values() if vector["space_record"]["profile"] is not None]
+            # Only a computed finite profile can enter a profile rank; missing or
+            # conflicting space evidence stays categorical in the relation vector.
+            profiles = [space["profile"] for vector in vectors.values()
+                        if (space := vector["space_record"])["status"] == "computed"
+                        and space["profile"] is not None and math.isfinite(space["profile"])]
             for quantile in parameters["quantiles"]:
                 bound = _quantile(profiles, quantile)
-                selected = sorted(key for key, vector in vectors.items() if vector["space_record"]["profile"] is not None and bound is not None and vector["space_record"]["profile"] >= bound)
+                selected = sorted(key for key, vector in vectors.items()
+                                  if vector["space_record"]["status"] == "computed"
+                                  and (profile := vector["space_record"]["profile"]) is not None
+                                  and math.isfinite(profile) and bound is not None and profile >= bound)
                 views.append(_scale_view(fixture, vectors, recipe, {"quantile": quantile, "bound": bound}, selected))
     return views
 
@@ -278,7 +295,9 @@ def _max_span_candidates(ids: list[str], vectors: dict[str, dict[str, Any]], sel
             members = set(combo)
             internal_ids = {_pair_key(left, right) for left, right in itertools.combinations(combo, 2)}
             gaps = [min(vectors[pair_id]["normalized_gaps"]) for pair_id in internal_ids
-                    if pair_id in vectors and vectors[pair_id]["normalized_gaps"]]
+                    if pair_id in vectors and vectors[pair_id].get("status") == "computed"
+                    and vectors[pair_id]["normalized_gaps"]
+                    and all(math.isfinite(value) for value in vectors[pair_id]["normalized_gaps"])]
             if len(gaps) != len(internal_ids):
                 continue
             if max(gaps) > bound:
@@ -295,7 +314,9 @@ def _span_bound(scale_view: dict[str, Any], vectors: dict[str, dict[str, Any]]) 
         return scale_view["parameters"].get("bound")
     gaps = [min(vectors[pair_id]["normalized_gaps"])
             for pair_id in scale_view["selected_relation_ids"]
-            if pair_id in vectors and vectors[pair_id]["normalized_gaps"]]
+            if pair_id in vectors and vectors[pair_id].get("status") == "computed"
+            and vectors[pair_id]["normalized_gaps"]
+            and all(math.isfinite(value) for value in vectors[pair_id]["normalized_gaps"])]
     # Other scales lack a gap bound; the largest selected gap is a diagnostic span reference.
     return max(gaps) if gaps else None
 
@@ -303,14 +324,19 @@ def _span_bound(scale_view: dict[str, Any], vectors: dict[str, dict[str, Any]]) 
 def _aggregation_membersets(ids: list[str], vectors: dict[str, dict[str, Any]], scale_view: dict[str, Any], recipe_id: str) -> list[list[str]]:
     """Apply one registered aggregation meaning without selecting a production rule."""
     selected = set(scale_view["selected_relation_ids"])
-    if recipe_id == "all_pairs":
+    if recipe_id == "selected_relation_connected":
         return _connected_components(ids, selected)
+    if recipe_id == "all_internal_pairs":
+        eligible = {key for key in selected if key in vectors and vectors[key].get("status") == "computed"
+                    and vectors[key].get("normalized_gaps")
+                    and all(math.isfinite(value) for value in vectors[key]["normalized_gaps"])}
+        return _maximal_cliques(ids, eligible)
     if recipe_id == "complete_link_diagnostic":
         return _maximal_cliques(ids, selected)
     if recipe_id == "max_span":
         return _max_span_candidates(ids, vectors, selected, _span_bound(scale_view, vectors))
     if recipe_id == "min_gap":
-        return [[vectors[key]["group_a"], vectors[key]["group_b"]] for key in sorted(selected)]
+        return [[vectors[key]["group_a"], vectors[key]["group_b"]] for key in sorted(selected) if key in vectors]
     return []
 
 
@@ -318,12 +344,16 @@ def _candidate_record(fixture: dict[str, Any], members: list[str], vectors: dict
     """Create one auditable candidate record without producing a formal edge."""
     internal_ids = sorted(relation_ids if relation_ids is not None else (_pair_key(a, b) for a, b in itertools.combinations(members, 2)))
     internal = [vectors[key] for key in internal_ids if key in vectors]
+    # A selected key without a relation record remains incomplete evidence;
+    # graph connectivity alone cannot turn that absence into a valid pair.
+    missing_ids = [key for key in internal_ids if key not in vectors]
     all_internal_ids = sorted(_pair_key(a, b) for a, b in itertools.combinations(members, 2))
     all_internal = [vectors[key] for key in all_internal_ids if key in vectors]
-    missingness = sorted({reason for vector in internal for reason in vector["missingness"]})
+    missingness = sorted({reason for vector in internal for reason in vector["missingness"]} |
+                         ({"required_relation_absent"} if missing_ids else set()))
     conflicts = sorted((conflict for vector in all_internal for conflict in _vetoes(fixture, vector["group_a"], vector["group_b"])), key=lambda item: (item["source_ref"], item["target_ref"]))
     invalid = any(vector["status"] == "invalid" for vector in internal)
-    partial = any(vector["status"] in {"partial", "not_available"} for vector in internal)
+    partial = bool(missing_ids) or any(vector["status"] in {"missing", "partial", "not_available"} for vector in internal)
     if conflicts:
         status = "unassigned"
     elif invalid:
@@ -331,14 +361,15 @@ def _candidate_record(fixture: dict[str, Any], members: list[str], vectors: dict
     elif aggregation["id"] == "complete_link_diagnostic":
         status = "diagnostic_only"
     elif partial:
-        status = "weak"
+        status = "partial"
     elif len(members) > 1 and any(all_scale_selected.get(key, 0) < 2 for key in internal_ids):
         status = "ambiguous"
     else:
         status = "overlapping" if aggregation.get("overlap") else "weak"
     evidence_status = "invalid" if invalid else "partial" if partial else "computed" if internal else "not_available"
     semantic_role = {
-        "all_pairs": "selected_relation_connected_structure",
+        "selected_relation_connected": "selected_relation_connected_structure",
+        "all_internal_pairs": "all_internal_pair_requirement",
         "max_span": "bounded_cohesion_candidate",
         "min_gap": "pair_witness_only",
         "complete_link_diagnostic": "maximal_clique_complete_link_diagnostic",
@@ -363,7 +394,7 @@ def _candidate_record(fixture: dict[str, Any], members: list[str], vectors: dict
 
 def _aggregate(fixture: dict[str, Any], vectors: dict[str, dict[str, Any]], scale_view: dict[str, Any], aggregation_recipes: list[dict[str, Any]], all_scale_selected: dict[str, int]) -> list[dict[str, Any]]:
     """Emit parallel aggregation views and explicit unassigned records."""
-    ids = sorted({vector["group_a"] for vector in vectors.values()} | {vector["group_b"] for vector in vectors.values()})
+    ids = sorted(group["id"] for group in fixture["groups"])
     selected = set(scale_view["selected_relation_ids"])
     views = []
     for recipe in aggregation_recipes:
@@ -371,7 +402,7 @@ def _aggregate(fixture: dict[str, Any], vectors: dict[str, dict[str, Any]], scal
         overlap_counts = {member: sum(member in candidate for candidate in membersets) for member in ids}
         records = []
         for index, members in enumerate(membersets):
-            if recipe["id"] == "all_pairs":
+            if recipe["id"] == "selected_relation_connected":
                 relation_ids = sorted(selected & {_pair_key(left, right) for left, right in itertools.combinations(members, 2)})
             elif recipe["id"] == "min_gap":
                 relation_ids = [_pair_key(members[0], members[1])]
@@ -385,12 +416,12 @@ def _aggregate(fixture: dict[str, Any], vectors: dict[str, dict[str, Any]], scal
                 "scale_descriptor": {"recipe_id": scale_view["recipe_id"], "parameters": scale_view["parameters"]},
                 "co_membership_evidence": {"selected_pair_count": 0, "computed_pair_count": 0, "interpretation": "deterministic support; not probability"},
                 "candidate_relation_ids": [],
-                "aggregation_semantics": {"role": {"all_pairs": "selected_relation_connected_structure", "max_span": "bounded_cohesion_candidate", "min_gap": "pair_witness_only", "complete_link_diagnostic": "maximal_clique_complete_link_diagnostic"}[recipe["id"]], "group_partition": False, "span_bound": _span_bound(scale_view, vectors) if recipe["id"] == "max_span" else None},
+                "aggregation_semantics": {"role": {"selected_relation_connected": "selected_relation_connected_structure", "all_internal_pairs": "all_internal_pair_requirement", "max_span": "bounded_cohesion_candidate", "min_gap": "pair_witness_only", "complete_link_diagnostic": "maximal_clique_complete_link_diagnostic"}[recipe["id"]], "group_partition": False, "span_bound": _span_bound(scale_view, vectors) if recipe["id"] == "max_span" else None},
                 "positive_support_vector": [], "negative_evidence_vector": [], "space_role_refs": [], "mutual_exclusion_conflicts": [], "missingness": [],
                 "evidence_status": "not_available", "candidate_status": "unassigned", "aggregation_recipe": {"id": recipe["id"], "parameters": recipe["parameters"], "provenance": recipe["provenance"]}, "supporting_observations": [], "formal_membership_edge": False,
                 "provenance": {"source": "d6-design-probe", "fixture_id": fixture["id"], "truth_consumed": False},
             })
-        views.append({"aggregation_recipe": recipe, "selected_relation_ids": sorted(selected), "aggregation_semantics": {"all_pairs": "selected_relation_connected_structure", "max_span": "bounded_cohesion_candidate", "min_gap": "pair_witness_only", "complete_link_diagnostic": "maximal_clique_complete_link_diagnostic"}[recipe["id"]], "candidates": records, "overlapping_members": sorted(member for member, count in overlap_counts.items() if count > 1), "candidate_status": "ambiguous" if len({tuple(item["members"]) for item in records if len(item["members"]) > 1}) > 1 and any(item["candidate_status"] == "overlapping" for item in records) else "computed"})
+        views.append({"aggregation_recipe": recipe, "selected_relation_ids": sorted(selected), "aggregation_semantics": {"selected_relation_connected": "selected_relation_connected_structure", "all_internal_pairs": "all_internal_pair_requirement", "max_span": "bounded_cohesion_candidate", "min_gap": "pair_witness_only", "complete_link_diagnostic": "maximal_clique_complete_link_diagnostic"}[recipe["id"]], "candidates": records, "overlapping_members": sorted(member for member, count in overlap_counts.items() if count > 1), "candidate_status": "ambiguous" if len({tuple(item["members"]) for item in records if len(item["members"]) > 1}) > 1 and any(item["candidate_status"] == "overlapping" for item in records) else "computed"})
     return views
 
 
@@ -423,6 +454,7 @@ def _transform_fixture(source: dict[str, Any], variant: dict[str, Any]) -> dict[
     tx, ty = variant.get("translation", [0.0, 0.0])
 
     def transform(point: list[float]) -> list[float]:
+        """Apply the declared frame transform to one fixture point."""
         # Apply the same positive scale, frame rotation, and translation to
         # every vertex; normalized relations should therefore be invariant.
         x, y = point[0] * scale, point[1] * scale
@@ -490,43 +522,155 @@ def _context_check(manifest: dict[str, Any], fixture_results: dict[str, dict[str
 
 
 def aggregation_semantics_assertion() -> dict[str, Any]:
-    """Assert three aggregation recipes retain distinct design meanings."""
+    """Assert five aggregation diagnostics, including strict all-internal variants."""
     fixture = json.loads(AGGREGATION_SEMANTICS_FIXTURE.read_text(encoding="utf-8"))
-    vectors = {}
-    for pair_id, gap in fixture["normalized_gaps"].items():
-        left, right = pair_id.split("|", 1)
-        vectors[pair_id] = {"group_a": left, "group_b": right, "normalized_gaps": [gap]}
-    scale_view = {"recipe_id": "relative_gap_rank", "selected_relation_ids": fixture["selected_relation_ids"], "parameters": {"bound": fixture["span_bound"]}}
-    ids = fixture["group_ids"]
-    outputs = {recipe_id: _aggregation_membersets(ids, vectors, scale_view, recipe_id)
-               for recipe_id in ("all_pairs", "max_span", "complete_link_diagnostic")}
-    canonical = {recipe_id: [sorted(candidate) for candidate in outputs[recipe_id]] for recipe_id in outputs}
-    assert canonical == fixture["expected_membersets"]
-    assert len({json.dumps(value, sort_keys=True) for value in canonical.values()}) == 3
-    return {"fixture_id": fixture["id"], "selected_relation_ids": fixture["selected_relation_ids"],
-            "span_bound": fixture["span_bound"], "observed_membersets": canonical,
-            "passed": True, "truth_consumed": False}
+    observed_cases = []
+    tie_vectors = {
+        "A|B": {"group_a": "A", "group_b": "B", "status": "computed", "normalized_gaps": [1.0]},
+        "A|C": {"group_a": "A", "group_b": "C", "status": "computed", "normalized_gaps": [1.0]},
+    }
+    tie_ranks = _ranked_neighbors(["A", "B", "C"], tie_vectors)
+    assert tie_ranks["A"] == {"B": 1, "C": 2}
+    renamed_ties = _ranked_neighbors(["A", "C", "Z"], {
+        "A|Z": {"group_a": "A", "group_b": "Z", "status": "computed", "normalized_gaps": [1.0]},
+        "A|C": tie_vectors["A|C"],
+    })
+    assert renamed_ties["A"] == {"C": 1, "Z": 2}
+    minimum_gap_vector = {"normalized_gaps": [0.2, 0.8]}
+    assert _numeric_gap(minimum_gap_vector) == 0.2
+    disjoint_vectors = {
+        "A|B": {"group_a": "A", "group_b": "B", "status": "computed", "normalized_gaps": [1.0]},
+        "C|D": {"group_a": "C", "group_b": "D", "status": "computed", "normalized_gaps": [1.0]},
+    }
+    disjoint_scale = {"recipe_id": "relative_gap_rank", "selected_relation_ids": ["A|B", "C|D"], "parameters": {"bound": 1.0}}
+    maximal_sets = _aggregation_membersets(["A", "B", "C", "D"], disjoint_vectors, disjoint_scale, "all_internal_pairs")
+    assert maximal_sets == [["A", "B"], ["C", "D"]]
+    for case in fixture["cases"]:
+        vectors = {}
+        for pair_id, status in case["relation_status"].items():
+            left, right = pair_id.split("|", 1)
+            vectors[pair_id] = {"group_a": left, "group_b": right, "status": status,
+                                "normalized_gaps": [case["normalized_gaps"][pair_id]] if pair_id in case["normalized_gaps"] else [],
+                                "missingness": [] if status == "computed" else [status],
+                                "positive_support_vector": [], "negative_evidence_vector": [], "space_role_refs": []}
+        scale_view = {"recipe_id": "relative_gap_rank", "selected_relation_ids": case["selected_relation_ids"], "parameters": {"bound": fixture["span_bound"]}}
+        observed = {}
+        for recipe_id, expected in case["expected"].items():
+            membersets = [sorted(item) for item in _aggregation_membersets(fixture["group_ids"], vectors, scale_view, recipe_id)]
+            relation_ids = []
+            for members in membersets:
+                if recipe_id in {"selected_relation_connected", "min_gap"}:
+                    relation_ids.append(sorted(set(case["selected_relation_ids"]) & {_pair_key(a, b) for a, b in itertools.combinations(members, 2)}))
+                else:
+                    relation_ids.append(sorted(_pair_key(a, b) for a, b in itertools.combinations(members, 2)))
+            diagnostic_fixture = {"id": case["id"], "groups": [{"id": item, "members": []} for item in fixture["group_ids"]]}
+            statuses = [_candidate_record(diagnostic_fixture, members, vectors,
+                                          {"id": recipe_id, "parameters": {}, "provenance": "self-check"},
+                                          scale_view, {pair_id: 2 for pair_id in vectors}, index, ids_for_candidate)["candidate_status"]
+                        for index, (members, ids_for_candidate) in enumerate(zip(membersets, relation_ids))]
+            observed[recipe_id] = {"membersets": membersets, "relation_ids": relation_ids, "status": sorted(set(statuses))}
+            assert membersets == expected["membersets"], (case["id"], recipe_id, membersets)
+            assert relation_ids == expected["relation_ids"], (case["id"], recipe_id, relation_ids)
+            assert observed[recipe_id]["status"] == sorted(expected["status"]), (case["id"], recipe_id, observed[recipe_id]["status"])
+            assert expected["overlap_policy"] == "overlap_allowed"
+        if "expected_all_internal_rejected_pair" in case:
+            assert case["expected_all_internal_rejected_pair"] not in sum((item["relation_ids"] for item in [observed["all_internal_pairs"]]), [])
+        selected_ineligible = [
+            pair_id for pair_id, status in case["relation_status"].items()
+            if pair_id in case["selected_relation_ids"] and status != "computed"
+        ]
+        if selected_ineligible:
+            connected_ids = [pair for group in observed["selected_relation_connected"]["relation_ids"] for pair in group]
+            strict_ids = [pair for group in observed["all_internal_pairs"]["relation_ids"] for pair in group]
+            assert set(selected_ineligible) <= set(connected_ids)
+            assert not (set(selected_ineligible) & set(strict_ids))
+        observed_cases.append({"id": case["id"], "observed": observed,
+                               "selected_but_ineligible": selected_ineligible})
+    return {"fixture_id": fixture["id"], "cases": observed_cases, "passed": True,
+            "tie_policy": "equal gaps are ordered by neighbor id for deterministic diagnostics",
+            "tie_policy_is_not_invariance": True,
+            "tie_rename_counterexample": {"before": tie_ranks["A"], "after_B_to_Z": renamed_ties["A"]},
+            "numeric_gap_policy": "minimum member gap retained as diagnostic only",
+            "disjoint_maximal_sets": maximal_sets,
+            "truth_consumed": False}
 
+
+def status_matrix_assertion() -> dict[str, Any]:
+    """Assert actual candidate propagation keeps missingness categorical."""
+    fixture = json.loads(STATUS_MATRIX_FIXTURE.read_text(encoding="utf-8"))
+    assert _edge_map({"A|B": {"status": "invalid", "normalized_gaps": [0.0]},
+                      "A|C": {"status": "computed", "normalized_gaps": [1.0]}}) == {"A|C": 1.0}
+    profile_vectors = {
+        "A|B": {"group_a": "A", "group_b": "B", "status": "computed", "normalized_gaps": [1.0],
+                "space_record": {"status": "computed", "profile": 0.8}},
+        "A|C": {"group_a": "A", "group_b": "C", "status": "computed", "normalized_gaps": [1.0],
+                "space_record": {"status": "conflict", "profile": 0.9}},
+    }
+    profile_recipe = {"id": "space_profile_rank", "parameters": {"quantiles": [0.5]}, "provenance": "self-check"}
+    assert _scale_views({"id": "status_probe"}, profile_vectors, [profile_recipe])[0]["selected_relation_ids"] == ["A|B"]
+    for case in fixture["cases"]:
+        assert case["numeric_gap"] is None
+        assert case["relation_missingness"]
+        if case["id"] == "selected_invalid_relation":
+            assert case["relation_status"] == case["evidence_status"] == "invalid"
+            assert case["candidate_status"] == "diagnostic_only"
+        elif case["id"] in {"selected_missing_relation", "selected_unavailable_relation"} or case["relation_status"] == "partial":
+            assert case["evidence_status"] == case["candidate_status"] == "partial"
+        else:
+            assert case["evidence_status"] == "not_available"
+            assert case["candidate_status"] == "unassigned"
+    groups = [{"id": group_id, "members": []} for group_id in ("A", "B")]
+    recipe = {"id": "selected_relation_connected", "parameters": {}, "provenance": "self-check"}
+    strict_recipe = {**recipe, "id": "all_internal_pairs"}
+    scale_view = {"recipe_id": "relative_gap_rank", "parameters": {}, "selected_relation_ids": ["A|B"]}
+    propagated = {}
+    for relation_status, expected_candidate in (("missing", "partial"), ("invalid", "diagnostic_only"), ("partial", "partial"), ("not_available", "partial")):
+        vector = {"group_a": "A", "group_b": "B", "status": relation_status,
+                  "normalized_gaps": [], "missingness": [relation_status],
+                  "positive_support_vector": [], "negative_evidence_vector": [], "space_role_refs": []}
+        # A selected but ineligible relation stays visible in connected diagnostics,
+        # while strict all-internal aggregation cannot promote it into a group.
+        vectors = {} if relation_status == "missing" else {"A|B": vector}
+        connected, strict = _aggregate({"id": "status_probe", "groups": groups}, vectors,
+                                       scale_view, [recipe, strict_recipe], {})
+        candidate = connected["candidates"][0]
+        assert candidate["members"] == ["A", "B"]
+        expected_evidence = "invalid" if relation_status == "invalid" else "partial"
+        assert candidate["evidence_status"] == expected_evidence
+        assert candidate["candidate_status"] == expected_candidate
+        assert candidate["missingness"] == (["required_relation_absent"] if relation_status == "missing" else [relation_status])
+        assert all(item["candidate_status"] == "unassigned" for item in strict["candidates"])
+        propagated[relation_status] = {"evidence_status": candidate["evidence_status"],
+                                       "candidate_status": candidate["candidate_status"]}
+    singleton = _aggregate(
+        {"id": "singleton_probe", "groups": [{"id": "A"}]}, {},
+        {"recipe_id": "relative_gap_rank", "parameters": {}, "selected_relation_ids": []},
+        [{"id": "selected_relation_connected", "parameters": {}, "provenance": "self-check"}], {},
+    )[0]["candidates"]
+    assert singleton[0]["members"] == ["A"] and singleton[0]["candidate_status"] == "unassigned"
+    return {"fixture_id": fixture["id"], "case_count": len(fixture["cases"]),
+            "selected_ineligible_propagation": propagated,
+            "singleton_output": singleton[0], "passed": True, "truth_consumed": False}
 
 def canonical_space_key_assertion(manifest: dict[str, Any]) -> dict[str, Any]:
-    """Assert legacy unordered space keys resolve to one canonical pair key."""
+    """Assert reverse-only normalization and explicit multi-source conflict provenance."""
     fixture = json.loads(CANONICAL_SPACE_KEY_FIXTURE.read_text(encoding="utf-8"))
     result = _fixture_result(fixture, manifest)
-    vector = next(item for item in result["d0"]["relation_vectors"] if item["relation_id"] == fixture["expected"]["canonical_pair_id"])
-    space = vector["space_record"]
-    assert space["status"] == "computed"
-    assert space["profile"] == fixture["expected"]["profile"]
-    assert space["provenance"]["pair_id"] == fixture["expected"]["canonical_pair_id"]
-    assert space["provenance"]["source_pair_id"] == fixture["expected"]["source_pair_id"]
-    assert space["provenance"]["key_normalized"] is True
-    return {"fixture_id": fixture["id"], "canonical_pair_id": space["provenance"]["pair_id"],
-            "source_pair_id": space["provenance"]["source_pair_id"], "profile": space["profile"],
-            "passed": True, "truth_consumed": False}
-
+    vectors = {item["relation_id"]: item for item in result["d0"]["relation_vectors"]}
+    reverse = vectors[fixture["expected"]["reverse_only"]["canonical_pair_id"]]["space_record"]
+    conflict = vectors[fixture["expected"]["conflict"]["canonical_pair_id"]]["space_record"]
+    assert reverse["status"] == "computed" and reverse["profile"] == 0.6
+    assert reverse["provenance"]["source_pair_ids"] == ["TALL|PLAIN"]
+    assert conflict["status"] == "conflict" and conflict["profile"] is None
+    assert conflict["provenance"]["key_conflict"] is True
+    assert conflict["provenance"]["source_pair_ids"] == ["TALL|ROUNDISH", "ROUNDISH|TALL"]
+    assert len(conflict["provenance"]["source_records"]) == 2
+    return {"fixture_id": fixture["id"], "reverse_only": reverse["provenance"], "conflict": conflict["provenance"], "passed": True, "truth_consumed": False}
 
 def design_semantics_assertions(manifest: dict[str, Any]) -> dict[str, Any]:
     """Run repair-specific assertions without reading evaluation truth."""
     return {"aggregation_semantics": aggregation_semantics_assertion(),
+            "status_matrix": status_matrix_assertion(),
             "canonical_space_key": canonical_space_key_assertion(manifest)}
 
 
@@ -545,8 +689,8 @@ def _assertions(results: dict[str, dict[str, Any]], invariance: dict[str, Any], 
     assert statuses["PARTIAL"] == "partial" and statuses["INVALID"] == "invalid" and statuses["MISSING_GEOMETRY"] == "not_available"
     assert invariance["all_passed"]
     repair = design_semantics_assertions(manifest)
-    assert repair["aggregation_semantics"]["passed"] and repair["canonical_space_key"]["passed"]
-    return ["D0 candidate view remains deferred", "D1 emits parallel recipes with no formal edge", "hard veto wins and retains source refs", "partial/invalid/missing remain categorical", "declared invariance transforms preserve canonical relation signature", "context perturbation preserves authored node eligibility", "aggregation recipes produce distinct design outputs", "unordered space keys resolve through canonical lookup"]
+    assert repair["aggregation_semantics"]["passed"] and repair["status_matrix"]["passed"] and repair["canonical_space_key"]["passed"]
+    return ["D0 candidate view remains deferred", "D1 emits parallel recipes with no formal edge", "hard veto wins and retains source refs", "partial/invalid/missing remain categorical", "declared invariance transforms preserve canonical relation signature", "context perturbation preserves authored node eligibility", "aggregation recipes preserve distinct design meanings", "status matrix forbids numeric missingness imputation", "unordered space keys preserve provenance and conflicts"]
 
 
 def run(manifest: dict[str, Any]) -> dict[str, Any]:
@@ -574,6 +718,7 @@ def run(manifest: dict[str, Any]) -> dict[str, Any]:
             "co_membership_evidence is deterministic support, not probability.",
             "No candidate view writes formal_membership_edge, authored membership, route path, or public model state.",
             "Space role records are separate from relation evidence and remain unavailable when the domain is missing.",
+            "Canonical-equivalent multi-source space keys remain explicit conflicts; no source is silently selected.",
             "No absolute distance threshold is used; relative recipes are reported side by side.",
             "The external truth manifest is not read by the probe and is not evidence of psychological validity.",
         ],
