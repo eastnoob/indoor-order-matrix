@@ -174,4 +174,26 @@ P(organization relation / soft membership
 
 这是一项已确认的设计方向，不是 production API、概率公式或算法选择。
 
+## 11. “场”与“group”的区别（2026-09-29）
+
+用户追问：
+
+> 什么意思，场和group的意思不同吗？
+
+是，不同：
+
+- **家具组（authored group）**：输入事实。例：一桌四椅。成员边界由 IFC/SVG authored membership 给出。
+- **inferred group**：对若干 authored furniture groups 的高层关系解释。它可以是软的、重叠的、多尺度的，不必有一条绝对边界。
+- **空间场（space field）**：定义在分析空间上的连续证据分布。每个位置或局部区域都有占用、空闲、宽度、连通、阻隔和角色支持等值；它本身不是一组家具。
+- **组关系场（group-relation field）**：定义在家具组节点或组对上的连续关系证据。它描述 A 与 B 的关联强弱、分隔或连接支持；它本身也不是一个已经选定的 group partition。
+
+可以用一个比喻理解：
+
+```text
+场 = 地图上的连续“势”或证据分布
+group = 从这些证据中描述出来的一组对象或软关联
+```
+
+因此当前设计不是“场和 group 二选一”：先保留场，再从场与组间关系中产生 inferred-group candidates。若证据没有形成清晰边界，输出软关联/多候选/ambiguous，而不是伪造硬边界。
+
 **STOP FOR GRILL-ME DISCUSSION**
