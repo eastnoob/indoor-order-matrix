@@ -1,0 +1,68 @@
+{
+  "artifacts": [
+    {
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-h1b-materialization.md",
+      "role": "h1b_design_record",
+      "sha256": "6787de63c2e7dc281afbc57e4eb55ec11fc0adad89595650ce0104dc08e7bec1"
+    },
+    {
+      "path": "scripts/design/group_level/inferred_group_candidate_field_h1b_holdout_fixtures.json",
+      "role": "h1b_materialized_fixture_manifest",
+      "sha256": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce"
+    },
+    {
+      "path": "scripts/design/group_level/inferred_group_candidate_field_h1b_computational_truth.json",
+      "role": "h1b_independent_truth_manifest",
+      "sha256": "bea8bad8dd6c40fb2d5e7bdc28c0b5229f6af2a93e89affb72211aa3f91911a3"
+    }
+  ],
+  "contract": {
+    "development_seeds": [
+      101,
+      202
+    ],
+    "family_count": 8,
+    "holdout_recovery_scoring": "not_run",
+    "holdout_seeds": [
+      303,
+      404
+    ],
+    "replica_count": 32,
+    "roles": {
+      "generalization_holdout": "holdout replicas",
+      "invariance_only": "declared transforms",
+      "replication_only": "source template"
+    }
+  },
+  "review_input": {
+    "path": "docs/project/evidence/d6-inferred-group-candidate-field-h1-review.md",
+    "sha256": "bd18170ead59912dd678b3d515821b1db29fbf1a2303e275599f59c77e532ef4"
+  },
+  "schema": "d6-inferred-group-candidate-field-h1b-artifact-manifest/v1",
+  "scope_audit": {
+    "candidate_probe_truth_consumed": false,
+    "forbidden_modifications": [
+      "features/",
+      "adapters/",
+      "test/",
+      "NeutralSceneV2",
+      "public API",
+      "dependencies"
+    ],
+    "holdout_scoring_run": false,
+    "production_selector_written": false,
+    "recipe_selected": false,
+    "threshold_selected": false
+  },
+  "status": "design_only_stop_for_design_review",
+  "validation": {
+    "development_holdout_content_difference": "passed",
+    "family_invariants": "passed",
+    "git_diff_check": "passed",
+    "json_parse": "passed",
+    "manifest_hash": "203fc2f25ed3ac35a27bd724771f781b71ecdbfc949ef9ac4f4a79fe5bdf528b",
+    "schema_contract": "passed",
+    "seed_reproducibility": "passed",
+    "truth_probe_separation": "passed"
+  }
+}

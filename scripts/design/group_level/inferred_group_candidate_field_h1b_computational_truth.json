@@ -1,0 +1,2037 @@
+{
+  "candidate_probe_access": {
+    "allowed": false,
+    "reason": "truth is evaluation-side only and is never passed to candidate probe"
+  },
+  "derivation_contract": {
+    "forbidden_inputs": [
+      "candidate output",
+      "recipe winner",
+      "recovery score",
+      "human label",
+      "psychological validity"
+    ],
+    "inputs": [
+      "materialized group geometry",
+      "member status/points",
+      "space relation profiles/roles",
+      "explicit mutual_exclusion properties"
+    ],
+    "output": [
+      "candidate member sets",
+      "hard veto pairs",
+      "unassigned/singleton diagnostic",
+      "status targets"
+    ]
+  },
+  "evaluation_boundary": {
+    "aggregation_recipe": "deferred",
+    "bayesian_ml": "not_run",
+    "holdout_recovery_scoring": "not_run",
+    "production_selector": "deferred",
+    "scale_recipe": "deferred",
+    "thresholds": "deferred"
+  },
+  "generator": "d6-h1b-structure-derived-truth/v1",
+  "replicas": [
+    {
+      "candidate_member_sets": [
+        [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        [
+          "G4",
+          "G5"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:gap_jump",
+      "derivation_observations": {
+        "adjacent_x_gaps": [
+          1.4126097,
+          1.38711867,
+          3.32542423,
+          1.4989556
+        ],
+        "group_centers": {
+          "G1": [
+            -1.77769804,
+            -1.32640847
+          ],
+          "G2": [
+            -0.36508834,
+            -1.30388989
+          ],
+          "G3": [
+            1.02203033,
+            -1.17361199
+          ],
+          "G4": [
+            4.34745456,
+            -1.26165278
+          ],
+          "G5": [
+            5.8464101600000005,
+            -1.28224935
+          ]
+        },
+        "largest_gap_index": 2,
+        "ordered_groups": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "space_profiles": {
+          "G1|G2": 0.94924676,
+          "G2|G3": 0.92617892,
+          "G3|G4": 0.13435383,
+          "G4|G5": 0.91795998
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "all nodes lie on one side of the derived largest structural gap",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "gap-jump",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "d01e396abe9d4259b35bbc6b3cca5b06839f833dad02bc45cb9e4f91ccc95fc4",
+      "replica_id": "gap_jump:development:101",
+      "seed": 101,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        [
+          "G4",
+          "G5"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:gap_jump",
+      "derivation_observations": {
+        "adjacent_x_gaps": [
+          1.41565246,
+          1.38564618,
+          3.27289695,
+          1.29230569
+        ],
+        "group_centers": {
+          "G1": [
+            1.7123866300000001,
+            1.52096431
+          ],
+          "G2": [
+            3.12803909,
+            1.44010726
+          ],
+          "G3": [
+            4.51368527,
+            1.40376933
+          ],
+          "G4": [
+            7.7865822200000006,
+            1.48810787
+          ],
+          "G5": [
+            9.07888791,
+            1.5051462100000002
+          ]
+        },
+        "largest_gap_index": 2,
+        "ordered_groups": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "space_profiles": {
+          "G1|G2": 0.92140694,
+          "G2|G3": 0.92698251,
+          "G3|G4": 0.0765418,
+          "G4|G5": 0.90654884
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "all nodes lie on one side of the derived largest structural gap",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "gap-jump",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "80ecae7a043d0d517a75c6c70be039e67a07c1642731395812d0fdb019e44c6e",
+      "replica_id": "gap_jump:development:202",
+      "seed": 202,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        [
+          "G4",
+          "G5"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:gap_jump",
+      "derivation_observations": {
+        "adjacent_x_gaps": [
+          1.63176789,
+          1.48993239,
+          3.48183635,
+          1.50978379
+        ],
+        "group_centers": {
+          "G1": [
+            0.908053,
+            1.28299722
+          ],
+          "G2": [
+            2.53982089,
+            1.37552358
+          ],
+          "G3": [
+            4.0297532799999995,
+            1.30650196
+          ],
+          "G4": [
+            7.51158963,
+            1.33160419
+          ],
+          "G5": [
+            9.021373419999998,
+            1.41412568
+          ]
+        },
+        "largest_gap_index": 2,
+        "ordered_groups": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "space_profiles": {
+          "G1|G2": 0.88973003,
+          "G2|G3": 0.84317047,
+          "G3|G4": 0.10247877,
+          "G4|G5": 0.86349568
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "all nodes lie on one side of the derived largest structural gap",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "gap-jump",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "835ee0d69fd16b6d2433255a84de87e4bcb3839d57fdbdf5960e2d438c107028",
+      "replica_id": "gap_jump:holdout:303",
+      "seed": 303,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        [
+          "G4",
+          "G5"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:gap_jump",
+      "derivation_observations": {
+        "adjacent_x_gaps": [
+          1.26252724,
+          1.24324372,
+          3.19043012,
+          1.20376979
+        ],
+        "group_centers": {
+          "G1": [
+            1.42835917,
+            -0.58467906
+          ],
+          "G2": [
+            2.6908864100000005,
+            -0.63081724
+          ],
+          "G3": [
+            3.9341301300000002,
+            -0.66409616
+          ],
+          "G4": [
+            7.124560250000001,
+            -0.61702111
+          ],
+          "G5": [
+            8.328330039999999,
+            -0.71007073
+          ]
+        },
+        "largest_gap_index": 2,
+        "ordered_groups": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "space_profiles": {
+          "G1|G2": 0.94638081,
+          "G2|G3": 0.94141976,
+          "G3|G4": 0.13304047,
+          "G4|G5": 0.88757144
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "all nodes lie on one side of the derived largest structural gap",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "gap-jump",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "83f0698ac73742b3358596a01a0ae2c765bc6e2a246d991365601bb83820fdf7",
+      "replica_id": "gap_jump:holdout:404",
+      "seed": 404,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "M1",
+          "M2",
+          "M3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:minority_mixed",
+      "derivation_observations": {
+        "group_centers": {
+          "M1": [
+            0.15039569000000003,
+            1.33389818
+          ],
+          "M2": [
+            1.873308454,
+            1.2531568499999999
+          ],
+          "M3": [
+            3.437628108,
+            1.3446291
+          ],
+          "M4": [
+            1.760741214,
+            4.423190578
+          ]
+        },
+        "local_axis_chain": [
+          "M1",
+          "M2",
+          "M3"
+        ],
+        "space_profiles": {
+          "M1|M2": 0.79143529,
+          "M2|M3": 0.80297764,
+          "M2|M4": 0.25657733
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "the separated minority observation is outside the derived local axis chain",
+        "singletons": [
+          "M4"
+        ],
+        "unassigned": [
+          "M4"
+        ]
+      },
+      "family": "minority-mixed",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "60b267b575bb3fd0da91785bcedd2eab1618e9295b4564a50eb79dd7090bfa2d",
+      "replica_id": "minority_mixed:development:101",
+      "seed": 101,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "M1",
+          "M2",
+          "M3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:minority_mixed",
+      "derivation_observations": {
+        "group_centers": {
+          "M1": [
+            0.28313094,
+            0.14742083
+          ],
+          "M2": [
+            1.495656206,
+            0.22729358
+          ],
+          "M3": [
+            2.867282312,
+            0.16099317999999999
+          ],
+          "M4": [
+            1.5178289360000001,
+            2.8707968719999997
+          ]
+        },
+        "local_axis_chain": [
+          "M1",
+          "M2",
+          "M3"
+        ],
+        "space_profiles": {
+          "M1|M2": 0.81195277,
+          "M2|M3": 0.74661151,
+          "M2|M4": 0.25730226
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "the separated minority observation is outside the derived local axis chain",
+        "singletons": [
+          "M4"
+        ],
+        "unassigned": [
+          "M4"
+        ]
+      },
+      "family": "minority-mixed",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "b5a07904e7912a76a57dcaf0b86e37b51abf822f40e564a6970decf93b945793",
+      "replica_id": "minority_mixed:development:202",
+      "seed": 202,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "M1",
+          "M2",
+          "M3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:minority_mixed",
+      "derivation_observations": {
+        "group_centers": {
+          "M1": [
+            0.86407795,
+            -0.44370989
+          ],
+          "M2": [
+            2.2935928459999997,
+            -0.50583827
+          ],
+          "M3": [
+            3.6418272819999995,
+            -0.48288637
+          ],
+          "M4": [
+            2.354854636,
+            2.247426122
+          ]
+        },
+        "local_axis_chain": [
+          "M1",
+          "M2",
+          "M3"
+        ],
+        "space_profiles": {
+          "M1|M2": 0.79458346,
+          "M2|M3": 0.78894132,
+          "M2|M4": 0.19114442
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "the separated minority observation is outside the derived local axis chain",
+        "singletons": [
+          "M4"
+        ],
+        "unassigned": [
+          "M4"
+        ]
+      },
+      "family": "minority-mixed",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "d6743daa44979f59a0980ea1b52900aff9bc4661dd99e1a26077f492926fbb21",
+      "replica_id": "minority_mixed:holdout:303",
+      "seed": 303,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "M1",
+          "M2",
+          "M3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:minority_mixed",
+      "derivation_observations": {
+        "group_centers": {
+          "M1": [
+            -0.30283378,
+            -1.13804483
+          ],
+          "M2": [
+            0.9964581579999998,
+            -1.17212816
+          ],
+          "M3": [
+            2.100365966,
+            -1.20323721
+          ],
+          "M4": [
+            0.8707613079999998,
+            1.3630254159999997
+          ]
+        },
+        "local_axis_chain": [
+          "M1",
+          "M2",
+          "M3"
+        ],
+        "space_profiles": {
+          "M1|M2": 0.80603031,
+          "M2|M3": 0.83222211,
+          "M2|M4": 0.22318446
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "the separated minority observation is outside the derived local axis chain",
+        "singletons": [
+          "M4"
+        ],
+        "unassigned": [
+          "M4"
+        ]
+      },
+      "family": "minority-mixed",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "1affead045dd31eb0311ada52d3b70cf251f539491dd7c6ccdcd85ea03937dd5",
+      "replica_id": "minority_mixed:holdout:404",
+      "seed": 404,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "CUBE",
+          "TALL"
+        ],
+        [
+          "TALL",
+          "ROUNDISH"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:geometry_conflict",
+      "derivation_observations": {
+        "group_centers": {
+          "CUBE": [
+            -0.79963757,
+            -0.32673057
+          ],
+          "ROUNDISH": [
+            2.3737634999999995,
+            -0.25591945
+          ],
+          "TALL": [
+            1.0798488039999998,
+            -0.33410078
+          ]
+        },
+        "ordered_groups": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "space_profiles": {
+          "CUBE|TALL": 0.66476846,
+          "TALL|ROUNDISH": 0.29648056
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "adjacent same-type geometry alternatives are retained",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "geometry-conflict",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "c0ea9d5773a9b9300dfd2a29fd9fd28c61213549ecf646c67b98d8c23afc1294",
+      "replica_id": "geometry_conflict:development:101",
+      "seed": 101,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "CUBE",
+          "TALL"
+        ],
+        [
+          "TALL",
+          "ROUNDISH"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:geometry_conflict",
+      "derivation_observations": {
+        "group_centers": {
+          "CUBE": [
+            1.6241848799999998,
+            -0.7175809
+          ],
+          "ROUNDISH": [
+            4.281686239999999,
+            -0.7449485499999999
+          ],
+          "TALL": [
+            3.27911617,
+            -0.77518879
+          ]
+        },
+        "ordered_groups": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "space_profiles": {
+          "CUBE|TALL": 0.6507855,
+          "TALL|ROUNDISH": 0.26629099
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "adjacent same-type geometry alternatives are retained",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "geometry-conflict",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "c5ea008a4545441d2a834ae8c09d569dd6ff2151cbfb02b3b2463aa8b6c52ba7",
+      "replica_id": "geometry_conflict:development:202",
+      "seed": 202,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "CUBE",
+          "TALL"
+        ],
+        [
+          "TALL",
+          "ROUNDISH"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:geometry_conflict",
+      "derivation_observations": {
+        "group_centers": {
+          "CUBE": [
+            1.1859880600000001,
+            -0.88484151
+          ],
+          "ROUNDISH": [
+            3.93107812,
+            -0.9428118200000001
+          ],
+          "TALL": [
+            2.794659904,
+            -0.87285374
+          ]
+        },
+        "ordered_groups": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "space_profiles": {
+          "CUBE|TALL": 0.72146709,
+          "TALL|ROUNDISH": 0.34835394
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "adjacent same-type geometry alternatives are retained",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "geometry-conflict",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "2ce553923bbc6eadb4e67e6572dfbc46208a5a5d50dde297018ff173d6742640",
+      "replica_id": "geometry_conflict:holdout:303",
+      "seed": 303,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "CUBE",
+          "TALL"
+        ],
+        [
+          "TALL",
+          "ROUNDISH"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:geometry_conflict",
+      "derivation_observations": {
+        "group_centers": {
+          "CUBE": [
+            0.76421552,
+            -1.01196932
+          ],
+          "ROUNDISH": [
+            3.50840103,
+            -1.03701432
+          ],
+          "TALL": [
+            2.3595488220000003,
+            -0.97092108
+          ]
+        },
+        "ordered_groups": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "space_profiles": {
+          "CUBE|TALL": 0.66264227,
+          "TALL|ROUNDISH": 0.31868752
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "adjacent same-type geometry alternatives are retained",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "geometry-conflict",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "95a60c4c6b63716bc21361794144fc34fee425e019b7868cc95978a1d7ac03ce",
+      "replica_id": "geometry_conflict:holdout:404",
+      "seed": 404,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "S1",
+          "S3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:space_conflict",
+      "derivation_observations": {
+        "group_centers": {
+          "S1": [
+            -0.2576287,
+            -0.39662049
+          ],
+          "S2": [
+            3.52791159,
+            -0.31088191
+          ],
+          "S3": [
+            -0.18132614999999996,
+            1.50965405
+          ]
+        },
+        "space_profiles": {
+          "S1|S2": 0.06431968,
+          "S1|S3": 0.83519222
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "vetoed pairs are excluded and remaining isolated nodes stay diagnostics",
+        "singletons": [
+          "S2"
+        ],
+        "unassigned": [
+          "S2"
+        ]
+      },
+      "family": "space-conflict",
+      "hard_mutual_exclusion_veto_pairs": [
+        {
+          "pair": [
+            "S1",
+            "S2"
+          ],
+          "source_ref": "S1.member.factual_properties.mutual_exclusion",
+          "target_ref": "S2"
+        }
+      ],
+      "input_content_sha256": "1ca2083559d5f8f64a9e86f35c84b87618ca24745a39fbe2069c38a5ec525fd6",
+      "replica_id": "space_conflict:development:101",
+      "seed": 101,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "S1",
+          "S3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:space_conflict",
+      "derivation_observations": {
+        "group_centers": {
+          "S1": [
+            0.31577248,
+            -0.42741943
+          ],
+          "S2": [
+            4.21489537,
+            -0.36946165999999997
+          ],
+          "S3": [
+            0.38542715,
+            1.60174441
+          ]
+        },
+        "space_profiles": {
+          "S1|S2": 0.06319502,
+          "S1|S3": 0.84511498
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "vetoed pairs are excluded and remaining isolated nodes stay diagnostics",
+        "singletons": [
+          "S2"
+        ],
+        "unassigned": [
+          "S2"
+        ]
+      },
+      "family": "space-conflict",
+      "hard_mutual_exclusion_veto_pairs": [
+        {
+          "pair": [
+            "S1",
+            "S2"
+          ],
+          "source_ref": "S1.member.factual_properties.mutual_exclusion",
+          "target_ref": "S2"
+        }
+      ],
+      "input_content_sha256": "b2e696b306990fb379b4da1ffb76b364da4be2d3eb282120fdd1ded4425489d9",
+      "replica_id": "space_conflict:development:202",
+      "seed": 202,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "S1",
+          "S3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:space_conflict",
+      "derivation_observations": {
+        "group_centers": {
+          "S1": [
+            -1.36284074,
+            -0.61738002
+          ],
+          "S2": [
+            2.57733334,
+            -0.625903
+          ],
+          "S3": [
+            -1.39277241,
+            1.3894780299999998
+          ]
+        },
+        "space_profiles": {
+          "S1|S2": 0.15153957,
+          "S1|S3": 0.79611732
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "vetoed pairs are excluded and remaining isolated nodes stay diagnostics",
+        "singletons": [
+          "S2"
+        ],
+        "unassigned": [
+          "S2"
+        ]
+      },
+      "family": "space-conflict",
+      "hard_mutual_exclusion_veto_pairs": [
+        {
+          "pair": [
+            "S1",
+            "S2"
+          ],
+          "source_ref": "S1.member.factual_properties.mutual_exclusion",
+          "target_ref": "S2"
+        }
+      ],
+      "input_content_sha256": "6879f32ffc5fef9b794c6ba510dd8cc531898e6380a15f72d80c258d8d7e680d",
+      "replica_id": "space_conflict:holdout:303",
+      "seed": 303,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "S1",
+          "S3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:space_conflict",
+      "derivation_observations": {
+        "group_centers": {
+          "S1": [
+            0.8660432100000001,
+            0.38544637
+          ],
+          "S2": [
+            4.75230396,
+            0.33222655
+          ],
+          "S3": [
+            0.88687162,
+            2.26464632
+          ]
+        },
+        "space_profiles": {
+          "S1|S2": 0.14177636,
+          "S1|S3": 0.80172377
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "vetoed pairs are excluded and remaining isolated nodes stay diagnostics",
+        "singletons": [
+          "S2"
+        ],
+        "unassigned": [
+          "S2"
+        ]
+      },
+      "family": "space-conflict",
+      "hard_mutual_exclusion_veto_pairs": [
+        {
+          "pair": [
+            "S1",
+            "S2"
+          ],
+          "source_ref": "S1.member.factual_properties.mutual_exclusion",
+          "target_ref": "S2"
+        }
+      ],
+      "input_content_sha256": "b405ad6ee482147515ed0502a34fe3e5ad4191f8b9d21958f9989c738ab49551",
+      "replica_id": "space_conflict:holdout:404",
+      "seed": 404,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "B",
+          "C"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:bridge_chain",
+      "derivation_observations": {
+        "group_centers": {
+          "A": [
+            -0.44878581,
+            -1.26145569
+          ],
+          "B": [
+            1.26096866,
+            -1.3245843899999998
+          ],
+          "C": [
+            2.81849806,
+            -1.33989907
+          ],
+          "D": [
+            8.392272580000002,
+            -1.33615423
+          ]
+        },
+        "space_profiles": {
+          "A|B": 0.95439231,
+          "A|C": 0.13089886,
+          "B|C": 0.90970989
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "profile-supported edges are retained without transitive closure",
+        "singletons": [
+          "D"
+        ],
+        "unassigned": [
+          "D"
+        ]
+      },
+      "family": "bridge-chain",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "db6d2a6857893c39c1208ce6361c24ce8a90f12f8eace112b6c9f211aa43bf01",
+      "replica_id": "bridge_chain:development:101",
+      "seed": 101,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "B",
+          "C"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:bridge_chain",
+      "derivation_observations": {
+        "group_centers": {
+          "A": [
+            1.11796569,
+            -0.7052302100000001
+          ],
+          "B": [
+            2.82988407,
+            -0.7233435500000001
+          ],
+          "C": [
+            4.487786959999999,
+            -0.76962185
+          ],
+          "D": [
+            9.97085759,
+            -0.8110383400000001
+          ]
+        },
+        "space_profiles": {
+          "A|B": 0.88993859,
+          "A|C": 0.1107469,
+          "B|C": 0.8928759
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "profile-supported edges are retained without transitive closure",
+        "singletons": [
+          "D"
+        ],
+        "unassigned": [
+          "D"
+        ]
+      },
+      "family": "bridge-chain",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "4f617ad0baa555653ed66fc0edc8d11b95995b2c3ea9345e6b9873cc1f6d6820",
+      "replica_id": "bridge_chain:development:202",
+      "seed": 202,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "B",
+          "C"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:bridge_chain",
+      "derivation_observations": {
+        "group_centers": {
+          "A": [
+            1.9807773800000001,
+            -1.18378028
+          ],
+          "B": [
+            3.33263909,
+            -1.09637147
+          ],
+          "C": [
+            4.74320989,
+            -1.1104092399999999
+          ],
+          "D": [
+            9.51453379,
+            -1.0865102599999998
+          ]
+        },
+        "space_profiles": {
+          "A|B": 0.88631685,
+          "A|C": 0.07436792,
+          "B|C": 0.90759958
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "profile-supported edges are retained without transitive closure",
+        "singletons": [
+          "D"
+        ],
+        "unassigned": [
+          "D"
+        ]
+      },
+      "family": "bridge-chain",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "c446e12accb6fac087eec602e4766101a281b7051585446aa6675d07c29c2a49",
+      "replica_id": "bridge_chain:holdout:303",
+      "seed": 303,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "B",
+          "C"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:bridge_chain",
+      "derivation_observations": {
+        "group_centers": {
+          "A": [
+            -1.7705080499999999,
+            0.15048237
+          ],
+          "B": [
+            -0.3919837799999999,
+            0.07002792999999999
+          ],
+          "C": [
+            1.0932975600000001,
+            0.16474999
+          ],
+          "D": [
+            5.66645465,
+            0.10003337999999999
+          ]
+        },
+        "space_profiles": {
+          "A|B": 0.86847707,
+          "A|C": 0.04790971,
+          "B|C": 0.90039213
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "profile-supported edges are retained without transitive closure",
+        "singletons": [
+          "D"
+        ],
+        "unassigned": [
+          "D"
+        ]
+      },
+      "family": "bridge-chain",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "6952195cc631fd005b98645366582d29d873c3ec2012a5d4cc894eeb5ac0d4ed",
+      "replica_id": "bridge_chain:holdout:404",
+      "seed": 404,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "O1",
+          "O2"
+        ],
+        [
+          "O2",
+          "O3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:overlapping_candidates",
+      "derivation_observations": {
+        "group_centers": {
+          "O1": [
+            1.74581612,
+            -0.98472948
+          ],
+          "O2": [
+            3.3118406,
+            -0.9909734
+          ],
+          "O3": [
+            4.922954129999999,
+            -0.94481495
+          ]
+        },
+        "space_profiles": {
+          "O1|O2": 0.74585775,
+          "O1|O3": 0.17405194,
+          "O2|O3": 0.69533009
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "profile-supported alternatives intentionally retain shared members",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "overlapping-candidates",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "6c1e43e9c7f2916fb9b764cea98aae0b497bfd7fce83daf6694d96a3f8dfaa39",
+      "replica_id": "overlapping_candidates:development:101",
+      "seed": 101,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "O1",
+          "O2",
+          "O3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "O1",
+          "O2"
+        ],
+        [
+          "O2",
+          "O3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:overlapping_candidates",
+      "derivation_observations": {
+        "group_centers": {
+          "O1": [
+            0.90732079,
+            -0.014899779999999998
+          ],
+          "O2": [
+            2.342469,
+            -0.02430543
+          ],
+          "O3": [
+            3.83214878,
+            -0.01813578
+          ]
+        },
+        "space_profiles": {
+          "O1|O2": 0.7432532,
+          "O1|O3": 0.20311001,
+          "O2|O3": 0.6992018
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "profile-supported alternatives intentionally retain shared members",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "overlapping-candidates",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "5ef6bef8386837c5207a6f0b00c8cd85d1c2f691c23f1c5441bfd05d1bf4d455",
+      "replica_id": "overlapping_candidates:development:202",
+      "seed": 202,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "O1",
+          "O2",
+          "O3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "O1",
+          "O2"
+        ],
+        [
+          "O2",
+          "O3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:overlapping_candidates",
+      "derivation_observations": {
+        "group_centers": {
+          "O1": [
+            1.54515341,
+            -1.1931416
+          ],
+          "O2": [
+            3.2810366799999997,
+            -1.2399483999999998
+          ],
+          "O3": [
+            4.87587938,
+            -1.2130515199999998
+          ]
+        },
+        "space_profiles": {
+          "O1|O2": 0.77438209,
+          "O1|O3": 0.25309578,
+          "O2|O3": 0.7360946
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "profile-supported alternatives intentionally retain shared members",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "overlapping-candidates",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "814ef1d0cc7a34dc0d0b9066922da9b2761953818a3907def388340977477e35",
+      "replica_id": "overlapping_candidates:holdout:303",
+      "seed": 303,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "O1",
+          "O2",
+          "O3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "O1",
+          "O2"
+        ],
+        [
+          "O2",
+          "O3"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:overlapping_candidates",
+      "derivation_observations": {
+        "group_centers": {
+          "O1": [
+            1.82551645,
+            -1.3628528599999998
+          ],
+          "O2": [
+            3.180990375,
+            -1.39600342
+          ],
+          "O3": [
+            4.7395099400000005,
+            -1.38917515
+          ]
+        },
+        "space_profiles": {
+          "O1|O2": 0.74137336,
+          "O1|O3": 0.14835439,
+          "O2|O3": 0.66266974
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "profile-supported alternatives intentionally retain shared members",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "overlapping-candidates",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "ece9168ff879f081f620cb38ab5eadb8c69966baecb227a2895fd8037a065a87",
+      "replica_id": "overlapping_candidates:holdout:404",
+      "seed": 404,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "O1",
+          "O2",
+          "O3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:missing_invalid",
+      "derivation_observations": {
+        "geometry_states": {
+          "INVALID": "invalid",
+          "MISSING_GEOMETRY": "not_available",
+          "PARTIAL": "partial",
+          "VALID": "computed"
+        },
+        "group_centers": {
+          "INVALID": [
+            0.80396713,
+            -0.13053821999999995
+          ],
+          "MISSING_GEOMETRY": null,
+          "PARTIAL": [
+            1.8158396099999998,
+            -0.7583183
+          ],
+          "VALID": [
+            0.24387233999999997,
+            -0.67336986
+          ]
+        },
+        "space_profiles": {}
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "state diagnostics only; no positive singleton group claim",
+        "singletons": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ],
+        "unassigned": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ]
+      },
+      "family": "missing-invalid",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "b57551f9a8b678f2e92f631e90f63ba23570eed0e65dd461cd602f45b4771139",
+      "replica_id": "missing_invalid:development:101",
+      "seed": 101,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "VALID"
+        ],
+        "invalid": [
+          "INVALID"
+        ],
+        "not_available": [
+          "MISSING_GEOMETRY"
+        ],
+        "partial": [
+          "PARTIAL"
+        ]
+      }
+    },
+    {
+      "candidate_member_sets": [],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:missing_invalid",
+      "derivation_observations": {
+        "geometry_states": {
+          "INVALID": "invalid",
+          "MISSING_GEOMETRY": "not_available",
+          "PARTIAL": "partial",
+          "VALID": "computed"
+        },
+        "group_centers": {
+          "INVALID": [
+            -0.15274641499999997,
+            -0.347014735
+          ],
+          "MISSING_GEOMETRY": null,
+          "PARTIAL": [
+            1.039431495,
+            -1.03253857
+          ],
+          "VALID": [
+            -0.6797890799999999,
+            -0.91359855
+          ]
+        },
+        "space_profiles": {}
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "state diagnostics only; no positive singleton group claim",
+        "singletons": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ],
+        "unassigned": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ]
+      },
+      "family": "missing-invalid",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "4cdf664e710e5db4ed0532d772d03fdc8eae9dcc46d4b7b090263f5acbb1b516",
+      "replica_id": "missing_invalid:development:202",
+      "seed": 202,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "VALID"
+        ],
+        "invalid": [
+          "INVALID"
+        ],
+        "not_available": [
+          "MISSING_GEOMETRY"
+        ],
+        "partial": [
+          "PARTIAL"
+        ]
+      }
+    },
+    {
+      "candidate_member_sets": [],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:missing_invalid",
+      "derivation_observations": {
+        "geometry_states": {
+          "INVALID": "invalid",
+          "MISSING_GEOMETRY": "not_available",
+          "PARTIAL": "partial",
+          "VALID": "computed"
+        },
+        "group_centers": {
+          "INVALID": [
+            2.3037424900000003,
+            -0.45300204
+          ],
+          "MISSING_GEOMETRY": null,
+          "PARTIAL": [
+            3.2921768399999998,
+            -0.93729347
+          ],
+          "VALID": [
+            1.81230228,
+            -0.97383921
+          ]
+        },
+        "space_profiles": {}
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "state diagnostics only; no positive singleton group claim",
+        "singletons": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ],
+        "unassigned": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ]
+      },
+      "family": "missing-invalid",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "be3de771ea42660e881af9a7fd365dad8d935563c774de9263a48d60350e63ec",
+      "replica_id": "missing_invalid:holdout:303",
+      "seed": 303,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "VALID"
+        ],
+        "invalid": [
+          "INVALID"
+        ],
+        "not_available": [
+          "MISSING_GEOMETRY"
+        ],
+        "partial": [
+          "PARTIAL"
+        ]
+      }
+    },
+    {
+      "candidate_member_sets": [],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:missing_invalid",
+      "derivation_observations": {
+        "geometry_states": {
+          "INVALID": "invalid",
+          "MISSING_GEOMETRY": "not_available",
+          "PARTIAL": "partial",
+          "VALID": "computed"
+        },
+        "group_centers": {
+          "INVALID": [
+            0.8840423500000001,
+            1.56527489
+          ],
+          "MISSING_GEOMETRY": null,
+          "PARTIAL": [
+            1.8056817100000002,
+            1.15025858
+          ],
+          "VALID": [
+            0.51191245,
+            1.17493736
+          ]
+        },
+        "space_profiles": {}
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "state diagnostics only; no positive singleton group claim",
+        "singletons": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ],
+        "unassigned": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ]
+      },
+      "family": "missing-invalid",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "a76949d2810edd84f3ee0da8d50fd283bf630af55abb799c487b13be1ec5afb1",
+      "replica_id": "missing_invalid:holdout:404",
+      "seed": 404,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "VALID"
+        ],
+        "invalid": [
+          "INVALID"
+        ],
+        "not_available": [
+          "MISSING_GEOMETRY"
+        ],
+        "partial": [
+          "PARTIAL"
+        ]
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "P1",
+          "P2"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:context_perturbation",
+      "derivation_observations": {
+        "group_centers": {
+          "P1": [
+            0.35532778,
+            0.94002078
+          ],
+          "P2": [
+            1.841632915,
+            0.9394225300000001
+          ]
+        },
+        "space_profiles": {
+          "P1|P2": 0.79029978
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "only authored groups are eligible; context is never a furniture node",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "context-perturbation",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "8dfc3578253b5e89b94c7c4022137e66b780855fba627185a4c15b128fbfe848",
+      "replica_id": "context_perturbation:development:101",
+      "seed": 101,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "P1",
+          "P2"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "P1",
+          "P2"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:context_perturbation",
+      "derivation_observations": {
+        "group_centers": {
+          "P1": [
+            -0.57682601,
+            1.34104614
+          ],
+          "P2": [
+            0.9594284550000001,
+            1.36565431
+          ]
+        },
+        "space_profiles": {
+          "P1|P2": 0.76036605
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "only authored groups are eligible; context is never a furniture node",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "context-perturbation",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "64cf3676c770126befb0166f9a0bb8358e5c460d108a1ac3d2259cd29aa5b7bc",
+      "replica_id": "context_perturbation:development:202",
+      "seed": 202,
+      "split": "development",
+      "status_targets": {
+        "computed": [
+          "P1",
+          "P2"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "P1",
+          "P2"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:context_perturbation",
+      "derivation_observations": {
+        "group_centers": {
+          "P1": [
+            1.23457489,
+            0.0028587300000000038
+          ],
+          "P2": [
+            2.972084245,
+            0.022599349999999997
+          ]
+        },
+        "space_profiles": {
+          "P1|P2": 0.76767423
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "only authored groups are eligible; context is never a furniture node",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "context-perturbation",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "506cd240d3def4d7fa3d7c7eda52b98e029826608d5d7fbeb3f1f5d8e47e13bb",
+      "replica_id": "context_perturbation:holdout:303",
+      "seed": 303,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "P1",
+          "P2"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "P1",
+          "P2"
+        ]
+      ],
+      "derivation_method": "d6-h1b-structure-derived-truth/v1:context_perturbation",
+      "derivation_observations": {
+        "group_centers": {
+          "P1": [
+            1.92908847,
+            0.6000229300000001
+          ],
+          "P2": [
+            3.310982475,
+            0.61073517
+          ]
+        },
+        "space_profiles": {
+          "P1|P2": 0.81086195
+        }
+      },
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "only authored groups are eligible; context is never a furniture node",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "context-perturbation",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "input_content_sha256": "e69cf075a43418e01d66ae5f52e51516ac985ae758d4080638c941e4cfe192fd",
+      "replica_id": "context_perturbation:holdout:404",
+      "seed": 404,
+      "split": "holdout",
+      "status_targets": {
+        "computed": [
+          "P1",
+          "P2"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    }
+  ],
+  "schema": "d6-inferred-group-candidate-field-h1b-computational-truth/v1",
+  "source_template": {
+    "path": "scripts/design/group_level/inferred_group_candidate_field_fixtures.json",
+    "sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531"
+  },
+  "split_contract": {
+    "development_seeds": [
+      101,
+      202
+    ],
+    "holdout_role": "generalization_holdout",
+    "holdout_seeds": [
+      303,
+      404
+    ],
+    "member_or_pair_split_forbidden": true
+  },
+  "status": "evaluation_side_only_stop_for_design_review",
+  "truth_type": "evaluation_side_computational_structure_derived_per_materialized_replica"
+}

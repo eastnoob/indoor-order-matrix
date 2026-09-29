@@ -1,0 +1,4794 @@
+{
+  "candidate_probe_input_policy": {
+    "allowed_input": "this fixture manifest only",
+    "rule": "candidate probe may read materialized fixture content and seed records but must not read evaluation truth",
+    "truth_consumed": false,
+    "truth_manifest_path": null
+  },
+  "contract_id": "d6-h1b-real-seed-conditioned-materialization-v1",
+  "evaluation_roles": {
+    "declared_transform_variants": "invariance_only",
+    "development": "development_reference",
+    "holdout": "generalization_holdout",
+    "source_template": "replication_only"
+  },
+  "families": [
+    {
+      "declared_variants": {
+        "role": "invariance_only",
+        "transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ]
+      },
+      "development": [
+        {
+          "evaluation_role": "development_reference",
+          "family": "gap-jump",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "G1": [
+                -0.03571793,
+                -0.07484547
+              ],
+              "G2": [
+                -0.03175832,
+                -0.05232689
+              ],
+              "G3": [
+                -0.05328974,
+                0.07795101
+              ],
+              "G4": [
+                -0.01471572,
+                -0.01008978
+              ],
+              "G5": [
+                0.07558979,
+                -0.03068635
+              ]
+            },
+            "scale": 0.93910006,
+            "space_profile_delta": {
+              "G1|G2": 0.04924676,
+              "G2|G3": 0.02617892,
+              "G3|G4": 0.03435383,
+              "G4|G5": 0.01795998
+            },
+            "translation": [
+              -1.74198011,
+              -1.251563
+            ]
+          },
+          "materialized_content_sha256": "d01e396abe9d4259b35bbc6b3cca5b06839f833dad02bc45cb9e4f91ccc95fc4",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "G1",
+                "members": [
+                  {
+                    "center": [
+                      -1.77769804,
+                      -1.32640847
+                    ],
+                    "id": "G1m",
+                    "size": [
+                      0.91472253,
+                      0.9238275
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G2",
+                "members": [
+                  {
+                    "center": [
+                      -0.36508834,
+                      -1.30388989
+                    ],
+                    "id": "G2m",
+                    "size": [
+                      0.93721839,
+                      0.92419143
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G3",
+                "members": [
+                  {
+                    "center": [
+                      1.02203033,
+                      -1.17361199
+                    ],
+                    "id": "G3m",
+                    "size": [
+                      0.96663245,
+                      0.93590703
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G4",
+                "members": [
+                  {
+                    "center": [
+                      4.34745456,
+                      -1.26165278
+                    ],
+                    "id": "G4m",
+                    "size": [
+                      0.91437505,
+                      0.9120642
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G5",
+                "members": [
+                  {
+                    "center": [
+                      5.8464101600000005,
+                      -1.28224935
+                    ],
+                    "id": "G5m",
+                    "size": [
+                      0.92662416,
+                      0.9599829
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "gap_jump:development:101",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "G1|G2": {
+                "profile": 0.94924676,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "G2|G3": {
+                "profile": 0.92617892,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "G3|G4": {
+                "profile": 0.13435383,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "G4|G5": {
+                "profile": 0.91795998,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "gap_jump:development:101",
+          "replication_only": false,
+          "seed": 101,
+          "seed_digest_sha256": "058225d14f7fb610963c2365177382501d0109b3bd43cbe6ea4d2d7a67b1c8cf",
+          "seed_material": "d6-h1b/materialized-fixture/v1|gap_jump|development|101",
+          "source_fixture_id": "gap_jump",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        },
+        {
+          "evaluation_role": "development_reference",
+          "family": "gap-jump",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "G1": [
+                -0.0158568,
+                0.05203924
+              ],
+              "G2": [
+                0.01639858,
+                -0.02881781
+              ],
+              "G3": [
+                0.01864768,
+                -0.06515574
+              ],
+              "G4": [
+                0.06361811,
+                0.0191828
+              ],
+              "G5": [
+                -0.02747328,
+                0.03622114
+              ]
+            },
+            "scale": 0.92226472,
+            "space_profile_delta": {
+              "G1|G2": 0.02140694,
+              "G2|G3": 0.02698251,
+              "G3|G4": -0.0234582,
+              "G4|G5": 0.00654884
+            },
+            "translation": [
+              1.72824343,
+              1.46892507
+            ]
+          },
+          "materialized_content_sha256": "80ecae7a043d0d517a75c6c70be039e67a07c1642731395812d0fdb019e44c6e",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "G1",
+                "members": [
+                  {
+                    "center": [
+                      1.7123866300000001,
+                      1.52096431
+                    ],
+                    "id": "G1m",
+                    "size": [
+                      0.9033204,
+                      0.91390454
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G2",
+                "members": [
+                  {
+                    "center": [
+                      3.12803909,
+                      1.44010726
+                    ],
+                    "id": "G2m",
+                    "size": [
+                      0.9312859,
+                      0.93072914
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G3",
+                "members": [
+                  {
+                    "center": [
+                      4.51368527,
+                      1.40376933
+                    ],
+                    "id": "G3m",
+                    "size": [
+                      0.94382435,
+                      0.92977436
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G4",
+                "members": [
+                  {
+                    "center": [
+                      7.7865822200000006,
+                      1.48810787
+                    ],
+                    "id": "G4m",
+                    "size": [
+                      0.92042972,
+                      0.92013581
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G5",
+                "members": [
+                  {
+                    "center": [
+                      9.07888791,
+                      1.5051462100000002
+                    ],
+                    "id": "G5m",
+                    "size": [
+                      0.90259282,
+                      0.93131746
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "gap_jump:development:202",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "G1|G2": {
+                "profile": 0.92140694,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "G2|G3": {
+                "profile": 0.92698251,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "G3|G4": {
+                "profile": 0.0765418,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "G4|G5": {
+                "profile": 0.90654884,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "gap_jump:development:202",
+          "replication_only": false,
+          "seed": 202,
+          "seed_digest_sha256": "1814e197ccac64389ad12a1889030512dcaf75769aa9937bf18e344631a2642c",
+          "seed_material": "d6-h1b/materialized-fixture/v1|gap_jump|development|202",
+          "source_fixture_id": "gap_jump",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        }
+      ],
+      "family": "gap-jump",
+      "holdout": [
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "gap-jump",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "G1": [
+                -0.04327306,
+                -0.07242824
+              ],
+              "G2": [
+                0.07598201,
+                0.02009812
+              ],
+              "G3": [
+                0.05340158,
+                -0.0489235
+              ],
+              "G4": [
+                0.00604135,
+                -0.02382127
+              ],
+              "G5": [
+                0.00331232,
+                0.05870022
+              ]
+            },
+            "scale": 1.00834188,
+            "space_profile_delta": {
+              "G1|G2": -0.01026997,
+              "G2|G3": -0.05682953,
+              "G3|G4": 0.00247877,
+              "G4|G5": -0.03650432
+            },
+            "translation": [
+              0.95132606,
+              1.35542546
+            ]
+          },
+          "materialized_content_sha256": "835ee0d69fd16b6d2433255a84de87e4bcb3839d57fdbdf5960e2d438c107028",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "G1",
+                "members": [
+                  {
+                    "center": [
+                      0.908053,
+                      1.28299722
+                    ],
+                    "id": "G1m",
+                    "size": [
+                      0.9792524,
+                      1.03031311
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G2",
+                "members": [
+                  {
+                    "center": [
+                      2.53982089,
+                      1.37552358
+                    ],
+                    "id": "G2m",
+                    "size": [
+                      1.02650775,
+                      1.0263749
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G3",
+                "members": [
+                  {
+                    "center": [
+                      4.0297532799999995,
+                      1.30650196
+                    ],
+                    "id": "G3m",
+                    "size": [
+                      1.01535501,
+                      1.0267733
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G4",
+                "members": [
+                  {
+                    "center": [
+                      7.51158963,
+                      1.33160419
+                    ],
+                    "id": "G4m",
+                    "size": [
+                      1.00328411,
+                      0.98087118
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G5",
+                "members": [
+                  {
+                    "center": [
+                      9.021373419999998,
+                      1.41412568
+                    ],
+                    "id": "G5m",
+                    "size": [
+                      0.98881119,
+                      1.01803053
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "gap_jump:holdout:303",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "G1|G2": {
+                "profile": 0.88973003,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "G2|G3": {
+                "profile": 0.84317047,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "G3|G4": {
+                "profile": 0.10247877,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "G4|G5": {
+                "profile": 0.86349568,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "gap_jump:holdout:303",
+          "replication_only": false,
+          "seed": 303,
+          "seed_digest_sha256": "b46046af1d49ae832c228053c057da8cf6a0df258d8bb7052864cae911010b90",
+          "seed_material": "d6-h1b/materialized-fixture/v1|gap_jump|holdout|303",
+          "source_fixture_id": "gap_jump",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        },
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "gap-jump",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "G1": [
+                0.04234959,
+                0.07485813
+              ],
+              "G2": [
+                -0.00553175,
+                0.02871995
+              ],
+              "G3": [
+                -0.07269661,
+                -0.00455897
+              ],
+              "G4": [
+                0.06011349,
+                0.04251608
+              ],
+              "G5": [
+                -0.0465253,
+                -0.05053354
+              ]
+            },
+            "scale": 0.87360572,
+            "space_profile_delta": {
+              "G1|G2": 0.04638081,
+              "G2|G3": 0.04141976,
+              "G3|G4": 0.03304047,
+              "G4|G5": -0.01242856
+            },
+            "translation": [
+              1.38600958,
+              -0.65953719
+            ]
+          },
+          "materialized_content_sha256": "83f0698ac73742b3358596a01a0ae2c765bc6e2a246d991365601bb83820fdf7",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "G1",
+                "members": [
+                  {
+                    "center": [
+                      1.42835917,
+                      -0.58467906
+                    ],
+                    "id": "G1m",
+                    "size": [
+                      0.84957278,
+                      0.89617845
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G2",
+                "members": [
+                  {
+                    "center": [
+                      2.6908864100000005,
+                      -0.63081724
+                    ],
+                    "id": "G2m",
+                    "size": [
+                      0.8633433,
+                      0.8699878
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G3",
+                "members": [
+                  {
+                    "center": [
+                      3.9341301300000002,
+                      -0.66409616
+                    ],
+                    "id": "G3m",
+                    "size": [
+                      0.88611602,
+                      0.89311613
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G4",
+                "members": [
+                  {
+                    "center": [
+                      7.124560250000001,
+                      -0.61702111
+                    ],
+                    "id": "G4m",
+                    "size": [
+                      0.87853609,
+                      0.86747752
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "G5",
+                "members": [
+                  {
+                    "center": [
+                      8.328330039999999,
+                      -0.71007073
+                    ],
+                    "id": "G5m",
+                    "size": [
+                      0.86774107,
+                      0.89616017
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "gap_jump:holdout:404",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "G1|G2": {
+                "profile": 0.94638081,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "G2|G3": {
+                "profile": 0.94141976,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "G3|G4": {
+                "profile": 0.13304047,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "G4|G5": {
+                "profile": 0.88757144,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "gap_jump:holdout:404",
+          "replication_only": false,
+          "seed": 404,
+          "seed_digest_sha256": "8a7c7f70f5e02cfabeed6c1353811e6bf5d9586826aec7796e0a8625358540cc",
+          "seed_material": "d6-h1b/materialized-fixture/v1|gap_jump|holdout|404",
+          "source_fixture_id": "gap_jump",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        }
+      ],
+      "source_fixture_id": "gap_jump",
+      "source_template_role": "replication_only"
+    },
+    {
+      "declared_variants": {
+        "role": "invariance_only",
+        "transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ]
+      },
+      "development": [
+        {
+          "evaluation_role": "development_reference",
+          "family": "minority-mixed",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "M1": [
+                -0.07819812,
+                0.02270761
+              ],
+              "M2": [
+                0.05361547,
+                -0.05803372
+              ],
+              "M3": [
+                0.02683595,
+                0.03343853
+              ],
+              "M4": [
+                -0.05895177,
+                -0.07019834
+              ]
+            },
+            "scale": 1.13649941,
+            "space_profile_delta": {
+              "M1|M2": -0.00856471,
+              "M2|M3": 0.00297764,
+              "M2|M4": 0.05657733
+            },
+            "translation": [
+              0.22859381,
+              1.31119057
+            ]
+          },
+          "materialized_content_sha256": "60b267b575bb3fd0da91785bcedd2eab1618e9295b4564a50eb79dd7090bfa2d",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "M1",
+                "members": [
+                  {
+                    "center": [
+                      0.15039569000000003,
+                      1.33389818
+                    ],
+                    "id": "M1m",
+                    "size": [
+                      1.10760925,
+                      1.10575032
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "M2",
+                "members": [
+                  {
+                    "center": [
+                      1.873308454,
+                      1.2531568499999999
+                    ],
+                    "id": "M2m",
+                    "size": [
+                      1.13295259,
+                      1.16893998
+                    ],
+                    "type": "lamp"
+                  }
+                ]
+              },
+              {
+                "id": "M3",
+                "members": [
+                  {
+                    "center": [
+                      3.437628108,
+                      1.3446291
+                    ],
+                    "id": "M3m",
+                    "size": [
+                      1.11512267,
+                      1.1324518
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "M4",
+                "members": [
+                  {
+                    "center": [
+                      1.760741214,
+                      4.423190578
+                    ],
+                    "id": "M4m",
+                    "size": [
+                      1.14668038,
+                      1.12174564
+                    ],
+                    "type": "lamp"
+                  }
+                ]
+              }
+            ],
+            "id": "minority_mixed:development:101",
+            "space_relations": {
+              "M1|M2": {
+                "profile": 0.79143529,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "M2|M3": {
+                "profile": 0.80297764,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "M2|M4": {
+                "profile": 0.25657733,
+                "role_refs": [
+                  "separator_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "minority_mixed:development:101",
+          "replication_only": false,
+          "seed": 101,
+          "seed_digest_sha256": "641858ae442741c8a61b2c41bf6b4d1b30169fed2b9607bb27eb9aabecf8d48c",
+          "seed_material": "d6-h1b/materialized-fixture/v1|minority_mixed|development|101",
+          "source_fixture_id": "minority_mixed",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        },
+        {
+          "evaluation_role": "development_reference",
+          "family": "minority-mixed",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "M1": [
+                0.07857244,
+                -0.00077133
+              ],
+              "M2": [
+                -0.03539052,
+                0.07910142
+              ],
+              "M3": [
+                0.00974736,
+                0.01280102
+              ],
+              "M4": [
+                -0.01321779,
+                0.06962826
+              ]
+            },
+            "scale": 0.94749159,
+            "space_profile_delta": {
+              "M1|M2": 0.01195277,
+              "M2|M3": -0.05338849,
+              "M2|M4": 0.05730226
+            },
+            "translation": [
+              0.2045585,
+              0.14819216
+            ]
+          },
+          "materialized_content_sha256": "b5a07904e7912a76a57dcaf0b86e37b51abf822f40e564a6970decf93b945793",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "M1",
+                "members": [
+                  {
+                    "center": [
+                      0.28313094,
+                      0.14742083
+                    ],
+                    "id": "M1m",
+                    "size": [
+                      0.95155379,
+                      0.9527408
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "M2",
+                "members": [
+                  {
+                    "center": [
+                      1.495656206,
+                      0.22729358
+                    ],
+                    "id": "M2m",
+                    "size": [
+                      0.94851643,
+                      0.9729062
+                    ],
+                    "type": "lamp"
+                  }
+                ]
+              },
+              {
+                "id": "M3",
+                "members": [
+                  {
+                    "center": [
+                      2.867282312,
+                      0.16099317999999999
+                    ],
+                    "id": "M3m",
+                    "size": [
+                      0.9555948,
+                      0.93229072
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "M4",
+                "members": [
+                  {
+                    "center": [
+                      1.5178289360000001,
+                      2.8707968719999997
+                    ],
+                    "id": "M4m",
+                    "size": [
+                      0.95301594,
+                      0.93112701
+                    ],
+                    "type": "lamp"
+                  }
+                ]
+              }
+            ],
+            "id": "minority_mixed:development:202",
+            "space_relations": {
+              "M1|M2": {
+                "profile": 0.81195277,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "M2|M3": {
+                "profile": 0.74661151,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "M2|M4": {
+                "profile": 0.25730226,
+                "role_refs": [
+                  "separator_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "minority_mixed:development:202",
+          "replication_only": false,
+          "seed": 202,
+          "seed_digest_sha256": "5441d940726135a0364bba1ac94cdc3ae5a3ae05e1425fccfd179ac02090dea0",
+          "seed_material": "d6-h1b/materialized-fixture/v1|minority_mixed|development|202",
+          "source_fixture_id": "minority_mixed",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        }
+      ],
+      "family": "minority-mixed",
+      "holdout": [
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "minority-mixed",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "M1": [
+                -0.07528575,
+                0.03246797
+              ],
+              "M2": [
+                -0.0022573,
+                -0.02966041
+              ],
+              "M3": [
+                -0.01050931,
+                -0.00670851
+              ],
+              "M4": [
+                0.05900449,
+                0.01063109
+              ]
+            },
+            "scale": 0.96891889,
+            "space_profile_delta": {
+              "M1|M2": -0.00541654,
+              "M2|M3": -0.01105868,
+              "M2|M4": -0.00885558
+            },
+            "translation": [
+              0.9393637,
+              -0.47617786
+            ]
+          },
+          "materialized_content_sha256": "d6743daa44979f59a0980ea1b52900aff9bc4661dd99e1a26077f492926fbb21",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "M1",
+                "members": [
+                  {
+                    "center": [
+                      0.86407795,
+                      -0.44370989
+                    ],
+                    "id": "M1m",
+                    "size": [
+                      0.99529188,
+                      0.98859796
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "M2",
+                "members": [
+                  {
+                    "center": [
+                      2.2935928459999997,
+                      -0.50583827
+                    ],
+                    "id": "M2m",
+                    "size": [
+                      0.96924584,
+                      0.99753967
+                    ],
+                    "type": "lamp"
+                  }
+                ]
+              },
+              {
+                "id": "M3",
+                "members": [
+                  {
+                    "center": [
+                      3.6418272819999995,
+                      -0.48288637
+                    ],
+                    "id": "M3m",
+                    "size": [
+                      0.95254874,
+                      0.95780129
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "M4",
+                "members": [
+                  {
+                    "center": [
+                      2.354854636,
+                      2.247426122
+                    ],
+                    "id": "M4m",
+                    "size": [
+                      0.95421354,
+                      0.94917581
+                    ],
+                    "type": "lamp"
+                  }
+                ]
+              }
+            ],
+            "id": "minority_mixed:holdout:303",
+            "space_relations": {
+              "M1|M2": {
+                "profile": 0.79458346,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "M2|M3": {
+                "profile": 0.78894132,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "M2|M4": {
+                "profile": 0.19114442,
+                "role_refs": [
+                  "separator_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "minority_mixed:holdout:303",
+          "replication_only": false,
+          "seed": 303,
+          "seed_digest_sha256": "a5061f52674dfe614a6b08de9ad2df1b39b1898883cd2b666929c8500a34a437",
+          "seed_material": "d6-h1b/materialized-fixture/v1|minority_mixed|holdout|303",
+          "source_fixture_id": "minority_mixed",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        },
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "minority-mixed",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "M1": [
+                0.02246996,
+                0.05748331
+              ],
+              "M2": [
+                0.07113788,
+                0.02339998
+              ],
+              "M3": [
+                -0.07557833,
+                -0.00770907
+              ],
+              "M4": [
+                -0.05455897,
+                0.05730552
+              ]
+            },
+            "scale": 0.89330287,
+            "space_profile_delta": {
+              "M1|M2": 0.00603031,
+              "M2|M3": 0.03222211,
+              "M2|M4": 0.02318446
+            },
+            "translation": [
+              -0.32530374,
+              -1.19552814
+            ]
+          },
+          "materialized_content_sha256": "1affead045dd31eb0311ada52d3b70cf251f539491dd7c6ccdcd85ea03937dd5",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "M1",
+                "members": [
+                  {
+                    "center": [
+                      -0.30283378,
+                      -1.13804483
+                    ],
+                    "id": "M1m",
+                    "size": [
+                      0.91485089,
+                      0.89276395
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "M2",
+                "members": [
+                  {
+                    "center": [
+                      0.9964581579999998,
+                      -1.17212816
+                    ],
+                    "id": "M2m",
+                    "size": [
+                      0.89425789,
+                      0.89437093
+                    ],
+                    "type": "lamp"
+                  }
+                ]
+              },
+              {
+                "id": "M3",
+                "members": [
+                  {
+                    "center": [
+                      2.100365966,
+                      -1.20323721
+                    ],
+                    "id": "M3m",
+                    "size": [
+                      0.88633128,
+                      0.91629405
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "M4",
+                "members": [
+                  {
+                    "center": [
+                      0.8707613079999998,
+                      1.3630254159999997
+                    ],
+                    "id": "M4m",
+                    "size": [
+                      0.88878359,
+                      0.89426867
+                    ],
+                    "type": "lamp"
+                  }
+                ]
+              }
+            ],
+            "id": "minority_mixed:holdout:404",
+            "space_relations": {
+              "M1|M2": {
+                "profile": 0.80603031,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "M2|M3": {
+                "profile": 0.83222211,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "M2|M4": {
+                "profile": 0.22318446,
+                "role_refs": [
+                  "separator_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "minority_mixed:holdout:404",
+          "replication_only": false,
+          "seed": 404,
+          "seed_digest_sha256": "12fd86fc321a31d787c28f5fa7a3ba5f19512c2638e5df3a6e0e3281ad9d95be",
+          "seed_material": "d6-h1b/materialized-fixture/v1|minority_mixed|holdout|404",
+          "source_fixture_id": "minority_mixed",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        }
+      ],
+      "source_fixture_id": "minority_mixed",
+      "source_template_role": "replication_only"
+    },
+    {
+      "declared_variants": {
+        "role": "invariance_only",
+        "transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ]
+      },
+      "development": [
+        {
+          "evaluation_role": "development_reference",
+          "family": "geometry-conflict",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "CUBE": [
+                0.07513953,
+                -0.07114774
+              ],
+              "ROUNDISH": [
+                -0.01837624,
+                -0.00033662
+              ],
+              "TALL": [
+                -0.0055242,
+                -0.07851795
+              ]
+            },
+            "scale": 1.08897228,
+            "space_profile_delta": {
+              "CUBE|TALL": -0.03523154,
+              "TALL|ROUNDISH": -0.00351944
+            },
+            "translation": [
+              -0.8747771,
+              -0.25558283
+            ]
+          },
+          "materialized_content_sha256": "c0ea9d5773a9b9300dfd2a29fd9fd28c61213549ecf646c67b98d8c23afc1294",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "CUBE",
+                "members": [
+                  {
+                    "center": [
+                      -0.79963757,
+                      -0.32673057
+                    ],
+                    "id": "CUBEm",
+                    "size": [
+                      2.15419077,
+                      0.54111287
+                    ],
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "id": "TALL",
+                "members": [
+                  {
+                    "center": [
+                      1.0798488039999998,
+                      -0.33410078
+                    ],
+                    "id": "TALLm",
+                    "size": [
+                      0.54276874,
+                      2.19452949
+                    ],
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "id": "ROUNDISH",
+                "members": [
+                  {
+                    "id": "ROUNDm",
+                    "points": [
+                      [
+                        2.3737634999999995,
+                        -0.8004055899999999
+                      ],
+                      [
+                        3.2449413239999996,
+                        -0.25591945
+                      ],
+                      [
+                        2.3737634999999995,
+                        0.28856668999999996
+                      ],
+                      [
+                        1.5025856759999998,
+                        -0.25591945
+                      ]
+                    ],
+                    "type": "table"
+                  }
+                ]
+              }
+            ],
+            "id": "geometry_conflict:development:101",
+            "space_relations": {
+              "CUBE|TALL": {
+                "profile": 0.66476846,
+                "role_refs": [
+                  "connector_space"
+                ]
+              },
+              "TALL|ROUNDISH": {
+                "profile": 0.29648056,
+                "role_refs": [
+                  "separator_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "geometry_conflict:development:101",
+          "replication_only": false,
+          "seed": 101,
+          "seed_digest_sha256": "02b693d595aad6b06505d845775b70fd8ee4a820f0914d5f1f8c15c6130d523b",
+          "seed_material": "d6-h1b/materialized-fixture/v1|geometry_conflict|development|101",
+          "source_fixture_id": "geometry_conflict",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        },
+        {
+          "evaluation_role": "development_reference",
+          "family": "geometry-conflict",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "CUBE": [
+                -0.02335802,
+                0.0526362
+              ],
+              "ROUNDISH": [
+                0.03900189,
+                0.02526855
+              ],
+              "TALL": [
+                0.0744884,
+                -0.00497169
+              ]
+            },
+            "scale": 0.86504715,
+            "space_profile_delta": {
+              "CUBE|TALL": -0.0492145,
+              "TALL|ROUNDISH": -0.03370901
+            },
+            "translation": [
+              1.6475429,
+              -0.7702171
+            ]
+          },
+          "materialized_content_sha256": "c5ea008a4545441d2a834ae8c09d569dd6ff2151cbfb02b3b2463aa8b6c52ba7",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "CUBE",
+                "members": [
+                  {
+                    "center": [
+                      1.6241848799999998,
+                      -0.7175809
+                    ],
+                    "id": "CUBEm",
+                    "size": [
+                      1.71537259,
+                      0.4395127
+                    ],
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "id": "TALL",
+                "members": [
+                  {
+                    "center": [
+                      3.27911617,
+                      -0.77518879
+                    ],
+                    "id": "TALLm",
+                    "size": [
+                      0.42828186,
+                      1.72126991
+                    ],
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "id": "ROUNDISH",
+                "members": [
+                  {
+                    "id": "ROUNDm",
+                    "points": [
+                      [
+                        4.281686239999999,
+                        -1.177472125
+                      ],
+                      [
+                        4.973723959999999,
+                        -0.7449485499999999
+                      ],
+                      [
+                        4.281686239999999,
+                        -0.312424975
+                      ],
+                      [
+                        3.5896485200000003,
+                        -0.7449485499999999
+                      ]
+                    ],
+                    "type": "table"
+                  }
+                ]
+              }
+            ],
+            "id": "geometry_conflict:development:202",
+            "space_relations": {
+              "CUBE|TALL": {
+                "profile": 0.6507855,
+                "role_refs": [
+                  "connector_space"
+                ]
+              },
+              "TALL|ROUNDISH": {
+                "profile": 0.26629099,
+                "role_refs": [
+                  "separator_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "geometry_conflict:development:202",
+          "replication_only": false,
+          "seed": 202,
+          "seed_digest_sha256": "971608cb3719c7ea6fc781b7d0a74df5379b2ce072fe50ade487113f33e6f89f",
+          "seed_material": "d6-h1b/materialized-fixture/v1|geometry_conflict|development|202",
+          "source_fixture_id": "geometry_conflict",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        }
+      ],
+      "family": "geometry-conflict",
+      "holdout": [
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "geometry-conflict",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "CUBE": [
+                0.04063813,
+                -0.01052329
+              ],
+              "ROUNDISH": [
+                -0.04752695,
+                -0.0684936
+              ],
+              "TALL": [
+                -0.05064311,
+                0.00146448
+              ]
+            },
+            "scale": 0.94441838,
+            "space_profile_delta": {
+              "CUBE|TALL": 0.02146709,
+              "TALL|ROUNDISH": 0.04835394
+            },
+            "translation": [
+              1.14534993,
+              -0.87431822
+            ]
+          },
+          "materialized_content_sha256": "2ce553923bbc6eadb4e67e6572dfbc46208a5a5d50dde297018ff173d6742640",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "CUBE",
+                "members": [
+                  {
+                    "center": [
+                      1.1859880600000001,
+                      -0.88484151
+                    ],
+                    "id": "CUBEm",
+                    "size": [
+                      1.8642585,
+                      0.48025066
+                    ],
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "id": "TALL",
+                "members": [
+                  {
+                    "center": [
+                      2.794659904,
+                      -0.87285374
+                    ],
+                    "id": "TALLm",
+                    "size": [
+                      0.46264824,
+                      1.87309664
+                    ],
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "id": "ROUNDISH",
+                "members": [
+                  {
+                    "id": "ROUNDm",
+                    "points": [
+                      [
+                        3.93107812,
+                        -1.41502101
+                      ],
+                      [
+                        4.686612824,
+                        -0.9428118200000001
+                      ],
+                      [
+                        3.93107812,
+                        -0.47060263
+                      ],
+                      [
+                        3.1755434160000005,
+                        -0.9428118200000001
+                      ]
+                    ],
+                    "type": "table"
+                  }
+                ]
+              }
+            ],
+            "id": "geometry_conflict:holdout:303",
+            "space_relations": {
+              "CUBE|TALL": {
+                "profile": 0.72146709,
+                "role_refs": [
+                  "connector_space"
+                ]
+              },
+              "TALL|ROUNDISH": {
+                "profile": 0.34835394,
+                "role_refs": [
+                  "separator_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "geometry_conflict:holdout:303",
+          "replication_only": false,
+          "seed": 303,
+          "seed_digest_sha256": "61d938ba41c84b61573f02cae6c033228adf516feef75d453a3bee36cb3a3603",
+          "seed_material": "d6-h1b/materialized-fixture/v1|geometry_conflict|holdout|303",
+          "source_fixture_id": "geometry_conflict",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        },
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "geometry-conflict",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "CUBE": [
+                0.04230411,
+                -0.04185706
+              ],
+              "ROUNDISH": [
+                0.079777,
+                -0.06690206
+              ],
+              "TALL": [
+                0.01360984,
+                -0.00080882
+              ]
+            },
+            "scale": 0.90223754,
+            "space_profile_delta": {
+              "CUBE|TALL": -0.03735773,
+              "TALL|ROUNDISH": 0.01868752
+            },
+            "translation": [
+              0.72191141,
+              -0.97011226
+            ]
+          },
+          "materialized_content_sha256": "95a60c4c6b63716bc21361794144fc34fee425e019b7868cc95978a1d7ac03ce",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "CUBE",
+                "members": [
+                  {
+                    "center": [
+                      0.76421552,
+                      -1.01196932
+                    ],
+                    "id": "CUBEm",
+                    "size": [
+                      1.77561375,
+                      0.46005778
+                    ],
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "id": "TALL",
+                "members": [
+                  {
+                    "center": [
+                      2.3595488220000003,
+                      -0.97092108
+                    ],
+                    "id": "TALLm",
+                    "size": [
+                      0.45965063,
+                      1.78080883
+                    ],
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "id": "ROUNDISH",
+                "members": [
+                  {
+                    "id": "ROUNDm",
+                    "points": [
+                      [
+                        3.5084010300000004,
+                        -1.48813309
+                      ],
+                      [
+                        4.230191061999999,
+                        -1.03701432
+                      ],
+                      [
+                        3.5084010300000004,
+                        -0.5858955499999999
+                      ],
+                      [
+                        2.786610998,
+                        -1.03701432
+                      ]
+                    ],
+                    "type": "table"
+                  }
+                ]
+              }
+            ],
+            "id": "geometry_conflict:holdout:404",
+            "space_relations": {
+              "CUBE|TALL": {
+                "profile": 0.66264227,
+                "role_refs": [
+                  "connector_space"
+                ]
+              },
+              "TALL|ROUNDISH": {
+                "profile": 0.31868752,
+                "role_refs": [
+                  "separator_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "geometry_conflict:holdout:404",
+          "replication_only": false,
+          "seed": 404,
+          "seed_digest_sha256": "66d950ee4b178ca0bc6358a7245a21eaa9a3d584ebb5b9e86d2dfbd66816be69",
+          "seed_material": "d6-h1b/materialized-fixture/v1|geometry_conflict|holdout|404",
+          "source_fixture_id": "geometry_conflict",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        }
+      ],
+      "source_fixture_id": "geometry_conflict",
+      "source_template_role": "replication_only"
+    },
+    {
+      "declared_variants": {
+        "role": "invariance_only",
+        "transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ]
+      },
+      "development": [
+        {
+          "evaluation_role": "development_reference",
+          "family": "space-conflict",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "S1": [
+                0.00075324,
+                -0.01069456
+              ],
+              "S2": [
+                0.03289697,
+                0.07504402
+              ],
+              "S3": [
+                0.07705579,
+                0.0188817
+              ]
+            },
+            "scale": 0.93834914,
+            "space_profile_delta": {
+              "S1|S2": -0.03568032,
+              "S1|S3": 0.03519222
+            },
+            "translation": [
+              -0.25838194,
+              -0.38592593
+            ]
+          },
+          "materialized_content_sha256": "1ca2083559d5f8f64a9e86f35c84b87618ca24745a39fbe2069c38a5ec525fd6",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "context": [
+              {
+                "center": [
+                  2.08749091,
+                  -0.38592593
+                ],
+                "id": "wall-1",
+                "role": "wall",
+                "size": [
+                  0.09383491,
+                  3.75339656
+                ]
+              }
+            ],
+            "groups": [
+              {
+                "id": "S1",
+                "members": [
+                  {
+                    "center": [
+                      -0.2576287,
+                      -0.39662049
+                    ],
+                    "factual_properties": {
+                      "mutual_exclusion": [
+                        "S2"
+                      ]
+                    },
+                    "id": "S1m",
+                    "size": [
+                      0.94310448,
+                      0.94549716
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "S2",
+                "members": [
+                  {
+                    "center": [
+                      3.52791159,
+                      -0.31088191
+                    ],
+                    "id": "S2m",
+                    "size": [
+                      0.95421599,
+                      0.92548321
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "S3",
+                "members": [
+                  {
+                    "center": [
+                      -0.18132614999999996,
+                      1.50965405
+                    ],
+                    "id": "S3m",
+                    "size": [
+                      0.92872811,
+                      0.94808394
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "space_conflict:development:101",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "S1|S2": {
+                "barrier": "blocked",
+                "profile": 0.06431968,
+                "role_refs": [
+                  "separator_space"
+                ],
+                "status": "computed"
+              },
+              "S1|S3": {
+                "profile": 0.83519222,
+                "role_refs": [
+                  "connector_space"
+                ],
+                "status": "computed"
+              }
+            }
+          },
+          "replica_id": "space_conflict:development:101",
+          "replication_only": false,
+          "seed": 101,
+          "seed_digest_sha256": "2ec515d0b14e0f148bc5315dc2b680f5808d16524f42eabceb4a0ab13a577340",
+          "seed_material": "d6-h1b/materialized-fixture/v1|space_conflict|development|101",
+          "source_fixture_id": "space_conflict",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        },
+        {
+          "evaluation_role": "development_reference",
+          "family": "space-conflict",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "S1": [
+                -0.034522,
+                -0.03793975
+              ],
+              "S2": [
+                -0.03883039,
+                0.02001802
+              ],
+              "S3": [
+                0.03513267,
+                0.03950845
+              ]
+            },
+            "scale": 0.97585782,
+            "space_profile_delta": {
+              "S1|S2": -0.03680498,
+              "S1|S3": 0.04511498
+            },
+            "translation": [
+              0.35029448,
+              -0.38947968
+            ]
+          },
+          "materialized_content_sha256": "b2e696b306990fb379b4da1ffb76b364da4be2d3eb282120fdd1ded4425489d9",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "context": [
+              {
+                "center": [
+                  2.78993903,
+                  -0.38947968
+                ],
+                "id": "wall-1",
+                "role": "wall",
+                "size": [
+                  0.09758578,
+                  3.90343128
+                ]
+              }
+            ],
+            "groups": [
+              {
+                "id": "S1",
+                "members": [
+                  {
+                    "center": [
+                      0.31577248,
+                      -0.42741943
+                    ],
+                    "factual_properties": {
+                      "mutual_exclusion": [
+                        "S2"
+                      ]
+                    },
+                    "id": "S1m",
+                    "size": [
+                      0.98001208,
+                      0.95511732
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "S2",
+                "members": [
+                  {
+                    "center": [
+                      4.21489537,
+                      -0.36946165999999997
+                    ],
+                    "id": "S2m",
+                    "size": [
+                      0.94874317,
+                      0.97332376
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "S3",
+                "members": [
+                  {
+                    "center": [
+                      0.38542715,
+                      1.60174441
+                    ],
+                    "id": "S3m",
+                    "size": [
+                      0.98980122,
+                      0.99809311
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "space_conflict:development:202",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "S1|S2": {
+                "barrier": "blocked",
+                "profile": 0.06319502,
+                "role_refs": [
+                  "separator_space"
+                ],
+                "status": "computed"
+              },
+              "S1|S3": {
+                "profile": 0.84511498,
+                "role_refs": [
+                  "connector_space"
+                ],
+                "status": "computed"
+              }
+            }
+          },
+          "replica_id": "space_conflict:development:202",
+          "replication_only": false,
+          "seed": 202,
+          "seed_digest_sha256": "8ff843360dd728728d9509fa4da593e4df704837351aa609753be8b53aef53ce",
+          "seed_material": "d6-h1b/materialized-fixture/v1|space_conflict|development|202",
+          "source_fixture_id": "space_conflict",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        }
+      ],
+      "family": "space-conflict",
+      "holdout": [
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "space-conflict",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "S1": [
+                0.01080689,
+                0.03362906
+              ],
+              "S2": [
+                -0.05653415,
+                0.02510608
+              ],
+              "S3": [
+                -0.01912478,
+                0.03672955
+              ]
+            },
+            "scale": 1.00187878,
+            "space_profile_delta": {
+              "S1|S2": 0.05153957,
+              "S1|S3": -0.00388268
+            },
+            "translation": [
+              -1.37364763,
+              -0.65100908
+            ]
+          },
+          "materialized_content_sha256": "6879f32ffc5fef9b794c6ba510dd8cc531898e6380a15f72d80c258d8d7e680d",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "context": [
+              {
+                "center": [
+                  1.13104932,
+                  -0.65100908
+                ],
+                "id": "wall-1",
+                "role": "wall",
+                "size": [
+                  0.10018788,
+                  4.00751512
+                ]
+              }
+            ],
+            "groups": [
+              {
+                "id": "S1",
+                "members": [
+                  {
+                    "center": [
+                      -1.36284074,
+                      -0.61738002
+                    ],
+                    "factual_properties": {
+                      "mutual_exclusion": [
+                        "S2"
+                      ]
+                    },
+                    "id": "S1m",
+                    "size": [
+                      1.02433692,
+                      1.02054873
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "S2",
+                "members": [
+                  {
+                    "center": [
+                      2.57733334,
+                      -0.625903
+                    ],
+                    "id": "S2m",
+                    "size": [
+                      0.99775531,
+                      0.98415868
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "S3",
+                "members": [
+                  {
+                    "center": [
+                      -1.39277241,
+                      1.3894780299999998
+                    ],
+                    "id": "S3m",
+                    "size": [
+                      0.99559473,
+                      0.99174851
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "space_conflict:holdout:303",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "S1|S2": {
+                "barrier": "blocked",
+                "profile": 0.15153957,
+                "role_refs": [
+                  "separator_space"
+                ],
+                "status": "computed"
+              },
+              "S1|S3": {
+                "profile": 0.79611732,
+                "role_refs": [
+                  "connector_space"
+                ],
+                "status": "computed"
+              }
+            }
+          },
+          "replica_id": "space_conflict:holdout:303",
+          "replication_only": false,
+          "seed": 303,
+          "seed_digest_sha256": "aabe570008cadee739160078a31227b048e1219fff530bb7d0a14935930e4b45",
+          "seed_material": "d6-h1b/materialized-fixture/v1|space_conflict|holdout|303",
+          "source_fixture_id": "space_conflict",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        },
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "space-conflict",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "S1": [
+                -0.00852097,
+                0.07175558
+              ],
+              "S2": [
+                -0.06888386,
+                0.01853576
+              ],
+              "S3": [
+                0.01230744,
+                -0.02235629
+              ]
+            },
+            "scale": 0.98665591,
+            "space_profile_delta": {
+              "S1|S2": 0.04177636,
+              "S1|S3": 0.00172377
+            },
+            "translation": [
+              0.87456418,
+              0.31369079
+            ]
+          },
+          "materialized_content_sha256": "b405ad6ee482147515ed0502a34fe3e5ad4191f8b9d21958f9989c738ab49551",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "context": [
+              {
+                "center": [
+                  3.341203955,
+                  0.31369079
+                ],
+                "id": "wall-1",
+                "role": "wall",
+                "size": [
+                  0.09866559,
+                  3.94662364
+                ]
+              }
+            ],
+            "groups": [
+              {
+                "id": "S1",
+                "members": [
+                  {
+                    "center": [
+                      0.8660432100000001,
+                      0.38544637
+                    ],
+                    "factual_properties": {
+                      "mutual_exclusion": [
+                        "S2"
+                      ]
+                    },
+                    "id": "S1m",
+                    "size": [
+                      0.95724832,
+                      1.0129322
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "S2",
+                "members": [
+                  {
+                    "center": [
+                      4.75230396,
+                      0.33222655
+                    ],
+                    "id": "S2m",
+                    "size": [
+                      1.01284308,
+                      0.99264498
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "S3",
+                "members": [
+                  {
+                    "center": [
+                      0.88687162,
+                      2.26464632
+                    ],
+                    "id": "S3m",
+                    "size": [
+                      0.95894376,
+                      0.99135829
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "space_conflict:holdout:404",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "S1|S2": {
+                "barrier": "blocked",
+                "profile": 0.14177636,
+                "role_refs": [
+                  "separator_space"
+                ],
+                "status": "computed"
+              },
+              "S1|S3": {
+                "profile": 0.80172377,
+                "role_refs": [
+                  "connector_space"
+                ],
+                "status": "computed"
+              }
+            }
+          },
+          "replica_id": "space_conflict:holdout:404",
+          "replication_only": false,
+          "seed": 404,
+          "seed_digest_sha256": "6ddf376eeb8e807392d75bfb5a2a4547d018c37094500b85653e2d9659055ca6",
+          "seed_material": "d6-h1b/materialized-fixture/v1|space_conflict|holdout|404",
+          "source_fixture_id": "space_conflict",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        }
+      ],
+      "source_fixture_id": "space_conflict",
+      "source_template_role": "replication_only"
+    },
+    {
+      "declared_variants": {
+        "role": "invariance_only",
+        "transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ]
+      },
+      "development": [
+        {
+          "evaluation_role": "development_reference",
+          "family": "bridge-chain",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "A": [
+                -0.00927103,
+                0.06241222
+              ],
+              "B": [
+                0.0399034,
+                -0.00071648
+              ],
+              "C": [
+                -0.06314724,
+                -0.01603116
+              ],
+              "D": [
+                -0.02463952,
+                -0.01228632
+              ]
+            },
+            "scale": 1.10705336,
+            "space_profile_delta": {
+              "A|B": 0.05439231,
+              "A|C": 0.03089886,
+              "B|C": 0.00970989
+            },
+            "translation": [
+              -0.43951478,
+              -1.32386791
+            ]
+          },
+          "materialized_content_sha256": "db6d2a6857893c39c1208ce6361c24ce8a90f12f8eace112b6c9f211aa43bf01",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "A",
+                "members": [
+                  {
+                    "center": [
+                      -0.44878581,
+                      -1.26145569
+                    ],
+                    "id": "Am",
+                    "size": [
+                      1.11125495,
+                      1.10046815
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "members": [
+                  {
+                    "center": [
+                      1.26096866,
+                      -1.3245843899999998
+                    ],
+                    "id": "Bm",
+                    "size": [
+                      1.10634131,
+                      1.10451247
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "members": [
+                  {
+                    "center": [
+                      2.81849806,
+                      -1.33989907
+                    ],
+                    "id": "Cm",
+                    "size": [
+                      1.12473504,
+                      1.10829245
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "D",
+                "members": [
+                  {
+                    "center": [
+                      8.392272580000002,
+                      -1.33615423
+                    ],
+                    "id": "Dm",
+                    "size": [
+                      1.1304287,
+                      1.10019509
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "bridge_chain:development:101",
+            "space_relations": {
+              "A|B": {
+                "profile": 0.95439231,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "A|C": {
+                "profile": 0.13089886,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "B|C": {
+                "profile": 0.90970989,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "bridge_chain:development:101",
+          "replication_only": false,
+          "seed": 101,
+          "seed_digest_sha256": "f7b0d1e63fa3969ab513b17b7ae3d40eea9eb07de80471a66291b9e0ac9dd0bc",
+          "seed_material": "d6-h1b/materialized-fixture/v1|bridge_chain|development|101",
+          "source_fixture_id": "bridge_chain",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        },
+        {
+          "evaluation_role": "development_reference",
+          "family": "bridge-chain",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "A": [
+                -0.00295675,
+                0.06903248
+              ],
+              "B": [
+                0.03709652,
+                0.05091914
+              ],
+              "C": [
+                0.0231343,
+                0.00464084
+              ],
+              "D": [
+                -0.06667877,
+                -0.03677565
+              ]
+            },
+            "scale": 1.11457674,
+            "space_profile_delta": {
+              "A|B": -0.01006141,
+              "A|C": 0.0107469,
+              "B|C": -0.0071241
+            },
+            "translation": [
+              1.12092244,
+              -0.77426269
+            ]
+          },
+          "materialized_content_sha256": "4f617ad0baa555653ed66fc0edc8d11b95995b2c3ea9345e6b9873cc1f6d6820",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "A",
+                "members": [
+                  {
+                    "center": [
+                      1.11796569,
+                      -0.7052302100000001
+                    ],
+                    "id": "Am",
+                    "size": [
+                      1.11535992,
+                      1.10456706
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "members": [
+                  {
+                    "center": [
+                      2.82988407,
+                      -0.7233435500000001
+                    ],
+                    "id": "Bm",
+                    "size": [
+                      1.11373139,
+                      1.10279571
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "members": [
+                  {
+                    "center": [
+                      4.487786959999999,
+                      -0.76962185
+                    ],
+                    "id": "Cm",
+                    "size": [
+                      1.13837947,
+                      1.10601837
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "D",
+                "members": [
+                  {
+                    "center": [
+                      9.97085759,
+                      -0.8110383400000001
+                    ],
+                    "id": "Dm",
+                    "size": [
+                      1.14390714,
+                      1.09940293
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "bridge_chain:development:202",
+            "space_relations": {
+              "A|B": {
+                "profile": 0.88993859,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "A|C": {
+                "profile": 0.1107469,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "B|C": {
+                "profile": 0.8928759,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "bridge_chain:development:202",
+          "replication_only": false,
+          "seed": 202,
+          "seed_digest_sha256": "c0497fc69e2cb02f273bef3cd1a2d14cee5d3f29853ecb7ad9b9357efb0c0154",
+          "seed_material": "d6-h1b/materialized-fixture/v1|bridge_chain|development|202",
+          "source_fixture_id": "bridge_chain",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        }
+      ],
+      "family": "bridge-chain",
+      "holdout": [
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "bridge-chain",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "A": [
+                0.01432571,
+                -0.03986176
+              ],
+              "B": [
+                -0.05822719,
+                0.04754705
+              ],
+              "C": [
+                -0.072071,
+                0.03350928
+              ],
+              "D": [
+                -0.0487958,
+                0.05740826
+              ]
+            },
+            "scale": 0.94960974,
+            "space_profile_delta": {
+              "A|B": -0.01368315,
+              "A|C": -0.02563208,
+              "B|C": 0.00759958
+            },
+            "translation": [
+              1.96645167,
+              -1.14391852
+            ]
+          },
+          "materialized_content_sha256": "c446e12accb6fac087eec602e4766101a281b7051585446aa6675d07c29c2a49",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "A",
+                "members": [
+                  {
+                    "center": [
+                      1.9807773800000001,
+                      -1.18378028
+                    ],
+                    "id": "Am",
+                    "size": [
+                      0.96522061,
+                      0.97241283
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "members": [
+                  {
+                    "center": [
+                      3.33263909,
+                      -1.09637147
+                    ],
+                    "id": "Bm",
+                    "size": [
+                      0.94838924,
+                      0.93841212
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "members": [
+                  {
+                    "center": [
+                      4.74320989,
+                      -1.1104092399999999
+                    ],
+                    "id": "Cm",
+                    "size": [
+                      0.93071869,
+                      0.97213977
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "D",
+                "members": [
+                  {
+                    "center": [
+                      9.51453379,
+                      -1.0865102599999998
+                    ],
+                    "id": "Dm",
+                    "size": [
+                      0.94135155,
+                      0.94110362
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "bridge_chain:holdout:303",
+            "space_relations": {
+              "A|B": {
+                "profile": 0.88631685,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "A|C": {
+                "profile": 0.07436792,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "B|C": {
+                "profile": 0.90759958,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "bridge_chain:holdout:303",
+          "replication_only": false,
+          "seed": 303,
+          "seed_digest_sha256": "c1f21d32a107b2d805a6ae50ba3bc019af3e66651fdd59620175c3cab24039f5",
+          "seed_material": "d6-h1b/materialized-fixture/v1|bridge_chain|holdout|303",
+          "source_fixture_id": "bridge_chain",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        },
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "bridge-chain",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "A": [
+                -0.03924596,
+                0.05523618
+              ],
+              "B": [
+                -0.04139213,
+                -0.02521826
+              ],
+              "C": [
+                0.06321877,
+                0.0695038
+              ],
+              "D": [
+                0.03414106,
+                0.00478719
+              ]
+            },
+            "scale": 0.92044696,
+            "space_profile_delta": {
+              "A|B": -0.03152293,
+              "A|C": -0.05209029,
+              "B|C": 0.00039213
+            },
+            "translation": [
+              -1.73126209,
+              0.09524619
+            ]
+          },
+          "materialized_content_sha256": "6952195cc631fd005b98645366582d29d873c3ec2012a5d4cc894eeb5ac0d4ed",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "A",
+                "members": [
+                  {
+                    "center": [
+                      -1.7705080499999999,
+                      0.15048237
+                    ],
+                    "id": "Am",
+                    "size": [
+                      0.9407253,
+                      0.94706056
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "members": [
+                  {
+                    "center": [
+                      -0.3919837799999999,
+                      0.07002792999999999
+                    ],
+                    "id": "Bm",
+                    "size": [
+                      0.92195062,
+                      0.92982589
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "members": [
+                  {
+                    "center": [
+                      1.0932975600000001,
+                      0.16474999
+                    ],
+                    "id": "Cm",
+                    "size": [
+                      0.9271235,
+                      0.91563707
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "D",
+                "members": [
+                  {
+                    "center": [
+                      5.66645465,
+                      0.10003337999999999
+                    ],
+                    "id": "Dm",
+                    "size": [
+                      0.91794978,
+                      0.9057944
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "bridge_chain:holdout:404",
+            "space_relations": {
+              "A|B": {
+                "profile": 0.86847707,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "A|C": {
+                "profile": 0.04790971,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "B|C": {
+                "profile": 0.90039213,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "bridge_chain:holdout:404",
+          "replication_only": false,
+          "seed": 404,
+          "seed_digest_sha256": "487dad0096ceb628984bb82b9e6641aa649fcb140ecfc267bce980fd36fdcd19",
+          "seed_material": "d6-h1b/materialized-fixture/v1|bridge_chain|holdout|404",
+          "source_fixture_id": "bridge_chain",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        }
+      ],
+      "source_fixture_id": "bridge_chain",
+      "source_template_role": "replication_only"
+    },
+    {
+      "declared_variants": {
+        "role": "invariance_only",
+        "transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ]
+      },
+      "development": [
+        {
+          "evaluation_role": "development_reference",
+          "family": "overlapping-candidates",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "O1": [
+                -0.01428721,
+                0.01950435
+              ],
+              "O2": [
+                0.00507932,
+                0.01326043
+              ],
+              "O3": [
+                0.0695349,
+                0.05941888
+              ]
+            },
+            "scale": 1.0311053,
+            "space_profile_delta": {
+              "O1|O2": -0.05414225,
+              "O1|O3": -0.02594806,
+              "O2|O3": -0.00466991
+            },
+            "translation": [
+              1.76010333,
+              -1.00423383
+            ]
+          },
+          "materialized_content_sha256": "6c1e43e9c7f2916fb9b764cea98aae0b497bfd7fce83daf6694d96a3f8dfaa39",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "O1",
+                "members": [
+                  {
+                    "center": [
+                      1.74581612,
+                      -0.98472948
+                    ],
+                    "id": "O1m",
+                    "size": [
+                      1.00564537,
+                      1.06056586
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              },
+              {
+                "id": "O2",
+                "members": [
+                  {
+                    "center": [
+                      3.3118406,
+                      -0.9909734
+                    ],
+                    "id": "O2m",
+                    "size": [
+                      1.04164885,
+                      1.01717914
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              },
+              {
+                "id": "O3",
+                "members": [
+                  {
+                    "center": [
+                      4.922954129999999,
+                      -0.94481495
+                    ],
+                    "id": "O3m",
+                    "size": [
+                      1.05831092,
+                      1.05073544
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              }
+            ],
+            "id": "overlapping_candidates:development:101",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "O1|O2": {
+                "profile": 0.74585775,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "O1|O3": {
+                "profile": 0.17405194,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "O2|O3": {
+                "profile": 0.69533009,
+                "role_refs": [
+                  "connector_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "overlapping_candidates:development:101",
+          "replication_only": false,
+          "seed": 101,
+          "seed_digest_sha256": "f4c971e5197b2e1b170cc80aeac140d041874778385b4556c3606a0ab7dceb70",
+          "seed_material": "d6-h1b/materialized-fixture/v1|overlapping_candidates|development|101",
+          "source_fixture_id": "overlapping_candidates",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        },
+        {
+          "evaluation_role": "development_reference",
+          "family": "overlapping-candidates",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "O1": [
+                -0.03536462,
+                0.02556293
+              ],
+              "O2": [
+                -0.02314185,
+                0.01615728
+              ],
+              "O3": [
+                0.04361249,
+                0.02232693
+              ]
+            },
+            "scale": 0.94861696,
+            "space_profile_delta": {
+              "O1|O2": -0.0567468,
+              "O1|O3": 0.00311001,
+              "O2|O3": -0.0007982
+            },
+            "translation": [
+              0.94268541,
+              -0.04046271
+            ]
+          },
+          "materialized_content_sha256": "5ef6bef8386837c5207a6f0b00c8cd85d1c2f691c23f1c5441bfd05d1bf4d455",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "O1",
+                "members": [
+                  {
+                    "center": [
+                      0.90732079,
+                      -0.014899779999999998
+                    ],
+                    "id": "O1m",
+                    "size": [
+                      0.9356515,
+                      0.95956219
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              },
+              {
+                "id": "O2",
+                "members": [
+                  {
+                    "center": [
+                      2.342469,
+                      -0.02430543
+                    ],
+                    "id": "O2m",
+                    "size": [
+                      0.96404847,
+                      0.97238674
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              },
+              {
+                "id": "O3",
+                "members": [
+                  {
+                    "center": [
+                      3.83214878,
+                      -0.01813578
+                    ],
+                    "id": "O3m",
+                    "size": [
+                      0.93483385,
+                      0.94756908
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              }
+            ],
+            "id": "overlapping_candidates:development:202",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "O1|O2": {
+                "profile": 0.7432532,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "O1|O3": {
+                "profile": 0.20311001,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "O2|O3": {
+                "profile": 0.6992018,
+                "role_refs": [
+                  "connector_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "overlapping_candidates:development:202",
+          "replication_only": false,
+          "seed": 202,
+          "seed_digest_sha256": "fe0d8b31a856e9f933d7223e0dd416d3cdfd6065a64fe34c8be28060104031c8",
+          "seed_material": "d6-h1b/materialized-fixture/v1|overlapping_candidates|development|202",
+          "source_fixture_id": "overlapping_candidates",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        }
+      ],
+      "family": "overlapping-candidates",
+      "holdout": [
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "overlapping-candidates",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "O1": [
+                0.01709121,
+                0.03778379
+              ],
+              "O2": [
+                0.07712885,
+                -0.00902301
+              ],
+              "O3": [
+                -0.00387408,
+                0.01787387
+              ]
+            },
+            "scale": 1.11723042,
+            "space_profile_delta": {
+              "O1|O2": -0.02561791,
+              "O1|O3": 0.05309578,
+              "O2|O3": 0.0360946
+            },
+            "translation": [
+              1.5280622,
+              -1.23092539
+            ]
+          },
+          "materialized_content_sha256": "814ef1d0cc7a34dc0d0b9066922da9b2761953818a3907def388340977477e35",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "O1",
+                "members": [
+                  {
+                    "center": [
+                      1.54515341,
+                      -1.1931416
+                    ],
+                    "id": "O1m",
+                    "size": [
+                      1.11195609,
+                      1.10276326
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              },
+              {
+                "id": "O2",
+                "members": [
+                  {
+                    "center": [
+                      3.2810366799999997,
+                      -1.2399483999999998
+                    ],
+                    "id": "O2m",
+                    "size": [
+                      1.15028662,
+                      1.09322249
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              },
+              {
+                "id": "O3",
+                "members": [
+                  {
+                    "center": [
+                      4.87587938,
+                      -1.2130515199999998
+                    ],
+                    "id": "O3m",
+                    "size": [
+                      1.13642894,
+                      1.13731048
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              }
+            ],
+            "id": "overlapping_candidates:holdout:303",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "O1|O2": {
+                "profile": 0.77438209,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "O1|O3": {
+                "profile": 0.25309578,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "O2|O3": {
+                "profile": 0.7360946,
+                "role_refs": [
+                  "connector_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "overlapping_candidates:holdout:303",
+          "replication_only": false,
+          "seed": 303,
+          "seed_digest_sha256": "0ebba9d1c269db3e932ff1a57458424c00d8474c3e1a7ca9bc38946447fcf858",
+          "seed_material": "d6-h1b/materialized-fixture/v1|overlapping_candidates|holdout|303",
+          "source_fixture_id": "overlapping_candidates",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        },
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "overlapping-candidates",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "O1": [
+                0.00022428,
+                0.05872665
+              ],
+              "O2": [
+                -0.0662323,
+                0.02557609
+              ],
+              "O3": [
+                0.07035676,
+                0.03240436
+              ]
+            },
+            "scale": 0.94795367,
+            "space_profile_delta": {
+              "O1|O2": -0.05862664,
+              "O1|O3": -0.05164561,
+              "O2|O3": -0.03733026
+            },
+            "translation": [
+              1.82529217,
+              -1.42157951
+            ]
+          },
+          "materialized_content_sha256": "ece9168ff879f081f620cb38ab5eadb8c69966baecb227a2895fd8037a065a87",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "groups": [
+              {
+                "id": "O1",
+                "members": [
+                  {
+                    "center": [
+                      1.82551645,
+                      -1.3628528599999998
+                    ],
+                    "id": "O1m",
+                    "size": [
+                      0.97061066,
+                      0.93016303
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              },
+              {
+                "id": "O2",
+                "members": [
+                  {
+                    "center": [
+                      3.180990375,
+                      -1.39600342
+                    ],
+                    "id": "O2m",
+                    "size": [
+                      0.95729456,
+                      0.95894308
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              },
+              {
+                "id": "O3",
+                "members": [
+                  {
+                    "center": [
+                      4.7395099400000005,
+                      -1.38917515
+                    ],
+                    "id": "O3m",
+                    "size": [
+                      0.92728586,
+                      0.97483941
+                    ],
+                    "type": "desk"
+                  }
+                ]
+              }
+            ],
+            "id": "overlapping_candidates:holdout:404",
+            "space_field": {
+              "role_candidates": [
+                {
+                  "role": "corridor_candidate",
+                  "source_refs": [
+                    "space:free-space"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "activity_space_candidate",
+                  "source_refs": [
+                    "space:connectivity"
+                  ],
+                  "status": "computed"
+                },
+                {
+                  "role": "separator_space",
+                  "source_refs": [
+                    "space:bottleneck"
+                  ],
+                  "status": "computed"
+                }
+              ],
+              "status": "computed"
+            },
+            "space_relations": {
+              "O1|O2": {
+                "profile": 0.74137336,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              },
+              "O1|O3": {
+                "profile": 0.14835439,
+                "role_refs": [
+                  "separator_space"
+                ]
+              },
+              "O2|O3": {
+                "profile": 0.66266974,
+                "role_refs": [
+                  "connector_space"
+                ]
+              }
+            }
+          },
+          "replica_id": "overlapping_candidates:holdout:404",
+          "replication_only": false,
+          "seed": 404,
+          "seed_digest_sha256": "2cc0f3d3952af7ae219c5624ea109d83ea24d9168ef22d8cc5db2092dbd3d81d",
+          "seed_material": "d6-h1b/materialized-fixture/v1|overlapping_candidates|holdout|404",
+          "source_fixture_id": "overlapping_candidates",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        }
+      ],
+      "source_fixture_id": "overlapping_candidates",
+      "source_template_role": "replication_only"
+    },
+    {
+      "declared_variants": {
+        "role": "invariance_only",
+        "transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ]
+      },
+      "development": [
+        {
+          "evaluation_role": "development_reference",
+          "family": "missing-invalid",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "INVALID": [
+                0.03745269,
+                0.05984299
+              ],
+              "MISSING_GEOMETRY": [
+                -0.00364817,
+                -0.06907506
+              ],
+              "PARTIAL": [
+                0.05133609,
+                -0.06894255
+              ],
+              "VALID": [
+                -0.02364756,
+                0.01600589
+              ]
+            },
+            "scale": 0.99798908,
+            "space_profile_delta": {},
+            "translation": [
+              0.2675199,
+              -0.68937575
+            ]
+          },
+          "materialized_content_sha256": "b57551f9a8b678f2e92f631e90f63ba23570eed0e65dd461cd602f45b4771139",
+          "materialized_fixture": {
+            "analysis_domain": null,
+            "groups": [
+              {
+                "id": "VALID",
+                "members": [
+                  {
+                    "center": [
+                      0.24387233999999997,
+                      -0.67336986
+                    ],
+                    "id": "Vm",
+                    "size": [
+                      1.02001104,
+                      0.99889189
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "PARTIAL",
+                "members": [
+                  {
+                    "center": [
+                      1.8158396099999998,
+                      -0.7583183
+                    ],
+                    "id": "Pm",
+                    "size": [
+                      1.01815026,
+                      0.97389348
+                    ],
+                    "type": "chair"
+                  },
+                  {
+                    "id": "Pmissing",
+                    "reason": "projection_absent",
+                    "status": "not_available",
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "INVALID",
+                "members": [
+                  {
+                    "id": "Im",
+                    "points": [
+                      [
+                        0.30497259,
+                        -0.6295327599999999
+                      ],
+                      [
+                        1.30296167,
+                        0.36845632
+                      ],
+                      [
+                        0.30497259,
+                        0.36845632
+                      ],
+                      [
+                        1.30296167,
+                        -0.6295327599999999
+                      ]
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "MISSING_GEOMETRY",
+                "members": [
+                  {
+                    "id": "Gmissing",
+                    "reason": "geometry_absent",
+                    "status": "not_available",
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "missing_invalid:development:101",
+            "space_field": {
+              "reason": "missing_analysis_domain",
+              "role_candidates": [],
+              "status": "not_available"
+            }
+          },
+          "replica_id": "missing_invalid:development:101",
+          "replication_only": false,
+          "seed": 101,
+          "seed_digest_sha256": "8b2460a69693e730b343b327220593213616367d060d0279f7e1768ed1c02547",
+          "seed_material": "d6-h1b/materialized-fixture/v1|missing_invalid|development|101",
+          "source_fixture_id": "missing_invalid",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        },
+        {
+          "evaluation_role": "development_reference",
+          "family": "missing-invalid",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "INVALID": [
+                -0.07074033,
+                0.06237785
+              ],
+              "MISSING_GEOMETRY": [
+                -0.06482356,
+                0.00814919
+              ],
+              "PARTIAL": [
+                0.01943129,
+                -0.07214284
+              ],
+              "VALID": [
+                -0.04677985,
+                0.04679718
+              ]
+            },
+            "scale": 1.10200629,
+            "space_profile_delta": {},
+            "translation": [
+              -0.63300923,
+              -0.96039573
+            ]
+          },
+          "materialized_content_sha256": "4cdf664e710e5db4ed0532d772d03fdc8eae9dcc46d4b7b090263f5acbb1b516",
+          "materialized_fixture": {
+            "analysis_domain": null,
+            "groups": [
+              {
+                "id": "VALID",
+                "members": [
+                  {
+                    "center": [
+                      -0.6797890799999999,
+                      -0.91359855
+                    ],
+                    "id": "Vm",
+                    "size": [
+                      1.09722406,
+                      1.11637476
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "PARTIAL",
+                "members": [
+                  {
+                    "center": [
+                      1.039431495,
+                      -1.03253857
+                    ],
+                    "id": "Pm",
+                    "size": [
+                      1.07658555,
+                      1.07123011
+                    ],
+                    "type": "chair"
+                  },
+                  {
+                    "id": "Pmissing",
+                    "reason": "projection_absent",
+                    "status": "not_available",
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "INVALID",
+                "members": [
+                  {
+                    "id": "Im",
+                    "points": [
+                      [
+                        -0.70374956,
+                        -0.89801788
+                      ],
+                      [
+                        0.39825673000000006,
+                        0.20398841000000006
+                      ],
+                      [
+                        -0.70374956,
+                        0.20398841000000006
+                      ],
+                      [
+                        0.39825673000000006,
+                        -0.89801788
+                      ]
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "MISSING_GEOMETRY",
+                "members": [
+                  {
+                    "id": "Gmissing",
+                    "reason": "geometry_absent",
+                    "status": "not_available",
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "missing_invalid:development:202",
+            "space_field": {
+              "reason": "missing_analysis_domain",
+              "role_candidates": [],
+              "status": "not_available"
+            }
+          },
+          "replica_id": "missing_invalid:development:202",
+          "replication_only": false,
+          "seed": 202,
+          "seed_digest_sha256": "d3ada4b4e289e941d600baa40b78c434d267fab8add3f24f04340b07b08e42b3",
+          "seed_material": "d6-h1b/materialized-fixture/v1|missing_invalid|development|202",
+          "source_fixture_id": "missing_invalid",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        }
+      ],
+      "family": "missing-invalid",
+      "holdout": [
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "missing-invalid",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "INVALID": [
+                -0.01956604,
+                0.04021844
+              ],
+              "MISSING_GEOMETRY": [
+                0.02480424,
+                -0.04491502
+              ],
+              "PARTIAL": [
+                -0.00812787,
+                0.0444251
+              ],
+              "VALID": [
+                -0.02250816,
+                0.00787936
+              ]
+            },
+            "scale": 0.97699618,
+            "space_profile_delta": {},
+            "translation": [
+              1.83481044,
+              -0.98171857
+            ]
+          },
+          "materialized_content_sha256": "be3de771ea42660e881af9a7fd365dad8d935563c774de9263a48d60350e63ec",
+          "materialized_fixture": {
+            "analysis_domain": null,
+            "groups": [
+              {
+                "id": "VALID",
+                "members": [
+                  {
+                    "center": [
+                      1.81230228,
+                      -0.97383921
+                    ],
+                    "id": "Vm",
+                    "size": [
+                      0.96375946,
+                      0.99975634
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "PARTIAL",
+                "members": [
+                  {
+                    "center": [
+                      3.2921768399999998,
+                      -0.93729347
+                    ],
+                    "id": "Pm",
+                    "size": [
+                      0.95736978,
+                      0.96580511
+                    ],
+                    "type": "chair"
+                  },
+                  {
+                    "id": "Pmissing",
+                    "reason": "projection_absent",
+                    "status": "not_available",
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "INVALID",
+                "members": [
+                  {
+                    "id": "Im",
+                    "points": [
+                      [
+                        1.8152444,
+                        -0.94150013
+                      ],
+                      [
+                        2.79224058,
+                        0.035496050000000036
+                      ],
+                      [
+                        1.8152444,
+                        0.035496050000000036
+                      ],
+                      [
+                        2.79224058,
+                        -0.94150013
+                      ]
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "MISSING_GEOMETRY",
+                "members": [
+                  {
+                    "id": "Gmissing",
+                    "reason": "geometry_absent",
+                    "status": "not_available",
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "missing_invalid:holdout:303",
+            "space_field": {
+              "reason": "missing_analysis_domain",
+              "role_candidates": [],
+              "status": "not_available"
+            }
+          },
+          "replica_id": "missing_invalid:holdout:303",
+          "replication_only": false,
+          "seed": 303,
+          "seed_digest_sha256": "7342c59e5f6fd66ae8135180b4e3a6e97cad8a45cc796c87143dacc9650de3b8",
+          "seed_material": "d6-h1b/materialized-fixture/v1|missing_invalid|holdout|303",
+          "source_fixture_id": "missing_invalid",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        },
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "missing-invalid",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "INVALID": [
+                -0.05543608,
+                -0.04762191
+              ],
+              "MISSING_GEOMETRY": [
+                -0.00862648,
+                -0.02676493
+              ],
+              "PARTIAL": [
+                0.00397264,
+                -0.0315229
+              ],
+              "VALID": [
+                0.00354934,
+                -0.00684412
+              ]
+            },
+            "scale": 0.86223064,
+            "space_profile_delta": {},
+            "translation": [
+              0.50836311,
+              1.18178148
+            ]
+          },
+          "materialized_content_sha256": "a76949d2810edd84f3ee0da8d50fd283bf630af55abb799c487b13be1ec5afb1",
+          "materialized_fixture": {
+            "analysis_domain": null,
+            "groups": [
+              {
+                "id": "VALID",
+                "members": [
+                  {
+                    "center": [
+                      0.51191245,
+                      1.17493736
+                    ],
+                    "id": "Vm",
+                    "size": [
+                      0.88251629,
+                      0.88105353
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "PARTIAL",
+                "members": [
+                  {
+                    "center": [
+                      1.8056817100000002,
+                      1.15025858
+                    ],
+                    "id": "Pm",
+                    "size": [
+                      0.86973703,
+                      0.87775505
+                    ],
+                    "type": "chair"
+                  },
+                  {
+                    "id": "Pmissing",
+                    "reason": "projection_absent",
+                    "status": "not_available",
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "INVALID",
+                "members": [
+                  {
+                    "id": "Im",
+                    "points": [
+                      [
+                        0.45292703,
+                        1.13415957
+                      ],
+                      [
+                        1.31515767,
+                        1.9963902100000002
+                      ],
+                      [
+                        0.45292703,
+                        1.9963902100000002
+                      ],
+                      [
+                        1.31515767,
+                        1.13415957
+                      ]
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "MISSING_GEOMETRY",
+                "members": [
+                  {
+                    "id": "Gmissing",
+                    "reason": "geometry_absent",
+                    "status": "not_available",
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "missing_invalid:holdout:404",
+            "space_field": {
+              "reason": "missing_analysis_domain",
+              "role_candidates": [],
+              "status": "not_available"
+            }
+          },
+          "replica_id": "missing_invalid:holdout:404",
+          "replication_only": false,
+          "seed": 404,
+          "seed_digest_sha256": "d77fcbea20959dffa92d5fa6651698c1c5b1daf4c0c0f04db62ccdcafac850a9",
+          "seed_material": "d6-h1b/materialized-fixture/v1|missing_invalid|holdout|404",
+          "source_fixture_id": "missing_invalid",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        }
+      ],
+      "source_fixture_id": "missing_invalid",
+      "source_template_role": "replication_only"
+    },
+    {
+      "declared_variants": {
+        "role": "invariance_only",
+        "transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ]
+      },
+      "development": [
+        {
+          "evaluation_role": "development_reference",
+          "family": "context-perturbation",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "P1": [
+                0.07877354,
+                0.06270607
+              ],
+              "P2": [
+                0.0194648,
+                0.06210782
+              ]
+            },
+            "scale": 1.03040925,
+            "space_profile_delta": {
+              "P1|P2": -0.00970022
+            },
+            "translation": [
+              0.27655424,
+              0.87731471
+            ]
+          },
+          "materialized_content_sha256": "8dfc3578253b5e89b94c7c4022137e66b780855fba627185a4c15b128fbfe848",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "context": [
+              {
+                "center": [
+                  2.8525773649999997,
+                  3.453337835
+                ],
+                "id": "lamp",
+                "role": "lamp",
+                "size": [
+                  0.20608185,
+                  0.20608185
+                ]
+              }
+            ],
+            "context_perturbation": {
+              "add": {
+                "center": [
+                  1.0493611775,
+                  0.87731471
+                ],
+                "id": "wall-added",
+                "role": "wall",
+                "size": [
+                  0.10304093,
+                  2.0608185
+                ]
+              }
+            },
+            "groups": [
+              {
+                "id": "P1",
+                "members": [
+                  {
+                    "center": [
+                      0.35532778,
+                      0.94002078
+                    ],
+                    "id": "P1m",
+                    "size": [
+                      1.01305641,
+                      1.0044854
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "P2",
+                "members": [
+                  {
+                    "center": [
+                      1.841632915,
+                      0.9394225300000001
+                    ],
+                    "id": "P2m",
+                    "size": [
+                      1.03743343,
+                      1.0584421
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "context_perturbation:development:101",
+            "space_relations": {
+              "P1|P2": {
+                "profile": 0.79029978,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "context_perturbation:development:101",
+          "replication_only": false,
+          "seed": 101,
+          "seed_digest_sha256": "964dbd951f0dfc6cc9976ea5e48c80bd615d8a74ea7254d5ecff17df1ca43060",
+          "seed_material": "d6-h1b/materialized-fixture/v1|context_perturbation|development|101",
+          "source_fixture_id": "context_perturbation",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        },
+        {
+          "evaluation_role": "development_reference",
+          "family": "context-perturbation",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": false,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "P1": [
+                0.02999698,
+                0.03735476
+              ],
+              "P2": [
+                0.07662927,
+                0.06196293
+              ]
+            },
+            "scale": 0.99308145,
+            "space_profile_delta": {
+              "P1|P2": -0.03963395
+            },
+            "translation": [
+              -0.60682299,
+              1.30369138
+            ]
+          },
+          "materialized_content_sha256": "64cf3676c770126befb0166f9a0bb8358e5c460d108a1ac3d2259cd29aa5b7bc",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "context": [
+              {
+                "center": [
+                  1.8758806350000001,
+                  3.786395005
+                ],
+                "id": "lamp",
+                "role": "lamp",
+                "size": [
+                  0.19861629,
+                  0.19861629
+                ]
+              }
+            ],
+            "context_perturbation": {
+              "add": {
+                "center": [
+                  0.13798809750000007,
+                  1.30369138
+                ],
+                "id": "wall-added",
+                "role": "wall",
+                "size": [
+                  0.09930815,
+                  1.9861629
+                ]
+              }
+            },
+            "groups": [
+              {
+                "id": "P1",
+                "members": [
+                  {
+                    "center": [
+                      -0.57682601,
+                      1.34104614
+                    ],
+                    "id": "P1m",
+                    "size": [
+                      0.97425614,
+                      1.01405794
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "P2",
+                "members": [
+                  {
+                    "center": [
+                      0.9594284550000001,
+                      1.36565431
+                    ],
+                    "id": "P2m",
+                    "size": [
+                      1.0070144,
+                      0.98347812
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "context_perturbation:development:202",
+            "space_relations": {
+              "P1|P2": {
+                "profile": 0.76036605,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "context_perturbation:development:202",
+          "replication_only": false,
+          "seed": 202,
+          "seed_digest_sha256": "a3fbb58c46f1fd9a045ca187de7c06bb4f8ec11a12292cbb3cb02106f3e89258",
+          "seed_material": "d6-h1b/materialized-fixture/v1|context_perturbation|development|202",
+          "source_fixture_id": "context_perturbation",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "development"
+        }
+      ],
+      "family": "context-perturbation",
+      "holdout": [
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "context-perturbation",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "P1": [
+                -0.00430557,
+                0.03924538
+              ],
+              "P2": [
+                0.0305511,
+                0.058986
+              ]
+            },
+            "scale": 1.13510179,
+            "space_profile_delta": {
+              "P1|P2": -0.03232577
+            },
+            "translation": [
+              1.23888046,
+              -0.03638665
+            ]
+          },
+          "materialized_content_sha256": "506cd240d3def4d7fa3d7c7eda52b98e029826608d5d7fbeb3f1f5d8e47e13bb",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "context": [
+              {
+                "center": [
+                  4.076634935,
+                  2.8013678250000003
+                ],
+                "id": "lamp",
+                "role": "lamp",
+                "size": [
+                  0.22702036,
+                  0.22702036
+                ]
+              }
+            ],
+            "context_perturbation": {
+              "add": {
+                "center": [
+                  2.0902068025,
+                  -0.03638665
+                ],
+                "id": "wall-added",
+                "role": "wall",
+                "size": [
+                  0.11351018,
+                  2.27020358
+                ]
+              }
+            },
+            "groups": [
+              {
+                "id": "P1",
+                "members": [
+                  {
+                    "center": [
+                      1.23457489,
+                      0.0028587300000000038
+                    ],
+                    "id": "P1m",
+                    "size": [
+                      1.13644096,
+                      1.15838948
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "P2",
+                "members": [
+                  {
+                    "center": [
+                      2.972084245,
+                      0.022599349999999997
+                    ],
+                    "id": "P2m",
+                    "size": [
+                      1.16228819,
+                      1.12614009
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "context_perturbation:holdout:303",
+            "space_relations": {
+              "P1|P2": {
+                "profile": 0.76767423,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "context_perturbation:holdout:303",
+          "replication_only": false,
+          "seed": 303,
+          "seed_digest_sha256": "8c06772550da7c7f3d9ccba9429261b7ce5eae55947bef9329ebb63d14c27ae0",
+          "seed_material": "d6-h1b/materialized-fixture/v1|context_perturbation|holdout|303",
+          "source_fixture_id": "context_perturbation",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        },
+        {
+          "evaluation_role": "generalization_holdout",
+          "family": "context-perturbation",
+          "family_invariant_contract": "structure conditions are preserved; numeric geometry/profiles are seed-conditioned",
+          "generalization_holdout": true,
+          "generator": "d6-h1b-seed-conditioned-materializer/v1",
+          "invariance_only": false,
+          "materialization_parameters": {
+            "group_jitter": {
+              "P1": [
+                -0.06643883,
+                0.06899043
+              ],
+              "P2": [
+                -0.06652535,
+                0.07970267
+              ]
+            },
+            "scale": 0.92132035,
+            "space_profile_delta": {
+              "P1|P2": 0.01086195
+            },
+            "translation": [
+              1.9955273,
+              0.5310325
+            ]
+          },
+          "materialized_content_sha256": "e69cf075a43418e01d66ae5f52e51516ac985ae758d4080638c941e4cfe192fd",
+          "materialized_fixture": {
+            "analysis_domain": "explicit",
+            "context": [
+              {
+                "center": [
+                  4.298828175000001,
+                  2.834333375
+                ],
+                "id": "lamp",
+                "role": "lamp",
+                "size": [
+                  0.18426407,
+                  0.18426407
+                ]
+              }
+            ],
+            "context_perturbation": {
+              "add": {
+                "center": [
+                  2.6865175624999997,
+                  0.5310325
+                ],
+                "id": "wall-added",
+                "role": "wall",
+                "size": [
+                  0.09213204,
+                  1.8426407
+                ]
+              }
+            },
+            "groups": [
+              {
+                "id": "P1",
+                "members": [
+                  {
+                    "center": [
+                      1.92908847,
+                      0.6000229300000001
+                    ],
+                    "id": "P1m",
+                    "size": [
+                      0.92250987,
+                      0.90976903
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              },
+              {
+                "id": "P2",
+                "members": [
+                  {
+                    "center": [
+                      3.310982475,
+                      0.61073517
+                    ],
+                    "id": "P2m",
+                    "size": [
+                      0.9243903,
+                      0.94013264
+                    ],
+                    "type": "chair"
+                  }
+                ]
+              }
+            ],
+            "id": "context_perturbation:holdout:404",
+            "space_relations": {
+              "P1|P2": {
+                "profile": 0.81086195,
+                "role_refs": [
+                  "activity_space_candidate"
+                ]
+              }
+            }
+          },
+          "replica_id": "context_perturbation:holdout:404",
+          "replication_only": false,
+          "seed": 404,
+          "seed_digest_sha256": "9105162e90289930941deae9cdeb8f3ea3676e2127a40f76ab9e7a62c78b5320",
+          "seed_material": "d6-h1b/materialized-fixture/v1|context_perturbation|holdout|404",
+          "source_fixture_id": "context_perturbation",
+          "source_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+          "split": "holdout"
+        }
+      ],
+      "source_fixture_id": "context_perturbation",
+      "source_template_role": "replication_only"
+    }
+  ],
+  "generator": {
+    "development_seeds": [
+      101,
+      202
+    ],
+    "holdout_seeds": [
+      303,
+      404
+    ],
+    "id": "d6-h1b-seed-conditioned-materializer/v1",
+    "member_or_pair_split_forbidden": true,
+    "seed_derivation": "sha256(UTF8('d6-h1b/materialized-fixture/v1|{family}|{split}|{seed}'))",
+    "split_unit": "complete_materialized_fixture"
+  },
+  "holdout_scoring": {
+    "reason": "H1b only materializes inputs and derives independent truth",
+    "status": "not_run"
+  },
+  "schema": "d6-inferred-group-candidate-field-h1b-holdout-fixtures/v1",
+  "source_template": {
+    "evaluation_role": "replication_only",
+    "path": "scripts/design/group_level/inferred_group_candidate_field_fixtures.json",
+    "sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531"
+  },
+  "status": "design_only_stop_for_design_review"
+}
