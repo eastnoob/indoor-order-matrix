@@ -28,6 +28,7 @@ def describe_group_relations(scene: AnalysisSceneInput) -> dict[str, object]:
     eligible_ids = {ref for group in groups for ref in group["member_refs"]}
     context_ids = sorted(str(item["id"]) for item in objects if str(item["id"]) not in eligible_ids)
     geometries = [_group_geometry(group, object_by_id, tolerances[0]) for group in groups]
+    relations = _group_relations(groups, object_by_id, geometries, tolerances, view)
     result = {
         "schema": "group-self-description-evidence/v1",
         "status": "computed" if groups else "not_evaluated",
@@ -44,9 +45,9 @@ def describe_group_relations(scene: AnalysisSceneInput) -> dict[str, object]:
             for group in groups
         ],
         "group_geometry": geometries,
-        "group_relations": [],
+        "group_relations": relations,
         "space_observations": _space_observations(scene, view, context_ids),
-        "local_neighborhood": [],
+        "local_neighborhood": _local_neighborhood(relations),
         "candidate_view_status": "deferred",
         "candidate_views": None,
         "capabilities": {
@@ -144,6 +145,9 @@ def _neutral_inputs(scene: NeutralSceneV2):
                 "geometry_components": components,
                 "geometry_refs": list(source.geometry_refs),
                 "uncertainties": [record.to_dict() for record in source.uncertainties],
+                "type_ref": source.type_ref,
+                "factual_properties": dict(source.factual_properties),
+                "source_role": source.source_role,
                 "provenance": dict(source.provenance),
             }
         )
@@ -239,6 +243,159 @@ def _group_geometry(group, object_by_id, tolerance):
     }
 
 
+def _group_relations(groups, object_by_id, geometries, tolerances, view):
+    """Emit auditable member-pair observations without selecting a group edge."""
+    geometry_by_group = {item["target_id"]: item for item in geometries}
+    relations = []
+    for first, second in combinations(groups, 2):
+        group_a, group_b = first["id"], second["id"]
+        observations = []
+        for member_a in sorted(first["member_refs"]):
+            for member_b in sorted(second["member_refs"]):
+                left = _member_record(geometry_by_group[group_a], member_a)
+                right = _member_record(geometry_by_group[group_b], member_b)
+                observations.append(_member_pair_observation(left, right, object_by_id, tolerances[0]))
+        semantic = _semantic_channel(first, second, object_by_id)
+        pair_id = f"{group_a}|{group_b}"
+        computed = [item for item in observations if item["status"] == "computed"]
+        shared_members = sorted(set(first["member_refs"]) & set(second["member_refs"]))
+        if shared_members and len(shared_members) == len(first["member_refs"]) == len(second["member_refs"]):
+            status = "diagnostic_only"
+        elif computed and any(item["status"] != "computed" for item in observations):
+            status = "partial"
+        elif computed:
+            status = "computed"
+        elif any(item["status"] == "invalid" for item in observations):
+            status = "invalid"
+        else:
+            status = "not_available"
+        relations.append({
+            "target_layer": "furniture_group_pair",
+            "target_id": pair_id,
+            "group_a": group_a,
+            "group_b": group_b,
+            "member_pair_observations": observations,
+            "member_pair_witnesses": [item["witness"] for item in computed],
+            "raw_boundary_gap": None,
+            "normalized_boundary_gap": None,
+            "contact": None,
+            "overlap": None,
+            "overlap_area": None,
+            "aggregation_status": "deferred",
+            "formal_membership_edge": None,
+            "positive_support": None,
+            "negative_evidence": semantic["negative_evidence"],
+            "semantic_conflicts": semantic["conflicts"],
+            "semantic_channel_status": semantic["status"],
+            "space_channel_status": "computed" if (view.get("analysis_domain") or view.get("_analysis_view", {}).get("domain_available")) else "not_available",
+            "barrier_observation": {"status": "not_available", "source": "planar_group_slice", "reason": "barrier_aggregation_deferred"},
+            "3d_clearance": {"status": "not_available", "source": "planar_group_slice"},
+            "3d_overlap": {"status": "not_available", "source": "planar_group_slice"},
+            "z_compatibility": {"status": "not_available", "source": "planar_group_slice"},
+            "shared_member_dependency": {"status": "diagnostic_only" if shared_members else "not_applicable", "member_ids": shared_members},
+            "status": status,
+            "reason": "shared_member_dependency" if status == "diagnostic_only" else (None if computed else "no_usable_member_pair"),
+            "analysis_frame": view.get("_analysis_view", {}).get("analysis_plane", "xy"),
+            "unit": view.get("settings", {}).get("analysis_length_unit", "unknown") if isinstance(view.get("settings"), Mapping) else "unknown",
+            "tolerance": {"geometry": tolerances[0], "topology": tolerances[1]},
+            "source_provenance": {"method": "member_pair_boundary_observation", "tolerance": tolerances[0]},
+        })
+    return relations
+
+
+def _member_record(group_geometry, member_id):
+    """Find one valid member geometry while keeping excluded states explicit."""
+    for item in group_geometry.get("member_geometry", ()):
+        if item["member_id"] == member_id:
+            return item
+    for item in group_geometry.get("excluded_member_reasons", ()):
+        if item["member_id"] == member_id:
+            return {"member_id": member_id, "status": item["status"], "reason": item["reason"]}
+    return {"member_id": member_id, "status": "invalid", "reason": "unresolved_member_ref"}
+
+
+def _member_pair_observation(left, right, object_by_id, tolerance):
+    """Measure one member pair's raw gap, contact, overlap, and witness."""
+    witness = {"member_a": left["member_id"], "member_b": right["member_id"], "source_refs": []}
+    if left.get("status") and left.get("status") != "computed":
+        return {"member_a": left["member_id"], "member_b": right["member_id"], "status": left["status"], "reason": left.get("reason"), "raw_boundary_gap": None, "normalized_boundary_gap": None, "contact": None, "overlap": None, "overlap_area": None, "witness": witness}
+    if right.get("status") and right.get("status") != "computed":
+        return {"member_a": left["member_id"], "member_b": right["member_id"], "status": right["status"], "reason": right.get("reason"), "raw_boundary_gap": None, "normalized_boundary_gap": None, "contact": None, "overlap": None, "overlap_area": None, "witness": witness}
+    from shapely.geometry import Polygon
+    polygons_a = [Polygon(points) for points in left.get("polygons", ( ))]
+    polygons_b = [Polygon(points) for points in right.get("polygons", ( ))]
+    if not polygons_a or not polygons_b:
+        return {"member_a": left["member_id"], "member_b": right["member_id"], "status": "not_available", "reason": "missing_geometry", "raw_boundary_gap": None, "normalized_boundary_gap": None, "contact": None, "overlap": None, "overlap_area": None, "witness": witness}
+    raw_gap = min(first.boundary.distance(second.boundary) for first in polygons_a for second in polygons_b)
+    overlap_area = sum(first.intersection(second).area for first in polygons_a for second in polygons_b)
+    overlap = overlap_area > tolerance
+    if overlap:
+        raw_gap = 0.0
+    contact = raw_gap <= tolerance and not overlap
+    area_scale = (left["area"] + right["area"]) ** 0.5
+    return {
+        "member_a": left["member_id"],
+        "member_b": right["member_id"],
+        "status": "computed",
+        "reason": None,
+        "raw_boundary_gap": raw_gap,
+        "normalized_boundary_gap": raw_gap / area_scale if area_scale else None,
+        "normalization": {"method": "sqrt_member_support_area_sum", "denominator": area_scale},
+        "contact": contact,
+        "overlap": overlap,
+        "overlap_area": overlap_area if overlap else 0.0,
+        "witness": {**witness, "boundary_method": "minimum_exterior_segment_distance", "source_refs": sorted(set(object_by_id.get(left["member_id"], {}).get("geometry_refs", ()) + object_by_id.get(right["member_id"], {}).get("geometry_refs", ())))},
+    }
+
+
+def _semantic_channel(first, second, object_by_id):
+    """Preserve factual type disagreement and explicit mutual exclusion only."""
+    types = {}
+    exclusions = []
+    for group, label in ((first, "a"), (second, "b")):
+        for member_id in group["member_refs"]:
+            item = object_by_id.get(member_id, {})
+            facts = item.get("factual_properties", {})
+            metadata = item.get("metadata", {})
+            if not isinstance(facts, Mapping):
+                facts = {}
+            if not isinstance(metadata, Mapping):
+                metadata = {}
+            type_value = item.get("type_ref") or facts.get("type") or facts.get("Type") or facts.get("OM_TypeKey") or metadata.get("type")
+            if type_value:
+                types[label] = str(type_value)
+            declared = facts.get("mutual_exclusion", metadata.get("mutual_exclusion"))
+            if isinstance(declared, str):
+                declared = [declared]
+            if isinstance(declared, (list, tuple, set)):
+                exclusions.extend({"kind": "mutual_exclusion", "source": member_id, "value": str(value)} for value in declared)
+    negative = {}
+    if len(types) == 2 and types["a"] != types["b"]:
+        negative["type_mismatch"] = {"status": "soft_negative", "types": types}
+    return {"status": "computed" if types or exclusions else "not_available", "negative_evidence": negative, "conflicts": exclusions}
+
+
+def _local_neighborhood(relations):
+    """Expose symmetric relation views without ranking or selecting neighbors."""
+    records = []
+    for relation in relations:
+        for group_id, neighbor_id in ((relation["group_a"], relation["group_b"]), (relation["group_b"], relation["group_a"])):
+            records.append({
+                "group_id": group_id,
+                "neighbor_group_id": neighbor_id,
+                "relation_id": relation["target_id"],
+                "positive_support_vector": None,
+                "negative_evidence_vector": relation["negative_evidence"],
+                "semantic_conflicts": relation["semantic_conflicts"],
+                "space_conflicts": [],
+                "missingness": [item["reason"] for item in relation["member_pair_observations"] if item.get("reason")],
+                "status": relation["status"],
+                "candidate_competition_refs": [],
+                "formal_membership_edge": None,
+            })
+    return records
+
+
 def _member_geometry(item, tolerance):
     """Parse simple polygon components or an explicitly approved rectangle fallback."""
     components = item.get("geometry_components", ())
@@ -327,6 +484,7 @@ def _combine_parts(parts, item, *, basis=None):
         "center": center,
         "covariance": covariance,
         "points": tuple(point for part in parts for point in part["points"]),
+        "polygons": tuple(part["points"] for part in parts),
         "geometry_basis": basis or item.get("geometry_basis", "polygon"),
         "directional_weight": None,
     }

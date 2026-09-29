@@ -417,3 +417,98 @@ def test_no_exact_authored_groups_has_explicit_not_evaluated_status():
     assert result["group_geometry"] == []
     assert result["status"] == "not_evaluated"
     assert result["reason"] == "no_eligible_authored_groups"
+
+
+def test_member_pair_overlap_and_contact_are_separate_observations():
+    """Catch positive-area overlap being confused with zero-gap contact."""
+    objects = [
+        _member("a", [_component(0, 0, 2, 2)], group="a"),
+        _member("b", [_component(2, 0, 4, 2)], group="b"),
+        _member("c", [_component(1, 0, 3, 2)], group="c"),
+    ]
+    result = describe_group_relations(_legacy_scene(objects=objects))
+    pairs = {(item["group_a"], item["group_b"]): item for item in result["group_relations"]}
+
+    contact = pairs[("a", "b")]["member_pair_observations"][0]
+    overlap = pairs[("a", "c")]["member_pair_observations"][0]
+    assert contact["raw_boundary_gap"] == pytest.approx(0)
+    assert contact["contact"] is True
+    assert contact["overlap"] is False
+    assert overlap["raw_boundary_gap"] == pytest.approx(0)
+    assert overlap["contact"] is False
+    assert overlap["overlap"] is True
+    assert overlap["overlap_area"] == pytest.approx(2)
+    assert pairs[("a", "b")]["raw_boundary_gap"] is None
+    assert pairs[("a", "b")]["formal_membership_edge"] is None
+
+
+def test_local_neighborhood_is_symmetric_evidence_without_membership_edges():
+    """Catch neighborhood construction collapsing evidence into a selected edge."""
+    result = describe_group_relations(_legacy_scene())
+    neighborhood = result["local_neighborhood"]
+
+    assert {(item["group_id"], item["neighbor_group_id"]) for item in neighborhood} == {
+        ("group-a", "group-b"),
+        ("group-b", "group-a"),
+    }
+    assert all(item["formal_membership_edge"] is None for item in neighborhood)
+    assert all(item["candidate_competition_refs"] == [] for item in neighborhood)
+
+
+def test_pair_semantics_keep_label_mismatch_soft_and_mutual_exclusion_explicit():
+    """Catch ordinary type disagreement becoming a veto and preserve declared exclusion."""
+    objects = [
+        _member("a", [_component(0, 0, 2, 2)], group="a", metadata={"type": "table"}),
+        _member(
+            "b",
+            [_component(4, 0, 6, 2)],
+            group="b",
+            metadata={"type": "chair", "mutual_exclusion": ["a"]},
+        ),
+    ]
+    result = describe_group_relations(_legacy_scene(objects=objects))
+    pair = result["group_relations"][0]
+
+    assert pair["semantic_channel_status"] == "computed"
+    assert pair["semantic_conflicts"][0]["kind"] == "mutual_exclusion"
+    assert pair["semantic_conflicts"][0]["source"] == "b"
+    assert pair["negative_evidence"]["type_mismatch"]["status"] == "soft_negative"
+    assert pair["formal_membership_edge"] is None
+
+
+def test_pair_and_neighborhood_serialization_is_order_invariant():
+    """Catch traversal-order dependence in IDs, pairs, and local-neighborhood records."""
+    scene = _legacy_scene()
+    reversed_scene = {**scene, "objects": list(reversed(scene["objects"]))}
+
+    assert describe_group_relations(scene) == describe_group_relations(reversed_scene)
+
+
+def test_shared_member_pair_is_diagnostic_only_and_never_a_membership_edge():
+    """Catch shared authored membership being promoted into inferred membership."""
+    scene = _neutral_scene()
+    scene = replace(
+        scene,
+        authored_groups=(
+            AuthoredGroup(
+                id="shared-a",
+                source_id=None,
+                member_refs=("left_table",),
+                group_role="furniture_group",
+            ),
+            AuthoredGroup(
+                id="shared-b",
+                source_id=None,
+                member_refs=("left_table",),
+                group_role="furniture_group",
+            ),
+        ),
+    )
+    pair = describe_group_relations(scene)["group_relations"][0]
+
+    assert pair["status"] == "diagnostic_only"
+    assert pair["shared_member_dependency"] == {
+        "status": "diagnostic_only",
+        "member_ids": ["left_table"],
+    }
+    assert pair["formal_membership_edge"] is None
