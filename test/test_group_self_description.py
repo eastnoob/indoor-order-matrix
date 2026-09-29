@@ -3,12 +3,14 @@ from __future__ import annotations
 from dataclasses import replace
 import json
 from math import pi
+from pathlib import Path
 
 import pytest
 
 from ..features.group_self_description import describe_group_relations
 from ..features.affordance.models import Rect
 from ..features.scene_contract import AuthoredGroup, SourceObject, UncertaintyRecord
+from ..adapters.svg_scene import load_svg_neutral_scene
 from .test_neutral_scene_analysis_regression import _neutral_scene
 
 
@@ -512,3 +514,59 @@ def test_shared_member_pair_is_diagnostic_only_and_never_a_membership_edge():
         "member_ids": ["left_table"],
     }
     assert pair["formal_membership_edge"] is None
+
+
+def test_independent_svg_fixture_checks_declared_planar_canonical_facts_only():
+    """Check SVG eligibility, geometry, pair facts, and explicit planar limits."""
+    fixture = Path(__file__).resolve().parents[1] / "scripts/design/group_level/e10b_independent_svg_fixture.svg"
+    scene = load_svg_neutral_scene(fixture, source_length_unit="m", analysis_length_unit="m")
+    result = describe_group_relations(scene)
+    eligibility = {item["eligible_group_id"]: item for item in result["eligibility"]}
+    geometry = {item["target_id"]: item for item in result["group_geometry"]}
+    pair = result["group_relations"][0]
+
+    assert eligibility["svg_group_alpha"]["member_object_ids"] == [
+        "svg_furniture_a1",
+        "svg_furniture_a2",
+    ]
+    assert eligibility["svg_group_beta"]["member_object_ids"] == ["svg_furniture_b1"]
+    assert geometry["svg_group_alpha"]["support_area"] == pytest.approx(1.96)
+    assert geometry["svg_group_alpha"]["center"] == pytest.approx((2.1367346938775515, 1.5489795918367346))
+    assert geometry["svg_group_beta"]["support_area"] == pytest.approx(1.125)
+    assert geometry["svg_group_beta"]["center"] == pytest.approx((6.75, 1.875))
+    observations = sorted(pair["member_pair_observations"], key=lambda item: item["member_a"])
+    assert [item["raw_boundary_gap"] for item in observations] == pytest.approx([4.0, 2.8])
+    assert all(item["status"] == "computed" for item in observations)
+    assert pair["formal_membership_edge"] is None
+    assert result["analysis_frame"]["unit"] == "m"
+    assert result["provenance"] == {
+        "source_schema": "SVG",
+        "adapter_version": "svg-scene-adapter/0.4.0",
+        "input_mode": "svg",
+        "method": "authored_group_planar_evidence",
+        "version": "v1",
+    }
+    assert len(scene.openings) == 1
+    assert result["capabilities"]["3d_clearance"]["status"] == "not_available"
+    assert result["capabilities"]["z_compatibility"]["status"] == "not_available"
+
+
+def test_neutral_scene_fixture_checks_planar_parity_without_ifc_capability_claims():
+    """Check deterministic Neutral Scene parity while keeping 3D channels unavailable."""
+    result = describe_group_relations(_neutral_scene())
+    geometry = {item["target_id"]: item for item in result["group_geometry"]}
+    pair = result["group_relations"][0]
+    observation = pair["member_pair_observations"][0]
+
+    assert sorted(geometry) == ["group_left", "group_right"]
+    assert geometry["group_left"]["support_area"] == pytest.approx(300)
+    assert geometry["group_left"]["center"] == pytest.approx((30, 50))
+    assert geometry["group_right"]["support_area"] == pytest.approx(300)
+    assert geometry["group_right"]["center"] == pytest.approx((90, 50))
+    assert observation["raw_boundary_gap"] == pytest.approx(30)
+    assert observation["overlap"] is False
+    assert observation["contact"] is False
+    assert pair["unit"] == "m"
+    assert pair["formal_membership_edge"] is None
+    assert result["capabilities"]["3d_clearance"]["status"] == "not_available"
+    assert result["capabilities"]["z_compatibility"]["status"] == "not_available"

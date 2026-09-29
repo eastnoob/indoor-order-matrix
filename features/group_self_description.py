@@ -156,6 +156,8 @@ def _neutral_inputs(scene: NeutralSceneV2):
         for group in scene.authored_groups
         if group.group_role == "furniture_group"
     ]
+    view = analysis_scene_view(scene)
+    view["_group_analysis_unit"] = scene.context.analysis_length_unit
     return (
         objects,
         groups,
@@ -176,7 +178,7 @@ def _neutral_inputs(scene: NeutralSceneV2):
         (scene.context.geometry_tolerance, scene.context.topology_tolerance),
         [record.to_dict() for record in scene.uncertainties]
         + [uncertainty for item in objects for uncertainty in item["uncertainties"]],
-        analysis_scene_view(scene),
+        view,
     )
 
 
@@ -296,7 +298,7 @@ def _group_relations(groups, object_by_id, geometries, tolerances, view):
             "status": status,
             "reason": "shared_member_dependency" if status == "diagnostic_only" else (None if computed else "no_usable_member_pair"),
             "analysis_frame": view.get("_analysis_view", {}).get("analysis_plane", "xy"),
-            "unit": view.get("settings", {}).get("analysis_length_unit", "unknown") if isinstance(view.get("settings"), Mapping) else "unknown",
+            "unit": view.get("_group_analysis_unit", view.get("settings", {}).get("analysis_length_unit", "unknown") if isinstance(view.get("settings"), Mapping) else "unknown"),
             "tolerance": {"geometry": tolerances[0], "topology": tolerances[1]},
             "source_provenance": {"method": "member_pair_boundary_observation", "tolerance": tolerances[0]},
         })
