@@ -29,7 +29,7 @@
 
 首切片建议新增一个职责单一的 inference helper module，而不是继续扩大已经很长的 `scene_inference.py`。它读取现有 planar view，输出独立 evidence mapping；是否挂接到公共 `infer_scene_evidence()` 由 review 后再决定。
 
-首切片实现契约已经进一步收紧：资格直接检查 `NeutralSceneV2.authored_groups[*].group_role == "furniture_group"`；legacy mapping 只接受显式 `furniture_group`/`metadata["furniture-group"]`。有效简单 polygon component 使用 shoelace 面积、中心和二阶矩；holes 返回 `not_computable`，多个简单 component additive 汇总，union 延后。group pair 只输出 `member_pair_observations`，不在本切片选择 min/max/any/all-pairs/union 聚合，group-level gap/overlap/edge 保留 `null` 并标记 `aggregation_status="deferred"`。`analysis_frame.plane` 是 plane name，`basis` 单独保存；顶层 schema 固定为 `group-self-description-evidence/v1`。具体冻结契约以 implementation plan 的 Frozen First-Slice Contract 为准。
+首切片实现契约已经进一步收紧：资格直接检查 `NeutralSceneV2.authored_groups[*].group_role == "furniture_group"`；legacy mapping 只接受显式 `furniture_group`/`metadata["furniture-group"]`。有效简单 polygon component 使用 shoelace 面积、中心和二阶矩；holes 返回 `invalid` 且 reason=`unsupported_holes`，多个简单 component additive 汇总，union 延后。group pair 只输出 `member_pair_observations`，不在本切片选择 min/max/any/all-pairs/union 聚合，group-level gap/contact/overlap/edge 与正负汇总保留 `null` 并标记 `aggregation_status="deferred"`。`analysis_frame.plane` 是 plane name，`basis` 单独保存；顶层 schema 固定为 `group-self-description-evidence/v1`。具体冻结契约以 implementation plan 的 Frozen First-Slice Contract 为准。
 
 ## 3. 建议的内部接口（待 review）
 
@@ -44,7 +44,6 @@ def describe_group_relations(
 
 ```text
 {
-  "schema": "group-self-description-evidence/v1",
   "schema": "group-self-description-evidence/v1",
   "analysis_frame": {"name": "...", "plane": "...", "basis": [...], "origin": [...], "unit": "..."},
   "eligibility": [...],
@@ -99,9 +98,11 @@ directional_member_support
 coherence
 strength
 uncertainty = absent/recorded, never zero-filled
+overlap_area
+union_area_status = "deferred"
 ```
 
-首阶段 `support_area` 是 additive area；overlap 是独立 relation observation，不从 denominator 静默扣除；polygon union 继续 deferred。含 holes 的 polygon 在首阶段返回 `not_computable`，不能静默填洞；多个简单 component 只做 additive aggregation。invalid member 不能被改写成 missing。
+首阶段 `support_area` 是 additive area；每个 group 保留 `overlap_area` 与 `union_area_status` 字段，group-level overlap 聚合在本切片 deferred，不从 denominator 静默扣除；polygon union 继续 deferred。含 holes 的 polygon 在首阶段返回 `invalid` 且 reason=`unsupported_holes`，不能静默填洞；多个简单 component 只做 additive aggregation。invalid member 不能被改写成 missing。
 
 ### 4.3 Group relation
 
@@ -115,8 +116,8 @@ group_b
 member_pair_observations
 raw_boundary_gap = null
 normalized_boundary_gap = null
-contact
-overlap
+contact = null
+overlap = null
 overlap_area = null
 aggregation_status = "deferred"
 member_pair_witnesses
@@ -124,8 +125,8 @@ member_pair_witnesses
 barrier_observation
 space_channel_status
 semantic_channel_status
-positive_support
-negative_evidence
+positive_support = null
+negative_evidence = null
 shared_member_dependency
 status
 reason
