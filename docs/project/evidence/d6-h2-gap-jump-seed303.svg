@@ -2,12 +2,13 @@
 <rect width="1060" height="700" fill="#fff"/>
 <text x="35" y="40" font-size="23" font-family="sans-serif">D6 H2 gap-jump | seed 303</text>
 <text x="35" y="70" font-size="15" font-family="sans-serif">recipe: relative_gap_rank {'bound': 2.254376832100142, 'quantile': 0.5} / all_pairs</text>
-<text x="35" y="96" font-size="14" font-family="sans-serif">Gray boxes: authored furniture groups; colored edges: emitted candidate sets; red dashed: hard veto pair.</text>
+<text x="35" y="96" font-size="14" font-family="sans-serif">Geometry/variable diagnostic only; not psychological validity evidence or production accuracy.</text>
+<text x="35" y="118" font-size="14" font-family="sans-serif">Gray boxes: authored furniture groups; colored edges: emitted candidate sets; red dashed: hard veto pair.</text>
+<line x1="100.00" y1="460.00" x2="208.61" y2="430.39" stroke="#1677b7" stroke-width="5" opacity="0.65"/>
+<line x1="100.00" y1="460.00" x2="307.77" y2="452.48" stroke="#1677b7" stroke-width="5" opacity="0.65"/>
+<line x1="208.61" y1="430.39" x2="307.77" y2="452.48" stroke="#1677b7" stroke-width="5" opacity="0.65"/>
 <line x1="307.77" y1="452.48" x2="539.51" y2="444.45" stroke="#1677b7" stroke-width="5" opacity="0.65"/>
-<line x1="539.51" y1="444.45" x2="640.00" y2="418.04" stroke="#7b4eb2" stroke-width="6" opacity="0.65"/>
-<line x1="100.00" y1="460.00" x2="208.61" y2="430.39" stroke="#19815e" stroke-width="7" opacity="0.65"/>
-<line x1="100.00" y1="460.00" x2="307.77" y2="452.48" stroke="#19815e" stroke-width="7" opacity="0.65"/>
-<line x1="208.61" y1="430.39" x2="307.77" y2="452.48" stroke="#19815e" stroke-width="7" opacity="0.65"/>
+<line x1="539.51" y1="444.45" x2="640.00" y2="418.04" stroke="#1677b7" stroke-width="5" opacity="0.65"/>
 <rect x="63.00" y="438.00" width="74" height="44" rx="7" fill="#eceff1" stroke="#303030" stroke-width="2"/>
 <text x="100.00" y="465.00" text-anchor="middle" font-size="16" font-family="sans-serif">G1</text>
 <text x="100.00" y="499.00" text-anchor="middle" font-size="11" font-family="sans-serif">computed</text>
@@ -23,22 +24,20 @@
 <rect x="603.00" y="396.04" width="74" height="44" rx="7" fill="#eceff1" stroke="#303030" stroke-width="2"/>
 <text x="640.00" y="423.04" text-anchor="middle" font-size="16" font-family="sans-serif">G5</text>
 <text x="640.00" y="457.04" text-anchor="middle" font-size="11" font-family="sans-serif">computed</text>
-<rect x="700" y="118" width="325" height="505" fill="#f8fafb" stroke="#ccd2d6"/>
-<text x="716" y="145" font-size="13" font-family="sans-serif">Emitted candidate sets:</text>
-<text x="716" y="169" font-size="13" font-family="sans-serif">1. G3 + G4 [overlapping]</text>
-<text x="716" y="193" font-size="13" font-family="sans-serif">2. G4 + G5 [overlapping]</text>
-<text x="716" y="217" font-size="13" font-family="sans-serif">3. G1 + G2 + G3 [overlapping]</text>
-<text x="716" y="241" font-size="13" font-family="sans-serif"></text>
-<text x="716" y="265" font-size="13" font-family="sans-serif">Evaluation-side structural truth:</text>
-<text x="716" y="289" font-size="13" font-family="sans-serif">G1 + G2 + G3</text>
-<text x="716" y="313" font-size="13" font-family="sans-serif">G4 + G5</text>
-<text x="716" y="337" font-size="13" font-family="sans-serif"></text>
-<text x="716" y="361" font-size="13" font-family="sans-serif">Unassigned: none</text>
-<text x="716" y="385" font-size="13" font-family="sans-serif"></text>
-<text x="716" y="409" font-size="13" font-family="sans-serif">Empty-space roles (evidence only):</text>
-<text x="716" y="433" font-size="13" font-family="sans-serif">activity_space_candidate</text>
-<text x="716" y="457" font-size="13" font-family="sans-serif">separator_space</text>
-<text x="716" y="481" font-size="13" font-family="sans-serif"></text>
-<text x="716" y="505" font-size="13" font-family="sans-serif">Context: none</text>
+<rect x="700" y="135" width="325" height="488" fill="#f8fafb" stroke="#ccd2d6"/>
+<text x="716" y="160" font-size="13" font-family="sans-serif">Emitted candidate sets:</text>
+<text x="716" y="184" font-size="13" font-family="sans-serif">1. G1 + G2 + G3 + G4 + G5 [weak]</text>
+<text x="716" y="208" font-size="13" font-family="sans-serif"></text>
+<text x="716" y="232" font-size="13" font-family="sans-serif">Evaluation-side structural truth:</text>
+<text x="716" y="256" font-size="13" font-family="sans-serif">G1 + G2 + G3</text>
+<text x="716" y="280" font-size="13" font-family="sans-serif">G4 + G5</text>
+<text x="716" y="304" font-size="13" font-family="sans-serif"></text>
+<text x="716" y="328" font-size="13" font-family="sans-serif">Unassigned: none</text>
+<text x="716" y="352" font-size="13" font-family="sans-serif"></text>
+<text x="716" y="376" font-size="13" font-family="sans-serif">Empty-space roles (evidence only):</text>
+<text x="716" y="400" font-size="13" font-family="sans-serif">activity_space_candidate</text>
+<text x="716" y="424" font-size="13" font-family="sans-serif">separator_space</text>
+<text x="716" y="448" font-size="13" font-family="sans-serif"></text>
+<text x="716" y="472" font-size="13" font-family="sans-serif">Context: none</text>
 <text x="35" y="660" font-size="13" font-family="sans-serif">Structural truth is evaluation-side computation, not a human correct answer or psychological validation.</text>
 </svg>

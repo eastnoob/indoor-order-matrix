@@ -1,0 +1,1007 @@
+{
+  "schema": "d6-inferred-group-candidate-field-fixtures/v1",
+  "analysis_frame": {
+    "id": "candidate-field-xy",
+    "plane": "XY",
+    "unit": "m",
+    "origin": [
+      0.0,
+      0.0
+    ]
+  },
+  "tolerance": {
+    "geometry": 1e-09,
+    "topology": 1e-09
+  },
+  "recipes": {
+    "scale": [
+      {
+        "id": "relative_gap_rank",
+        "parameters": {
+          "quantiles": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "rank_method": "inclusive_linear"
+        },
+        "formula": "include pair when normalized_gap <= inclusive_linear_quantile(all computed normalized gaps, q)",
+        "provenance": "pre-registered D1 relative scale; no absolute distance threshold"
+      },
+      {
+        "id": "local_persistence_window",
+        "parameters": {
+          "windows": [
+            1,
+            2,
+            3
+          ],
+          "persistence": [
+            1,
+            2
+          ]
+        },
+        "formula": "rank neighbors by normalized_gap per endpoint; include pair when max(endpoint ranks) <= window and it persists in at least p declared windows",
+        "provenance": "pre-registered D1 local-neighborhood scale"
+      },
+      {
+        "id": "space_profile_rank",
+        "parameters": {
+          "quantiles": [
+            0.5,
+            0.75
+          ],
+          "rank_direction": "higher_is_more_supportive"
+        },
+        "formula": "include pair when declared space profile >= inclusive_linear_quantile(available profiles, q)",
+        "provenance": "pre-registered D1 space-field scale; absent profiles remain missing"
+      }
+    ],
+    "aggregation": [
+      {
+        "id": "all_pairs",
+        "parameters": {
+          "rule": "all internal pair keys must be selected"
+        },
+        "provenance": "parallel aggregation comparison; no production choice"
+      },
+      {
+        "id": "max_span",
+        "parameters": {
+          "rule": "max internal normalized gap must be <= current scale bound"
+        },
+        "provenance": "bounded-cohesion diagnostic only"
+      },
+      {
+        "id": "min_gap",
+        "parameters": {
+          "rule": "retain each selected pair as a two-member candidate"
+        },
+        "provenance": "witness diagnostic only"
+      },
+      {
+        "id": "complete_link_diagnostic",
+        "parameters": {
+          "rule": "maximal cliques of selected pair graph"
+        },
+        "provenance": "chaining/complete-link diagnostic only"
+      }
+    ]
+  },
+  "fixtures": [
+    {
+      "id": "gap_jump",
+      "family": "gap-jump",
+      "analysis_domain": "explicit",
+      "groups": [
+        {
+          "id": "G1",
+          "members": [
+            {
+              "id": "G1m",
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "G2",
+          "members": [
+            {
+              "id": "G2m",
+              "center": [
+                1.5,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "G3",
+          "members": [
+            {
+              "id": "G3m",
+              "center": [
+                3.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "G4",
+          "members": [
+            {
+              "id": "G4m",
+              "center": [
+                6.5,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "G5",
+          "members": [
+            {
+              "id": "G5m",
+              "center": [
+                8.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        }
+      ],
+      "space_relations": {
+        "G1|G2": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.9
+        },
+        "G2|G3": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.9
+        },
+        "G3|G4": {
+          "role_refs": [
+            "separator_space"
+          ],
+          "profile": 0.1
+        },
+        "G4|G5": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.9
+        }
+      },
+      "space_field": {
+        "status": "computed",
+        "role_candidates": [
+          {
+            "role": "corridor_candidate",
+            "status": "computed",
+            "source_refs": [
+              "space:free-space"
+            ]
+          },
+          {
+            "role": "activity_space_candidate",
+            "status": "computed",
+            "source_refs": [
+              "space:connectivity"
+            ]
+          },
+          {
+            "role": "separator_space",
+            "status": "computed",
+            "source_refs": [
+              "space:bottleneck"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "minority_mixed",
+      "family": "minority-mixed",
+      "analysis_domain": "explicit",
+      "groups": [
+        {
+          "id": "M1",
+          "members": [
+            {
+              "id": "M1m",
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "M2",
+          "members": [
+            {
+              "id": "M2m",
+              "center": [
+                1.4,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "lamp"
+            }
+          ]
+        },
+        {
+          "id": "M3",
+          "members": [
+            {
+              "id": "M3m",
+              "center": [
+                2.8,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "M4",
+          "members": [
+            {
+              "id": "M4m",
+              "center": [
+                1.4,
+                2.8
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "lamp"
+            }
+          ]
+        }
+      ],
+      "space_relations": {
+        "M1|M2": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.8
+        },
+        "M2|M3": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.8
+        },
+        "M2|M4": {
+          "role_refs": [
+            "separator_space"
+          ],
+          "profile": 0.2
+        }
+      }
+    },
+    {
+      "id": "geometry_conflict",
+      "family": "geometry-conflict",
+      "analysis_domain": "explicit",
+      "groups": [
+        {
+          "id": "CUBE",
+          "members": [
+            {
+              "id": "CUBEm",
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                2.0,
+                0.5
+              ],
+              "type": "table"
+            }
+          ]
+        },
+        {
+          "id": "TALL",
+          "members": [
+            {
+              "id": "TALLm",
+              "center": [
+                1.8,
+                0.0
+              ],
+              "size": [
+                0.5,
+                2.0
+              ],
+              "type": "table"
+            }
+          ]
+        },
+        {
+          "id": "ROUNDISH",
+          "members": [
+            {
+              "id": "ROUNDm",
+              "points": [
+                [
+                  3.0,
+                  -0.5
+                ],
+                [
+                  3.8,
+                  0.0
+                ],
+                [
+                  3.0,
+                  0.5
+                ],
+                [
+                  2.2,
+                  0.0
+                ]
+              ],
+              "type": "table"
+            }
+          ]
+        }
+      ],
+      "space_relations": {
+        "CUBE|TALL": {
+          "role_refs": [
+            "connector_space"
+          ],
+          "profile": 0.7
+        },
+        "TALL|ROUNDISH": {
+          "role_refs": [
+            "separator_space"
+          ],
+          "profile": 0.3
+        }
+      }
+    },
+    {
+      "id": "space_conflict",
+      "family": "space-conflict",
+      "analysis_domain": "explicit",
+      "context": [
+        {
+          "id": "wall-1",
+          "role": "wall",
+          "center": [
+            2.5,
+            0.0
+          ],
+          "size": [
+            0.1,
+            4.0
+          ]
+        }
+      ],
+      "groups": [
+        {
+          "id": "S1",
+          "members": [
+            {
+              "id": "S1m",
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair",
+              "factual_properties": {
+                "mutual_exclusion": [
+                  "S2"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "S2",
+          "members": [
+            {
+              "id": "S2m",
+              "center": [
+                4.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "S3",
+          "members": [
+            {
+              "id": "S3m",
+              "center": [
+                0.0,
+                2.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        }
+      ],
+      "space_relations": {
+        "S1|S2": {
+          "status": "computed",
+          "role_refs": [
+            "separator_space"
+          ],
+          "profile": 0.1,
+          "barrier": "blocked"
+        },
+        "S1|S3": {
+          "status": "computed",
+          "role_refs": [
+            "connector_space"
+          ],
+          "profile": 0.8
+        }
+      },
+      "space_field": {
+        "status": "computed",
+        "role_candidates": [
+          {
+            "role": "corridor_candidate",
+            "status": "computed",
+            "source_refs": [
+              "space:free-space"
+            ]
+          },
+          {
+            "role": "activity_space_candidate",
+            "status": "computed",
+            "source_refs": [
+              "space:connectivity"
+            ]
+          },
+          {
+            "role": "separator_space",
+            "status": "computed",
+            "source_refs": [
+              "space:bottleneck"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bridge_chain",
+      "family": "bridge-chain",
+      "analysis_domain": "explicit",
+      "groups": [
+        {
+          "id": "A",
+          "members": [
+            {
+              "id": "Am",
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "members": [
+            {
+              "id": "Bm",
+              "center": [
+                1.5,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "C",
+          "members": [
+            {
+              "id": "Cm",
+              "center": [
+                3.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "D",
+          "members": [
+            {
+              "id": "Dm",
+              "center": [
+                8.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        }
+      ],
+      "space_relations": {
+        "A|B": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.9
+        },
+        "B|C": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.9
+        },
+        "A|C": {
+          "role_refs": [
+            "separator_space"
+          ],
+          "profile": 0.1
+        }
+      }
+    },
+    {
+      "id": "overlapping_candidates",
+      "family": "overlapping-candidates",
+      "analysis_domain": "explicit",
+      "groups": [
+        {
+          "id": "O1",
+          "members": [
+            {
+              "id": "O1m",
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "desk"
+            }
+          ]
+        },
+        {
+          "id": "O2",
+          "members": [
+            {
+              "id": "O2m",
+              "center": [
+                1.5,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "desk"
+            }
+          ]
+        },
+        {
+          "id": "O3",
+          "members": [
+            {
+              "id": "O3m",
+              "center": [
+                3.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "desk"
+            }
+          ]
+        }
+      ],
+      "space_relations": {
+        "O1|O2": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.8
+        },
+        "O2|O3": {
+          "role_refs": [
+            "connector_space"
+          ],
+          "profile": 0.7
+        },
+        "O1|O3": {
+          "role_refs": [
+            "separator_space"
+          ],
+          "profile": 0.2
+        }
+      },
+      "space_field": {
+        "status": "computed",
+        "role_candidates": [
+          {
+            "role": "corridor_candidate",
+            "status": "computed",
+            "source_refs": [
+              "space:free-space"
+            ]
+          },
+          {
+            "role": "activity_space_candidate",
+            "status": "computed",
+            "source_refs": [
+              "space:connectivity"
+            ]
+          },
+          {
+            "role": "separator_space",
+            "status": "computed",
+            "source_refs": [
+              "space:bottleneck"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing_invalid",
+      "family": "missing-invalid",
+      "analysis_domain": null,
+      "groups": [
+        {
+          "id": "VALID",
+          "members": [
+            {
+              "id": "Vm",
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "PARTIAL",
+          "members": [
+            {
+              "id": "Pm",
+              "center": [
+                1.5,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            },
+            {
+              "id": "Pmissing",
+              "status": "not_available",
+              "reason": "projection_absent",
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "INVALID",
+          "members": [
+            {
+              "id": "Im",
+              "points": [
+                [
+                  0.0,
+                  0.0
+                ],
+                [
+                  1.0,
+                  1.0
+                ],
+                [
+                  0.0,
+                  1.0
+                ],
+                [
+                  1.0,
+                  0.0
+                ]
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "MISSING_GEOMETRY",
+          "members": [
+            {
+              "id": "Gmissing",
+              "status": "not_available",
+              "reason": "geometry_absent",
+              "type": "chair"
+            }
+          ]
+        }
+      ],
+      "space_field": {
+        "status": "not_available",
+        "reason": "missing_analysis_domain",
+        "role_candidates": []
+      }
+    },
+    {
+      "id": "context_perturbation",
+      "family": "context-perturbation",
+      "analysis_domain": "explicit",
+      "context": [
+        {
+          "id": "lamp",
+          "role": "lamp",
+          "center": [
+            2.5,
+            2.5
+          ],
+          "size": [
+            0.2,
+            0.2
+          ]
+        }
+      ],
+      "groups": [
+        {
+          "id": "P1",
+          "members": [
+            {
+              "id": "P1m",
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        },
+        {
+          "id": "P2",
+          "members": [
+            {
+              "id": "P2m",
+              "center": [
+                1.5,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ],
+              "type": "chair"
+            }
+          ]
+        }
+      ],
+      "space_relations": {
+        "P1|P2": {
+          "role_refs": [
+            "activity_space_candidate"
+          ],
+          "profile": 0.8
+        }
+      },
+      "context_perturbation": {
+        "add": {
+          "id": "wall-added",
+          "role": "wall",
+          "center": [
+            0.75,
+            0.0
+          ],
+          "size": [
+            0.1,
+            2.0
+          ]
+        }
+      }
+    }
+  ],
+  "invariance": {
+    "source_fixture": "bridge_chain",
+    "variants": [
+      {
+        "id": "translation",
+        "translation": [
+          17.0,
+          -4.0
+        ],
+        "frame_id": "candidate-field-xy-translated"
+      },
+      {
+        "id": "rotation_frame",
+        "rotation_degrees": 90.0,
+        "frame_id": "candidate-field-rotated"
+      },
+      {
+        "id": "unit_scale",
+        "scale": 3.0,
+        "unit": "cm",
+        "frame_id": "candidate-field-cm"
+      },
+      {
+        "id": "id_traversal_reorder",
+        "rename_prefix": "renamed-",
+        "reverse_groups": true,
+        "reverse_members": true,
+        "frame_id": "candidate-field-xy"
+      }
+    ]
+  },
+  "membership_estimand": {
+    "id": "membership_level_candidate_set_v1",
+    "unit": "complete_fixture",
+    "target": "candidate member sets over authored furniture-group ids",
+    "relation_edge_role": "input evidence only",
+    "space_role_role": "parallel evidence only",
+    "allowed_statuses": [
+      "overlapping",
+      "ambiguous",
+      "weak",
+      "unassigned"
+    ],
+    "singleton_policy": "retain as explicit identity/unassigned diagnostic; never infer positive group by singleton",
+    "partition_policy": "no unique partition; overlapping candidates remain separate",
+    "probability_policy": "co_membership_evidence is deterministic support, not probability",
+    "truth_policy": "truth is evaluation-side computational structure and is not read by candidate probe"
+  },
+  "synthetic_holdout": {
+    "id": "fixture_family_seed_holdout_v1",
+    "status": "design_only_metrics_reported_without_thresholds",
+    "split_unit": "complete_generated_fixture",
+    "development_seeds": [
+      101,
+      202
+    ],
+    "holdout_seeds": [
+      303,
+      404
+    ],
+    "family_stratification": [
+      "gap-jump",
+      "minority-mixed",
+      "geometry-conflict",
+      "space-conflict",
+      "bridge-chain",
+      "overlapping-candidates",
+      "missing-invalid",
+      "context-perturbation"
+    ],
+    "rule": "assign whole fixture family and seed replicas; never split members or pairs across development and holdout",
+    "invariance_coverage": [
+      "translation",
+      "rotation_frame",
+      "unit_scale",
+      "id_traversal_reorder"
+    ],
+    "metrics": [
+      {
+        "id": "pairwise_precision_recall_f1",
+        "formula": "predicted within-candidate authored-group pairs intersect computational-truth pairs, reported by recipe and family; F1 is descriptive only"
+      },
+      {
+        "id": "candidate_set_jaccard",
+        "formula": "for each truth candidate set, report the distribution of Jaccard against all emitted candidates; do not choose one production candidate"
+      },
+      {
+        "id": "member_coverage",
+        "formula": "truth members appearing in at least one emitted candidate divided by truth members"
+      },
+      {
+        "id": "ambiguous_coverage",
+        "formula": "truth members represented only in ambiguous/overlapping outputs divided by truth members"
+      },
+      {
+        "id": "unassigned_coverage",
+        "formula": "truth members emitted only as unassigned divided by truth members"
+      },
+      {
+        "id": "status_stratified_recovery",
+        "formula": "report computed/partial/invalid/not_available separately; no imputation"
+      }
+    ],
+    "threshold_policy": "deferred; no numerical pass threshold or recipe winner is allowed in this checkpoint",
+    "holdout_run": "not_run",
+    "holdout_reason": "this checkpoint freezes the estimand and split/metric contract; generated seed replicas and owner-approved truth targets are not yet materialized"
+  }
+}

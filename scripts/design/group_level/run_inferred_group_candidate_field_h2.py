@@ -21,11 +21,14 @@ EVIDENCE = Path("docs/project/evidence")
 FIXTURES = BASE / "inferred_group_candidate_field_h1b_holdout_fixtures.json"
 TRUTH = BASE / "inferred_group_candidate_field_h1b_computational_truth.json"
 REGISTRY = BASE / "inferred_group_candidate_field_fixtures.json"
+AGGREGATION_FIXTURE = BASE / "inferred_group_candidate_field_aggregation_semantics_fixture.json"
+CANONICAL_KEY_FIXTURE = BASE / "inferred_group_candidate_field_canonical_space_key_fixture.json"
 CANDIDATES = EVIDENCE / "d6-inferred-group-candidate-field-h2-candidates.json"
 SCORING = EVIDENCE / "d6-inferred-group-candidate-field-h2-scoring.json"
 VISUALS = EVIDENCE / "d6-inferred-group-candidate-field-h2-visual-manifest.json"
 REPORT = EVIDENCE / "d6-inferred-group-candidate-field-h2-report.md"
 RECORD = EVIDENCE / "d6-inferred-group-candidate-field-h2-experiment.json"
+ARTIFACT_MANIFEST = EVIDENCE / "d6-inferred-group-candidate-field-h2-repair-artifact-manifest.json"
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -108,15 +111,21 @@ def compact_result(result: dict[str, Any]) -> dict[str, Any]:
                     "evidence_status": item["evidence_status"], "missingness": item["missingness"],
                     "mutual_exclusion_conflicts": item["mutual_exclusion_conflicts"],
                     "space_role_refs": item["space_role_refs"], "formal_membership_edge": item["formal_membership_edge"],
+                    "candidate_relation_ids": item.get("candidate_relation_ids", []),
+                    "aggregation_semantics": item.get("aggregation_semantics", {}),
                 }
                 for item in aggregation["candidates"]
             ]
             aggregation_views.append({"recipe_id": aggregation["aggregation_recipe"]["id"], "candidates": candidates,
-                                      "overlapping_members": aggregation["overlapping_members"]})
+                                      "overlapping_members": aggregation["overlapping_members"],
+                                      "aggregation_semantics": aggregation.get("aggregation_semantics", {})})
         views.append({"recipe_id": view["recipe_id"], "parameters": view["parameters"],
                       "selected_relation_ids": view["selected_relation_ids"], "aggregation_views": aggregation_views})
     return {"authored_group_ids": result["audit"]["authored_group_ids"],
             "context_object_ids": result["audit"]["context_object_ids"],
+            "normalized_space_keys": [{"pair_id": vector["relation_id"], **vector["space_record"]["provenance"]}
+                                      for vector in result["d0"]["relation_vectors"]
+                                      if vector["space_record"]["provenance"]["key_normalized"]],
             "group_statuses": {item["target_id"]: item["geometry_status"] for item in result["d0"]["evidence"]["group_geometry"]},
             "relation_statuses": {item["relation_id"]: item["status"] for item in result["d0"]["relation_vectors"]},
             "relation_missingness": {item["relation_id"]: item["missingness"] for item in result["d0"]["relation_vectors"]},
@@ -133,12 +142,19 @@ def probe_command() -> None:
         "relative_gap_rank", "local_persistence_window", "space_profile_rank"]
     assert [recipe["id"] for recipe in registry["recipes"]["aggregation"]] == [
         "all_pairs", "max_span", "min_gap", "complete_link_diagnostic"]
+    semantics = probe.design_semantics_assertions(registry)
     for item in replicas(manifest):
         assert hashlib.sha256(item["seed_material"].encode()).hexdigest() == item["seed_digest_sha256"]
         fixture = {**item["materialized_fixture"], "family": item["family"]}
         canonical = hashlib.sha256(json.dumps(item["materialized_fixture"], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
         assert canonical == item["materialized_content_sha256"]
         result = probe._fixture_result(fixture, registry)
+        if item["family"] == "geometry-conflict":
+            recovered = next(vector["space_record"] for vector in result["d0"]["relation_vectors"]
+                             if vector["relation_id"] == "ROUNDISH|TALL")
+            assert recovered["status"] == "computed"
+            assert recovered["provenance"]["source_pair_id"] == "TALL|ROUNDISH"
+            assert recovered["provenance"]["key_normalized"] is True
         compact = compact_result(result)
         if item["evaluation_role"] == "generalization_holdout":
             assert compact_result(probe._fixture_result(fixture, registry)) == compact
@@ -160,9 +176,11 @@ def probe_command() -> None:
     result = {"schema": "d6-inferred-group-candidate-field-h2-candidates/v1", "design_only": True,
               "truth_consumed": False, "candidate_probe_inputs": {"fixtures": str(FIXTURES), "fixtures_sha256": digest(FIXTURES),
               "registry": str(REGISTRY), "registry_sha256": digest(REGISTRY),
+              "aggregation_semantics_fixture": str(AGGREGATION_FIXTURE), "aggregation_semantics_fixture_sha256": digest(AGGREGATION_FIXTURE),
+              "canonical_space_key_fixture": str(CANONICAL_KEY_FIXTURE), "canonical_space_key_fixture_sha256": digest(CANONICAL_KEY_FIXTURE),
               "probe_source": str(BASE / "run_inferred_group_candidate_field_probe.py"),
               "probe_source_sha256": digest(BASE / "run_inferred_group_candidate_field_probe.py")},
-              "recipe_registry": registry["recipes"], "replicas": output,
+              "recipe_registry": registry["recipes"], "design_semantics_assertions": semantics, "replicas": output,
               "mechanisms": {"D0": "computed", "D1": "computed", "B1": "not_run", "M1": "not_run"}}
     save_json(CANDIDATES, result)
     print(f"candidate probe: 32 replicas, 16 holdout, 11 scales, 4 aggregations; {CANDIDATES}")
@@ -202,6 +220,7 @@ def metrics(truth_sets: list[list[str]], candidates: list[dict[str, Any]], unive
             "ambiguous_overlapping_coverage": ratio(len(truth_members & ambiguous_members & universe), len(truth_members & universe)),
             "unassigned_coverage": ratio(len(unassigned & universe), len(universe)),
             "emitted_candidate_sets": predicted_sets, "emitted_candidate_statuses": [item["candidate_status"] for item in emitted],
+            "emitted_candidate_relation_ids": [item["candidate_relation_ids"] for item in emitted],
             "unassigned_members": sorted(unassigned & universe)}
 
 
@@ -260,6 +279,8 @@ def score_command() -> None:
     """Open computational truth only in evaluation phase and score holdout units."""
     candidate_data, manifest, truth_data = read_json(CANDIDATES), read_json(FIXTURES), read_json(TRUTH)
     assert candidate_data["truth_consumed"] is False
+    assert candidate_data["design_semantics_assertions"]["aggregation_semantics"]["passed"]
+    assert candidate_data["design_semantics_assertions"]["canonical_space_key"]["passed"]
     truth_by_id = {item["replica_id"]: item for item in truth_data["replicas"]}
     fixture_by_id = {item["replica_id"]: item for item in replicas(manifest)}
     rows, gate_rows = [], []
@@ -299,6 +320,10 @@ def score_command() -> None:
     assert all(row["evaluation_role"] == "generalization_holdout" for row in rows)
     statuses = {status for row in rows for status in row["candidate_status_counts"]}
     assert {"ambiguous", "overlapping", "weak", "unassigned", "diagnostic_only"} <= statuses
+    aggregation_outputs = {}
+    for recipe_id in ("all_pairs", "max_span", "complete_link_diagnostic"):
+        aggregation_outputs[recipe_id] = [row["overall_descriptive"]["emitted_candidate_sets"] for row in rows if row["aggregation_recipe"] == recipe_id]
+    assert len({json.dumps(value, sort_keys=True) for value in aggregation_outputs.values()}) == 3
     disagreement = []
     for replica_id in sorted({row["replica_id"] for row in rows}):
         unit_rows = [row for row in rows if row["replica_id"] == replica_id]
@@ -312,6 +337,7 @@ def score_command() -> None:
               "role_policy": {"scored": ["generalization_holdout"], "debug_only": ["development_reference"],
                               "excluded": ["replication_only", "invariance_only"]},
               "mechanisms": {"D0": "computed", "D1": "computed", "B1": "not_run", "M1": "not_run"},
+              "aggregation_difference_assertion": {"passed": True, "compared": ["all_pairs", "max_span", "complete_link_diagnostic"]},
               "no_winner_or_threshold_selected": True}
     save_json(SCORING, result)
     print(f"scoring: {len(rows)} holdout views; 16 hard-gate records; {SCORING}")
@@ -321,15 +347,23 @@ def report_command() -> None:
     """Write family-by-recipe ranges without ranking or choosing any recipe."""
     scoring, visuals = read_json(SCORING), read_json(VISUALS)
     rows = scoring["rows"]
-    lines = ["# D6 H2 membership-level holdout recovery", "", "日期：2026-09-29。状态：design-only，STOP FOR DESIGN REVIEW。",
+    lines = ["# D6 H2 membership-level holdout recovery", "", "日期：2026-09-29。状态：design-only repair/re-run，STOP FOR DESIGN REVIEW。",
              "", "仅 `generalization_holdout`：8 family × seed 303/404 × 11 scale views × 4 aggregation views = 704 视图。",
              "`development_reference` 仅调试；`replication_only`、`invariance_only` 未计分。B1、M1 = `not_run`。",
              "", "## 硬门槛与解释边界", "", "16/16 holdout 的 authored/context separation、veto、状态传播、",
              "invariance/reproducibility、truth isolation 已通过。candidate probe 只读取 H1b fixture manifest 和已注册 recipe。",
              "评分阶段单独读取 computational truth；此 truth 是 evaluation-side structural truth，非人的正确答案或心理效度。",
              "singleton/unassigned、overlap、ambiguity 均保留在 candidates JSON；无 formal membership edge。",
-             "", "`geometry-conflict` 输入含非规范键 `TALL|ROUNDISH`；现有 probe 用排序后的 pair key 查询，",
-             "因此这条 space relation 在该 family 被视为 `not_available`。H2 未修改输入或 recipe。",
+             "", "本 repair 分离 aggregation 语义：`all_pairs` 保留选中的关系连通结构，`max_span` 实际检查候选内部最大 pairwise gap，",
+             "`complete_link_diagnostic` 保留 maximal-clique 对照，`min_gap` 仅保留 pair witness，不解释为 group partition。",
+             "`max_span` 的 gap 上界来自 gap-rank bound；其他 scale 用已选关系的最大 gap 作诊断参照，绝不把 space-profile bound 当作 gap。",
+             "独立 semantics fixture 断言三者输出不同；没有据此选择 winner、scale、threshold 或 production selector。",
+             "原 registry 中 `all_pairs` 的文字规则仍写作 all internal pair keys must be selected；本 repair 的有效语义是 selected-relation connected structure。",
+             "该文字与修订语义的冲突留待 design review；不把修订后的探索结果称为预注册规则验证。",
+             "", "`geometry-conflict` 保留 H1b 原始 `TALL|ROUNDISH` 字节。probe 查询在设计边界 canonicalize 为 `ROUNDISH|TALL`，",
+             "并保留 `source_pair_id` 与 `key_normalized` provenance；受影响的 `space_profile_rank` 结果已重算。",
+             "seed 303 的 q=.5/.75 profile bound 从 .72146709/.72146709 变为 .534910515/.6281888025；",
+             "seed 404 从 .66264227/.66264227 变为 .490664895/.5766535825。两 seed 的 selected relation 均仍为 `CUBE|TALL`。",
              "", "## 分层结果", "", "完整 704 行含 family、seed、scale 参数、aggregation、四类 output evidence status 与 truth-member status。",
              "每行记录 pairwise precision/recall/F1、每个 truth set 对所有 emitted set 的 Jaccard 分布、",
              "member/ambiguous-overlapping/unassigned coverage、candidate status counts 与 veto diagnostics。",
@@ -350,12 +384,12 @@ def report_command() -> None:
     lines += ["", "## Recipe disagreement", ""]
     for item in scoring["recipe_disagreement"]:
         lines.append(f"- `{item['replica_id']}`：44 视图，{item['distinct_candidate_set_outputs']} 种 candidate-set 输出。")
-    lines += ["", "全部分歧与每条 emitted set 保存在 scoring JSON；`all_pairs`、`max_span`、`complete_link_diagnostic`",
-              "在现有 D1 probe 中共用 maximal-clique 枚举，部分输入因此输出相同。该现象不是聚合规则等价性的证明。",
+    lines += ["", "全部分歧与每条 emitted set 保存在 scoring JSON；aggregation difference assertion 已通过。",
+              "`candidate_relation_ids` 保留 emitted structure 的 selected pair evidence；`min_gap` 明确为 pair witness。",
               "", "## Provenance 与范围", "",
               "- 输入及 candidate JSON 的 SHA-256 见 scoring JSON `input_hashes`。",
-              "- 现有 D1 recipe registry 与 probe 在起始 Git 状态为未跟踪文件；复现本提交须保留其记录的字节与 hash。",
-              "- 5 张确定性 SVG 的路径、大小和 SHA-256 见 visual manifest。Blender 可选诊断未运行。",
+              "- D1 recipe registry 与 probe 在起始 Git 状态为未跟踪文件；本提交将纳入两者，确保复现 H2。",
+              "- 5 张确定性 SVG 的路径、大小和 SHA-256 见 visual manifest；每张图标注 geometry/variable diagnostic only。Blender 本 checkpoint 未运行。",
               "- 无数值 threshold、recipe winner、production selector、公共 API 或依赖变更。",
               "", "**STOP FOR DESIGN REVIEW**", ""]
     (ROOT / REPORT).write_text("\n".join(lines), encoding="utf-8")
@@ -367,14 +401,19 @@ def record_command() -> None:
     scoring, visuals = read_json(SCORING), read_json(VISUALS)
     candidates = read_json(CANDIDATES)
     script = BASE / "run_inferred_group_candidate_field_h2.py"
+    probe_script = BASE / "run_inferred_group_candidate_field_probe.py"
     output = {
-        "schema": "d6-inferred-group-candidate-field-h2-experiment/v1",
+        "schema": "d6-inferred-group-candidate-field-h2-experiment/v2",
         "date": "2026-09-29", "status": "design_only_stop_for_design_review",
         "estimand": "membership-level candidate member sets; overlap and unassigned allowed",
         "truth": {"kind": "evaluation-side structural truth; not a human correct answer",
                   "candidate_probe_access": False, "scoring_access": True},
         "registered_scales": [recipe["id"] for recipe in candidates["recipe_registry"]["scale"]],
         "registered_aggregations": [recipe["id"] for recipe in candidates["recipe_registry"]["aggregation"]],
+        "effective_aggregation_semantics": {"all_pairs": "selected-relation connected structure with explicit relation ids",
+                                            "max_span": "connected candidate with maximum internal normalized gap within gap-unit bound",
+                                            "min_gap": "selected-pair witness; not a group partition",
+                                            "complete_link_diagnostic": "maximal clique of selected-pair graph"},
         "roles": scoring["role_policy"], "development_seeds": [101, 202], "holdout_seeds": [303, 404],
         "holdout_replicas": 16, "scored_views": scoring["scored_view_count"],
         "hard_gates": {"holdout_passed": len(scoring["hard_gates"]),
@@ -383,17 +422,36 @@ def record_command() -> None:
                                   "invariance and deterministic reproducibility", "truth isolation",
                                   "overlap/ambiguity/weak/unassigned/singleton diagnostic retained"]},
         "artifact_sha256": {str(path).replace("\\", "/"): digest(path)
-                            for path in (FIXTURES, TRUTH, REGISTRY, CANDIDATES, SCORING, VISUALS, REPORT, script)},
+                            for path in (FIXTURES, TRUTH, REGISTRY, AGGREGATION_FIXTURE, CANONICAL_KEY_FIXTURE,
+                                         CANDIDATES, SCORING, VISUALS, REPORT, probe_script, script)},
         "visual_artifacts": visuals["artifacts"],
         "recipe_disagreement": scoring["recipe_disagreement"],
         "mechanisms": {"D0": "computed", "D1": "computed", "B1": "not_run", "M1": "not_run"},
         "scope_audit": {"production_selector": "not_modified", "numerical_threshold": "not_selected",
                         "winner": "not_selected", "features_adapters_tests_neutral_scene_api_dependencies": "not_modified",
                         "blender": visuals["blender"],
-                        "known_probe_limitation": "geometry-conflict TALL|ROUNDISH space relation uses a noncanonical key and remains unavailable"},
+                        "repair_scope": ["aggregation semantics", "canonical unordered space-key lookup", "holdout re-score", "deterministic SVG refresh"],
+                        "known_probe_limitation": "space-key canonicalization accepts legacy unordered fixture keys; H1b input bytes remain unchanged",
+                        "registry_rule_discrepancy": "all_pairs registry text says all internal pair keys selected; repaired effective semantics is selected-relation connected structure; requires design review"},
     }
     save_json(RECORD, output)
     print(f"experiment record: {RECORD}")
+
+
+def artifact_manifest_command() -> None:
+    """Write a non-circular hash manifest for the repair checkpoint artifacts."""
+    record = read_json(RECORD)
+    paths = sorted(record["artifact_sha256"])
+    output = {"schema": "d6-inferred-group-candidate-field-h2-repair-artifact-manifest/v1",
+              "status": "design_only_stop_for_design_review", "self_hash_excluded": True,
+              "artifacts": [{"path": path, "sha256": record["artifact_sha256"][path],
+                             "bytes": (ROOT / Path(path)).stat().st_size} for path in paths],
+              "visual_artifacts": read_json(VISUALS)["artifacts"],
+              "scope": {"repair": ["design probe aggregation semantics", "canonical unordered space-key lookup", "H2 holdout re-score", "SVG refresh"],
+                        "production_selector": "not_modified", "threshold": "not_selected", "winner": "not_selected",
+                        "B1": "not_run", "M1": "not_run"}}
+    save_json(ARTIFACT_MANIFEST, output)
+    print(f"artifact manifest: {ARTIFACT_MANIFEST}")
 
 
 def svg_for(fixture: dict[str, Any], truth: dict[str, Any], row: dict[str, Any]) -> str:
@@ -410,9 +468,13 @@ def svg_for(fixture: dict[str, Any], truth: dict[str, Any], row: dict[str, Any])
              '<rect width="1060" height="700" fill="#fff"/>',
              f'<text x="35" y="40" font-size="23" font-family="sans-serif">D6 H2 {escape(row["family"])} | seed {row["seed"]}</text>',
              f'<text x="35" y="70" font-size="15" font-family="sans-serif">recipe: {escape(row["scale_recipe"])} {escape(str(row["scale_parameters"]))} / {escape(row["aggregation_recipe"])}</text>',
-             '<text x="35" y="96" font-size="14" font-family="sans-serif">Gray boxes: authored furniture groups; colored edges: emitted candidate sets; red dashed: hard veto pair.</text>']
+             '<text x="35" y="96" font-size="14" font-family="sans-serif">Geometry/variable diagnostic only; not psychological validity evidence or production accuracy.</text>',
+             '<text x="35" y="118" font-size="14" font-family="sans-serif">Gray boxes: authored furniture groups; colored edges: emitted candidate sets; red dashed: hard veto pair.</text>']
     for index, members in enumerate(row["overall_descriptive"]["emitted_candidate_sets"]):
-        for a, b in itertools.combinations(members, 2):
+        relation_ids = row["overall_descriptive"]["emitted_candidate_relation_ids"][index]
+        pair_ids = relation_ids if row["aggregation_recipe"] == "all_pairs" else ["|".join(sorted(pair)) for pair in itertools.combinations(members, 2)]
+        for pair_id in pair_ids:
+            a, b = pair_id.split("|", 1)
             if a in coords and b in coords:
                 x1, y1 = coords[a]; x2, y2 = coords[b]
                 lines.append(f'<line x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}" stroke="{colors[index % len(colors)]}" stroke-width="{5 + index % 3}" opacity="0.65"/>')
@@ -427,7 +489,7 @@ def svg_for(fixture: dict[str, Any], truth: dict[str, Any], row: dict[str, Any])
         lines.extend([f'<rect x="{x-37:.2f}" y="{y-22:.2f}" width="74" height="44" rx="7" fill="{fill}" stroke="#303030" stroke-width="2"/>',
                       f'<text x="{x:.2f}" y="{y+5:.2f}" text-anchor="middle" font-size="16" font-family="sans-serif">{escape(key)}</text>',
                       f'<text x="{x:.2f}" y="{y+39:.2f}" text-anchor="middle" font-size="11" font-family="sans-serif">{escape(status)}</text>'])
-    lines.append('<rect x="700" y="118" width="325" height="505" fill="#f8fafb" stroke="#ccd2d6"/>')
+    lines.append('<rect x="700" y="135" width="325" height="488" fill="#f8fafb" stroke="#ccd2d6"/>')
     entries = ["Emitted candidate sets:"] + [f"{index+1}. {' + '.join(group)} [{status}]" for index, (group, status) in enumerate(zip(
         row["overall_descriptive"]["emitted_candidate_sets"], row["overall_descriptive"]["emitted_candidate_statuses"]))]
     entries += ["", "Evaluation-side structural truth:"] + [" + ".join(group) for group in truth["candidate_member_sets"]]
@@ -436,7 +498,7 @@ def svg_for(fixture: dict[str, Any], truth: dict[str, Any], row: dict[str, Any])
     entries += ["", "Empty-space roles (evidence only):"] + (roles or ["not_available"])
     entries += ["", "Context: " + (", ".join(item["id"] for item in fixture.get("context", [])) or "none")]
     for index, entry in enumerate(entries):
-        lines.append(f'<text x="716" y="{145 + index*24}" font-size="13" font-family="sans-serif">{escape(entry)}</text>')
+        lines.append(f'<text x="716" y="{160 + index*24}" font-size="13" font-family="sans-serif">{escape(entry)}</text>')
     lines.append('<text x="35" y="660" font-size="13" font-family="sans-serif">Structural truth is evaluation-side computation, not a human correct answer or psychological validation.</text>')
     lines.append('</svg>')
     return "\n".join(lines) + "\n"
@@ -462,7 +524,7 @@ def visual_command() -> None:
         artifacts.append({"path": str(path).replace("\\", "/"), "sha256": digest(path), "bytes": (ROOT / path).stat().st_size,
                           "family": family, "seed": 303, "recipe_id": recipe, "scale_parameters": row["scale_parameters"],
                           "aggregation_recipe": aggregation, "truth_label": "evaluation-side structural truth"})
-    save_json(VISUALS, {"schema": "d6-inferred-group-candidate-field-h2-visual-manifest/v1",
+    save_json(VISUALS, {"schema": "d6-inferred-group-candidate-field-h2-visual-manifest/v2",
                         "status": "design_only_stop_for_design_review", "artifacts": artifacts,
                         "scoring_sha256": digest(SCORING), "blender": {"status": "not_run", "reason": "2D deterministic SVG diagnostics satisfy the optional visualization path"},
                         "interpretation": "Geometry and variable diagnostics only; no psychological validity or production accuracy claim."})
@@ -475,7 +537,14 @@ def verify_command() -> None:
 
     candidate_data, scoring, visuals, record = read_json(CANDIDATES), read_json(SCORING), read_json(VISUALS), read_json(RECORD)
     assert candidate_data["truth_consumed"] is False
+    assert candidate_data["design_semantics_assertions"]["aggregation_semantics"]["passed"]
+    assert candidate_data["design_semantics_assertions"]["canonical_space_key"]["passed"]
+    for replica in candidate_data["replicas"]:
+        if replica["family"] == "geometry-conflict" and replica["evaluation_role"] == "generalization_holdout":
+            assert any(item["pair_id"] == "ROUNDISH|TALL" and item["source_pair_id"] == "TALL|ROUNDISH"
+                       for item in replica["normalized_space_keys"])
     assert scoring["scored_view_count"] == 704 and len(scoring["rows"]) == 704
+    assert scoring["aggregation_difference_assertion"]["passed"]
     assert all(all(value for key, value in gate.items() if key in {"authored_context_separation", "hard_veto", "status_propagation", "invariance_reproducibility", "truth_isolation"}) for gate in scoring["hard_gates"])
     assert all(row["evaluation_role"] == "generalization_holdout" and set(row["evidence_status"]) == {"computed", "partial", "invalid", "not_available"} for row in scoring["rows"])
     for row in scoring["rows"]:
@@ -500,16 +569,20 @@ def verify_command() -> None:
         path = Path(artifact["path"])
         assert digest(path) == artifact["sha256"] and (ROOT / path).stat().st_size == artifact["bytes"]
         ET.parse(ROOT / path)
+    assert record["artifact_sha256"][str(AGGREGATION_FIXTURE).replace("\\", "/")] == digest(AGGREGATION_FIXTURE)
+    assert record["artifact_sha256"][str(CANONICAL_KEY_FIXTURE).replace("\\", "/")] == digest(CANONICAL_KEY_FIXTURE)
+    manifest = read_json(ARTIFACT_MANIFEST)
+    assert all(digest(Path(item["path"])) == item["sha256"] and (ROOT / Path(item["path"])).stat().st_size == item["bytes"] for item in manifest["artifacts"])
     print("verified: JSON/schema, 704 scoring rows, 16 hard gates, source hashes, 5 SVG/XML hashes")
 
 
 def main() -> None:
     """Run one isolated H2 stage selected by the command line."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("stage", choices=["probe", "score", "visual", "report", "record", "verify"])
+    parser.add_argument("stage", choices=["probe", "score", "visual", "report", "record", "manifest", "verify"])
     stage = parser.parse_args().stage
     {"probe": probe_command, "score": score_command, "visual": visual_command, "report": report_command,
-     "record": record_command, "verify": verify_command}[stage]()
+     "record": record_command, "manifest": artifact_manifest_command, "verify": verify_command}[stage]()
 
 
 if __name__ == "__main__":

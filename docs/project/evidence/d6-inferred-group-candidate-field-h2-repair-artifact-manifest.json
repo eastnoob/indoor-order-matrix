@@ -1,0 +1,147 @@
+{
+  "artifacts": [
+    {
+      "bytes": 3043037,
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json",
+      "sha256": "007a82220156ebd8ace148c272e96c2a2bf9a89a991151058d82f9cdb5b008fe"
+    },
+    {
+      "bytes": 12637,
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-h2-report.md",
+      "sha256": "8f083f1b831b54bf4115c8b6e0f7f6313e739883ec6aaec72fcf01522436ae80"
+    },
+    {
+      "bytes": 6086629,
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json",
+      "sha256": "0d597f349a5ff53f63b0b5e900db54f166bcce5caa113a9f4632fc9169a4debe"
+    },
+    {
+      "bytes": 2940,
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json",
+      "sha256": "732143307888fbab833ded9be5d03004c2501c7602ebd760919561f76adf7bd7"
+    },
+    {
+      "bytes": 685,
+      "path": "scripts/design/group_level/inferred_group_candidate_field_aggregation_semantics_fixture.json",
+      "sha256": "d94c1750b7c8745f68169270c27672fdef12fc0e66ab7c4b3b21badb80f4d37e"
+    },
+    {
+      "bytes": 968,
+      "path": "scripts/design/group_level/inferred_group_candidate_field_canonical_space_key_fixture.json",
+      "sha256": "893a4fc6e415e205aaaa604a87f998ab5cf62aa821ab8d1d11bc05f2e2f45d7b"
+    },
+    {
+      "bytes": 23619,
+      "path": "scripts/design/group_level/inferred_group_candidate_field_fixtures.json",
+      "sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531"
+    },
+    {
+      "bytes": 52140,
+      "path": "scripts/design/group_level/inferred_group_candidate_field_h1b_computational_truth.json",
+      "sha256": "bea8bad8dd6c40fb2d5e7bdc28c0b5229f6af2a93e89affb72211aa3f91911a3"
+    },
+    {
+      "bytes": 153254,
+      "path": "scripts/design/group_level/inferred_group_candidate_field_h1b_holdout_fixtures.json",
+      "sha256": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce"
+    },
+    {
+      "bytes": 44239,
+      "path": "scripts/design/group_level/run_inferred_group_candidate_field_h2.py",
+      "sha256": "5a51ee9f62fe97d5e915aab04d9a768304cc6865c48048e13b1f1a9ce1d03e59"
+    },
+    {
+      "bytes": 37842,
+      "path": "scripts/design/group_level/run_inferred_group_candidate_field_probe.py",
+      "sha256": "97aa2cd4f2d15a09d11090961db64ca917d2287830b5c862f883f4dd64e124ce"
+    }
+  ],
+  "schema": "d6-inferred-group-candidate-field-h2-repair-artifact-manifest/v1",
+  "scope": {
+    "B1": "not_run",
+    "M1": "not_run",
+    "production_selector": "not_modified",
+    "repair": [
+      "design probe aggregation semantics",
+      "canonical unordered space-key lookup",
+      "H2 holdout re-score",
+      "SVG refresh"
+    ],
+    "threshold": "not_selected",
+    "winner": "not_selected"
+  },
+  "self_hash_excluded": true,
+  "status": "design_only_stop_for_design_review",
+  "visual_artifacts": [
+    {
+      "aggregation_recipe": "all_pairs",
+      "bytes": 4298,
+      "family": "gap-jump",
+      "path": "docs/project/evidence/d6-h2-gap-jump-seed303.svg",
+      "recipe_id": "relative_gap_rank",
+      "scale_parameters": {
+        "bound": 2.254376832100142,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "f43ef1132e652af2d465c392f85bd4e44c65c65ba374cf95b188b3fee3cde6b3",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3727,
+      "family": "bridge-chain",
+      "path": "docs/project/evidence/d6-h2-bridge-chain-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.88631685,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "b17000584fcdf75e6049865fa833327f6dec86acd534258ac89465b34aeac09a",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3521,
+      "family": "overlapping-candidates",
+      "path": "docs/project/evidence/d6-h2-overlapping-candidates-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.7360946,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "ac21cadd3458cc428e9fcc60791a86388a5b6665fa3ae35a05c39209a6f419e1",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "min_gap",
+      "bytes": 3256,
+      "family": "space-conflict",
+      "path": "docs/project/evidence/d6-h2-space-conflict-seed303.svg",
+      "recipe_id": "space_profile_rank",
+      "scale_parameters": {
+        "bound": 0.47382844500000004,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "e0db78ba9a3ba9c7dc6f6a0eb9329ea510430342c156084c4b679ec2e70d2872",
+      "truth_label": "evaluation-side structural truth"
+    },
+    {
+      "aggregation_recipe": "all_pairs",
+      "bytes": 3351,
+      "family": "missing-invalid",
+      "path": "docs/project/evidence/d6-h2-missing-invalid-seed303.svg",
+      "recipe_id": "relative_gap_rank",
+      "scale_parameters": {
+        "bound": 0.3779266818667012,
+        "quantile": 0.5
+      },
+      "seed": 303,
+      "sha256": "1484aa9fbaa4da7aaba4a131277689506cbca841f14e9f99b701168b364194d3",
+      "truth_label": "evaluation-side structural truth"
+    }
+  ]
+}

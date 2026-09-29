@@ -1,0 +1,21 @@
+{
+  "schema": "d6-inferred-group-candidate-field-canonical-space-key-fixture/v1",
+  "id": "canonical_space_key_geometry_conflict",
+  "family": "canonical-space-key",
+  "analysis_domain": "explicit",
+  "groups": [
+    {"id": "CUBE", "members": [{"id": "CUBEm", "center": [0.0, 0.0], "size": [1.0, 0.5], "type": "table"}]},
+    {"id": "TALL", "members": [{"id": "TALLm", "center": [2.0, 0.0], "size": [0.5, 1.0], "type": "table"}]},
+    {"id": "ROUNDISH", "members": [{"id": "ROUNDm", "points": [[3.5, -0.5], [4.5, 0.0], [3.5, 0.5], [2.5, 0.0]], "type": "table"}]}
+  ],
+  "space_relations": {
+    "CUBE|TALL": {"profile": 0.7, "role_refs": ["connector_space"]},
+    "TALL|ROUNDISH": {"profile": 0.3, "role_refs": ["separator_space"]}
+  },
+  "expected": {
+    "canonical_pair_id": "ROUNDISH|TALL",
+    "source_pair_id": "TALL|ROUNDISH",
+    "profile": 0.3
+  },
+  "interpretation": "Design assertion fixture only; legacy unordered key resolves to canonical lookup key."
+}

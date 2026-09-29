@@ -2,7 +2,7 @@
   "artifacts": [
     {
       "aggregation_recipe": "all_pairs",
-      "bytes": 4321,
+      "bytes": 4298,
       "family": "gap-jump",
       "path": "docs/project/evidence/d6-h2-gap-jump-seed303.svg",
       "recipe_id": "relative_gap_rank",
@@ -11,12 +11,12 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "6b434b04e6b25bca5787a12f0ee5094b5b723fbc3a4eb6d2ac94513afa3cf27e",
+      "sha256": "f43ef1132e652af2d465c392f85bd4e44c65c65ba374cf95b188b3fee3cde6b3",
       "truth_label": "evaluation-side structural truth"
     },
     {
       "aggregation_recipe": "min_gap",
-      "bytes": 3563,
+      "bytes": 3727,
       "family": "bridge-chain",
       "path": "docs/project/evidence/d6-h2-bridge-chain-seed303.svg",
       "recipe_id": "space_profile_rank",
@@ -25,12 +25,12 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "9a00ed1c1f1e6b5824455ebd8776987be419f9ce5bb10577bf5558cce3654dec",
+      "sha256": "b17000584fcdf75e6049865fa833327f6dec86acd534258ac89465b34aeac09a",
       "truth_label": "evaluation-side structural truth"
     },
     {
       "aggregation_recipe": "min_gap",
-      "bytes": 3357,
+      "bytes": 3521,
       "family": "overlapping-candidates",
       "path": "docs/project/evidence/d6-h2-overlapping-candidates-seed303.svg",
       "recipe_id": "space_profile_rank",
@@ -39,12 +39,12 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "2233e4cf78168e2a6855ef53fa0c02583d42d509f188816198a95fb947835f93",
+      "sha256": "ac21cadd3458cc428e9fcc60791a86388a5b6665fa3ae35a05c39209a6f419e1",
       "truth_label": "evaluation-side structural truth"
     },
     {
       "aggregation_recipe": "min_gap",
-      "bytes": 3092,
+      "bytes": 3256,
       "family": "space-conflict",
       "path": "docs/project/evidence/d6-h2-space-conflict-seed303.svg",
       "recipe_id": "space_profile_rank",
@@ -53,12 +53,12 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "e290ef0c45e7e8db6e514d95c69fee481aba3351393dc38ed14c546a103c57bd",
+      "sha256": "e0db78ba9a3ba9c7dc6f6a0eb9329ea510430342c156084c4b679ec2e70d2872",
       "truth_label": "evaluation-side structural truth"
     },
     {
       "aggregation_recipe": "all_pairs",
-      "bytes": 3187,
+      "bytes": 3351,
       "family": "missing-invalid",
       "path": "docs/project/evidence/d6-h2-missing-invalid-seed303.svg",
       "recipe_id": "relative_gap_rank",
@@ -67,7 +67,7 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "5fcb4a3063ab6573c9f671efa61811f5547a5c5379b93e0fad1b3ab18d952f9c",
+      "sha256": "1484aa9fbaa4da7aaba4a131277689506cbca841f14e9f99b701168b364194d3",
       "truth_label": "evaluation-side structural truth"
     }
   ],
@@ -76,7 +76,7 @@
     "status": "not_run"
   },
   "interpretation": "Geometry and variable diagnostics only; no psychological validity or production accuracy claim.",
-  "schema": "d6-inferred-group-candidate-field-h2-visual-manifest/v1",
-  "scoring_sha256": "a57160a590f7b0f743642e9a36cbabf6b3c8d917a9271b2b10bc5815f61d5a54",
+  "schema": "d6-inferred-group-candidate-field-h2-visual-manifest/v2",
+  "scoring_sha256": "0d597f349a5ff53f63b0b5e900db54f166bcce5caa113a9f4632fc9169a4debe",
   "status": "design_only_stop_for_design_review"
 }

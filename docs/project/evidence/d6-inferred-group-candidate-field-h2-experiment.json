@@ -1,19 +1,28 @@
 {
   "artifact_sha256": {
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json": "39637335819ccea94ee8fd55006a95682e1d5df2df1bc339565af1f6cc8c6133",
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-report.md": "0f899fb11572b070238e8af0073c4804b004458665048c0ef9f59accfd345f68",
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json": "a57160a590f7b0f743642e9a36cbabf6b3c8d917a9271b2b10bc5815f61d5a54",
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json": "baffe5e80af32ae57fc3dae42bfa8a800186f9d66acd7a21ec242dfebb0a72cd",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json": "007a82220156ebd8ace148c272e96c2a2bf9a89a991151058d82f9cdb5b008fe",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-report.md": "8f083f1b831b54bf4115c8b6e0f7f6313e739883ec6aaec72fcf01522436ae80",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json": "0d597f349a5ff53f63b0b5e900db54f166bcce5caa113a9f4632fc9169a4debe",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json": "732143307888fbab833ded9be5d03004c2501c7602ebd760919561f76adf7bd7",
+    "scripts/design/group_level/inferred_group_candidate_field_aggregation_semantics_fixture.json": "d94c1750b7c8745f68169270c27672fdef12fc0e66ab7c4b3b21badb80f4d37e",
+    "scripts/design/group_level/inferred_group_candidate_field_canonical_space_key_fixture.json": "893a4fc6e415e205aaaa604a87f998ab5cf62aa821ab8d1d11bc05f2e2f45d7b",
     "scripts/design/group_level/inferred_group_candidate_field_fixtures.json": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
     "scripts/design/group_level/inferred_group_candidate_field_h1b_computational_truth.json": "bea8bad8dd6c40fb2d5e7bdc28c0b5229f6af2a93e89affb72211aa3f91911a3",
     "scripts/design/group_level/inferred_group_candidate_field_h1b_holdout_fixtures.json": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce",
-    "scripts/design/group_level/run_inferred_group_candidate_field_h2.py": "e2f9ee326d81485f058c69eb158c5397d7e86187d853bd8d3f0d40cb9d40cc5e"
+    "scripts/design/group_level/run_inferred_group_candidate_field_h2.py": "5a51ee9f62fe97d5e915aab04d9a768304cc6865c48048e13b1f1a9ce1d03e59",
+    "scripts/design/group_level/run_inferred_group_candidate_field_probe.py": "97aa2cd4f2d15a09d11090961db64ca917d2287830b5c862f883f4dd64e124ce"
   },
   "date": "2026-09-29",
   "development_seeds": [
     101,
     202
   ],
+  "effective_aggregation_semantics": {
+    "all_pairs": "selected-relation connected structure with explicit relation ids",
+    "complete_link_diagnostic": "maximal clique of selected-pair graph",
+    "max_span": "connected candidate with maximum internal normalized gap within gap-unit bound",
+    "min_gap": "selected-pair witness; not a group partition"
+  },
   "estimand": "membership-level candidate member sets; overlap and unassigned allowed",
   "hard_gates": {
     "checks": [
@@ -60,12 +69,12 @@
     },
     {
       "all_44_views_preserved": true,
-      "distinct_candidate_set_outputs": 12,
+      "distinct_candidate_set_outputs": 14,
       "replica_id": "gap_jump:holdout:303"
     },
     {
       "all_44_views_preserved": true,
-      "distinct_candidate_set_outputs": 12,
+      "distinct_candidate_set_outputs": 15,
       "replica_id": "gap_jump:holdout:404"
     },
     {
@@ -80,7 +89,7 @@
     },
     {
       "all_44_views_preserved": true,
-      "distinct_candidate_set_outputs": 9,
+      "distinct_candidate_set_outputs": 10,
       "replica_id": "minority_mixed:holdout:303"
     },
     {
@@ -142,16 +151,23 @@
       "generalization_holdout"
     ]
   },
-  "schema": "d6-inferred-group-candidate-field-h2-experiment/v1",
+  "schema": "d6-inferred-group-candidate-field-h2-experiment/v2",
   "scope_audit": {
     "blender": {
       "reason": "2D deterministic SVG diagnostics satisfy the optional visualization path",
       "status": "not_run"
     },
     "features_adapters_tests_neutral_scene_api_dependencies": "not_modified",
-    "known_probe_limitation": "geometry-conflict TALL|ROUNDISH space relation uses a noncanonical key and remains unavailable",
+    "known_probe_limitation": "space-key canonicalization accepts legacy unordered fixture keys; H1b input bytes remain unchanged",
     "numerical_threshold": "not_selected",
     "production_selector": "not_modified",
+    "registry_rule_discrepancy": "all_pairs registry text says all internal pair keys selected; repaired effective semantics is selected-relation connected structure; requires design review",
+    "repair_scope": [
+      "aggregation semantics",
+      "canonical unordered space-key lookup",
+      "holdout re-score",
+      "deterministic SVG refresh"
+    ],
     "winner": "not_selected"
   },
   "scored_views": 704,
@@ -164,7 +180,7 @@
   "visual_artifacts": [
     {
       "aggregation_recipe": "all_pairs",
-      "bytes": 4321,
+      "bytes": 4298,
       "family": "gap-jump",
       "path": "docs/project/evidence/d6-h2-gap-jump-seed303.svg",
       "recipe_id": "relative_gap_rank",
@@ -173,12 +189,12 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "6b434b04e6b25bca5787a12f0ee5094b5b723fbc3a4eb6d2ac94513afa3cf27e",
+      "sha256": "f43ef1132e652af2d465c392f85bd4e44c65c65ba374cf95b188b3fee3cde6b3",
       "truth_label": "evaluation-side structural truth"
     },
     {
       "aggregation_recipe": "min_gap",
-      "bytes": 3563,
+      "bytes": 3727,
       "family": "bridge-chain",
       "path": "docs/project/evidence/d6-h2-bridge-chain-seed303.svg",
       "recipe_id": "space_profile_rank",
@@ -187,12 +203,12 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "9a00ed1c1f1e6b5824455ebd8776987be419f9ce5bb10577bf5558cce3654dec",
+      "sha256": "b17000584fcdf75e6049865fa833327f6dec86acd534258ac89465b34aeac09a",
       "truth_label": "evaluation-side structural truth"
     },
     {
       "aggregation_recipe": "min_gap",
-      "bytes": 3357,
+      "bytes": 3521,
       "family": "overlapping-candidates",
       "path": "docs/project/evidence/d6-h2-overlapping-candidates-seed303.svg",
       "recipe_id": "space_profile_rank",
@@ -201,12 +217,12 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "2233e4cf78168e2a6855ef53fa0c02583d42d509f188816198a95fb947835f93",
+      "sha256": "ac21cadd3458cc428e9fcc60791a86388a5b6665fa3ae35a05c39209a6f419e1",
       "truth_label": "evaluation-side structural truth"
     },
     {
       "aggregation_recipe": "min_gap",
-      "bytes": 3092,
+      "bytes": 3256,
       "family": "space-conflict",
       "path": "docs/project/evidence/d6-h2-space-conflict-seed303.svg",
       "recipe_id": "space_profile_rank",
@@ -215,12 +231,12 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "e290ef0c45e7e8db6e514d95c69fee481aba3351393dc38ed14c546a103c57bd",
+      "sha256": "e0db78ba9a3ba9c7dc6f6a0eb9329ea510430342c156084c4b679ec2e70d2872",
       "truth_label": "evaluation-side structural truth"
     },
     {
       "aggregation_recipe": "all_pairs",
-      "bytes": 3187,
+      "bytes": 3351,
       "family": "missing-invalid",
       "path": "docs/project/evidence/d6-h2-missing-invalid-seed303.svg",
       "recipe_id": "relative_gap_rank",
@@ -229,7 +245,7 @@
         "quantile": 0.5
       },
       "seed": 303,
-      "sha256": "5fcb4a3063ab6573c9f671efa61811f5547a5c5379b93e0fad1b3ab18d952f9c",
+      "sha256": "1484aa9fbaa4da7aaba4a131277689506cbca841f14e9f99b701168b364194d3",
       "truth_label": "evaluation-side structural truth"
     }
   ]

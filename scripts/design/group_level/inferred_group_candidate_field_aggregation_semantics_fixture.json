@@ -1,0 +1,21 @@
+{
+  "schema": "d6-inferred-group-candidate-field-aggregation-semantics-fixture/v1",
+  "id": "aggregation_semantics_chain",
+  "group_ids": ["A", "B", "C", "D"],
+  "selected_relation_ids": ["A|B", "B|C", "C|D"],
+  "normalized_gaps": {
+    "A|B": 1.0,
+    "A|C": 2.0,
+    "A|D": 3.0,
+    "B|C": 1.0,
+    "B|D": 2.0,
+    "C|D": 1.0
+  },
+  "span_bound": 2.0,
+  "expected_membersets": {
+    "all_pairs": [["A", "B", "C", "D"]],
+    "max_span": [["A", "B", "C"], ["B", "C", "D"]],
+    "complete_link_diagnostic": [["A", "B"], ["B", "C"], ["C", "D"]]
+  },
+  "interpretation": "Design assertion fixture only; deterministic structural semantics, not production policy or psychological truth."
+}
