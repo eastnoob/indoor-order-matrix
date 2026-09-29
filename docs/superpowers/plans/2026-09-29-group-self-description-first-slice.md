@@ -27,15 +27,15 @@
 The implementer must use these definitions; no task may invent a substitute.
 
 - **Eligibility:** For `NeutralSceneV2`, inspect `scene.authored_groups` directly and accept only `group_role == "furniture_group"`; resolve `member_refs` against `scene.source_objects`. Do not use `neutral_scene_views._group_membership()` as the eligibility predicate because its compatibility behavior can retain ordinary authored groups. For a legacy mapping, accept only a non-empty explicit `object["furniture_group"]` value or exact `metadata["furniture-group"]`; do not treat generic `group_refs` as eligibility. Add an ordinary-authored-group exclusion test.
-- **Canonical planar geometry:** Prefer valid closed projected `geometry_components`/polygon exteriors. Compute polygon area, centroid, and second central moments by the shoelace formula and area weighting. A `rect` may be used only when the source record explicitly carries `geometry_basis == "rect_fallback"`; record that basis. No silent bbox substitute.
+- **Canonical planar geometry:** Prefer valid simple closed projected `geometry_components`/polygon exteriors. Rings with holes are unsupported in this slice: preserve their source refs and return `geometry_status="not_computable"` rather than silently filling holes. Multiple simple components are aggregated additively for area, centroid, and moments; no polygon union is performed. A `rect` may be used only when the source record explicitly carries `geometry_basis == "rect_fallback"`; record that basis. No silent bbox substitute.
 - **Representative formulas:** `support_area = Σ A_i`; `center = Σ(A_i*c_i)/ΣA_i`; `within = Σ(A_i/A)*C_i_within`; `between = Σ(A_i/A)*(c_i-center)(c_i-center)^T`; `covariance = within + between`. If no usable member exists, center/area/covariance are `null`.
 - **Frame formulas:** For member principal angle `θ_i`, eigenvalues `λ1 >= λ2`, anisotropy is `(λ1-λ2)/(λ1+λ2)` when the denominator is positive, and directional weight is `A_i*anisotropy`. `group_frame` uses the weighted resultant of `4θ_i` modulo `π/2`; `group_axis` uses the weighted resultant of `2θ_i` modulo `π`. If total directional weight is zero, angle is `null`, `directional_member_support=0`, `coherence=0`, and `direction_status="undefined"`. `strength` is `null` with `strength_status="deferred"` in this slice.
-- **Pair geometry:** For valid projected polygon components, raw boundary gap is the minimum Euclidean distance between exterior segments, with positive-area intersection forcing gap `0`. `overlap` means intersection area `> area_tolerance`; `contact` means gap `<= geometry_tolerance` and `overlap` is false. `normalized_boundary_gap = raw_boundary_gap / sqrt(area_a + area_b)`; if the denominator is `<= area_tolerance`, return `not_computable`. Tolerances come from `NeutralSceneV2.context.geometry_tolerance`/`topology_tolerance`, or explicit legacy settings with the same names; never use a hidden grouping threshold.
+- **Pair geometry:** For valid projected polygon components, raw boundary gap is measured per member pair as the minimum Euclidean distance between exterior segments, with positive-area intersection forcing that member-pair gap to `0`. `overlap` means intersection area `> area_tolerance`; `contact` means gap `<= geometry_tolerance` and `overlap` is false. In this slice, do not choose `min`, `max`, `any`, `all-pairs`, union, or another group-level aggregation: emit `member_pair_observations` and set group-level `raw_boundary_gap`, `normalized_boundary_gap`, `overlap_area`, and `formal_membership_edge` to `null` with `aggregation_status="deferred"`. Tolerances come from `NeutralSceneV2.context.geometry_tolerance`/`topology_tolerance`, or explicit legacy settings with the same names; never use a hidden grouping threshold.
 - **3D/Z:** This slice does not derive 3D clearance or Z compatibility from a planar view. For `NeutralSceneV2`, serialize only explicit capability/source facts; if no approved 3D query is available, status is `not_available`. SVG and legacy mappings are 2D-only and must never claim 3D/Z computation. Actual IFC 3D implementation is a later task.
 - **Semantic input:** Read only existing factual fields: `SourceObject.type_ref` first, then scalar `factual_properties["type"]`, `factual_properties["Type"]`, or `factual_properties["OM_TypeKey"]`. Missing values are `not_available`, not disagreement. No new context or semantic marker is introduced. Read explicit mutual exclusion only from existing scalar/list `factual_properties["mutual_exclusion"]`; preserve it as provenance and do not infer it.
 - **Space scope:** Serialize existing `analysis_domain`, `channel_evidence`, boundary/opening facts, occupancy/blocker provenance, and context alignment references. Do not rasterize free space, compute new connectivity/bottleneck widths, call gap-path construction, or assign a primary space role. Domain-dependent fields are `not_available` when `analysis_domain is None`; unavailable is not zero.
 - **Status levels:** Group/geometry status is one of `computed`, `partial`, `not_available`, `invalid`, `not_evaluated`. Pair/channel status is one of `computed`, `partial`, `not_available`, `invalid`, `not_computable`, `diagnostic_only`, `not_evaluated`. Candidate status is not computed in this slice: emit top-level `candidate_view_status="deferred"` and `candidate_views=null`. No status may rewrite invalid as missing or unavailable as zero.
-- **Evidence JSON shape:** `analysis_frame` is `{name, plane, origin, unit}`; `capabilities` maps stable channel names to `{status, source, reason}`; `uncertainties` is a list of `{code, message, source_refs, operation, severity, details}`; `provenance` is `{source_schema, adapter_version, input_mode, method, version}`. Sort group ids, pair ids, source refs, and member ids before serialization.
+- **Evidence JSON shape:** Top-level `schema` is exactly `"group-self-description-evidence/v1"`; `analysis_frame` is `{name, plane, basis, origin, unit}` where `plane` is the analysis-plane name and `basis` is the serialized orthonormal basis; `capabilities` maps stable channel names to `{status, source, reason}`; `uncertainties` is a list of `{code, message, source_refs, operation, severity, details}`; `provenance` is `{source_schema, adapter_version, input_mode, method, version}`. Sort group ids, pair ids, source refs, and member ids before serialization.
 
 ## Review Focus
 
@@ -126,7 +126,7 @@ The implementer must use these definitions; no task may invent a substitute.
 
 - [ ] **Step 1: Add pairwise relation records**
 
-  Compute raw and normalized boundary gap, contact, positive-area overlap, member-pair witness, and barrier/semantic channel statuses using the frozen polygon rules and tolerances. Serialize 3D/Z as explicit capability facts or `not_available`; do not derive them from planar geometry. Keep `target_layer`/`target_id` fields on group and pair records.
+  Compute per-member-pair raw gap, contact, positive-area overlap, witness, and barrier/semantic channel statuses using the frozen polygon rules and tolerances. Do not choose a group-level pair aggregation in this task: emit the per-member observations and group-level aggregation fields as `null`/`deferred`. Serialize 3D/Z as explicit capability facts or `not_available`; do not derive them from planar geometry. Keep `target_layer`/`target_id` fields on group and pair records.
 
 - [ ] **Step 2: Add status and missingness propagation**
 
@@ -165,7 +165,7 @@ The implementer must use these definitions; no task may invent a substitute.
 
 - [ ] **Step 1: Add SVG canonical-fact assertions**
 
-  Compare eligibility, plan geometry, center/area, raw/normalized gap, contact, positive-area overlap, status, units, analysis plane, and provenance only where the SVG fixture declares them. Use the existing `load_svg_neutral_scene` path; use the IFC loader only for declared source/capability facts. Do not compare 3D/Z fields across SVG and IFC.
+  Compare eligibility, plan geometry, center/area, per-member raw gap, contact, positive-area overlap, status, units, analysis plane, and provenance only where the SVG fixture declares them. Use the in-repository `scripts/design/group_level/e10b_independent_svg_fixture.svg` through `load_svg_neutral_scene`. For IFC-side capability assertions, construct a deterministic `NeutralSceneV2` fixture in the test; do not depend on an external `outputs/` path. Do not compare 3D/Z fields across SVG and IFC.
 
 - [ ] **Step 2: Add IFC capability assertions**
 
@@ -187,16 +187,16 @@ The implementer must use these definitions; no task may invent a substitute.
 ### Task 5: Integration gate and whole-suite verification
 
 **Files:**
-- Modify only after review: `features/scene_inference.py` if an explicit opt-in evidence hook is approved.
+- No production integration file in this plan.
 - Test: `test/test_group_self_description.py` and affected regression tests.
 
 **Interfaces:**
 - Consumes: the standalone helper and its focused tests.
-- Produces: either a documented standalone evidence entry point or an explicitly opt-in `infer_scene_evidence` hook. No automatic candidate selector.
+- Produces: the standalone evidence entry point only. Integration into `infer_scene_evidence`, public model shape, or adapter payload is a later separately reviewed checkpoint and is outside this plan. No automatic candidate selector.
 
-- [ ] **Step 1: Review whether integration is needed**
+- [ ] **Step 1: Confirm standalone boundary**
 
-  Do not add a public model field or automatic call merely for convenience. If integration is approved, use an explicit opt-in parameter or a clearly versioned evidence key and preserve existing output behavior by default.
+  Verify that this plan leaves `features/scene_inference.py`, `NeutralSceneV2`, adapters, and public model output unchanged. Record integration as a follow-up design gate rather than modifying it here.
 
 - [ ] **Step 2: Run the full suite**
 

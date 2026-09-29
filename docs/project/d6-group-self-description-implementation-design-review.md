@@ -29,13 +29,13 @@
 
 首切片建议新增一个职责单一的 inference helper module，而不是继续扩大已经很长的 `scene_inference.py`。它读取现有 planar view，输出独立 evidence mapping；是否挂接到公共 `infer_scene_evidence()` 由 review 后再决定。
 
+首切片实现契约已经进一步收紧：资格直接检查 `NeutralSceneV2.authored_groups[*].group_role == "furniture_group"`；legacy mapping 只接受显式 `furniture_group`/`metadata["furniture-group"]`。有效简单 polygon component 使用 shoelace 面积、中心和二阶矩；holes 返回 `not_computable`，多个简单 component additive 汇总，union 延后。group pair 只输出 `member_pair_observations`，不在本切片选择 min/max/any/all-pairs/union 聚合，group-level gap/overlap/edge 保留 `null` 并标记 `aggregation_status="deferred"`。`analysis_frame.plane` 是 plane name，`basis` 单独保存；顶层 schema 固定为 `group-self-description-evidence/v1`。具体冻结契约以 implementation plan 的 Frozen First-Slice Contract 为准。
+
 ## 3. 建议的内部接口（待 review）
 
 ```python
 def describe_group_relations(
     scene: AnalysisSceneInput,
-    *,
-    analysis_profile: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     """Return relation-layer and local-neighborhood evidence only."""
 ```
@@ -45,20 +45,22 @@ def describe_group_relations(
 ```text
 {
   "schema": "group-self-description-evidence/v1",
-  "analysis_frame": {...},
+  "schema": "group-self-description-evidence/v1",
+  "analysis_frame": {"name": "...", "plane": "...", "basis": [...], "origin": [...], "unit": "..."},
   "eligibility": [...],
   "group_geometry": [...],
   "group_relations": [...],
   "space_observations": {...},
   "local_neighborhood": [...],
-  "candidate_views": [],
+  "candidate_view_status": "deferred",
+  "candidate_views": null,
   "capabilities": {...},
   "uncertainties": [...],
   "provenance": {...}
 }
 ```
 
-`candidate_views` 在第一切片必须为空，并明确 `status="deferred"`；不能用空列表伪装“没有候选”。
+`candidate_views` 在第一切片必须为 `null`，并由顶层 `candidate_view_status="deferred"` 明确表示 selector 尚未实现；不能用空列表伪装“没有候选”。
 
 ## 4. 输出字段设计
 
@@ -71,7 +73,7 @@ eligible_group_id
 member_object_ids
 membership_provenance
 excluded_context_object_ids
-analysis_profile_status
+completeness_status
 ```
 
 普通 `IfcGroup`、名称、图层、邻近和旧 region 不得生成 eligible group。context 对象保留 source id、geometry ref 和 provenance，但不进入 group node list。
@@ -99,26 +101,26 @@ strength
 uncertainty = absent/recorded, never zero-filled
 ```
 
-首阶段 `support_area` 是 additive area；overlap 是独立 relation observation，不从 denominator 静默扣除；polygon union 继续 deferred。invalid member 不能被改写成 missing。
+首阶段 `support_area` 是 additive area；overlap 是独立 relation observation，不从 denominator 静默扣除；polygon union 继续 deferred。含 holes 的 polygon 在首阶段返回 `not_computable`，不能静默填洞；多个简单 component 只做 additive aggregation。invalid member 不能被改写成 missing。
 
 ### 4.3 Group relation
 
-每个 eligible group pair 输出一个稳定 pair record：
+每个 eligible group pair 输出一个稳定 pair record。首阶段只输出 member-pair observations，不选择 `min`、`max`、`any`、`all-pairs` 或 union 作为 group-level 聚合：
 
 ```text
 target_layer = "furniture_group_pair"
 target_id
 group_a
 group_b
-raw_boundary_gap
-normalized_boundary_gap
+member_pair_observations
+raw_boundary_gap = null
+normalized_boundary_gap = null
 contact
 overlap
-overlap_area
+overlap_area = null
+aggregation_status = "deferred"
 member_pair_witnesses
-3d_clearance
-3d_overlap
-z_compatibility
+3d_clearance / 3d_overlap / z_compatibility = capability or not_available
 barrier_observation
 space_channel_status
 semantic_channel_status
@@ -135,7 +137,7 @@ source_provenance
 
 ### 4.4 Space observations
 
-空间观测只在显式 `AnalysisDomain` 可用时计算 domain-dependent channel；没有 domain 时传播 `not_available`，不能把 scene bounds 当 domain。
+空间观测只在显式 `AnalysisDomain` 可用时计算 domain-dependent channel；没有 domain 时传播 `not_available`，不能把 scene bounds 当 domain。第一切片只序列化已有 `analysis_domain`、`channel_evidence`、boundary/opening、occupancy/blocker provenance 和 context alignment reference，不新增 raster free-space、connectivity、bottleneck width 或 primary-role selector。
 
 首切片只输出 observation，不生成唯一角色：
 
@@ -225,7 +227,7 @@ relation/local-neighborhood evidence
 
 1. 是否批准第一条切片只实现 relation observations、space observations 和 local-neighborhood，不实现 candidate selector？
 2. 是否批准 `describe_group_relations()` 作为内部 evidence helper，而暂不改变公共 model shape？
-3. 是否批准 `candidate_views=[]` 配合 `status="deferred"` 表示 selector 尚未实现？
+3. 是否批准 `candidate_views=null` 配合 `candidate_view_status="deferred"` 表示 selector 尚未实现？
 4. 是否批准上述 IFC/SVG canonical facts 和 domain-missing 传播边界？
 
 **STOP FOR IMPLEMENTATION-DESIGN REVIEW**
