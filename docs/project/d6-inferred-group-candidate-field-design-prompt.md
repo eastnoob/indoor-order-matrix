@@ -64,6 +64,12 @@ model。
 成员和 pair 不是独立统计样本。truth 是算法评估用的生成参数或结构标签，
 不是人工标签，也不是心理真值；输出审计必须确认机制没有读取 truth。
 
+在运行 probe 前，fixture manifest 必须先写出 scale recipe 的参数 grid 和
+aggregation recipe 的公式/参数：包括 rank/quantile 取值、persistence/window
+取值、tolerance 来源、all-pairs/max-span/min-gap/complete-link 的确切规则。
+这些参数属于实验因素，必须有 recipe id、理由和 provenance；没有预注册参数
+就将该 recipe 标为 `not_run`，不得在运行时临时选择默认值。
+
 ## Task 2：运行 D0/D1 probe
 
 复用 `describe_group_relations()` 的 evidence 输出。
@@ -162,8 +168,9 @@ git diff --check
 - 未冻结的 selector 决策；
 - 是否建议进入 implementation-design review。
 
-遇到以下问题必须停止提问，不得自行补规格：candidate evidence 聚合、固定尺度、
-空区 primary role、Bayesian prior/likelihood、ML 训练目标、唯一 partition、
-production API 或 psych validity。
+遇到以下问题必须停止提问，不得自行补规格：未登记的新 candidate evidence
+aggregation recipe、固定尺度、空区 primary role、Bayesian prior/likelihood、
+ML 训练目标、唯一 partition、production API 或 psych validity。已在 manifest
+中预注册的 recipes 可以并列运行，但不得从中选出正式规则。
 
 **STOP FOR DESIGN REVIEW**
