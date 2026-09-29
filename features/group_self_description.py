@@ -352,7 +352,7 @@ def _member_pair_observation(left, right, object_by_id, tolerance):
 
 def _semantic_channel(first, second, object_by_id):
     """Preserve factual type disagreement and explicit mutual exclusion only."""
-    types = {}
+    types = {"a": [], "b": []}
     exclusions = []
     for group, label in ((first, "a"), (second, "b")):
         for member_id in group["member_refs"]:
@@ -362,16 +362,18 @@ def _semantic_channel(first, second, object_by_id):
                 facts = {}
             type_value = item.get("type_ref") or facts.get("type") or facts.get("Type") or facts.get("OM_TypeKey")
             if type_value:
-                types[label] = str(type_value)
+                value = str(type_value)
+                if value not in types[label]:
+                    types[label].append(value)
             declared = facts.get("mutual_exclusion")
             if isinstance(declared, str):
                 declared = [declared]
             if isinstance(declared, (list, tuple, set)):
                 exclusions.extend({"kind": "mutual_exclusion", "source": member_id, "value": str(value)} for value in declared)
     negative = {}
-    if len(types) == 2 and types["a"] != types["b"]:
+    if types["a"] and types["b"] and set(types["a"]).isdisjoint(types["b"]):
         negative["type_mismatch"] = {"status": "soft_negative", "types": types}
-    return {"status": "computed" if types or exclusions else "not_available", "negative_evidence": negative, "conflicts": exclusions}
+    return {"status": "computed" if any(types.values()) or exclusions else "not_available", "negative_evidence": negative, "conflicts": exclusions}
 
 
 def _local_neighborhood(relations):

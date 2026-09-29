@@ -507,6 +507,21 @@ def test_metadata_does_not_become_semantic_evidence():
     assert pair["semantic_conflicts"] == []
 
 
+def test_multiple_member_types_are_preserved_before_soft_comparison():
+    """Keep all factual member labels instead of letting the last label win."""
+    objects = [
+        _member("a1", [_component(0, 0, 2, 2)], group="a", factual_properties={"type": "table"}),
+        _member("a2", [_component(0, 3, 2, 5)], group="a", factual_properties={"type": "desk"}),
+        _member("b1", [_component(4, 0, 6, 2)], group="b", factual_properties={"type": "chair"}),
+    ]
+    pair = describe_group_relations(_legacy_scene(objects=objects))["group_relations"][0]
+
+    assert pair["negative_evidence"]["type_mismatch"]["types"] == {
+        "a": ["table", "desk"],
+        "b": ["chair"],
+    }
+
+
 def test_pair_and_neighborhood_serialization_is_order_invariant():
     """Catch traversal-order dependence in IDs, pairs, and local-neighborhood records."""
     scene = _legacy_scene()
