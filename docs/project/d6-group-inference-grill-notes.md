@@ -196,4 +196,34 @@ group = 从这些证据中描述出来的一组对象或软关联
 
 因此当前设计不是“场和 group 二选一”：先保留场，再从场与组间关系中产生 inferred-group candidates。若证据没有形成清晰边界，输出软关联/多候选/ambiguous，而不是伪造硬边界。
 
+## 12. 单向结构裁决（2026-09-29）
+
+用户询问：
+
+> 你认为这种单向结构合理吗？
+
+### 总控判断
+
+**作为第一阶段的计算基线，单向结构合理；作为最终场景理论，过于严格。**
+
+推荐拆成三层：
+
+```text
+F0 基础空间场
+  = AnalysisDomain + physical occupancy + blockers
+        ↓
+组间 relation evidence
+        ↓
+F1 组织/角色场 + inferred-group candidates
+```
+
+- `F0` 不读取 inferred group，避免“先分组、再用分组生成支持分组的空间”的循环论证。
+- 组间关系读取 `F0`，同时保留距离、接触、重叠、Z、阻隔、类型和几何相似等分通道证据。
+- `F1` 可以读取组关系、类型和空间几何，表达 separator、connector、corridor/activity 等角色候选，并产生软 inferred-group 关联。
+- `F1` 不回写或修改 `F0`。基础 occupancy、domain 和 blocker 仍是可追溯事实/基础派生证据。
+
+严格的最终单向模型仍有局限：组的形成会影响“内部空间”和“组间空间”的解释，空间角色也会反过来影响组关联。因此后续 Bayesian 或联合模型可以研究 `F1` 与 group structure 的联合推断或迭代更新，但必须把反馈路径、收敛/不可辨识状态和 provenance 单独设计，不能偷偷加入首版。
+
+当前确认：**首版使用无循环的分层单向基线；最终模型保留联合推断的研究入口。**
+
 **STOP FOR GRILL-ME DISCUSSION**
