@@ -1,9 +1,9 @@
 {
   "artifacts": [
     {
-      "bytes": 3833242,
+      "bytes": 3834113,
       "path": "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json",
-      "sha256": "7be3e53ee83efc53ae8f3de4dac31f10be90a12f8d25afaed638aca267e7959b"
+      "sha256": "db632ef4c4b88b112fea2514fdbd794a1e4578fb143b3723b382ee02e3687ee7"
     },
     {
       "bytes": 8528,
@@ -18,12 +18,12 @@
     {
       "bytes": 7575607,
       "path": "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json",
-      "sha256": "7f4ca9b533819414c5c5c5fd42dc5565282c6ba53dac8b139e48a29ea9a62c86"
+      "sha256": "56546268fdc10fc212a137b685d17d067778314421e88c6e27f9aa19a281705e"
     },
     {
       "bytes": 2962,
       "path": "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json",
-      "sha256": "2336237cf8a119c050777a86378d29e3b6bded6256c6a1be44d003c0847cf8eb"
+      "sha256": "65dcab23290b47453172d33d4e99a002105d205ecb13533d1dcc2d6e03fa43db"
     },
     {
       "bytes": 8918,
@@ -61,9 +61,9 @@
       "sha256": "74b97cd462f31ab051a443be935088bc223c9b4b3e65f68959fcb815ca3793bb"
     },
     {
-      "bytes": 50084,
+      "bytes": 54375,
       "path": "scripts/design/group_level/run_inferred_group_candidate_field_probe.py",
-      "sha256": "dbdea79926164c50ba3b1d222130072d7953db30c82902b351307315d5e7c39f"
+      "sha256": "25b6ed39d12058f903caf309e21156f08c98d6f3177933d6ef0c26e0051cd634"
     }
   ],
   "schema": "d6-inferred-group-candidate-field-h2-repair-artifact-manifest/v1",

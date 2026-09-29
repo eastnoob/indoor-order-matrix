@@ -7,7 +7,7 @@
     "fixtures": "scripts\\design\\group_level\\inferred_group_candidate_field_h1b_holdout_fixtures.json",
     "fixtures_sha256": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce",
     "probe_source": "scripts\\design\\group_level\\run_inferred_group_candidate_field_probe.py",
-    "probe_source_sha256": "dbdea79926164c50ba3b1d222130072d7953db30c82902b351307315d5e7c39f",
+    "probe_source_sha256": "25b6ed39d12058f903caf309e21156f08c98d6f3177933d6ef0c26e0051cd634",
     "registry": "scripts\\design\\group_level\\inferred_group_candidate_field_fixtures.json",
     "registry_sha256": "6199c764aaf28c999b10194deaed33b92314c4f448c3b091af9234b342d5944a",
     "status_matrix_fixture": "scripts\\design\\group_level\\inferred_group_candidate_field_status_matrix_fixture.json",
@@ -427,6 +427,45 @@
               ]
             },
             "source_pair_id": "TALL|PLAIN"
+          }
+        ]
+      },
+      "truth_consumed": false
+    },
+    "diagnostic_regressions": {
+      "passed": true,
+      "r1": {
+        "aggregate_members": [
+          [
+            "A",
+            "B"
+          ],
+          [
+            "C"
+          ]
+        ],
+        "max_span_membersets": [
+          [
+            "A",
+            "B"
+          ]
+        ]
+      },
+      "r2": {
+        "finite": {
+          "computed_pair_count": 2,
+          "interpretation": "deterministic support; not probability",
+          "selected_pair_count": 1
+        },
+        "nonfinite_computed_pair_count": 1
+      },
+      "r3": {
+        "candidate_status": "unassigned",
+        "mutual_exclusion_conflicts": [
+          {
+            "kind": "mutual_exclusion",
+            "source_ref": "a",
+            "target_ref": "C"
           }
         ]
       },

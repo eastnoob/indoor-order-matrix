@@ -302,7 +302,8 @@ def _max_span_candidates(ids: list[str], vectors: dict[str, dict[str, Any]], sel
                 continue
             if max(gaps) > bound:
                 continue
-            if len(_connected_components(list(combo), selected & internal_ids)) != 1:
+            components = _connected_components(list(combo), selected & internal_ids)
+            if len(components) != 1 or set(components[0]) != members:
                 continue
             candidates.append(sorted(members))
     return [candidate for candidate in candidates if not any(set(candidate) < set(other) for other in candidates)]
@@ -351,7 +352,14 @@ def _candidate_record(fixture: dict[str, Any], members: list[str], vectors: dict
     all_internal = [vectors[key] for key in all_internal_ids if key in vectors]
     missingness = sorted({reason for vector in internal for reason in vector["missingness"]} |
                          ({"required_relation_absent"} if missing_ids else set()))
-    conflicts = sorted((conflict for vector in all_internal for conflict in _vetoes(fixture, vector["group_a"], vector["group_b"])), key=lambda item: (item["source_ref"], item["target_ref"]))
+    conflicts = sorted(
+        (
+            conflict
+            for left, right in itertools.combinations(members, 2)
+            for conflict in _vetoes(fixture, left, right)
+        ),
+        key=lambda item: (item["source_ref"], item["target_ref"]),
+    )
     invalid = any(vector["status"] == "invalid" for vector in internal)
     partial = bool(missing_ids) or any(vector["status"] in {"missing", "partial", "not_available"} for vector in internal)
     if conflicts:
@@ -377,7 +385,16 @@ def _candidate_record(fixture: dict[str, Any], members: list[str], vectors: dict
     return {
         "candidate_id": f"{fixture['id']}:{scale_view['recipe_id']}:{aggregation['id']}:{candidate_index}", "members": sorted(members),
         "scale_descriptor": {"recipe_id": scale_view["recipe_id"], "parameters": scale_view["parameters"]},
-        "co_membership_evidence": {"selected_pair_count": len(internal_ids), "computed_pair_count": sum(bool(vector["normalized_gaps"]) for vector in internal), "interpretation": "deterministic support; not probability"},
+        "co_membership_evidence": {
+            "selected_pair_count": sum(pair_id in set(scale_view["selected_relation_ids"]) for pair_id in internal_ids),
+            "computed_pair_count": sum(
+                vector.get("status") == "computed"
+                and vector.get("normalized_gaps")
+                and all(math.isfinite(value) for value in vector["normalized_gaps"])
+                for vector in internal
+            ),
+            "interpretation": "deterministic support; not probability",
+        },
         "candidate_relation_ids": internal_ids,
         "aggregation_semantics": {"role": semantic_role,
                                    "group_partition": False,
@@ -595,6 +612,53 @@ def aggregation_semantics_assertion() -> dict[str, Any]:
             "truth_consumed": False}
 
 
+def diagnostic_regression_assertion() -> dict[str, Any]:
+    """Assert the three controller-review counterexamples stay repaired."""
+    base_scale = {"recipe_id": "relative_gap_rank", "parameters": {"bound": 1.0}, "selected_relation_ids": ["A|B"]}
+    aggregation = {"id": "selected_relation_connected", "parameters": {}, "provenance": "self-check"}
+
+    span_fixture = {"id": "repair_r1", "groups": [{"id": item, "members": []} for item in ("A", "B", "C")]}
+    span_vectors = {
+        pair_id: {"group_a": pair_id.split("|", 1)[0], "group_b": pair_id.split("|", 1)[1], "status": "computed", "normalized_gaps": [1.0],
+                  "missingness": [], "positive_support_vector": [], "negative_evidence_vector": [], "space_role_refs": []}
+        for pair_id in ("A|B", "A|C", "B|C")
+    }
+    span_membersets = _max_span_candidates(["A", "B", "C"], span_vectors, {"A|B"}, 1.0)
+    span_views = _aggregate(span_fixture, span_vectors, base_scale, [{"id": "max_span", "parameters": {}, "provenance": "self-check"}], {"A|B": 1})
+    span_candidates = span_views[0]["candidates"]
+    assert span_membersets == [["A", "B"]]
+    assert any(item["members"] == ["C"] and item["candidate_status"] == "unassigned" for item in span_candidates)
+
+    def vector(pair_id: str, status: str = "computed", gaps: list[float] | None = None) -> dict[str, Any]:
+        left, right = pair_id.split("|", 1)
+        return {"group_a": left, "group_b": right, "status": status, "normalized_gaps": [1.0] if gaps is None else gaps,
+                "missingness": [], "positive_support_vector": [], "negative_evidence_vector": [], "space_role_refs": []}
+
+    counter_fixture = {"id": "repair_r2", "groups": [{"id": item, "members": []} for item in ("A", "B", "C")]}
+    counter_vectors = {"A|B": vector("A|B", "invalid"), "A|C": vector("A|C"), "B|C": vector("B|C")}
+    counter = _candidate_record(counter_fixture, ["A", "B", "C"], counter_vectors, aggregation, base_scale, {"A|B": 1}, 0)
+    nonfinite_vectors = {**counter_vectors, "B|C": vector("B|C", gaps=[math.nan])}
+    nonfinite = _candidate_record(counter_fixture, ["A", "B", "C"], nonfinite_vectors, aggregation, base_scale, {"A|B": 1}, 0)
+    assert counter["co_membership_evidence"] == {"selected_pair_count": 1, "computed_pair_count": 2, "interpretation": "deterministic support; not probability"}
+    assert nonfinite["co_membership_evidence"]["computed_pair_count"] == 1
+
+    veto_fixture = {"id": "repair_r3", "groups": [
+        {"id": "A", "members": [{"id": "a", "factual_properties": {"mutual_exclusion": ["C"]}}]},
+        {"id": "B", "members": [{"id": "b", "factual_properties": {}}]},
+        {"id": "C", "members": [{"id": "c", "factual_properties": {}}]},
+    ]}
+    veto_vectors = {"A|B": vector("A|B"), "B|C": vector("B|C")}
+    veto = _candidate_record(veto_fixture, ["A", "B", "C"], veto_vectors, aggregation,
+                             {"recipe_id": "relative_gap_rank", "parameters": {}, "selected_relation_ids": ["A|B", "B|C"]},
+                             {"A|B": 2, "B|C": 2}, 0, ["A|B", "B|C"])
+    assert veto["mutual_exclusion_conflicts"] == [{"source_ref": "a", "target_ref": "C", "kind": "mutual_exclusion"}]
+    assert veto["candidate_status"] == "unassigned"
+    return {"passed": True, "truth_consumed": False,
+            "r1": {"max_span_membersets": span_membersets, "aggregate_members": [item["members"] for item in span_candidates]},
+            "r2": {"finite": counter["co_membership_evidence"], "nonfinite_computed_pair_count": nonfinite["co_membership_evidence"]["computed_pair_count"]},
+            "r3": {"mutual_exclusion_conflicts": veto["mutual_exclusion_conflicts"], "candidate_status": veto["candidate_status"]}}
+
+
 def status_matrix_assertion() -> dict[str, Any]:
     """Assert actual candidate propagation keeps missingness categorical."""
     fixture = json.loads(STATUS_MATRIX_FIXTURE.read_text(encoding="utf-8"))
@@ -670,6 +734,7 @@ def canonical_space_key_assertion(manifest: dict[str, Any]) -> dict[str, Any]:
 def design_semantics_assertions(manifest: dict[str, Any]) -> dict[str, Any]:
     """Run repair-specific assertions without reading evaluation truth."""
     return {"aggregation_semantics": aggregation_semantics_assertion(),
+            "diagnostic_regressions": diagnostic_regression_assertion(),
             "status_matrix": status_matrix_assertion(),
             "canonical_space_key": canonical_space_key_assertion(manifest)}
 
@@ -689,8 +754,8 @@ def _assertions(results: dict[str, dict[str, Any]], invariance: dict[str, Any], 
     assert statuses["PARTIAL"] == "partial" and statuses["INVALID"] == "invalid" and statuses["MISSING_GEOMETRY"] == "not_available"
     assert invariance["all_passed"]
     repair = design_semantics_assertions(manifest)
-    assert repair["aggregation_semantics"]["passed"] and repair["status_matrix"]["passed"] and repair["canonical_space_key"]["passed"]
-    return ["D0 candidate view remains deferred", "D1 emits parallel recipes with no formal edge", "hard veto wins and retains source refs", "partial/invalid/missing remain categorical", "declared invariance transforms preserve canonical relation signature", "context perturbation preserves authored node eligibility", "aggregation recipes preserve distinct design meanings", "status matrix forbids numeric missingness imputation", "unordered space keys preserve provenance and conflicts"]
+    assert repair["aggregation_semantics"]["passed"] and repair["diagnostic_regressions"]["passed"] and repair["status_matrix"]["passed"] and repair["canonical_space_key"]["passed"]
+    return ["D0 candidate view remains deferred", "D1 emits parallel recipes with no formal edge", "hard veto wins and retains source refs", "partial/invalid/missing remain categorical", "declared invariance transforms preserve canonical relation signature", "context perturbation preserves authored node eligibility", "aggregation recipes preserve distinct design meanings", "R1/R2/R3 diagnostic regressions remain repaired", "status matrix forbids numeric missingness imputation", "unordered space keys preserve provenance and conflicts"]
 
 
 def run(manifest: dict[str, Any]) -> dict[str, Any]:

@@ -77,6 +77,6 @@
   },
   "interpretation": "Geometry and variable diagnostics only; no psychological validity or production accuracy claim.",
   "schema": "d6-inferred-group-candidate-field-h2-visual-manifest/v2",
-  "scoring_sha256": "7f4ca9b533819414c5c5c5fd42dc5565282c6ba53dac8b139e48a29ea9a62c86",
+  "scoring_sha256": "56546268fdc10fc212a137b685d17d067778314421e88c6e27f9aa19a281705e",
   "status": "design_only_stop_for_design_review"
 }

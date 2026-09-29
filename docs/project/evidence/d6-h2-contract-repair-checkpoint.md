@@ -74,4 +74,18 @@ Connected recipe 只求 selected graph 连通分量，单 view 内分量不重�
 
 范围审计：本次只改 candidate-field design probe/runner/fixtures 与对应 H2 evidence/SVG，并新增本报告。未修改生产代码、正式测试、API、依赖、源 IFC；未执行 Blender/IFC/自动 space。owner decision 保持原样。提交使用明确路径；无关 dirty/untracked 文件不纳入。
 
+## Controller review corrective rerun
+
+针对 `d6-h2-contract-repair-controller-review.md` 的 R1/R2/R3，先在旧实现上分别运行最小反例，确认三项红回归：
+
+- R1：`_max_span_candidates()` 对 selected=`A|B` 的 A/B/C 输入实际返回 `[['A', 'B', 'C']]`，声明语义要求 `[['A', 'B']]`。
+- R2：候选内部 relation ids 为 `A|B`、`A|C`、`B|C`，当前 scale 只选 `A|B` 且 `A|B` 为 invalid（保留有限 gap）时，旧计数为 `selected_pair_count=3`、`computed_pair_count=3`；期望为 `1`、`2`。
+- R3：A→C 的 authored mutual-exclusion 声明在缺少 `A|C` geometry record 时，旧输出为无 veto、`candidate_status=weak`；期望保留 source/target provenance 并为 `unassigned`。
+
+修复限定在 design probe 根因：max-span 现在要求唯一连通分量覆盖整个候选；selected/computed counter 分别按当前 scale selection 与 `computed`/非空/全 finite gap 计数；veto 对候选全部内部 group pairs 检查 authored 声明，不依赖 geometry vector 存在。新增 self-check 同时覆盖 R1 singleton/unassigned、R2 invalid gap 保留与 non-finite gap、R3 缺失 `A|C` 的 veto provenance。
+
+修复后直接 regression self-check 为绿：R1 `[['A', 'B']]` 并保留 C singleton；R2 `1/2`，non-finite 变体 computed count 为 `1`；R3 保留 `a→C` mutual-exclusion 且状态为 `unassigned`。H2 corrective rerun 依次执行 `probe`、`score`、`visual`、`report`、`record`、`manifest`、`verify`，全部 exit 0；verify 仍通过 880 rows、16 hard gates、5 SVG/XML hashes。candidate 视图的 880 条 scoring rows 与旧结果一致；更新内容主要是 probe source hash、artifact/experiment provenance 与 regression assertion 证据，没有据此选择任何 winner 或阈值。
+
+这是 exploratory corrective rerun，不是新的预注册验证。最终 production status/group-gap/tie/ambiguity/overlap policy 仍 deferred；不代表 Checkpoint A owner approval，也不授权 Checkpoint B。未执行 B、真实 IFC、Blender 或自动 space。
+
 STOP FOR CONTRACT REVIEW
