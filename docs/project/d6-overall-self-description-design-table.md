@@ -193,4 +193,10 @@ relation observations
 - `superpowers:writing-plans`：将后续实现门槛拆为可检查的设计顺序；当前仍未生成 production implementation plan，因为 selector 尚未冻结。
 - `superpowers:verification-before-completion`：本设计文档提交前执行 diff 检查、链接/路径审计和 git diff 范围审计。
 
+## 11. E11 交互 probe 更新
+
+E11 记录见 [d6-self-description-competition-experiment-record.md](d6-self-description-competition-experiment-record.md)，证据见 [d6-self-description-competition-probe.json](evidence/d6-self-description-competition-probe.json)。8/8 个预设不变量通过：普通标签差异保持软负证据，几何差异和 closed barrier 分通道，明确 mutual exclusion 作为 candidate-level veto，context 不改变家具节点资格，missing/invalid 状态不互相改写。
+
+E11 支持冻结 interaction contract 的表达方式，但没有冻结 support 权重、尺度、候选 selector、唯一 partition 或 Bayesian prior。下一阶段应进入 implementation-design review 草案，而不是直接实现 selector。
+
 **STOP FOR DESIGN REVIEW**

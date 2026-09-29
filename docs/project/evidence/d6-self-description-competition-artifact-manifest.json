@@ -1,0 +1,26 @@
+{
+  "schema": "d6-self-description-competition-artifact-manifest/v1",
+  "formula_scope": "probe_only_not_production",
+  "artifacts": [
+    {
+      "path": "scripts/design/group_level/self_description_competition_fixtures.json",
+      "sha256": "8a9253de9294138292e2a47463b847eaef96152793826dd00965b7d95de9b74d",
+      "bytes": 4070
+    },
+    {
+      "path": "scripts/design/group_level/run_self_description_competition_probe.py",
+      "sha256": "fff2411bc0e4e953f0e6594095d360b2e3d3d3af1c6c340e4df7cdcb33334c47",
+      "bytes": 9410
+    },
+    {
+      "path": "docs/project/evidence/d6-self-description-competition-probe.json",
+      "sha256": "0f5c71bbd6baaa86086cd5ac3f560ccb4ce4ba45377832805c4b7814ea992edd",
+      "bytes": 20275
+    },
+    {
+      "path": "docs/project/d6-self-description-competition-experiment-record.md",
+      "sha256": "18a6ff051c17a9248dd380990e549378ab44e9894dd628d9dd10a9d9c81be391",
+      "bytes": 4842
+    }
+  ]
+}
