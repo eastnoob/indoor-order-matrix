@@ -362,7 +362,7 @@ F1 组织/角色场 + inferred-group candidates
 
 - **局部 alignment / frame reference**：墙体、柱、明确的结构边界等可提供局部方向参照；输出必须标记 `context_reference` 和参照来源。
 - **AnalysisDomain 边界、opening/barrier 和自由空间拓扑**：明确承担边界或阻隔角色的对象可影响 domain、可穿越性、瓶颈和 gap-path 观测。
-- **physical occupancy / clearance**：只有被明确声明为物理占用或阻挡体的 context 几何才能进入相应计算；不能因为对象存在于场景中就自动成为 blocker。
+- **physical occupancy / clearance**：由指标根据 context 已有的有效几何、位置、高度及源对象信息判断其空间占用和阻隔作用，不要求用户新增 occupancy/blocker 标记。不能把所有对象的平面投影一律当成地面障碍；例如悬空灯具是否影响 clearance 取决于被分析的高度范围。具体几何判定仍待设计验证。
 
 ### 明确禁止的 context 通道
 
@@ -371,6 +371,22 @@ F1 组织/角色场 + inferred-group candidates
 - 不提供家具类型相似性、标签一致性或语义同类证据；
 - 不通过名称、图层、普通 `IfcGroup` 或旧 region fallback 改写分析资格。
 
-这条 allowlist 仍是设计基线，不是 production API。后续 probe 需要验证：加入/移除同一 context 对象只改变它被允许的指标；不会改变 authored membership、标签竞争或候选级互斥结果。
+这条 allowlist 是指标设计内部的输入适用范围，不是用户逐对象打标或维护的清单，也不是 production API。后续 probe 需要验证：context 不改变 authored membership、源标签或显式互斥声明；但其合法的空间观测可以沿依赖关系改变软竞争和 inferred-group 结果，例如墙体分隔本来就应影响组间关系。
+
+**STOP FOR GRILL-ME DISCUSSION**
+
+## 18. 撤回 context 额外标记要求（2026-09-29）
+
+### 用户原话
+
+> 我不理解引入这两个新标记的意义，context就是context，他们不应像家具组一样复杂
+
+### 修正与责任说明
+
+上一轮由助手增加的“必须声明 blocker/occupancy 才参与计算”不是用户原始要求，现撤回。Context 保持为背景参照对象，不再引入与家具组类似的资格标记、类型竞争或逐对象授权流程。此前 `context_reference` 表示计算输出的来源记录，也不是要求用户填写的新标签。
+
+空间占用和阻隔是指标从已有输入中判断的作用，不是两个新增人工标记。已有几何或高度等信息确实不足时，报告对应观测的缺失或局限；不能仅因不存在助手设想的新标记就返回 `not_available`。显式 AnalysisDomain、外部 affordance 和真实 opening 关系的原有输入边界不因此放宽。
+
+同时修正上一轮过强的隔离说法：context 不作为 inferred-group 成员，却可以通过自由空间、阻隔、方向参照等证据间接影响分组；否则斜墙参照和墙体分隔将失去本来的意义。此处为助手对现有设计的纠错，不是新增实现或已验证算法。
 
 **STOP FOR GRILL-ME DISCUSSION**
