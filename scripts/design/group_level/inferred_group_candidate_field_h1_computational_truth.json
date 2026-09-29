@@ -1,0 +1,1434 @@
+{
+  "candidate_probe_access": {
+    "allowed": false,
+    "fixture_manifest_only_probe": true,
+    "reason": "truth is read only by a future evaluation side after candidate emission"
+  },
+  "contract_id": "d6-h1-holdout-computational-truth-v1",
+  "evaluation_boundary": {
+    "holdout_recovery_scoring": "not_run",
+    "numerical_thresholds": "deferred",
+    "production_selector": "deferred",
+    "recipe_winner": "deferred"
+  },
+  "families": [
+    {
+      "candidate_member_sets": [
+        [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        [
+          "G4",
+          "G5"
+        ]
+      ],
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "all authored nodes belong to one of two regular segments",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "gap-jump",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "invariance_preservation_condition": "candidate sets, veto set, status targets and normalized relation signature remain unchanged under the four declared transforms; the boundary remains a relative structural gap.",
+      "replica_targets": [
+        {
+          "candidate_member_sets": [
+            [
+              "G1",
+              "G2",
+              "G3"
+            ],
+            [
+              "G4",
+              "G5"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "all authored nodes belong to one of two regular segments",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "gap_jump:development:101",
+          "seed": 101,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "G1",
+              "G2",
+              "G3"
+            ],
+            [
+              "G4",
+              "G5"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "all authored nodes belong to one of two regular segments",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "gap_jump:development:202",
+          "seed": 202,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "G1",
+              "G2",
+              "G3"
+            ],
+            [
+              "G4",
+              "G5"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "all authored nodes belong to one of two regular segments",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "gap_jump:holdout:303",
+          "seed": 303,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "G1",
+              "G2",
+              "G3"
+            ],
+            [
+              "G4",
+              "G5"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "all authored nodes belong to one of two regular segments",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "gap_jump:holdout:404",
+          "seed": 404,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        }
+      ],
+      "source_fixture_id": "gap_jump",
+      "status_targets": {
+        "computed": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "M1",
+          "M2",
+          "M3"
+        ]
+      ],
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "M4 is a separated minority-label observation retained as singleton/unassigned",
+        "singletons": [
+          "M4"
+        ],
+        "unassigned": [
+          "M4"
+        ]
+      },
+      "family": "minority-mixed",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "invariance_preservation_condition": "the M1-M2-M3 candidate and M4 diagnostic persist; type disagreement remains soft evidence and never becomes a veto.",
+      "replica_targets": [
+        {
+          "candidate_member_sets": [
+            [
+              "M1",
+              "M2",
+              "M3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "M4 is a separated minority-label observation retained as singleton/unassigned",
+            "singletons": [
+              "M4"
+            ],
+            "unassigned": [
+              "M4"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "minority_mixed:development:101",
+          "seed": 101,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "M1",
+              "M2",
+              "M3",
+              "M4"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "M1",
+              "M2",
+              "M3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "M4 is a separated minority-label observation retained as singleton/unassigned",
+            "singletons": [
+              "M4"
+            ],
+            "unassigned": [
+              "M4"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "minority_mixed:development:202",
+          "seed": 202,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "M1",
+              "M2",
+              "M3",
+              "M4"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "M1",
+              "M2",
+              "M3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "M4 is a separated minority-label observation retained as singleton/unassigned",
+            "singletons": [
+              "M4"
+            ],
+            "unassigned": [
+              "M4"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "minority_mixed:holdout:303",
+          "seed": 303,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "M1",
+              "M2",
+              "M3",
+              "M4"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "M1",
+              "M2",
+              "M3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "M4 is a separated minority-label observation retained as singleton/unassigned",
+            "singletons": [
+              "M4"
+            ],
+            "unassigned": [
+              "M4"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "minority_mixed:holdout:404",
+          "seed": 404,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "M1",
+              "M2",
+              "M3",
+              "M4"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        }
+      ],
+      "source_fixture_id": "minority_mixed",
+      "status_targets": {
+        "computed": [
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "CUBE",
+          "TALL"
+        ],
+        [
+          "TALL",
+          "ROUNDISH"
+        ]
+      ],
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "same-type shape/axis disagreement is soft negative evidence across two local alternatives",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "geometry-conflict",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "invariance_preservation_condition": "candidate alternatives and soft geometry provenance persist under common translation, frame rotation, positive unit scaling and ID/traversal reorder.",
+      "replica_targets": [
+        {
+          "candidate_member_sets": [
+            [
+              "CUBE",
+              "TALL"
+            ],
+            [
+              "TALL",
+              "ROUNDISH"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "same-type shape/axis disagreement is soft negative evidence across two local alternatives",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "geometry_conflict:development:101",
+          "seed": 101,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "CUBE",
+              "TALL",
+              "ROUNDISH"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "CUBE",
+              "TALL"
+            ],
+            [
+              "TALL",
+              "ROUNDISH"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "same-type shape/axis disagreement is soft negative evidence across two local alternatives",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "geometry_conflict:development:202",
+          "seed": 202,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "CUBE",
+              "TALL",
+              "ROUNDISH"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "CUBE",
+              "TALL"
+            ],
+            [
+              "TALL",
+              "ROUNDISH"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "same-type shape/axis disagreement is soft negative evidence across two local alternatives",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "geometry_conflict:holdout:303",
+          "seed": 303,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "CUBE",
+              "TALL",
+              "ROUNDISH"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "CUBE",
+              "TALL"
+            ],
+            [
+              "TALL",
+              "ROUNDISH"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "same-type shape/axis disagreement is soft negative evidence across two local alternatives",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "geometry_conflict:holdout:404",
+          "seed": 404,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "CUBE",
+              "TALL",
+              "ROUNDISH"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        }
+      ],
+      "source_fixture_id": "geometry_conflict",
+      "status_targets": {
+        "computed": [
+          "CUBE",
+          "TALL",
+          "ROUNDISH"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "S1",
+          "S3"
+        ]
+      ],
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "the wall-separated S1/S2 pair is vetoed; S2 remains an explicit singleton/unassigned diagnostic",
+        "singletons": [
+          "S2"
+        ],
+        "unassigned": [
+          "S2"
+        ]
+      },
+      "family": "space-conflict",
+      "hard_mutual_exclusion_veto_pairs": [
+        {
+          "pair": [
+            "S1",
+            "S2"
+          ],
+          "source_ref": "S1.member.factual_properties.mutual_exclusion",
+          "target_ref": "S2"
+        }
+      ],
+      "invariance_preservation_condition": "the S1-S2 veto is invariant under the four transforms with source references remapped; S1-S3 remains admissible.",
+      "replica_targets": [
+        {
+          "candidate_member_sets": [
+            [
+              "S1",
+              "S3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "the wall-separated S1/S2 pair is vetoed; S2 remains an explicit singleton/unassigned diagnostic",
+            "singletons": [
+              "S2"
+            ],
+            "unassigned": [
+              "S2"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [
+            {
+              "pair": [
+                "S1",
+                "S2"
+              ],
+              "source_ref": "S1.member.factual_properties.mutual_exclusion",
+              "target_ref": "S2"
+            }
+          ],
+          "replica_id": "space_conflict:development:101",
+          "seed": 101,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "S1",
+              "S3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "the wall-separated S1/S2 pair is vetoed; S2 remains an explicit singleton/unassigned diagnostic",
+            "singletons": [
+              "S2"
+            ],
+            "unassigned": [
+              "S2"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [
+            {
+              "pair": [
+                "S1",
+                "S2"
+              ],
+              "source_ref": "S1.member.factual_properties.mutual_exclusion",
+              "target_ref": "S2"
+            }
+          ],
+          "replica_id": "space_conflict:development:202",
+          "seed": 202,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "S1",
+              "S3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "the wall-separated S1/S2 pair is vetoed; S2 remains an explicit singleton/unassigned diagnostic",
+            "singletons": [
+              "S2"
+            ],
+            "unassigned": [
+              "S2"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [
+            {
+              "pair": [
+                "S1",
+                "S2"
+              ],
+              "source_ref": "S1.member.factual_properties.mutual_exclusion",
+              "target_ref": "S2"
+            }
+          ],
+          "replica_id": "space_conflict:holdout:303",
+          "seed": 303,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "S1",
+              "S3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "the wall-separated S1/S2 pair is vetoed; S2 remains an explicit singleton/unassigned diagnostic",
+            "singletons": [
+              "S2"
+            ],
+            "unassigned": [
+              "S2"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [
+            {
+              "pair": [
+                "S1",
+                "S2"
+              ],
+              "source_ref": "S1.member.factual_properties.mutual_exclusion",
+              "target_ref": "S2"
+            }
+          ],
+          "replica_id": "space_conflict:holdout:404",
+          "seed": 404,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        }
+      ],
+      "source_fixture_id": "space_conflict",
+      "status_targets": {
+        "computed": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "B",
+          "C"
+        ]
+      ],
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "D is isolated; A-B and B-C overlap and are not collapsed into a partition",
+        "singletons": [
+          "D"
+        ],
+        "unassigned": [
+          "D"
+        ]
+      },
+      "family": "bridge-chain",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "invariance_preservation_condition": "A-B/B-C overlap and D diagnostic persist; A-C remains weak and does not force transitive grouping.",
+      "replica_targets": [
+        {
+          "candidate_member_sets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "D is isolated; A-B and B-C overlap and are not collapsed into a partition",
+            "singletons": [
+              "D"
+            ],
+            "unassigned": [
+              "D"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "bridge_chain:development:101",
+          "seed": 101,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "D is isolated; A-B and B-C overlap and are not collapsed into a partition",
+            "singletons": [
+              "D"
+            ],
+            "unassigned": [
+              "D"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "bridge_chain:development:202",
+          "seed": 202,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "D is isolated; A-B and B-C overlap and are not collapsed into a partition",
+            "singletons": [
+              "D"
+            ],
+            "unassigned": [
+              "D"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "bridge_chain:holdout:303",
+          "seed": 303,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "D is isolated; A-B and B-C overlap and are not collapsed into a partition",
+            "singletons": [
+              "D"
+            ],
+            "unassigned": [
+              "D"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "bridge_chain:holdout:404",
+          "seed": 404,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        }
+      ],
+      "source_fixture_id": "bridge_chain",
+      "status_targets": {
+        "computed": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "O1",
+          "O2"
+        ],
+        [
+          "O2",
+          "O3"
+        ]
+      ],
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "O2 is intentionally shared by two candidate organizations",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "overlapping-candidates",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "invariance_preservation_condition": "the shared O2 overlap, member sets and statuses persist under the four transforms.",
+      "replica_targets": [
+        {
+          "candidate_member_sets": [
+            [
+              "O1",
+              "O2"
+            ],
+            [
+              "O2",
+              "O3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "O2 is intentionally shared by two candidate organizations",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "overlapping_candidates:development:101",
+          "seed": 101,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "O1",
+              "O2",
+              "O3"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "O1",
+              "O2"
+            ],
+            [
+              "O2",
+              "O3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "O2 is intentionally shared by two candidate organizations",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "overlapping_candidates:development:202",
+          "seed": 202,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "O1",
+              "O2",
+              "O3"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "O1",
+              "O2"
+            ],
+            [
+              "O2",
+              "O3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "O2 is intentionally shared by two candidate organizations",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "overlapping_candidates:holdout:303",
+          "seed": 303,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "O1",
+              "O2",
+              "O3"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "O1",
+              "O2"
+            ],
+            [
+              "O2",
+              "O3"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "O2 is intentionally shared by two candidate organizations",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "overlapping_candidates:holdout:404",
+          "seed": 404,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "O1",
+              "O2",
+              "O3"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        }
+      ],
+      "source_fixture_id": "overlapping_candidates",
+      "status_targets": {
+        "computed": [
+          "O1",
+          "O2",
+          "O3"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    },
+    {
+      "candidate_member_sets": [],
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "no positive group claim; diagnostics expose state propagation without treating a singleton as inferred membership",
+        "singletons": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ],
+        "unassigned": [
+          "VALID",
+          "PARTIAL",
+          "INVALID",
+          "MISSING_GEOMETRY"
+        ]
+      },
+      "family": "missing-invalid",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "invariance_preservation_condition": "available geometry transforms preserve categorical states; unavailable stays not_available, invalid stays invalid and partial reasons stay intact.",
+      "replica_targets": [
+        {
+          "candidate_member_sets": [],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "no positive group claim; diagnostics expose state propagation without treating a singleton as inferred membership",
+            "singletons": [
+              "VALID",
+              "PARTIAL",
+              "INVALID",
+              "MISSING_GEOMETRY"
+            ],
+            "unassigned": [
+              "VALID",
+              "PARTIAL",
+              "INVALID",
+              "MISSING_GEOMETRY"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "missing_invalid:development:101",
+          "seed": 101,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "VALID"
+            ],
+            "invalid": [
+              "INVALID"
+            ],
+            "not_available": [
+              "MISSING_GEOMETRY"
+            ],
+            "partial": [
+              "PARTIAL"
+            ]
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "no positive group claim; diagnostics expose state propagation without treating a singleton as inferred membership",
+            "singletons": [
+              "VALID",
+              "PARTIAL",
+              "INVALID",
+              "MISSING_GEOMETRY"
+            ],
+            "unassigned": [
+              "VALID",
+              "PARTIAL",
+              "INVALID",
+              "MISSING_GEOMETRY"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "missing_invalid:development:202",
+          "seed": 202,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "VALID"
+            ],
+            "invalid": [
+              "INVALID"
+            ],
+            "not_available": [
+              "MISSING_GEOMETRY"
+            ],
+            "partial": [
+              "PARTIAL"
+            ]
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "no positive group claim; diagnostics expose state propagation without treating a singleton as inferred membership",
+            "singletons": [
+              "VALID",
+              "PARTIAL",
+              "INVALID",
+              "MISSING_GEOMETRY"
+            ],
+            "unassigned": [
+              "VALID",
+              "PARTIAL",
+              "INVALID",
+              "MISSING_GEOMETRY"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "missing_invalid:holdout:303",
+          "seed": 303,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "VALID"
+            ],
+            "invalid": [
+              "INVALID"
+            ],
+            "not_available": [
+              "MISSING_GEOMETRY"
+            ],
+            "partial": [
+              "PARTIAL"
+            ]
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "no positive group claim; diagnostics expose state propagation without treating a singleton as inferred membership",
+            "singletons": [
+              "VALID",
+              "PARTIAL",
+              "INVALID",
+              "MISSING_GEOMETRY"
+            ],
+            "unassigned": [
+              "VALID",
+              "PARTIAL",
+              "INVALID",
+              "MISSING_GEOMETRY"
+            ]
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "missing_invalid:holdout:404",
+          "seed": 404,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "VALID"
+            ],
+            "invalid": [
+              "INVALID"
+            ],
+            "not_available": [
+              "MISSING_GEOMETRY"
+            ],
+            "partial": [
+              "PARTIAL"
+            ]
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        }
+      ],
+      "source_fixture_id": "missing_invalid",
+      "status_targets": {
+        "computed": [
+          "VALID"
+        ],
+        "invalid": [
+          "INVALID"
+        ],
+        "not_available": [
+          "MISSING_GEOMETRY"
+        ],
+        "partial": [
+          "PARTIAL"
+        ]
+      }
+    },
+    {
+      "candidate_member_sets": [
+        [
+          "P1",
+          "P2"
+        ]
+      ],
+      "expected_unassigned_singleton_diagnostic": {
+        "reason": "context objects are reference evidence and cannot become authored furniture nodes",
+        "singletons": [],
+        "unassigned": []
+      },
+      "family": "context-perturbation",
+      "hard_mutual_exclusion_veto_pairs": [],
+      "invariance_preservation_condition": "the four geometry/ordering transforms preserve P1/P2; separate context perturbation preserves authored eligibility but may change space-role references.",
+      "replica_targets": [
+        {
+          "candidate_member_sets": [
+            [
+              "P1",
+              "P2"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "context objects are reference evidence and cannot become authored furniture nodes",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "context_perturbation:development:101",
+          "seed": 101,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "P1",
+              "P2"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "P1",
+              "P2"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "context objects are reference evidence and cannot become authored furniture nodes",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "context_perturbation:development:202",
+          "seed": 202,
+          "split": "development",
+          "status_targets": {
+            "computed": [
+              "P1",
+              "P2"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "P1",
+              "P2"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "context objects are reference evidence and cannot become authored furniture nodes",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "context_perturbation:holdout:303",
+          "seed": 303,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "P1",
+              "P2"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        },
+        {
+          "candidate_member_sets": [
+            [
+              "P1",
+              "P2"
+            ]
+          ],
+          "expected_unassigned_singleton_diagnostic": {
+            "reason": "context objects are reference evidence and cannot become authored furniture nodes",
+            "singletons": [],
+            "unassigned": []
+          },
+          "hard_mutual_exclusion_veto_pairs": [],
+          "replica_id": "context_perturbation:holdout:404",
+          "seed": 404,
+          "split": "holdout",
+          "status_targets": {
+            "computed": [
+              "P1",
+              "P2"
+            ],
+            "invalid": [],
+            "not_available": [],
+            "partial": []
+          },
+          "truth_scope": "evaluation-side computational structure from the family generator contract; not a human label, psychological truth, or real-scene accuracy claim"
+        }
+      ],
+      "source_fixture_id": "context_perturbation",
+      "status_targets": {
+        "computed": [
+          "P1",
+          "P2"
+        ],
+        "invalid": [],
+        "not_available": [],
+        "partial": []
+      }
+    }
+  ],
+  "invariance": {
+    "expected": "declared transformations preserve canonical computational relation structure subject to family conditions",
+    "variants": [
+      "translation",
+      "rotation_frame",
+      "positive_unit_scale",
+      "id_traversal_reorder"
+    ]
+  },
+  "schema": "d6-inferred-group-candidate-field-h1-computational-truth/v1",
+  "source_generation": {
+    "fixture_template_manifest": "scripts/design/group_level/inferred_group_candidate_field_fixtures.json",
+    "fixture_template_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+    "generator": "d6-h1-structural-replica/v1"
+  },
+  "split_contract": {
+    "development_seeds": [
+      101,
+      202
+    ],
+    "holdout_seeds": [
+      303,
+      404
+    ],
+    "member_or_pair_split_forbidden": true,
+    "unit": "complete_fixture_family_replica"
+  },
+  "status": "evaluation_side_only_stop_for_design_review",
+  "truth_is_not": [
+    "human annotation",
+    "psychological truth",
+    "real-scene accuracy",
+    "production membership"
+  ],
+  "truth_type": "evaluation_side_computational_structure"
+}

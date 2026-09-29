@@ -1,0 +1,630 @@
+{
+  "candidate_probe_input_policy": {
+    "allowed_input": "this fixture manifest only",
+    "rule": "candidate mechanisms may read fixture geometry/templates and seed records; they must not read evaluation truth targets",
+    "truth_consumed": false,
+    "truth_manifest_path": null
+  },
+  "contract_id": "d6-h1-holdout-computational-truth-v1",
+  "families": [
+    {
+      "development": [
+        {
+          "family": "gap-jump",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "gap_jump:development:101",
+          "seed": 101,
+          "seed_digest_sha256": "972e9c2bb5294f8dbfd937c460a17cec16a501ba6a776a697f6aa22dd3f4d93e",
+          "seed_material": "d6-h1/holdout-fixture/v1|gap-jump|development|101",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "gap_jump",
+          "split": "development"
+        },
+        {
+          "family": "gap-jump",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "gap_jump:development:202",
+          "seed": 202,
+          "seed_digest_sha256": "de452a6890d0e8cfc67477e10ac793c31c0d3d594140fbc4459643905b09ef75",
+          "seed_material": "d6-h1/holdout-fixture/v1|gap-jump|development|202",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "gap_jump",
+          "split": "development"
+        }
+      ],
+      "family": "gap-jump",
+      "holdout": [
+        {
+          "family": "gap-jump",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "gap_jump:holdout:303",
+          "seed": 303,
+          "seed_digest_sha256": "f9d58590b7a8f9dedcfacba4c67f958cc6d02e1cd7625cb9b0fffd3062fcc1fa",
+          "seed_material": "d6-h1/holdout-fixture/v1|gap-jump|holdout|303",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "gap_jump",
+          "split": "holdout"
+        },
+        {
+          "family": "gap-jump",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "gap_jump:holdout:404",
+          "seed": 404,
+          "seed_digest_sha256": "4b7d9b2ed6df739644bc97b2d7c2bdaebdd9c6a763b90dc836acb358eaa55ef7",
+          "seed_material": "d6-h1/holdout-fixture/v1|gap-jump|holdout|404",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "gap_jump",
+          "split": "holdout"
+        }
+      ],
+      "invariance_contract": {
+        "condition": "candidate sets, veto set, status targets and normalized relation signature remain unchanged under the four declared transforms; the boundary remains a relative structural gap.",
+        "context_perturbation": "preserve authored node eligibility; space-role/context references may change",
+        "declared_transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ],
+        "preserve": [
+          "canonical relation signature",
+          "candidate member identity after canonical remapping",
+          "hard veto membership",
+          "evidence status categories",
+          "deterministic ordering"
+        ]
+      },
+      "source_fixture_id": "gap_jump"
+    },
+    {
+      "development": [
+        {
+          "family": "minority-mixed",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "minority_mixed:development:101",
+          "seed": 101,
+          "seed_digest_sha256": "64f290046bbc076ab6078217fa820939d7f1250c4bb8c014d76fb48c5a2ea01f",
+          "seed_material": "d6-h1/holdout-fixture/v1|minority-mixed|development|101",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "minority_mixed",
+          "split": "development"
+        },
+        {
+          "family": "minority-mixed",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "minority_mixed:development:202",
+          "seed": 202,
+          "seed_digest_sha256": "3c62557d232cd1e668c6c00070b5a7e52f3d25971d55ca220b1719e48e317ab3",
+          "seed_material": "d6-h1/holdout-fixture/v1|minority-mixed|development|202",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "minority_mixed",
+          "split": "development"
+        }
+      ],
+      "family": "minority-mixed",
+      "holdout": [
+        {
+          "family": "minority-mixed",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "minority_mixed:holdout:303",
+          "seed": 303,
+          "seed_digest_sha256": "b377d7396c7ce4568949585dbc1462ddf8888e6addbca202927855b30805f0aa",
+          "seed_material": "d6-h1/holdout-fixture/v1|minority-mixed|holdout|303",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "minority_mixed",
+          "split": "holdout"
+        },
+        {
+          "family": "minority-mixed",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "minority_mixed:holdout:404",
+          "seed": 404,
+          "seed_digest_sha256": "39f4b13d029dba6c499d002ed6f507b48888be46bd39caf7a7d01be219b3bfc2",
+          "seed_material": "d6-h1/holdout-fixture/v1|minority-mixed|holdout|404",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "minority_mixed",
+          "split": "holdout"
+        }
+      ],
+      "invariance_contract": {
+        "condition": "the M1-M2-M3 candidate and M4 diagnostic persist; type disagreement remains soft evidence and never becomes a veto.",
+        "context_perturbation": "preserve authored node eligibility; space-role/context references may change",
+        "declared_transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ],
+        "preserve": [
+          "canonical relation signature",
+          "candidate member identity after canonical remapping",
+          "hard veto membership",
+          "evidence status categories",
+          "deterministic ordering"
+        ]
+      },
+      "source_fixture_id": "minority_mixed"
+    },
+    {
+      "development": [
+        {
+          "family": "geometry-conflict",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "geometry_conflict:development:101",
+          "seed": 101,
+          "seed_digest_sha256": "e5ff00f71330a144797740fb40a5357dff7e67d359a5e474f1c6004782f1a81c",
+          "seed_material": "d6-h1/holdout-fixture/v1|geometry-conflict|development|101",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "geometry_conflict",
+          "split": "development"
+        },
+        {
+          "family": "geometry-conflict",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "geometry_conflict:development:202",
+          "seed": 202,
+          "seed_digest_sha256": "c20bf0ab929804357da99065b4ad7f9e7c37819109e4c27373e4b73cb2b9e9d6",
+          "seed_material": "d6-h1/holdout-fixture/v1|geometry-conflict|development|202",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "geometry_conflict",
+          "split": "development"
+        }
+      ],
+      "family": "geometry-conflict",
+      "holdout": [
+        {
+          "family": "geometry-conflict",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "geometry_conflict:holdout:303",
+          "seed": 303,
+          "seed_digest_sha256": "fa055def6875ba2bdb5b0cea0a15946106837940c99617d96e85caeee0763c6f",
+          "seed_material": "d6-h1/holdout-fixture/v1|geometry-conflict|holdout|303",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "geometry_conflict",
+          "split": "holdout"
+        },
+        {
+          "family": "geometry-conflict",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "geometry_conflict:holdout:404",
+          "seed": 404,
+          "seed_digest_sha256": "475baf67e2a3d62e2b27d3cb6d493c11710036123f22b8e54e913ca47e044e7d",
+          "seed_material": "d6-h1/holdout-fixture/v1|geometry-conflict|holdout|404",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "geometry_conflict",
+          "split": "holdout"
+        }
+      ],
+      "invariance_contract": {
+        "condition": "candidate alternatives and soft geometry provenance persist under common translation, frame rotation, positive unit scaling and ID/traversal reorder.",
+        "context_perturbation": "preserve authored node eligibility; space-role/context references may change",
+        "declared_transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ],
+        "preserve": [
+          "canonical relation signature",
+          "candidate member identity after canonical remapping",
+          "hard veto membership",
+          "evidence status categories",
+          "deterministic ordering"
+        ]
+      },
+      "source_fixture_id": "geometry_conflict"
+    },
+    {
+      "development": [
+        {
+          "family": "space-conflict",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "space_conflict:development:101",
+          "seed": 101,
+          "seed_digest_sha256": "1281346aed12294a71f5dda70b38fb537e27c23f6d229f4d1fcd6337b6d52d4d",
+          "seed_material": "d6-h1/holdout-fixture/v1|space-conflict|development|101",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "space_conflict",
+          "split": "development"
+        },
+        {
+          "family": "space-conflict",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "space_conflict:development:202",
+          "seed": 202,
+          "seed_digest_sha256": "40513a4c2b8b2b496fccb3401411a601fe5b2a5b7b64e12db5cbf57f07bd373a",
+          "seed_material": "d6-h1/holdout-fixture/v1|space-conflict|development|202",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "space_conflict",
+          "split": "development"
+        }
+      ],
+      "family": "space-conflict",
+      "holdout": [
+        {
+          "family": "space-conflict",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "space_conflict:holdout:303",
+          "seed": 303,
+          "seed_digest_sha256": "f4d970154fc5d43d7365f684199646d6d20557341fc0f8a3c42e5a6bd0390297",
+          "seed_material": "d6-h1/holdout-fixture/v1|space-conflict|holdout|303",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "space_conflict",
+          "split": "holdout"
+        },
+        {
+          "family": "space-conflict",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "space_conflict:holdout:404",
+          "seed": 404,
+          "seed_digest_sha256": "9ae9b647d91f02373403e05f95480b79167bab4fc689f1e358a19c7d52f0e3ac",
+          "seed_material": "d6-h1/holdout-fixture/v1|space-conflict|holdout|404",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "space_conflict",
+          "split": "holdout"
+        }
+      ],
+      "invariance_contract": {
+        "condition": "the S1-S2 veto is invariant under the four transforms with source references remapped; S1-S3 remains admissible.",
+        "context_perturbation": "preserve authored node eligibility; space-role/context references may change",
+        "declared_transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ],
+        "preserve": [
+          "canonical relation signature",
+          "candidate member identity after canonical remapping",
+          "hard veto membership",
+          "evidence status categories",
+          "deterministic ordering"
+        ]
+      },
+      "source_fixture_id": "space_conflict"
+    },
+    {
+      "development": [
+        {
+          "family": "bridge-chain",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "bridge_chain:development:101",
+          "seed": 101,
+          "seed_digest_sha256": "fb57842ec28eecd849e221ec5287798b5834d701ef192ef682ade0ba2bfdb889",
+          "seed_material": "d6-h1/holdout-fixture/v1|bridge-chain|development|101",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "bridge_chain",
+          "split": "development"
+        },
+        {
+          "family": "bridge-chain",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "bridge_chain:development:202",
+          "seed": 202,
+          "seed_digest_sha256": "7efc3c132c3be7284df69944bfd2c1109d2b1a32429471fbb79b6f2a3465c2c4",
+          "seed_material": "d6-h1/holdout-fixture/v1|bridge-chain|development|202",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "bridge_chain",
+          "split": "development"
+        }
+      ],
+      "family": "bridge-chain",
+      "holdout": [
+        {
+          "family": "bridge-chain",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "bridge_chain:holdout:303",
+          "seed": 303,
+          "seed_digest_sha256": "8cd832274e8660f5fc418110bf033f181f5356502232914fa144f86d1557be09",
+          "seed_material": "d6-h1/holdout-fixture/v1|bridge-chain|holdout|303",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "bridge_chain",
+          "split": "holdout"
+        },
+        {
+          "family": "bridge-chain",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "bridge_chain:holdout:404",
+          "seed": 404,
+          "seed_digest_sha256": "be03a82726aa9cda172eb7eed6bc027c1b703b704f0002bb49a0d57d75ce669e",
+          "seed_material": "d6-h1/holdout-fixture/v1|bridge-chain|holdout|404",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "bridge_chain",
+          "split": "holdout"
+        }
+      ],
+      "invariance_contract": {
+        "condition": "A-B/B-C overlap and D diagnostic persist; A-C remains weak and does not force transitive grouping.",
+        "context_perturbation": "preserve authored node eligibility; space-role/context references may change",
+        "declared_transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ],
+        "preserve": [
+          "canonical relation signature",
+          "candidate member identity after canonical remapping",
+          "hard veto membership",
+          "evidence status categories",
+          "deterministic ordering"
+        ]
+      },
+      "source_fixture_id": "bridge_chain"
+    },
+    {
+      "development": [
+        {
+          "family": "overlapping-candidates",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "overlapping_candidates:development:101",
+          "seed": 101,
+          "seed_digest_sha256": "f91c43f939fbb158a86ed6642c6c1b8e535a1d72e12de6792f77a725ad191ddc",
+          "seed_material": "d6-h1/holdout-fixture/v1|overlapping-candidates|development|101",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "overlapping_candidates",
+          "split": "development"
+        },
+        {
+          "family": "overlapping-candidates",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "overlapping_candidates:development:202",
+          "seed": 202,
+          "seed_digest_sha256": "d0b74e3801fef7843050e4c67c368e1a2853e28f32b28039fb33e2bba710e29f",
+          "seed_material": "d6-h1/holdout-fixture/v1|overlapping-candidates|development|202",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "overlapping_candidates",
+          "split": "development"
+        }
+      ],
+      "family": "overlapping-candidates",
+      "holdout": [
+        {
+          "family": "overlapping-candidates",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "overlapping_candidates:holdout:303",
+          "seed": 303,
+          "seed_digest_sha256": "3ba494ee89f9b0253fac6414f5da905cff61e71f80be4975c4c51699eb3158c5",
+          "seed_material": "d6-h1/holdout-fixture/v1|overlapping-candidates|holdout|303",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "overlapping_candidates",
+          "split": "holdout"
+        },
+        {
+          "family": "overlapping-candidates",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "overlapping_candidates:holdout:404",
+          "seed": 404,
+          "seed_digest_sha256": "628b8e566e433e6bda4925661c5f2d87806a4ce150d8adfe04055fb7a6e211c1",
+          "seed_material": "d6-h1/holdout-fixture/v1|overlapping-candidates|holdout|404",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "overlapping_candidates",
+          "split": "holdout"
+        }
+      ],
+      "invariance_contract": {
+        "condition": "the shared O2 overlap, member sets and statuses persist under the four transforms.",
+        "context_perturbation": "preserve authored node eligibility; space-role/context references may change",
+        "declared_transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ],
+        "preserve": [
+          "canonical relation signature",
+          "candidate member identity after canonical remapping",
+          "hard veto membership",
+          "evidence status categories",
+          "deterministic ordering"
+        ]
+      },
+      "source_fixture_id": "overlapping_candidates"
+    },
+    {
+      "development": [
+        {
+          "family": "missing-invalid",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "missing_invalid:development:101",
+          "seed": 101,
+          "seed_digest_sha256": "4d457a4f75bf39e8f080ef250c2736b7651201696534d60495ef0b2f98733cea",
+          "seed_material": "d6-h1/holdout-fixture/v1|missing-invalid|development|101",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "missing_invalid",
+          "split": "development"
+        },
+        {
+          "family": "missing-invalid",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "missing_invalid:development:202",
+          "seed": 202,
+          "seed_digest_sha256": "f4d4ffbda735bb48e6d53287515189c4153707401f689bc6ef27d0a70bd91a91",
+          "seed_material": "d6-h1/holdout-fixture/v1|missing-invalid|development|202",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "missing_invalid",
+          "split": "development"
+        }
+      ],
+      "family": "missing-invalid",
+      "holdout": [
+        {
+          "family": "missing-invalid",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "missing_invalid:holdout:303",
+          "seed": 303,
+          "seed_digest_sha256": "df5598c790cf027aa73d0b4ef7da7ca3ee893bc86e70c87e908d6f99780d3dc3",
+          "seed_material": "d6-h1/holdout-fixture/v1|missing-invalid|holdout|303",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "missing_invalid",
+          "split": "holdout"
+        },
+        {
+          "family": "missing-invalid",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "missing_invalid:holdout:404",
+          "seed": 404,
+          "seed_digest_sha256": "365d7e6e9c7c8646d1bc8eefe75fd742d50c9d6d798133c89250820564213170",
+          "seed_material": "d6-h1/holdout-fixture/v1|missing-invalid|holdout|404",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "missing_invalid",
+          "split": "holdout"
+        }
+      ],
+      "invariance_contract": {
+        "condition": "available geometry transforms preserve categorical states; unavailable stays not_available, invalid stays invalid and partial reasons stay intact.",
+        "context_perturbation": "preserve authored node eligibility; space-role/context references may change",
+        "declared_transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ],
+        "preserve": [
+          "canonical relation signature",
+          "candidate member identity after canonical remapping",
+          "hard veto membership",
+          "evidence status categories",
+          "deterministic ordering"
+        ]
+      },
+      "source_fixture_id": "missing_invalid"
+    },
+    {
+      "development": [
+        {
+          "family": "context-perturbation",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "context_perturbation:development:101",
+          "seed": 101,
+          "seed_digest_sha256": "f151a6323e4f4f0925b9a04fe58bd756c1c939a088b22b2824dd1a49231b2c97",
+          "seed_material": "d6-h1/holdout-fixture/v1|context-perturbation|development|101",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "context_perturbation",
+          "split": "development"
+        },
+        {
+          "family": "context-perturbation",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "context_perturbation:development:202",
+          "seed": 202,
+          "seed_digest_sha256": "c55d516a96186d08729a16c567908743e6dc0e558009be697bfd3a4a4c0c98bd",
+          "seed_material": "d6-h1/holdout-fixture/v1|context-perturbation|development|202",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "context_perturbation",
+          "split": "development"
+        }
+      ],
+      "family": "context-perturbation",
+      "holdout": [
+        {
+          "family": "context-perturbation",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "context_perturbation:holdout:303",
+          "seed": 303,
+          "seed_digest_sha256": "e6432f7c3ba0a08acf571290e28df825903bd2ed2f71250eb01f959cecefee30",
+          "seed_material": "d6-h1/holdout-fixture/v1|context-perturbation|holdout|303",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "context_perturbation",
+          "split": "holdout"
+        },
+        {
+          "family": "context-perturbation",
+          "generator": "d6-h1-structural-replica/v1",
+          "materialization": "deterministic seed record referencing the immutable source fixture; no stochastic scoring or truth lookup",
+          "replica_id": "context_perturbation:holdout:404",
+          "seed": 404,
+          "seed_digest_sha256": "ac28dae22c1a105b78858b914f4e3ccb37f8beddc0fa1e62b1bd0b5be88f8481",
+          "seed_material": "d6-h1/holdout-fixture/v1|context-perturbation|holdout|404",
+          "seed_scope": "one_complete_fixture_family_replica",
+          "source_fixture_id": "context_perturbation",
+          "split": "holdout"
+        }
+      ],
+      "invariance_contract": {
+        "condition": "the four geometry/ordering transforms preserve P1/P2; separate context perturbation preserves authored eligibility but may change space-role references.",
+        "context_perturbation": "preserve authored node eligibility; space-role/context references may change",
+        "declared_transforms": [
+          "translation",
+          "rotation_frame",
+          "positive_unit_scale",
+          "id_traversal_reorder"
+        ],
+        "preserve": [
+          "canonical relation signature",
+          "candidate member identity after canonical remapping",
+          "hard veto membership",
+          "evidence status categories",
+          "deterministic ordering"
+        ]
+      },
+      "source_fixture_id": "context_perturbation"
+    }
+  ],
+  "generator": {
+    "development_seeds": [
+      101,
+      202
+    ],
+    "holdout_seeds": [
+      303,
+      404
+    ],
+    "holdout_seeds_fixed": true,
+    "id": "d6-h1-structural-replica/v1",
+    "member_or_pair_split_forbidden": true,
+    "seed_derivation": "sha256(UTF8('d6-h1/holdout-fixture/v1|{family}|{split}|{seed}'))",
+    "split_unit": "complete_fixture_family_replica"
+  },
+  "holdout_scoring": {
+    "reason": "H1 materializes the contract and seed records only",
+    "status": "not_run"
+  },
+  "invariance": {
+    "canonical_signature": "status + missingness + normalized relation values, sorted independently of IDs/traversal",
+    "positive_scale_only": true,
+    "variants": [
+      "translation",
+      "rotation_frame",
+      "positive_unit_scale",
+      "id_traversal_reorder"
+    ]
+  },
+  "schema": "d6-inferred-group-candidate-field-h1-holdout-fixtures/v1",
+  "source_fixture_manifest": {
+    "path": "scripts/design/group_level/inferred_group_candidate_field_fixtures.json",
+    "sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531"
+  },
+  "status": "design_only_stop_for_design_review"
+}

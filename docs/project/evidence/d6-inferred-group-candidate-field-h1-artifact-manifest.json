@@ -1,0 +1,61 @@
+{
+  "artifacts": [
+    {
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-h1-holdout-design.md",
+      "role": "h1_design_record",
+      "sha256": "442147807737ca3bf1b983c5a80ccee1376e784fb46f6743fd11f1c9ed316316"
+    },
+    {
+      "path": "scripts/design/group_level/inferred_group_candidate_field_h1_holdout_fixtures.json",
+      "role": "holdout_fixture_manifest",
+      "sha256": "619752394169d13e2cb908a6559f42ad7da807a1d78c68fd75c5c2e72646fde4"
+    },
+    {
+      "path": "scripts/design/group_level/inferred_group_candidate_field_h1_computational_truth.json",
+      "role": "computational_truth_manifest",
+      "sha256": "1e806bb71a937d8ae1967f6eaf32a87d68097f936b79aee6ad2a627a52bf61d1"
+    }
+  ],
+  "contract": {
+    "development_seeds": [
+      101,
+      202
+    ],
+    "fixture_family_count": 8,
+    "holdout_recovery_scoring": "not_run",
+    "holdout_seeds": [
+      303,
+      404
+    ],
+    "replicas_per_family": {
+      "development": 2,
+      "holdout": 2
+    }
+  },
+  "schema": "d6-inferred-group-candidate-field-h1-artifact-manifest/v1",
+  "scope_audit": {
+    "allowed_prefixes": [
+      "docs/project/evidence/",
+      "scripts/design/group_level/"
+    ],
+    "candidate_probe_truth_consumed": false,
+    "forbidden_modifications": [
+      "features/",
+      "adapters/",
+      "test/",
+      "NeutralSceneV2",
+      "public API",
+      "dependencies"
+    ],
+    "formal_membership_edge_written": false,
+    "production_selector_written": false
+  },
+  "status": "design_only_stop_for_design_review",
+  "validation": {
+    "git_diff_check": "passed",
+    "json_parse": "passed",
+    "manifest_hash": "4ab326ba05435d4ce05422316a4af99f71bdbf914d99266653b8a71f751502f4",
+    "schema_contract": "passed",
+    "seed_reproducibility": "passed"
+  }
+}
