@@ -330,7 +330,7 @@ F1 组织/角色场 + inferred-group candidates
 因此，“缺少语义标签”不能直接等同于“把对象当作中性分析节点”。必须先区分：
 
 1. **分析资格（eligibility）**：对象是否拥有明确的项目标记，能够成为 authored furniture-group node。没有该标记的对象不进入 inferred-group membership 竞争。
-2. **分析完整性（completeness）**：已经具备分析资格的节点，其类型、名称、用途、几何、方向或其他所需字段是否完整。缺失字段在语义通道中记为 `not_available` 或中性缺失，不能被自动补全为“同类”。UI checklist 用于在分析前检查这一层完整性。
+2. **分析完整性（completeness）**：已经具备分析资格的节点，其类型、名称、用途、几何、方向或其他所需字段是否完整。正式分析以前必须由 UI checklist 检查必需字段；未通过检查的节点不得静默进入正式 inferred-group 推断。缺失字段可以在诊断或明确允许的非正式场景中记为 `not_available` 或中性缺失，但不能被自动补全为“同类”。
 
 ### Context 对象的允许作用
 
@@ -347,7 +347,7 @@ F1 组织/角色场 + inferred-group candidates
 
 - 空间场和局部 alignment 可以读取 context 的几何参照，但必须标注 `context_reference` provenance。
 - 组间关系和 inferred-group membership 只在 eligible authored furniture groups 之间计算。
-- checklist 先检查分析资格和必需字段，再报告可计算性；它不替代缺失状态，也不生成语义标签。
+- checklist 先检查分析资格和必需字段，再报告可计算性；它是正式分析的完整性门槛，不替代缺失状态，也不生成语义标签。
 - 后续 probe 必须区分“未标记对象”“已标记但字段缺失”“已标记且字段完整”三种情形，并验证 context 加入或移除不会改变 authored membership。
 
 **STOP FOR GRILL-ME DISCUSSION**
