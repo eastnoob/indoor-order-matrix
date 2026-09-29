@@ -88,4 +88,14 @@ Connected recipe 只求 selected graph 连通分量，单 view 内分量不重�
 
 这是 exploratory corrective rerun，不是新的预注册验证。最终 production status/group-gap/tie/ambiguity/overlap policy 仍 deferred；不代表 Checkpoint A owner approval，也不授权 Checkpoint B。未执行 B、真实 IFC、Blender 或自动 space。
 
+## Controller review second-round corrective rerun
+
+第二轮复核仅剩 R2 的空 gap 变体：旧实现中 `status="computed"` 且 `normalized_gaps=[]` 时，裸 `vector.get("normalized_gaps")` 会把空列表传入 `sum()`，直接触发 `TypeError`。该红回归已在基线 `caed1af` 上独立复现。
+
+最小修复将该条件改为 `bool(vector.get("normalized_gaps"))`，并在既有 `diagnostic_regression_assertion()` 中加入空列表反例：修复后 `computed_pair_count=0`，原始空列表仍保留，未填入零 gap。R1、R3 以及 R2 的 finite/NaN 断言保持通过。
+
+修复后依次重跑 `probe`、`score`、`visual`、`report`、`record`、`manifest`、`verify`，全部 exit 0；verify 通过 880 rows、16 hard gates、5 SVG/XML hashes；focused pytest 仍为 52 passed。candidate/scoring 的 880 行内容未改变，新增内容仅为空 gap regression 证据及相关 source/artifact hash 更新。
+
+本轮仍是 exploratory corrective rerun，不是新的预注册验证；未选择 winner、threshold 或 production policy，未执行 B、真实 IFC、Blender 或自动 space。Checkpoint A owner approval 仍不由本修复自行作出。
+
 STOP FOR CONTRACT REVIEW

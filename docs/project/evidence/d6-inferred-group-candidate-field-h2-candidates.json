@@ -7,7 +7,7 @@
     "fixtures": "scripts\\design\\group_level\\inferred_group_candidate_field_h1b_holdout_fixtures.json",
     "fixtures_sha256": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce",
     "probe_source": "scripts\\design\\group_level\\run_inferred_group_candidate_field_probe.py",
-    "probe_source_sha256": "25b6ed39d12058f903caf309e21156f08c98d6f3177933d6ef0c26e0051cd634",
+    "probe_source_sha256": "fe235d09cb304487cd1428d93267380609d8e7fb0e9fb8ee185e448e26a7fb6b",
     "registry": "scripts\\design\\group_level\\inferred_group_candidate_field_fixtures.json",
     "registry_sha256": "6199c764aaf28c999b10194deaed33b92314c4f448c3b091af9234b342d5944a",
     "status_matrix_fixture": "scripts\\design\\group_level\\inferred_group_candidate_field_status_matrix_fixture.json",
@@ -452,6 +452,8 @@
         ]
       },
       "r2": {
+        "empty_computed_pair_count": 0,
+        "empty_gap_preserved": [],
         "finite": {
           "computed_pair_count": 2,
           "interpretation": "deterministic support; not probability",

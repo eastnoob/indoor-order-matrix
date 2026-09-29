@@ -228,7 +228,7 @@
   ],
   "holdout_replica_count": 16,
   "input_hashes": {
-    "docs\\project\\evidence\\d6-inferred-group-candidate-field-h2-candidates.json": "db632ef4c4b88b112fea2514fdbd794a1e4578fb143b3723b382ee02e3687ee7",
+    "docs\\project\\evidence\\d6-inferred-group-candidate-field-h2-candidates.json": "3ef37b9bf55ab065a48073eda5b9dbaa12274d4e0a900783f0813bc6ac053374",
     "scripts\\design\\group_level\\inferred_group_candidate_field_fixtures.json": "6199c764aaf28c999b10194deaed33b92314c4f448c3b091af9234b342d5944a",
     "scripts\\design\\group_level\\inferred_group_candidate_field_h1b_computational_truth.json": "bea8bad8dd6c40fb2d5e7bdc28c0b5229f6af2a93e89affb72211aa3f91911a3",
     "scripts\\design\\group_level\\inferred_group_candidate_field_h1b_holdout_fixtures.json": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce"

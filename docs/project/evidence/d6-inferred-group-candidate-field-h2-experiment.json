@@ -1,10 +1,10 @@
 {
   "artifact_sha256": {
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json": "db632ef4c4b88b112fea2514fdbd794a1e4578fb143b3723b382ee02e3687ee7",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-candidates.json": "3ef37b9bf55ab065a48073eda5b9dbaa12274d4e0a900783f0813bc6ac053374",
     "docs/project/evidence/d6-inferred-group-candidate-field-h2-design-review.md": "2cf9352a6c7e719c923a63ef9633ef25bc1e8c8c87ff6fed084af46484ddb531",
     "docs/project/evidence/d6-inferred-group-candidate-field-h2-report.md": "3bfb7b7a97459966738156be3d974a1ce08a22be4f154f8820fd1c20c06273df",
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json": "56546268fdc10fc212a137b685d17d067778314421e88c6e27f9aa19a281705e",
-    "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json": "65dcab23290b47453172d33d4e99a002105d205ecb13533d1dcc2d6e03fa43db",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-scoring.json": "97041de451a25f0654eb8b785b51f02f27e98b684ec2bf5aaf0aac032d5c2de2",
+    "docs/project/evidence/d6-inferred-group-candidate-field-h2-visual-manifest.json": "6b103c6b4d68f46ebd7dcb2404ecf9b256b1031892ab52d137756383999ed757",
     "scripts/design/group_level/inferred_group_candidate_field_aggregation_semantics_fixture.json": "62e3486696d8056561306ff541eef402c28e1a0121ed50c4067cd0ec7a337e01",
     "scripts/design/group_level/inferred_group_candidate_field_canonical_space_key_fixture.json": "56fa47298eedf046522382d2c11da9d93a56516dfe4b2b3e9baef67df9d874ff",
     "scripts/design/group_level/inferred_group_candidate_field_fixtures.json": "6199c764aaf28c999b10194deaed33b92314c4f448c3b091af9234b342d5944a",
@@ -12,7 +12,7 @@
     "scripts/design/group_level/inferred_group_candidate_field_h1b_holdout_fixtures.json": "bfb159dbfe659db1a580fd604c7b7f626b754c3891713b54b2460dc3c95342ce",
     "scripts/design/group_level/inferred_group_candidate_field_status_matrix_fixture.json": "bb51b444d92d602e233244cd859967d57278533ce5f81a389d04ff3ca90671ec",
     "scripts/design/group_level/run_inferred_group_candidate_field_h2.py": "74b97cd462f31ab051a443be935088bc223c9b4b3e65f68959fcb815ca3793bb",
-    "scripts/design/group_level/run_inferred_group_candidate_field_probe.py": "25b6ed39d12058f903caf309e21156f08c98d6f3177933d6ef0c26e0051cd634"
+    "scripts/design/group_level/run_inferred_group_candidate_field_probe.py": "fe235d09cb304487cd1428d93267380609d8e7fb0e9fb8ee185e448e26a7fb6b"
   },
   "date": "2026-09-29",
   "development_seeds": [

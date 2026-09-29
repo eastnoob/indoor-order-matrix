@@ -389,7 +389,7 @@ def _candidate_record(fixture: dict[str, Any], members: list[str], vectors: dict
             "selected_pair_count": sum(pair_id in set(scale_view["selected_relation_ids"]) for pair_id in internal_ids),
             "computed_pair_count": sum(
                 vector.get("status") == "computed"
-                and vector.get("normalized_gaps")
+                and bool(vector.get("normalized_gaps"))
                 and all(math.isfinite(value) for value in vector["normalized_gaps"])
                 for vector in internal
             ),
@@ -639,8 +639,13 @@ def diagnostic_regression_assertion() -> dict[str, Any]:
     counter = _candidate_record(counter_fixture, ["A", "B", "C"], counter_vectors, aggregation, base_scale, {"A|B": 1}, 0)
     nonfinite_vectors = {**counter_vectors, "B|C": vector("B|C", gaps=[math.nan])}
     nonfinite = _candidate_record(counter_fixture, ["A", "B", "C"], nonfinite_vectors, aggregation, base_scale, {"A|B": 1}, 0)
+    empty_gap = _candidate_record(counter_fixture, ["B", "C"], {"B|C": vector("B|C", gaps=[])}, aggregation,
+                                   {"recipe_id": "relative_gap_rank", "parameters": {}, "selected_relation_ids": ["B|C"]},
+                                   {"B|C": 1}, 0, ["B|C"])
     assert counter["co_membership_evidence"] == {"selected_pair_count": 1, "computed_pair_count": 2, "interpretation": "deterministic support; not probability"}
     assert nonfinite["co_membership_evidence"]["computed_pair_count"] == 1
+    assert empty_gap["co_membership_evidence"]["computed_pair_count"] == 0
+    assert empty_gap["supporting_observations"][0]["normalized_gaps"] == []
 
     veto_fixture = {"id": "repair_r3", "groups": [
         {"id": "A", "members": [{"id": "a", "factual_properties": {"mutual_exclusion": ["C"]}}]},
@@ -655,7 +660,7 @@ def diagnostic_regression_assertion() -> dict[str, Any]:
     assert veto["candidate_status"] == "unassigned"
     return {"passed": True, "truth_consumed": False,
             "r1": {"max_span_membersets": span_membersets, "aggregate_members": [item["members"] for item in span_candidates]},
-            "r2": {"finite": counter["co_membership_evidence"], "nonfinite_computed_pair_count": nonfinite["co_membership_evidence"]["computed_pair_count"]},
+            "r2": {"finite": counter["co_membership_evidence"], "nonfinite_computed_pair_count": nonfinite["co_membership_evidence"]["computed_pair_count"], "empty_computed_pair_count": empty_gap["co_membership_evidence"]["computed_pair_count"], "empty_gap_preserved": empty_gap["supporting_observations"][0]["normalized_gaps"]},
             "r3": {"mutual_exclusion_conflicts": veto["mutual_exclusion_conflicts"], "candidate_status": veto["candidate_status"]}}
 
 
