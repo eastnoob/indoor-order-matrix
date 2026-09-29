@@ -275,20 +275,6 @@ F1 组织/角色场 + inferred-group candidates
 
 **STOP FOR GRILL-ME DISCUSSION**
 
-## 15. 明确互斥的作用范围（2026-09-29）
-
-### 用户暂定裁决
-
-对于明确声明互斥的 A 与 B，优先观察以下候选级语义：互斥不只断开 A-B 的直接关系，也禁止 A、B 同时出现在同一个 inferred-group candidate 中。用户认为该解释更合理，但要求通过后续观察确认。
-
-### 设计含义
-
-候选级互斥可以避免通过共同邻居 C 间接绕过硬约束：即便 A-C、B-C 各自具有正向关系，包含 A、B、C 的单个 candidate 仍应被标记为冲突或禁止。A 和 B 仍可以分别出现在不同的重叠候选中，除非另有更强约束。
-
-该方向暂不等于 production 规则。后续 probe 至少需要覆盖：共同邻居、重叠候选、多个互斥标签、缺失语义标签，以及硬互斥与强空间连续性冲突的情形，检查是否产生过度分裂或不可解释的空候选。
-
-**STOP FOR GRILL-ME DISCUSSION**
-
 ## 14. 语义差异、负向竞争与明确互斥（2026-09-29）
 
 ### 用户裁决
@@ -318,5 +304,50 @@ F1 组织/角色场 + inferred-group candidates
 - 负向几何证据使用哪些相对描述量及其跨尺度稳定性；
 - 硬互斥是作用于 pairwise edge、candidate membership，还是两者；
 - 竞争失败后的状态是否统一使用 `absorbed`、`weak_candidate` 和 `ambiguous`，以及这些状态的正式命名。
+
+**STOP FOR GRILL-ME DISCUSSION**
+
+## 15. 明确互斥的作用范围（2026-09-29）
+
+### 用户暂定裁决
+
+对于明确声明互斥的 A 与 B，优先观察以下候选级语义：互斥不只断开 A-B 的直接关系，也禁止 A、B 同时出现在同一个 inferred-group candidate 中。用户认为该解释更合理，但要求通过后续观察确认。
+
+### 设计含义
+
+候选级互斥可以避免通过共同邻居 C 间接绕过硬约束：即便 A-C、B-C 各自具有正向关系，包含 A、B、C 的单个 candidate 仍应被标记为冲突或禁止。A 和 B 仍可以分别出现在不同的重叠候选中，除非另有更强约束。
+
+该方向暂不等于 production 规则。后续 probe 至少需要覆盖：共同邻居、重叠候选、多个互斥标签、缺失语义标签，以及硬互斥与强空间连续性冲突的情形，检查是否产生过度分裂或不可解释的空候选。
+
+**STOP FOR GRILL-ME DISCUSSION**
+
+## 16. 分析资格、语义完整性与 context 对象（2026-09-29）
+
+### 用户补充与暂定裁决
+
+用户指出，家具组分析不是对房间内所有物体自动展开：只有带有明确特殊标记的家具组才进入本项目的分析节点集合。例如，房间中的咖啡桌椅可能带有 `OM` 等专用标记，而灯具、柜台和其他物体不进入家具组推断；它们作为 context 保留。
+
+因此，“缺少语义标签”不能直接等同于“把对象当作中性分析节点”。必须先区分：
+
+1. **分析资格（eligibility）**：对象是否拥有明确的项目标记，能够成为 authored furniture-group node。没有该标记的对象不进入 inferred-group membership 竞争。
+2. **分析完整性（completeness）**：已经具备分析资格的节点，其类型、名称、用途、几何、方向或其他所需字段是否完整。缺失字段在语义通道中记为 `not_available` 或中性缺失，不能被自动补全为“同类”。UI checklist 用于在分析前检查这一层完整性。
+
+### Context 对象的允许作用
+
+未入选分析节点的物体保留来源、几何和角色 provenance，作为 context/reference。它们可以为局部几何计算提供参照，例如斜墙、柱、柜台或灯具可参与局部坐标、边界开放度、遮挡、局部 alignment 和空间阻隔的观测；但它们不能：
+
+- 自动成为 furniture-group node；
+- 通过普通名称、图层或旧 region fallback 进入 inferred-group candidate；
+- 被当作 authored membership 或语义同类证据；
+- 在没有明确标记时被静默提升为分析对象。
+
+这与当前适配器方向一致：严格标记的 `furniture_group` 是分析候选，其他 IFC/SVG 对象仍可保留为来源事实和空间/几何上下文。context 对象的具体可用通道仍需按指标分别声明，不能因为“保留了对象”就默认所有指标都能使用它。
+
+### 对当前设计的修正
+
+- 空间场和局部 alignment 可以读取 context 的几何参照，但必须标注 `context_reference` provenance。
+- 组间关系和 inferred-group membership 只在 eligible authored furniture groups 之间计算。
+- checklist 先检查分析资格和必需字段，再报告可计算性；它不替代缺失状态，也不生成语义标签。
+- 后续 probe 必须区分“未标记对象”“已标记但字段缺失”“已标记且字段完整”三种情形，并验证 context 加入或移除不会改变 authored membership。
 
 **STOP FOR GRILL-ME DISCUSSION**
