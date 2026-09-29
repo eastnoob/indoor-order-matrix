@@ -223,6 +223,16 @@ def test_domain_missing_propagates_not_available_without_zero_fill():
     assert space["free_space"].get("value") is None
 
 
+def test_domain_presence_does_not_claim_unimplemented_space_measurements():
+    """Keep an authored domain separate from deferred space-field computation."""
+    space = describe_group_relations(_legacy_scene(domain=True))["space_observations"]
+
+    assert space["domain_status"] == "computed"
+    assert space["free_space"]["status"] == "not_available"
+    assert space["connectivity"]["status"] == "not_available"
+    assert space["bottleneck_profile"]["status"] == "not_available"
+
+
 def _member(member_id, components, *, group="group-a", **fields):
     """Build explicit member input without manufacturing a geometry fallback."""
     return {
@@ -305,6 +315,7 @@ def test_missing_geometry_is_unavailable_or_partial_without_zero_fill(valid_memb
 
 @pytest.mark.parametrize("component,reason", [
     ({"exterior": ((0, 0), (2, 2), (0, 2), (2, 0)), "holes": ()}, "invalid_polygon"),
+    ({"exterior": ((0, 0), (4, 0), (1, 3), (3, 1), (0, 3)), "holes": ()}, "invalid_polygon"),
     ({"exterior": ((0, 0), (1, 0), (2, 0)), "holes": ()}, "invalid_polygon"),
     ({"exterior": ((0, 0), (float("nan"), 0), (0, 1)), "holes": ()}, "non_finite_coordinates"),
     (_component(0, 0, 4, 4, holes=(((1, 1), (2, 1), (1, 2)),)), "unsupported_holes"),
@@ -460,12 +471,12 @@ def test_local_neighborhood_is_symmetric_evidence_without_membership_edges():
 def test_pair_semantics_keep_label_mismatch_soft_and_mutual_exclusion_explicit():
     """Catch ordinary type disagreement becoming a veto and preserve declared exclusion."""
     objects = [
-        _member("a", [_component(0, 0, 2, 2)], group="a", metadata={"type": "table"}),
+        _member("a", [_component(0, 0, 2, 2)], group="a", factual_properties={"type": "table"}),
         _member(
             "b",
             [_component(4, 0, 6, 2)],
             group="b",
-            metadata={"type": "chair", "mutual_exclusion": ["a"]},
+            factual_properties={"type": "chair", "mutual_exclusion": ["a"]},
         ),
     ]
     result = describe_group_relations(_legacy_scene(objects=objects))
@@ -476,6 +487,24 @@ def test_pair_semantics_keep_label_mismatch_soft_and_mutual_exclusion_explicit()
     assert pair["semantic_conflicts"][0]["source"] == "b"
     assert pair["negative_evidence"]["type_mismatch"]["status"] == "soft_negative"
     assert pair["formal_membership_edge"] is None
+
+
+def test_metadata_does_not_become_semantic_evidence():
+    """Keep unapproved metadata fields outside the semantic input contract."""
+    objects = [
+        _member("a", [_component(0, 0, 2, 2)], group="a", metadata={"type": "table"}),
+        _member(
+            "b",
+            [_component(4, 0, 6, 2)],
+            group="b",
+            metadata={"type": "chair", "mutual_exclusion": ["a"]},
+        ),
+    ]
+    pair = describe_group_relations(_legacy_scene(objects=objects))["group_relations"][0]
+
+    assert pair["semantic_channel_status"] == "not_available"
+    assert pair["negative_evidence"] == {}
+    assert pair["semantic_conflicts"] == []
 
 
 def test_pair_and_neighborhood_serialization_is_order_invariant():

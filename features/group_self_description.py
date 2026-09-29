@@ -289,7 +289,7 @@ def _group_relations(groups, object_by_id, geometries, tolerances, view):
             "negative_evidence": semantic["negative_evidence"],
             "semantic_conflicts": semantic["conflicts"],
             "semantic_channel_status": semantic["status"],
-            "space_channel_status": "computed" if (view.get("analysis_domain") or view.get("_analysis_view", {}).get("domain_available")) else "not_available",
+            "space_channel_status": "not_available",
             "barrier_observation": {"status": "not_available", "source": "planar_group_slice", "reason": "barrier_aggregation_deferred"},
             "3d_clearance": {"status": "not_available", "source": "planar_group_slice"},
             "3d_overlap": {"status": "not_available", "source": "planar_group_slice"},
@@ -358,15 +358,12 @@ def _semantic_channel(first, second, object_by_id):
         for member_id in group["member_refs"]:
             item = object_by_id.get(member_id, {})
             facts = item.get("factual_properties", {})
-            metadata = item.get("metadata", {})
             if not isinstance(facts, Mapping):
                 facts = {}
-            if not isinstance(metadata, Mapping):
-                metadata = {}
-            type_value = item.get("type_ref") or facts.get("type") or facts.get("Type") or facts.get("OM_TypeKey") or metadata.get("type")
+            type_value = item.get("type_ref") or facts.get("type") or facts.get("Type") or facts.get("OM_TypeKey")
             if type_value:
                 types[label] = str(type_value)
-            declared = facts.get("mutual_exclusion", metadata.get("mutual_exclusion"))
+            declared = facts.get("mutual_exclusion")
             if isinstance(declared, str):
                 declared = [declared]
             if isinstance(declared, (list, tuple, set)):
@@ -438,6 +435,16 @@ def _polygon_moments(points, tolerance):
     if len(points) >= 2 and points[0] == points[-1]:
         points = points[:-1]
     if len(points) < 3 or any(not isfinite(value) for point in points for value in point):
+        return None
+    # Reject self-intersecting rings before deriving moments; shoelace area can
+    # be non-zero for an invalid polygon and would otherwise create false facts.
+    try:
+        from shapely.geometry import Polygon
+
+        polygon = Polygon(points)
+    except (TypeError, ValueError):
+        return None
+    if not polygon.is_valid or not polygon.exterior.is_simple:
         return None
     crosses = [
         points[i][0] * points[(i + 1) % len(points)][1]
@@ -586,13 +593,17 @@ def _directions(members):
 def _space_observations(scene, view, context_ids):
     """Expose existing domain and context references without deriving topology."""
     available = bool(scene.analysis_domain) if isinstance(scene, NeutralSceneV2) else bool(view.get("analysis_domain"))
-    status = "computed" if available else "not_available"
+    domain_status = "computed" if available else "not_available"
+    # The domain is an input fact, but these measurements are not computed by
+    # this slice. Keep their channel status unavailable until a later space
+    # field implementation supplies actual values.
+    channel_status = "not_available"
     return {
-        "domain_status": status,
+        "domain_status": domain_status,
         "analysis_domain": scene.analysis_domain.to_dict() if isinstance(scene, NeutralSceneV2) and scene.analysis_domain else view.get("analysis_domain"),
-        "free_space": {"status": status, "value": None},
-        "connectivity": {"status": status, "value": None},
-        "bottleneck_profile": {"status": status, "value": None},
+        "free_space": {"status": channel_status, "value": None, "reason": "space_measurement_deferred"},
+        "connectivity": {"status": channel_status, "value": None, "reason": "space_measurement_deferred"},
+        "bottleneck_profile": {"status": channel_status, "value": None, "reason": "space_measurement_deferred"},
         "context_references": sorted(context_ids),
         "channel_evidence": view.get("channel_evidence", {}),
         "boundary_evidence": view.get("boundaries", []) + view.get("boundary_facts", []),
