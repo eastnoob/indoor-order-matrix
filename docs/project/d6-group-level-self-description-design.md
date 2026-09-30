@@ -86,6 +86,14 @@ make body vertices an input to the trend estimator. A trend record must store
 the proxy geometry references and basis, and must not silently fall back to
 `Body` when the proxy is missing or invalid.
 
+Each function-specific substitute must have a stable unique `substitute_id`
+and typed binding fields: `source_object_id`, `consumer`/function,
+`substitute_kind`, `analysis_role`, and source provenance. Names are for
+display and lookup convenience, not semantic authorization. A source object
+may expose several substitutes (for example trend, clearance, and path), but
+the trend estimator may consume only a proxy whose declared role and consumer
+match the trend contract; a unique name alone is insufficient.
+
 二者都可由 member terminal geometry 计算，但不是同一个 estimand：
 
 | estimand | 数学语义 | 0°/90° | 适用范围 |
