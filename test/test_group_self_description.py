@@ -154,7 +154,7 @@ def test_representative_geometry_is_additive_and_area_weighted():
 
 
 def test_geometry_status_preserves_holes_invalid_and_missing_geometry():
-    """Unsupported holes remain invalid and unavailable members remain distinct."""
+    """Valid holes remain usable while missing members stay explicitly partial."""
     objects = [
         {
             "id": "hole-member",
@@ -184,11 +184,9 @@ def test_geometry_status_preserves_holes_invalid_and_missing_geometry():
         _legacy_scene(objects=objects)
     )["group_geometry"][0]
 
-    assert geometry["geometry_status"] == "invalid"
-    assert {item["reason"] for item in geometry["excluded_member_reasons"]} >= {
-        "unsupported_holes",
-        "missing_geometry",
-    }
+    assert geometry["geometry_status"] == "partial"
+    assert geometry["member_geometry"][0]["area"] == pytest.approx(12.0)
+    assert {item["reason"] for item in geometry["excluded_member_reasons"]} == {"missing_geometry"}
     assert all(item["status"] != "missing" for item in geometry["excluded_member_reasons"])
 
 
@@ -318,7 +316,7 @@ def test_missing_geometry_is_unavailable_or_partial_without_zero_fill(valid_memb
     ({"exterior": ((0, 0), (4, 0), (1, 3), (3, 1), (0, 3)), "holes": ()}, "invalid_polygon"),
     ({"exterior": ((0, 0), (1, 0), (2, 0)), "holes": ()}, "invalid_polygon"),
     ({"exterior": ((0, 0), (float("nan"), 0), (0, 1)), "holes": ()}, "non_finite_coordinates"),
-    (_component(0, 0, 4, 4, holes=(((1, 1), (2, 1), (1, 2)),)), "unsupported_holes"),
+    (_component(0, 0, 4, 4, holes=(((5, 5), (6, 5), (5, 6)),)), "invalid_polygon"),
 ])
 def test_invalid_members_allow_only_diagnostic_sibling_geometry(component, reason):
     """Catch invalid-to-missing rewrites and formal use of valid siblings in an invalid group."""
@@ -614,3 +612,18 @@ def test_neutral_scene_fixture_checks_planar_parity_without_ifc_capability_claim
     assert pair["formal_membership_edge"] is None
     assert result["capabilities"]["3d_clearance"]["status"] == "not_available"
     assert result["capabilities"]["z_compatibility"]["status"] == "not_available"
+
+
+def test_polygon_hole_moments_subtract_void_and_ignore_winding():
+    """An off-center void changes centroid and covariance without adding mass."""
+    from ..features.group_self_description import _polygon_moments
+
+    exterior = ((0, 0), (4, 0), (4, 4), (0, 4))
+    hole = ((2, 1), (3, 1), (3, 3), (2, 3))
+    for ring in (hole, tuple(reversed(hole))):
+        result = _polygon_moments(exterior, 1e-9, (ring,))
+        assert result["area"] == pytest.approx(14)
+        assert result["center"] == pytest.approx((27 / 14, 2))
+        assert result["covariance"][0] == pytest.approx((865 / 588, 0))
+        assert result["covariance"][1] == pytest.approx((0, 31 / 21))
+

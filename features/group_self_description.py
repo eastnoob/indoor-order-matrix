@@ -546,8 +546,8 @@ def _member_pair_observation(left, right, object_by_id, tolerance):
     if right.get("status") and right.get("status") != "computed":
         return {"member_a": left["member_id"], "member_b": right["member_id"], "status": right["status"], "reason": right.get("reason"), "raw_boundary_gap": None, "normalized_boundary_gap": None, "contact": None, "overlap": None, "overlap_area": None, "witness": witness}
     from shapely.geometry import Polygon
-    polygons_a = [Polygon(points) for points in left.get("polygons", ( ))]
-    polygons_b = [Polygon(points) for points in right.get("polygons", ( ))]
+    polygons_a = [Polygon(points, holes) for points, holes in zip(left.get("polygons", ()), left.get("polygon_holes", [()] * len(left.get("polygons", ()))))]
+    polygons_b = [Polygon(points, holes) for points, holes in zip(right.get("polygons", ()), right.get("polygon_holes", [()] * len(right.get("polygons", ()))))]
     if not polygons_a or not polygons_b:
         return {"member_a": left["member_id"], "member_b": right["member_id"], "status": "not_available", "reason": "missing_geometry", "raw_boundary_gap": None, "normalized_boundary_gap": None, "contact": None, "overlap": None, "overlap_area": None, "witness": witness}
     raw_gap = min(first.boundary.distance(second.boundary) for first in polygons_a for second in polygons_b)
@@ -627,9 +627,11 @@ def _member_geometry(item, tolerance):
         for component in components:
             if not isinstance(component, Mapping):
                 return None, "invalid_polygon"
-            if component.get("holes", ()):
-                return None, "unsupported_holes"
-            part = _polygon_moments(component.get("exterior", ()), tolerance)
+            part = _polygon_moments(
+                component.get("exterior", ()),
+                tolerance,
+                component.get("holes", ()),
+            )
             if part is None:
                 return None, _polygon_reason(component.get("exterior", ()))
             parts.append(part)
@@ -650,8 +652,8 @@ def _polygon_reason(points):
     return "non_finite_coordinates" if any(not isfinite(value) for value in values) else "invalid_polygon"
 
 
-def _polygon_moments(points, tolerance):
-    """Compute shoelace area, centroid, and uniform-polygon covariance."""
+def _polygon_moments(points, tolerance, holes=()):
+    """Compute hole-aware area, centroid, and uniform-polygon covariance."""
     try:
         points = tuple((float(point[0]), float(point[1])) for point in points)
     except (TypeError, ValueError, IndexError):
@@ -665,7 +667,7 @@ def _polygon_moments(points, tolerance):
     try:
         from shapely.geometry import Polygon
 
-        polygon = Polygon(points)
+        polygon = Polygon(points, holes)
     except (TypeError, ValueError):
         return None
     if not polygon.is_valid or not polygon.exterior.is_simple:
@@ -693,11 +695,48 @@ def _polygon_moments(points, tolerance):
         ) * crosses[i]
         for i in range(len(points))
     ) / (24.0 * signed_area)
+    outer_area = abs(signed_area)
+    raw = ((outer_area * xx, outer_area * xy), (outer_area * xy, outer_area * yy))
+    first = (outer_area * cx, outer_area * cy)
+    area = outer_area
+    # Subtract void integrals before centering; ring winding must not add mass.
+    for hole in holes or ():
+        hole_moments = _polygon_moments(hole, tolerance)
+        if hole_moments is None:
+            # Tessellated coplanar seams can polygonize as zero-area rings;
+            # they are topology noise, not occupied voids.
+            try:
+                from shapely.geometry import Polygon
+                if Polygon(hole).area <= tolerance:
+                    continue
+            except (TypeError, ValueError):
+                pass
+            return None
+        if hole_moments["area"] >= area - tolerance:
+            return None
+        hole_area = hole_moments["area"]
+        hole_center = hole_moments["center"]
+        hole_covariance = hole_moments["covariance"]
+        hole_raw = (
+            (hole_covariance[0][0] + hole_center[0] ** 2,
+             hole_covariance[0][1] + hole_center[0] * hole_center[1]),
+            (hole_covariance[1][0] + hole_center[0] * hole_center[1],
+             hole_covariance[1][1] + hole_center[1] ** 2),
+        )
+        area -= hole_area
+        first = (first[0] - hole_area * hole_center[0], first[1] - hole_area * hole_center[1])
+        raw = ((raw[0][0] - hole_area * hole_raw[0][0], raw[0][1] - hole_area * hole_raw[0][1]),
+               (raw[1][0] - hole_area * hole_raw[1][0], raw[1][1] - hole_area * hole_raw[1][1]))
+    if area <= tolerance:
+        return None
+    center = (first[0] / area, first[1] / area)
     return {
-        "area": abs(signed_area),
-        "center": (cx, cy),
-        "covariance": ((xx - cx * cx, xy - cx * cy), (xy - cx * cy, yy - cy * cy)),
+        "area": area,
+        "center": center,
+        "covariance": ((raw[0][0] / area - center[0] ** 2, raw[0][1] / area - center[0] * center[1]),
+                       (raw[1][0] / area - center[0] * center[1], raw[1][1] / area - center[1] ** 2)),
         "points": points,
+        "holes": tuple(tuple(hole) for hole in holes or ()),
     }
 
 
@@ -718,6 +757,7 @@ def _combine_parts(parts, item, *, basis=None):
         "covariance": covariance,
         "points": tuple(point for part in parts for point in part["points"]),
         "polygons": tuple(part["points"] for part in parts),
+        "polygon_holes": tuple(part.get("holes", ()) for part in parts),
         "geometry_basis": basis or item.get("geometry_basis", "polygon"),
         "directional_weight": None,
     }

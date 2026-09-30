@@ -144,7 +144,7 @@ def test_malformed_analysis_geometry_is_invalid(monkeypatch):
                 patch.id,
                 (),
                 None,
-                ({"exterior": ((0.0, 0.0), (2.0, 0.0), (0.0, 2.0)), "holes": (((0.2, 0.2), (0.4, 0.2), (0.2, 0.4)),)},),
+                ({"exterior": ((0.0, 0.0), (2.0, 0.0), (0.0, 2.0)), "holes": (((3.2, 3.2), (3.4, 3.2), (3.2, 3.4)),)},),
             )
         return original_projection(patch, plane)
 

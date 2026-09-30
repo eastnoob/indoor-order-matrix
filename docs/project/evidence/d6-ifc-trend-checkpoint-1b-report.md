@@ -43,3 +43,9 @@ Artifacts and hashes are in [d6-ifc-trend-checkpoint-1b-manifest.json](D:\PROJEC
 
 STOP FOR TREND CORE CHECKPOINT 1B REVIEW
 
+
+## Hole-aware repair follow-up
+
+The Analysis projections contained near-zero-area rings caused by coplanar tessellation seams. The trend moment calculation now subtracts valid interior holes and ignores only degenerate zero-area rings. Re-running the saved real Analysis sample produced `computed` canonical trend status for all three frozen groups; Body geometry was displaced by a large synthetic offset and A/C/D results remained identical. This was a computation repair, not a Body fallback.
+
+Saved verification: `outputs/design/ifc_trend_checkpoint_1b/hole_aware_repair/verification.json`.
