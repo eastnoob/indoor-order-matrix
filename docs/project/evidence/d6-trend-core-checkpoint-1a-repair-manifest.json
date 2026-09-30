@@ -9,11 +9,18 @@
     "schema": "d6-trend-substitute-registry/v1",
     "shared_loader": "features/substitute_contract.py"
   },
+  "status_mapping": {
+    "missing_binding_or_target": "not_available",
+    "contract_rejection_or_malformed_binding": "invalid",
+    "invalid_geometry": "invalid",
+    "valid_plus_missing": "partial",
+    "all_unavailable_diagnostic": "retained_per_member"
+  },
   "tests": {
-    "focused": "12 passed",
+    "focused": "13 passed",
     "legacy_group": "34 passed",
     "registry": "5 passed",
-    "full_suite": "847 passed, 13 skipped",
+    "full_suite": "848 passed, 13 skipped",
     "diff_check": "passed"
   },
   "ifc_adapter_integration_started": false,

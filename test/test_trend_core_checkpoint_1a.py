@@ -8,6 +8,8 @@ import pytest
 
 from ..features.analysis_substitute_discovery import resolve_function_substitute
 from ..features.affordance.models import Rect
+from ..features import group_self_description as group_description
+from ..features.geometry_views import PlanProjection
 from ..features.group_self_description import describe_group_relations
 from ..features.scene_contract import SourceObject
 from .test_neutral_scene_analysis_regression import _mesh, _neutral_scene
@@ -129,6 +131,30 @@ def test_missing_geometry_is_not_rewritten_as_body_fallback():
     assert result["status"] == "not_available"
     assert _geometry(scene)["trend_descriptors"]["status"] == "not_available"
     assert _geometry(scene)["trend_descriptors"]["overall_group_axis"]["angle"] is None
+
+
+def test_malformed_analysis_geometry_is_invalid(monkeypatch):
+    """Malformed Analysis polygon evidence is invalid rather than unavailable."""
+    original_projection = group_description.plan_projection
+
+    def malformed_projection(patch, plane):
+        """Inject one malformed typed polygon while preserving other projections."""
+        if patch.id.endswith("analysis-left-mesh"):
+            return PlanProjection(
+                patch.id,
+                (),
+                None,
+                ({"exterior": ((0.0, 0.0), (2.0, 0.0), (0.0, 2.0)), "holes": (((0.2, 0.2), (0.4, 0.2), (0.2, 0.4)),)},),
+            )
+        return original_projection(patch, plane)
+
+    monkeypatch.setattr(group_description, "plan_projection", malformed_projection)
+    geometry = _geometry(_typed_scene(add_right_to_left_group=True))
+    assert geometry["trend_descriptors"]["status"] == "invalid"
+    excluded = geometry["trend_descriptors"]["diagnostic_evidence"]["excluded_members"]
+    assert excluded[0]["status"] == "invalid"
+    assert excluded[0]["resolver_status"] == "accepted"
+    assert excluded[0]["provenance"]["representation_identifier"] == "Analysis"
 
 
 def test_c_a_and_d_descriptors_use_distinct_estimands():
@@ -255,16 +281,26 @@ def test_partial_invalid_and_not_available_have_no_formal_numeric_descriptor():
     assert partial_desc["status"] == "partial"
     assert partial_desc["overall_group_axis"]["angle"] is None
     assert partial_desc["diagnostic_evidence"]["status"] == "diagnostic_only"
+    assert partial_desc["diagnostic_evidence"]["excluded_members"][0]["status"] == "not_available"
     invalid = _typed_scene(
         left_binding=[_binding("analysis-left", representation_identifier="Body")],
         add_right_to_left_group=True,
     )
     invalid_desc = _geometry(invalid)["trend_descriptors"]
-    assert invalid_desc["status"] == "partial"
+    assert invalid_desc["status"] == "invalid"
     assert invalid_desc["member_axis"]["angle"] is None
-    unavailable = _geometry(_typed_scene(left_binding=[], right_binding=[], add_right_to_left_group=True))["trend_descriptors"]
+    unavailable = _geometry(
+        _typed_scene(
+            left_binding=[_binding("missing-left")],
+            right_binding=[_binding("missing-right")],
+            add_right_to_left_group=True,
+        )
+    )["trend_descriptors"]
     assert unavailable["status"] == "not_available"
     assert unavailable["layout_axis"]["strength"] is None
+    assert unavailable["diagnostic_evidence"]["usable_member_count"] == 0
+    assert {item["reason"] for item in unavailable["diagnostic_evidence"]["excluded_members"]} == {"unresolved_substitute_id"}
+    assert all(item["provenance"]["representation_identifier"] == "Analysis" for item in unavailable["diagnostic_evidence"]["excluded_members"])
 
 
 def test_json_serialization_rejects_nonfinite_trend_values():

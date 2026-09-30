@@ -142,7 +142,11 @@ def resolve_function_substitute(
             {**raw, "source_object_id": source.id}, str(consumer), registry
         )
         if contract["status"] != "accepted":
-            rejections.append({"index": index, "reason": contract["reason_code"]})
+            rejections.append({
+                "index": index,
+                "reason": contract["reason_code"],
+                "provenance": dict(raw.get("provenance", {})) if isinstance(raw.get("provenance"), Mapping) else None,
+            })
             continue
         substitute_id = str(raw.get("substitute_id") or "")
         if not substitute_id:
@@ -150,28 +154,38 @@ def resolve_function_substitute(
             continue
         targets = [item for item in scene.source_objects if item.id == substitute_id]
         if not targets:
-            rejections.append({"index": index, "reason": "unresolved_substitute_id", "substitute_id": substitute_id})
+            rejections.append({
+                "index": index,
+                "reason": "unresolved_substitute_id",
+                "substitute_id": substitute_id,
+                "provenance": dict(raw.get("provenance", {})),
+            })
             continue
         if len(targets) != 1:
-            rejections.append({"index": index, "reason": "ambiguous_substitute_id", "substitute_id": substitute_id})
+            rejections.append({
+                "index": index,
+                "reason": "ambiguous_substitute_id",
+                "substitute_id": substitute_id,
+                "provenance": dict(raw.get("provenance", {})),
+            })
             continue
         target = targets[0]
         if target.id == source.id:
-            rejections.append({"index": index, "reason": "substitute_must_be_independent", "substitute_id": substitute_id})
+            rejections.append({"index": index, "reason": "substitute_must_be_independent", "substitute_id": substitute_id, "provenance": dict(target.provenance)})
             continue
         if target.source_role != "analysis_substitute":
-            rejections.append({"index": index, "reason": "wrong_source_role", "substitute_id": substitute_id})
+            rejections.append({"index": index, "reason": "wrong_source_role", "substitute_id": substitute_id, "provenance": dict(target.provenance)})
             continue
         expected_representation = contract["accepted_representation_identifier"]
         if target.provenance.get("representation_identifier") != expected_representation:
-            rejections.append({"index": index, "reason": "wrong_representation_identifier", "substitute_id": substitute_id})
+            rejections.append({"index": index, "reason": "wrong_representation_identifier", "substitute_id": substitute_id, "provenance": dict(target.provenance)})
             continue
         if not target.geometry_refs:
-            rejections.append({"index": index, "reason": "missing_geometry", "substitute_id": substitute_id})
+            rejections.append({"index": index, "reason": "missing_geometry", "substitute_id": substitute_id, "provenance": dict(target.provenance)})
             continue
         geometry_ids = {geometry.id for geometry in scene.geometries}
         if any(ref not in geometry_ids for ref in target.geometry_refs):
-            rejections.append({"index": index, "reason": "missing_geometry", "substitute_id": substitute_id})
+            rejections.append({"index": index, "reason": "missing_geometry", "substitute_id": substitute_id, "provenance": dict(target.provenance)})
             continue
         candidates.append((raw, target, contract))
 
@@ -190,7 +204,15 @@ def resolve_function_substitute(
             "no_valid_typed_binding",
             "unresolved_substitute_id",
         } else "ambiguous" if reason == "ambiguous_substitute_id" else "rejected"
-        return _resolution(status, str(reason), source_object_id=source.id, rejections=rejections)
+        provenance = [item.get("provenance") for item in rejections if item.get("provenance")]
+        return _resolution(
+            status,
+            str(reason),
+            source_object_id=source.id,
+            rejections=rejections,
+            provenance=provenance[0] if len(provenance) == 1 else None,
+            candidate_provenance=provenance,
+        )
 
     binding, target, contract = candidates[0]
     return {
@@ -200,6 +222,7 @@ def resolve_function_substitute(
         "substitute_source_object_id": target.id,
         "reason": "typed_analysis_binding",
         "provenance": dict(binding["provenance"]),
+        "substitute_provenance": dict(target.provenance),
         "binding": dict(binding),
         "rejections": rejections,
     }

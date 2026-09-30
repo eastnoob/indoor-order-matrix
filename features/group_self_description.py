@@ -261,10 +261,20 @@ def _group_geometry(group, object_by_id, tolerance):
     trend_valid, trend_excluded, trend_status = _trend_geometry(
         group, object_by_id, tolerance
     )
-    has_typed_trend_contract = any(
-        isinstance(object_by_id.get(member_id, {}).get("_trend_resolution"), Mapping)
+    resolutions = [
+        object_by_id.get(member_id, {}).get("_trend_resolution")
         for member_id in group["member_refs"]
+    ]
+    # With no authored binding at all, expose the historical fields as a
+    # compatibility fallback; any typed attempt must not mix Body evidence.
+    has_resolution = any(isinstance(resolution, Mapping) for resolution in resolutions)
+    legacy_compatibility_fallback = not has_resolution or all(
+        isinstance(resolution, Mapping)
+        and resolution.get("status") == "not_available"
+        and resolution.get("reason") == "missing_typed_binding"
+        for resolution in resolutions
     )
+    has_typed_trend_contract = bool(resolutions) and not legacy_compatibility_fallback
     # Canonical A must use the same typed Analysis members as C and D. Legacy
     # dictionary inputs retain their existing A calculation for compatibility.
     direction = (
@@ -328,19 +338,29 @@ def _trend_geometry(group, object_by_id, tolerance):
         item = object_by_id.get(member_id)
         if item is None:
             statuses.append("not_available")
-            excluded.append({"member_id": member_id, "status": "not_available", "reason": "unresolved_member_ref"})
+            excluded.append({
+                "member_id": member_id,
+                "status": "not_available",
+                "resolver_status": "not_available",
+                "reason": "unresolved_member_ref",
+                "provenance": None,
+            })
             continue
         resolution = item.get("_trend_resolution")
         if not isinstance(resolution, Mapping) or resolution.get("status") != "accepted":
-            # A missing binding is unavailable; a malformed or conflicting
-            # binding is invalid so a valid sibling cannot complete the group.
-            status = "not_available"
+            # Missing/unresolved evidence is unavailable; a rejected contract
+            # is invalid so its cause remains visible to the caller.
+            resolver_status = resolution.get("status") if isinstance(resolution, Mapping) else "not_available"
+            status = "not_available" if resolver_status == "not_available" else "invalid"
             statuses.append(status)
             excluded.append({
                 "member_id": member_id,
                 "status": status,
+                "resolver_status": resolver_status,
                 "reason": (resolution or {}).get("reason", "missing_typed_binding"),
                 "source_refs": list(item.get("geometry_refs", ())),
+                "provenance": (resolution or {}).get("provenance"),
+                "candidate_provenance": (resolution or {}).get("candidate_provenance", []),
             })
             continue
         trend_item = dict(item)
@@ -352,8 +372,10 @@ def _trend_geometry(group, object_by_id, tolerance):
             excluded.append({
                 "member_id": member_id,
                 "status": status,
+                "resolver_status": "accepted",
                 "reason": reason,
                 "source_refs": list(item.get("_trend_geometry_refs", ())),
+                "provenance": resolution.get("substitute_provenance"),
             })
             continue
         valid.append(geometry)
@@ -378,15 +400,14 @@ def _trend_descriptors(members, representative, status, tolerance, excluded, bin
         "direction_status": "undefined" if status == "computed" else status,
     }
     if status != "computed" or representative is None:
-        diagnostic = None
-        if members:
-            diagnostic = {
-                "status": "diagnostic_only",
-                "usable_member_count": len(members),
-                "excluded_members": excluded,
-                "member_frame": _directions(members)["group_frame"],
-                "member_axis": _directions(members)["group_axis"],
-            }
+        member_directions = _directions(members) if members else None
+        diagnostic = {
+            "status": "diagnostic_only",
+            "usable_member_count": len(members),
+            "excluded_members": excluded,
+            "member_frame": member_directions["group_frame"] if member_directions else None,
+            "member_axis": member_directions["group_axis"] if member_directions else None,
+        }
         return {
             "status": status,
             "overall_group_axis": {**empty, "basis": "area_weighted_total_covariance_pca"},
