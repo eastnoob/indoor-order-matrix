@@ -1,0 +1,1280 @@
+{
+  "fixtures": [
+    {
+      "family": "geometry_merge",
+      "fixture_id": "fixture-000",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-001",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-002",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-003",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-004",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "fixture-005",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g3"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g1"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "fixture-006",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-007",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-008",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-009",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-010",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "fixture-011",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "fixture-012",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-013",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-014",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-015",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-016",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "fixture-017",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g3"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "fixture-018",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-019",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-020",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-021",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-022",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "fixture-023",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g3",
+            "g4"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "fixture-024",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-025",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-026",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-027",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-028",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "fixture-029",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2",
+            "g3",
+            "g4"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "fixture-030",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-031",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-032",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-033",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-034",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "fixture-035",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g4"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g1"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "fixture-036",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-037",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-038",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-039",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-040",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "fixture-041",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g4"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "fixture-042",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-043",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-044",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-045",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-046",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "fixture-047",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g3"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded family-specific generative labels; evaluation-only"
+    }
+  ],
+  "seed": 61030,
+  "truth_access": "scoring_only"
+}

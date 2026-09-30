@@ -1,0 +1,222 @@
+{
+  "calibration_bins": [
+    {
+      "count_nested": 145,
+      "lower": 0.0,
+      "mean_posterior": 0.06933386475862069,
+      "observed_fraction": 0.05517241379310345,
+      "upper": 0.2
+    },
+    {
+      "count_nested": 0,
+      "lower": 0.2,
+      "mean_posterior": null,
+      "observed_fraction": null,
+      "upper": 0.4
+    },
+    {
+      "count_nested": 14,
+      "lower": 0.4,
+      "mean_posterior": 0.41621815,
+      "observed_fraction": 0.2857142857142857,
+      "upper": 0.6
+    },
+    {
+      "count_nested": 32,
+      "lower": 0.6,
+      "mean_posterior": 0.7277523478125001,
+      "observed_fraction": 0.6875,
+      "upper": 0.8
+    },
+    {
+      "count_nested": 49,
+      "lower": 0.8,
+      "mean_posterior": 0.9613070746938776,
+      "observed_fraction": 0.8979591836734694,
+      "upper": 1.0
+    }
+  ],
+  "design": "development 32 / whole-fixture holdout 16",
+  "deterministic_comparator": "simple mean of available grouped binary channels; not a D1 recipe reproduction",
+  "development_prevalence_baseline": 0.33125,
+  "family_metrics": {
+    "ambiguous_alternatives": {
+      "fixture_count": 3,
+      "mean_fixture_baseline_brier": 0.22222656249999997,
+      "mean_fixture_brier": 0.18486087828609213
+    },
+    "geometry_merge": {
+      "fixture_count": 2,
+      "mean_fixture_baseline_brier": 0.1772265625,
+      "mean_fixture_brier": 0.08970867321593468
+    },
+    "overlapping_candidate": {
+      "fixture_count": 3,
+      "mean_fixture_baseline_brier": 0.2672265625,
+      "mean_fixture_brier": 0.06890990525773016
+    },
+    "shared_spatial_structure": {
+      "fixture_count": 2,
+      "mean_fixture_baseline_brier": 0.2672265625,
+      "mean_fixture_brier": 0.04707344696937294
+    },
+    "singleton_unassigned": {
+      "fixture_count": 3,
+      "mean_fixture_baseline_brier": 0.1772265625,
+      "mean_fixture_brier": 0.08568177035271031
+    },
+    "status_perturbation": {
+      "fixture_count": 3,
+      "mean_fixture_baseline_brier": 0.20722656249999996,
+      "mean_fixture_brier": 0.05468518327693361
+    }
+  },
+  "fixture_metrics": [
+    {
+      "bayes_brier": 0.07708090726116264,
+      "deterministic_accuracy": 0.8666666666666667,
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-032",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.2672265625
+    },
+    {
+      "bayes_brier": 0.07704450429192075,
+      "deterministic_accuracy": 0.9333333333333333,
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-033",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.1772265625
+    },
+    {
+      "bayes_brier": 0.11606749273833662,
+      "deterministic_accuracy": 0.8666666666666667,
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-034",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.22222656249999997
+    },
+    {
+      "bayes_brier": 0.06025982859344112,
+      "deterministic_accuracy": 0.9333333333333333,
+      "family": "status_perturbation",
+      "fixture_id": "fixture-035",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.22222656249999997
+    },
+    {
+      "bayes_brier": 0.07334158845716746,
+      "deterministic_accuracy": 0.8,
+      "family": "geometry_merge",
+      "fixture_id": "fixture-036",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.1772265625
+    },
+    {
+      "bayes_brier": 0.010545847903239505,
+      "deterministic_accuracy": 1.0,
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-037",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.2672265625
+    },
+    {
+      "bayes_brier": 0.062316087596379556,
+      "deterministic_accuracy": 0.9333333333333333,
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-038",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.2672265625
+    },
+    {
+      "bayes_brier": 0.04596287284258579,
+      "deterministic_accuracy": 0.9333333333333333,
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-039",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.1772265625
+    },
+    {
+      "bayes_brier": 0.21908381497581605,
+      "deterministic_accuracy": 0.7333333333333333,
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-040",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.22222656249999997
+    },
+    {
+      "bayes_brier": 0.0736005726489109,
+      "deterministic_accuracy": 0.8666666666666667,
+      "family": "status_perturbation",
+      "fixture_id": "fixture-041",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.19972656249999998
+    },
+    {
+      "bayes_brier": 0.10607575797470188,
+      "deterministic_accuracy": 0.8666666666666667,
+      "family": "geometry_merge",
+      "fixture_id": "fixture-042",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.1772265625
+    },
+    {
+      "bayes_brier": 0.08360104603550637,
+      "deterministic_accuracy": 0.8666666666666667,
+      "family": "shared_spatial_structure",
+      "fixture_id": "fixture-043",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.2672265625
+    },
+    {
+      "bayes_brier": 0.0673327209156483,
+      "deterministic_accuracy": 0.9333333333333333,
+      "family": "overlapping_candidate",
+      "fixture_id": "fixture-044",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.2672265625
+    },
+    {
+      "bayes_brier": 0.13403793392362442,
+      "deterministic_accuracy": 0.7333333333333333,
+      "family": "singleton_unassigned",
+      "fixture_id": "fixture-045",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.1772265625
+    },
+    {
+      "bayes_brier": 0.2194313271441237,
+      "deterministic_accuracy": 0.6666666666666666,
+      "family": "ambiguous_alternatives",
+      "fixture_id": "fixture-046",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.22222656249999997
+    },
+    {
+      "bayes_brier": 0.030195148588448836,
+      "deterministic_accuracy": 0.8666666666666667,
+      "family": "status_perturbation",
+      "fixture_id": "fixture-047",
+      "membership_count": 15,
+      "prevalence_baseline_brier": 0.19972656249999998
+    }
+  ],
+  "holdout_family_counts": {
+    "ambiguous_alternatives": 3,
+    "geometry_merge": 2,
+    "overlapping_candidate": 3,
+    "shared_spatial_structure": 2,
+    "singleton_unassigned": 3,
+    "status_perturbation": 3
+  },
+  "holdout_fixture_count": 16,
+  "mean_fixture_brier": 0.09099859074318836,
+  "mean_fixture_deterministic_accuracy": 0.8625,
+  "mean_fixture_prevalence_baseline_brier": 0.21941406249999998,
+  "membership_rows_are_iid": false,
+  "model_status": "synthetic prototype; per-membership marginal reliability mixture; joint spatial dependence not fitted",
+  "posterior_predictive_checks": "not_run; prototype lacks joint fitted model",
+  "psychological_validity_claim": false,
+  "seed": 61030,
+  "truth_used_for_scoring_only": true
+}

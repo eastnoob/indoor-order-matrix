@@ -1,0 +1,1925 @@
+{
+  "nested_under_fixture": true,
+  "rows": [
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-032",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g1",
+      "posterior": 0.71468144,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-032",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-032",
+      "group_id": "g3",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-032",
+      "group_id": "g1",
+      "posterior": 0.41621815,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-032",
+      "group_id": "g2",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-032",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-032",
+      "group_id": "g4",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-033",
+      "group_id": "g0",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g1",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g3",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-033",
+      "group_id": "g0",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g1",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-033",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-033",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-033",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g0",
+      "posterior": 0.05124357,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-034",
+      "group_id": "g1",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-034",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-034",
+      "group_id": "g0",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g1",
+      "posterior": 0.90395184,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g0",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g1",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-034",
+      "group_id": "g2",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g3",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-034",
+      "group_id": "g4",
+      "posterior": 0.97249834,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-035",
+      "group_id": "g0",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-035",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-035",
+      "group_id": "g2",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g3",
+      "posterior": 0.05124357,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-035",
+      "group_id": "g4",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g1",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g3",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-035",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-035",
+      "group_id": "g4",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-036",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-036",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-036",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-036",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-036",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-036",
+      "group_id": "g0",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-036",
+      "group_id": "g1",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-036",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-036",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-036",
+      "group_id": "g4",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-036",
+      "group_id": "g0",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-036",
+      "group_id": "g1",
+      "posterior": 0.41621815,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-036",
+      "group_id": "g2",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-036",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-036",
+      "group_id": "g4",
+      "posterior": 0.41621815,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-037",
+      "group_id": "g0",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-037",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g3",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g1",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-037",
+      "group_id": "g4",
+      "posterior": 0.97249834,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g3",
+      "posterior": 0.05124357,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-038",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-038",
+      "group_id": "g4",
+      "posterior": 0.97249834,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-039",
+      "group_id": "g1",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-039",
+      "group_id": "g4",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-039",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-039",
+      "group_id": "g2",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-039",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-039",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g2",
+      "posterior": 0.90395184,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-039",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-040",
+      "group_id": "g0",
+      "posterior": 0.90395184,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-040",
+      "group_id": "g1",
+      "posterior": 0.90395184,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-040",
+      "group_id": "g2",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-040",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-040",
+      "group_id": "g4",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-040",
+      "group_id": "g0",
+      "posterior": 0.41621815,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-040",
+      "group_id": "g1",
+      "posterior": 0.41621815,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-040",
+      "group_id": "g2",
+      "posterior": 0.90395184,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-040",
+      "group_id": "g3",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-040",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-040",
+      "group_id": "g0",
+      "posterior": 0.41621815,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-040",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-040",
+      "group_id": "g2",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-040",
+      "group_id": "g3",
+      "posterior": 0.97249834,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-040",
+      "group_id": "g4",
+      "posterior": 0.97249834,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g0",
+      "posterior": 0.90395184,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-041",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g4",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g1",
+      "posterior": 0.05124357,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g3",
+      "posterior": 0.05124357,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-041",
+      "group_id": "g0",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-041",
+      "group_id": "g1",
+      "posterior": 0.41621815,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-041",
+      "group_id": "g4",
+      "posterior": 0.05124357,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-042",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-042",
+      "group_id": "g1",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-042",
+      "group_id": "g2",
+      "posterior": 0.41621815,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-042",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-042",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-042",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-042",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-042",
+      "group_id": "g2",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-042",
+      "group_id": "g3",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-042",
+      "group_id": "g4",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-042",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-042",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-042",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-042",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-042",
+      "group_id": "g4",
+      "posterior": 0.72817399,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-043",
+      "group_id": "g0",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-043",
+      "group_id": "g4",
+      "posterior": 0.41621815,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g1",
+      "posterior": 0.05124357,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g3",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-043",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-043",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-043",
+      "group_id": "g4",
+      "posterior": 0.72817399,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-044",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-044",
+      "group_id": "g1",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-044",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-044",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-044",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-044",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-044",
+      "group_id": "g1",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-044",
+      "group_id": "g2",
+      "posterior": 0.90395184,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-044",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-044",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-044",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-044",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-044",
+      "group_id": "g2",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-044",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-044",
+      "group_id": "g4",
+      "posterior": 0.72817399,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-045",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-045",
+      "group_id": "g1",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-045",
+      "group_id": "g2",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-045",
+      "group_id": "g3",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-045",
+      "group_id": "g4",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-045",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-045",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-045",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-045",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-045",
+      "group_id": "g4",
+      "posterior": 0.41621815,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-045",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-045",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-045",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-045",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-045",
+      "group_id": "g4",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-046",
+      "group_id": "g0",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-046",
+      "group_id": "g1",
+      "posterior": 0.41621815,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-046",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-046",
+      "group_id": "g3",
+      "posterior": 0.16870034,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-046",
+      "group_id": "g4",
+      "posterior": 0.90395184,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-046",
+      "group_id": "g0",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-046",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-046",
+      "group_id": "g2",
+      "posterior": 0.72817399,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-046",
+      "group_id": "g3",
+      "posterior": 0.05124357,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-046",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-046",
+      "group_id": "g0",
+      "posterior": 0.16870034,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-046",
+      "group_id": "g1",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-046",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-046",
+      "group_id": "g3",
+      "posterior": 0.41621815,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-046",
+      "group_id": "g4",
+      "posterior": 0.72817399,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.66666667,
+      "fixture_id": "fixture-047",
+      "group_id": "g0",
+      "posterior": 0.72817399,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g1",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-0",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-047",
+      "group_id": "g3",
+      "posterior": 0.41621815,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-0",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.33333333,
+      "fixture_id": "fixture-047",
+      "group_id": "g1",
+      "posterior": 0.16870034,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g2",
+      "posterior": 0.97249834,
+      "scope_id": "scope-1",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g3",
+      "posterior": 0.01514073,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.5,
+      "fixture_id": "fixture-047",
+      "group_id": "g4",
+      "posterior": 0.41621815,
+      "scope_id": "scope-1",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g0",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g1",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g2",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    },
+    {
+      "deterministic_strength": 1.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g3",
+      "posterior": 0.97249834,
+      "scope_id": "scope-2",
+      "truth": 1
+    },
+    {
+      "deterministic_strength": 0.0,
+      "fixture_id": "fixture-047",
+      "group_id": "g4",
+      "posterior": 0.01514073,
+      "scope_id": "scope-2",
+      "truth": 0
+    }
+  ]
+}

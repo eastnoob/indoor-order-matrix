@@ -1,0 +1,45 @@
+{
+  "artifacts": [
+    {
+      "bytes": 1170559,
+      "path": "docs/project/evidence/d6-b1-artifacts/fixture-manifest.json",
+      "sha256": "be3f96ff20c915e9066d91fe78322bfd34f258f722429e59918b8c3bb46ccdd3"
+    },
+    {
+      "bytes": 29286,
+      "path": "docs/project/evidence/d6-b1-artifacts/truth-manifest.json",
+      "sha256": "5aebb298c9b20e11a40b59d67a6e0bebdc8f679626722c9e5caae86958e060a2"
+    },
+    {
+      "bytes": 7225,
+      "path": "docs/project/evidence/d6-b1-artifacts/holdout-report.json",
+      "sha256": "2665fb03fbffdb1fc91250d8d80f254037b1e646da87b8f22edf26605d0b5b09"
+    },
+    {
+      "bytes": 47155,
+      "path": "docs/project/evidence/d6-b1-artifacts/holdout-scores.json",
+      "sha256": "c11c5ba9a4b4c66b8be7a83ce858101a3ea370acd815a4b3cf2dc23ad45bb00b"
+    },
+    {
+      "bytes": 1274,
+      "path": "docs/project/evidence/d6-b1-artifacts/holdout-calibration.svg",
+      "sha256": "8ad0ec86abc8eeb9a557f6bcdd05f3a39fd8c6d91325d75bc576433dc145c8bc"
+    },
+    {
+      "bytes": 15742,
+      "path": "scripts/design/group_level/d6_b1_experiment.py",
+      "sha256": "81be3c73936240e5b52073e3b43745b1ccf1de4596005f2b7c5a3c9a2e131128"
+    },
+    {
+      "bytes": 14952,
+      "path": "docs/project/evidence/d6-b1-bayesian-design-record.md",
+      "sha256": "6be90ad47e8ba8f06d43f97806eae22f901345adbf8b53d52bbc761528f3ca0b"
+    },
+    {
+      "bytes": 4083,
+      "path": "docs/project/evidence/d6-b1-calibration-holdout-report.md",
+      "sha256": "95812a60113df7320b0076020717687f46048ff136a43eae1b5b8e5257f7eaa1"
+    }
+  ],
+  "seed": 61030
+}
