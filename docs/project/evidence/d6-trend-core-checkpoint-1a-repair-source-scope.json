@@ -1,0 +1,31 @@
+{
+  "schema": "d6-trend-core-checkpoint-1a-repair-source-scope/v1",
+  "checkpoint": "D6 Trend Core Checkpoint 1A",
+  "modified_by_repair": [
+    "features/analysis_substitute_discovery.py",
+    "features/group_self_description.py",
+    "features/substitute_contract.py",
+    "scripts/design/group_level/run_trend_direction_probe.py",
+    "scripts/design/group_level/test_trend_substitute_registry.py",
+    "scripts/design/group_level/trend_substitute_registry.py",
+    "scripts/design/group_level/trend_substitute_registry.json",
+    "test/test_trend_core_checkpoint_1a.py",
+    "docs/project/evidence/d6-trend-core-checkpoint-1a-repair-report.md",
+    "docs/project/evidence/d6-trend-core-checkpoint-1a-repair-manifest.json",
+    "docs/project/evidence/d6-trend-core-checkpoint-1a-repair-source-scope.json"
+  ],
+  "forbidden_and_unchanged": [
+    "adapters/ifc_bonsai.py",
+    "adapters/svg_scene.py",
+    "features/scene_contract.py",
+    "features/room_analysis_model.py",
+    "source_ifc",
+    "user_open_blender_file",
+    "automatic_space",
+    "candidate_selector",
+    "Bayesian",
+    "ML"
+  ],
+  "unrelated_untracked_work_preserved": true,
+  "ifc_adapter_integration_started": false
+}

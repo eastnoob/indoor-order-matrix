@@ -8,6 +8,7 @@ from math import atan2, cos, degrees, hypot, isfinite, sin
 from typing import Any
 
 from .affordance.models import Rect
+from .analysis_substitute_discovery import resolve_function_substitute
 from .geometry_substitutes import mass_patch_from_mesh
 from .geometry_views import plan_projection
 from .neutral_scene_views import AnalysisSceneInput, analysis_scene_view
@@ -119,6 +120,9 @@ def _neutral_inputs(scene: NeutralSceneV2):
     """Project Neutral Scene geometry while preserving unresolved authored members."""
     plane = scene.context.analysis_plane
     meshes = {mesh.id: mesh for mesh in scene.geometries}
+    sources_by_id = {}
+    for source in scene.source_objects:
+        sources_by_id.setdefault(source.id, []).append(source)
     objects = []
     for source in scene.source_objects:
         components = []
@@ -139,6 +143,30 @@ def _neutral_inputs(scene: NeutralSceneV2):
                 }
                 for component in projection.components
             )
+        trend_resolution = resolve_function_substitute(scene, source.id, "trend")
+        trend_components = []
+        if trend_resolution["status"] == "accepted":
+            # Trend descriptors may consume only the independently typed
+            # Analysis substitute; the source object's Body projection stays
+            # available for compatibility evidence and audit.
+            substitute_id = trend_resolution["substitute_source_object_id"]
+            targets = sources_by_id.get(str(substitute_id), ())
+            if len(targets) == 1:
+                for geometry_ref in targets[0].geometry_refs:
+                    mesh = meshes.get(geometry_ref)
+                    if mesh is None:
+                        continue
+                    projection = plan_projection(mass_patch_from_mesh(mesh), plane)
+                    trend_components.extend(
+                        {
+                            "exterior": tuple(tuple(float(value) for value in point) for point in component.get("exterior", ())),
+                            "holes": tuple(
+                                tuple(tuple(float(value) for value in point) for point in hole)
+                                for hole in component.get("holes", ())
+                            ),
+                        }
+                        for component in projection.components
+                    )
         objects.append(
             {
                 "id": source.id,
@@ -149,6 +177,14 @@ def _neutral_inputs(scene: NeutralSceneV2):
                 "factual_properties": dict(source.factual_properties),
                 "source_role": source.source_role,
                 "provenance": dict(source.provenance),
+                "_trend_geometry_components": trend_components,
+                "_trend_geometry_refs": (
+                    list(sources_by_id[str(trend_resolution["substitute_source_object_id"])][0].geometry_refs)
+                    if trend_resolution["status"] == "accepted"
+                    and len(sources_by_id.get(str(trend_resolution["substitute_source_object_id"]), ())) == 1
+                    else []
+                ),
+                "_trend_resolution": trend_resolution,
             }
         )
     groups = [
@@ -222,7 +258,37 @@ def _group_geometry(group, object_by_id, tolerance):
         if valid and invalid
         else None
     )
-    direction = _directions(valid)
+    trend_valid, trend_excluded, trend_status = _trend_geometry(
+        group, object_by_id, tolerance
+    )
+    has_typed_trend_contract = any(
+        isinstance(object_by_id.get(member_id, {}).get("_trend_resolution"), Mapping)
+        for member_id in group["member_refs"]
+    )
+    # Canonical A must use the same typed Analysis members as C and D. Legacy
+    # dictionary inputs retain their existing A calculation for compatibility.
+    direction = (
+        _directions(trend_valid)
+        if has_typed_trend_contract and trend_status == "computed"
+        else {
+            "group_frame": {"angle": None, "coherence": 0.0, "direction_status": "undefined"},
+            "group_axis": {"angle": None, "coherence": 0.0, "direction_status": "undefined"},
+            "directional_member_support": 0,
+        }
+        if has_typed_trend_contract
+        else _directions(valid)
+    )
+    trend_representative = (
+        _representative(trend_valid, sum(item["area"] for item in trend_valid))
+        if trend_valid and trend_status == "computed"
+        else None
+    )
+    trend_bindings = [
+        object_by_id[member_id]["_trend_resolution"]
+        for member_id in sorted(group["member_refs"])
+        if isinstance(object_by_id.get(member_id, {}).get("_trend_resolution"), Mapping)
+        and object_by_id[member_id]["_trend_resolution"].get("status") == "accepted"
+    ]
     return {
         "target_layer": "furniture_group",
         "target_id": group["id"],
@@ -237,12 +303,147 @@ def _group_geometry(group, object_by_id, tolerance):
         "member_geometry": valid,
         "diagnostic_geometry": diagnostic,
         **direction,
+        "trend_descriptors": _trend_descriptors(
+            trend_valid,
+            trend_representative,
+            trend_status,
+            tolerance,
+            trend_excluded,
+            trend_bindings,
+        ),
         "strength": None,
         "strength_status": "deferred",
         "overlap_area": None,
         "union_area_status": "deferred",
         "aggregation_status": "deferred",
     }
+
+
+def _trend_geometry(group, object_by_id, tolerance):
+    """Collect only typed Analysis geometry and propagate its contract state."""
+    valid = []
+    excluded = []
+    statuses = []
+    for member_id in sorted(group["member_refs"]):
+        item = object_by_id.get(member_id)
+        if item is None:
+            statuses.append("not_available")
+            excluded.append({"member_id": member_id, "status": "not_available", "reason": "unresolved_member_ref"})
+            continue
+        resolution = item.get("_trend_resolution")
+        if not isinstance(resolution, Mapping) or resolution.get("status") != "accepted":
+            # A missing binding is unavailable; a malformed or conflicting
+            # binding is invalid so a valid sibling cannot complete the group.
+            status = "not_available"
+            statuses.append(status)
+            excluded.append({
+                "member_id": member_id,
+                "status": status,
+                "reason": (resolution or {}).get("reason", "missing_typed_binding"),
+                "source_refs": list(item.get("geometry_refs", ())),
+            })
+            continue
+        trend_item = dict(item)
+        trend_item["geometry_components"] = item.get("_trend_geometry_components", ())
+        geometry, reason = _member_geometry(trend_item, tolerance)
+        if geometry is None:
+            status = "not_available" if reason == "missing_geometry" else "invalid"
+            statuses.append(status)
+            excluded.append({
+                "member_id": member_id,
+                "status": status,
+                "reason": reason,
+                "source_refs": list(item.get("_trend_geometry_refs", ())),
+            })
+            continue
+        valid.append(geometry)
+        statuses.append("computed")
+
+    if not valid:
+        status = "not_available" if all(item == "not_available" for item in statuses) else "invalid"
+    elif any(item == "invalid" for item in statuses):
+        status = "invalid"
+    elif any(item == "not_available" for item in statuses):
+        status = "partial"
+    else:
+        status = "computed"
+    return valid, excluded, status
+
+
+def _trend_descriptors(members, representative, status, tolerance, excluded, bindings):
+    """Build formal C/A/D descriptors while isolating partial diagnostics."""
+    empty = {
+        "angle": None,
+        "strength": None,
+        "direction_status": "undefined" if status == "computed" else status,
+    }
+    if status != "computed" or representative is None:
+        diagnostic = None
+        if members:
+            diagnostic = {
+                "status": "diagnostic_only",
+                "usable_member_count": len(members),
+                "excluded_members": excluded,
+                "member_frame": _directions(members)["group_frame"],
+                "member_axis": _directions(members)["group_axis"],
+            }
+        return {
+            "status": status,
+            "overall_group_axis": {**empty, "basis": "area_weighted_total_covariance_pca"},
+            "member_frame": {**empty, "basis": "member_orientation_consensus"},
+            "member_axis": {**empty, "basis": "member_orientation_consensus"},
+            "layout_axis": {**empty, "basis": "between_member_centroid_pca"},
+            "member_bindings": bindings,
+            "diagnostic_evidence": diagnostic,
+        }
+
+    overall = _covariance_axis(
+        representative["covariance"],
+        "area_weighted_total_covariance_pca",
+        tolerance,
+    )
+    layout = _covariance_axis(
+        representative["between_member_covariance"],
+        "between_member_centroid_pca",
+        tolerance,
+    )
+    member_directions = _directions(members)
+    member_frame = dict(member_directions["group_frame"])
+    member_axis = dict(member_directions["group_axis"])
+    member_frame["basis"] = "member_orientation_consensus"
+    member_axis["basis"] = "member_orientation_consensus"
+    member_frame["strength"] = member_frame["coherence"]
+    member_axis["strength"] = member_axis["coherence"]
+    return {
+        "status": status,
+        "overall_group_axis": {**overall, "center": representative["center"]},
+        "member_frame": member_frame,
+        "member_axis": member_axis,
+        "layout_axis": {**layout, "center": representative["center"]},
+        "member_bindings": bindings,
+        "diagnostic_evidence": None,
+    }
+
+
+def _covariance_axis(covariance, basis, tolerance):
+    """Return a deterministic major-axis angle and eigenvalue anisotropy."""
+    try:
+        xx, xy, yy = float(covariance[0][0]), float(covariance[0][1]), float(covariance[1][1])
+    except (TypeError, ValueError, IndexError):
+        return {"angle": None, "strength": None, "direction_status": "undefined", "basis": basis}
+    trace = xx + yy
+    delta = hypot(xx - yy, 2.0 * xy)
+    # The closed-form 2x2 eigensystem keeps C and D deterministic without a
+    # numerical dependency or an arbitrary direction for degenerate spread.
+    if not isfinite(trace) or not isfinite(delta) or trace <= tolerance:
+        return {"angle": None, "strength": None, "direction_status": "undefined", "basis": basis}
+    strength = delta / trace
+    if delta <= tolerance:
+        return {"angle": None, "strength": None, "direction_status": "undefined", "basis": basis}
+    angle = degrees(atan2(2.0 * xy, xx - yy) / 2.0) % 180.0
+    if abs(angle - 180.0) < 1e-12:
+        angle = 0.0
+    return {"angle": angle, "strength": strength, "direction_status": "computed", "basis": basis}
 
 
 def _group_relations(groups, object_by_id, geometries, tolerances, view):

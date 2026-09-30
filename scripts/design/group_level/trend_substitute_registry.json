@@ -1,0 +1,17 @@
+{
+  "schema": "d6-trend-substitute-registry/v1",
+  "purpose": "Design-only typed substitute contracts for the D6 trend parity checkpoint.",
+  "contracts": {
+    "trend_analysis": {
+      "consumer": "trend",
+      "accepted_substitute_kind": ["MassPatch"],
+      "accepted_analysis_role": ["analysis_geometry_substitute"],
+      "accepted_representation_identifier": "Analysis",
+      "display": {
+        "label": "Trend Analysis / MassPatch",
+        "color": "#F28E2B",
+        "line_style": "solid"
+      }
+    }
+  }
+}

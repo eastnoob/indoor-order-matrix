@@ -1,0 +1,22 @@
+{
+  "schema": "d6-trend-core-checkpoint-1a-repair-manifest/v1",
+  "checkpoint": "D6 Trend Core Checkpoint 1A",
+  "status": "ready_for_review",
+  "report": "docs/project/evidence/d6-trend-core-checkpoint-1a-repair-report.md",
+  "source_scope": "docs/project/evidence/d6-trend-core-checkpoint-1a-repair-source-scope.json",
+  "registry": {
+    "path": "scripts/design/group_level/trend_substitute_registry.json",
+    "schema": "d6-trend-substitute-registry/v1",
+    "shared_loader": "features/substitute_contract.py"
+  },
+  "tests": {
+    "focused": "12 passed",
+    "legacy_group": "34 passed",
+    "registry": "5 passed",
+    "full_suite": "847 passed, 13 skipped",
+    "diff_check": "passed"
+  },
+  "ifc_adapter_integration_started": false,
+  "commit": "reported_at_delivery",
+  "stop_marker": "STOP FOR TREND CORE CHECKPOINT 1A REVIEW"
+}
