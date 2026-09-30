@@ -1358,6 +1358,7 @@ def _scene_from_native_ifc(
     materials, object_material_refs = _native_material_records(source)
     geometries: list[MeshGeometry3D] = []
     geometry_by_source_id: dict[str, MeshGeometry3D] = {}
+    analysis_bindings: dict[str, tuple[str, str]] = {}
     extracted_products: list[
         tuple[object, str, tuple[str, ...], tuple[UncertaintyRecord, ...]]
     ] = []
@@ -1414,20 +1415,13 @@ def _scene_from_native_ifc(
                 geometries.append(analysis_mesh)
                 analysis_geometry_refs = (analysis_mesh.id,)
                 analysis_uncertainties = ()
-                # The terminal Analysis representation is the analytical
-                # source for the owning furniture object. Keep the Body mesh
-                # available for audit, but hand the furniture record the final
-                # world-space MassPatch so downstream trend inference cannot
-                # fall back to placement or historical orientation.
-                for index, (candidate, candidate_id, _refs, _uncertainties) in enumerate(extracted_products):
-                    if candidate_id == source_id:
-                        extracted_products[index] = (
-                            candidate,
-                            candidate_id,
-                            analysis_geometry_refs,
-                            analysis_uncertainties,
-                        )
-                        break
+                # Keep Body on the owning object for source/audit inspection;
+                # canonical trend consumers reach this separate target only
+                # through the explicit typed binding below.
+                analysis_bindings[source_id] = (
+                    f"ifc-object:{analysis_source_id}",
+                    analysis_mesh.id,
+                )
             else:
                 analysis_geometry_refs = ()
                 analysis_uncertainties = (
@@ -1481,6 +1475,7 @@ def _scene_from_native_ifc(
         )
         source_properties = dict(om_properties)
         if source_role == "analysis_substitute":
+            source_provenance_representation = "Analysis"
             source_properties.setdefault(
                 "OM_AnalysisRepresentation",
                 {
@@ -1490,6 +1485,28 @@ def _scene_from_native_ifc(
                     "OM_VisibilityPolicy": "analysis_only",
                 },
             )
+        else:
+            source_provenance_representation = None
+            binding = analysis_bindings.get(source_id)
+            if binding is not None and source_role == "furniture":
+                substitute_id, geometry_id = binding
+                source_properties["OM_FunctionSubstitutes"] = [
+                    {
+                        "substitute_id": substitute_id,
+                        "source_object_id": f"ifc-object:{source_id}",
+                        "consumer": "trend",
+                        "substitute_kind": "MassPatch",
+                        "analysis_role": "analysis_geometry_substitute",
+                        "representation_identifier": "Analysis",
+                        "provenance": {
+                            "source_global_id": source_id,
+                            "extraction_method": "ifc4_analysis_representation",
+                            "world_transform_applied": True,
+                            "representation_identifier": "Analysis",
+                            "geometry_refs": [geometry_id],
+                        },
+                    }
+                ]
         source_objects.append(
             SourceObject(
                 id=f"ifc-object:{source_id}",
@@ -1517,6 +1534,7 @@ def _scene_from_native_ifc(
                     "mesh_coordinate_space": "world" if geometry_refs else None,
                     "mesh_transform_applied": bool(geometry_refs),
                     "world_transform_semantics": "source_factual_placement",
+                    **({"representation_identifier": source_provenance_representation} if source_provenance_representation else {}),
                 },
                 uncertainties=object_uncertainties,
             )

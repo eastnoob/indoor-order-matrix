@@ -221,6 +221,7 @@ def _probe(args: argparse.Namespace) -> None:
     member_ids = sorted({member for group in inventory["selected_groups"] for member in group["member_source_ids"]})
     by_id = {_source_id(entity): entity for entity in source.by_type("IfcProduct")}
     analysis_meshes = []
+    transport_meshes = []
     body_meshes = []
     source_objects = []
     member_audit = []
@@ -231,19 +232,27 @@ def _probe(args: argparse.Namespace) -> None:
         analysis_rep = _representation(entity, "Analysis")
         body_mesh, body_uncertainty = (None, None) if body_rep is None else _native_mesh_record(entity, f"{member_id}:body", units, module, body_rep)
         analysis_mesh, analysis_uncertainty = (None, None) if analysis_rep is None else _native_mesh_record(entity, f"{member_id}:analysis", units, module, analysis_rep)
+        if body_mesh is not None:
+            transport_meshes.append(body_mesh)
         if analysis_mesh is not None:
             analysis_meshes.append(analysis_mesh)
         if body_mesh is not None:
             body_meshes.append({"source_id": member_id, "representation": "Body", "mesh": body_mesh.to_dict()})
         world_transform, placement_uncertainty = _native_world_transform(entity, float(inventory["units"]["scale_to_metres"]), member_id)
-        geometry_refs = (analysis_mesh.id,) if analysis_mesh is not None else ()
+        geometry_refs = (body_mesh.id,) if body_mesh is not None else ()
         uncertainties = tuple(item for item in (analysis_uncertainty, placement_uncertainty) if item is not None)
         source_objects.append(SourceObject(
             id=f"ifc-object:{member_id}", source_id=member_id, source_role="furniture", source_class=entity.is_a(), world_transform=world_transform,
             geometry_refs=geometry_refs, group_refs=tuple(group["id"] for group in inventory["selected_groups"] if member_id in group["member_source_ids"]),
-            factual_properties={"representations": _representations(entity), "analysis_authoritative": analysis_mesh is not None},
+            factual_properties={"representations": _representations(entity), "analysis_authoritative": analysis_mesh is not None, **({"OM_FunctionSubstitutes": [{"substitute_id": f"ifc-object:{member_id}:analysis", "source_object_id": f"ifc-object:{member_id}", "consumer": "trend", "substitute_kind": "MassPatch", "analysis_role": "analysis_geometry_substitute", "representation_identifier": "Analysis", "provenance": {"source_global_id": member_id, "extraction_method": "ifc4_analysis_representation", "world_transform_applied": True, "representation_identifier": "Analysis", "geometry_refs": [analysis_mesh.id]}}]} if analysis_mesh is not None else {})},
             provenance={"method": "d6_selective_ifc_extraction", "analysis_representation": "Analysis", "body_representation": "Body"}, uncertainties=uncertainties,
         ))
+        if analysis_mesh is not None:
+            source_objects.append(SourceObject(
+                id=f"ifc-object:{member_id}:analysis", source_id=f"{member_id}:analysis", source_role="analysis_substitute", source_class=entity.is_a(),
+                geometry_refs=(analysis_mesh.id,), factual_properties={"OM_AnalysisRepresentation": {"OM_SourceGlobalId": member_id, "OM_SubstituteKind": "MassPatch", "OM_AnalysisRole": "analysis_geometry_substitute", "OM_VisibilityPolicy": "analysis_only"}},
+                provenance={"method": "d6_selective_ifc_extraction", "representation_identifier": "Analysis", "mesh_coordinate_space": "world", "mesh_transform_applied": True},
+            ))
         member_audit.append({
             "source_id": member_id, "source_object_id": f"ifc-object:{member_id}", "class": entity.is_a(), "representations": _representations(entity),
             "analysis": {"status": "computed" if analysis_mesh else "missing", "mesh_id": analysis_mesh.id if analysis_mesh else None, "vertices": len(analysis_mesh.vertices) if analysis_mesh else 0, "triangles": len(analysis_mesh.triangle_indices) if analysis_mesh else 0, "uncertainty": _json(analysis_uncertainty)},
@@ -256,7 +265,7 @@ def _probe(args: argparse.Namespace) -> None:
             analysis_rep = _representation(entity, "Analysis")
             mesh = next(item for item in analysis_meshes if item.id == f"ifc-mesh:{candidate}:analysis")
             placement_checks.append(_local_world_check(entity, analysis_rep, mesh, candidate, module))
-    scene = _scene_from_records(units, source_objects, analysis_meshes, authored_groups=group_records, analysis_units="m")
+    scene = _scene_from_records(units, source_objects, transport_meshes + analysis_meshes, authored_groups=group_records, analysis_units="m")
     description = describe_group_relations(scene)
     scene_payload = {"scene": scene.to_dict(), "body_meshes": body_meshes, "sample_source": inventory["source"], "selected_groups": [item["id"] for item in inventory["selected_groups"]]}
     _write(output_dir / "sample_scene.json", scene_payload)

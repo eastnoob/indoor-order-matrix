@@ -17,6 +17,7 @@ from ..adapters.ifc_bonsai import (
     _triangle_topology_flags,
     load_ifc_neutral_scene,
 )
+from ..features.analysis_substitute_discovery import resolve_function_substitute
 
 
 def _write_reopenable_ifc4(path: Path) -> str:
@@ -2023,6 +2024,28 @@ def test_adapter_uses_injected_ifc4_facts_without_mutation_or_analysis():
     assert scene.source_objects[0].provenance["method"] == "ifc4_read_only_extraction"
     assert "boundary_strength" not in json.dumps(scene.to_dict())
     assert "inferred_regions" not in json.dumps(scene.to_dict())
+
+
+def test_real_ifc_analysis_representation_creates_typed_trend_binding():
+    """Real Analysis meshes become typed targets while Body remains source evidence."""
+    path = Path("outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc")
+    if not path.exists():
+        pytest.skip("real IFC smoke source is unavailable")
+    scene = load_ifc_neutral_scene(path)
+    group = next(
+        item for item in scene.authored_groups if item.group_role == "furniture_group"
+    )
+    objects = {item.id: item for item in scene.source_objects}
+    for member_ref in group.member_refs:
+        member = objects[member_ref]
+        result = resolve_function_substitute(scene, member.id, "trend")
+        assert result["status"] == "accepted"
+        target = objects[result["selected_substitute_id"]]
+        assert target.source_role == "analysis_substitute"
+        assert target.provenance["representation_identifier"] == "Analysis"
+        assert target.geometry_refs
+        assert member.geometry_refs
+        assert member.geometry_refs != target.geometry_refs
 
 
 def test_adapter_retains_source_object_when_geometry_is_unavailable():
