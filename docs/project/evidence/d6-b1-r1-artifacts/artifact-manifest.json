@@ -1,0 +1,61 @@
+{
+  "artifacts": [
+    {
+      "bytes": 1433392,
+      "path": "docs/project/evidence/d6-b1-r1-artifacts/observation-manifest.json",
+      "sha256": "308be50af5aac51e3147b6fc19cb490b1724bdd81033f9238df5981855dcab7b"
+    },
+    {
+      "bytes": 27361,
+      "path": "docs/project/evidence/d6-b1-r1-artifacts/truth-manifest.json",
+      "sha256": "0a26e7e7463d169b4a7ea961761ed58c261e1928bbde6e014e623cce64f3c151"
+    },
+    {
+      "bytes": 6016,
+      "path": "docs/project/evidence/d6-b1-r1-artifacts/fixture-split-manifest.json",
+      "sha256": "cf1eef97ee37e49dc5091bf5ebacdc4df7f749117c45cef31d7dda9d38be6555"
+    },
+    {
+      "bytes": 19637018,
+      "path": "docs/project/evidence/d6-b1-r1-artifacts/inference-frozen.json",
+      "sha256": "be5050c60638317387d157abcbc561d18017982a58653b72657b98975d9ad575"
+    },
+    {
+      "bytes": 694218,
+      "path": "docs/project/evidence/d6-b1-r1-artifacts/deterministic-recipe-comparison.json",
+      "sha256": "2325cba71e92d6c5574e1ec11fdb49eb1584d8eb22386be9dfaa91851fd8e08a"
+    },
+    {
+      "bytes": 72632,
+      "path": "docs/project/evidence/d6-b1-r1-artifacts/calibration-bin-fixture-rows.json",
+      "sha256": "1d4c48151d44466db73e98675d6f373e5d2b3f5d4a8aadb3ff3c55b43aaaff5a"
+    },
+    {
+      "bytes": 5960,
+      "path": "docs/project/evidence/d6-b1-r1-artifacts/calibration.svg",
+      "sha256": "551b4f56432c1289c4bd5c56987260813a634474297c74be8ba7c3e8b54a3c30"
+    },
+    {
+      "bytes": 45173,
+      "path": "docs/project/evidence/d6-b1-r1-artifacts/verification-report.json",
+      "sha256": "3305f9db139a80e32c31bbc45141c75dd033227c2792038ca7e68823c61c036a"
+    },
+    {
+      "bytes": 35069,
+      "path": "scripts/design/group_level/d6_b1_experiment.py",
+      "sha256": "2bd25395160cc9bacc55b231bb404089d5e01f85ddcf4f1c40b0a31bafdf96bb"
+    },
+    {
+      "bytes": 7126,
+      "path": "docs/project/evidence/d6-b1-r1-design-repair-record.md",
+      "sha256": "95b8aecf94aad2ae2ba50cc36e8c818131b3c38ab10f3982a985b6a74dcedee0"
+    },
+    {
+      "bytes": 1388,
+      "path": "docs/project/evidence/d6-b1-r1-verification-report.md",
+      "sha256": "caa1a8cd27c6e516afd98b6c4c3f283e570efb5408c3fe54d13e0af7ec20238e"
+    }
+  ],
+  "schema": "d6-b1-r1-artifacts/v1",
+  "seed": 61031
+}

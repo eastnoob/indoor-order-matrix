@@ -1,0 +1,1244 @@
+{
+  "fixtures": [
+    {
+      "fixture_id": "r1-fixture-000",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-001",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-002",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-003",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-004",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-005",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g3",
+            "g4"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-006",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-007",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-008",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-009",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-010",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-011",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g3"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g2",
+            "g4"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-012",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-013",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-014",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-015",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-016",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-017",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3",
+            "g4"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g2"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g1"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-018",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-019",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-020",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-021",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-022",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-023",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2",
+            "g4"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g2"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-024",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-025",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-026",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-027",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-028",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-029",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-030",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-031",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-032",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-033",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-034",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-035",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3",
+            "g4"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-036",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-037",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-038",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-039",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-040",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-041",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g1",
+            "g4"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g4"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-042",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-043",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-044",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g2"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1",
+            "g2",
+            "g3"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-045",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g2"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-046",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g0",
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [
+            "g4"
+          ],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    },
+    {
+      "fixture_id": "r1-fixture-047",
+      "scopes": [
+        {
+          "included_group_ids": [
+            "g0",
+            "g1",
+            "g3",
+            "g4"
+          ],
+          "scope_id": "scope-0"
+        },
+        {
+          "included_group_ids": [
+            "g1"
+          ],
+          "scope_id": "scope-1"
+        },
+        {
+          "included_group_ids": [],
+          "scope_id": "scope-2"
+        }
+      ],
+      "truth_provenance": "seeded synthetic computational truth; scoring only"
+    }
+  ],
+  "schema": "d6-b1-r1-truth/v1",
+  "seed": 61031
+}

@@ -1,0 +1,2481 @@
+{
+  "aggregation_unit": "fixture",
+  "nested_membership_count_is_not_n": true,
+  "rows": [
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.05790288275087171,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.37845477386934673,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.10764959784226011,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.38401322854260594,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.07049961953620404,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.26094420600858376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.6188489095346824,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.12801275167083992,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.2937374091267409,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.6243215006254713,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.06068713277003579,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.3289970625262275,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.8503537578427447,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.33941955335749013,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-032",
+      "mean_posterior": 0.8532550276434252,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.09663599558336405,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.3181818181818182,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.459016393442623,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.09663599558336405,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.3181818181818182,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.4706686384824555,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.049459041731066494,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.2937374091267409,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.5544554455445544,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.6934984520123839,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.049459041731066494,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.2937374091267409,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.5544554455445544,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.7033640423420966,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.15405777166437418,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.8505801140021522,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.15405777166437418,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-033",
+      "mean_posterior": 0.8528696322513705,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.038907247405613,
+      "nested_membership_count": 12,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.041583078575559804,
+      "nested_membership_count": 12,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.03335322344492528,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.26094420600858376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.04268732715283001,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.26094420600858376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.1040332422181803,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.8636363636363636,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.13439731466928853,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-034",
+      "mean_posterior": 0.8636363636363636,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.37845477386934673,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.7791853360488799,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.9530360531309298,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.38401322854260594,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.6807400022690002,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.8130311614730878,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.6188489095346824,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.9298201135207239,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.6243215006254713,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.8719041880213241,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.9272764047812531,
+      "nested_membership_count": 15,
+      "prior": "diffuse",
+      "truth_fraction": 0.4666666666666667
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-035",
+      "mean_posterior": 0.9166904795524091,
+      "nested_membership_count": 15,
+      "prior": "diffuse",
+      "truth_fraction": 0.4666666666666667
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.07938063218900906,
+      "nested_membership_count": 15,
+      "prior": "sparse",
+      "truth_fraction": 0.2
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.08116864112346271,
+      "nested_membership_count": 15,
+      "prior": "sparse",
+      "truth_fraction": 0.2
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.027641126342991054,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.2751310112889549,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.03930146986371177,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.2751310112889549,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.08707327846032037,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.5374358974358974,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.12456708617174568,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.5374358974358974,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-036",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.12125614066328433,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.5555555555555556
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.7368421052631579,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.11086328518642934,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.3437660005390632,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.7368421052631579,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.26837828456162066,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.5555555555555556
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.8818897637795274,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.24943121081098338,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.5827987028016858,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.8818897637795274,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.5374358974358974,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.607104830122931,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.9133906633906634,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.5374358974358974,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-037",
+      "mean_posterior": 0.8856600016332159,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.12948246427003565,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.37845477386934673,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.9530360531309298,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.11692307692307698,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.3705974858747584,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.8130311614730878,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.2836083190357395,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.6188489095346824,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.981855947217301,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.26094420600858376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.5827987028016858,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.6243215006254713,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.9206094627105053,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.607104830122931,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.8984851444735171,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.5555555555555556
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-038",
+      "mean_posterior": 0.878165524376311,
+      "nested_membership_count": 12,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.04011871125445213,
+      "nested_membership_count": 15,
+      "prior": "sparse",
+      "truth_fraction": 0.2
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.06403569362967862,
+      "nested_membership_count": 15,
+      "prior": "sparse",
+      "truth_fraction": 0.2
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.05362251764686426,
+      "nested_membership_count": 12,
+      "prior": "central",
+      "truth_fraction": 0.16666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.26094420600858376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.04268732715283001,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.2937374091267409,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.16666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.13439731466928853,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.24875069405885628,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.13439731466928853,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-039",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.060323431772843106,
+      "nested_membership_count": 12,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.06299926294278992,
+      "nested_membership_count": 12,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.02530031430185466,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.24943121081098338,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.03930146986371177,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.24943121081098338,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.07902097749508338,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.5374358974358974,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.8636363636363636,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.12456708617174568,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.5374358974358974,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-040",
+      "mean_posterior": 0.8636363636363636,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.04655038582713119,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.33095477386934674,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.16666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.7983706720977598,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.051020408163265314,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.33651322854260596,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.16666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.6014800045380007,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.005823210954915614,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.21052631578947376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.509090909090909,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.6223132036847493,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.9134867462860473,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.029143897996357044,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.21052631578947376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.509090909090909,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.6332583858663273,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.8009854542946439,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.02008878525626655,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.48275862068965525,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.7839999999999999,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.9129382652068139,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.09507640067911721,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.48275862068965525,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.7839999999999999,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-041",
+      "mean_posterior": 0.8958707289521984,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.12519090807300418,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.459016393442623,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.7368421052631579,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.12519090807300418,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.4706686384824555,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.7368421052631579,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.2751310112889549,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.6934984520123839,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.8818897637795274,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.2751310112889549,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.7033640423420966,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.8818897637795274,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.5374358974358974,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.16666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.9255135914252564,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.16666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.5374358974358974,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.16666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-042",
+      "mean_posterior": 0.9278031096744744,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.16666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.11721627950551923,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.7599999999999999,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.10480349344978168,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.3437660005390632,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.7599999999999999,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.2607029544298871,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.8941176470588235,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.23791821561338292,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.5827987028016858,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.8941176470588235,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.5221445221445221,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.607104830122931,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.9154545454545455,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.5221445221445221,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-043",
+      "mean_posterior": 0.8870359230091373,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.5555555555555556
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.04581083571327486,
+      "nested_membership_count": 12,
+      "prior": "sparse",
+      "truth_fraction": 0.4166666666666667
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.37499999999999994,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.13538461538461544,
+      "nested_membership_count": 12,
+      "prior": "sparse",
+      "truth_fraction": 0.4166666666666667
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.37499999999999994,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.0563352705024729,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.26094420600858376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.6153846153846154,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.2937374091267409,
+      "nested_membership_count": 12,
+      "prior": "central",
+      "truth_fraction": 0.4166666666666667
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.6153846153846154,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.12748368461476708,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.24875069405885628,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.8484848484848485,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.5527272727272727,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-044",
+      "mean_posterior": 0.8484848484848485,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.09651357968279314,
+      "nested_membership_count": 15,
+      "prior": "sparse",
+      "truth_fraction": 0.2
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.09830158861724679,
+      "nested_membership_count": 15,
+      "prior": "sparse",
+      "truth_fraction": 0.2
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.005823210954915614,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.2658278123700619,
+      "nested_membership_count": 12,
+      "prior": "central",
+      "truth_fraction": 0.25
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.029143897996357044,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.2658278123700619,
+      "nested_membership_count": 12,
+      "prior": "central",
+      "truth_fraction": 0.25
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.02008878525626655,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.5323387723387722,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.1111111111111111
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.09507640067911721,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.5323387723387722,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.1111111111111111
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-045",
+      "mean_posterior": 0.6292134831460674,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.016141272690718064,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.2799999999999999,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.023230641143394532,
+      "nested_membership_count": 9,
+      "prior": "sparse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.2799999999999999,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.40425531914893614,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.04184165461170149,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.509090909090909,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.05950733240325,
+      "nested_membership_count": 9,
+      "prior": "central",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.509090909090909,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.6440677966101694,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.13181053487977487,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.2222222222222222
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.7839999999999999,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.8636363636363636,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.15405777166437418,
+      "nested_membership_count": 6,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.23236982862760788,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.7839999999999999,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-046",
+      "mean_posterior": 0.8636363636363636,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 0,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.09090909090909093,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.33095477386934674,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.7983706720977598,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.9530360531309298,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 0,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.09090909090909093,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.33651322854260596,
+      "nested_membership_count": 6,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.6014800045380007,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.8130311614730878,
+      "nested_membership_count": 3,
+      "prior": "sparse",
+      "truth_fraction": 0.6666666666666666
+    },
+    {
+      "bin": 1,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.21052631578947376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.509090909090909,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.6223132036847493,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.9476713467516741,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 1,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.21052631578947376,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.509090909090909,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.6332583858663273,
+      "nested_membership_count": 3,
+      "prior": "central",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.8607974585025745,
+      "nested_membership_count": 6,
+      "prior": "central",
+      "truth_fraction": 0.5
+    },
+    {
+      "bin": 2,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.48275862068965525,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.7839999999999999,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "independent",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.9402081493828965,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.4444444444444444
+    },
+    {
+      "bin": 2,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.48275862068965525,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.0
+    },
+    {
+      "bin": 3,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.7839999999999999,
+      "nested_membership_count": 3,
+      "prior": "diffuse",
+      "truth_fraction": 0.3333333333333333
+    },
+    {
+      "bin": 4,
+      "dependence": "shared_node_source_discount",
+      "fixture_id": "r1-fixture-047",
+      "mean_posterior": 0.9225649406681566,
+      "nested_membership_count": 9,
+      "prior": "diffuse",
+      "truth_fraction": 0.4444444444444444
+    }
+  ]
+}

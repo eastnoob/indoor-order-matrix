@@ -1,0 +1,1270 @@
+{
+  "deterministic_recipe_comparison": {
+    "local_persistence_window": {
+      "fixture_metrics": [
+        {
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-032",
+          "mean_within_fixture_pair_f1": 0.4920634920634921,
+          "overlap_views": 12,
+          "selected_pair_count_nested": 1.6666666666666667
+        },
+        {
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-033",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 12,
+          "selected_pair_count_nested": 1.6666666666666667
+        },
+        {
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-034",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-035",
+          "mean_within_fixture_pair_f1": 0.2222222222222222,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-036",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 12,
+          "selected_pair_count_nested": 1.6666666666666667
+        },
+        {
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-037",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 2.0
+        },
+        {
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-038",
+          "mean_within_fixture_pair_f1": 0.4920634920634921,
+          "overlap_views": 12,
+          "selected_pair_count_nested": 1.6666666666666667
+        },
+        {
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-039",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 12,
+          "selected_pair_count_nested": 1.6666666666666667
+        },
+        {
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-040",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-041",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-042",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 12,
+          "selected_pair_count_nested": 1.6666666666666667
+        },
+        {
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-043",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 2.0
+        },
+        {
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-044",
+          "mean_within_fixture_pair_f1": 0.4920634920634921,
+          "overlap_views": 12,
+          "selected_pair_count_nested": 1.6666666666666667
+        },
+        {
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-045",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 12,
+          "selected_pair_count_nested": 1.6666666666666667
+        },
+        {
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-046",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-047",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        }
+      ],
+      "mean_fixture_pair_f1": 0.10615079365079366,
+      "truth_comparison_permitted": true
+    },
+    "relative_gap_rank": {
+      "fixture_metrics": [
+        {
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-032",
+          "mean_within_fixture_pair_f1": 0.33333333333333337,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-033",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-034",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-035",
+          "mean_within_fixture_pair_f1": 0.2222222222222222,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-036",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-037",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-038",
+          "mean_within_fixture_pair_f1": 0.33333333333333337,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-039",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-040",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-041",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-042",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-043",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-044",
+          "mean_within_fixture_pair_f1": 0.33333333333333337,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-045",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-046",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        },
+        {
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-047",
+          "mean_within_fixture_pair_f1": 0.0,
+          "overlap_views": 0,
+          "selected_pair_count_nested": 1.0
+        }
+      ],
+      "mean_fixture_pair_f1": 0.0763888888888889,
+      "truth_comparison_permitted": true
+    },
+    "space_profile_rank": {
+      "fixture_metrics": [
+        {
+          "fixture_id": "r1-fixture-032",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-033",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-034",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-035",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-036",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-037",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-038",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-039",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-040",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-041",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-042",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-043",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-044",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-045",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-046",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        },
+        {
+          "fixture_id": "r1-fixture-047",
+          "mean_selected_role_pairs": 1.0,
+          "truth_comparison": "prohibited for independent space-role evidence"
+        }
+      ],
+      "mean_fixture_pair_f1": null,
+      "truth_comparison_permitted": false
+    }
+  },
+  "development_fixture_count": 32,
+  "development_prevalence_only_baseline": 0.35,
+  "family_holdout_counts": {
+    "ambiguous_alternatives": 3,
+    "geometry_merge": 2,
+    "overlapping_candidate": 3,
+    "shared_spatial_structure": 2,
+    "singleton_unassigned": 3,
+    "status_perturbation": 3
+  },
+  "holdout_fixture_count": 16,
+  "input_status_counts": {
+    "gap:computed": 80,
+    "gap:conflict": 80,
+    "gap:invalid": 80,
+    "gap:missing": 80,
+    "gap:not_available": 80,
+    "gap:partial": 80,
+    "group:computed": 120,
+    "group:conflict": 120,
+    "group:invalid": 120,
+    "group:missing": 120,
+    "group:not_available": 120,
+    "group:partial": 120,
+    "pair_support:computed": 80,
+    "pair_support:conflict": 80,
+    "pair_support:invalid": 80,
+    "pair_support:missing": 80,
+    "pair_support:not_available": 80,
+    "pair_support:partial": 80,
+    "space_role:computed": 80,
+    "space_role:conflict": 80,
+    "space_role:invalid": 80,
+    "space_role:missing": 80,
+    "space_role:not_available": 80,
+    "space_role:partial": 80
+  },
+  "output_status_trace_counts": {
+    "independent_space_role:computed:unused": 2880,
+    "independent_space_role:conflict:unused": 2880,
+    "independent_space_role:invalid:unused": 2880,
+    "independent_space_role:missing:unused": 2880,
+    "independent_space_role:not_available:unused": 2880,
+    "independent_space_role:partial:unused": 2880,
+    "membership_evidence:computed:used": 5040,
+    "membership_evidence:conflict:unused": 5040,
+    "membership_evidence:invalid:unused": 5040,
+    "membership_evidence:missing:unused": 5040,
+    "membership_evidence:not_available:unused": 5040,
+    "membership_evidence:partial:used": 5040,
+    "scale_only:computed:unused": 2880,
+    "scale_only:conflict:unused": 2880,
+    "scale_only:invalid:unused": 2880,
+    "scale_only:missing:unused": 2880,
+    "scale_only:not_available:unused": 2880,
+    "scale_only:partial:unused": 2880
+  },
+  "posterior_predictive_checks": {
+    "reason": "Calibration is not PPC; no jointly fitted generative posterior exists.",
+    "status": "not_run"
+  },
+  "prior_sensitivity": {
+    "central:independent": {
+      "brier_cluster_bootstrap_95": {
+        "lower_95": 0.23209865149991932,
+        "n_fixtures": 16,
+        "unit": "fixture",
+        "upper_95": 0.3042931982136199
+      },
+      "dependence": "independent",
+      "expected_candidate_size": 2.0,
+      "fixture_metrics": [
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3195113886165876,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-032",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.24715087479767459
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.271236861312686,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-033",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.202204007514478
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2622452081450495,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-034",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.296612784053362
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.38953032740368093,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-035",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.4054316319263072
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.13670745614400107,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-036",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.22386494268943066
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3624359878541049,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-037",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.224164541340967
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.2605134172139122,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-038",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2504674256430373
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.17369642379614714,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-039",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.30491314468079184
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.22282120454543855,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-040",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2589209492768987
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.3102610280308503,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-041",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.28570826646346326
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.30208249341676235,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-042",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.22999903638500935
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.28149861199501397,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-043",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.23121531607586635
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.32546220843759205,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-044",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2770869195737226
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.13572424602880587,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-045",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.18617310791296734
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2344304135761931,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-046",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.28552674837319475
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.29670651491359756,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-047",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.32324409809790655
+        }
+      ],
+      "mean_fixture_brier": 0.26780398696440144,
+      "mean_fixture_prevalence_baseline_brier": 0.225,
+      "mean_fixture_prior_posterior_shift": 0.26454273717531734,
+      "prior": "central",
+      "prior_probability": 0.4
+    },
+    "central:shared_node_source_discount": {
+      "brier_cluster_bootstrap_95": {
+        "lower_95": 0.22627748016583518,
+        "n_fixtures": 16,
+        "unit": "fixture",
+        "upper_95": 0.28479162482019255
+      },
+      "dependence": "shared_node_source_discount",
+      "expected_candidate_size": 2.0,
+      "fixture_metrics": [
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.2998260999882205,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-032",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.18663108626532424
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.2739930359359343,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-033",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.20417712558042053
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2624148208590163,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-034",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.29101232182861914
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.36027209869089377,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-035",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.37287111306298304
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.1368705475449204,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-036",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.21920080528114236
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.33786595405954883,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-037",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2419787683138832
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.26713121940262163,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-038",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.25822139215091
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.1935269090246558,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-039",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.25689264005760565
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.22299081725940542,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-040",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2533204870521558
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.296918680889078,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-041",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2607329070932099
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.30483866804001075,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-042",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.23197215445095187
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.2569285782004579,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-043",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.24902954304878255
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.2479920287872598,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-044",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.12808699577553037
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.1358873374297252,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-045",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1815089705046791
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2355561849763444,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-046",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2749273416982657
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2674482862008104,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-047",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2906835792345823
+        }
+      ],
+      "mean_fixture_brier": 0.25627882920555645,
+      "mean_fixture_prevalence_baseline_brier": 0.225,
+      "mean_fixture_prior_posterior_shift": 0.24382795196244036,
+      "prior": "central",
+      "prior_probability": 0.4
+    },
+    "diffuse:independent": {
+      "brier_cluster_bootstrap_95": {
+        "lower_95": 0.2686611290776091,
+        "n_fixtures": 16,
+        "unit": "fixture",
+        "upper_95": 0.3675261654115816
+      },
+      "dependence": "independent",
+      "expected_candidate_size": 3.5,
+      "fixture_metrics": [
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3299811032073586,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-032",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.29165920953239066
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.39349412758097996,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-033",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.21303234009331803
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2494775412137914,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-034",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.41976187285091
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.46658838932564967,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-035",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2272764047812531
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.1724264903372447,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-036",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.3243536330122994
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.36823491339794057,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-037",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.16896094035732018
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.32882738871037004,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-038",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.16712466611406948
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.18572761581482025,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-039",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.4590660178412011
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.20110129541815308,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-040",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.3461445227548804
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.4591857577781267,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-041",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.28140582489354116
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.45199557149668607,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-042",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.16938838096653006
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3115086722291668,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-043",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.17590304329942313
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.29212562751722204,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-044",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.37840790249383705
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.20793084986943977,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-045",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.25073628291626976
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2511561705069621,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-046",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.3904409517994078
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.42238780965454664,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-047",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.20437316549180684
+        }
+      ],
+      "mean_fixture_brier": 0.31825933275365365,
+      "mean_fixture_prevalence_baseline_brier": 0.225,
+      "mean_fixture_prior_posterior_shift": 0.27925219744990365,
+      "prior": "diffuse",
+      "prior_probability": 0.7
+    },
+    "diffuse:shared_node_source_discount": {
+      "brier_cluster_bootstrap_95": {
+        "lower_95": 0.2815222485605413,
+        "n_fixtures": 16,
+        "unit": "fixture",
+        "upper_95": 0.36640961484659273
+      },
+      "dependence": "shared_node_source_discount",
+      "expected_candidate_size": 3.5,
+      "fixture_metrics": [
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3324479922600057,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-032",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.17702994921120405
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.39512457913216853,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-033",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2139481473930053
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2512822708636559,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-034",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.40154342938024506
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.45549351775624863,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-035",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.21669047955240917
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.1741536828718494,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-036",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.3093561099277293
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3728739346773328,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-037",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1764216420055706
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3620275314270403,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-038",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.17198696495559435
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.252534155730429,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-039",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.3829734600237588
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.20290602506801758,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-040",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.32792607928421547
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.43754220546398387,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-041",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2595812873071249
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.4536260230478747,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-042",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.17030418826621735
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.31614769350855904,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-043",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.18336374494767357
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.2658768335290794,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-044",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.11692066734763364
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.20965804240404448,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-045",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.23573875983169965
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.26043049904568844,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-046",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.36143019833600143
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.41129293808514567,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-047",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1937872402629629
+        }
+      ],
+      "mean_fixture_brier": 0.32208862030444524,
+      "mean_fixture_prevalence_baseline_brier": 0.225,
+      "mean_fixture_prior_posterior_shift": 0.24368764675206533,
+      "prior": "diffuse",
+      "prior_probability": 0.7
+    },
+    "sparse:independent": {
+      "brier_cluster_bootstrap_95": {
+        "lower_95": 0.22694759641795773,
+        "n_fixtures": 16,
+        "unit": "fixture",
+        "upper_95": 0.29530278112635017
+      },
+      "dependence": "independent",
+      "expected_candidate_size": 1.0,
+      "fixture_metrics": [
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.34646731047507556,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-032",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.15664017989721568
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.21331294654890925,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-033",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1374580449748698
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.27871469596553494,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-034",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.16972526590529685
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.33577036011099476,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-035",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.45366325459347656
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.15966253930173357,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-036",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.12061936781099096
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3817270933909455,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-037",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.19546580048444817
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.272794691944443,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-038",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2501961344659104
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.18458206387698864,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-039",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.15988128874554788
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2579942620255795,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-040",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.15259231841151275
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2429127460089008,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-041",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.23343588963643816
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.22604297281182978,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-042",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.20405715489735365
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.30090702445891143,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-043",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.20252129612647565
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3688963254307561,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-044",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1583513314293801
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.1552470139673073,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-045",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.10348642031720687
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.24819386809502247,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-046",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1671663002153564
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.24012491933964494,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-047",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.34448143641165835
+        }
+      ],
+      "mean_fixture_brier": 0.2633344271095361,
+      "mean_fixture_prevalence_baseline_brier": 0.225,
+      "mean_fixture_prior_posterior_shift": 0.20060884277019614,
+      "prior": "sparse",
+      "prior_probability": 0.2
+    },
+    "sparse:shared_node_source_discount": {
+      "brier_cluster_bootstrap_95": {
+        "lower_95": 0.22199613576405067,
+        "n_fixtures": 16,
+        "unit": "fixture",
+        "upper_95": 0.2764554205518704
+      },
+      "dependence": "shared_node_source_discount",
+      "expected_candidate_size": 1.0,
+      "fixture_metrics": [
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3312774544258485,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-032",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1290155327116863
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.21547953010928036,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-033",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1397884939828363
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.27873944232225045,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-034",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1675846009693394
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.295022694328268,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-035",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.38850752461926
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.15968636167098968,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-036",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1188313588765373
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.3475338221148949,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-037",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2126273709156597
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.253621725908666,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-038",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2415801084348572
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.18908102514737382,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-039",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1359643063703214
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.25801900838229497,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-040",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1504516534755553
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.23817395172358907,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-041",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1944931290593364
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.2282095563722009,
+          "family": "geometry_merge",
+          "fixture_id": "r1-fixture-042",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.20638760390532015
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.2667137531828609,
+          "family": "shared_spatial_structure",
+          "fixture_id": "r1-fixture-043",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.21968286655768715
+        },
+        {
+          "baseline_brier": 0.2625,
+          "brier": 0.31700957593688356,
+          "family": "overlapping_candidate",
+          "fixture_id": "r1-fixture-044",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.08669230769230764
+        },
+        {
+          "baseline_brier": 0.1825,
+          "brier": 0.1552708363365634,
+          "family": "singleton_unassigned",
+          "fixture_id": "r1-fixture-045",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.10169841138275322
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.2483706516390671,
+          "family": "ambiguous_alternatives",
+          "fixture_id": "r1-fixture-046",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.1629126791437505
+        },
+        {
+          "baseline_brier": 0.2225,
+          "brier": 0.19937725355691813,
+          "family": "status_perturbation",
+          "fixture_id": "r1-fixture-047",
+          "membership_count_nested": 15,
+          "prior_posterior_shift": 0.2793257064374419
+        }
+      ],
+      "mean_fixture_brier": 0.24884916519737185,
+      "mean_fixture_prevalence_baseline_brier": 0.225,
+      "mean_fixture_prior_posterior_shift": 0.18347147840841563,
+      "prior": "sparse",
+      "prior_probability": 0.2
+    }
+  },
+  "sample_limit": "48 fixtures total; 16 holdout; family strata contain 2-3 holdout fixtures",
+  "schema": "d6-b1-r1-report/v1",
+  "scope": "synthetic computational gate only; no real-layout or psychological validity claim",
+  "seed": 61031,
+  "spatial_car": {
+    "reason": "five-node graph and no replicated graph realizations",
+    "status": "not_identifiable"
+  },
+  "status_contract": "computed used; partial uses observed components; missing/invalid/not_available/conflict contribute no likelihood; invalid/conflict payload/provenance retained",
+  "status_input_mechanism": "deterministic scheduled independently of truth and values",
+  "truth_joined_after_frozen_inference": true
+}

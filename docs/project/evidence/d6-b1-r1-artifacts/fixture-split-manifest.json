@@ -1,0 +1,246 @@
+{
+  "fixtures": [
+    {
+      "family": "geometry_merge",
+      "fixture_id": "r1-fixture-000",
+      "split": "development"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "r1-fixture-001",
+      "split": "development"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "r1-fixture-002",
+      "split": "development"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "r1-fixture-003",
+      "split": "development"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "r1-fixture-004",
+      "split": "development"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "r1-fixture-005",
+      "split": "development"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "r1-fixture-006",
+      "split": "development"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "r1-fixture-007",
+      "split": "development"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "r1-fixture-008",
+      "split": "development"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "r1-fixture-009",
+      "split": "development"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "r1-fixture-010",
+      "split": "development"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "r1-fixture-011",
+      "split": "development"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "r1-fixture-012",
+      "split": "development"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "r1-fixture-013",
+      "split": "development"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "r1-fixture-014",
+      "split": "development"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "r1-fixture-015",
+      "split": "development"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "r1-fixture-016",
+      "split": "development"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "r1-fixture-017",
+      "split": "development"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "r1-fixture-018",
+      "split": "development"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "r1-fixture-019",
+      "split": "development"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "r1-fixture-020",
+      "split": "development"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "r1-fixture-021",
+      "split": "development"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "r1-fixture-022",
+      "split": "development"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "r1-fixture-023",
+      "split": "development"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "r1-fixture-024",
+      "split": "development"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "r1-fixture-025",
+      "split": "development"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "r1-fixture-026",
+      "split": "development"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "r1-fixture-027",
+      "split": "development"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "r1-fixture-028",
+      "split": "development"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "r1-fixture-029",
+      "split": "development"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "r1-fixture-030",
+      "split": "development"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "r1-fixture-031",
+      "split": "development"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "r1-fixture-032",
+      "split": "holdout"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "r1-fixture-033",
+      "split": "holdout"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "r1-fixture-034",
+      "split": "holdout"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "r1-fixture-035",
+      "split": "holdout"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "r1-fixture-036",
+      "split": "holdout"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "r1-fixture-037",
+      "split": "holdout"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "r1-fixture-038",
+      "split": "holdout"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "r1-fixture-039",
+      "split": "holdout"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "r1-fixture-040",
+      "split": "holdout"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "r1-fixture-041",
+      "split": "holdout"
+    },
+    {
+      "family": "geometry_merge",
+      "fixture_id": "r1-fixture-042",
+      "split": "holdout"
+    },
+    {
+      "family": "shared_spatial_structure",
+      "fixture_id": "r1-fixture-043",
+      "split": "holdout"
+    },
+    {
+      "family": "overlapping_candidate",
+      "fixture_id": "r1-fixture-044",
+      "split": "holdout"
+    },
+    {
+      "family": "singleton_unassigned",
+      "fixture_id": "r1-fixture-045",
+      "split": "holdout"
+    },
+    {
+      "family": "ambiguous_alternatives",
+      "fixture_id": "r1-fixture-046",
+      "split": "holdout"
+    },
+    {
+      "family": "status_perturbation",
+      "fixture_id": "r1-fixture-047",
+      "split": "holdout"
+    }
+  ],
+  "schema": "d6-b1-r1-splits/v1",
+  "seed": 61031
+}
