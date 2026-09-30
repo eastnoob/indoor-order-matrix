@@ -1,0 +1,46 @@
+{
+  "artifacts": [
+    {
+      "bytes": 10936,
+      "path": "docs/project/evidence/d6-b1-r2-artifacts/model-selection-gate.json",
+      "sha256": "8dd266fd476bf41ef56bd4a53744440dc73e1bda328f9b9b1bb90349ee8bef55"
+    },
+    {
+      "bytes": 2336,
+      "path": "docs/project/evidence/d6-b1-r2-artifacts/evidence-admission-matrix.json",
+      "sha256": "44861bf620fec526b1dc4d0e17f4563471a18bac20c39e9d92383f594ba64cac"
+    },
+    {
+      "bytes": 3272,
+      "path": "docs/project/evidence/d6-b1-r2-artifacts/same-input-deterministic-comparison.json",
+      "sha256": "90bc0691a01cf50429279b899395f70e8e2b19211428f3b3583071753591c368"
+    },
+    {
+      "bytes": 2678,
+      "path": "docs/project/evidence/d6-b1-r2-artifacts/route-decision-matrix.svg",
+      "sha256": "6a90e7b2dea0119dd3a6a9ecb13b05535dd5a340ab7b9f73516d1dd35576d9ce"
+    },
+    {
+      "bytes": 1021,
+      "path": "docs/project/evidence/d6-b1-r2-artifacts/verification-report.json",
+      "sha256": "2a4a6dd1592b67ef6742020411512417ac45f8d360d3fb071b7e45e996d12219"
+    },
+    {
+      "bytes": 17085,
+      "path": "scripts/design/group_level/d6_b1_r2_gate.py",
+      "sha256": "80ba2f0df7758010b10883967205ff42b74110092db18ad1e6d1bc281d50f369"
+    },
+    {
+      "bytes": 4704,
+      "path": "docs/project/evidence/d6-b1-r2-model-selection-gate.md",
+      "sha256": "33212e0568e6062b277b099a0ace5de06c25445d2555eb8f90cc3aeff81739b3"
+    },
+    {
+      "bytes": 1401,
+      "path": "docs/project/evidence/d6-b1-r2-verification-report.md",
+      "sha256": "c93c1443bdc21e1b5a4de6ab58078a8f386b10b2a1c913648450b76d4ea0ed0d"
+    }
+  ],
+  "schema": "d6-b1-r2-artifacts/v1",
+  "seed": 61031
+}

@@ -1,0 +1,233 @@
+{
+  "acceptance_boundary": "Brier and recipe scores are synthetic computational gates only; they do not represent layout accuracy, psychological validity, or production readiness.",
+  "date": "2026-09-30",
+  "decisions": {
+    "candidate_universe": "EXTERNAL_FROZEN_INPUT",
+    "car_spatial_covariance": "PERMANENTLY_DEFERRED_FOR_THIS DESIGN LINE; NOT_IDENTIFIABLE",
+    "conditional_membership_estimand": "APPROVED_FOR_DIAGNOSTIC_ONLY",
+    "deterministic_recipes": "COMPARATOR_ONLY",
+    "first_version_posterior_evidence": "A_ONLY_LISTED_CHANNELS",
+    "production_selector": "PROHIBITED",
+    "richer_hierarchical_fit": "REQUIRED_BEFORE_ANY_IMPLEMENTATION_OR_PRODUCTION_USE"
+  },
+  "evidence_admission_matrix": {
+    "A_diagnostic_only": {
+      "contact_overlap": "admit computed/partial",
+      "empty_space": "independent_space_role_only",
+      "geometry": "admit computed/partial",
+      "normalized_gap": "audit_only_scale",
+      "trend_frame": "admit computed/partial",
+      "wall_opening_barrier": "not_available_or_deferred",
+      "z_clearance": "admit computed/partial"
+    },
+    "B_richer_design": {
+      "missing_invalid_partial_not_available_conflict": "explicit status propagation; no silent imputation",
+      "normalized_gap": "continuous_likelihood_deferred_until_calibrated",
+      "shared_node_shared_source": "required dependence design",
+      "trend_frame": "direction_likelihood_deferred_until_orientation_contract",
+      "wall_opening_barrier": "deferred_until_source_validation",
+      "z_clearance": "availability_gated"
+    },
+    "status_counts": {
+      "aggregation_unit": "fixture; nested records are audit counts only",
+      "fixture_count": 48,
+      "global": {
+        "contact_overlap:computed": 80,
+        "contact_overlap:conflict": 80,
+        "contact_overlap:invalid": 80,
+        "contact_overlap:missing": 80,
+        "contact_overlap:not_available": 80,
+        "contact_overlap:partial": 80,
+        "group_clearance:computed": 40,
+        "group_clearance:conflict": 40,
+        "group_clearance:invalid": 40,
+        "group_clearance:missing": 40,
+        "group_clearance:not_available": 40,
+        "group_clearance:partial": 40,
+        "group_geometry:computed": 40,
+        "group_geometry:conflict": 40,
+        "group_geometry:invalid": 40,
+        "group_geometry:missing": 40,
+        "group_geometry:not_available": 40,
+        "group_geometry:partial": 40,
+        "group_trend:computed": 40,
+        "group_trend:conflict": 40,
+        "group_trend:invalid": 40,
+        "group_trend:missing": 40,
+        "group_trend:not_available": 40,
+        "group_trend:partial": 40,
+        "normalized_gap:computed": 80,
+        "normalized_gap:conflict": 80,
+        "normalized_gap:invalid": 80,
+        "normalized_gap:missing": 80,
+        "normalized_gap:not_available": 80,
+        "normalized_gap:partial": 80,
+        "space_role:computed": 80,
+        "space_role:conflict": 80,
+        "space_role:invalid": 80,
+        "space_role:missing": 80,
+        "space_role:not_available": 80,
+        "space_role:partial": 80
+      }
+    }
+  },
+  "implementation_design_entry_conditions": [
+    "freeze candidate universe and membership-level output states",
+    "freeze status/provenance and source identity policy",
+    "calibrate continuous gap and direction likelihoods on independent development fixtures",
+    "predeclare shared-node/shared-source dependence model and sensitivity grid",
+    "run whole-fixture holdout calibration and joint-model posterior predictive checks",
+    "specify output uncertainty/state contract without a selector"
+  ],
+  "implementation_design_exit_conditions": [
+    "any truth leakage or fixture split overlap",
+    "unresolved conflict or missingness propagation",
+    "non-identifiable dependence treated as fitted",
+    "calibration substituted for PPC",
+    "threshold, winner, production selector, or psychological validity claim introduced"
+  ],
+  "input_artifacts": {
+    "deterministic-recipe-comparison.json": "2325cba71e92d6c5574e1ec11fdb49eb1584d8eb22386be9dfaa91851fd8e08a",
+    "fixture-split-manifest.json": "cf1eef97ee37e49dc5091bf5ebacdc4df7f749117c45cef31d7dda9d38be6555",
+    "inference-frozen.json": "be5050c60638317387d157abcbc561d18017982a58653b72657b98975d9ad575",
+    "observation-manifest.json": "308be50af5aac51e3147b6fc19cb490b1724bdd81033f9238df5981855dcab7b",
+    "truth-manifest.json": "0a26e7e7463d169b4a7ea961761ed58c261e1928bbde6e014e623cce64f3c151",
+    "verification-report.json": "3305f9db139a80e32c31bbc45141c75dd033227c2792038ca7e68823c61c036a"
+  },
+  "posterior_predictive_checks": {
+    "reason": "No jointly fitted generative model in R1; calibration is not PPC.",
+    "status": "not_run"
+  },
+  "route_decisions": {
+    "A_diagnostic_only_bayesian": {
+      "admitted_first_version": [
+        "group geometry summary when computed or partial with named observed component",
+        "trend/frame binary diagnostic when computed or partial",
+        "Z/clearance binary diagnostic when computed or partial",
+        "contact/overlap support when computed or partial"
+      ],
+      "audit_only_or_deferred": [
+        "continuous normalized gap (scale evidence only in A)",
+        "wall/opening barrier (not_available in R1; deferred)",
+        "empty-space role evidence (independent role output; never membership likelihood)",
+        "CAR/spatial covariance (not_identifiable)"
+      ],
+      "boundary": "synthetic and diagnostic interpretation; not a production selector, accuracy claim, or psychological validity claim",
+      "estimand": "P(Z[g,k]=1 | E,K,M) for authored group g in externally frozen candidate scope k",
+      "output": "posterior probability plus status/provenance trace; no selector action",
+      "status": "APPROVE_AS_DIAGNOSTIC_ONLY"
+    },
+    "B_richer_bayesian_design": {
+      "calibration_and_ppc": "must be predeclared; PPC is required for a joint generative fit and cannot be replaced by calibration",
+      "dependence": [
+        "shared-node/shared-source hierarchical blocks",
+        "candidate overlap and singleton/unassigned/ambiguous states as estimand outputs",
+        "CAR/spatial covariance remains not_identifiable until replicated spatial graphs exist"
+      ],
+      "estimand": "same membership-level estimand, with joint evidence and explicit dependence model",
+      "implementation": "not entered in B1-R2",
+      "likelihood": [
+        "continuous normalized gap likelihood with scale/provenance calibration",
+        "trend/frame direction likelihood",
+        "Z/clearance and wall/opening barrier only when source availability and orientation are validated"
+      ],
+      "status": "DESIGN_ONLY__FIT_NOT_RUN",
+      "status_policy": "computed admitted; partial admits named components; missing/invalid/not_available/conflict propagate and do not silently contribute"
+    }
+  },
+  "same_input_comparison": {
+    "bayesian_diagnostic_rows": [
+      {
+        "configuration": "central:independent",
+        "dependence": "independent",
+        "holdout_mean_fixture_brier": 0.26780398696440144,
+        "interpretation": "synthetic computational gate; no winner selected",
+        "mean_prior_posterior_shift": 0.26454273717531734,
+        "prevalence_baseline_brier": 0.225,
+        "prior": "central"
+      },
+      {
+        "configuration": "central:shared_node_source_discount",
+        "dependence": "shared_node_source_discount",
+        "holdout_mean_fixture_brier": 0.25627882920555645,
+        "interpretation": "synthetic computational gate; no winner selected",
+        "mean_prior_posterior_shift": 0.24382795196244036,
+        "prevalence_baseline_brier": 0.225,
+        "prior": "central"
+      },
+      {
+        "configuration": "diffuse:independent",
+        "dependence": "independent",
+        "holdout_mean_fixture_brier": 0.31825933275365365,
+        "interpretation": "synthetic computational gate; no winner selected",
+        "mean_prior_posterior_shift": 0.27925219744990365,
+        "prevalence_baseline_brier": 0.225,
+        "prior": "diffuse"
+      },
+      {
+        "configuration": "diffuse:shared_node_source_discount",
+        "dependence": "shared_node_source_discount",
+        "holdout_mean_fixture_brier": 0.32208862030444524,
+        "interpretation": "synthetic computational gate; no winner selected",
+        "mean_prior_posterior_shift": 0.24368764675206533,
+        "prevalence_baseline_brier": 0.225,
+        "prior": "diffuse"
+      },
+      {
+        "configuration": "sparse:independent",
+        "dependence": "independent",
+        "holdout_mean_fixture_brier": 0.2633344271095361,
+        "interpretation": "synthetic computational gate; no winner selected",
+        "mean_prior_posterior_shift": 0.20060884277019614,
+        "prevalence_baseline_brier": 0.225,
+        "prior": "sparse"
+      },
+      {
+        "configuration": "sparse:shared_node_source_discount",
+        "dependence": "shared_node_source_discount",
+        "holdout_mean_fixture_brier": 0.24884916519737185,
+        "interpretation": "synthetic computational gate; no winner selected",
+        "mean_prior_posterior_shift": 0.18347147840841563,
+        "prevalence_baseline_brier": 0.225,
+        "prior": "sparse"
+      }
+    ],
+    "deterministic_recipe_rows": [
+      {
+        "holdout_mean_fixture_pair_f1": 0.10615079365079366,
+        "interpretation": "deterministic strength/support; not probability",
+        "recipe": "local_persistence_window",
+        "truth_comparison_permitted": true
+      },
+      {
+        "holdout_mean_fixture_pair_f1": 0.0763888888888889,
+        "interpretation": "deterministic strength/support; not probability",
+        "recipe": "relative_gap_rank",
+        "truth_comparison_permitted": true
+      },
+      {
+        "holdout_mean_fixture_pair_f1": null,
+        "interpretation": "deterministic strength/support; not probability",
+        "recipe": "space_profile_rank",
+        "truth_comparison_permitted": false
+      }
+    ],
+    "nested_member_pair_scope_iid_assumption": false,
+    "same_observation_manifest_sha256": "308be50af5aac51e3147b6fc19cb490b1724bdd81033f9238df5981855dcab7b",
+    "space_profile_membership_truth": "prohibited",
+    "winner_or_threshold_selected": false
+  },
+  "schema": "d6-b1-r2-model-selection-gate/v1",
+  "seed": 61031,
+  "status": "STOP FOR B1 DESIGN REVIEW",
+  "truth_isolation": {
+    "candidate_specific_pair_refs": 1440,
+    "development_fixtures": 32,
+    "holdout_fixtures": 16,
+    "nested_units_are_not_iid": true,
+    "observation_fixture_count": 48,
+    "shared_group_scope_refs": 720,
+    "truth_consumed_by_inference": false,
+    "truth_joined_after_frozen_inference": true
+  }
+}

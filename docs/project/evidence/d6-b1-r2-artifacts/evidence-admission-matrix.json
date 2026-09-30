@@ -1,0 +1,61 @@
+{
+  "A_diagnostic_only": {
+    "contact_overlap": "admit computed/partial",
+    "empty_space": "independent_space_role_only",
+    "geometry": "admit computed/partial",
+    "normalized_gap": "audit_only_scale",
+    "trend_frame": "admit computed/partial",
+    "wall_opening_barrier": "not_available_or_deferred",
+    "z_clearance": "admit computed/partial"
+  },
+  "B_richer_design": {
+    "missing_invalid_partial_not_available_conflict": "explicit status propagation; no silent imputation",
+    "normalized_gap": "continuous_likelihood_deferred_until_calibrated",
+    "shared_node_shared_source": "required dependence design",
+    "trend_frame": "direction_likelihood_deferred_until_orientation_contract",
+    "wall_opening_barrier": "deferred_until_source_validation",
+    "z_clearance": "availability_gated"
+  },
+  "status_counts": {
+    "aggregation_unit": "fixture; nested records are audit counts only",
+    "fixture_count": 48,
+    "global": {
+      "contact_overlap:computed": 80,
+      "contact_overlap:conflict": 80,
+      "contact_overlap:invalid": 80,
+      "contact_overlap:missing": 80,
+      "contact_overlap:not_available": 80,
+      "contact_overlap:partial": 80,
+      "group_clearance:computed": 40,
+      "group_clearance:conflict": 40,
+      "group_clearance:invalid": 40,
+      "group_clearance:missing": 40,
+      "group_clearance:not_available": 40,
+      "group_clearance:partial": 40,
+      "group_geometry:computed": 40,
+      "group_geometry:conflict": 40,
+      "group_geometry:invalid": 40,
+      "group_geometry:missing": 40,
+      "group_geometry:not_available": 40,
+      "group_geometry:partial": 40,
+      "group_trend:computed": 40,
+      "group_trend:conflict": 40,
+      "group_trend:invalid": 40,
+      "group_trend:missing": 40,
+      "group_trend:not_available": 40,
+      "group_trend:partial": 40,
+      "normalized_gap:computed": 80,
+      "normalized_gap:conflict": 80,
+      "normalized_gap:invalid": 80,
+      "normalized_gap:missing": 80,
+      "normalized_gap:not_available": 80,
+      "normalized_gap:partial": 80,
+      "space_role:computed": 80,
+      "space_role:conflict": 80,
+      "space_role:invalid": 80,
+      "space_role:missing": 80,
+      "space_role:not_available": 80,
+      "space_role:partial": 80
+    }
+  }
+}

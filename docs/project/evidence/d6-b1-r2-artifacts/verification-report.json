@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "deterministic_comparison_views": 1584,
+    "no_winner_or_threshold": true,
+    "ppc_status": "not_run",
+    "same_observation_hash_bound": true,
+    "shared_observation_identity": true,
+    "svg_xml_parse": true,
+    "truth_isolation": true,
+    "whole_fixture_holdout": true
+  },
+  "input_hashes": {
+    "deterministic-recipe-comparison.json": "2325cba71e92d6c5574e1ec11fdb49eb1584d8eb22386be9dfaa91851fd8e08a",
+    "fixture-split-manifest.json": "cf1eef97ee37e49dc5091bf5ebacdc4df7f749117c45cef31d7dda9d38be6555",
+    "inference-frozen.json": "be5050c60638317387d157abcbc561d18017982a58653b72657b98975d9ad575",
+    "observation-manifest.json": "308be50af5aac51e3147b6fc19cb490b1724bdd81033f9238df5981855dcab7b",
+    "truth-manifest.json": "0a26e7e7463d169b4a7ea961761ed58c261e1928bbde6e014e623cce64f3c151",
+    "verification-report.json": "3305f9db139a80e32c31bbc45141c75dd033227c2792038ca7e68823c61c036a"
+  },
+  "schema": "d6-b1-r2-verification/v1",
+  "status": "verified"
+}

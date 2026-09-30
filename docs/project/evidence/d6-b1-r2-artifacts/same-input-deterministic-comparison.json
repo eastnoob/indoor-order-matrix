@@ -1,0 +1,82 @@
+{
+  "bayesian_diagnostic_rows": [
+    {
+      "configuration": "central:independent",
+      "dependence": "independent",
+      "holdout_mean_fixture_brier": 0.26780398696440144,
+      "interpretation": "synthetic computational gate; no winner selected",
+      "mean_prior_posterior_shift": 0.26454273717531734,
+      "prevalence_baseline_brier": 0.225,
+      "prior": "central"
+    },
+    {
+      "configuration": "central:shared_node_source_discount",
+      "dependence": "shared_node_source_discount",
+      "holdout_mean_fixture_brier": 0.25627882920555645,
+      "interpretation": "synthetic computational gate; no winner selected",
+      "mean_prior_posterior_shift": 0.24382795196244036,
+      "prevalence_baseline_brier": 0.225,
+      "prior": "central"
+    },
+    {
+      "configuration": "diffuse:independent",
+      "dependence": "independent",
+      "holdout_mean_fixture_brier": 0.31825933275365365,
+      "interpretation": "synthetic computational gate; no winner selected",
+      "mean_prior_posterior_shift": 0.27925219744990365,
+      "prevalence_baseline_brier": 0.225,
+      "prior": "diffuse"
+    },
+    {
+      "configuration": "diffuse:shared_node_source_discount",
+      "dependence": "shared_node_source_discount",
+      "holdout_mean_fixture_brier": 0.32208862030444524,
+      "interpretation": "synthetic computational gate; no winner selected",
+      "mean_prior_posterior_shift": 0.24368764675206533,
+      "prevalence_baseline_brier": 0.225,
+      "prior": "diffuse"
+    },
+    {
+      "configuration": "sparse:independent",
+      "dependence": "independent",
+      "holdout_mean_fixture_brier": 0.2633344271095361,
+      "interpretation": "synthetic computational gate; no winner selected",
+      "mean_prior_posterior_shift": 0.20060884277019614,
+      "prevalence_baseline_brier": 0.225,
+      "prior": "sparse"
+    },
+    {
+      "configuration": "sparse:shared_node_source_discount",
+      "dependence": "shared_node_source_discount",
+      "holdout_mean_fixture_brier": 0.24884916519737185,
+      "interpretation": "synthetic computational gate; no winner selected",
+      "mean_prior_posterior_shift": 0.18347147840841563,
+      "prevalence_baseline_brier": 0.225,
+      "prior": "sparse"
+    }
+  ],
+  "deterministic_recipe_rows": [
+    {
+      "holdout_mean_fixture_pair_f1": 0.10615079365079366,
+      "interpretation": "deterministic strength/support; not probability",
+      "recipe": "local_persistence_window",
+      "truth_comparison_permitted": true
+    },
+    {
+      "holdout_mean_fixture_pair_f1": 0.0763888888888889,
+      "interpretation": "deterministic strength/support; not probability",
+      "recipe": "relative_gap_rank",
+      "truth_comparison_permitted": true
+    },
+    {
+      "holdout_mean_fixture_pair_f1": null,
+      "interpretation": "deterministic strength/support; not probability",
+      "recipe": "space_profile_rank",
+      "truth_comparison_permitted": false
+    }
+  ],
+  "nested_member_pair_scope_iid_assumption": false,
+  "same_observation_manifest_sha256": "308be50af5aac51e3147b6fc19cb490b1724bdd81033f9238df5981855dcab7b",
+  "space_profile_membership_truth": "prohibited",
+  "winner_or_threshold_selected": false
+}
