@@ -1,61 +1,61 @@
 {
-  "adapter": "ifc4-bonsai-adapter/0.1.0",
   "artifact_hashes": {
     "analysis_sample.png": {
-      "bytes": 512731,
-      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\analysis_sample.png",
-      "sha256": "806e67d25f551a11d1dea8800dccb4a3178f8ffd023b1753b21dc38729a51d54"
+      "bytes": 527426,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\final\\analysis_sample.png",
+      "sha256": "89d90d1ccfb917f3810e453692f0e75ced839a6743fd1ec0c44e22392ef9d237"
     },
     "audit.json": {
       "bytes": 11241,
-      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\audit.json",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\final\\audit.json",
       "sha256": "6e76b9f08247c6260d6c2aae25436d3f60ec98ccf6dfb34cd42c3e060ff0cda8"
     },
     "description.json": {
-      "bytes": 74076,
-      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\description.json",
-      "sha256": "76636ffc94df2675aeea5ce59e4d591fd2553d188a17413c7d552ebc55a57d3b"
+      "bytes": 388755,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\final\\description.json",
+      "sha256": "9ddf3a53eb0f82c68a2021cb4448d9ad8762d0715236c5e9107cf77884aebaba"
     },
     "inventory.json": {
       "bytes": 173337,
-      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\inventory.json",
-      "sha256": "00ca35499e33e4273fcab7e27d39384bfff2b75ea3ad1fb4fa9f709be00e8555"
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\final\\inventory.json",
+      "sha256": "9d660122b474ad5da7a7a0547cdbf6b8f1489e9f8f02cd2ae472d7a07ed9dfee"
     },
     "sample_scene.json": {
       "bytes": 29273030,
-      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\sample_scene.json",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\final\\sample_scene.json",
       "sha256": "08a385bda071bc1e7e97254f4bc63c52e1bb55c86458c271d586b0fff53b012d"
     },
     "source_sample.png": {
-      "bytes": 506246,
-      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\source_sample.png",
-      "sha256": "527b8ae28ab84625b2efc0d4b748162c6fcefe875fd4daa4ebe6dd9d434dc626"
+      "bytes": 506057,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\final\\source_sample.png",
+      "sha256": "b9858d25d2fb81c433ba2d49851c19848ea3d3873e772d39154794b6bf9c7446"
     },
     "three_group_smoke.blend": {
-      "bytes": 3837458,
-      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\three_group_smoke.blend",
-      "sha256": "c30b3635873c0d9690ccd12f3772df82d6b706abd115d9b39f57f3d90e2f93ca"
+      "bytes": 3852760,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\final\\three_group_smoke.blend",
+      "sha256": "618e22f8a5ab2fcc7c95ae8a33b7152634523a607d0f41e389864af38a3f1faa"
     }
   },
   "canonical_statuses": {
-    "ifc-group:0$9EwHOwDKmu25$icFA5wm": "invalid",
-    "ifc-group:02Kyw_DsPG5BC3j07wct$4": "invalid",
-    "ifc-group:0AG_FU1oHHxh9s_mH9GMgP": "invalid"
+    "ifc-group:0$9EwHOwDKmu25$icFA5wm": "computed",
+    "ifc-group:02Kyw_DsPG5BC3j07wct$4": "computed",
+    "ifc-group:0AG_FU1oHHxh9s_mH9GMgP": "computed"
   },
   "checkpoint": "D6 Trend Core Checkpoint 1B",
-  "commands": [
-    "pixi run pytest -q",
-    "git diff --check",
-    "Blender 5.2 --background --factory-startup --python render_ifc_three_group_smoke.py"
-  ],
-  "created_utc": "2026-09-30T14:07:03.467047+00:00",
+  "created_utc": "2026-09-30T15:35:04.769419+00:00",
   "deferred": {
     "candidate_view_status": "deferred",
     "candidate_views": null,
     "space_domain_status": "not_available"
   },
-  "schema": "d6-trend-core-checkpoint-1b/v1",
-  "selected_group_ids": [
+  "hole_policy": {
+    "body_fallback": false,
+    "exact_or_near_zero_seam": "filtered before exterior Shapely construction when abs(area)<=tolerance",
+    "nonfinite_self_intersecting_or_out_of_bounds": "invalid",
+    "valid_interior_holes": "subtract area first moment and second moment"
+  },
+  "schema": "d6-trend-core-checkpoint-1b/v2-hole-aware",
+  "selected_groups": [
     "ifc-group:0$9EwHOwDKmu25$icFA5wm",
     "ifc-group:02Kyw_DsPG5BC3j07wct$4",
     "ifc-group:0AG_FU1oHHxh9s_mH9GMgP"
@@ -65,13 +65,5 @@
     "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
     "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
   },
-  "source_unchanged": true,
-  "substitute_contract": "d6-trend-substitute-registry/v1",
-  "typed_binding": {
-    "body_fallback": false,
-    "geometry_refs_required": true,
-    "owner_property": "OM_FunctionSubstitutes",
-    "target_representation_identifier": "Analysis",
-    "target_role": "analysis_substitute"
-  }
+  "source_unchanged": true
 }

@@ -662,12 +662,57 @@ def _polygon_moments(points, tolerance, holes=()):
         points = points[:-1]
     if len(points) < 3 or any(not isfinite(value) for point in points for value in point):
         return None
+    normalized_holes = []
+    for hole in holes or ():
+        try:
+            ring = tuple((float(point[0]), float(point[1])) for point in hole)
+        except (TypeError, ValueError, IndexError):
+            return None
+        if len(ring) >= 2 and ring[0] == ring[-1]:
+            ring = ring[:-1]
+        if len(ring) < 3 or any(not isfinite(value) for point in ring for value in point):
+            return None
+        ring_area = sum(
+            ring[index][0] * ring[(index + 1) % len(ring)][1]
+            - ring[(index + 1) % len(ring)][0] * ring[index][1]
+            for index in range(len(ring))
+        ) / 2.0
+        # Coplanar tessellation seams can polygonize as zero-area rings. Drop
+        # only degenerate rings before Shapely sees them; nonzero bad rings stay invalid.
+        try:
+            from shapely.geometry import Polygon
+            ring_polygon = Polygon(ring)
+        except (TypeError, ValueError):
+            return None
+        if abs(ring_area) <= tolerance:
+            distinct = []
+            for point in ring:
+                if point not in distinct:
+                    distinct.append(point)
+            if len(distinct) <= 2:
+                continue
+            anchor, direction = distinct[0], None
+            for point in distinct[1:]:
+                if point != anchor:
+                    direction = (point[0] - anchor[0], point[1] - anchor[1])
+                    break
+            collinear = direction is not None and all(
+                direction[0] * (point[1] - anchor[1])
+                - direction[1] * (point[0] - anchor[0]) == 0.0
+                for point in distinct[1:]
+            )
+            if not collinear and not ring_polygon.is_valid:
+                return None
+            continue
+        if not ring_polygon.is_valid:
+            return None
+        normalized_holes.append(ring)
     # Reject self-intersecting rings before deriving moments; shoelace area can
     # be non-zero for an invalid polygon and would otherwise create false facts.
     try:
         from shapely.geometry import Polygon
 
-        polygon = Polygon(points, holes)
+        polygon = Polygon(points, normalized_holes)
     except (TypeError, ValueError):
         return None
     if not polygon.is_valid or not polygon.exterior.is_simple:
@@ -700,17 +745,9 @@ def _polygon_moments(points, tolerance, holes=()):
     first = (outer_area * cx, outer_area * cy)
     area = outer_area
     # Subtract void integrals before centering; ring winding must not add mass.
-    for hole in holes or ():
+    for hole in normalized_holes:
         hole_moments = _polygon_moments(hole, tolerance)
         if hole_moments is None:
-            # Tessellated coplanar seams can polygonize as zero-area rings;
-            # they are topology noise, not occupied voids.
-            try:
-                from shapely.geometry import Polygon
-                if Polygon(hole).area <= tolerance:
-                    continue
-            except (TypeError, ValueError):
-                pass
             return None
         if hole_moments["area"] >= area - tolerance:
             return None
@@ -736,7 +773,7 @@ def _polygon_moments(points, tolerance, holes=()):
         "covariance": ((raw[0][0] / area - center[0] ** 2, raw[0][1] / area - center[0] * center[1]),
                        (raw[1][0] / area - center[0] * center[1], raw[1][1] / area - center[1] ** 2)),
         "points": points,
-        "holes": tuple(tuple(hole) for hole in holes or ()),
+        "holes": tuple(tuple(hole) for hole in normalized_holes),
     }
 
 

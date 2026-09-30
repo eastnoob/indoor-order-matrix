@@ -627,3 +627,29 @@ def test_polygon_hole_moments_subtract_void_and_ignore_winding():
         assert result["covariance"][0] == pytest.approx((865 / 588, 0))
         assert result["covariance"][1] == pytest.approx((0, 31 / 21))
 
+
+@pytest.mark.parametrize(
+    "hole, expected",
+    [
+        (((1.0, 1.0), (2.0, 1.0), (3.0, 1.0)), "seam"),
+        (((1.0, 1.0), (1.0 + 1e-10, 1.0), (1.0, 1.0 + 1e-10)), "seam"),
+    ],
+)
+def test_polygon_moments_filters_zero_and_near_zero_seams(hole, expected):
+    """Degenerate rings are removed before Shapely construction."""
+    from ..features.group_self_description import _polygon_moments
+
+    result = _polygon_moments(((0, 0), (4, 0), (4, 4), (0, 4)), 1e-9, (hole,))
+    assert expected == "seam"
+    assert result["area"] == pytest.approx(16.0)
+
+
+def test_polygon_moments_rejects_nonfinite_or_out_of_bounds_holes():
+    """Nonzero malformed holes remain invalid rather than becoming unavailable."""
+    from ..features.group_self_description import _polygon_moments
+
+    exterior = ((0, 0), (4, 0), (4, 4), (0, 4))
+    assert _polygon_moments(exterior, 1e-9, (((3, 3), (5, 3), (3, 5)),)) is None
+    assert _polygon_moments(exterior, 1e-9, (((1, 1), (float("nan"), 1), (1, 2)),)) is None
+    assert _polygon_moments(exterior, 1e-9, (((1, 1), (3, 3), (1, 3), (3, 1)),)) is None
+

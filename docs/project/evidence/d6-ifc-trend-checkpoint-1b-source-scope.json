@@ -1,5 +1,6 @@
 {
   "exact_role": "furniture_group",
+  "final_artifact_dir": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\ifc_trend_checkpoint_1b\\final",
   "forbidden_inference": [
     "names",
     "layers",
