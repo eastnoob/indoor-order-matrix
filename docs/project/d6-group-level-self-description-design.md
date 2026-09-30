@@ -74,6 +74,18 @@
 
 ## 3. Trend estimands：`group_frame` 与 `group_axis`
 
+### 3.0 Trend input boundary: proxy geometry only
+
+Trend is computed from the canonical analysis proxy, never from the authored
+physical/body geometry. In an IFC adapter this may be an explicit `Analysis`
+representation; in another source it may be an externally supplied affordance
+or other approved planar proxy. The `Body` representation is retained only for
+source provenance, visual audit, and optional display. If an adapter derives an
+analysis proxy from a body, that derivation is upstream provenance; it does not
+make body vertices an input to the trend estimator. A trend record must store
+the proxy geometry references and basis, and must not silently fall back to
+`Body` when the proxy is missing or invalid.
+
 二者都可由 member terminal geometry 计算，但不是同一个 estimand：
 
 | estimand | 数学语义 | 0°/90° | 适用范围 |

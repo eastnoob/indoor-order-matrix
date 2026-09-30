@@ -45,7 +45,7 @@ F0 基础观测
 | 输入 | 进入方式 | 首阶段用途 | 禁止的偷换 | 状态 |
 |---|---|---|---|---|
 | authored furniture group | IFC 严格 `ObjectType="furniture_group"` 或等价显式 adapter relation | 最小家具分析节点 | 名称、图层、普通 `IfcGroup`、邻近关系不能创造节点 | 已确定 |
-| group member geometry | world-space `Analysis` plan geometry；3D 信息按指标保留 | 面积、中心、协方差、frame、pair relation | 不用历史 placement/local axis 伪造 trend | 已确定 |
+| group member geometry | world-space canonical analysis proxy（IFC `Analysis` 或外部传入 proxy）；3D 信息按指标保留 | 面积、中心、协方差、frame、pair relation | `Body`/本体几何永远不进入 trend；不使用历史 placement/local axis 伪造 trend | 已确定 |
 | group semantic fields | 作者提供的类型、名称、用途、角色、兼容/互斥声明及 provenance | 软正/负证据或显式硬互斥 | 不等同心理主观性；不自动生成 affordance | 已确定方向 |
 | context geometry | 未被标记为 furniture group 的 IFC/SVG/Neutral source object | alignment、边界、阻隔、自由空间、局部参照 | 不成为家具节点；不进入类型同类证据 | 已确定方向 |
 | AnalysisDomain | 显式域几何和 provenance | 负空间、拓扑、空区角色场 | scene bounds 不能替代 domain | 已确定 |

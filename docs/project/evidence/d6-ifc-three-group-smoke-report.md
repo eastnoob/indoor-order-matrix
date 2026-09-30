@@ -30,6 +30,8 @@ One `Analysis` member per selected group was checked independently against the I
 
 The reported `group_frame` and `group_axis` angles use only those usable members. They are **partial diagnostic directions**, not a complete group trend, formal aggregation, or inferred group result. In particular, the single-member directions for `G2` and `G3` cannot establish agreement across their declared groups. Candidate views and aggregation remain `deferred`; space, Z compatibility, and 3D clearance remain unavailable.
 
+The trend input boundary is proxy-only: these directions read the canonical planar `Analysis` geometry as the analysis proxy. The IFC `Body` meshes are retained only for source provenance and Blender display; they never enter the trend calculation. A future adapter must preserve this rule and must not silently use `Body` when the analysis proxy is missing or invalid.
+
 ## Blender display artifact
 
 The renderer consumed only `sample_scene.json`, `description.json`, and `inventory.json`; it did not recalculate descriptor metrics. It used the required executable `D:\Blender\BlenderPortableLTS5.2\App\Blender64\blender.exe` (Blender 5.2.0 LTS). The saved artifact has separate `D6_Source_Body`, `D6_Analysis_Terminal`, `D6_Analysis_Overlays`, `D6_Source_Labels`, and `D6_Analysis_Labels` collections, with seven Body meshes and seven Analysis meshes. The analysis overlay keeps footprint, center, group-frame, and group-axis roles distinct; its two direction roles are tagged `partial_usable_members_only`.

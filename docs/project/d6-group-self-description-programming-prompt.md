@@ -34,6 +34,7 @@ describe_group_relations(scene: AnalysisSceneInput) -> dict[str, object]
 - legacy mapping 只接受明确的 `object["furniture_group"]` 或 `metadata["furniture-group"]`。
 - 不得使用普通 `group_refs`、名称、图层、邻近、旧 region fallback 或 `_group_membership()` 兼容行为创建家具组。
 - context 保持 context，可以提供已有空间/方向参照，但不成为 furniture-group node。
+- trend 只能读取 canonical analysis proxy（例如 IFC `Analysis` 或外部 affordance/proxy geometry）；IFC `Body`/本体几何只用于 provenance 和可视化，永远不得作为 trend 计算输入，也不得在 proxy 缺失时静默 fallback 到 `Body`。
 - 不修改 `NeutralSceneV2`、adapter、`room_analysis_model` shape 或 IFC/SVG 生产路径。
 - 不实现 connected-components、complete-link、max-span、candidate selector、唯一 partition、Bayesian、心理阈值或 IFC 写回。
 - 不新增依赖。
