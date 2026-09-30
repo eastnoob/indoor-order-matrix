@@ -16,7 +16,7 @@ The final evidence set was regenerated from the real IFC after the hole-aware re
 ## Verification
 
 - Group/trend/IFC adapter tests: passed.
-- Full `pixi run pytest -q`: invoked; repository-wide run did not produce a final exit summary within the execution window.
+- Full `pixi run pytest -q` (2026-09-30): exit code 0; 853 passed, 13 skipped, 0 failed in 1230.27s.
 - `git diff --check`: pass.
 - Real IFC self-check, inventory, probe, and saved-artifact verify: pass.
 - Blender portable 5.2 output-only render: pass.
