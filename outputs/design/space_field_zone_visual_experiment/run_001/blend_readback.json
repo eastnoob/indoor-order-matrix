@@ -1,0 +1,61 @@
+{
+  "blend_filepath": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\d6_zone_candidates_disposable.blend",
+  "blender_version": "5.2.0 LTS",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "analysis_node_labels": 37,
+      "camera_type": "ORTHO",
+      "object_count": 499,
+      "physical_wall_meshes": 11,
+      "region_fill_meshes": 1,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_baseline_one_region.png",
+      "render_resolution": [
+        2400,
+        1200
+      ],
+      "scene": "Baseline_1_region"
+    },
+    {
+      "analysis_node_labels": 37,
+      "camera_type": "ORTHO",
+      "object_count": 503,
+      "physical_wall_meshes": 11,
+      "region_fill_meshes": 2,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_2_regions.png",
+      "render_resolution": [
+        2400,
+        1200
+      ],
+      "scene": "Candidate_2_regions"
+    },
+    {
+      "analysis_node_labels": 37,
+      "camera_type": "ORTHO",
+      "object_count": 507,
+      "physical_wall_meshes": 11,
+      "region_fill_meshes": 3,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_3_regions.png",
+      "render_resolution": [
+        2400,
+        1200
+      ],
+      "scene": "Candidate_3_regions"
+    },
+    {
+      "analysis_node_labels": 37,
+      "camera_type": "ORTHO",
+      "object_count": 511,
+      "physical_wall_meshes": 11,
+      "region_fill_meshes": 4,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_4_regions.png",
+      "render_resolution": [
+        2400,
+        1200
+      ],
+      "scene": "Candidate_4_regions"
+    }
+  ],
+  "source_scene_opened_or_saved": false,
+  "status": "pass"
+}

@@ -1,0 +1,727 @@
+{
+  "analysis_frame": {
+    "id": "fixture-plan-xy",
+    "origin": [
+      0.0,
+      0.0
+    ],
+    "plane": "XY",
+    "unit": "m"
+  },
+  "design_only": true,
+  "fixture_manifest": "scripts/design/group_level/inferred_group_experiment_fixtures.json",
+  "fixture_sha256": "28d8cf6ccfb5dcdf3068a82a6e615a7768a93328df1433426e57a3944d5c2a36",
+  "limitations": [
+    "Synthetic boxes are computational fixtures, not human labels or real-scene accuracy evidence.",
+    "The relation channels are independent observations; no Bayesian prior, posterior, trend, coherence, or strength enters first-round membership.",
+    "Complete-link is represented by finite-fixture maximal cliques; no production threshold or selector is frozen.",
+    "SVG is compared only on equivalent canonical 2D facts; 3D, Z, clearance, and barrier channels remain IFC-only acceptance facts.",
+    "Union area is a diagnostic arithmetic comparison; polygon topology, holes, self-intersections, and multi-overlap semantics remain deferred."
+  ],
+  "results": {
+    "candidate_comparison": {
+      "bridge_chain": {
+        "candidate_output_diagnostic": {
+          "hard_partition_status": "ambiguous",
+          "overlapping_candidates": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "unassigned": [
+            "D"
+          ]
+        },
+        "complete_link_maximal_cliques": [
+          [
+            "A",
+            "B"
+          ],
+          [
+            "B",
+            "C"
+          ]
+        ],
+        "connected_components": [
+          [
+            "A",
+            "B",
+            "C"
+          ],
+          [
+            "D"
+          ]
+        ],
+        "edges": [
+          "A--B",
+          "B--C"
+        ],
+        "hard_partition_options": [
+          {
+            "blocks": [
+              [
+                "A"
+              ],
+              [
+                "B",
+                "C"
+              ]
+            ],
+            "coverage": 3,
+            "unassigned": [
+              "D"
+            ]
+          },
+          {
+            "blocks": [
+              [
+                "A",
+                "B"
+              ],
+              [
+                "C"
+              ]
+            ],
+            "coverage": 3,
+            "unassigned": [
+              "D"
+            ]
+          }
+        ],
+        "max_span_candidates": [
+          [
+            "A",
+            "B"
+          ],
+          [
+            "B",
+            "C"
+          ]
+        ],
+        "relations": {
+          "A--B": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 0.5,
+            "edge": true,
+            "formal_membership_edge": true,
+            "normalized_gap_2d": 0.35355339059327373,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 0.5,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "A--C": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 2.0,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 1.414213562373095,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 2.0,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "A--D": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 7.0,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 4.949747468305833,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 7.0,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "B--C": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 0.5,
+            "edge": true,
+            "formal_membership_edge": true,
+            "normalized_gap_2d": 0.35355339059327373,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 0.5,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "B--D": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 5.5,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 3.8890872965260113,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 5.5,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "C--D": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 4.0,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 2.82842712474619,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 4.0,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          }
+        }
+      },
+      "long_row": {
+        "complete_link_maximal_cliques": [
+          [
+            "L1",
+            "L2"
+          ],
+          [
+            "L2",
+            "L3"
+          ],
+          [
+            "L3",
+            "L4"
+          ]
+        ],
+        "connected_components": [
+          [
+            "L1",
+            "L2",
+            "L3",
+            "L4"
+          ]
+        ],
+        "edges": [
+          "L1--L2",
+          "L2--L3",
+          "L3--L4"
+        ],
+        "max_span_candidates": [
+          [
+            "L1",
+            "L2"
+          ],
+          [
+            "L2",
+            "L3"
+          ],
+          [
+            "L3",
+            "L4"
+          ]
+        ]
+      }
+    },
+    "channels": {
+      "levels_and_barriers": {
+        "edges": [
+          "WALL_A--WALL_B"
+        ],
+        "relations": {
+          "FLOOR_A--FLOOR_B": {
+            "barrier": {
+              "status": "blocked",
+              "wall_id": "closed_wall"
+            },
+            "clearance_3d": 0.3999999999999999,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 0.28284271247461895,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 0.3999999999999999,
+            "reason": "barrier_blocked",
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "FLOOR_A--STACKED": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 1.0,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 0.0,
+            "overlap_2d": true,
+            "overlap_3d": false,
+            "overlap_area_2d": 1.0,
+            "raw_gap_2d": 0.0,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": false
+          },
+          "FLOOR_A--WALL_A": {
+            "barrier": {
+              "status": "blocked",
+              "wall_id": "closed_wall"
+            },
+            "clearance_3d": 4.0,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 2.82842712474619,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 4.0,
+            "reason": "barrier_blocked",
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "FLOOR_A--WALL_B": {
+            "barrier": {
+              "status": "blocked",
+              "wall_id": "closed_wall"
+            },
+            "clearance_3d": 5.4,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 3.8183766184073566,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 5.4,
+            "reason": "barrier_blocked",
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "FLOOR_B--STACKED": {
+            "barrier": {
+              "status": "blocked",
+              "wall_id": "closed_wall"
+            },
+            "clearance_3d": 1.0770329614269007,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 0.28284271247461895,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 0.3999999999999999,
+            "reason": "barrier_blocked",
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": false
+          },
+          "FLOOR_B--WALL_A": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 2.6,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 1.8384776310850235,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 2.6,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "FLOOR_B--WALL_B": {
+            "barrier": {
+              "status": "opening",
+              "wall_id": "open_wall"
+            },
+            "clearance_3d": 4.0,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 2.82842712474619,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 4.0,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          },
+          "STACKED--WALL_A": {
+            "barrier": {
+              "status": "blocked",
+              "wall_id": "closed_wall"
+            },
+            "clearance_3d": 4.123105625617661,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 2.82842712474619,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 4.0,
+            "reason": "barrier_blocked",
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": false
+          },
+          "STACKED--WALL_B": {
+            "barrier": {
+              "status": "blocked",
+              "wall_id": "closed_wall"
+            },
+            "clearance_3d": 5.491812087098393,
+            "edge": false,
+            "formal_membership_edge": false,
+            "normalized_gap_2d": 3.8183766184073566,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 5.4,
+            "reason": "barrier_blocked",
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": false
+          },
+          "WALL_A--WALL_B": {
+            "barrier": {
+              "status": "opening",
+              "wall_id": "open_wall"
+            },
+            "clearance_3d": 0.40000000000000036,
+            "edge": true,
+            "formal_membership_edge": true,
+            "normalized_gap_2d": 0.28284271247461923,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 0.40000000000000036,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          }
+        }
+      },
+      "unequal_size": {
+        "edges": [
+          "BIG--SMALL"
+        ],
+        "relations": {
+          "BIG--SMALL": {
+            "barrier": {
+              "status": "clear",
+              "wall_id": null
+            },
+            "clearance_3d": 2.3,
+            "edge": true,
+            "formal_membership_edge": true,
+            "normalized_gap_2d": 0.5578319375835658,
+            "overlap_2d": false,
+            "overlap_3d": false,
+            "overlap_area_2d": 0.0,
+            "raw_gap_2d": 2.3,
+            "reason": null,
+            "shared_member_dependency": false,
+            "shared_members": [],
+            "status": "computed",
+            "z_channel_status": "computed",
+            "z_compatible": true
+          }
+        }
+      }
+    },
+    "ifc_svg_2d_parity": {
+      "comparable_fact_keys": [
+        "analysis_frame",
+        "membership_kind",
+        "pair_2d",
+        "plan_centers",
+        "plan_sizes",
+        "representative_status",
+        "unit"
+      ],
+      "ifc_only_channels": [
+        "z_intervals"
+      ],
+      "mismatches": {},
+      "status": "pass"
+    },
+    "representative_geometry": {
+      "additive_support_area": 8.0,
+      "pairwise_overlap_area": 2.0,
+      "union_area": 6.0,
+      "union_area_status": "diagnostic_only"
+    },
+    "shared_member": {
+      "edges": [],
+      "relations": {
+        "G1--G2": {
+          "barrier": {
+            "status": "clear",
+            "wall_id": null
+          },
+          "clearance_3d": 0.0,
+          "edge": false,
+          "formal_membership_edge": false,
+          "normalized_gap_2d": 0.0,
+          "overlap_2d": true,
+          "overlap_3d": true,
+          "overlap_area_2d": 1.0,
+          "raw_gap_2d": 0.0,
+          "reason": "shared_member_dependency",
+          "shared_member_dependency": true,
+          "shared_members": [
+            "SHARED"
+          ],
+          "status": "computed",
+          "z_channel_status": "computed",
+          "z_compatible": true
+        }
+      }
+    },
+    "status_mix": {
+      "edges": [],
+      "group_summaries": [
+        {
+          "center": [
+            0.0,
+            0.0
+          ],
+          "completeness": "complete",
+          "excluded_member_reasons": {},
+          "id": "VALID",
+          "members": [
+            {
+              "box": {
+                "center": [
+                  0.0,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "id": "V1",
+              "status": "computed"
+            }
+          ],
+          "status": "computed",
+          "support_area": 1.0
+        },
+        {
+          "center": [
+            1.4,
+            0.0
+          ],
+          "completeness": "partial",
+          "excluded_member_reasons": {
+            "P_MISSING": "projection_absent"
+          },
+          "id": "PARTIAL",
+          "members": [
+            {
+              "box": {
+                "center": [
+                  1.4,
+                  0.0
+                ],
+                "size": [
+                  1.0,
+                  1.0
+                ],
+                "z": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "id": "P1",
+              "status": "computed"
+            }
+          ],
+          "status": "computed",
+          "support_area": 1.0
+        },
+        {
+          "center": null,
+          "completeness": "not_applicable",
+          "excluded_member_reasons": {
+            "M1": "projection_absent"
+          },
+          "id": "MISSING",
+          "members": [],
+          "status": "not_available",
+          "support_area": null
+        },
+        {
+          "center": null,
+          "completeness": "not_applicable",
+          "excluded_member_reasons": {
+            "I1": "non_finite_geometry"
+          },
+          "id": "INVALID",
+          "members": [],
+          "status": "invalid",
+          "support_area": null
+        }
+      ],
+      "relations": {
+        "INVALID--MISSING": {
+          "edge": false,
+          "formal_membership_edge": false,
+          "reason": "invalid_group",
+          "shared_members": [],
+          "status": "diagnostic_invalid"
+        },
+        "INVALID--PARTIAL": {
+          "edge": false,
+          "formal_membership_edge": false,
+          "reason": "invalid_group",
+          "shared_members": [],
+          "status": "diagnostic_invalid"
+        },
+        "INVALID--VALID": {
+          "edge": false,
+          "formal_membership_edge": false,
+          "reason": "invalid_group",
+          "shared_members": [],
+          "status": "diagnostic_invalid"
+        },
+        "MISSING--PARTIAL": {
+          "edge": false,
+          "formal_membership_edge": false,
+          "reason": "no_usable_physical_support",
+          "shared_members": [],
+          "status": "not_available"
+        },
+        "MISSING--VALID": {
+          "edge": false,
+          "formal_membership_edge": false,
+          "reason": "no_usable_physical_support",
+          "shared_members": [],
+          "status": "not_available"
+        },
+        "PARTIAL--VALID": {
+          "barrier": {
+            "status": "clear",
+            "wall_id": null
+          },
+          "clearance_3d": 0.3999999999999999,
+          "edge": true,
+          "formal_membership_edge": false,
+          "normalized_gap_2d": 0.28284271247461895,
+          "overlap_2d": false,
+          "overlap_3d": false,
+          "overlap_area_2d": 0.0,
+          "raw_gap_2d": 0.3999999999999999,
+          "reason": null,
+          "shared_member_dependency": false,
+          "shared_members": [],
+          "status": "partial",
+          "z_channel_status": "computed",
+          "z_compatible": true
+        }
+      }
+    },
+    "trend_independence": {
+      "edges_by_variant": {
+        "orthogonal": [
+          "T_A--T_B"
+        ],
+        "parallel": [
+          "T_A--T_B"
+        ],
+        "undefined": [
+          "T_A--T_B"
+        ]
+      },
+      "same_edge_set": true
+    }
+  },
+  "schema": "d6-inferred-group-design-experiment/v1",
+  "tolerance": {
+    "area": 1e-09,
+    "geometry": 1e-09,
+    "z": 1e-06
+  }
+}

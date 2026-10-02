@@ -1,0 +1,130 @@
+{
+  "schema": "group-level-design-fixtures/v1",
+  "analysis_frame": {
+    "id": "fixture-plan",
+    "origin": [0.0, 0.0],
+    "unit": "m",
+    "plane": "XY"
+  },
+  "tolerance": {
+    "geometry": 1e-09,
+    "angle": 1e-06,
+    "directional_strength": 0.05
+  },
+  "trend_cases": [
+    {
+      "id": "directional",
+      "question": "parallel elongated members should yield one undirected axis",
+      "members": [
+        {"id": "a", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [2.0, 0.5], "angle": 0.0}},
+        {"id": "b", "geometry_status": "computed", "rectangle": {"center": [2.5, 0.1], "size": [2.0, 0.5], "angle": 0.0}},
+        {"id": "c", "geometry_status": "computed", "rectangle": {"center": [5.0, -0.1], "size": [2.0, 0.5], "angle": 0.0}}
+      ],
+      "expected": {"status": "computed", "completeness": "complete", "angle": 0.0}
+    },
+    {
+      "id": "isotropic",
+      "question": "square members provide support but no directional evidence",
+      "members": [
+        {"id": "a", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [1.0, 1.0], "angle": 0.0}},
+        {"id": "b", "geometry_status": "computed", "rectangle": {"center": [1.5, 0.0], "size": [1.0, 1.0], "angle": 0.0}}
+      ],
+      "expected": {"status": "undefined", "completeness": "not_applicable"}
+    },
+    {
+      "id": "symmetric",
+      "question": "orthogonal elongated members cancel in an undirected consensus",
+      "members": [
+        {"id": "a", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [2.0, 0.5], "angle": 0.0}},
+        {"id": "b", "geometry_status": "computed", "rectangle": {"center": [0.0, 2.0], "size": [2.0, 0.5], "angle": 1.5707963267948966}}
+      ],
+      "expected": {"status": "undefined", "completeness": "not_applicable"}
+    },
+    {
+      "id": "contradictory",
+      "question": "a minority orthogonal member lowers concentration without changing the majority axis",
+      "members": [
+        {"id": "a", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [2.0, 0.5], "angle": 0.0}},
+        {"id": "b", "geometry_status": "computed", "rectangle": {"center": [2.5, 0.0], "size": [2.0, 0.5], "angle": 0.0}},
+        {"id": "c", "geometry_status": "computed", "rectangle": {"center": [5.0, 0.0], "size": [2.0, 0.5], "angle": 0.0}},
+        {"id": "d", "geometry_status": "computed", "rectangle": {"center": [2.5, 2.0], "size": [0.5, 2.0], "angle": 0.0}}
+      ],
+      "expected": {"status": "computed", "completeness": "complete", "angle": 0.0}
+    },
+    {
+      "id": "missing_member",
+      "question": "one unavailable member is excluded while usable directional evidence remains",
+      "members": [
+        {"id": "a", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [2.0, 0.5], "angle": 0.0}},
+        {"id": "missing", "geometry_status": "not_available", "reason": "analysis projection absent"}
+      ],
+      "expected": {"status": "computed", "completeness": "partial", "angle": 0.0}
+    },
+    {
+      "id": "tessellation_sparse",
+      "question": "area weighting is stable for a sparse triangle tessellation",
+      "members": [
+        {"id": "a", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [2.0, 0.5], "angle": 0.5235987755982988}, "vertex_sampling": "sparse"}
+      ],
+      "expected": {"status": "computed", "completeness": "complete"}
+    },
+    {
+      "id": "tessellation_dense",
+      "question": "the same triangles with uneven boundary sampling must retain the same geometry trend",
+      "members": [
+        {"id": "a", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [2.0, 0.5], "angle": 0.5235987755982988}, "vertex_sampling": "dense_left"}
+      ],
+      "expected": {"status": "computed", "completeness": "complete"}
+    }
+  ],
+  "neighbor_cases": [
+    {
+      "id": "local_components",
+      "question": "boundary-gap adjacency should preserve two disconnected local components and report overlap separately",
+      "scale": 1.0,
+      "groups": [
+        {"id": "A", "members": [{"id": "A1", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [1.0, 1.0], "angle": 0.0}}]},
+        {"id": "B", "members": [{"id": "B1", "geometry_status": "computed", "rectangle": {"center": [1.4, 0.0], "size": [1.0, 1.0], "angle": 0.0}}]},
+        {"id": "C", "members": [{"id": "C1", "geometry_status": "computed", "rectangle": {"center": [0.0, 1.6], "size": [1.0, 1.0], "angle": 0.0}}]},
+        {"id": "D", "members": [{"id": "D1", "geometry_status": "computed", "rectangle": {"center": [6.0, 0.0], "size": [1.0, 1.0], "angle": 0.0}}]},
+        {"id": "E", "members": [{"id": "E1", "geometry_status": "computed", "rectangle": {"center": [7.4, 0.0], "size": [1.0, 1.0], "angle": 0.0}}]},
+        {"id": "F", "members": [{"id": "F1", "geometry_status": "computed", "rectangle": {"center": [0.2, 0.2], "size": [0.6, 0.6], "angle": 0.0}}]}
+      ],
+      "truth_edges": ["A--B", "A--F", "D--E"],
+      "normalized_gap_threshold": 0.33,
+      "raw_gap_threshold": 0.5,
+      "knn_k": 1
+    },
+    {
+      "id": "local_components_scaled",
+      "question": "positive uniform scaling should preserve normalized boundary-gap relations",
+      "scale": 2.0,
+      "groups": [
+        {"id": "A", "members": [{"id": "A1", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [2.0, 2.0], "angle": 0.0}}]},
+        {"id": "B", "members": [{"id": "B1", "geometry_status": "computed", "rectangle": {"center": [2.8, 0.0], "size": [2.0, 2.0], "angle": 0.0}}]},
+        {"id": "C", "members": [{"id": "C1", "geometry_status": "computed", "rectangle": {"center": [0.0, 3.2], "size": [2.0, 2.0], "angle": 0.0}}]},
+        {"id": "D", "members": [{"id": "D1", "geometry_status": "computed", "rectangle": {"center": [12.0, 0.0], "size": [2.0, 2.0], "angle": 0.0}}]},
+        {"id": "E", "members": [{"id": "E1", "geometry_status": "computed", "rectangle": {"center": [14.8, 0.0], "size": [2.0, 2.0], "angle": 0.0}}]},
+        {"id": "F", "members": [{"id": "F1", "geometry_status": "computed", "rectangle": {"center": [0.4, 0.4], "size": [1.2, 1.2], "angle": 0.0}}]}
+      ],
+      "truth_edges": ["A--B", "A--F", "D--E"],
+      "normalized_gap_threshold": 0.33,
+      "raw_gap_threshold": 0.5,
+      "knn_k": 1
+    },
+    {
+      "id": "knn_tie",
+      "question": "a kth-distance tie must remain an explicit multi-neighbor relation",
+      "scale": 1.0,
+      "groups": [
+        {"id": "T0", "members": [{"id": "T01", "geometry_status": "computed", "rectangle": {"center": [0.0, 0.0], "size": [0.5, 0.5], "angle": 0.0}}]},
+        {"id": "T1", "members": [{"id": "T11", "geometry_status": "computed", "rectangle": {"center": [2.0, 0.0], "size": [0.5, 0.5], "angle": 0.0}}]},
+        {"id": "T2", "members": [{"id": "T21", "geometry_status": "computed", "rectangle": {"center": [0.0, 2.0], "size": [0.5, 0.5], "angle": 0.0}}]}
+      ],
+      "truth_edges": [],
+      "normalized_gap_threshold": 0.1,
+      "raw_gap_threshold": 0.1,
+      "knn_k": 1
+    }
+  ]
+}

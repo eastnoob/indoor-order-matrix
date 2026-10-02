@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6" width="10m" height="6m">
+  <rect id="svg_furniture_a1" data-role="furniture" data-furniture-group="svg_group_alpha" x="1" y="1" width="1" height="1" fill="#9ecae1" />
+  <rect id="svg_furniture_a2" data-role="furniture" data-furniture-group="svg_group_alpha" x="2.4" y="1" width="0.8" height="1.2" fill="#9ecae1" />
+  <rect id="svg_furniture_b1" data-role="furniture" data-furniture-group="svg_group_beta" x="6" y="1.5" width="1.5" height="0.75" fill="#fdae6b" />
+  <rect id="svg_wall_north" data-role="wall" x="0.5" y="0.2" width="8" height="0.1" fill="#636363" />
+  <path id="svg_opening_north" data-role="opening" d="M4 0.3 H5" fill="none" stroke="#3182bd" />
+</svg>

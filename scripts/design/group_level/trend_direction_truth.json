@@ -1,0 +1,56 @@
+{
+  "cases": {
+    "aligned_members_horizontal_centers": {
+      "between_centroid_axis": 0.0,
+      "member_consensus_frame": 0.0,
+      "relationship": "orientation_vs_layout_aligned"
+    },
+    "aligned_members_vertical_centers": {
+      "between_centroid_axis": 90.0,
+      "member_consensus_frame": 0.0,
+      "relationship": "orientation_vs_layout_orthogonal"
+    },
+    "area_and_shape_disparity": {
+      "relationship": "area_weighted_vs_point_and_count_weighted"
+    },
+    "holes_invalid_member": {
+      "group_status": "invalid",
+      "usable_subset_status": "partial_diagnostic"
+    },
+    "legacy_affordance_extent_conflict": {
+      "legacy_contains_affordance_extents": true,
+      "relationship": "legacy_cloud_reports_input_mix"
+    },
+    "missing_partial_member": {
+      "group_status": "partial",
+      "usable_subset_status": "partial_diagnostic"
+    },
+    "mixed_member_axes_horizontal_layout": {
+      "between_centroid_axis": 0.0,
+      "member_consensus_frame": 0.0,
+      "relationship": "mixed_orientation_layout_dominant"
+    },
+    "near_isotropic_members": {
+      "member_consensus_coherence": "near_zero",
+      "relationship": "directionally_weak",
+      "total_pca_status": "computed"
+    },
+    "self_intersecting_invalid_member": {
+      "group_status": "invalid",
+      "invalid_reason": "invalid_polygon"
+    },
+    "tessellation_density_invariance": {
+      "relationship": "area_moments_invariant_legacy_point_cloud_sensitive"
+    }
+  },
+  "invariants": {
+    "axis_equivalence": "angles modulo 180 degrees; 0 and 90 are distinct",
+    "coherence_semantics": "resultant concentration/strength descriptor, never probability",
+    "frame_equivalence": "angles modulo 90 degrees; 0 and 90 equivalent",
+    "invalid_policy": "invalid members propagate invalid; usable subset is partial diagnostic only",
+    "winner": null,
+    "analysis_contract": "trend_analysis accepts only typed trend/MassPatch/analysis_geometry_substitute records",
+    "body_fallback": false
+  },
+  "schema": "d6-trend-direction-truth/v1"
+}

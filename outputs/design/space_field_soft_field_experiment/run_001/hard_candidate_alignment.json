@@ -1,0 +1,332 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "candidate:baseline:one_region",
+      "cuts": [],
+      "region_count": 1,
+      "regions": [
+        {
+          "group_count": 37,
+          "group_ids": [
+            "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+            "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+            "ifc-group:0AG_FU1oHHxh9s_mH9GMgP",
+            "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+            "ifc-group:0IwgYPcYzJ7wT5dJZp4gKB",
+            "ifc-group:0WEjP61oTMbOLVcpUvUD7i",
+            "ifc-group:0aILbvu1bPLRmZCsqZRcR3",
+            "ifc-group:0hRrRMtynPNPzP6yh$HYbs",
+            "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+            "ifc-group:0os72JnbDR9RmSEUWx5kk3",
+            "ifc-group:15Q2Qfhb1VL920J$1Xxxu3",
+            "ifc-group:17dp4zlbfGSf0_Im39MOdN",
+            "ifc-group:1JDpWPo1rSNPBBqhx62JNf",
+            "ifc-group:1MjgmtdBrGMeDxpe0HfC5h",
+            "ifc-group:1NlcVLoeXPOeA7YFm0NjMG",
+            "ifc-group:1Pv1Y1lgHKaOCYyr8zu1b5",
+            "ifc-group:1Qmjjyr5TLQvsed607jQQz",
+            "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5",
+            "ifc-group:1e5Vxu5lPKG9o2H5LeIr7N",
+            "ifc-group:1h3RZClnrIWBrXj7hUcWKo",
+            "ifc-group:1pqCYj4xrJTBBuRt3ezUcp",
+            "ifc-group:253MCEPizVVhXJgdbnIPAD",
+            "ifc-group:29vajDGprJ$h3$jUGpDYdd",
+            "ifc-group:2P1H6hEZrUeB6W8D2HFMbG",
+            "ifc-group:2VbkxSde9QTOXlxMyoDTd0",
+            "ifc-group:2YUldlHfjSawY3CBPVi5_Q",
+            "ifc-group:2ckUJw96bRRf32T_zhzxFQ",
+            "ifc-group:2dFiVqFU5JKBjRvzhpl9Sj",
+            "ifc-group:2hMNdvWdXSfPYrIo8oN6p2",
+            "ifc-group:2keaLJysnJJf5kkWh75nSt",
+            "ifc-group:31mS1kn4jGy8tfi62PTPP$",
+            "ifc-group:3JuMycUIrHxgC8LEsNW9DT",
+            "ifc-group:3oKhgzCizPDAXIgAVx0Tes",
+            "ifc-group:3rpMmDkvnJQ9sOnpwriTiP",
+            "ifc-group:3sMQ0Yl6zK4RKrIDv8JG6i",
+            "ifc-group:3vg93$6i5T0fPZYtdJUD36",
+            "ifc-group:3xGGPvwHLKieA3uVhpQjIN"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.5,
+          "min_node_support": 0.0,
+          "region_id": "candidate:baseline:one_region:region:1"
+        }
+      ],
+      "relation_to_soft_field": "hard candidate is a discrete view of ranked relative gaps; soft field retains gradients between nodes"
+    },
+    {
+      "candidate_id": "candidate:mst_gap_cut:2_regions",
+      "cuts": [
+        {
+          "boundary_gap_m": 1.2914446835757714,
+          "continuous_pair_rank": 0.08571428571428572,
+          "continuous_pair_support": 0.1464498714804331,
+          "interpretation": "relative separation edge; no fixed metre cutoff",
+          "left": "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+          "normalized_gap": 1.424720146305276,
+          "right": "ifc-group:15Q2Qfhb1VL920J$1Xxxu3"
+        }
+      ],
+      "region_count": 2,
+      "regions": [
+        {
+          "group_count": 33,
+          "group_ids": [
+            "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+            "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+            "ifc-group:0AG_FU1oHHxh9s_mH9GMgP",
+            "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+            "ifc-group:0IwgYPcYzJ7wT5dJZp4gKB",
+            "ifc-group:0aILbvu1bPLRmZCsqZRcR3",
+            "ifc-group:0hRrRMtynPNPzP6yh$HYbs",
+            "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+            "ifc-group:0os72JnbDR9RmSEUWx5kk3",
+            "ifc-group:17dp4zlbfGSf0_Im39MOdN",
+            "ifc-group:1JDpWPo1rSNPBBqhx62JNf",
+            "ifc-group:1MjgmtdBrGMeDxpe0HfC5h",
+            "ifc-group:1NlcVLoeXPOeA7YFm0NjMG",
+            "ifc-group:1Pv1Y1lgHKaOCYyr8zu1b5",
+            "ifc-group:1Qmjjyr5TLQvsed607jQQz",
+            "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5",
+            "ifc-group:1e5Vxu5lPKG9o2H5LeIr7N",
+            "ifc-group:1pqCYj4xrJTBBuRt3ezUcp",
+            "ifc-group:253MCEPizVVhXJgdbnIPAD",
+            "ifc-group:29vajDGprJ$h3$jUGpDYdd",
+            "ifc-group:2P1H6hEZrUeB6W8D2HFMbG",
+            "ifc-group:2VbkxSde9QTOXlxMyoDTd0",
+            "ifc-group:2YUldlHfjSawY3CBPVi5_Q",
+            "ifc-group:2dFiVqFU5JKBjRvzhpl9Sj",
+            "ifc-group:2hMNdvWdXSfPYrIo8oN6p2",
+            "ifc-group:2keaLJysnJJf5kkWh75nSt",
+            "ifc-group:31mS1kn4jGy8tfi62PTPP$",
+            "ifc-group:3JuMycUIrHxgC8LEsNW9DT",
+            "ifc-group:3oKhgzCizPDAXIgAVx0Tes",
+            "ifc-group:3rpMmDkvnJQ9sOnpwriTiP",
+            "ifc-group:3sMQ0Yl6zK4RKrIDv8JG6i",
+            "ifc-group:3vg93$6i5T0fPZYtdJUD36",
+            "ifc-group:3xGGPvwHLKieA3uVhpQjIN"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.4865319865319866,
+          "min_node_support": 0.0,
+          "region_id": "candidate:mst_gap_cut:2_regions:region:1"
+        },
+        {
+          "group_count": 4,
+          "group_ids": [
+            "ifc-group:0WEjP61oTMbOLVcpUvUD7i",
+            "ifc-group:15Q2Qfhb1VL920J$1Xxxu3",
+            "ifc-group:1h3RZClnrIWBrXj7hUcWKo",
+            "ifc-group:2ckUJw96bRRf32T_zhzxFQ"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.6111111111111112,
+          "min_node_support": 0.6111111111111112,
+          "region_id": "candidate:mst_gap_cut:2_regions:region:2"
+        }
+      ],
+      "relation_to_soft_field": "hard candidate is a discrete view of ranked relative gaps; soft field retains gradients between nodes"
+    },
+    {
+      "candidate_id": "candidate:mst_gap_cut:3_regions",
+      "cuts": [
+        {
+          "boundary_gap_m": 1.2914446835757714,
+          "continuous_pair_rank": 0.08571428571428572,
+          "continuous_pair_support": 0.1464498714804331,
+          "interpretation": "relative separation edge; no fixed metre cutoff",
+          "left": "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+          "normalized_gap": 1.424720146305276,
+          "right": "ifc-group:15Q2Qfhb1VL920J$1Xxxu3"
+        },
+        {
+          "boundary_gap_m": 1.4281969218448904,
+          "continuous_pair_rank": 0.08270676691729323,
+          "continuous_pair_support": 0.14684224558478018,
+          "interpretation": "relative separation edge; no fixed metre cutoff",
+          "left": "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+          "normalized_gap": 1.4227358062168567,
+          "right": "ifc-group:1Qmjjyr5TLQvsed607jQQz"
+        }
+      ],
+      "region_count": 3,
+      "regions": [
+        {
+          "group_count": 31,
+          "group_ids": [
+            "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+            "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+            "ifc-group:0AG_FU1oHHxh9s_mH9GMgP",
+            "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+            "ifc-group:0IwgYPcYzJ7wT5dJZp4gKB",
+            "ifc-group:0aILbvu1bPLRmZCsqZRcR3",
+            "ifc-group:0hRrRMtynPNPzP6yh$HYbs",
+            "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+            "ifc-group:0os72JnbDR9RmSEUWx5kk3",
+            "ifc-group:17dp4zlbfGSf0_Im39MOdN",
+            "ifc-group:1JDpWPo1rSNPBBqhx62JNf",
+            "ifc-group:1MjgmtdBrGMeDxpe0HfC5h",
+            "ifc-group:1NlcVLoeXPOeA7YFm0NjMG",
+            "ifc-group:1Pv1Y1lgHKaOCYyr8zu1b5",
+            "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5",
+            "ifc-group:1e5Vxu5lPKG9o2H5LeIr7N",
+            "ifc-group:1pqCYj4xrJTBBuRt3ezUcp",
+            "ifc-group:253MCEPizVVhXJgdbnIPAD",
+            "ifc-group:29vajDGprJ$h3$jUGpDYdd",
+            "ifc-group:2P1H6hEZrUeB6W8D2HFMbG",
+            "ifc-group:2VbkxSde9QTOXlxMyoDTd0",
+            "ifc-group:2YUldlHfjSawY3CBPVi5_Q",
+            "ifc-group:2dFiVqFU5JKBjRvzhpl9Sj",
+            "ifc-group:2keaLJysnJJf5kkWh75nSt",
+            "ifc-group:31mS1kn4jGy8tfi62PTPP$",
+            "ifc-group:3JuMycUIrHxgC8LEsNW9DT",
+            "ifc-group:3oKhgzCizPDAXIgAVx0Tes",
+            "ifc-group:3rpMmDkvnJQ9sOnpwriTiP",
+            "ifc-group:3sMQ0Yl6zK4RKrIDv8JG6i",
+            "ifc-group:3vg93$6i5T0fPZYtdJUD36",
+            "ifc-group:3xGGPvwHLKieA3uVhpQjIN"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.478494623655914,
+          "min_node_support": 0.0,
+          "region_id": "candidate:mst_gap_cut:3_regions:region:1"
+        },
+        {
+          "group_count": 4,
+          "group_ids": [
+            "ifc-group:0WEjP61oTMbOLVcpUvUD7i",
+            "ifc-group:15Q2Qfhb1VL920J$1Xxxu3",
+            "ifc-group:1h3RZClnrIWBrXj7hUcWKo",
+            "ifc-group:2ckUJw96bRRf32T_zhzxFQ"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.6111111111111112,
+          "min_node_support": 0.6111111111111112,
+          "region_id": "candidate:mst_gap_cut:3_regions:region:2"
+        },
+        {
+          "group_count": 2,
+          "group_ids": [
+            "ifc-group:1Qmjjyr5TLQvsed607jQQz",
+            "ifc-group:2hMNdvWdXSfPYrIo8oN6p2"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.6111111111111112,
+          "min_node_support": 0.6111111111111112,
+          "region_id": "candidate:mst_gap_cut:3_regions:region:3"
+        }
+      ],
+      "relation_to_soft_field": "hard candidate is a discrete view of ranked relative gaps; soft field retains gradients between nodes"
+    },
+    {
+      "candidate_id": "candidate:mst_gap_cut:4_regions",
+      "cuts": [
+        {
+          "boundary_gap_m": 1.2914446835757714,
+          "continuous_pair_rank": 0.08571428571428572,
+          "continuous_pair_support": 0.1464498714804331,
+          "interpretation": "relative separation edge; no fixed metre cutoff",
+          "left": "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+          "normalized_gap": 1.424720146305276,
+          "right": "ifc-group:15Q2Qfhb1VL920J$1Xxxu3"
+        },
+        {
+          "boundary_gap_m": 1.4281969218448904,
+          "continuous_pair_rank": 0.08270676691729323,
+          "continuous_pair_support": 0.14684224558478018,
+          "interpretation": "relative separation edge; no fixed metre cutoff",
+          "left": "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+          "normalized_gap": 1.4227358062168567,
+          "right": "ifc-group:1Qmjjyr5TLQvsed607jQQz"
+        },
+        {
+          "boundary_gap_m": 1.2544062499999988,
+          "continuous_pair_rank": 0.07518796992481203,
+          "continuous_pair_support": 0.15474503331915856,
+          "interpretation": "relative separation edge; no fixed metre cutoff",
+          "left": "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+          "normalized_gap": 1.3838597115790636,
+          "right": "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5"
+        }
+      ],
+      "region_count": 4,
+      "regions": [
+        {
+          "group_count": 27,
+          "group_ids": [
+            "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+            "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+            "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+            "ifc-group:0IwgYPcYzJ7wT5dJZp4gKB",
+            "ifc-group:0aILbvu1bPLRmZCsqZRcR3",
+            "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+            "ifc-group:0os72JnbDR9RmSEUWx5kk3",
+            "ifc-group:17dp4zlbfGSf0_Im39MOdN",
+            "ifc-group:1JDpWPo1rSNPBBqhx62JNf",
+            "ifc-group:1MjgmtdBrGMeDxpe0HfC5h",
+            "ifc-group:1NlcVLoeXPOeA7YFm0NjMG",
+            "ifc-group:1Pv1Y1lgHKaOCYyr8zu1b5",
+            "ifc-group:1e5Vxu5lPKG9o2H5LeIr7N",
+            "ifc-group:1pqCYj4xrJTBBuRt3ezUcp",
+            "ifc-group:253MCEPizVVhXJgdbnIPAD",
+            "ifc-group:29vajDGprJ$h3$jUGpDYdd",
+            "ifc-group:2P1H6hEZrUeB6W8D2HFMbG",
+            "ifc-group:2VbkxSde9QTOXlxMyoDTd0",
+            "ifc-group:2YUldlHfjSawY3CBPVi5_Q",
+            "ifc-group:2dFiVqFU5JKBjRvzhpl9Sj",
+            "ifc-group:2keaLJysnJJf5kkWh75nSt",
+            "ifc-group:31mS1kn4jGy8tfi62PTPP$",
+            "ifc-group:3JuMycUIrHxgC8LEsNW9DT",
+            "ifc-group:3oKhgzCizPDAXIgAVx0Tes",
+            "ifc-group:3rpMmDkvnJQ9sOnpwriTiP",
+            "ifc-group:3sMQ0Yl6zK4RKrIDv8JG6i",
+            "ifc-group:3vg93$6i5T0fPZYtdJUD36"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.4588477366255144,
+          "min_node_support": 0.0,
+          "region_id": "candidate:mst_gap_cut:4_regions:region:1"
+        },
+        {
+          "group_count": 4,
+          "group_ids": [
+            "ifc-group:0AG_FU1oHHxh9s_mH9GMgP",
+            "ifc-group:0hRrRMtynPNPzP6yh$HYbs",
+            "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5",
+            "ifc-group:3xGGPvwHLKieA3uVhpQjIN"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.6111111111111112,
+          "min_node_support": 0.6111111111111112,
+          "region_id": "candidate:mst_gap_cut:4_regions:region:2"
+        },
+        {
+          "group_count": 4,
+          "group_ids": [
+            "ifc-group:0WEjP61oTMbOLVcpUvUD7i",
+            "ifc-group:15Q2Qfhb1VL920J$1Xxxu3",
+            "ifc-group:1h3RZClnrIWBrXj7hUcWKo",
+            "ifc-group:2ckUJw96bRRf32T_zhzxFQ"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.6111111111111112,
+          "min_node_support": 0.6111111111111112,
+          "region_id": "candidate:mst_gap_cut:4_regions:region:3"
+        },
+        {
+          "group_count": 2,
+          "group_ids": [
+            "ifc-group:1Qmjjyr5TLQvsed607jQQz",
+            "ifc-group:2hMNdvWdXSfPYrIo8oN6p2"
+          ],
+          "max_node_support": 0.6111111111111112,
+          "mean_node_support": 0.6111111111111112,
+          "min_node_support": 0.6111111111111112,
+          "region_id": "candidate:mst_gap_cut:4_regions:region:4"
+        }
+      ],
+      "relation_to_soft_field": "hard candidate is a discrete view of ranked relative gaps; soft field retains gradients between nodes"
+    }
+  ],
+  "schema": "d6-space-field-hard-candidate-alignment/v1"
+}

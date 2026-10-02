@@ -1,0 +1,2937 @@
+{
+  "analysis_frame": {
+    "id": "ifc-bim-acceptance-xy",
+    "plane": "XY",
+    "unit": "m"
+  },
+  "furniture": [
+    {
+      "box": {
+        "max": [
+          21.873806640625,
+          4.52103857421875,
+          0.6849772338867187
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.21885546875,
+          3.8727900390625,
+          -0.0024537928104400634
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2CubOrBpnRtOlT7_f8REA_",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.197740234375,
+          5.36608349609375,
+          0.6850538330078125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.5420546875,
+          4.715926269531251,
+          -0.0024538161754608153
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1noIoCRdjODxs$Kkpg7hBI",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.740103515625,
+          5.1524228515625,
+          0.7127442016601564
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.684921875,
+          4.09724169921875,
+          0.000697216272354126
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0Jm61$l5XPzginaKk8y_yg",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.381697265625,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.631697265625,
+          1.0310316162109374,
+          -1.1641532182693482e-11
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3a9QNsFHnTKh5EAe3MaWgB",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.308802734375,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.70455078125,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2x76hWAyjPVR8ktWUvY5Ic",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          16.631697265625,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          15.881697265625,
+          1.0310316162109374,
+          -1.1641532182693482e-11
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0suY4CFofVdxauLppJYcEB",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          16.558802734375,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          15.9545498046875,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3AsH4N94XQ2RlPD0wz8Oyg",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.536513671874996,
+          10.87158984375,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.881560546875,
+          10.223341796875,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1NdJAemYPKxhV4KXQH88SC",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          20.860447265625,
+          11.716634765625,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.20476171875,
+          11.0664775390625,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "270qz_$3zMwu7U_yzCcLm5",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.402808593749995,
+          11.502974609375,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.34762890625,
+          10.44779296875,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0cFL1P7SrGdfqty84OoCge",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          24.64327734375,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          23.89327734375,
+          1.0310316162109374,
+          -1.1641532182693482e-11
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3U_94HVKbHcuK5ruFGHR1N",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          24.570384765625,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          23.966130859375,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2pVkGKhdPScOsSou3DkwsO",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          23.89327734375,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          23.14327734375,
+          1.0310316162109374,
+          -1.1641532182693482e-11
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2FT_OfJ0DLpOVNnzp7Wxdc",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          23.820384765625,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          23.216130859375,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3Nh5wkoinSAehUnOw8WYuz",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.39327734375,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.64327734375,
+          1.0310316162109374,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0bj7QoNlvPYenpROcS$gQT",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.320384765625,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.716130859375,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0UGldJHiXIFAJg6rXLNAXO",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.64327734375,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.89327734375,
+          1.0310316162109374,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3btdR9w2bJUeucV2zVbuPX",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.570384765625,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.966130859375,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "03pEn3VH9UthFB0JBqjlkf",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          19.63887109375,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          18.88887109375,
+          1.0310316162109374,
+          -1.1641532182693482e-11
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1pkzGj36LQOgB7c8Dmn6hq",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          19.565978515625,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          18.961724609375,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1acyT4JwbKp9$NF3I5PN6A",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          18.88887109375,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          18.13887109375,
+          1.0310316162109374,
+          -1.1641532182693482e-11
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "20EKJOkyrVofv1dDKkL70G",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          18.815978515625,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          18.211724609375,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "33$EJehWvQugoeEOOjooWV",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          14.6717197265625,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.9217197265625,
+          1.0310316162109374,
+          -1.1641532182693482e-11
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1B0e72QpvKvfVostErIIie",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          14.598826171875,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.9945732421875,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1vaC9K_DLLAhbfla8mgFdY",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          13.9217197265625,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.1717197265625,
+          1.0310316162109374,
+          -1.1641532182693482e-11
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1kY3OmQILNWRFVRSRMV30A",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          13.848826171875,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.2445732421875,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "29y0$9H$nMTO_F5bRS7myq",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          12.4217197265625,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          11.6717197265625,
+          1.0310316162109374,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2krIQoyv1QHvlqIZslSP_1",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          12.348826171875,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          11.744573242187498,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0BXHJVRL5TIRQn9HF0etuo",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          11.6717197265625,
+          1.7810316162109376,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          10.9217197265625,
+          1.0310316162109374,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0cT6kCDHfGQwrJnh63_zE7",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          11.598826171875,
+          2.38366259765625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          10.994573242187498,
+          1.9028022460937501,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "32aMTzhynQRhf2MWKolXhr",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          19.1588046875,
+          5.549310546875,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          18.476156249999995,
+          4.86031982421875,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1r2lpneYzKCfc$7l5ElUZU",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          18.432941406250002,
+          6.47870947265625,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          17.750294921875,
+          5.78971875,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1mlsAeHW9LnQZGfoK5beQQ",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          18.968255859374995,
+          6.179586425781249,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          17.913076171875,
+          5.1244052734375,
+          0.0003364841043949127
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0J5xCz6PvII8QrVjV8Z5xh",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          18.577376953125,
+          5.07555615234375,
+          0.7538064575195311
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          17.89473046875,
+          4.3865654296875,
+          -0.0001652720421552658
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2KruQC6eXJNB3znXQyVuft",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.851515625,
+          6.004955566406249,
+          0.7538064575195311
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          17.1688671875,
+          5.315964843749999,
+          -0.0001652720421552658
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3YUvBLEXjNLOEpVcIbl_Og",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          18.386830078125,
+          5.70583251953125,
+          0.7127442016601564
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          17.3316484375,
+          4.65065087890625,
+          0.000697216272354126
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1Ei1aAtjXJ4wSRK3SzV66k",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          20.4537734375,
+          9.944141601562498,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          19.771125,
+          9.255150390624998,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2IHdRQdlvVluDtVUbg$M06",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          19.727910156250005,
+          10.8735400390625,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          19.045263671875002,
+          10.184549804687498,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1JmExZ5qzGz981L3qQpr7s",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          20.263224609375,
+          10.5744169921875,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          19.208044921875,
+          9.519236328125,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3pYulGeffMSR0FE235T3mE",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          19.290919921875,
+          8.996631835937498,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          18.608273437499996,
+          8.307641601562498,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0iZbLZw5bR5B0X2skozOE7",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          18.56505859375,
+          9.926031249999998,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          17.88241015625,
+          9.237040039062498,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "17dVB53l9GEhndne4PtzOg",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          19.100373046874996,
+          9.626908203125,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          18.04519140625,
+          8.5717265625,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1MjFom_HLLrv5USwaDWR8j",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.414525390625,
+          4.1280458984375,
+          0.7538064575195311
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.731878906249996,
+          3.439055419921875,
+          -0.0001652720421552658
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0OtBTLalPN5xR$kgObsuKu",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          16.688662109375,
+          5.05744482421875,
+          0.7538064575195311
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.006015625,
+          4.368454589843749,
+          -0.0001652720421552658
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0v4tAqy5vOnR_lFTtn1niR",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.223978515625,
+          4.758322265625,
+          0.7127442016601564
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.168796875,
+          3.703140869140625,
+          0.000697216272354126
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2wJPT_$mjPEhQldP5Rzps$",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.455232421874996,
+          4.99479541015625,
+          0.6849772338867187
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.800279296875,
+          4.3465468750000005,
+          -0.0024537928104400634
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3BK9K_jn5KqxOkE02_Vs5X",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.7791640625,
+          5.83983984375,
+          0.6850538330078125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.12348046875,
+          5.18968310546875,
+          -0.0024538161754608153
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3hQEaFtvjG092HW56vRYCV",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.321527343749995,
+          5.6261796875,
+          0.7127442016601564
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.266345703125,
+          4.570998046875,
+          0.000697216272354126
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3zuGuBRlbTjvz0TmSAvDUi",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          23.6180859375,
+          5.9423017578125,
+          0.6849772338867187
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          22.9631328125,
+          5.29405322265625,
+          -0.0024537928104400634
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0O1iMGYBXVoOvkJ6pUSYDn",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.942017578125,
+          6.78734619140625,
+          0.6850538330078125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          22.286333984375002,
+          6.137189453125,
+          -0.0024538161754608153
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1uNdr8ETbHswpDvfccAaK$",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          23.484380859375,
+          6.573686035156249,
+          0.7127442016601564
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          22.42919921875,
+          5.51850439453125,
+          0.000697216272354126
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "040qKSrejRqe3CnOmybzIr",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          24.7809375,
+          6.88981201171875,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          24.125986328125002,
+          6.241563476562499,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0UlTGt3TbSiuTXBxZf5n8H",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          24.104871093749995,
+          7.7348569335937505,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          23.449185546874997,
+          7.08469970703125,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1sxoRbuxjV6vOigI$H7Hlt",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          24.647234375,
+          7.5211962890625,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          23.592052734375,
+          6.46601513671875,
+          0.0003364841043949127
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "38PyIyxn1RYR2H6MtLU8yv",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          23.171945312499997,
+          8.8644853515625,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          22.5169921875,
+          8.2162373046875,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2KLPHL6LDMY8kHU4cAEajx",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.495876953125,
+          9.709530273437498,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.840193359375,
+          9.059373046875,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3jNXlgYl9GbwNE4loqs0XI",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          23.038240234374996,
+          9.495870117187502,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.98305859375,
+          8.4406884765625,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2qB73uBzXOC9uDzITH20Rz",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.590517578124995,
+          8.390733398437503,
+          0.6849772338867187
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.935564453125,
+          7.742484375,
+          -0.0024537928104400634
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0hxiF_V_vVNfzUx6Ppt$OP",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.91444921875,
+          9.235777343749998,
+          0.6850538330078125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.258763671875,
+          8.585621093749998,
+          -0.0024538161754608153
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3x4LWF8N5QNQdknvrsp3Yx",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.4568125,
+          9.022117187500001,
+          0.7127442016601564
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.401630859375,
+          7.96693603515625,
+          0.000697216272354126
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0eZcepNNfKVe9K5P3BVFaN",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          22.009091796875,
+          7.9169765625,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          21.354138671875,
+          7.268728027343749,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0bkfmDa_5IA88N6jgwJpNY",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.333025390625,
+          8.762021484375,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.677339843750005,
+          8.1118642578125,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1ALRBcOVPStQBAXKQfJZFY",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          21.87538671875,
+          8.5483603515625,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.820205078125,
+          7.49317919921875,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2AyrVgdknIqu3DVMKJEtE7",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          18.071224609375,
+          8.04801416015625,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          17.416271484375,
+          7.399765625,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "21AX1RVk9PqOdkUqNXI7vW",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.395158203125,
+          8.89305859375,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.739472656250005,
+          8.24290234375,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1n4m681oLVPh5I13geJgVC",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.93751953125,
+          8.6793984375,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.88233984375,
+          7.62421728515625,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "13NP1B3XTPuQeppJG6cLM3",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.489798828124997,
+          7.5742587890625,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.834845703125,
+          6.92601025390625,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2a9vD75hnQNhZjHwYwjuNC",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          16.813730468750002,
+          8.4193037109375,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.158046875,
+          7.76914697265625,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2ajHUNgJrSA9z9eB_Yl05u",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.35609375,
+          8.2056435546875,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.3009130859375,
+          7.1504619140625,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0CYapkFfzSiBbufQ0pFCW1",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          14.5826669921875,
+          5.20548583984375,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.927713867187501,
+          4.5572373046875,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3tTo0KYpzRb9zMQ$y4QDNj",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          13.906599609375,
+          6.0505302734375,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.2509150390625,
+          5.40037353515625,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2HcnMGLc9HZwzC9uuwcuZ1",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          14.448962890625001,
+          5.836870117187499,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.39378125,
+          4.7816884765625,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3zJX1OU5LJxRICy7IzIKrw",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          14.0012412109375,
+          4.73173095703125,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.3462880859375,
+          4.083482421875,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3fIRVIX6HQxhyvqqo09qCd",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          13.325173828125,
+          5.57677587890625,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          12.6694892578125,
+          4.92661865234375,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0aisqCnXDKDBtwJ23mJ6Hz",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          13.867537109375,
+          5.363115234375,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          12.81235546875,
+          4.30793408203125,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "27Qs2UEJ1Hyxazd6ipw8CL",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          11.5,
+          11.7981982421875,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          10.75,
+          11.0481982421875,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1SZ8yv4xDRwfVuusM7epye",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          12.102630859375,
+          11.7253447265625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          11.621770507812498,
+          11.121091796875,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3fYa_cAN5MVBAsypyjeMYb",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          11.5,
+          11.0481982421875,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          10.75,
+          10.2981982421875,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0rCUZykZjVrByMQ$HOrNsC",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          12.102630859375,
+          10.9753447265625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          11.621770507812498,
+          10.371091796875,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0JQKlhiqbOyuNCNGaqq4KD",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          11.5,
+          10.2981982421875,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          10.75,
+          9.5481982421875,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0OfYNtsOfIBReyndAcR4yS",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          12.102630859375,
+          10.2253447265625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          11.621770507812498,
+          9.621091796875,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1su7RzLV9VBB$f8xQft$8j",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          11.5,
+          9.5481982421875,
+          0.7120469970703125
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          10.75,
+          8.7981982421875,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0C71pYJEjR6uFe$Gtj4KqQ",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          12.102630859375,
+          9.4753447265625,
+          0.6665746459960936
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          11.621770507812498,
+          8.871091796875,
+          -0.02085538101196289
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1f8n1aIdrJiOtsuuCw1fmL",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.067761718749995,
+          10.7397998046875,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.41280859375,
+          10.09155078125,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2av7TYbHXRJhvNhIe7JDq8",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          16.391693359375,
+          11.5848447265625,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          15.7360087890625,
+          10.9346875,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0L1NsJG_rPMeJo50bjsdse",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          16.934056640625,
+          11.37118359375,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          15.878875,
+          10.3160029296875,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2Jm2V6vG9VQvjRKwWv9DDN",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.649185546874996,
+          11.213556640625,
+          0.6846165161132812
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.994232421875,
+          10.5653076171875,
+          -0.0028145251274108887
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3HjxKnVVvS2gwgFZM7$KdF",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          16.973119140625002,
+          12.0586015625,
+          0.684693115234375
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.31743359375,
+          11.408444335937498,
+          -0.0028145482540130615
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 13826
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0sGrFCo8fJyRLRrwkZoP1m",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          17.515480468749995,
+          11.844940429687501,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          16.46030078125,
+          10.789759765625,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3zEcrhhKHU$9J6UM0$fRc4",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          15.98654296875,
+          9.813609375,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          15.3038955078125,
+          9.124619140625,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1YE2$l3t1UDeXkwnWIRC9L",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          15.2606806640625,
+          10.7430087890625,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          14.578033203125,
+          10.054017578125,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0dlyU0Wi9KQOUCy30J1_qb",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          15.7959951171875,
+          10.443885742187502,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          14.740814453125,
+          9.3887041015625,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "2YMsaN$EHOm88Shm0RJkH9",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          14.7988974609375,
+          8.845890625,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          14.116250000000003,
+          8.156900390625,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "0C09ilcPzGzQddV5tSoGTe",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          14.07303515625,
+          9.7752900390625,
+          0.7534457397460937
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.3903876953125,
+          9.0862998046875,
+          -0.0005260041952133179
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 22339
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "1QnbH1ap9IRxg1iMjPF5jP",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          14.608350585937501,
+          9.4761669921875,
+          0.7123834838867188
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          13.5531689453125,
+          8.4209853515625,
+          0.0003364840745925903
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1738
+      },
+      "entity_type": "IfcFurniture",
+      "geometry_status": "computed",
+      "global_id": "3EZVIY0rHG9hUTVbU9m5p9",
+      "placement_present": true,
+      "provenance": "ifc_explicit_tessellation"
+    }
+  ],
+  "group_records": [
+    {
+      "candidate_status": "candidate",
+      "global_id": "2P1H6hEZrUeB6W8D2HFMbG",
+      "member_global_ids": [
+        "0Jm61$l5XPzginaKk8y_yg",
+        "1noIoCRdjODxs$Kkpg7hBI",
+        "2CubOrBpnRtOlT7_f8REA_"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0os72JnbDR9RmSEUWx5kk3",
+      "member_global_ids": [
+        "2x76hWAyjPVR8ktWUvY5Ic",
+        "3a9QNsFHnTKh5EAe3MaWgB"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "17dp4zlbfGSf0_Im39MOdN",
+      "member_global_ids": [
+        "0suY4CFofVdxauLppJYcEB",
+        "3AsH4N94XQ2RlPD0wz8Oyg"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "29vajDGprJ$h3$jUGpDYdd",
+      "member_global_ids": [
+        "0cFL1P7SrGdfqty84OoCge",
+        "1NdJAemYPKxhV4KXQH88SC",
+        "270qz_$3zMwu7U_yzCcLm5"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "3xGGPvwHLKieA3uVhpQjIN",
+      "member_global_ids": [
+        "2pVkGKhdPScOsSou3DkwsO",
+        "3U_94HVKbHcuK5ruFGHR1N"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0hRrRMtynPNPzP6yh$HYbs",
+      "member_global_ids": [
+        "2FT_OfJ0DLpOVNnzp7Wxdc",
+        "3Nh5wkoinSAehUnOw8WYuz"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0AG_FU1oHHxh9s_mH9GMgP",
+      "member_global_ids": [
+        "0UGldJHiXIFAJg6rXLNAXO",
+        "0bj7QoNlvPYenpROcS$gQT"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "member_global_ids": [
+        "03pEn3VH9UthFB0JBqjlkf",
+        "3btdR9w2bJUeucV2zVbuPX"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "02Kyw_DsPG5BC3j07wct$4",
+      "member_global_ids": [
+        "1acyT4JwbKp9$NF3I5PN6A",
+        "1pkzGj36LQOgB7c8Dmn6hq"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "3oKhgzCizPDAXIgAVx0Tes",
+      "member_global_ids": [
+        "20EKJOkyrVofv1dDKkL70G",
+        "33$EJehWvQugoeEOOjooWV"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "member_global_ids": [
+        "1B0e72QpvKvfVostErIIie",
+        "1vaC9K_DLLAhbfla8mgFdY"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "member_global_ids": [
+        "1kY3OmQILNWRFVRSRMV30A",
+        "29y0$9H$nMTO_F5bRS7myq"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "253MCEPizVVhXJgdbnIPAD",
+      "member_global_ids": [
+        "0BXHJVRL5TIRQn9HF0etuo",
+        "2krIQoyv1QHvlqIZslSP_1"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1pqCYj4xrJTBBuRt3ezUcp",
+      "member_global_ids": [
+        "0cT6kCDHfGQwrJnh63_zE7",
+        "32aMTzhynQRhf2MWKolXhr"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "member_global_ids": [
+        "0J5xCz6PvII8QrVjV8Z5xh",
+        "1mlsAeHW9LnQZGfoK5beQQ",
+        "1r2lpneYzKCfc$7l5ElUZU"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1MjgmtdBrGMeDxpe0HfC5h",
+      "member_global_ids": [
+        "1Ei1aAtjXJ4wSRK3SzV66k",
+        "2KruQC6eXJNB3znXQyVuft",
+        "3YUvBLEXjNLOEpVcIbl_Og"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1NlcVLoeXPOeA7YFm0NjMG",
+      "member_global_ids": [
+        "1JmExZ5qzGz981L3qQpr7s",
+        "2IHdRQdlvVluDtVUbg$M06",
+        "3pYulGeffMSR0FE235T3mE"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "member_global_ids": [
+        "0iZbLZw5bR5B0X2skozOE7",
+        "17dVB53l9GEhndne4PtzOg",
+        "1MjFom_HLLrv5USwaDWR8j"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0Enn$e9D5PUQM64yHn2C$H",
+      "member_global_ids": [
+        "0OtBTLalPN5xR$kgObsuKu",
+        "0v4tAqy5vOnR_lFTtn1niR",
+        "2wJPT_$mjPEhQldP5Rzps$"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0$9EwHOwDKmu25$icFA5wm",
+      "member_global_ids": [
+        "3BK9K_jn5KqxOkE02_Vs5X",
+        "3hQEaFtvjG092HW56vRYCV",
+        "3zuGuBRlbTjvz0TmSAvDUi"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "3rpMmDkvnJQ9sOnpwriTiP",
+      "member_global_ids": [
+        "040qKSrejRqe3CnOmybzIr",
+        "0O1iMGYBXVoOvkJ6pUSYDn",
+        "1uNdr8ETbHswpDvfccAaK$"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0aILbvu1bPLRmZCsqZRcR3",
+      "member_global_ids": [
+        "0UlTGt3TbSiuTXBxZf5n8H",
+        "1sxoRbuxjV6vOigI$H7Hlt",
+        "38PyIyxn1RYR2H6MtLU8yv"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "3JuMycUIrHxgC8LEsNW9DT",
+      "member_global_ids": [
+        "2KLPHL6LDMY8kHU4cAEajx",
+        "2qB73uBzXOC9uDzITH20Rz",
+        "3jNXlgYl9GbwNE4loqs0XI"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "2YUldlHfjSawY3CBPVi5_Q",
+      "member_global_ids": [
+        "0eZcepNNfKVe9K5P3BVFaN",
+        "0hxiF_V_vVNfzUx6Ppt$OP",
+        "3x4LWF8N5QNQdknvrsp3Yx"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "3vg93$6i5T0fPZYtdJUD36",
+      "member_global_ids": [
+        "0bkfmDa_5IA88N6jgwJpNY",
+        "1ALRBcOVPStQBAXKQfJZFY",
+        "2AyrVgdknIqu3DVMKJEtE7"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "2keaLJysnJJf5kkWh75nSt",
+      "member_global_ids": [
+        "13NP1B3XTPuQeppJG6cLM3",
+        "1n4m681oLVPh5I13geJgVC",
+        "21AX1RVk9PqOdkUqNXI7vW"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1JDpWPo1rSNPBBqhx62JNf",
+      "member_global_ids": [
+        "0CYapkFfzSiBbufQ0pFCW1",
+        "2a9vD75hnQNhZjHwYwjuNC",
+        "2ajHUNgJrSA9z9eB_Yl05u"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1Qmjjyr5TLQvsed607jQQz",
+      "member_global_ids": [
+        "2HcnMGLc9HZwzC9uuwcuZ1",
+        "3tTo0KYpzRb9zMQ$y4QDNj",
+        "3zJX1OU5LJxRICy7IzIKrw"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "2hMNdvWdXSfPYrIo8oN6p2",
+      "member_global_ids": [
+        "0aisqCnXDKDBtwJ23mJ6Hz",
+        "27Qs2UEJ1Hyxazd6ipw8CL",
+        "3fIRVIX6HQxhyvqqo09qCd"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0WEjP61oTMbOLVcpUvUD7i",
+      "member_global_ids": [
+        "1SZ8yv4xDRwfVuusM7epye",
+        "3fYa_cAN5MVBAsypyjeMYb"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "1h3RZClnrIWBrXj7hUcWKo",
+      "member_global_ids": [
+        "0JQKlhiqbOyuNCNGaqq4KD",
+        "0rCUZykZjVrByMQ$HOrNsC"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "2ckUJw96bRRf32T_zhzxFQ",
+      "member_global_ids": [
+        "0OfYNtsOfIBReyndAcR4yS",
+        "1su7RzLV9VBB$f8xQft$8j"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "15Q2Qfhb1VL920J$1Xxxu3",
+      "member_global_ids": [
+        "0C71pYJEjR6uFe$Gtj4KqQ",
+        "1f8n1aIdrJiOtsuuCw1fmL"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "31mS1kn4jGy8tfi62PTPP$",
+      "member_global_ids": [
+        "0L1NsJG_rPMeJo50bjsdse",
+        "2Jm2V6vG9VQvjRKwWv9DDN",
+        "2av7TYbHXRJhvNhIe7JDq8"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "member_global_ids": [
+        "0sGrFCo8fJyRLRrwkZoP1m",
+        "3HjxKnVVvS2gwgFZM7$KdF",
+        "3zEcrhhKHU$9J6UM0$fRc4"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "2VbkxSde9QTOXlxMyoDTd0",
+      "member_global_ids": [
+        "0dlyU0Wi9KQOUCy30J1_qb",
+        "1YE2$l3t1UDeXkwnWIRC9L",
+        "2YMsaN$EHOm88Shm0RJkH9"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    },
+    {
+      "candidate_status": "candidate",
+      "global_id": "0js6ZvVxLNh92QynYPqk1L",
+      "member_global_ids": [
+        "0C09ilcPzGzQddV5tSoGTe",
+        "1QnbH1ap9IRxg1iMjPF5jP",
+        "3EZVIY0rHG9hUTVbU9m5p9"
+      ],
+      "object_type": "furniture_group",
+      "provenance": "ifc_group_relation"
+    }
+  ],
+  "pair_channels": {
+    "2d_geometry": "available_for_furniture_with_bbox",
+    "clearance_3d": "available_for_furniture_with_bbox",
+    "door_geometry": "available",
+    "opening_relation": "not_available",
+    "wall_geometry": "available_for_walls_with_bbox",
+    "z_interval": "available_for_furniture_with_bbox"
+  },
+  "source_global_ids": [
+    "03pEn3VH9UthFB0JBqjlkf",
+    "040qKSrejRqe3CnOmybzIr",
+    "0BXHJVRL5TIRQn9HF0etuo",
+    "0C09ilcPzGzQddV5tSoGTe",
+    "0C71pYJEjR6uFe$Gtj4KqQ",
+    "0CYapkFfzSiBbufQ0pFCW1",
+    "0J5xCz6PvII8QrVjV8Z5xh",
+    "0JQKlhiqbOyuNCNGaqq4KD",
+    "0Jm61$l5XPzginaKk8y_yg",
+    "0L1NsJG_rPMeJo50bjsdse",
+    "0O1iMGYBXVoOvkJ6pUSYDn",
+    "0OfYNtsOfIBReyndAcR4yS",
+    "0OtBTLalPN5xR$kgObsuKu",
+    "0UGldJHiXIFAJg6rXLNAXO",
+    "0UlTGt3TbSiuTXBxZf5n8H",
+    "0aisqCnXDKDBtwJ23mJ6Hz",
+    "0bj7QoNlvPYenpROcS$gQT",
+    "0bkfmDa_5IA88N6jgwJpNY",
+    "0cFL1P7SrGdfqty84OoCge",
+    "0cT6kCDHfGQwrJnh63_zE7",
+    "0dlyU0Wi9KQOUCy30J1_qb",
+    "0eZcepNNfKVe9K5P3BVFaN",
+    "0hxiF_V_vVNfzUx6Ppt$OP",
+    "0iZbLZw5bR5B0X2skozOE7",
+    "0rCUZykZjVrByMQ$HOrNsC",
+    "0sGrFCo8fJyRLRrwkZoP1m",
+    "0suY4CFofVdxauLppJYcEB",
+    "0v4tAqy5vOnR_lFTtn1niR",
+    "13NP1B3XTPuQeppJG6cLM3",
+    "17dVB53l9GEhndne4PtzOg",
+    "1ALRBcOVPStQBAXKQfJZFY",
+    "1B0e72QpvKvfVostErIIie",
+    "1Ei1aAtjXJ4wSRK3SzV66k",
+    "1JmExZ5qzGz981L3qQpr7s",
+    "1MjFom_HLLrv5USwaDWR8j",
+    "1NdJAemYPKxhV4KXQH88SC",
+    "1QnbH1ap9IRxg1iMjPF5jP",
+    "1SZ8yv4xDRwfVuusM7epye",
+    "1YE2$l3t1UDeXkwnWIRC9L",
+    "1acyT4JwbKp9$NF3I5PN6A",
+    "1f8n1aIdrJiOtsuuCw1fmL",
+    "1kY3OmQILNWRFVRSRMV30A",
+    "1mlsAeHW9LnQZGfoK5beQQ",
+    "1n4m681oLVPh5I13geJgVC",
+    "1noIoCRdjODxs$Kkpg7hBI",
+    "1pkzGj36LQOgB7c8Dmn6hq",
+    "1r2lpneYzKCfc$7l5ElUZU",
+    "1su7RzLV9VBB$f8xQft$8j",
+    "1sxoRbuxjV6vOigI$H7Hlt",
+    "1uNdr8ETbHswpDvfccAaK$",
+    "1vaC9K_DLLAhbfla8mgFdY",
+    "20EKJOkyrVofv1dDKkL70G",
+    "21AX1RVk9PqOdkUqNXI7vW",
+    "270qz_$3zMwu7U_yzCcLm5",
+    "27Qs2UEJ1Hyxazd6ipw8CL",
+    "29y0$9H$nMTO_F5bRS7myq",
+    "2AyrVgdknIqu3DVMKJEtE7",
+    "2CubOrBpnRtOlT7_f8REA_",
+    "2FT_OfJ0DLpOVNnzp7Wxdc",
+    "2HcnMGLc9HZwzC9uuwcuZ1",
+    "2IHdRQdlvVluDtVUbg$M06",
+    "2Jm2V6vG9VQvjRKwWv9DDN",
+    "2KLPHL6LDMY8kHU4cAEajx",
+    "2KruQC6eXJNB3znXQyVuft",
+    "2YMsaN$EHOm88Shm0RJkH9",
+    "2a9vD75hnQNhZjHwYwjuNC",
+    "2ajHUNgJrSA9z9eB_Yl05u",
+    "2av7TYbHXRJhvNhIe7JDq8",
+    "2krIQoyv1QHvlqIZslSP_1",
+    "2pVkGKhdPScOsSou3DkwsO",
+    "2qB73uBzXOC9uDzITH20Rz",
+    "2wJPT_$mjPEhQldP5Rzps$",
+    "2x76hWAyjPVR8ktWUvY5Ic",
+    "32aMTzhynQRhf2MWKolXhr",
+    "33$EJehWvQugoeEOOjooWV",
+    "38PyIyxn1RYR2H6MtLU8yv",
+    "3AsH4N94XQ2RlPD0wz8Oyg",
+    "3BK9K_jn5KqxOkE02_Vs5X",
+    "3EZVIY0rHG9hUTVbU9m5p9",
+    "3HjxKnVVvS2gwgFZM7$KdF",
+    "3Nh5wkoinSAehUnOw8WYuz",
+    "3U_94HVKbHcuK5ruFGHR1N",
+    "3YUvBLEXjNLOEpVcIbl_Og",
+    "3a9QNsFHnTKh5EAe3MaWgB",
+    "3btdR9w2bJUeucV2zVbuPX",
+    "3fIRVIX6HQxhyvqqo09qCd",
+    "3fYa_cAN5MVBAsypyjeMYb",
+    "3hQEaFtvjG092HW56vRYCV",
+    "3jNXlgYl9GbwNE4loqs0XI",
+    "3pYulGeffMSR0FE235T3mE",
+    "3tTo0KYpzRb9zMQ$y4QDNj",
+    "3x4LWF8N5QNQdknvrsp3Yx",
+    "3zEcrhhKHU$9J6UM0$fRc4",
+    "3zJX1OU5LJxRICy7IzIKrw",
+    "3zuGuBRlbTjvz0TmSAvDUi"
+  ],
+  "source_provenance": "design_only_svg_oracle_derived_from_ifc_canonical_2d",
+  "walls": [
+    {
+      "box": {
+        "max": [
+          6.60858203125,
+          12.3,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          6.45858203125,
+          8.75,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 130
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "3QAL1kxKLJZxF3Sj5PqTVo",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          8.11128369140625,
+          12.3,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          7.96128369140625,
+          8.75,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 130
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "152X2TIs5Pjh3ub4CncpOk",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          10.0,
+          12.3,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          9.85,
+          8.6,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 116
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "1FldTx1tXKGxPGrR3LKCkW",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          10.0,
+          8.75,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          5.15,
+          8.6,
+          -7.888609052210118e-32
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 363
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "1n2AgCHXPJkuxzSWZVG3Hw",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          10.0,
+          6.6,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          5.15,
+          6.45,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 200
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "360kFZ_HbNugudo1vFPt5i",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          5.15,
+          12.0,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          5.0,
+          0.6,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 400
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "299ZbZ1B9NTuGr8zQYE7I9",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          0.3,
+          12.0,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          0.0,
+          0.6,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 160
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "3P9yDf6TTKUeAy04YS8b3$",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          20.0,
+          12.599999999999998,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          0.6,
+          12.3,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 868
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "2MVTQC7T1HAhwuCGw2RM0J",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          25.6,
+          12.6,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          20.6,
+          6.6,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 96
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "3R_rUQk_TQmBN0VHbYhNx6",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          25.6,
+          6.0,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          25.3,
+          0.6,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 64
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "2y0jvrcGTGLAbHHDu7RBOW",
+      "provenance": "ifc_explicit_tessellation"
+    },
+    {
+      "box": {
+        "max": [
+          25.0,
+          0.3,
+          4.5
+        ],
+        "method": "ifc_polygonal_face_set_bbox_with_object_placement_design_audit",
+        "min": [
+          0.6,
+          2.1823227253081612e-14,
+          0.0
+        ],
+        "placement_applied": true,
+        "source_unit_scale_to_m": 0.001,
+        "vertex_count": 1136
+      },
+      "entity_type": "IfcWall",
+      "geometry_status": "computed",
+      "global_id": "294Z8iLcPGnwvfQC8ShKsd",
+      "provenance": "ifc_explicit_tessellation"
+    }
+  ]
+}

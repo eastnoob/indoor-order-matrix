@@ -1,0 +1,76 @@
+# D6 Space Field Oracle Repair: Independent Review
+
+Date: 2026-10-01  
+Status: bounded independent review; no production approval.
+
+## Skills and verification
+
+Applied project skills:
+- `D:/PROJECTS/understandOtherPackage/order_analyzer/.agents/skills/experimental-design/SKILL.md`: treated each complete fixture as the unit and kept source geometry separate from sampled observations.
+- `D:/PROJECTS/understandOtherPackage/order_analyzer/.agents/skills/scientific-critical-thinking/SKILL.md`: checked alternative explanations and refused to infer topology from sampled output.
+- `D:/PROJECTS/understandOtherPackage/order_analyzer/.agents/skills/scientific-visualization/SKILL.md`: inspected SVG source semantics and checked that labels identify source geometry.
+- `C:/Users/tianf/.codex/plugins/cache/openai-api-curated/superpowers/5fd93af4/skills/verification-before-completion/SKILL.md`: ran fresh commands and read exit/hash output before conclusions.
+
+No dependencies were installed and no delivery file was overwritten.
+
+## Commands and reproduction
+
+Fresh temporary outputs were written under `outputs/design/space_field_oracle_repair_independent_repro/`:
+
+```text
+pixi run python scripts/design/space_field/run_polygon_baseline.py --output-dir outputs/design/space_field_oracle_repair_independent_repro/polygon
+pixi run python scripts/design/space_field/run_space_field_probe.py --output-dir outputs/design/space_field_oracle_repair_independent_repro/rectangle
+```
+
+Both exited 0. Polygon result schema: `space-field-polygon-baseline-v2`; temporary result SHA-256 `3cd78c6495d9ff36b9cf114a49f6fc467e1f1f3daea29e41d4e6e0055380df9d`. Rectangle result status: `diagnostic_pass`; temporary result SHA-256 `18b5d6a970f0652fb0ca0a1afa5ac6903e4e231c3188bed419be548d837f3b23`. Runtime fields differ from delivery and were treated as non-deterministic metadata; fixture payload and schema were stable.
+
+## Blockers
+
+### 1. New bottleneck closed/open comparison is not a valid contrast
+
+Independent Shapely calculation from the literal coordinates gives:
+
+- `subcell_gap_origin_sensitive`: area `19.2`, three components, gap width `0.8`; coordinates are unchanged.
+- `connected_bottleneck_opening` closed geometry (the four listed obstacles without adding an opening): area `33.0`, one component.
+- The same geometry with the declared 1.5-unit opening: area remains `33.0`, one component.
+
+Thus the four-obstacle layout already has a one-component central free region; the positive-width opening does not change its source topology or area. The saved source SVG shows only the open configuration and cannot demonstrate a closed-versus-open transition. The owner handoff required a real closed/positive-width minimum contrast; this delivery does not provide one.
+
+The rectangle runner additionally handles `opening` by adding sampled cells after obstacle subtraction. That is a diagnostic shortcut, not an independent geometric subtraction/union model, so its opening rows cannot establish strict closed/open topology semantics.
+
+### 2. The delivered 36.0 oracle is unsupported by the literal bottleneck coordinates
+
+The polygon runner reports `connected_bottleneck_opening.source_area=36.0`, but the literal polygon construction yields `33.0` because the opening is fully inside the free area rather than removing obstacle material. The rectangle runner's exact-area assertion passes only because its bespoke oracle subtracts the opening from obstacle area. This conflicts with the actual geometry. The one-component result is real; the 36.0 area value is not.
+
+## Important findings
+
+### Historical subcell correction
+
+The original coordinates in `run_space_field_probe.py` are unchanged: domain `(0,0,6,4)` and obstacles `(2,0,2.6,4)` and `(3.4,0,4,4)`. Independent calculation supports area `19.2` and three source components. The correction table distinguishes source three components from sampled 2–3 components. The historical first-slice report contains the correction note withdrawing the prior one-component and persistent-defect interpretation. The prior independent review file remains unchanged.
+
+### Polygon runner
+
+`run_polygon_baseline.py` is saved and accepts `--output-dir`; it records resolutions `(1, .5, .25, .125)`, origins `(0,0)` and `(0.23,0.17)`, Shapely `2.1.2`, synthetic coordinate units, and no seed. It separates source polygon area/components from center-sampled rows. Fresh temporary execution is reproducible at the schema/status level.
+
+### Images and manifest
+
+The two source SVGs were read as text and their labels identify source geometry. They are not sampled-field validation images. The repair manifest hashes the two runners, two result files, comparison JSON, and both SVGs; hashes match the listed delivery files.
+
+## Minor findings
+
+- The saved polygon runner imports `Polygon` but does not use it; this is harmless provenance code and not a scientific blocker.
+- The rectangle visualization generated by the runner depicts the historical first fixture, not the new bottleneck fixture. The separate bottleneck SVG is source-only and does not show closed/open variants.
+- Runtime values are expected to vary and were excluded from deterministic payload comparison.
+
+## Verdicts
+
+- **Historical subcell oracle:** ACCEPT LIMITED DESIGN EVIDENCE. Coordinates are preserved; independent area and three-component oracle are correct.
+- **New bottleneck and closed/open contrast:** REVISE. The configuration is one-component, but it is not a valid closed-versus-positive-width contrast and its 36.0 source-area oracle is inconsistent with the literal polygon. This blocks the requested bottleneck comparison, while leaving the subcell correction valid.
+- **Saved polygon runner reproducibility:** ACCEPT LIMITED DESIGN EVIDENCE. It runs in a temporary directory, records source-versus-sampled outputs, and does not overwrite delivery.
+- **Correction record/images/manifest/scope:** ACCEPT LIMITED DESIGN EVIDENCE. Files and hashes are internally aligned; the bottleneck semantic defect remains documented above.
+
+## Minimum next step
+
+Keep the historical subcell correction. Replace the bottleneck fixture with geometry where a closed barrier produces multiple source components and a separately declared positive-width opening produces exactly one, then recompute area from the actual boolean geometry and save both closed/open source visuals. Do not approve production resolution, backend, role thresholds, APIs, or Bayesian/ML models.
+
+**STOP FOR SPACE FIELD ORACLE REPAIR INDEPENDENT REVIEW**

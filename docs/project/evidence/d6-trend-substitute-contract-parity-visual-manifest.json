@@ -1,0 +1,13 @@
+{
+  "schema": "d6-trend-substitute-contract-parity-visual-reference/v1",
+  "output_manifest": "outputs/design/trend_substitute_contract_parity/d6-trend-substitute-contract-parity-visual-manifest.json",
+  "synthetic_png": "outputs/design/trend_substitute_contract_parity/synthetic_trend_substitute_contract_parity.png",
+  "real_ifc_png": "outputs/design/trend_substitute_contract_parity/real_ifc_trend_substitute_contract_parity.png",
+  "blend": "outputs/design/trend_substitute_contract_parity/trend_substitute_contract_parity.blend",
+  "manual_inspection": {
+    "synthetic": "pass",
+    "real_ifc": "pass"
+  },
+  "recomputed_metrics": false,
+  "winner": null
+}

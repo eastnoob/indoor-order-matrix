@@ -1,0 +1,34 @@
+{
+  "current_blender_observation": {
+    "basis": "existing live Blender input inspection retained in source_summary.json",
+    "observed": true,
+    "portable_blender_for_disposable_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+    "source_path_match": true,
+    "this_experiment_opened_current_blender": false
+  },
+  "disposable_blend_readback_checked": true,
+  "json_schema_checked": true,
+  "png_render_and_crop_checked": true,
+  "production_code_and_formal_tests_modified": false,
+  "schema": "d6-space-field-soft-field-validation/v1",
+  "source_sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+  "status": "pass",
+  "temporary_reproduction_checked": {
+    "empty_space_candidates.json": {
+      "identical": true,
+      "main_sha256": "42d8f2c7c3b981890dad9d9b70fcccbfffee38083e5c190262b0b3e749a87c17",
+      "temporary_sha256": "42d8f2c7c3b981890dad9d9b70fcccbfffee38083e5c190262b0b3e749a87c17"
+    },
+    "hard_candidate_alignment.json": {
+      "identical": true,
+      "main_sha256": "21d7d8e21e345e10c9efd327b2a2cf354e77aedc44d94a7f3f3ab6c09d782056",
+      "temporary_sha256": "21d7d8e21e345e10c9efd327b2a2cf354e77aedc44d94a7f3f3ab6c09d782056"
+    },
+    "soft_field_candidates.json": {
+      "identical": true,
+      "main_sha256": "8258291e1532d1dc4bbfd8abc0ac9391782ae6c26673749090d215612cfaa9dd",
+      "temporary_sha256": "8258291e1532d1dc4bbfd8abc0ac9391782ae6c26673749090d215612cfaa9dd"
+    }
+  },
+  "unrelated_full_test_suite_run": false
+}

@@ -1,0 +1,141 @@
+{
+  "artifacts": [
+    {
+      "bytes": 13274,
+      "command": "portable Pixi Python fixture adapter runner",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_ifc_input_contract_repair.py",
+      "sha256": "fbd8ceebb90f79e28d44453e3d6347d5fdbf58cc0c0180b50763e14b6a71ba37"
+    },
+    {
+      "bytes": 9916,
+      "command": "portable Blender 5.2 --background --factory-startup --disable-autoexec --python-exit-code 2 --python render_space_field_previews.py -- --manifest run_002/preview_input_manifest.json --results run_002/fixture_adapter_results.json --output-dir run_002/render_final",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/render_space_field_previews.py",
+      "sha256": "f1b2d8e8f4e32fe047a7192d3fdf02b18eb3ef223513cd9708b5e432203909f7"
+    },
+    {
+      "bytes": 5776,
+      "command": "portable Pixi Python JSON/schema/PNG/hash verification",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/verify_repair_artifacts.py",
+      "sha256": "bed4a09e7e236a3934ed5b614ddbda92758026f60ab152b3ee1bf6338bcd1981"
+    },
+    {
+      "bytes": 1290,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/inspect_saved_preview_blends.py",
+      "sha256": "50c7fd326313041f709cac2d23f76d5b71a1a5281127fb35015cf70005dd528a"
+    },
+    {
+      "bytes": 228947,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/fixture_adapter_results.json",
+      "sha256": "d7d809f187eef1d00fa0d3576830fb8bdbf1297fdfd2711e5f1731b3e91fec20"
+    },
+    {
+      "bytes": 3623,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/input_output_provenance.json",
+      "sha256": "e00f962f680e2f8a25d9378bcea4cc65a89bbcfc481cbd2d22550cf364a7c0cf"
+    },
+    {
+      "bytes": 3192,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/preview_input_manifest.json",
+      "sha256": "39d8f1010236617336e116c3fb702b377c7d4b9e1e534c01a900e39ef4a56378"
+    },
+    {
+      "bytes": 6018,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/repair_command_log.json",
+      "sha256": "1d5e030e282645f2b80c8b335a31000236184896ce70476e6db318a94976165a"
+    },
+    {
+      "bytes": 4678,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/verification_report.json",
+      "sha256": "94d0848587a1d8c1c4b45f654d6530e896f847fd36834ded80469747f413b290"
+    },
+    {
+      "bytes": 376,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/fixture_probe.log",
+      "sha256": "1ee6ebc1da2986dbbabf31f00b92347fd0db5c9b07feffe351e1cdb152d3a4d9"
+    },
+    {
+      "bytes": 13,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/fixture_probe_exit_status.txt",
+      "sha256": "a9f58776a09b5dac438049683f24bf85764e0ff8e7455952456165c68c158627"
+    },
+    {
+      "bytes": 973226,
+      "command": "portable Blender render from source inventory manifest",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/render_final/live_ifc_inventory_not_available.png",
+      "sha256": "0b6d6b9501d069a984b613325362bc1e60a8f76dd6c1ba2273bdeed174b52da1"
+    },
+    {
+      "bytes": 787598,
+      "command": "portable Blender render from fixture adapter result",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/render_final/ifc4_fixture_source_facts.png",
+      "sha256": "a34253b7ff136a50b1febb075f36c466e9408fbd478e70613b4af994551e782f"
+    },
+    {
+      "bytes": 92414,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/render_final/live_ifc_inventory_not_available.blend",
+      "sha256": "e917594202a087394dc0358e7f9424241e61689d38621102710ef1f3cd8cfc60"
+    },
+    {
+      "bytes": 105668,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/render_final/ifc4_fixture_source_facts.blend",
+      "sha256": "1e5b3cb186154f5a287236f6021a7275273dab0533d30f75397c83475e2f1b70"
+    },
+    {
+      "bytes": 957,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/render_final/blender_render.log",
+      "sha256": "108bce1f9abd02f9937ab07aa28af047077533ffe26c8cefeb662f3744ff1bbb"
+    },
+    {
+      "bytes": 13,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/run_002/render_final/blender_render_exit_status.txt",
+      "sha256": "a9f58776a09b5dac438049683f24bf85764e0ff8e7455952456165c68c158627"
+    },
+    {
+      "bytes": 226279,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/temporary_reproduction_2026-10-01_v2/fixture_adapter_results.json",
+      "sha256": "f43225ccad9890ffd1c9db278af8bc312e555458833c95f79b17400a5adf5a11"
+    },
+    {
+      "bytes": 3850,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/temporary_reproduction_2026-10-01_v2/input_output_provenance.json",
+      "sha256": "1d16adf91fc9a1ef180be31c9d9e632ec2ab4cc0c0d5535a70b1f4b9627be725"
+    },
+    {
+      "bytes": 434,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/temporary_reproduction_2026-10-01_v2/fixture_probe.log",
+      "sha256": "03e1c507780d4fbe4a202edeb1dc49e68e5f590d66c09f6bcb516bff9fbf090a"
+    },
+    {
+      "bytes": 13,
+      "command": "supporting output from the bounded repair run",
+      "path": "outputs/design/space_field_ifc_input_contract_experiment/repair_v1/temporary_reproduction_2026-10-01_v2/fixture_probe_exit_status.txt",
+      "sha256": "a9f58776a09b5dac438049683f24bf85764e0ff8e7455952456165c68c158627"
+    }
+  ],
+  "date": "2026-10-01",
+  "schema": "d6-space-field-ifc-input-contract-repair-artifact-manifest-v1",
+  "scope": "repair_v1 only; original evidence retained",
+  "verification": {
+    "global_git_diff_check": "incomplete due pre-existing .tmp-test-preview-final2 access-denied diagnostics; bounded new-file whitespace check recorded in repair report",
+    "json_png_hash_verification_exit_code": 0,
+    "portable_blender_render_exit_code": 0,
+    "primary_fixture_probe_exit_code": 0,
+    "saved_blend_inspection_exit_code": 0,
+    "temporary_reproduction_exit_code": 0
+  }
+}

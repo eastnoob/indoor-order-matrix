@@ -1,0 +1,32 @@
+{
+  "required_artifacts": [
+    "soft_field_candidates.json",
+    "empty_space_candidates.json",
+    "hard_candidate_alignment.json",
+    "render_input.json",
+    "provenance.json",
+    "scope_audit.json"
+  ],
+  "required_fields": {
+    "empty_space_candidates.json": [
+      "schema",
+      "source_ifc",
+      "frame",
+      "empty_space",
+      "grid",
+      "resolution_origin_sensitivity"
+    ],
+    "soft_field_candidates.json": [
+      "schema",
+      "source_ifc",
+      "analysis_nodes",
+      "frame",
+      "relations",
+      "grid",
+      "support_cells",
+      "resolution_origin_sensitivity"
+    ]
+  },
+  "schema": "d6-space-field-soft-field-json-contract/v1",
+  "schema_status": "experiment-local contract; not a production API"
+}

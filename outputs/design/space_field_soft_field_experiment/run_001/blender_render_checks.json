@@ -1,0 +1,36 @@
+{
+  "blender_version": "5.2.0 LTS",
+  "camera_view": "top-down orthographic",
+  "current_user_scene_opened": false,
+  "disposable_blend": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\d6_soft_field_disposable.blend",
+  "pngs": [
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_1_regions.png",
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_2_regions.png",
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_3_regions.png",
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_4_regions.png",
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\soft_field_diagnostic.png",
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\empty_space_diagnostic.png"
+  ],
+  "renderer": "BLENDER_EEVEE",
+  "required_labels": [
+    "soft-field diagnostic",
+    "empty-space diagnostic evidence",
+    "provisional diagnostic frame",
+    "not owner-confirmed",
+    "furniture_group analysis node",
+    "context/reference only"
+  ],
+  "resolution": [
+    2400,
+    1200
+  ],
+  "scene_names": [
+    "Hard_1_region",
+    "Hard_2_regions",
+    "Hard_3_regions",
+    "Hard_4_regions",
+    "SoftField_diagnostic",
+    "EmptySpace_diagnostic"
+  ],
+  "schema": "d6-space-field-soft-field-render-checks/v1"
+}

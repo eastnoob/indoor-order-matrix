@@ -1,0 +1,131 @@
+{
+  "artifacts": [
+    {
+      "bytes": 18142,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/scripts/design/group_level/run_trend_direction_probe.py",
+      "sha256": "3572eb7bad579e587b777392a1044596d6f5db13233e4b4d6247ceaaed68ac04"
+    },
+    {
+      "bytes": 10514,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/scripts/design/group_level/render_trend_direction_probe.py",
+      "sha256": "210db8c0491a21a303c1ef16f0730a1331603519f926d340a9a542bd2275632a"
+    },
+    {
+      "bytes": 5145,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/scripts/design/group_level/trend_direction_fixtures.json",
+      "sha256": "7263df94b286f1a700df8ba1ce63df2e578a1092efca1ea22a6bc45b83029e1b"
+    },
+    {
+      "bytes": 1967,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/scripts/design/group_level/trend_direction_truth.json",
+      "sha256": "c4bf287f2fa175cc24c1a94ac1f14297e25fe7946537befeccbffea29a6ea54c"
+    },
+    {
+      "bytes": 10186,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/docs/project/evidence/d6-trend-direction-design-probe.md",
+      "sha256": "ba025721969ea039502c51d2debe81102079a067240507175a35c20c6b85b576"
+    },
+    {
+      "bytes": 96402,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/design/trend_direction_probe/trend_direction_results.json",
+      "sha256": "643680ff776693ef329d0d1678229340d9dd6920c2e27135a102b8b777d91578"
+    },
+    {
+      "bytes": 19611,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/design/trend_direction_probe/trend_direction_inventory.json",
+      "sha256": "9b07b5c242e9e4ad7be1dde750f7b173732a6a41e321ec7c295fedef4b8e71c8"
+    },
+    {
+      "bytes": 2606038,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/design/trend_direction_probe/synthetic_trend_direction.png",
+      "sha256": "fc592af41be077f89821dc38a89c933bc907b241246b232b6b39d0aed1ae410f"
+    },
+    {
+      "bytes": 1535399,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/design/trend_direction_probe/ifc_trend_direction.png",
+      "sha256": "05c67ad0ae1be218ee765bd383cfbaaa344a28b2da3163f7972c07ce42b024c2"
+    },
+    {
+      "bytes": 112485,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/design/trend_direction_probe/trend_direction_probe.blend",
+      "sha256": "947a5084ea6b2999fbc0c7713cec4aafbbbefcadf9c15e1fae4fa6fd678e288e"
+    },
+    {
+      "bytes": 566,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/design/trend_direction_probe/blender_render_metadata.json",
+      "sha256": "0f02166e2c593a484b0e7ff986be4774326e74323394bcaa0d916fb90ea4689c"
+    }
+  ],
+  "commands": [
+    {
+      "command": "pixi run python scripts/design/group_level/run_trend_direction_probe.py",
+      "exit_code": 0,
+      "result": "pass; 3 complete IFC groups; 12 skipped invalid groups"
+    },
+    {
+      "command": "D:\\Blender\\BlenderPortableLTS5.2\\App\\Blender64\\blender.exe --background --factory-startup --python scripts/design/group_level/render_trend_direction_probe.py -- --input outputs/design/trend_direction_probe/trend_direction_results.json --output-dir outputs/design/trend_direction_probe",
+      "exit_code": 0,
+      "result": "two PNG renders and blend written"
+    },
+    {
+      "command": "pixi run python scripts/design/group_level/run_trend_direction_probe.py --verify",
+      "exit_code": 0,
+      "result": "schema/source/image verification pass"
+    },
+    {
+      "command": "pixi run pytest test/test_group_self_description.py test/test_blender_preview.py -q",
+      "exit_code": 0,
+      "result": "39 passed"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "pass"
+    },
+    {
+      "command": "git status --short --untracked-files=all | Select-String trend_direction; git diff --name-only",
+      "exit_code": 0,
+      "result": "only six requested tracked paths are new; existing worktree changes left untouched"
+    }
+  ],
+  "schema": "d6-trend-direction-artifact-manifest/v1",
+  "scope": {
+    "allowed_tracked_files": [
+      "scripts/design/group_level/run_trend_direction_probe.py",
+      "scripts/design/group_level/render_trend_direction_probe.py",
+      "scripts/design/group_level/trend_direction_fixtures.json",
+      "scripts/design/group_level/trend_direction_truth.json",
+      "docs/project/evidence/d6-trend-direction-design-probe.md",
+      "docs/project/evidence/d6-trend-direction-artifact-manifest.json"
+    ],
+    "open_blender_model_modified": false,
+    "production_files_changed": false,
+    "source_ifc_modified": false
+  },
+  "source_before_after": {
+    "after": {
+      "bytes": 408617800,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+    },
+    "before": {
+      "bytes": 408617800,
+      "path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+    }
+  },
+  "status": "design_only_complete",
+  "stop": "STOP FOR TREND ESTIMAND REVIEW",
+  "verification": {
+    "explicit_git_scope_audit": "pass",
+    "focused_regression_tests": "39 passed",
+    "git_diff_check": "pass",
+    "image_dimensions_nonempty": "pass",
+    "json_schema_and_strict_nan": "pass",
+    "manual_visual_inspection": "pass",
+    "portable_blender_background_render": "pass",
+    "probe_assertions": "pass",
+    "source_hash_check": "pass",
+    "winner": null
+  }
+}

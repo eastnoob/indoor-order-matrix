@@ -1,0 +1,221 @@
+{
+  "checks": {
+    "current_blender_observation": {
+      "basis": "existing live Blender input inspection retained in source_summary.json",
+      "observed": true,
+      "portable_blender_for_disposable_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+      "source_path_match": true,
+      "this_experiment_opened_current_blender": false
+    },
+    "disposable_blend_readback_checked": true,
+    "json_schema_checked": true,
+    "png_render_and_crop_checked": true,
+    "production_code_and_formal_tests_modified": false,
+    "schema": "d6-space-field-soft-field-validation/v1",
+    "source_sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+    "status": "pass",
+    "temporary_reproduction_checked": {
+      "empty_space_candidates.json": {
+        "identical": true,
+        "main_sha256": "42d8f2c7c3b981890dad9d9b70fcccbfffee38083e5c190262b0b3e749a87c17",
+        "temporary_sha256": "42d8f2c7c3b981890dad9d9b70fcccbfffee38083e5c190262b0b3e749a87c17"
+      },
+      "hard_candidate_alignment.json": {
+        "identical": true,
+        "main_sha256": "21d7d8e21e345e10c9efd327b2a2cf354e77aedc44d94a7f3f3ab6c09d782056",
+        "temporary_sha256": "21d7d8e21e345e10c9efd327b2a2cf354e77aedc44d94a7f3f3ab6c09d782056"
+      },
+      "soft_field_candidates.json": {
+        "identical": true,
+        "main_sha256": "8258291e1532d1dc4bbfd8abc0ac9391782ae6c26673749090d215612cfaa9dd",
+        "temporary_sha256": "8258291e1532d1dc4bbfd8abc0ac9391782ae6c26673749090d215612cfaa9dd"
+      }
+    },
+    "unrelated_full_test_suite_run": false
+  },
+  "commands": {
+    "blend_readback": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe -b d6_soft_field_disposable.blend --python inspect_saved_blend.py",
+    "blender_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe -b --factory-startup --python render_soft_field_blender.py",
+    "default_run": "pixi python run_soft_field_experiment.py --output run_001",
+    "temporary_reproduction": "pixi python run_soft_field_experiment.py --output tmp_reproduction_20261002",
+    "validation": "pixi python build_artifact_manifest.py"
+  },
+  "current_blender_scene": {
+    "disposable_preview_process": "portable Blender --background --factory-startup",
+    "observed": true,
+    "source_path_match": true,
+    "user_file_modified": false
+  },
+  "files": [
+    {
+      "bytes": 695407,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-space-field-empty-space-diagnostic.json",
+      "role": "repository evidence record",
+      "sha256": "42d8f2c7c3b981890dad9d9b70fcccbfffee38083e5c190262b0b3e749a87c17"
+    },
+    {
+      "bytes": 882803,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-space-field-soft-field-candidates.json",
+      "role": "repository evidence record",
+      "sha256": "8258291e1532d1dc4bbfd8abc0ac9391782ae6c26673749090d215612cfaa9dd"
+    },
+    {
+      "bytes": 5647,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-space-field-soft-field-experiment.md",
+      "role": "repository evidence record",
+      "sha256": "c63daeb25a5138cacf45125ce35a385bd4c6bbbc8dce6ece1e3271f2c134e3dc"
+    },
+    {
+      "bytes": 3091,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-space-field-soft-field-owner-visual-review.md",
+      "role": "repository evidence record",
+      "sha256": "03bcff137612107964387b2dbf105dd5a31d59640c48ef76847155bb3f76e21b"
+    },
+    {
+      "bytes": 3033,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-space-field-soft-field-provenance.json",
+      "role": "repository evidence record",
+      "sha256": "284f32b20cccf0c6333fdef37ca33d0fe88f485664c014633bf2a1802eac7ec1"
+    },
+    {
+      "bytes": 2074,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-space-field-soft-field-scope-audit.json",
+      "role": "repository evidence record",
+      "sha256": "3ba0a3840e4f0cca48aa1c83dcadd4322a690fb1519b73176a9da46708d85e08"
+    },
+    {
+      "bytes": 2530,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\blend_readback.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "5610f96458eeb03be54379ba490724521d5c031ba2e3f24a932edf7344005fe6"
+    },
+    {
+      "bytes": 1724,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\blender_render_checks.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "6fde9ebe72004b2e22fb115edd4b9f891f4f0d75e985fdc7302ef86dbdfceb83"
+    },
+    {
+      "bytes": 6852,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\build_artifact_manifest.py",
+      "role": "experiment source script",
+      "sha256": "b00212591e8dc795ce9851465f2534418c907dde80ebbd7672dd17a3c263b554"
+    },
+    {
+      "bytes": 1681370,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\d6_soft_field_disposable.blend",
+      "role": "disposable Blender scenes",
+      "sha256": "6a2e0183707a53bbd5989ddb29118ecec79da80685fee2901031d91bde66d2c8"
+    },
+    {
+      "bytes": 695407,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\empty_space_candidates.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "42d8f2c7c3b981890dad9d9b70fcccbfffee38083e5c190262b0b3e749a87c17"
+    },
+    {
+      "bytes": 3048607,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\empty_space_diagnostic.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "6b11b942ee86f52fd90a54e2daaa4b71a9ff55c6ae0c58fa3b38a8751c66a675"
+    },
+    {
+      "bytes": 2356537,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_1_regions.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "4fa9c3f2223f7794a6ef39014b97aa1bdd2332914e5163afdbf53c92d24484e5"
+    },
+    {
+      "bytes": 2351984,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_2_regions.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "e2cfb61e4b3b471aef53fa9d13c6891195433e620aca5f2b2607e2c9a3351172"
+    },
+    {
+      "bytes": 2353588,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_3_regions.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "713e1cdb62fa43d5c870e3941c54d972d73b3c29832220fbdc7513946047b1c0"
+    },
+    {
+      "bytes": 2356962,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_4_regions.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "fb2eebc5417eb008c8eadc7eeb63d1fbe9bf958889e50a42239903fd647e2f54"
+    },
+    {
+      "bytes": 14091,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_candidate_alignment.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "21d7d8e21e345e10c9efd327b2a2cf354e77aedc44d94a7f3f3ab6c09d782056"
+    },
+    {
+      "bytes": 2100,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\inspect_saved_blend.py",
+      "role": "experiment source script",
+      "sha256": "b388e55942887a6eeafe6fdb348feaaa9d0024b6775516f62bf160fe3829d3a2"
+    },
+    {
+      "bytes": 778,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\json_schema.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "ddb7f468c656f962be6a376f3e6051c5100cbc7c72020612b3296858b9585709"
+    },
+    {
+      "bytes": 3033,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\provenance.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "284f32b20cccf0c6333fdef37ca33d0fe88f485664c014633bf2a1802eac7ec1"
+    },
+    {
+      "bytes": 2278412,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\render_input.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "934d8af3672504604e4a1112b4c0f005045318385cdef3451b0a3db837bcad07"
+    },
+    {
+      "bytes": 21230,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\render_soft_field_blender.py",
+      "role": "experiment source script",
+      "sha256": "b2863638adc2275c2fec8b5512069dc4aa1d1723f8deb9b0ffa3c9d8fb26a8f1"
+    },
+    {
+      "bytes": 24553,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\run_soft_field_experiment.py",
+      "role": "experiment source script",
+      "sha256": "8370fbb4f0edcfe56f0ab7ef3213cec80250ae3f817df284c31ffcced9f53151"
+    },
+    {
+      "bytes": 2074,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\scope_audit.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "3ba0a3840e4f0cca48aa1c83dcadd4322a690fb1519b73176a9da46708d85e08"
+    },
+    {
+      "bytes": 882803,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\soft_field_candidates.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "8258291e1532d1dc4bbfd8abc0ac9391782ae6c26673749090d215612cfaa9dd"
+    },
+    {
+      "bytes": 2930378,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\soft_field_diagnostic.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "7c3b2ae91accec4cd84c7aeb665527f6a2512519f261c71113e9e883dac149e4"
+    },
+    {
+      "bytes": 1546,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\validation_report.json",
+      "role": "validation report",
+      "sha256": "366ca59ca0962a6bfaa60e4fe585bbd3b7ee609e54aa18312e64db213f693686"
+    }
+  ],
+  "manifest_self_hash_excluded": true,
+  "output_directory": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001",
+  "schema": "d6-space-field-soft-field-artifact-manifest/v1",
+  "source_ifc": {
+    "bytes": 408617800,
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  }
+}

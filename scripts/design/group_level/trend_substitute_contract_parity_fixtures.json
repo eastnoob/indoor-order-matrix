@@ -1,0 +1,9 @@
+{
+  "schema": "d6-trend-substitute-contract-parity-fixtures/v1",
+  "negative_records": [
+    {"name": "untyped_analysis", "record": {"substitute_id": "x:1", "source_object_id": "x", "consumer": "trend", "substitute_kind": "MassPatch", "analysis_role": "", "provenance": {"representation_identifier": "Analysis"}}},
+    {"name": "body_only", "record": {"substitute_id": "x:2", "source_object_id": "x", "consumer": "trend", "substitute_kind": "Body", "analysis_role": "body_geometry", "provenance": {"representation_identifier": "Body"}}},
+    {"name": "wrong_consumer", "record": {"substitute_id": "x:3", "source_object_id": "x", "consumer": "clearance", "substitute_kind": "MassPatch", "analysis_role": "analysis_geometry_substitute", "provenance": {"representation_identifier": "Analysis"}}},
+    {"name": "duplicate_identity", "records": [{"substitute_id": "x:4", "source_object_id": "x", "consumer": "trend", "substitute_kind": "MassPatch", "analysis_role": "analysis_geometry_substitute", "provenance": {"representation_identifier": "Analysis"}}, {"substitute_id": "x:4", "source_object_id": "y", "consumer": "trend", "substitute_kind": "MassPatch", "analysis_role": "analysis_geometry_substitute", "provenance": {"representation_identifier": "Analysis"}}]}
+  ]
+}

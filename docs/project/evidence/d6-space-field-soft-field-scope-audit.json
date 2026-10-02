@@ -1,0 +1,59 @@
+{
+  "allowed": {
+    "empty_space_independent_attribute": true,
+    "exact_furniture_group_nodes_only": true,
+    "group_members_split": false,
+    "hard_candidates_1_2_3_4_displayed": true,
+    "provisional_diagnostic_frame_labeled": true,
+    "real_ifc_source": true,
+    "soft_field_and_empty_space_displayed": true,
+    "walls_retained_as_context_reference": true
+  },
+  "current_blender_observation": {
+    "blender_version": "5.2.0 LTS",
+    "bonsai_ifc_store_path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+    "floor_candidates": [
+      "IfcBuildingStorey/Level 1"
+    ],
+    "ifc_object_counts": {
+      "IfcBuildingStorey": 1,
+      "IfcDoor": 6,
+      "IfcFurniture": 95,
+      "IfcGroup": 37,
+      "IfcOpeningElement": 0,
+      "IfcRelFillsElement": 0,
+      "IfcRelVoidsElement": 0,
+      "IfcSpace": 0,
+      "IfcWall": 11
+    },
+    "match_basis": "Bonsai IfcStore.path read directly from current Blender and equals source_ifc.path.",
+    "mesh_count": 363,
+    "object_count": 372,
+    "observed": true,
+    "observed_at": "2026-10-02",
+    "portable_executable": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+    "scene_filepath": "",
+    "scene_name": "Scene",
+    "source_path_match": true,
+    "unit_settings": {
+      "length_unit": "MILLIMETERS",
+      "scale_length": 1.0,
+      "system": "METRIC"
+    }
+  },
+  "forbidden_or_not_selected": {
+    "adapter_modified": false,
+    "analysis_domain_selected": false,
+    "authored_membership_rewritten": false,
+    "bayesian_or_ml_selected": false,
+    "fixed_metre_threshold_selected": false,
+    "formal_tests_modified": false,
+    "production_code_modified": false,
+    "production_resolution_selected": false,
+    "route_width_selected": false,
+    "source_ifc_modified": false,
+    "user_blender_file_modified": false,
+    "walkability_visibility_route_accuracy_emitted": false
+  },
+  "schema": "d6-space-field-soft-field-scope-audit/v1"
+}

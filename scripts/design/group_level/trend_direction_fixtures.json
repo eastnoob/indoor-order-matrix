@@ -1,0 +1,101 @@
+{
+  "schema": "d6-trend-direction-fixtures/v1",
+  "unit": "arbitrary_plan_units",
+  "cases": [
+    {
+      "id": "aligned_members_vertical_centers",
+      "description": "Long axes agree at 0 degrees while member centers form a vertical line.",
+      "truth": {"member_consensus_frame": 0.0, "between_centroid_axis": 90.0, "relationship": "orientation_vs_layout_orthogonal"},
+      "members": [
+        {"id": "m1", "center": [0.0, -3.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "m2", "center": [0.0, 0.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "m3", "center": [0.0, 3.0], "size": [4.0, 1.0], "angle": 0.0}
+      ]
+    },
+    {
+      "id": "aligned_members_horizontal_centers",
+      "description": "Long axes and member center layout both run horizontally.",
+      "truth": {"member_consensus_frame": 0.0, "between_centroid_axis": 0.0, "relationship": "orientation_vs_layout_aligned"},
+      "members": [
+        {"id": "m1", "center": [-3.0, 0.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "m2", "center": [0.0, 0.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "m3", "center": [3.0, 0.0], "size": [4.0, 1.0], "angle": 0.0}
+      ]
+    },
+    {
+      "id": "mixed_member_axes_horizontal_layout",
+      "description": "Member axes mix 0 and 90 degrees while centers have a horizontal principal spread.",
+      "truth": {"member_consensus_frame": 0.0, "between_centroid_axis": 0.0, "relationship": "mixed_orientation_layout_dominant"},
+      "members": [
+        {"id": "m1", "center": [-4.0, 0.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "m2", "center": [-1.3, 0.0], "size": [4.0, 1.0], "angle": 90.0},
+        {"id": "m3", "center": [1.3, 0.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "m4", "center": [4.0, 0.0], "size": [4.0, 1.0], "angle": 90.0}
+      ]
+    },
+    {
+      "id": "near_isotropic_members",
+      "description": "Square members have no informative principal direction.",
+      "truth": {"member_consensus_coherence": "near_zero", "total_pca_status": "computed", "relationship": "directionally_weak"},
+      "members": [
+        {"id": "m1", "center": [-2.0, 0.0], "size": [2.0, 2.0], "angle": 0.0},
+        {"id": "m2", "center": [2.0, 0.0], "size": [2.0, 2.0], "angle": 45.0}
+      ]
+    },
+    {
+      "id": "area_and_shape_disparity",
+      "description": "One large elongated member and two small members expose area weighting.",
+      "truth": {"relationship": "area_weighted_vs_point_and_count_weighted"},
+      "members": [
+        {"id": "large", "center": [0.0, 0.0], "size": [8.0, 1.0], "angle": 0.0},
+        {"id": "small_a", "center": [0.0, 3.0], "size": [1.0, 1.0], "angle": 90.0},
+        {"id": "small_b", "center": [0.0, -3.0], "size": [1.0, 1.0], "angle": 90.0}
+      ]
+    },
+    {
+      "id": "tessellation_density_invariance",
+      "description": "The same rectangles are represented with sparse and dense boundary vertices.",
+      "truth": {"relationship": "area_moments_invariant_legacy_point_cloud_sensitive"},
+      "members": [
+        {"id": "sparse", "center": [-2.0, 0.0], "size": [4.0, 1.0], "angle": 0.0, "edge_subdivisions": 1},
+        {"id": "dense", "center": [2.0, 0.0], "size": [4.0, 1.0], "angle": 0.0, "edge_subdivisions": 12}
+      ]
+    },
+    {
+      "id": "legacy_affordance_extent_conflict",
+      "description": "Member footprints are horizontal but an affordance extent is vertical and far wider.",
+      "truth": {"relationship": "legacy_cloud_reports_input_mix", "legacy_contains_affordance_extents": true},
+      "members": [
+        {"id": "m1", "center": [0.0, 0.0], "size": [4.0, 1.0], "angle": 0.0, "affordance_extents": [{"center": [0.0, 0.0], "size": [1.0, 10.0], "angle": 0.0}]},
+        {"id": "m2", "center": [6.0, 0.0], "size": [4.0, 1.0], "angle": 0.0}
+      ]
+    },
+    {
+      "id": "holes_invalid_member",
+      "description": "A valid member and a hole-bearing member; complete metrics must be invalid.",
+      "truth": {"group_status": "invalid", "usable_subset_status": "partial_diagnostic"},
+      "members": [
+        {"id": "valid", "center": [0.0, 0.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "hole_member", "center": [0.0, 3.0], "size": [4.0, 1.0], "angle": 0.0, "holes": [[[ -0.5, 2.8 ], [ 0.5, 2.8 ], [ 0.5, 3.2 ], [ -0.5, 3.2 ]]]}
+      ]
+    },
+    {
+      "id": "missing_partial_member",
+      "description": "A valid member and a missing footprint; usable subset is diagnostic only.",
+      "truth": {"group_status": "partial", "usable_subset_status": "partial_diagnostic"},
+      "members": [
+        {"id": "valid", "center": [0.0, 0.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "missing", "status": "missing"}
+      ]
+    },
+    {
+      "id": "self_intersecting_invalid_member",
+      "description": "A bow-tie polygon is invalid and must not become missing or valid geometry.",
+      "truth": {"group_status": "invalid", "invalid_reason": "invalid_polygon"},
+      "members": [
+        {"id": "valid", "center": [0.0, 0.0], "size": [4.0, 1.0], "angle": 0.0},
+        {"id": "bowtie", "polygon": [[-1.0, 2.0], [1.0, 4.0], [-1.0, 4.0], [1.0, 2.0]]}
+      ]
+    }
+  ]
+}

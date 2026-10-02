@@ -1,0 +1,11 @@
+{
+  "schema": "d6-trend-substitute-contract-parity-truth/v1",
+  "negative_reason_codes": {
+    "untyped_analysis": "missing_analysis_role",
+    "body_only": "body_only",
+    "wrong_consumer": "wrong_consumer",
+    "duplicate_identity": "duplicate_substitute_id"
+  },
+  "winner": null,
+  "semantic_boundary": "Only typed trend Analysis MassPatch records authorize A/C/D and legacy parity inputs."
+}

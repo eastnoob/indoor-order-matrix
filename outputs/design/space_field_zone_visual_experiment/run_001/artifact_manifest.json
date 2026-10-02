@@ -1,0 +1,278 @@
+{
+  "checks": {
+    "all_render_text_inside_safe_camera_frame": true,
+    "candidate_region_counts": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "disposable_blend_readback_passed": true,
+    "png_metadata": {
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_baseline_one_region.png": {
+        "height": 1200,
+        "mode": "RGBA",
+        "verified": true,
+        "width": 2400
+      },
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_2_regions.png": {
+        "height": 1200,
+        "mode": "RGBA",
+        "verified": true,
+        "width": 2400
+      },
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_3_regions.png": {
+        "height": 1200,
+        "mode": "RGBA",
+        "verified": true,
+        "width": 2400
+      },
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_4_regions.png": {
+        "height": 1200,
+        "mode": "RGBA",
+        "verified": true,
+        "width": 2400
+      }
+    },
+    "production_code_and_formal_tests_modified": false,
+    "source_hash_unchanged": true,
+    "unrelated_full_test_suite_run": false
+  },
+  "commands": [
+    {
+      "command": "D:\\Blender\\BlenderPortableLTS5.2\\App\\Blender64\\blender.exe -b --factory-startup --python outputs/design/space_field_zone_visual_experiment/run_001/render_zone_candidates.py",
+      "exit_code": 0,
+      "id": "portable_blender_render",
+      "result": "Rendered four candidate PNGs and saved d6_zone_candidates_disposable.blend. Blender logged an optional thumbnail-cache write warning outside the experiment directory; requested outputs succeeded."
+    },
+    {
+      "command": ".pixi\\envs\\default\\python.exe outputs/design/space_field_zone_visual_experiment/run_001/extract_wall_plan_projection.py",
+      "exit_code": 0,
+      "id": "wall_projection_extract",
+      "result": "Projected all 11 source wall Body meshes into plan geometry and verified source hash."
+    },
+    {
+      "command": ".pixi\\envs\\default\\python.exe -m py_compile outputs/design/space_field_zone_visual_experiment/run_001/extract_wall_plan_projection.py outputs/design/space_field_zone_visual_experiment/run_001/render_zone_candidates.py",
+      "exit_code": 0,
+      "id": "compile_visualization_scripts",
+      "result": "Visualization scripts compiled successfully."
+    },
+    {
+      "command": "D:\\Blender\\BlenderPortableLTS5.2\\App\\Blender64\\blender.exe -b --factory-startup outputs/design/space_field_zone_visual_experiment/run_001/d6_zone_candidates_disposable.blend --python outputs/design/space_field_zone_visual_experiment/run_001/inspect_saved_blend.py",
+      "exit_code": 0,
+      "id": "blend_readback",
+      "result": "Reopened disposable blend and verified all four scenes, 37 group labels and 11 wall meshes per scene, candidate fills, orthographic cameras, and render size."
+    },
+    {
+      "command": ".pixi\\envs\\default\\python.exe outputs/design/space_field_zone_visual_experiment/run_001/build_artifact_manifest.py",
+      "exit_code": 0,
+      "id": "manifest_validation",
+      "result": "Verified source identity, candidate counts, render label bounds, blend readback, and PNG metadata; wrote this manifest."
+    },
+    {
+      "command": "Completed before this continuation; exact process command was not retained in the handoff state.",
+      "exit_code": null,
+      "id": "initial_ifc_group_extraction",
+      "result": "Input inventory and candidate JSON files were present at continuation start and retain the source IFC SHA-256."
+    },
+    {
+      "command": "Opened the four final PNG artifacts with the local image inspection tool.",
+      "exit_code": 0,
+      "id": "manual_render_inspection",
+      "result": "Visually checked plan content, required legends, candidate distinction, labels, and crop."
+    }
+  ],
+  "created_at": "2026-10-02",
+  "current_blender_scene": {
+    "disposable_preview_process": "portable Blender --background --factory-startup",
+    "modified": false,
+    "observed": true,
+    "saved": false,
+    "source_path_match": true
+  },
+  "files": [
+    {
+      "bytes": 5926,
+      "command_id": "manual_evidence_record",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-space-field-zone-visual-experiment.md",
+      "role": "owner-facing experiment record",
+      "sha256": "f2df6eb6aa09fcda73aaa4099518ae39934f0256975fc55cef83b3a1dc109727"
+    },
+    {
+      "bytes": 2156,
+      "command_id": "blend_readback",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\blend_readback.json",
+      "role": "disposable blend readback result",
+      "sha256": "77febb5e07a8b8ee3f4968b8ac3fc1110a7b52349fd385167592de8c51108364"
+    },
+    {
+      "bytes": 81554,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\blender_render_checks.json",
+      "role": "render evidence JSON",
+      "sha256": "e55a29fe9650281f7c6c3b431dcad6d6485b3fbf09b997af7e7aaec8ac122c8a"
+    },
+    {
+      "bytes": 9742,
+      "command_id": "manifest_validation",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\build_artifact_manifest.py",
+      "role": "manifest and artifact validator",
+      "sha256": "01386708e32870fd88470d175cb1d839de6fccd995e963939b506d7f8a07b28d"
+    },
+    {
+      "bytes": 2495160,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_baseline_one_region.png",
+      "role": "owner-view PNG",
+      "sha256": "5d216e13ed07eaf46cfcd360d217bf2e8bd677c1081c5c7b2c7e8fea84da943d"
+    },
+    {
+      "bytes": 2493683,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_2_regions.png",
+      "role": "owner-view PNG",
+      "sha256": "0d607dd60e2e1dfd7be83a97e7216e7e9bb51c6580b92be259f91191fbb04527"
+    },
+    {
+      "bytes": 2503042,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_3_regions.png",
+      "role": "owner-view PNG",
+      "sha256": "55b97d91bed079b24d095b3d420998941c0b1695cdf1d45e3a54bec8784f98d2"
+    },
+    {
+      "bytes": 2510036,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_mst_gap_cut_4_regions.png",
+      "role": "owner-view PNG",
+      "sha256": "84c7f98bcbf148adf48991fcee1eac11a21fee62b799493d89548a3854ad51a8"
+    },
+    {
+      "bytes": 12499,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_records\\candidate_baseline_one_region.json",
+      "role": "candidate-specific input, boundary, partition, status, and provenance record",
+      "sha256": "a30a4f0c155a204df4a8268a44f47e3a98690bb8bc181fa080645f333212bb33"
+    },
+    {
+      "bytes": 13134,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_records\\candidate_mst_gap_cut_2_regions.json",
+      "role": "candidate-specific input, boundary, partition, status, and provenance record",
+      "sha256": "46dde8fea742f32d6ef4b0ee4b189dab07645a83a6a8a4a0ec71403b29bdc52d"
+    },
+    {
+      "bytes": 13711,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_records\\candidate_mst_gap_cut_3_regions.json",
+      "role": "candidate-specific input, boundary, partition, status, and provenance record",
+      "sha256": "0158981a96d0118862d0b5dd3f55a14b9153c79cd25acd60ce6492a6f97aa572"
+    },
+    {
+      "bytes": 14287,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\candidate_records\\candidate_mst_gap_cut_4_regions.json",
+      "role": "candidate-specific input, boundary, partition, status, and provenance record",
+      "sha256": "4bd5c96cc982d29089a145f94c5d486a0bb34d86dfd74f81b7385d9db18e876f"
+    },
+    {
+      "bytes": 599882,
+      "command_id": "portable_blender_render",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\d6_zone_candidates_disposable.blend",
+      "role": "disposable editable Blender scenes",
+      "sha256": "0530a907defa50348c445b9a30822f813ef553477f7adb9f17bf3e473c0a45cd"
+    },
+    {
+      "bytes": 5038,
+      "command_id": "compile_visualization_scripts",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\extract_wall_plan_projection.py",
+      "role": "read-only wall projection source script",
+      "sha256": "c9e7b10ede091acb00628334c05807cce716b2fdc046f1e62957904b99835328"
+    },
+    {
+      "bytes": 254411,
+      "command_id": "initial_ifc_group_extraction",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\furniture_group_nodes.json",
+      "role": "IFC facts, candidate inputs, or scope audit",
+      "sha256": "9aad1979f3287ddacd9ca94a174388ec12dc9cae241691bf37472e65aeedddee"
+    },
+    {
+      "bytes": 386894,
+      "command_id": "initial_ifc_group_extraction",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\group_relation_evidence.json",
+      "role": "IFC facts, candidate inputs, or scope audit",
+      "sha256": "1145c169c5fe99dcb7a32e8b743e3908f01435e810c299cec7f975368894e07f"
+    },
+    {
+      "bytes": 2357,
+      "command_id": "blend_readback",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\inspect_saved_blend.py",
+      "role": "disposable blend readback verifier",
+      "sha256": "d2daa1143ffb17b30a70da924c1889b3584c5c7efd22635bb1f57bad5ef91dab"
+    },
+    {
+      "bytes": 1619,
+      "command_id": "manual_evidence_record",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\owner_visual_review_record.md",
+      "role": "owner-facing output-directory summary",
+      "sha256": "bdef88a6411456db7277c653d5829a55cbb72e43ab368999332128b7c7011528"
+    },
+    {
+      "bytes": 161178,
+      "command_id": "wall_projection_extract",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\physical_wall_plan_projection.json",
+      "role": "render evidence JSON",
+      "sha256": "41deb0d88350404fbde7941f8f3d88966e854001b833f36a7b6bdd877d60e77e"
+    },
+    {
+      "bytes": 1834,
+      "command_id": "initial_ifc_group_extraction",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\provenance.json",
+      "role": "IFC facts, candidate inputs, or scope audit",
+      "sha256": "33e83de7a4721e82fe64007a56e01b072aa50931590a7616ce335cd088bb48b1"
+    },
+    {
+      "bytes": 436515,
+      "command_id": "initial_ifc_group_extraction",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\render_input.json",
+      "role": "IFC facts, candidate inputs, or scope audit",
+      "sha256": "5b2646098b67155bf838ca2b91db7173ee0aa593aaa322bd2a5994bbcab00c0b"
+    },
+    {
+      "bytes": 30298,
+      "command_id": "compile_visualization_scripts",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\render_zone_candidates.py",
+      "role": "render source script",
+      "sha256": "a64424152edc863140cfa29e6e07b6b20f6b3201f8c1000ec29d259f35cccf39"
+    },
+    {
+      "bytes": 1663,
+      "command_id": "initial_ifc_group_extraction",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\scope_audit.json",
+      "role": "IFC facts, candidate inputs, or scope audit",
+      "sha256": "5af4e6f596cf0233d4c4168c89a0a403ccacb777142ca49fc2a0317c832abfc1"
+    },
+    {
+      "bytes": 3059,
+      "command_id": "initial_ifc_group_extraction",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\source_summary.json",
+      "role": "IFC facts, candidate inputs, or scope audit",
+      "sha256": "131e568ce7bfe3eb449e743a1ffda6774fc106106910be7f6d9b021cebcde529"
+    },
+    {
+      "bytes": 27715,
+      "command_id": "initial_ifc_group_extraction",
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\zone_candidates.json",
+      "role": "IFC facts, candidate inputs, or scope audit",
+      "sha256": "1986196ac95a4d76e026ba147030f58727f08b1d9a3e50bfa528a3cd0e4d5408"
+    }
+  ],
+  "manifest_self_hash_excluded": true,
+  "output_directory": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001",
+  "schema": "d6-space-field-zone-visual-artifact-manifest/v1",
+  "source_ifc": {
+    "bytes": 408617800,
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  }
+}

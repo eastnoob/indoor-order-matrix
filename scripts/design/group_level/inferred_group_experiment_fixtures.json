@@ -1,0 +1,151 @@
+{
+  "schema": "d6-inferred-group-design-fixtures/v2",
+  "analysis_frame": {
+    "id": "fixture-plan-xy",
+    "plane": "XY",
+    "unit": "m",
+    "origin": [0.0, 0.0]
+  },
+  "tolerance": {
+    "geometry": 1e-09,
+    "area": 1e-09,
+    "z": 1e-06
+  },
+  "fixtures": [
+    {
+      "id": "bridge_chain",
+      "kind": "membership_candidates",
+      "question": "connected components chains A-B-C while complete-link keeps only pairwise-compatible candidates",
+      "thresholds": {"normalized_gap": 0.6, "clearance_3d": 0.6, "max_span": 0.6},
+      "groups": [
+        {"id": "A", "members": [{"id": "A1", "status": "computed", "box": {"center": [0.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "B", "members": [{"id": "B1", "status": "computed", "box": {"center": [1.5, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "C", "members": [{"id": "C1", "status": "computed", "box": {"center": [3.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "D", "members": [{"id": "D1", "status": "computed", "box": {"center": [8.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]}
+      ]
+    },
+    {
+      "id": "long_row",
+      "kind": "membership_candidates",
+      "question": "a physically plausible long row can be split by strict complete-link",
+      "thresholds": {"normalized_gap": 0.6, "clearance_3d": 0.6, "max_span": 0.6},
+      "groups": [
+        {"id": "L1", "members": [{"id": "L1m", "status": "computed", "box": {"center": [0.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "L2", "members": [{"id": "L2m", "status": "computed", "box": {"center": [1.5, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "L3", "members": [{"id": "L3m", "status": "computed", "box": {"center": [3.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "L4", "members": [{"id": "L4m", "status": "computed", "box": {"center": [4.5, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]}
+      ]
+    },
+    {
+      "id": "unequal_size",
+      "kind": "scale_sensitivity",
+      "question": "normalized gap may admit a large-small pair that raw gap rejects",
+      "thresholds": {"raw_gap": 0.6, "normalized_gap": 0.6, "clearance_3d": 3.0},
+      "groups": [
+        {"id": "BIG", "members": [{"id": "BIG1", "status": "computed", "box": {"center": [0.0, 0.0], "size": [4.0, 4.0], "z": [0.0, 1.0]}}]},
+        {"id": "SMALL", "members": [{"id": "SMALL1", "status": "computed", "box": {"center": [4.8, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]}
+      ]
+    },
+    {
+      "id": "levels_and_barriers",
+      "kind": "relation_channels",
+      "question": "2D proximity is insufficient when Z compatibility or a closed wall rejects a relation",
+      "thresholds": {"normalized_gap": 0.8, "clearance_3d": 0.6},
+      "walls": [
+        {"id": "closed_wall", "x": 0.7, "y_range": [-0.6, 0.6], "opening": false},
+        {"id": "open_wall", "x": 5.7, "y_range": [-0.6, 0.6], "opening": true}
+      ],
+      "groups": [
+        {"id": "FLOOR_A", "members": [{"id": "FA1", "status": "computed", "box": {"center": [0.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "FLOOR_B", "members": [{"id": "FB1", "status": "computed", "box": {"center": [1.4, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "STACKED", "members": [{"id": "ST1", "status": "computed", "box": {"center": [0.0, 0.0], "size": [1.0, 1.0], "z": [2.0, 3.0]}}]},
+        {"id": "WALL_A", "members": [{"id": "WA1", "status": "computed", "box": {"center": [5.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "WALL_B", "members": [{"id": "WB1", "status": "computed", "box": {"center": [6.4, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]}
+      ]
+    },
+    {
+      "id": "shared_member",
+      "kind": "shared_authored_membership",
+      "question": "a member shared by two authored groups creates dependency evidence, not sufficient membership evidence",
+      "thresholds": {"normalized_gap": 0.8, "clearance_3d": 0.6},
+      "groups": [
+        {"id": "G1", "members": [
+          {"id": "SHARED", "status": "computed", "box": {"center": [0.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}},
+          {"id": "G1_ONLY", "status": "computed", "box": {"center": [2.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}
+        ]},
+        {"id": "G2", "members": [
+          {"id": "SHARED", "status": "computed", "box": {"center": [0.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}},
+          {"id": "G2_ONLY", "status": "computed", "box": {"center": [4.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}
+        ]}
+      ]
+    },
+    {
+      "id": "status_mix",
+      "kind": "status_propagation",
+      "question": "missing is partial or unavailable; invalid remains diagnostic and cannot form a formal edge",
+      "thresholds": {"normalized_gap": 0.8, "clearance_3d": 0.6},
+      "groups": [
+        {"id": "VALID", "members": [{"id": "V1", "status": "computed", "box": {"center": [0.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "PARTIAL", "members": [
+          {"id": "P1", "status": "computed", "box": {"center": [1.4, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}},
+          {"id": "P_MISSING", "status": "not_available", "reason": "projection_absent"}
+        ]},
+        {"id": "MISSING", "members": [{"id": "M1", "status": "not_available", "reason": "projection_absent"}]},
+        {"id": "INVALID", "members": [{"id": "I1", "status": "invalid", "reason": "non_finite_geometry"}]}
+      ]
+    },
+    {
+      "id": "overlap_union",
+      "kind": "representative_geometry",
+      "question": "additive support and pairwise overlap are observable before union topology is approved",
+      "groups": [
+        {"id": "OVERLAP", "members": [
+          {"id": "O1", "status": "computed", "box": {"center": [0.0, 0.0], "size": [2.0, 2.0], "z": [0.0, 1.0]}},
+          {"id": "O2", "status": "computed", "box": {"center": [1.0, 0.0], "size": [2.0, 2.0], "z": [0.0, 1.0]}}
+        ]}
+      ]
+    },
+    {
+      "id": "trend_independence",
+      "kind": "membership_trend_separation",
+      "question": "changing trend metadata must not change first-round physical membership edges",
+      "trend_variants": ["parallel", "orthogonal", "undefined"],
+      "groups": [
+        {"id": "T_A", "members": [{"id": "TA1", "status": "computed", "box": {"center": [0.0, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]},
+        {"id": "T_B", "members": [{"id": "TB1", "status": "computed", "box": {"center": [1.4, 0.0], "size": [1.0, 1.0], "z": [0.0, 1.0]}}]}
+      ]
+    }
+  ],
+  "equivalent_sources": {
+    "ifc_primary": {
+      "source_format": "ifc",
+      "source_id": "IFC-D6-EQUIV-01",
+      "canonical_groups": ["FLOOR_A", "FLOOR_B"],
+      "canonical_facts": {
+        "analysis_frame": "fixture-plan-xy",
+        "unit": "m",
+        "plan_centers": {"FLOOR_A": [0.0, 0.0], "FLOOR_B": [1.4, 0.0]},
+        "plan_sizes": {"FLOOR_A": [1.0, 1.0], "FLOOR_B": [1.0, 1.0]},
+        "z_intervals": {"FLOOR_A": [0.0, 1.0], "FLOOR_B": [0.0, 1.0]},
+        "membership_kind": "authored_furniture_group",
+        "representative_status": {"FLOOR_A": "computed", "FLOOR_B": "computed"},
+        "pair_2d": {"edge": true, "raw_gap": 0.4, "overlap": false, "status": "computed"}
+      }
+    },
+    "svg_equivalent_2d": {
+      "source_format": "svg",
+      "source_id": "SVG-D6-EQUIV-01",
+      "canonical_groups": ["FLOOR_A", "FLOOR_B"],
+      "canonical_facts": {
+        "analysis_frame": "fixture-plan-xy",
+        "unit": "m",
+        "plan_centers": {"FLOOR_A": [0.0, 0.0], "FLOOR_B": [1.4, 0.0]},
+        "plan_sizes": {"FLOOR_A": [1.0, 1.0], "FLOOR_B": [1.0, 1.0]},
+        "membership_kind": "authored_furniture_group",
+        "representative_status": {"FLOOR_A": "computed", "FLOOR_B": "computed"},
+        "pair_2d": {"edge": true, "raw_gap": 0.4, "overlap": false, "status": "computed"}
+      },
+      "unsupported_channels": ["z_intervals", "clearance_3d", "wall_opening_barrier"]
+    }
+  }
+}

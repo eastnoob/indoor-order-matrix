@@ -1,0 +1,35 @@
+{
+  "adapters_modified": false,
+  "context_policy": "walls, doors, and other ungrouped objects are reference/context only",
+  "current_blender_scene_modified": false,
+  "dependencies_modified": false,
+  "formal_tests_modified": false,
+  "group_policy": "only exact group_role == \"furniture_group\"; no name/layer/proximity inference creates membership",
+  "not_computed": [
+    "AnalysisDomain selection",
+    "free-space",
+    "connectivity",
+    "routes",
+    "walkability",
+    "visibility",
+    "activity function",
+    "production room role"
+  ],
+  "generated_analysis_artifacts_written_only_under": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001",
+  "requested_evidence_record_written_to": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-space-field-zone-visual-experiment.md",
+  "current_blender_scene_read_only_observation": {
+    "observed": true,
+    "modified": false,
+    "saved": false,
+    "source_path_match": true,
+    "source_path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+    "portable_preview_uses_disposable_background_scene": true
+  },
+  "no_production_backend_or_partition_count_selected": true,
+  "unextracted_context": "IfcBuildingElementProxy and other IfcProduct classes outside the explicit extraction allowlist are not displayed.",
+  "production_code_modified": false,
+  "public_api_modified": false,
+  "read_only_experiment": true,
+  "schema": "d6-space-field-zone-visual-experiment/v1",
+  "source_ifc_modified": false
+}

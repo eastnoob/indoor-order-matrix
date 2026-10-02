@@ -1,0 +1,17 @@
+{
+  "schema": "d6-inferred-group-candidate-field-truth/v1",
+  "status": "external_computational_truth_not_consumed_by_probe",
+  "truth_type": "generation_parameters_and_structural_labels",
+  "fixtures": {
+    "gap_jump": {"expected_structure": "regular-segment-gap-regular", "separator_pair": "G3|G4"},
+    "minority_mixed": {"expected_structure": "minority-local-contrast", "soft_type_conflict": true},
+    "geometry_conflict": {"expected_structure": "same-type-different-shape-and-axis"},
+    "space_conflict": {"expected_structure": "wall-separated-similar-groups", "hard_veto_pair": "S1|S2"},
+    "bridge_chain": {"expected_structure": "A-B-and-B-C-support-A-C-weak", "isolated": ["D"]},
+    "overlapping_candidates": {"expected_structure": "two-overlapping-pair-organizations", "shared_node": "O2"},
+    "missing_invalid": {"expected_structure": "valid-partial-invalid-missing", "domain": "missing"},
+    "context_perturbation": {"expected_structure": "node-set-stable-context-change"}
+  },
+  "invariance": {"expected": "canonical_relation_signature_unchanged_under_declared_transformations"},
+  "warning": "This file is an evaluation-side computational generator record, not a human label or psychological truth. The candidate probe has no truth input parameter and must not read this file."
+}

@@ -1,0 +1,908 @@
+{
+  "candidates": [
+    {
+      "basis": "entire provisional diagnostic frame; no internal partition applied",
+      "candidate_id": "candidate:baseline:one_region",
+      "cut_edges": [],
+      "label": "baseline — one region, no internal split",
+      "region_count": 1,
+      "regions": [
+        {
+          "area_m2": 140.8350327235345,
+          "color": "#4C78A8",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                10.9217197265625,
+                1.0310316162109374
+              ],
+              [
+                10.75,
+                8.7981982421875
+              ],
+              [
+                10.75,
+                11.7981982421875
+              ],
+              [
+                16.670076171875,
+                12.056537109375
+              ],
+              [
+                16.721087890625,
+                12.0586015625
+              ],
+              [
+                20.608416015625,
+                11.716634765625
+              ],
+              [
+                20.929052734375,
+                11.502974609375
+              ],
+              [
+                21.28437109375,
+                11.06690625
+              ],
+              [
+                23.038240234375,
+                8.9144453125
+              ],
+              [
+                24.647234375,
+                6.93977197265625
+              ],
+              [
+                24.7809375,
+                6.57071875
+              ],
+              [
+                24.64327734375,
+                1.0310316162109374
+              ],
+              [
+                10.9217197265625,
+                1.0310316162109374
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+            "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+            "ifc-group:0AG_FU1oHHxh9s_mH9GMgP",
+            "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+            "ifc-group:0IwgYPcYzJ7wT5dJZp4gKB",
+            "ifc-group:0WEjP61oTMbOLVcpUvUD7i",
+            "ifc-group:0aILbvu1bPLRmZCsqZRcR3",
+            "ifc-group:0hRrRMtynPNPzP6yh$HYbs",
+            "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+            "ifc-group:0os72JnbDR9RmSEUWx5kk3",
+            "ifc-group:15Q2Qfhb1VL920J$1Xxxu3",
+            "ifc-group:17dp4zlbfGSf0_Im39MOdN",
+            "ifc-group:1JDpWPo1rSNPBBqhx62JNf",
+            "ifc-group:1MjgmtdBrGMeDxpe0HfC5h",
+            "ifc-group:1NlcVLoeXPOeA7YFm0NjMG",
+            "ifc-group:1Pv1Y1lgHKaOCYyr8zu1b5",
+            "ifc-group:1Qmjjyr5TLQvsed607jQQz",
+            "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5",
+            "ifc-group:1e5Vxu5lPKG9o2H5LeIr7N",
+            "ifc-group:1h3RZClnrIWBrXj7hUcWKo",
+            "ifc-group:1pqCYj4xrJTBBuRt3ezUcp",
+            "ifc-group:253MCEPizVVhXJgdbnIPAD",
+            "ifc-group:29vajDGprJ$h3$jUGpDYdd",
+            "ifc-group:2P1H6hEZrUeB6W8D2HFMbG",
+            "ifc-group:2VbkxSde9QTOXlxMyoDTd0",
+            "ifc-group:2YUldlHfjSawY3CBPVi5_Q",
+            "ifc-group:2ckUJw96bRRf32T_zhzxFQ",
+            "ifc-group:2dFiVqFU5JKBjRvzhpl9Sj",
+            "ifc-group:2hMNdvWdXSfPYrIo8oN6p2",
+            "ifc-group:2keaLJysnJJf5kkWh75nSt",
+            "ifc-group:31mS1kn4jGy8tfi62PTPP$",
+            "ifc-group:3JuMycUIrHxgC8LEsNW9DT",
+            "ifc-group:3oKhgzCizPDAXIgAVx0Tes",
+            "ifc-group:3rpMmDkvnJQ9sOnpwriTiP",
+            "ifc-group:3sMQ0Yl6zK4RKrIDv8JG6i",
+            "ifc-group:3vg93$6i5T0fPZYtdJUD36",
+            "ifc-group:3xGGPvwHLKieA3uVhpQjIN"
+          ],
+          "region_id": "candidate:baseline:one_region:region:1"
+        }
+      ]
+    },
+    {
+      "basis": "MST over normalized 2D boundary gaps; cut the largest positive edges; no fixed metre threshold",
+      "candidate_id": "candidate:mst_gap_cut:2_regions",
+      "cut_edges": [
+        {
+          "boundary_gap_m": 1.2914446835757714,
+          "left": "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+          "normalized_gap": 1.424720146305276,
+          "right": "ifc-group:15Q2Qfhb1VL920J$1Xxxu3"
+        }
+      ],
+      "label": "diagnostic candidate — 2 regions by largest relative gap cuts",
+      "region_count": 2,
+      "regions": [
+        {
+          "area_m2": 120.66007654276723,
+          "color": "#4C78A8",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                10.9217197265625,
+                1.0310316162109374
+              ],
+              [
+                10.9217197265625,
+                1.7810316162109374
+              ],
+              [
+                11.033771484375,
+                2.351103759765625
+              ],
+              [
+                13.390537109375,
+                9.4884794921875
+              ],
+              [
+                14.5781826171875,
+                10.4561982421875
+              ],
+              [
+                14.9302958984375,
+                10.7430087890625
+              ],
+              [
+                16.670076171875,
+                12.056537109375
+              ],
+              [
+                16.721087890625,
+                12.0586015625
+              ],
+              [
+                20.608416015625,
+                11.716634765625
+              ],
+              [
+                20.929052734375,
+                11.502974609375
+              ],
+              [
+                21.28437109375,
+                11.06690625
+              ],
+              [
+                23.038240234375,
+                8.9144453125
+              ],
+              [
+                24.647234375,
+                6.93977197265625
+              ],
+              [
+                24.7809375,
+                6.57071875
+              ],
+              [
+                24.64327734375,
+                1.0310316162109374
+              ],
+              [
+                10.9217197265625,
+                1.0310316162109374
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+            "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+            "ifc-group:0AG_FU1oHHxh9s_mH9GMgP",
+            "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+            "ifc-group:0IwgYPcYzJ7wT5dJZp4gKB",
+            "ifc-group:0aILbvu1bPLRmZCsqZRcR3",
+            "ifc-group:0hRrRMtynPNPzP6yh$HYbs",
+            "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+            "ifc-group:0os72JnbDR9RmSEUWx5kk3",
+            "ifc-group:17dp4zlbfGSf0_Im39MOdN",
+            "ifc-group:1JDpWPo1rSNPBBqhx62JNf",
+            "ifc-group:1MjgmtdBrGMeDxpe0HfC5h",
+            "ifc-group:1NlcVLoeXPOeA7YFm0NjMG",
+            "ifc-group:1Pv1Y1lgHKaOCYyr8zu1b5",
+            "ifc-group:1Qmjjyr5TLQvsed607jQQz",
+            "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5",
+            "ifc-group:1e5Vxu5lPKG9o2H5LeIr7N",
+            "ifc-group:1pqCYj4xrJTBBuRt3ezUcp",
+            "ifc-group:253MCEPizVVhXJgdbnIPAD",
+            "ifc-group:29vajDGprJ$h3$jUGpDYdd",
+            "ifc-group:2P1H6hEZrUeB6W8D2HFMbG",
+            "ifc-group:2VbkxSde9QTOXlxMyoDTd0",
+            "ifc-group:2YUldlHfjSawY3CBPVi5_Q",
+            "ifc-group:2dFiVqFU5JKBjRvzhpl9Sj",
+            "ifc-group:2hMNdvWdXSfPYrIo8oN6p2",
+            "ifc-group:2keaLJysnJJf5kkWh75nSt",
+            "ifc-group:31mS1kn4jGy8tfi62PTPP$",
+            "ifc-group:3JuMycUIrHxgC8LEsNW9DT",
+            "ifc-group:3oKhgzCizPDAXIgAVx0Tes",
+            "ifc-group:3rpMmDkvnJQ9sOnpwriTiP",
+            "ifc-group:3sMQ0Yl6zK4RKrIDv8JG6i",
+            "ifc-group:3vg93$6i5T0fPZYtdJUD36",
+            "ifc-group:3xGGPvwHLKieA3uVhpQjIN"
+          ],
+          "region_id": "candidate:mst_gap_cut:2_regions:region:1"
+        },
+        {
+          "area_m2": 3.9815451424541415,
+          "color": "#F58518",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                10.75,
+                8.7981982421875
+              ],
+              [
+                10.75,
+                11.7981982421875
+              ],
+              [
+                11.5,
+                11.7981982421875
+              ],
+              [
+                12.070072265624999,
+                11.686146484375
+              ],
+              [
+                12.101181640624999,
+                11.6456728515625
+              ],
+              [
+                12.101224609374999,
+                11.312056640625
+              ],
+              [
+                12.101238281249998,
+                11.2008505859375
+              ],
+              [
+                12.101238281249998,
+                8.9508505859375
+              ],
+              [
+                12.070139648437499,
+                8.910369140625
+              ],
+              [
+                11.5,
+                8.7981982421875
+              ],
+              [
+                10.75,
+                8.7981982421875
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:0WEjP61oTMbOLVcpUvUD7i",
+            "ifc-group:15Q2Qfhb1VL920J$1Xxxu3",
+            "ifc-group:1h3RZClnrIWBrXj7hUcWKo",
+            "ifc-group:2ckUJw96bRRf32T_zhzxFQ"
+          ],
+          "region_id": "candidate:mst_gap_cut:2_regions:region:2"
+        }
+      ]
+    },
+    {
+      "basis": "MST over normalized 2D boundary gaps; cut the largest positive edges; no fixed metre threshold",
+      "candidate_id": "candidate:mst_gap_cut:3_regions",
+      "cut_edges": [
+        {
+          "boundary_gap_m": 1.2914446835757714,
+          "left": "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+          "normalized_gap": 1.424720146305276,
+          "right": "ifc-group:15Q2Qfhb1VL920J$1Xxxu3"
+        },
+        {
+          "boundary_gap_m": 1.4281969218448904,
+          "left": "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+          "normalized_gap": 1.4227358062168567,
+          "right": "ifc-group:1Qmjjyr5TLQvsed607jQQz"
+        }
+      ],
+      "label": "diagnostic candidate — 3 regions by largest relative gap cuts",
+      "region_count": 3,
+      "regions": [
+        {
+          "area_m2": 120.66007654276723,
+          "color": "#4C78A8",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                10.9217197265625,
+                1.0310316162109374
+              ],
+              [
+                10.9217197265625,
+                1.7810316162109374
+              ],
+              [
+                11.033771484375,
+                2.351103759765625
+              ],
+              [
+                13.390537109375,
+                9.4884794921875
+              ],
+              [
+                14.5781826171875,
+                10.4561982421875
+              ],
+              [
+                14.9302958984375,
+                10.7430087890625
+              ],
+              [
+                16.670076171875,
+                12.056537109375
+              ],
+              [
+                16.721087890625,
+                12.0586015625
+              ],
+              [
+                20.608416015625,
+                11.716634765625
+              ],
+              [
+                20.929052734375,
+                11.502974609375
+              ],
+              [
+                21.28437109375,
+                11.06690625
+              ],
+              [
+                23.038240234375,
+                8.9144453125
+              ],
+              [
+                24.647234375,
+                6.93977197265625
+              ],
+              [
+                24.7809375,
+                6.57071875
+              ],
+              [
+                24.64327734375,
+                1.0310316162109374
+              ],
+              [
+                10.9217197265625,
+                1.0310316162109374
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+            "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+            "ifc-group:0AG_FU1oHHxh9s_mH9GMgP",
+            "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+            "ifc-group:0IwgYPcYzJ7wT5dJZp4gKB",
+            "ifc-group:0aILbvu1bPLRmZCsqZRcR3",
+            "ifc-group:0hRrRMtynPNPzP6yh$HYbs",
+            "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+            "ifc-group:0os72JnbDR9RmSEUWx5kk3",
+            "ifc-group:17dp4zlbfGSf0_Im39MOdN",
+            "ifc-group:1JDpWPo1rSNPBBqhx62JNf",
+            "ifc-group:1MjgmtdBrGMeDxpe0HfC5h",
+            "ifc-group:1NlcVLoeXPOeA7YFm0NjMG",
+            "ifc-group:1Pv1Y1lgHKaOCYyr8zu1b5",
+            "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5",
+            "ifc-group:1e5Vxu5lPKG9o2H5LeIr7N",
+            "ifc-group:1pqCYj4xrJTBBuRt3ezUcp",
+            "ifc-group:253MCEPizVVhXJgdbnIPAD",
+            "ifc-group:29vajDGprJ$h3$jUGpDYdd",
+            "ifc-group:2P1H6hEZrUeB6W8D2HFMbG",
+            "ifc-group:2VbkxSde9QTOXlxMyoDTd0",
+            "ifc-group:2YUldlHfjSawY3CBPVi5_Q",
+            "ifc-group:2dFiVqFU5JKBjRvzhpl9Sj",
+            "ifc-group:2keaLJysnJJf5kkWh75nSt",
+            "ifc-group:31mS1kn4jGy8tfi62PTPP$",
+            "ifc-group:3JuMycUIrHxgC8LEsNW9DT",
+            "ifc-group:3oKhgzCizPDAXIgAVx0Tes",
+            "ifc-group:3rpMmDkvnJQ9sOnpwriTiP",
+            "ifc-group:3sMQ0Yl6zK4RKrIDv8JG6i",
+            "ifc-group:3vg93$6i5T0fPZYtdJUD36",
+            "ifc-group:3xGGPvwHLKieA3uVhpQjIN"
+          ],
+          "region_id": "candidate:mst_gap_cut:3_regions:region:1"
+        },
+        {
+          "area_m2": 3.9815451424541415,
+          "color": "#F58518",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                10.75,
+                8.7981982421875
+              ],
+              [
+                10.75,
+                11.7981982421875
+              ],
+              [
+                11.5,
+                11.7981982421875
+              ],
+              [
+                12.070072265624999,
+                11.686146484375
+              ],
+              [
+                12.101181640624999,
+                11.6456728515625
+              ],
+              [
+                12.101224609374999,
+                11.312056640625
+              ],
+              [
+                12.101238281249998,
+                11.2008505859375
+              ],
+              [
+                12.101238281249998,
+                8.9508505859375
+              ],
+              [
+                12.070139648437499,
+                8.910369140625
+              ],
+              [
+                11.5,
+                8.7981982421875
+              ],
+              [
+                10.75,
+                8.7981982421875
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:0WEjP61oTMbOLVcpUvUD7i",
+            "ifc-group:15Q2Qfhb1VL920J$1Xxxu3",
+            "ifc-group:1h3RZClnrIWBrXj7hUcWKo",
+            "ifc-group:2ckUJw96bRRf32T_zhzxFQ"
+          ],
+          "region_id": "candidate:mst_gap_cut:3_regions:region:2"
+        },
+        {
+          "area_m2": 2.2233715043206206,
+          "color": "#54A24B",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                13.5912421875,
+                4.083482421875
+              ],
+              [
+                13.2861123046875,
+                4.30793408203125
+              ],
+              [
+                13.0492333984375,
+                4.59864599609375
+              ],
+              [
+                12.81235546875,
+                4.8893583984375
+              ],
+              [
+                12.6694892578125,
+                5.23977783203125
+              ],
+              [
+                12.68062890625,
+                5.2896015625
+              ],
+              [
+                12.76600390625,
+                5.36087890625
+              ],
+              [
+                13.022130859375,
+                5.57471142578125
+              ],
+              [
+                13.603556640625,
+                6.0484658203125
+              ],
+              [
+                13.654568359375,
+                6.0505302734375
+              ],
+              [
+                13.9752060546875,
+                5.8368701171875
+              ],
+              [
+                14.448962890625,
+                5.2554453125
+              ],
+              [
+                14.5826669921875,
+                4.88639208984375
+              ],
+              [
+                14.5705751953125,
+                4.836796875
+              ],
+              [
+                13.9891494140625,
+                4.3630419921875
+              ],
+              [
+                13.642279296875,
+                4.08456787109375
+              ],
+              [
+                13.5912421875,
+                4.083482421875
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:1Qmjjyr5TLQvsed607jQQz",
+            "ifc-group:2hMNdvWdXSfPYrIo8oN6p2"
+          ],
+          "region_id": "candidate:mst_gap_cut:3_regions:region:3"
+        }
+      ]
+    },
+    {
+      "basis": "MST over normalized 2D boundary gaps; cut the largest positive edges; no fixed metre threshold",
+      "candidate_id": "candidate:mst_gap_cut:4_regions",
+      "cut_edges": [
+        {
+          "boundary_gap_m": 1.2914446835757714,
+          "left": "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+          "normalized_gap": 1.424720146305276,
+          "right": "ifc-group:15Q2Qfhb1VL920J$1Xxxu3"
+        },
+        {
+          "boundary_gap_m": 1.4281969218448904,
+          "left": "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+          "normalized_gap": 1.4227358062168567,
+          "right": "ifc-group:1Qmjjyr5TLQvsed607jQQz"
+        },
+        {
+          "boundary_gap_m": 1.2544062499999988,
+          "left": "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+          "normalized_gap": 1.3838597115790636,
+          "right": "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5"
+        }
+      ],
+      "label": "diagnostic candidate — 4 regions by largest relative gap cuts",
+      "region_count": 4,
+      "regions": [
+        {
+          "area_m2": 106.89267264337091,
+          "color": "#4C78A8",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                10.9217197265625,
+                1.0310316162109374
+              ],
+              [
+                10.9217197265625,
+                1.7810316162109374
+              ],
+              [
+                11.033771484375,
+                2.351103759765625
+              ],
+              [
+                13.390537109375,
+                9.4884794921875
+              ],
+              [
+                14.5781826171875,
+                10.4561982421875
+              ],
+              [
+                14.9302958984375,
+                10.7430087890625
+              ],
+              [
+                16.670076171875,
+                12.056537109375
+              ],
+              [
+                16.721087890625,
+                12.0586015625
+              ],
+              [
+                20.608416015625,
+                11.716634765625
+              ],
+              [
+                20.929052734375,
+                11.502974609375
+              ],
+              [
+                21.28437109375,
+                11.06690625
+              ],
+              [
+                23.038240234375,
+                8.9144453125
+              ],
+              [
+                24.647234375,
+                6.93977197265625
+              ],
+              [
+                24.7809375,
+                6.57071875
+              ],
+              [
+                24.768845703125,
+                6.52112353515625
+              ],
+              [
+                19.63887109375,
+                1.0310316162109374
+              ],
+              [
+                10.9217197265625,
+                1.0310316162109374
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:0$9EwHOwDKmu25$icFA5wm",
+            "ifc-group:02Kyw_DsPG5BC3j07wct$4",
+            "ifc-group:0Enn$e9D5PUQM64yHn2C$H",
+            "ifc-group:0IwgYPcYzJ7wT5dJZp4gKB",
+            "ifc-group:0aILbvu1bPLRmZCsqZRcR3",
+            "ifc-group:0js6ZvVxLNh92QynYPqk1L",
+            "ifc-group:0os72JnbDR9RmSEUWx5kk3",
+            "ifc-group:17dp4zlbfGSf0_Im39MOdN",
+            "ifc-group:1JDpWPo1rSNPBBqhx62JNf",
+            "ifc-group:1MjgmtdBrGMeDxpe0HfC5h",
+            "ifc-group:1NlcVLoeXPOeA7YFm0NjMG",
+            "ifc-group:1Pv1Y1lgHKaOCYyr8zu1b5",
+            "ifc-group:1e5Vxu5lPKG9o2H5LeIr7N",
+            "ifc-group:1pqCYj4xrJTBBuRt3ezUcp",
+            "ifc-group:253MCEPizVVhXJgdbnIPAD",
+            "ifc-group:29vajDGprJ$h3$jUGpDYdd",
+            "ifc-group:2P1H6hEZrUeB6W8D2HFMbG",
+            "ifc-group:2VbkxSde9QTOXlxMyoDTd0",
+            "ifc-group:2YUldlHfjSawY3CBPVi5_Q",
+            "ifc-group:2dFiVqFU5JKBjRvzhpl9Sj",
+            "ifc-group:2keaLJysnJJf5kkWh75nSt",
+            "ifc-group:31mS1kn4jGy8tfi62PTPP$",
+            "ifc-group:3JuMycUIrHxgC8LEsNW9DT",
+            "ifc-group:3oKhgzCizPDAXIgAVx0Tes",
+            "ifc-group:3rpMmDkvnJQ9sOnpwriTiP",
+            "ifc-group:3sMQ0Yl6zK4RKrIDv8JG6i",
+            "ifc-group:3vg93$6i5T0fPZYtdJUD36"
+          ],
+          "region_id": "candidate:mst_gap_cut:4_regions:region:1"
+        },
+        {
+          "area_m2": 4.994974264845015,
+          "color": "#F58518",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                20.89327734375,
+                1.0310316162109374
+              ],
+              [
+                20.89327734375,
+                1.7810316162109374
+              ],
+              [
+                21.005330078125,
+                2.351103759765625
+              ],
+              [
+                21.045802734375,
+                2.3822128906250004
+              ],
+              [
+                21.268212890625,
+                2.38224169921875
+              ],
+              [
+                21.490625,
+                2.3822702636718756
+              ],
+              [
+                24.490625,
+                2.3822702636718756
+              ],
+              [
+                24.53110546875,
+                2.351171142578125
+              ],
+              [
+                24.64327734375,
+                1.7810316162109374
+              ],
+              [
+                24.64327734375,
+                1.0310316162109374
+              ],
+              [
+                20.89327734375,
+                1.0310316162109374
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:0AG_FU1oHHxh9s_mH9GMgP",
+            "ifc-group:0hRrRMtynPNPzP6yh$HYbs",
+            "ifc-group:1Ym1ST8jHM8gdkQAlxgZZ5",
+            "ifc-group:3xGGPvwHLKieA3uVhpQjIN"
+          ],
+          "region_id": "candidate:mst_gap_cut:4_regions:region:2"
+        },
+        {
+          "area_m2": 3.9815451424541415,
+          "color": "#54A24B",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                10.75,
+                8.7981982421875
+              ],
+              [
+                10.75,
+                11.7981982421875
+              ],
+              [
+                11.5,
+                11.7981982421875
+              ],
+              [
+                12.070072265624999,
+                11.686146484375
+              ],
+              [
+                12.101181640624999,
+                11.6456728515625
+              ],
+              [
+                12.101224609374999,
+                11.312056640625
+              ],
+              [
+                12.101238281249998,
+                11.2008505859375
+              ],
+              [
+                12.101238281249998,
+                8.9508505859375
+              ],
+              [
+                12.070139648437499,
+                8.910369140625
+              ],
+              [
+                11.5,
+                8.7981982421875
+              ],
+              [
+                10.75,
+                8.7981982421875
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:0WEjP61oTMbOLVcpUvUD7i",
+            "ifc-group:15Q2Qfhb1VL920J$1Xxxu3",
+            "ifc-group:1h3RZClnrIWBrXj7hUcWKo",
+            "ifc-group:2ckUJw96bRRf32T_zhzxFQ"
+          ],
+          "region_id": "candidate:mst_gap_cut:4_regions:region:3"
+        },
+        {
+          "area_m2": 2.2233715043206206,
+          "color": "#E45756",
+          "display_geometry_method": "convex_hull_of_group_footprints",
+          "geometry_parts": [
+            [
+              [
+                13.5912421875,
+                4.083482421875
+              ],
+              [
+                13.2861123046875,
+                4.30793408203125
+              ],
+              [
+                13.0492333984375,
+                4.59864599609375
+              ],
+              [
+                12.81235546875,
+                4.8893583984375
+              ],
+              [
+                12.6694892578125,
+                5.23977783203125
+              ],
+              [
+                12.68062890625,
+                5.2896015625
+              ],
+              [
+                12.76600390625,
+                5.36087890625
+              ],
+              [
+                13.022130859375,
+                5.57471142578125
+              ],
+              [
+                13.603556640625,
+                6.0484658203125
+              ],
+              [
+                13.654568359375,
+                6.0505302734375
+              ],
+              [
+                13.9752060546875,
+                5.8368701171875
+              ],
+              [
+                14.448962890625,
+                5.2554453125
+              ],
+              [
+                14.5826669921875,
+                4.88639208984375
+              ],
+              [
+                14.5705751953125,
+                4.836796875
+              ],
+              [
+                13.9891494140625,
+                4.3630419921875
+              ],
+              [
+                13.642279296875,
+                4.08456787109375
+              ],
+              [
+                13.5912421875,
+                4.083482421875
+              ]
+            ]
+          ],
+          "group_ids": [
+            "ifc-group:1Qmjjyr5TLQvsed607jQQz",
+            "ifc-group:2hMNdvWdXSfPYrIo8oN6p2"
+          ],
+          "region_id": "candidate:mst_gap_cut:4_regions:region:4"
+        }
+      ]
+    }
+  ],
+  "schema": "d6-space-field-zone-visual-experiment/v1"
+}

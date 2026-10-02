@@ -1,0 +1,81 @@
+{
+  "schema": "d6-inferred-group-candidate-field-artifact-manifest/v1",
+  "status": "design_only_stop_for_design_review",
+  "changed_files": [
+    {
+      "path": "scripts/design/group_level/inferred_group_candidate_field_fixtures.json",
+      "sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+      "bytes": 23619
+    },
+    {
+      "path": "scripts/design/group_level/inferred_group_candidate_field_truth.json",
+      "sha256": "09953a9b7f6543460ae7d3792bf15b1c13bc55b2cbca37af26cad0caaa720f80",
+      "bytes": 1300
+    },
+    {
+      "path": "scripts/design/group_level/run_inferred_group_candidate_field_probe.py",
+      "sha256": "af5149db8f8e154655d690632d3ba3e274ea555388f621fe1a4e765126817e61",
+      "bytes": 28693
+    },
+    {
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-experiment.md",
+      "sha256": "5898add39355cb1cf82ff480952a9e302deefdcf8c5b976e44d87586eb236498",
+      "bytes": 7299
+    },
+    {
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-experiment.json",
+      "sha256": "d9d2c019d8f479bc6ddffaae9bb6b6fd9af87796761498e58cc5eff99eed2fbd",
+      "bytes": 8285753
+    },
+    {
+      "path": "docs/project/evidence/d6-inferred-group-candidate-field-membership-holdout-design.md",
+      "sha256": "42478833b7c67992f806ae1fb5d1e4bf1471687b93b74cbcae685d38b981355e",
+      "bytes": 4838
+    }
+  ],
+  "fixture_manifest": "scripts/design/group_level/inferred_group_candidate_field_fixtures.json",
+  "truth_manifest": {
+    "path": "scripts/design/group_level/inferred_group_candidate_field_truth.json",
+    "consumed_by_probe": false,
+    "fixture_count": 8,
+    "invariance_variant_count": 4
+  },
+  "probe_assertions": [
+    "D0 candidate view remains deferred",
+    "D1 emits parallel recipes with no formal edge",
+    "hard veto wins and retains source refs",
+    "partial/invalid/missing remain categorical",
+    "declared invariance transforms preserve canonical relation signature",
+    "context perturbation preserves authored node eligibility"
+  ],
+  "scope_audit": {
+    "allowed_prefixes": [
+      "scripts/design/group_level/",
+      "docs/project/evidence/"
+    ],
+    "forbidden_modifications": [
+      "features/",
+      "adapters/",
+      "test/",
+      "dependencies",
+      "public API",
+      "NeutralSceneV2",
+      "room_analysis_model"
+    ],
+    "production_selector_written": false,
+    "formal_membership_edge_written": false,
+    "truth_read_by_probe": false
+  },
+  "validation": {
+    "py_compile": "passed",
+    "json_parse": "passed",
+    "manifest_sha256": "b4aaeb588fe6ebbbc3033f1bd93b48d1696a7be931c12aaa79488cc89ab4dc2a",
+    "git_diff_check": "passed"
+  },
+  "fixture_manifest_sha256": "67e7e138b2c382a4d57be623e89a64e6f7ad4c6c58593205343d995d1c905531",
+  "membership_estimand": {
+    "id": "membership_level_candidate_set_v1",
+    "status": "design_only",
+    "holdout_scoring": "not_run"
+  }
+}

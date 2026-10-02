@@ -1,0 +1,76 @@
+{
+  "blend_filepath": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\d6_soft_field_disposable.blend",
+  "blender_version": "5.2.0 LTS",
+  "scene_count": 6,
+  "scenes": [
+    {
+      "camera_type": "ORTHO",
+      "has_frame": true,
+      "object_count": 954,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\empty_space_diagnostic.png",
+      "resolution": [
+        2400,
+        1200
+      ],
+      "scene": "EmptySpace_diagnostic"
+    },
+    {
+      "camera_type": "ORTHO",
+      "has_frame": true,
+      "object_count": 952,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_1_regions.png",
+      "resolution": [
+        2400,
+        1200
+      ],
+      "scene": "Hard_1_region"
+    },
+    {
+      "camera_type": "ORTHO",
+      "has_frame": true,
+      "object_count": 954,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_2_regions.png",
+      "resolution": [
+        2400,
+        1200
+      ],
+      "scene": "Hard_2_regions"
+    },
+    {
+      "camera_type": "ORTHO",
+      "has_frame": true,
+      "object_count": 956,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_3_regions.png",
+      "resolution": [
+        2400,
+        1200
+      ],
+      "scene": "Hard_3_regions"
+    },
+    {
+      "camera_type": "ORTHO",
+      "has_frame": true,
+      "object_count": 958,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\hard_4_regions.png",
+      "resolution": [
+        2400,
+        1200
+      ],
+      "scene": "Hard_4_regions"
+    },
+    {
+      "camera_type": "ORTHO",
+      "has_frame": true,
+      "object_count": 990,
+      "render_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\run_001\\soft_field_diagnostic.png",
+      "resolution": [
+        2400,
+        1200
+      ],
+      "scene": "SoftField_diagnostic"
+    }
+  ],
+  "schema": "d6-space-field-soft-field-blend-readback/v1",
+  "source_user_scene_opened_or_saved": false,
+  "status": "pass"
+}

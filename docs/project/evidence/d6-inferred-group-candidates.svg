@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="180" viewBox="0 0 920 180">
+<rect width="100%" height="100%" fill="white"/>
+<text x="20" y="24" font-size="14" font-family="sans-serif">connected components baseline</text>
+<line x1="80.0" y1="130.0" x2="147.5" y2="130.0" stroke="#555" stroke-width="3"/>
+<line x1="147.5" y1="130.0" x2="215.0" y2="130.0" stroke="#555" stroke-width="3"/>
+<circle cx="80.0" cy="130.0" r="16" fill="#1f77b4"/>
+<text x="74.0" y="136.0" fill="white" font-size="12" font-family="sans-serif">A</text>
+<circle cx="147.5" cy="130.0" r="16" fill="#2ca02c"/>
+<text x="141.5" y="136.0" fill="white" font-size="12" font-family="sans-serif">B</text>
+<circle cx="215.0" cy="130.0" r="16" fill="#d62728"/>
+<text x="209.0" y="136.0" fill="white" font-size="12" font-family="sans-serif">C</text>
+<circle cx="440.0" cy="130.0" r="16" fill="#9467bd"/>
+<text x="434.0" y="136.0" fill="white" font-size="12" font-family="sans-serif">D</text>
+<text x="400" y="24" font-size="14" font-family="sans-serif">complete-link maximal cliques</text>
+<line x1="460.0" y1="130.0" x2="527.5" y2="130.0" stroke="#555" stroke-width="3"/>
+<line x1="527.5" y1="130.0" x2="595.0" y2="130.0" stroke="#555" stroke-width="3"/>
+<circle cx="460.0" cy="130.0" r="16" fill="#1f77b4"/>
+<text x="454.0" y="136.0" fill="white" font-size="12" font-family="sans-serif">A</text>
+<circle cx="527.5" cy="130.0" r="16" fill="#2ca02c"/>
+<text x="521.5" y="136.0" fill="white" font-size="12" font-family="sans-serif">B</text>
+<circle cx="595.0" cy="130.0" r="16" fill="#d62728"/>
+<text x="589.0" y="136.0" fill="white" font-size="12" font-family="sans-serif">C</text>
+<circle cx="820.0" cy="130.0" r="16" fill="#9467bd"/>
+<text x="814.0" y="136.0" fill="white" font-size="12" font-family="sans-serif">D</text>
+</svg>

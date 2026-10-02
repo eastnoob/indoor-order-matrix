@@ -1,0 +1,45 @@
+{
+  "algorithm": {
+    "fixed_metre_threshold": false,
+    "group_nodes": "exact group_role == \"furniture_group\"",
+    "name": "diagnostic MST gap-cut comparison",
+    "pair_channels": [
+      "planar boundary gap",
+      "overlap_or_touch",
+      "centroid distance",
+      "height compatibility"
+    ],
+    "partition_generation": "baseline plus 2/3/4-region cuts at largest positive MST normalized-gap edges",
+    "production_selection": false
+  },
+  "boundary": {
+    "analysis_domain": "not_available",
+    "candidate": "scene-geometry fallback frame from source geometry extent",
+    "owner_confirmed": false,
+    "reason": "live IFC has zero IfcSpace and no accepted AnalysisDomain record",
+    "status": "diagnostic_only"
+  },
+  "context_extraction_scope": {
+    "IfcBuildingElementProxy": "not_extracted_for_context_display",
+    "included_ifc_product_classes": [
+      "IfcWall",
+      "IfcDoor",
+      "IfcWindow",
+      "IfcColumn",
+      "IfcSlab",
+      "IfcFurnishingElement",
+      "IfcFurniture"
+    ],
+    "other_ifc_product_classes": "not_extracted_for_context_display; analysis membership is never inferred from class"
+  },
+  "current_blender_source_match": true,
+  "current_blender_source_path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+  "door_and_opening": {
+    "door_geometry_used_as_opening": false,
+    "door_state": "not_available",
+    "ifc_opening_relations": "not_available"
+  },
+  "schema": "d6-space-field-zone-visual-experiment/v1",
+  "source_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+  "source_sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+}

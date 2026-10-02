@@ -1,0 +1,6115 @@
+{
+  "units": {
+    "token": "mm",
+    "scale": 0.001
+  },
+  "groups": [
+    {
+      "id": "0$9EwHOwDKmu25$icFA5wm",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076918857515793,
+      "centroid": [
+        21.79239378214055,
+        5.095402777444578
+      ],
+      "bounds": [
+        21.12348046875,
+        4.346546875,
+        22.455232421875,
+        5.83983984375
+      ],
+      "z": [
+        -0.0024538161754608153,
+        0.7127442016601563
+      ]
+    },
+    {
+      "id": "02Kyw_DsPG5BC3j07wct$4",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216602676473859,
+      "centroid": [
+        19.26386073823418,
+        1.6393826258125315
+      ],
+      "bounds": [
+        18.88887109375,
+        1.0310316162109374,
+        19.63887109375,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "0AG_FU1oHHxh9s_mH9GMgP",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216602676473859,
+      "centroid": [
+        22.018266988234178,
+        1.6393826258125315
+      ],
+      "bounds": [
+        21.64327734375,
+        1.0310316162109374,
+        22.39327734375,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "0Enn$e9D5PUQM64yHn2C$H",
+      "name": "2NormalChairWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0227049078837354,
+      "centroid": [
+        16.70160920223621,
+        4.2399517845709225
+      ],
+      "bounds": [
+        16.0061650390625,
+        3.439055419921875,
+        17.414376953125,
+        5.05744482421875
+      ],
+      "z": [
+        0.000697216272354126,
+        0.7538064575195312
+      ]
+    },
+    {
+      "id": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076917001488876,
+      "centroid": [
+        16.986347296423894,
+        11.3141642559996
+      ],
+      "bounds": [
+        16.31743359375,
+        10.5653076171875,
+        17.649185546875,
+        12.0586015625
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "0WEjP61oTMbOLVcpUvUD7i",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.821660645846844,
+      "centroid": [
+        11.358351306880753,
+        11.423208723698501
+      ],
+      "bounds": [
+        10.75,
+        11.0481982421875,
+        12.101238281249998,
+        11.7981982421875
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "0aILbvu1bPLRmZCsqZRcR3",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076917823514342,
+      "centroid": [
+        24.11809993264774,
+        6.9904197162044035
+      ],
+      "bounds": [
+        23.449185546874997,
+        6.2415634765625,
+        24.7809375,
+        7.7348569335937505
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "0hRrRMtynPNPzP6yh$HYbs",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216602676473859,
+      "centroid": [
+        23.518266988234174,
+        1.6393826258125315
+      ],
+      "bounds": [
+        23.14327734375,
+        1.0310316162109374,
+        23.89327734375,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "0js6ZvVxLNh92QynYPqk1L",
+      "name": "2NormalChairWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.022705196228135,
+      "centroid": [
+        14.085981328324323,
+        8.957796855770217
+      ],
+      "bounds": [
+        13.390537109375,
+        8.156900390625,
+        14.798748046875,
+        9.7752900390625
+      ],
+      "z": [
+        0.0003364841043949127,
+        0.7534457397460937
+      ]
+    },
+    {
+      "id": "0os72JnbDR9RmSEUWx5kk3",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216601653330322,
+      "centroid": [
+        17.006686651010806,
+        1.6393826312912163
+      ],
+      "bounds": [
+        16.631697265625,
+        1.0310316162109374,
+        17.381697265625,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "15Q2Qfhb1VL920J$1Xxxu3",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.821660645846844,
+      "centroid": [
+        11.358351306880753,
+        9.1732087236985
+      ],
+      "bounds": [
+        10.75,
+        8.7981982421875,
+        12.101238281249998,
+        9.5481982421875
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "17dp4zlbfGSf0_Im39MOdN",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216602164456244,
+      "centroid": [
+        16.256686630997145,
+        1.6393826285062867
+      ],
+      "bounds": [
+        15.881697265625,
+        1.0310316162109374,
+        16.631697265625,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "1JDpWPo1rSNPBBqhx62JNf",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.007692087526803,
+      "centroid": [
+        16.826960459738707,
+        7.674866657755757
+      ],
+      "bounds": [
+        16.158046875,
+        6.92601025390625,
+        17.489798828125,
+        8.4193037109375
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "1MjgmtdBrGMeDxpe0HfC5h",
+      "name": "2NormalChairWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0227049863641133,
+      "centroid": [
+        17.86446116818959,
+        5.187462153171321
+      ],
+      "bounds": [
+        17.169017578125,
+        4.3865654296875,
+        18.577228515625,
+        6.00495556640625
+      ],
+      "z": [
+        0.000697216272354126,
+        0.7538064575195312
+      ]
+    },
+    {
+      "id": "1NlcVLoeXPOeA7YFm0NjMG",
+      "name": "2NormalChairWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0227051807609475,
+      "centroid": [
+        19.74085657100127,
+        10.056047044620389
+      ],
+      "bounds": [
+        19.045412109375004,
+        9.255150390625,
+        20.453623046875,
+        10.8735400390625
+      ],
+      "z": [
+        0.0003364841043949127,
+        0.7534457397460937
+      ]
+    },
+    {
+      "id": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216604773296714,
+      "centroid": [
+        13.546709262859233,
+        1.6393828162489106
+      ],
+      "bounds": [
+        13.1717197265625,
+        1.0310316162109374,
+        13.9217197265625,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "1Qmjjyr5TLQvsed607jQQz",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.007691655391352,
+      "centroid": [
+        13.919828749015554,
+        5.306093217880877
+      ],
+      "bounds": [
+        13.2509150390625,
+        4.5572373046875,
+        14.5826669921875,
+        6.0505302734375
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216602676473859,
+      "centroid": [
+        21.268266988234178,
+        1.6393826258125315
+      ],
+      "bounds": [
+        20.89327734375,
+        1.0310316162109374,
+        21.64327734375,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "name": "2NormalChairWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0227052556166703,
+      "centroid": [
+        18.44588766987914,
+        5.6612163601038645
+      ],
+      "bounds": [
+        17.750443359375,
+        4.86031982421875,
+        19.158654296875,
+        6.47870947265625
+      ],
+      "z": [
+        0.0003364841043949127,
+        0.7534457397460937
+      ]
+    },
+    {
+      "id": "1h3RZClnrIWBrXj7hUcWKo",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.821660645846844,
+      "centroid": [
+        11.358351306880753,
+        10.6732087236985
+      ],
+      "bounds": [
+        10.75,
+        10.2981982421875,
+        12.101238281249998,
+        11.0481982421875
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "1pqCYj4xrJTBBuRt3ezUcp",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216604773296714,
+      "centroid": [
+        11.296709262859233,
+        1.6393828162489106
+      ],
+      "bounds": [
+        10.9217197265625,
+        1.0310316162109374,
+        11.6717197265625,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "253MCEPizVVhXJgdbnIPAD",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216604773296714,
+      "centroid": [
+        12.046709262859231,
+        1.6393828162489106
+      ],
+      "bounds": [
+        11.6717197265625,
+        1.0310316162109374,
+        12.4217197265625,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "29vajDGprJ$h3$jUGpDYdd",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.007691979039423,
+      "centroid": [
+        20.873675341201942,
+        10.972198021023207
+      ],
+      "bounds": [
+        20.20476171875,
+        10.223341796875,
+        21.536513671875,
+        11.716634765625
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "2P1H6hEZrUeB6W8D2HFMbG",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076918654192026,
+      "centroid": [
+        21.210968951111482,
+        4.621646241476809
+      ],
+      "bounds": [
+        20.5420546875,
+        3.8727900390625,
+        21.873806640625,
+        5.36608349609375
+      ],
+      "z": [
+        -0.0024538161754608153,
+        0.7127442016601563
+      ]
+    },
+    {
+      "id": "2VbkxSde9QTOXlxMyoDTd0",
+      "name": "2NormalChairWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0227047357210686,
+      "centroid": [
+        15.273626359153718,
+        9.925515537685737
+      ],
+      "bounds": [
+        14.5781826171875,
+        9.124619140625,
+        15.9863935546875,
+        10.7430087890625
+      ],
+      "z": [
+        0.0003364841043949127,
+        0.7534457397460937
+      ]
+    },
+    {
+      "id": "2YUldlHfjSawY3CBPVi5_Q",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076921679839914,
+      "centroid": [
+        21.92767833274483,
+        8.491340398516009
+      ],
+      "bounds": [
+        21.258763671875,
+        7.742484375,
+        22.590517578125,
+        9.23577734375
+      ],
+      "z": [
+        -0.0024538161754608153,
+        0.7127442016601563
+      ]
+    },
+    {
+      "id": "2ckUJw96bRRf32T_zhzxFQ",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.821660645846844,
+      "centroid": [
+        11.358351306880753,
+        9.9232087236985
+      ],
+      "bounds": [
+        10.75,
+        9.5481982421875,
+        12.101238281249998,
+        10.2981982421875
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "name": "2NormalChairWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0227052851156644,
+      "centroid": [
+        18.578004131440206,
+        9.108537677211915
+      ],
+      "bounds": [
+        17.882560546875,
+        8.3076416015625,
+        19.290771484375,
+        9.92603125
+      ],
+      "z": [
+        0.0003364841043949127,
+        0.7534457397460937
+      ]
+    },
+    {
+      "id": "2hMNdvWdXSfPYrIo8oN6p2",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076917204874118,
+      "centroid": [
+        13.338402925072673,
+        4.832338571045176
+      ],
+      "bounds": [
+        12.6694892578125,
+        4.083482421875,
+        14.0012412109375,
+        5.57677587890625
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "2keaLJysnJJf5kkWh75nSt",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.007691406713571,
+      "centroid": [
+        17.40838629023808,
+        8.148622002628022
+      ],
+      "bounds": [
+        16.73947265625,
+        7.399765625,
+        18.071224609375,
+        8.89305859375
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "31mS1kn4jGy8tfi62PTPP$",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076920282753592,
+      "centroid": [
+        16.404922820559214,
+        10.840407152538447
+      ],
+      "bounds": [
+        15.7360087890625,
+        10.09155078125,
+        17.06776171875,
+        11.5848447265625
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "3JuMycUIrHxgC8LEsNW9DT",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076918524951581,
+      "centroid": [
+        22.509106325461712,
+        8.965093090417469
+      ],
+      "bounds": [
+        21.840193359375,
+        8.2162373046875,
+        23.1719453125,
+        9.7095302734375
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "3oKhgzCizPDAXIgAVx0Tes",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216602676473859,
+      "centroid": [
+        18.51386073823418,
+        1.6393826258125315
+      ],
+      "bounds": [
+        18.13887109375,
+        1.0310316162109374,
+        18.88887109375,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "3rpMmDkvnJQ9sOnpwriTiP",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.0076918295385076,
+      "centroid": [
+        22.955247476945114,
+        6.042909367986266
+      ],
+      "bounds": [
+        22.286333984375,
+        5.29405322265625,
+        23.6180859375,
+        6.78734619140625
+      ],
+      "z": [
+        -0.0024538161754608153,
+        0.7127442016601563
+      ]
+    },
+    {
+      "id": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216604773296714,
+      "centroid": [
+        14.296709262859235,
+        1.6393828162489106
+      ],
+      "bounds": [
+        13.9217197265625,
+        1.0310316162109374,
+        14.6717197265625,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    },
+    {
+      "id": "3vg93$6i5T0fPZYtdJUD36",
+      "name": "2CozyChairsWithTable",
+      "member_count": 3,
+      "usable": 3,
+      "area": 1.007691967154768,
+      "centroid": [
+        21.346253309833926,
+        8.017584264719245
+      ],
+      "bounds": [
+        20.67733984375,
+        7.26872802734375,
+        22.009091796875,
+        8.762021484375
+      ],
+      "z": [
+        -0.0028145482540130615,
+        0.7123834838867188
+      ]
+    },
+    {
+      "id": "3xGGPvwHLKieA3uVhpQjIN",
+      "name": "1CozyChairAndTable",
+      "member_count": 2,
+      "usable": 2,
+      "area": 0.8216602676473859,
+      "centroid": [
+        24.268266988234178,
+        1.6393826258125315
+      ],
+      "bounds": [
+        23.89327734375,
+        1.0310316162109374,
+        24.64327734375,
+        2.3822702636718756
+      ],
+      "z": [
+        -0.02085538101196289,
+        0.7120469970703125
+      ]
+    }
+  ],
+  "pairs": [
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 0.0,
+      "centroid_distance": 0.7500000596729043,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 0.0,
+      "centroid_distance": 1.4999991515466138,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 0.0,
+      "centroid_distance": 0.75,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 0.0,
+      "centroid_distance": 0.75,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 0.0,
+      "centroid_distance": 1.500000197775621,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 0.0,
+      "centroid_distance": 0.7500001428095991,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 0.0,
+      "centroid_distance": 0.7500000000000018,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 0.0,
+      "centroid_distance": 1.5000005645712555,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 0.0,
+      "centroid_distance": 0.7500000000000036,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 0.0,
+      "centroid_distance": 1.5319856939874035,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 0.0,
+      "centroid_distance": 0.7500000200136618,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 0.0,
+      "centroid_distance": 0.75,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 0.0,
+      "centroid_distance": 0.7500000821112787,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 0.0,
+      "centroid_distance": 0.7499998836354806,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 0.0,
+      "centroid_distance": 1.4569183153776326,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 0.0,
+      "centroid_distance": 1.4999999325066398,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 0.0,
+      "centroid_distance": 0.7500000000000018,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 0.0,
+      "centroid_distance": 0.7499996360972973,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 0.0,
+      "centroid_distance": 0.75,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 0.0,
+      "centroid_distance": 0.7499999999999982,
+      "norm_gap": 0.0,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 0.0,
+      "centroid_distance": 1.4549427310091612,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 0.0,
+      "centroid_distance": 0.7500000825324373,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 0.0,
+      "centroid_distance": 0.7499999543846659,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 0.0,
+      "centroid_distance": 1.5130908752517713,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "3JuMycUIrHxgC8LEsNW9DT",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 0.0,
+      "centroid_distance": 1.50000003691022,
+      "norm_gap": 0.0,
+      "overlap": true
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 0.33104003906250057,
+      "centroid_distance": 2.204939516594132,
+      "norm_gap": 0.3297742063452233,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 0.33606640625000134,
+      "centroid_distance": 2.2500000814105783,
+      "norm_gap": 0.33231499000587034,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 0.3927617187499983,
+      "centroid_distance": 2.263087831312414,
+      "norm_gap": 0.39125979913111275,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 0.4125273437499999,
+      "centroid_distance": 2.2499992112131473,
+      "norm_gap": 0.41094989304667123,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 0.5177002613263707,
+      "centroid_distance": 2.583740086186427,
+      "norm_gap": 0.515720577100365,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 0.5415028378349762,
+      "centroid_distance": 2.594731044655077,
+      "norm_gap": 0.5394321648471859,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 0.5555080640554724,
+      "centroid_distance": 2.5471936249118405,
+      "norm_gap": 0.5533838867017433,
+      "overlap": false
+    },
+    {
+      "a": "3rpMmDkvnJQ9sOnpwriTiP",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 0.5555103081854927,
+      "centroid_distance": 2.5471951589120976,
+      "norm_gap": 0.5533861092938804,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 0.5968447320847046,
+      "centroid_distance": 2.5890354780764873,
+      "norm_gap": 0.5945624689801956,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 0.6805425514025171,
+      "centroid_distance": 2.719955897713934,
+      "norm_gap": 0.6779402890613687,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 0.7259026916395678,
+      "centroid_distance": 2.7346420622762033,
+      "norm_gap": 0.7231268419527778,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "0hRrRMtynPNPzP6yh$HYbs",
+      "gap": 0.75,
+      "centroid_distance": 1.4999999999999964,
+      "norm_gap": 0.827399244610188,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 0.75,
+      "centroid_distance": 1.5000000000000018,
+      "norm_gap": 0.8273990541897367,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 0.75,
+      "centroid_distance": 1.5,
+      "norm_gap": 0.8273990541897367,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 0.75,
+      "centroid_distance": 1.5000000000000018,
+      "norm_gap": 0.8273991390367909,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 0.7571738281250013,
+      "centroid_distance": 1.5071740872233725,
+      "norm_gap": 0.8353134565795433,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 0.787875891292045,
+      "centroid_distance": 2.777507983479654,
+      "norm_gap": 0.7848633214114062,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 0.8053736654315259,
+      "centroid_distance": 2.6889582194594284,
+      "norm_gap": 0.8022938869536838,
+      "overlap": false
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 0.8314408250375321,
+      "centroid_distance": 2.7787864731331995,
+      "norm_gap": 0.8282614221998984,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 0.85870184489126,
+      "centroid_distance": 2.6553172465662116,
+      "norm_gap": 0.8554183011759681,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 0.9210546874999997,
+      "centroid_distance": 2.695104615680628,
+      "norm_gap": 0.9175325771741121,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 0.9210561523437493,
+      "centroid_distance": 2.695105924303926,
+      "norm_gap": 0.9175343463669507,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 0.9551381835937497,
+      "centroid_distance": 2.6553178448866426,
+      "norm_gap": 0.9514858598816055,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 0.9611304333002769,
+      "centroid_distance": 2.9569132859155225,
+      "norm_gap": 0.9574551249836949,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 0.9875644531249995,
+      "centroid_distance": 2.6954733998564007,
+      "norm_gap": 0.9837880626144337,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 0.9891807498606373,
+      "centroid_distance": 2.986923362576674,
+      "norm_gap": 0.9853981546496099,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 1.039303494904362,
+      "centroid_distance": 3.01308610920151,
+      "norm_gap": 1.0353295512411578,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 1.0567851562499992,
+      "centroid_distance": 2.6184025990555284,
+      "norm_gap": 1.1658443925816826,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 1.0567851562499992,
+      "centroid_distance": 2.6383547960561926,
+      "norm_gap": 1.1658443563201426,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "0aILbvu1bPLRmZCsqZRcR3",
+      "gap": 1.0720656191937752,
+      "centroid_distance": 2.999999716115593,
+      "norm_gap": 1.0679662052385972,
+      "overlap": false
+    },
+    {
+      "a": "2keaLJysnJJf5kkWh75nSt",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 1.1984921874999994,
+      "centroid_distance": 2.8727419355483774,
+      "norm_gap": 1.1939095603297196,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 1.2099775390624998,
+      "centroid_distance": 1.9599773681379187,
+      "norm_gap": 1.3348460440112766,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 1.2544062499999988,
+      "centroid_distance": 2.004406249999999,
+      "norm_gap": 1.3838597115790636,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 1.2812831951876582,
+      "centroid_distance": 3.1697343073532718,
+      "norm_gap": 1.4135103304399952,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 1.289298828125002,
+      "centroid_distance": 2.8934383713182874,
+      "norm_gap": 1.4223528412780835,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 1.2892988281250022,
+      "centroid_distance": 2.7361227689423226,
+      "norm_gap": 1.4223528412780837,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 1.3592988281250005,
+      "centroid_distance": 3.0263635756178697,
+      "norm_gap": 1.3541008735371995,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 1.3834003906249988,
+      "centroid_distance": 2.9540447734189392,
+      "norm_gap": 1.3781104236116066,
+      "overlap": false
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 1.3865683593750013,
+      "centroid_distance": 2.9754634701012392,
+      "norm_gap": 1.3812662086809038,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 1.3865703125000015,
+      "centroid_distance": 2.975464204668119,
+      "norm_gap": 1.381268232920656,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 1.3913031506828115,
+      "centroid_distance": 3.222204743728965,
+      "norm_gap": 1.534883881288212,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 1.39481005859375,
+      "centroid_distance": 2.996076091879663,
+      "norm_gap": 1.389476778545238,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 1.396226562500004,
+      "centroid_distance": 3.0282305495621347,
+      "norm_gap": 1.3908876637113583,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 1.4234980468749983,
+      "centroid_distance": 2.979087116171784,
+      "norm_gap": 1.4180548987268966,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 1.4288881835937495,
+      "centroid_distance": 2.9560422807532305,
+      "norm_gap": 1.4234242620318052,
+      "overlap": false
+    },
+    {
+      "a": "3JuMycUIrHxgC8LEsNW9DT",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 1.4288911132812494,
+      "centroid_distance": 2.9560445928112813,
+      "norm_gap": 1.4234272202187048,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 1.4400937499999955,
+      "centroid_distance": 2.956044774716724,
+      "norm_gap": 1.4345870531058686,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 1.4613203124999996,
+      "centroid_distance": 2.992168508853895,
+      "norm_gap": 1.4557323150119326,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 1.4905197753906245,
+      "centroid_distance": 3.089599714211718,
+      "norm_gap": 1.6443399149796665,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 1.4905197753906245,
+      "centroid_distance": 2.9828139966100946,
+      "norm_gap": 1.6443399149796665,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 1.5,
+      "centroid_distance": 2.25,
+      "norm_gap": 1.654798489220376,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 1.5,
+      "centroid_distance": 2.2500000000000018,
+      "norm_gap": 1.6547981083794734,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 1.5,
+      "centroid_distance": 2.2499999999999964,
+      "norm_gap": 1.654798489220376,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 1.5,
+      "centroid_distance": 2.25,
+      "norm_gap": 1.6547982780735817,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 1.5,
+      "centroid_distance": 2.2500000000000036,
+      "norm_gap": 1.6547982780735817,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 1.5071738281250013,
+      "centroid_distance": 2.2571740872233725,
+      "norm_gap": 1.6627127527042258,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 1.5071738281250013,
+      "centroid_distance": 2.2571741072370344,
+      "norm_gap": 1.6627127009884688,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 1.6722470703124992,
+      "centroid_distance": 3.1935501237640276,
+      "norm_gap": 1.665852451572992,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 1.6722490234374998,
+      "centroid_distance": 3.1935520459482887,
+      "norm_gap": 1.6658549109933762,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 1.701212158203124,
+      "centroid_distance": 3.1997434244715053,
+      "norm_gap": 1.876775300021581,
+      "overlap": false
+    },
+    {
+      "a": "2hMNdvWdXSfPYrIo8oN6p2",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 1.701212158203124,
+      "centroid_distance": 3.3336642736077184,
+      "norm_gap": 1.876775300021581,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 1.7022159553134122,
+      "centroid_distance": 3.542104272521461,
+      "norm_gap": 1.877882687841341,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "0js6ZvVxLNh92QynYPqk1L",
+      "gap": 1.7118801254858669,
+      "centroid_distance": 3.736922540510298,
+      "norm_gap": 1.7053342288715676,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 1.7118805761610676,
+      "centroid_distance": 3.7369226038723102,
+      "norm_gap": 1.7053344518941072,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 1.7191604194588639,
+      "centroid_distance": 3.444334328878217,
+      "norm_gap": 1.8965758012351897,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 1.742810891878312,
+      "centroid_distance": 3.56161854582565,
+      "norm_gap": 1.922667220584698,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 1.765948003975774,
+      "centroid_distance": 3.763085247774741,
+      "norm_gap": 1.7591950241753387,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 1.8022996128443804,
+      "centroid_distance": 3.7499997757841284,
+      "norm_gap": 1.795407896468043,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 1.8023004664516649,
+      "centroid_distance": 3.7500003190598266,
+      "norm_gap": 1.7954088599139353,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "0js6ZvVxLNh92QynYPqk1L",
+      "gap": 1.8117910370093502,
+      "centroid_distance": 3.6767133709879913,
+      "norm_gap": 1.9987655872146382,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "0Enn$e9D5PUQM64yHn2C$H",
+      "gap": 1.8140914632972056,
+      "centroid_distance": 3.6507660679930285,
+      "norm_gap": 2.001303875181198,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 1.8289321289062495,
+      "centroid_distance": 3.449852029117046,
+      "norm_gap": 1.8085159584798929,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 1.8685654296874992,
+      "centroid_distance": 3.4372013504861547,
+      "norm_gap": 1.8614200411629995,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 1.8961669921874995,
+      "centroid_distance": 3.4038750397870654,
+      "norm_gap": 1.875000762876794,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 1.9026445312499998,
+      "centroid_distance": 3.3986312297512495,
+      "norm_gap": 1.8953690141043082,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 1.90264453125,
+      "centroid_distance": 3.398631623965546,
+      "norm_gap": 1.8953690332259059,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 1.9407246093750012,
+      "centroid_distance": 3.419523164698092,
+      "norm_gap": 1.9333039374526382,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 1.9578572641853145,
+      "centroid_distance": 3.7706127493320234,
+      "norm_gap": 2.159906161921998,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 1.9599775390624998,
+      "centroid_distance": 2.709977388151578,
+      "norm_gap": 2.162245381654,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 1.9599775390624998,
+      "centroid_distance": 2.7099773681379182,
+      "norm_gap": 2.162245314401159,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "0AG_FU1oHHxh9s_mH9GMgP",
+      "gap": 1.964276611328124,
+      "centroid_distance": 3.4633934217350775,
+      "norm_gap": 2.166987979224466,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 1.964276611328124,
+      "centroid_distance": 3.495537753275934,
+      "norm_gap": 2.166987979224466,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 1.9648261718749997,
+      "centroid_distance": 3.3940017928287407,
+      "norm_gap": 1.957312878526195,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 1.964826171875,
+      "centroid_distance": 3.394003828383742,
+      "norm_gap": 1.9573128982727188,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 1.9679921874999984,
+      "centroid_distance": 3.4060607357643224,
+      "norm_gap": 1.9604665130909942,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 1.9722238323042791,
+      "centroid_distance": 3.789918133998295,
+      "norm_gap": 2.175755067781868,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 1.977650390625005,
+      "centroid_distance": 3.426904545830191,
+      "norm_gap": 1.970087919461147,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 2.0042951660156243,
+      "centroid_distance": 3.6502938807589516,
+      "norm_gap": 2.211136546116575,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 2.0042951660156243,
+      "centroid_distance": 3.6070192866183386,
+      "norm_gap": 2.2111364084495717,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "0AG_FU1oHHxh9s_mH9GMgP",
+      "gap": 2.004406249999999,
+      "centroid_distance": 2.754406249999999,
+      "norm_gap": 2.2112589561892517,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 2.004406249999999,
+      "centroid_distance": 2.754406249999999,
+      "norm_gap": 2.2112589561892517,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 2.0049238281249977,
+      "centroid_distance": 3.414978560334092,
+      "norm_gap": 1.997257369237462,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 2.0283787143958096,
+      "centroid_distance": 3.8140775410449583,
+      "norm_gap": 2.2377053547659695,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 2.0750692110719338,
+      "centroid_distance": 3.8953571435481544,
+      "norm_gap": 2.289214334999235,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "0hRrRMtynPNPzP6yh$HYbs",
+      "gap": 2.0812948902855344,
+      "centroid_distance": 3.86299283095357,
+      "norm_gap": 2.2960824267110604,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 2.106370117187499,
+      "centroid_distance": 3.6554816561686096,
+      "norm_gap": 2.0983158141782634,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 2.14600390625,
+      "centroid_distance": 3.642786182620648,
+      "norm_gap": 2.137798004741442,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 2.174967041015624,
+      "centroid_distance": 3.685645577152748,
+      "norm_gap": 2.3994211428929653,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 2.174967041015624,
+      "centroid_distance": 3.6860282271234888,
+      "norm_gap": 2.3994211428929653,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 2.2259077239352654,
+      "centroid_distance": 4.02098109735487,
+      "norm_gap": 2.455619159141362,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 2.25,
+      "centroid_distance": 3.0,
+      "norm_gap": 2.482197733830564,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 2.25,
+      "centroid_distance": 3.0000000000000018,
+      "norm_gap": 2.4821974171103727,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 2.2571738281250013,
+      "centroid_distance": 3.0071741072370344,
+      "norm_gap": 2.490111971378351,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 2.30268603515625,
+      "centroid_distance": 3.985470715691522,
+      "norm_gap": 2.276981701139527,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 2.3276697565969773,
+      "centroid_distance": 4.1174435975316745,
+      "norm_gap": 2.5678826034270874,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 2.337029552075358,
+      "centroid_distance": 4.088563633659168,
+      "norm_gap": 2.578208319054251,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 2.3423208007812493,
+      "centroid_distance": 3.9720569892249706,
+      "norm_gap": 2.33336456138718,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 2.3763974609374996,
+      "centroid_distance": 3.935502507694553,
+      "norm_gap": 2.367310400341685,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 2.37640087890625,
+      "centroid_distance": 3.935505711689995,
+      "norm_gap": 2.3673137900596646,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 2.4344107712424328,
+      "centroid_distance": 4.251355480448457,
+      "norm_gap": 2.685639510929192,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 2.451037819120064,
+      "centroid_distance": 4.486921917396931,
+      "norm_gap": 2.4416649604735645,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 2.451038233798687,
+      "centroid_distance": 4.4869218495410355,
+      "norm_gap": 2.441665616873797,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "02Kyw_DsPG5BC3j07wct$4",
+      "gap": 2.4622038100345356,
+      "centroid_distance": 4.282237107238833,
+      "norm_gap": 2.7163007633318688,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 2.476944335937501,
+      "centroid_distance": 3.986896572187784,
+      "norm_gap": 2.7325618677804187,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 2.476944335937501,
+      "centroid_distance": 3.9860285793457364,
+      "norm_gap": 2.7325618677804187,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 2.476944335937501,
+      "centroid_distance": 3.915275731840843,
+      "norm_gap": 2.7325618677804187,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 2.478049560546874,
+      "centroid_distance": 4.104171844213875,
+      "norm_gap": 2.733781779337456,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 2.478049560546874,
+      "centroid_distance": 4.022408100169022,
+      "norm_gap": 2.733781779337456,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 2.495675028049847,
+      "centroid_distance": 4.191952243809576,
+      "norm_gap": 2.753225543697851,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 2.505334968857945,
+      "centroid_distance": 4.271585901620932,
+      "norm_gap": 2.763883186386156,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 2.509962374540843,
+      "centroid_distance": 4.270944574811204,
+      "norm_gap": 2.7689879635934496,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 2.51428598166492,
+      "centroid_distance": 4.46998990361124,
+      "norm_gap": 2.50467220581089,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 2.5333695507784424,
+      "centroid_distance": 4.348065237184378,
+      "norm_gap": 2.794810823922702,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 2.5357913519903423,
+      "centroid_distance": 4.325661503083508,
+      "norm_gap": 2.797482552663709,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 2.5440605478670744,
+      "centroid_distance": 4.499999955157075,
+      "norm_gap": 2.5343325296132013,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 2.544061065784009,
+      "centroid_distance": 4.50000040117072,
+      "norm_gap": 2.5343334401186035,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 2.546251953125001,
+      "centroid_distance": 3.929011268550757,
+      "norm_gap": 2.536515347343972,
+      "overlap": false
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 2.549421875,
+      "centroid_distance": 3.933718445608598,
+      "norm_gap": 2.539673189671376,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 2.5555761718749994,
+      "centroid_distance": 3.9023403533753758,
+      "norm_gap": 2.5458041456904485,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 2.5801245117187497,
+      "centroid_distance": 4.192645886312696,
+      "norm_gap": 2.57025859151952,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 2.5863505859375002,
+      "centroid_distance": 3.9464158741715143,
+      "norm_gap": 2.5764609415975643,
+      "overlap": false
+    },
+    {
+      "a": "2keaLJysnJJf5kkWh75nSt",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 2.606115234375,
+      "centroid_distance": 3.9400466434773227,
+      "norm_gap": 2.5961503346397423,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 2.6878131379480665,
+      "centroid_distance": 4.508383414050879,
+      "norm_gap": 2.965192368306674,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 2.7099775390625,
+      "centroid_distance": 3.4599773881515783,
+      "norm_gap": 2.9896446777786823,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 2.7188825731920536,
+      "centroid_distance": 4.57905533415552,
+      "norm_gap": 2.9994686097798273,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 2.754406249999999,
+      "centroid_distance": 3.504406249999999,
+      "norm_gap": 3.0386582007994396,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 2.776440917968749,
+      "centroid_distance": 4.581646123440945,
+      "norm_gap": 2.745447910463315,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 2.85015380859375,
+      "centroid_distance": 4.533287016311393,
+      "norm_gap": 2.839255160201883,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 2.911782958984374,
+      "centroid_distance": 4.502108417759863,
+      "norm_gap": 3.2122760276433184,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 2.911782958984374,
+      "centroid_distance": 4.439373687709946,
+      "norm_gap": 3.2122760276433184,
+      "overlap": false
+    },
+    {
+      "a": "3rpMmDkvnJQ9sOnpwriTiP",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 2.9247581627043373,
+      "centroid_distance": 4.595113492185476,
+      "norm_gap": 3.2265902593187334,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 2.9752078355383142,
+      "centroid_distance": 4.763701733785688,
+      "norm_gap": 3.2822462875769514,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 2.978495578970869,
+      "centroid_distance": 4.63850719756912,
+      "norm_gap": 3.2858725665984125,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 2.9819459826233787,
+      "centroid_distance": 4.715607165395631,
+      "norm_gap": 3.2896798046546243,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 2.98814435577795,
+      "centroid_distance": 4.793063554024631,
+      "norm_gap": 3.2965180489194914,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 3.0248382996908227,
+      "centroid_distance": 4.913346273463942,
+      "norm_gap": 3.3369985656428693,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 3.0590185546875053,
+      "centroid_distance": 4.469136856256044,
+      "norm_gap": 3.0248718321356467,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 3.0628877365605147,
+      "centroid_distance": 4.916783744790083,
+      "norm_gap": 3.3789746660746376,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 3.0739010617245484,
+      "centroid_distance": 5.141746060460403,
+      "norm_gap": 3.0621467799806834,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 3.0739041862286176,
+      "centroid_distance": 5.141749012528209,
+      "norm_gap": 3.0621499779464396,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 3.0740888671875,
+      "centroid_distance": 4.813712760222313,
+      "norm_gap": 3.0623342173224968,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 3.0838124999999987,
+      "centroid_distance": 4.494551330106487,
+      "norm_gap": 3.049388325020546,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 3.1276777343749984,
+      "centroid_distance": 4.525485167715075,
+      "norm_gap": 3.115717847594939,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 3.1276796874999984,
+      "centroid_distance": 4.525485103483204,
+      "norm_gap": 3.115719848721836,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 3.132638163411194,
+      "centroid_distance": 4.863257460508609,
+      "norm_gap": 3.4559234818929867,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 3.137,
+      "centroid_distance": 4.470695463098186,
+      "norm_gap": 3.125004289751258,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 3.138609662923362,
+      "centroid_distance": 5.136229102980507,
+      "norm_gap": 3.126608102550854,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 3.1677763671875,
+      "centroid_distance": 4.53996872000994,
+      "norm_gap": 3.155663374692088,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 3.167776367187501,
+      "centroid_distance": 4.539969361270094,
+      "norm_gap": 3.1556634766187295,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 3.1800486921537092,
+      "centroid_distance": 5.314836714279265,
+      "norm_gap": 3.14455095376112,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 3.1875390624999973,
+      "centroid_distance": 4.532268357494385,
+      "norm_gap": 3.1753509954717,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 3.187541015625001,
+      "centroid_distance": 4.532269103114305,
+      "norm_gap": 3.175352058121255,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 3.195252283450859,
+      "centroid_distance": 5.236921346210789,
+      "norm_gap": 3.183033521357893,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 3.1952550306347374,
+      "centroid_distance": 5.23692154726247,
+      "norm_gap": 3.183036756309951,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 3.196634752715996,
+      "centroid_distance": 5.202374313493756,
+      "norm_gap": 3.1844111820777874,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 3.2001350403381164,
+      "centroid_distance": 5.186443185124388,
+      "norm_gap": 3.1878988105676007,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 3.2014128408023175,
+      "centroid_distance": 5.337821060122731,
+      "norm_gap": 3.165676234192018,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 3.2021392336892966,
+      "centroid_distance": 5.0316717539088485,
+      "norm_gap": 3.5325963267072713,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 3.2596896958121473,
+      "centroid_distance": 5.219989985722499,
+      "norm_gap": 3.2472248271185635,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 3.2711574732826287,
+      "centroid_distance": 4.771138029118517,
+      "norm_gap": 3.6087367993329815,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 3.283742114240249,
+      "centroid_distance": 5.217660256565096,
+      "norm_gap": 3.2470864856219586,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 3.2837440474117887,
+      "centroid_distance": 5.2176610204540275,
+      "norm_gap": 3.247088521801576,
+      "overlap": false
+    },
+    {
+      "a": "2hMNdvWdXSfPYrIo8oN6p2",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 3.2895597064745825,
+      "centroid_distance": 5.250000037268003,
+      "norm_gap": 3.276981547145406,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "0js6ZvVxLNh92QynYPqk1L",
+      "gap": 3.326331402784423,
+      "centroid_distance": 5.394401847343623,
+      "norm_gap": 3.2892004863176165,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 3.336300405706719,
+      "centroid_distance": 5.400145820458967,
+      "norm_gap": 3.2990584857030796,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 3.359268802417911,
+      "centroid_distance": 5.343999472661747,
+      "norm_gap": 3.3464234754516546,
+      "overlap": false
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 3.35926968633785,
+      "centroid_distance": 5.344000022089513,
+      "norm_gap": 3.346424277640298,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 3.3954130786970933,
+      "centroid_distance": 5.465914952826996,
+      "norm_gap": 3.3575105492960384,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 3.4277739531797353,
+      "centroid_distance": 5.342440390503835,
+      "norm_gap": 3.4146673095025784,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 3.427774397598014,
+      "centroid_distance": 5.342441891383675,
+      "norm_gap": 3.4146669750358076,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 3.4599775390625,
+      "centroid_distance": 4.209977368137918,
+      "norm_gap": 3.817043855180923,
+      "overlap": false
+    },
+    {
+      "a": "3oKhgzCizPDAXIgAVx0Tes",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 3.467151367187501,
+      "centroid_distance": 4.217151475374949,
+      "norm_gap": 3.824957896213492,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 3.480381458581319,
+      "centroid_distance": 5.368127836979422,
+      "norm_gap": 3.467072837575366,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 3.494210674076608,
+      "centroid_distance": 5.15459851972751,
+      "norm_gap": 3.8548099363231176,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "0hRrRMtynPNPzP6yh$HYbs",
+      "gap": 3.504406249999999,
+      "centroid_distance": 4.254406249999995,
+      "norm_gap": 3.8660574454096275,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 3.509142531956912,
+      "centroid_distance": 5.379315995597819,
+      "norm_gap": 3.8712825068941754,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 3.511580078125,
+      "centroid_distance": 4.261580337223371,
+      "norm_gap": 3.8739718465681103,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 3.516858868626683,
+      "centroid_distance": 5.3507783715326065,
+      "norm_gap": 3.5034108594707503,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 3.5244232609714174,
+      "centroid_distance": 5.4659143868779125,
+      "norm_gap": 3.5109465519729985,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 3.594447550871882,
+      "centroid_distance": 5.4484439387162995,
+      "norm_gap": 3.5807030464744587,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 3.6347705078125023,
+      "centroid_distance": 5.080112372184059,
+      "norm_gap": 4.009874240481085,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 3.6347705078125023,
+      "centroid_distance": 5.04934048735847,
+      "norm_gap": 4.009874240481085,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 3.6347705078125023,
+      "centroid_distance": 5.12924331656604,
+      "norm_gap": 4.009874240481085,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 3.6358689187539635,
+      "centroid_distance": 5.2552186713686035,
+      "norm_gap": 4.011086929171587,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 3.663038974534709,
+      "centroid_distance": 5.462872058093515,
+      "norm_gap": 4.041060907343595,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 3.6751583130756726,
+      "centroid_distance": 5.314831572476903,
+      "norm_gap": 4.0544300163151465,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 3.6767752914106455,
+      "centroid_distance": 5.566826275410314,
+      "norm_gap": 3.6627154215524085,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 3.6817710231726815,
+      "centroid_distance": 5.280049458161066,
+      "norm_gap": 4.0617251497550075,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "0Enn$e9D5PUQM64yHn2C$H",
+      "gap": 3.7091035156249994,
+      "centroid_distance": 5.162158854607279,
+      "norm_gap": 3.694920284979522,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 3.7091054687499994,
+      "centroid_distance": 5.16215993347236,
+      "norm_gap": 3.6949223336947252,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 3.7369831501859285,
+      "centroid_distance": 5.332077681787017,
+      "norm_gap": 4.122635521411776,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 3.749202148437501,
+      "centroid_distance": 5.174305635312396,
+      "norm_gap": 3.734865891005249,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 3.768964843749998,
+      "centroid_distance": 5.165651187348517,
+      "norm_gap": 3.754552333641493,
+      "overlap": false
+    },
+    {
+      "a": "2keaLJysnJJf5kkWh75nSt",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 3.7689687499999986,
+      "centroid_distance": 5.1656529030634495,
+      "norm_gap": 3.754557493274401,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 3.7925464302120524,
+      "centroid_distance": 5.595459050788292,
+      "norm_gap": 3.7780441224369308,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 3.816037532477377,
+      "centroid_distance": 5.5885461881494445,
+      "norm_gap": 4.209848225205149,
+      "overlap": false
+    },
+    {
+      "a": "31mS1kn4jGy8tfi62PTPP$",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 3.8466482022310626,
+      "centroid_distance": 5.690788702827738,
+      "norm_gap": 3.831938860064477,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 3.8466485397635823,
+      "centroid_distance": 5.690789658815995,
+      "norm_gap": 3.831939703976561,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "0hRrRMtynPNPzP6yh$HYbs",
+      "gap": 3.859293212890624,
+      "centroid_distance": 5.384551745870157,
+      "norm_gap": 4.2575683854332365,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 3.859293212890624,
+      "centroid_distance": 5.353143757394622,
+      "norm_gap": 4.2575683854332365,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 3.8880087424909258,
+      "centroid_distance": 5.839578681690021,
+      "norm_gap": 3.87314121736517,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 3.890072167094406,
+      "centroid_distance": 5.629737338398737,
+      "norm_gap": 3.8751969700197924,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 3.9354211664659555,
+      "centroid_distance": 5.746075514972823,
+      "norm_gap": 4.341552667142502,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 3.9416621151512494,
+      "centroid_distance": 5.9869212489654275,
+      "norm_gap": 3.9265894457235646,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 3.9416629101947085,
+      "centroid_distance": 5.986921089759793,
+      "norm_gap": 3.9265904611191718,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 3.9521220669109853,
+      "centroid_distance": 5.778479601742759,
+      "norm_gap": 4.359976527373935,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 3.997980617739197,
+      "centroid_distance": 6.0130842135899245,
+      "norm_gap": 3.982693205969742,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "0aILbvu1bPLRmZCsqZRcR3",
+      "gap": 4.001135618357655,
+      "centroid_distance": 5.748295080908255,
+      "norm_gap": 4.414048784282722,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 4.011870481450599,
+      "centroid_distance": 5.462377076134612,
+      "norm_gap": 4.425890455845266,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 4.067222373024253,
+      "centroid_distance": 5.862147233810403,
+      "norm_gap": 4.021821434309595,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 4.074464017773997,
+      "centroid_distance": 5.670160051823525,
+      "norm_gap": 4.49494356618176,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 4.087849458950465,
+      "centroid_distance": 5.83832504696967,
+      "norm_gap": 4.072217654764015,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 4.087852436118327,
+      "centroid_distance": 5.8383283579683924,
+      "norm_gap": 4.0722212835493075,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 4.168581202456565,
+      "centroid_distance": 5.8779159983747835,
+      "norm_gap": 4.598774584011721,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 4.184799202786604,
+      "centroid_distance": 5.782629986835186,
+      "norm_gap": 4.616666409485062,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 4.197676713499718,
+      "centroid_distance": 5.931195931960095,
+      "norm_gap": 4.1816254436981675,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 4.202385518366924,
+      "centroid_distance": 6.066656679899268,
+      "norm_gap": 4.186316506539248,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 4.2099775390625,
+      "centroid_distance": 4.959977388151579,
+      "norm_gap": 4.644443270028048,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 4.2099775390625,
+      "centroid_distance": 4.959977368137915,
+      "norm_gap": 4.644443125570805,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 4.21094987253589,
+      "centroid_distance": 5.912759771224388,
+      "norm_gap": 4.645514589035451,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "0WEjP61oTMbOLVcpUvUD7i",
+      "gap": 4.216195312500001,
+      "centroid_distance": 5.629052278514512,
+      "norm_gap": 4.651301351788937,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 4.216195312500001,
+      "centroid_distance": 5.664376651733275,
+      "norm_gap": 4.651301351788937,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 4.217151367187501,
+      "centroid_distance": 4.967151475374948,
+      "norm_gap": 4.65235714082368,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 4.217151367187501,
+      "centroid_distance": 4.9671514753749495,
+      "norm_gap": 4.65235714082368,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 4.2183681640625,
+      "centroid_distance": 5.697024909745861,
+      "norm_gap": 4.20223736322775,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 4.224647953541203,
+      "centroid_distance": 5.7973352629594155,
+      "norm_gap": 4.660626294726131,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 4.226029359221145,
+      "centroid_distance": 5.903140519720329,
+      "norm_gap": 4.6621516229624245,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 4.246664062500004,
+      "centroid_distance": 5.760535347304979,
+      "norm_gap": 4.199259167149878,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 4.254406249999999,
+      "centroid_distance": 5.004406249999999,
+      "norm_gap": 4.693456690019816,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 4.254406249999999,
+      "centroid_distance": 5.004406249999995,
+      "norm_gap": 4.693456690019816,
+      "overlap": false
+    },
+    {
+      "a": "2keaLJysnJJf5kkWh75nSt",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 4.2593666907013485,
+      "centroid_distance": 5.933101610817641,
+      "norm_gap": 4.243080318767871,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 4.260921090700671,
+      "centroid_distance": 6.06260222625684,
+      "norm_gap": 4.700643855719138,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 4.261580078125,
+      "centroid_distance": 5.011580337223371,
+      "norm_gap": 4.701371142692793,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 4.261580078125,
+      "centroid_distance": 5.011580357237033,
+      "norm_gap": 4.7013709964649095,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 4.2774812153214805,
+      "centroid_distance": 6.001578380911983,
+      "norm_gap": 4.261124265428739,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 4.277487737739507,
+      "centroid_distance": 6.001583343900853,
+      "norm_gap": 4.261131456663909,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 4.290531249999997,
+      "centroid_distance": 5.825871052106407,
+      "norm_gap": 4.274124918739599,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 4.337143575426098,
+      "centroid_distance": 6.021464061970674,
+      "norm_gap": 4.784731322923529,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 4.35039453125,
+      "centroid_distance": 5.826788642716672,
+      "norm_gap": 4.333759141181213,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "0Enn$e9D5PUQM64yHn2C$H",
+      "gap": 4.358944067122061,
+      "centroid_distance": 5.918598648573676,
+      "norm_gap": 4.808782704579805,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 4.383501953124999,
+      "centroid_distance": 5.948173325372173,
+      "norm_gap": 4.366739892164941,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 4.400504496100306,
+      "centroid_distance": 5.94702409103523,
+      "norm_gap": 4.854631010708103,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 4.461413568985007,
+      "centroid_distance": 5.99799152330817,
+      "norm_gap": 4.921826327820335,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 4.47078747268141,
+      "centroid_distance": 6.236645028468719,
+      "norm_gap": 4.932167101839896,
+      "overlap": false
+    },
+    {
+      "a": "2hMNdvWdXSfPYrIo8oN6p2",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 4.4737125359550225,
+      "centroid_distance": 6.081145553595224,
+      "norm_gap": 4.9353951638030855,
+      "overlap": false
+    },
+    {
+      "a": "3oKhgzCizPDAXIgAVx0Tes",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 4.474509369015307,
+      "centroid_distance": 6.254355596849014,
+      "norm_gap": 4.936274229232631,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 4.503443982460699,
+      "centroid_distance": 6.562315798749342,
+      "norm_gap": 4.453173284181593,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 4.521465107316728,
+      "centroid_distance": 6.520624126559553,
+      "norm_gap": 4.504175280945301,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 4.543739990234374,
+      "centroid_distance": 6.038159399811983,
+      "norm_gap": 5.012649692924657,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 4.543739990234374,
+      "centroid_distance": 6.062365850645521,
+      "norm_gap": 5.012649537015001,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 4.560352050781249,
+      "centroid_distance": 6.18931035161332,
+      "norm_gap": 4.542914151593799,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 4.560685724864575,
+      "centroid_distance": 6.338540377585917,
+      "norm_gap": 5.031343256227109,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 4.589865782880654,
+      "centroid_distance": 6.266793442377828,
+      "norm_gap": 5.06353530882347,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 4.638234375000003,
+      "centroid_distance": 6.136179694960168,
+      "norm_gap": 5.11689431331377,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 4.68427433829259,
+      "centroid_distance": 6.304925164539796,
+      "norm_gap": 5.167685542758059,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 4.689215993378952,
+      "centroid_distance": 6.736920936424669,
+      "norm_gap": 4.671284259186199,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 4.692328894079567,
+      "centroid_distance": 6.473343690517261,
+      "norm_gap": 5.176572509898656,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 4.704939335122957,
+      "centroid_distance": 6.365296522903795,
+      "norm_gap": 4.686947941339348,
+      "overlap": false
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 4.745763098038201,
+      "centroid_distance": 6.763083586452953,
+      "norm_gap": 4.727616175361782,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 4.754258754348163,
+      "centroid_distance": 6.508882428433698,
+      "norm_gap": 5.244893469372058,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 4.755495589826211,
+      "centroid_distance": 6.167363176501032,
+      "norm_gap": 5.246256737634228,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 4.780663289862341,
+      "centroid_distance": 6.544404963050518,
+      "norm_gap": 5.274022253409191,
+      "overlap": false
+    },
+    {
+      "a": "31mS1kn4jGy8tfi62PTPP$",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 4.787697090755425,
+      "centroid_distance": 6.385754387158374,
+      "norm_gap": 4.76938950783075,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 4.798539072193869,
+      "centroid_distance": 6.3418598503035675,
+      "norm_gap": 4.780190085274424,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 4.8243005082413735,
+      "centroid_distance": 6.481006439418045,
+      "norm_gap": 5.322163461721945,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 4.834126852158518,
+      "centroid_distance": 6.629913597479058,
+      "norm_gap": 5.33300264707889,
+      "overlap": false
+    },
+    {
+      "a": "2hMNdvWdXSfPYrIo8oN6p2",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 4.836590841589425,
+      "centroid_distance": 6.745400829405273,
+      "norm_gap": 4.818096610375886,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 4.836592770281059,
+      "centroid_distance": 6.7454024046516565,
+      "norm_gap": 4.818098687315177,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 4.84640439388241,
+      "centroid_distance": 6.555643478107461,
+      "norm_gap": 5.34654721562572,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 4.8572583007812495,
+      "centroid_distance": 6.3595027230111105,
+      "norm_gap": 4.838684693052941,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 4.877699111004573,
+      "centroid_distance": 6.508352615710974,
+      "norm_gap": 4.859047540198816,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 4.877699134690193,
+      "centroid_distance": 6.508352150775115,
+      "norm_gap": 4.859047450026823,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 4.886457763671874,
+      "centroid_distance": 6.413505946867853,
+      "norm_gap": 5.3907352833089295,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 4.886457763671874,
+      "centroid_distance": 6.37867839077257,
+      "norm_gap": 5.3907352833089295,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 4.902499255449875,
+      "centroid_distance": 6.525958085452871,
+      "norm_gap": 5.408432409394889,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 4.9599775390625,
+      "centroid_distance": 5.709977388151576,
+      "norm_gap": 5.47184256615273,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 4.967151367187501,
+      "centroid_distance": 5.7171514753749495,
+      "norm_gap": 5.479756385433868,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 4.986582097322303,
+      "centroid_distance": 6.674907383869277,
+      "norm_gap": 5.501192347348215,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 4.995586734396241,
+      "centroid_distance": 6.709531650480985,
+      "norm_gap": 5.511126253898834,
+      "overlap": false
+    },
+    {
+      "a": "3oKhgzCizPDAXIgAVx0Tes",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 5.004406249999999,
+      "centroid_distance": 5.754406249999999,
+      "norm_gap": 5.520855934630004,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 5.011580078125,
+      "centroid_distance": 5.761580357237033,
+      "norm_gap": 5.528770266854791,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 5.01635787508121,
+      "centroid_distance": 6.737885392740815,
+      "norm_gap": 5.534040955382082,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 5.017495361328124,
+      "centroid_distance": 6.521622481677125,
+      "norm_gap": 5.5352961736956665,
+      "overlap": false
+    },
+    {
+      "a": "2keaLJysnJJf5kkWh75nSt",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 5.017951349684205,
+      "centroid_distance": 6.602444321602234,
+      "norm_gap": 5.5357988749591795,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 5.018652731139466,
+      "centroid_distance": 6.6103410906482285,
+      "norm_gap": 5.536572810779978,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 5.034105957031249,
+      "centroid_distance": 6.607119937885485,
+      "norm_gap": 5.014855698585001,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 5.064260282972596,
+      "centroid_distance": 6.86928767163812,
+      "norm_gap": 5.586886130652987,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 5.083680308040627,
+      "centroid_distance": 6.768528842507191,
+      "norm_gap": 5.60831099561667,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 5.114474070879525,
+      "centroid_distance": 6.879377987409808,
+      "norm_gap": 5.6422813452315355,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 5.128200636999688,
+      "centroid_distance": 6.631762118628793,
+      "norm_gap": 5.657424475664997,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 5.1530608383720375,
+      "centroid_distance": 6.814330797156151,
+      "norm_gap": 5.68485080143097,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 5.175234166545498,
+      "centroid_distance": 6.730974518132811,
+      "norm_gap": 5.709313120107441,
+      "overlap": false
+    },
+    {
+      "a": "3oKhgzCizPDAXIgAVx0Tes",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 5.203469029971803,
+      "centroid_distance": 6.978818225617122,
+      "norm_gap": 5.74046179300157,
+      "overlap": false
+    },
+    {
+      "a": "3vg93$6i5T0fPZYtdJUD36",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 5.237138975738736,
+      "centroid_distance": 7.01566961047272,
+      "norm_gap": 5.777606443259739,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 5.272370117187498,
+      "centroid_distance": 6.806854339345324,
+      "norm_gap": 5.252208380206153,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 5.343911022886372,
+      "centroid_distance": 7.076386614162077,
+      "norm_gap": 5.895397258133655,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 5.360214111328124,
+      "centroid_distance": 6.852556575717924,
+      "norm_gap": 5.913382808882346,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 5.360214111328124,
+      "centroid_distance": 6.883614504036447,
+      "norm_gap": 5.913382808882346,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 5.377960937499996,
+      "centroid_distance": 6.808941892791802,
+      "norm_gap": 5.357397440991687,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 5.38863977992359,
+      "centroid_distance": 7.034152229649497,
+      "norm_gap": 5.944741977846918,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 5.407558517290861,
+      "centroid_distance": 7.272374369057799,
+      "norm_gap": 5.9656117369094845,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "0aILbvu1bPLRmZCsqZRcR3",
+      "gap": 5.423342173858927,
+      "centroid_distance": 7.224765470195578,
+      "norm_gap": 5.983025623884601,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 5.424549216126469,
+      "centroid_distance": 7.080296749927031,
+      "norm_gap": 5.403806047294243,
+      "overlap": false
+    },
+    {
+      "a": "2keaLJysnJJf5kkWh75nSt",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 5.426864829639714,
+      "centroid_distance": 7.214757702668236,
+      "norm_gap": 5.98691105028392,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 5.437446164928677,
+      "centroid_distance": 7.486920808749728,
+      "norm_gap": 5.416654019002173,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 5.494149986709839,
+      "centroid_distance": 7.51308367186797,
+      "norm_gap": 5.473141547399927,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 5.50001782342912,
+      "centroid_distance": 7.4378466202663756,
+      "norm_gap": 5.478986825105712,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 5.500851920364555,
+      "centroid_distance": 6.881872839557624,
+      "norm_gap": 6.068532901529907,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "gap": 5.507862792968749,
+      "centroid_distance": 7.079940527518481,
+      "norm_gap": 5.486801797007781,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 5.516255824942537,
+      "centroid_distance": 7.240696138709111,
+      "norm_gap": 6.085527870178672,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 5.59963813866089,
+      "centroid_distance": 7.3515474218518175,
+      "norm_gap": 6.177515154691227,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 5.6770801566629325,
+      "centroid_distance": 7.493481912962634,
+      "norm_gap": 6.262949110952531,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 5.681335604901616,
+      "centroid_distance": 7.321037994253241,
+      "norm_gap": 6.267643717163416,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 5.703853201401886,
+      "centroid_distance": 7.4011096209033695,
+      "norm_gap": 6.292485498717917,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 5.717151367187501,
+      "centroid_distance": 6.46715147537495,
+      "norm_gap": 6.307155630044056,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 5.754562648343637,
+      "centroid_distance": 7.568536466799835,
+      "norm_gap": 6.348426907697068,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 5.75666929192069,
+      "centroid_distance": 7.567620251271078,
+      "norm_gap": 6.350751764807793,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 5.761580078125,
+      "centroid_distance": 6.511580337223368,
+      "norm_gap": 6.356169734942158,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 5.774630126953124,
+      "centroid_distance": 7.338255815550011,
+      "norm_gap": 6.370565327062572,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 5.774630126953124,
+      "centroid_distance": 7.321447282898097,
+      "norm_gap": 6.370565327062572,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 5.7813222656250005,
+      "centroid_distance": 7.219942468705894,
+      "norm_gap": 6.3779474327255885,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 5.7813222656250005,
+      "centroid_distance": 7.265471479618707,
+      "norm_gap": 6.3779474327255885,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 5.7865872193928345,
+      "centroid_distance": 7.629917512784083,
+      "norm_gap": 6.383755723082733,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 5.793288824932284,
+      "centroid_distance": 7.387258110482042,
+      "norm_gap": 6.39114892586259,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "0hRrRMtynPNPzP6yh$HYbs",
+      "gap": 5.825555299898339,
+      "centroid_distance": 7.295874404133612,
+      "norm_gap": 6.426746739427683,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 5.833967041015623,
+      "centroid_distance": 7.3421357292134175,
+      "norm_gap": 6.43602656375608,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 5.833967041015623,
+      "centroid_distance": 7.394892768290128,
+      "norm_gap": 6.43602656375608,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 5.837289384026307,
+      "centroid_distance": 7.430054917161349,
+      "norm_gap": 6.439691769219248,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 5.851280439468551,
+      "centroid_distance": 7.464866513948277,
+      "norm_gap": 6.455125863838793,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 5.8537998046875,
+      "centroid_distance": 7.298943870181568,
+      "norm_gap": 5.831415572076859,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 5.855336047090236,
+      "centroid_distance": 7.597224138515911,
+      "norm_gap": 6.459600005511397,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 5.8607410923135905,
+      "centroid_distance": 7.655290712148172,
+      "norm_gap": 6.465563670181537,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 5.865215485878388,
+      "centroid_distance": 7.8594571490621785,
+      "norm_gap": 5.842787563595732,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "gap": 5.865217036219782,
+      "centroid_distance": 7.85945781527131,
+      "norm_gap": 5.842789587143216,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 5.871348965300145,
+      "centroid_distance": 7.920181516615031,
+      "norm_gap": 5.848897259544011,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 5.875298470163528,
+      "centroid_distance": 7.633554107548529,
+      "norm_gap": 6.481623556714791,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 5.875874443447434,
+      "centroid_distance": 7.8759074798863535,
+      "norm_gap": 5.853405703461018,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 5.876735929018848,
+      "centroid_distance": 7.558083708146317,
+      "norm_gap": 6.483208330689027,
+      "overlap": false
+    },
+    {
+      "a": "3JuMycUIrHxgC8LEsNW9DT",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 5.878391900423435,
+      "centroid_distance": 7.53396841303893,
+      "norm_gap": 6.485036023910664,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 5.8785917968750026,
+      "centroid_distance": 7.320898098038531,
+      "norm_gap": 5.856112429474634,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 5.882662123478296,
+      "centroid_distance": 7.6992120834769775,
+      "norm_gap": 6.48974610161371,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 5.889222860222436,
+      "centroid_distance": 7.581628384497133,
+      "norm_gap": 6.496983232614159,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 5.893957030628874,
+      "centroid_distance": 7.714486040108779,
+      "norm_gap": 6.5022078647086055,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 5.905983283775058,
+      "centroid_distance": 7.961348288169757,
+      "norm_gap": 5.883399470032819,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 5.925371337890624,
+      "centroid_distance": 7.500578408824739,
+      "norm_gap": 6.536863692007415,
+      "overlap": false
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 5.925371337890625,
+      "centroid_distance": 7.469430470707717,
+      "norm_gap": 6.536863692007416,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 5.946502292810475,
+      "centroid_distance": 7.632648015224182,
+      "norm_gap": 6.560175748633597,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 5.94984229422457,
+      "centroid_distance": 7.914368294435594,
+      "norm_gap": 5.927091254622235,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 5.951077149968571,
+      "centroid_distance": 7.800629101067438,
+      "norm_gap": 6.565220807058866,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 5.959386718749998,
+      "centroid_distance": 7.323194823928367,
+      "norm_gap": 5.9365989409855,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 5.959387695312498,
+      "centroid_distance": 7.323195553180874,
+      "norm_gap": 5.936600287792852,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 5.974162034498592,
+      "centroid_distance": 7.748618902162545,
+      "norm_gap": 6.590689539363999,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 5.981315755425371,
+      "centroid_distance": 7.9632843387280055,
+      "norm_gap": 5.95844436742945,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 6.025005087016364,
+      "centroid_distance": 7.831936076670089,
+      "norm_gap": 6.646778695586167,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 6.055962717873619,
+      "centroid_distance": 7.821559440384507,
+      "norm_gap": 6.680932179035946,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 6.056606455304453,
+      "centroid_distance": 7.529998816337364,
+      "norm_gap": 6.681641288804766,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 6.058552297507292,
+      "centroid_distance": 7.879702173497787,
+      "norm_gap": 6.683789208656149,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 6.097494320769049,
+      "centroid_distance": 8.11321871957356,
+      "norm_gap": 6.074178129148448,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 6.106844206846521,
+      "centroid_distance": 7.909947032614786,
+      "norm_gap": 6.737062827771846,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 6.138244905608356,
+      "centroid_distance": 7.93887847371971,
+      "norm_gap": 6.771705597510251,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "0aILbvu1bPLRmZCsqZRcR3",
+      "gap": 6.149882254647417,
+      "centroid_distance": 7.910082717470427,
+      "norm_gap": 6.126366051267663,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 6.156050428530741,
+      "centroid_distance": 7.960950381244776,
+      "norm_gap": 6.791348632464746,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 6.15912497341182,
+      "centroid_distance": 7.976289695995393,
+      "norm_gap": 6.794740467280912,
+      "overlap": false
+    },
+    {
+      "a": "31mS1kn4jGy8tfi62PTPP$",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 6.176670985498171,
+      "centroid_distance": 8.11928187075927,
+      "norm_gap": 6.153052202069821,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 6.183603776222435,
+      "centroid_distance": 8.047158573538862,
+      "norm_gap": 6.82174388790737,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 6.215226700225441,
+      "centroid_distance": 7.905944943813546,
+      "norm_gap": 6.191461019775347,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 6.2215576171875,
+      "centroid_distance": 6.971557725374946,
+      "norm_gap": 6.863616097012931,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 6.235462384843082,
+      "centroid_distance": 8.01234377274478,
+      "norm_gap": 6.878955822685876,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 6.242923922418562,
+      "centroid_distance": 8.263083135559382,
+      "norm_gap": 6.219052132918213,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 6.343870533521868,
+      "centroid_distance": 8.159972125596713,
+      "norm_gap": 6.998551801178488,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 6.360298453788748,
+      "centroid_distance": 8.016343627376658,
+      "norm_gap": 7.0166750668356075,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 6.375288958964091,
+      "centroid_distance": 8.223362189863774,
+      "norm_gap": 7.0332123584247475,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 6.385350764183783,
+      "centroid_distance": 8.186009009381623,
+      "norm_gap": 7.044311632978102,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 6.385470233823681,
+      "centroid_distance": 8.340722437217734,
+      "norm_gap": 6.361052916081951,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 6.415927978515623,
+      "centroid_distance": 7.565207827899871,
+      "norm_gap": 7.078044380727846,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 6.415927978515624,
+      "centroid_distance": 7.534078081978562,
+      "norm_gap": 7.078044380727847,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 6.429251847687396,
+      "centroid_distance": 8.270293259864696,
+      "norm_gap": 7.092742530565558,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "0aILbvu1bPLRmZCsqZRcR3",
+      "gap": 6.453793541186168,
+      "centroid_distance": 8.340063699378716,
+      "norm_gap": 6.429115490041292,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 6.460015624999998,
+      "centroid_distance": 7.85555813011728,
+      "norm_gap": 6.435312287974769,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 6.467151367187501,
+      "centroid_distance": 7.21715147537495,
+      "norm_gap": 7.134554874654244,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 6.467151367187501,
+      "centroid_distance": 7.217151475374949,
+      "norm_gap": 7.134554874654244,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 6.5046185399497425,
+      "centroid_distance": 7.845217864868568,
+      "norm_gap": 7.1758877062895525,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 6.511580078125,
+      "centroid_distance": 7.26158035723703,
+      "norm_gap": 7.183568807634556,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 6.511580078125,
+      "centroid_distance": 7.261580337223371,
+      "norm_gap": 7.183569031066841,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 6.535590973418638,
+      "centroid_distance": 8.362846392294404,
+      "norm_gap": 7.210055719970083,
+      "overlap": false
+    },
+    {
+      "a": "3JuMycUIrHxgC8LEsNW9DT",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 6.538002336435073,
+      "centroid_distance": 8.344340663796233,
+      "norm_gap": 7.212717592568032,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 6.540813476562498,
+      "centroid_distance": 7.875384885329696,
+      "norm_gap": 6.515802612356249,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 6.540813476562499,
+      "centroid_distance": 7.875383842231032,
+      "norm_gap": 6.515802822814018,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 6.564420052726652,
+      "centroid_distance": 8.202798117098617,
+      "norm_gap": 7.241860666535836,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 6.56452169911191,
+      "centroid_distance": 8.001079302187236,
+      "norm_gap": 7.241973726763176,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 6.61540166866332,
+      "centroid_distance": 8.435963749064337,
+      "norm_gap": 7.298104912312108,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 6.619535486933675,
+      "centroid_distance": 8.433135557514506,
+      "norm_gap": 7.3026639502832085,
+      "overlap": false
+    },
+    {
+      "a": "1MjgmtdBrGMeDxpe0HfC5h",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 6.641861160471833,
+      "centroid_distance": 8.51016339228988,
+      "norm_gap": 7.327292856311923,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 6.669204189273761,
+      "centroid_distance": 8.08656170947954,
+      "norm_gap": 7.3574584056875585,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 6.671040029214351,
+      "centroid_distance": 8.553671896323285,
+      "norm_gap": 7.359484641248374,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 6.674899597653289,
+      "centroid_distance": 8.212448546054745,
+      "norm_gap": 7.363742513262906,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 6.71953080629599,
+      "centroid_distance": 8.607086247173728,
+      "norm_gap": 6.693836197788163,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "0js6ZvVxLNh92QynYPqk1L",
+      "gap": 6.7358006046944014,
+      "centroid_distance": 8.620143903939123,
+      "norm_gap": 6.710043595445166,
+      "overlap": false
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 6.739400883259636,
+      "centroid_distance": 8.60916721226769,
+      "norm_gap": 7.434899317910414,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 6.742348876953125,
+      "centroid_distance": 8.344243889452391,
+      "norm_gap": 7.438152722006742,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 6.742348876953125,
+      "centroid_distance": 8.343522187319843,
+      "norm_gap": 7.438151541168919,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 6.744152969813369,
+      "centroid_distance": 8.254051149876434,
+      "norm_gap": 7.44014181434133,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 6.7731591785444385,
+      "centroid_distance": 8.465429493985871,
+      "norm_gap": 7.472142849157469,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 6.77423146233717,
+      "centroid_distance": 8.464173801071208,
+      "norm_gap": 7.473324372764953,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 6.786050706842812,
+      "centroid_distance": 8.224036217479863,
+      "norm_gap": 7.486363349735665,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 6.802688877623488,
+      "centroid_distance": 8.620644083963581,
+      "norm_gap": 6.776676442173282,
+      "overlap": false
+    },
+    {
+      "a": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 6.819238408743946,
+      "centroid_distance": 8.680624352519544,
+      "norm_gap": 7.522975212918755,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 6.872880126953123,
+      "centroid_distance": 8.43016992493647,
+      "norm_gap": 7.582154433783183,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 6.874662633834484,
+      "centroid_distance": 8.505631000252363,
+      "norm_gap": 7.584120893579383,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 6.886927990056804,
+      "centroid_distance": 8.554134820161405,
+      "norm_gap": 7.5976520222103465,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 6.887160195489038,
+      "centroid_distance": 8.618088799575993,
+      "norm_gap": 6.860825186919091,
+      "overlap": false
+    },
+    {
+      "a": "2hMNdvWdXSfPYrIo8oN6p2",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 6.887161608938999,
+      "centroid_distance": 8.618088994306694,
+      "norm_gap": 6.860826373362431,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 6.944173828125006,
+      "centroid_distance": 8.428866946624343,
+      "norm_gap": 7.660803810026338,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 6.944173828125006,
+      "centroid_distance": 8.405193813418624,
+      "norm_gap": 7.660803810026338,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 6.944173828125007,
+      "centroid_distance": 8.383557748504721,
+      "norm_gap": 7.660803810026339,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 6.946369961579584,
+      "centroid_distance": 8.493263539991437,
+      "norm_gap": 7.663226581683928,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 6.9715576171875,
+      "centroid_distance": 7.721557725374946,
+      "norm_gap": 7.691015341623119,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 6.9715576171875,
+      "centroid_distance": 7.7215577253749474,
+      "norm_gap": 7.691015341623119,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 6.975081260138863,
+      "centroid_distance": 8.719337024530429,
+      "norm_gap": 7.694902620978097,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 7.0014502158177665,
+      "centroid_distance": 8.969990304780424,
+      "norm_gap": 6.974678186969594,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 7.0414453125000005,
+      "centroid_distance": 8.42312815718963,
+      "norm_gap": 7.014519665048938,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 7.06766063760948,
+      "centroid_distance": 8.955136753621522,
+      "norm_gap": 7.797036096958991,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 7.071380934497963,
+      "centroid_distance": 8.849628523163126,
+      "norm_gap": 7.801140810444153,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "0js6ZvVxLNh92QynYPqk1L",
+      "gap": 7.076401602629171,
+      "centroid_distance": 8.964910597703447,
+      "norm_gap": 7.806679120764933,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 7.077600436215627,
+      "centroid_distance": 8.897140971379697,
+      "norm_gap": 7.808001672770062,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 7.078813500664768,
+      "centroid_distance": 8.89229944522921,
+      "norm_gap": 7.80933892780272,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 7.081076107988702,
+      "centroid_distance": 8.8943505756906,
+      "norm_gap": 7.811836273766771,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 7.098893213960272,
+      "centroid_distance": 8.54855027056733,
+      "norm_gap": 7.831491843732159,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 7.122239257812498,
+      "centroid_distance": 8.458082772595443,
+      "norm_gap": 7.095005128669409,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 7.127291596093814,
+      "centroid_distance": 9.005676120739437,
+      "norm_gap": 7.862819907029569,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 7.131436002468612,
+      "centroid_distance": 8.928762001111002,
+      "norm_gap": 7.867392011384671,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "2keaLJysnJJf5kkWh75nSt",
+      "gap": 7.134492178230357,
+      "centroid_distance": 8.92753266073166,
+      "norm_gap": 7.870764585260123,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1MjgmtdBrGMeDxpe0HfC5h",
+      "gap": 7.14959325337156,
+      "centroid_distance": 9.011881092161701,
+      "norm_gap": 7.887422260907935,
+      "overlap": false
+    },
+    {
+      "a": "0Enn$e9D5PUQM64yHn2C$H",
+      "b": "0WEjP61oTMbOLVcpUvUD7i",
+      "gap": 7.151054432654271,
+      "centroid_distance": 8.952630071091004,
+      "norm_gap": 7.889034232049958,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 7.165927978515623,
+      "centroid_distance": 8.28405525129596,
+      "norm_gap": 7.905443519764637,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 7.165927978515623,
+      "centroid_distance": 8.312376816560464,
+      "norm_gap": 7.905443519764637,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 7.190866300117787,
+      "centroid_distance": 8.89976385902224,
+      "norm_gap": 7.932956953658876,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 7.217151367187501,
+      "centroid_distance": 7.967151475374949,
+      "norm_gap": 7.961954119264432,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 7.245443693662339,
+      "centroid_distance": 8.568003396849662,
+      "norm_gap": 7.993165165434354,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1JDpWPo1rSNPBBqhx62JNf",
+      "gap": 7.253095368564274,
+      "centroid_distance": 9.011140358363514,
+      "norm_gap": 8.001607505380978,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 7.261580078125,
+      "centroid_distance": 8.011580357237033,
+      "norm_gap": 8.010968078024437,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1e5Vxu5lPKG9o2H5LeIr7N",
+      "gap": 7.2659304723886216,
+      "centroid_distance": 9.134206462246588,
+      "norm_gap": 8.015765334216978,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 7.2844011824175565,
+      "centroid_distance": 9.109318309528419,
+      "norm_gap": 8.036144298079307,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 7.340547952524619,
+      "centroid_distance": 9.19684560233692,
+      "norm_gap": 8.098085107924977,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 7.342124686569365,
+      "centroid_distance": 9.191075294440004,
+      "norm_gap": 8.099823525824348,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 7.342571678481634,
+      "centroid_distance": 9.162022484404641,
+      "norm_gap": 8.100318184694311,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1NlcVLoeXPOeA7YFm0NjMG",
+      "gap": 7.380428271866434,
+      "centroid_distance": 9.225457679651772,
+      "norm_gap": 8.14208103605595,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 7.38801056889443,
+      "centroid_distance": 8.889851994292403,
+      "norm_gap": 8.15044581850045,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 7.393556416637403,
+      "centroid_distance": 8.789523260245408,
+      "norm_gap": 8.156562951394305,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 7.446878672171398,
+      "centroid_distance": 8.986224155900274,
+      "norm_gap": 8.215389306715451,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 7.464833581100367,
+      "centroid_distance": 8.940659213038963,
+      "norm_gap": 8.235195837407158,
+      "overlap": false
+    },
+    {
+      "a": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 7.502871828671801,
+      "centroid_distance": 9.389748056324729,
+      "norm_gap": 8.277160644600144,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 7.573765613026648,
+      "centroid_distance": 9.336163366301845,
+      "norm_gap": 7.544804930390439,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 7.573768937301129,
+      "centroid_distance": 9.33616459540338,
+      "norm_gap": 7.544808485647738,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 7.59109368343918,
+      "centroid_distance": 9.318771392920384,
+      "norm_gap": 7.562066509333591,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 7.61180805564916,
+      "centroid_distance": 9.335976171858523,
+      "norm_gap": 7.582701495434661,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 7.685551569111865,
+      "centroid_distance": 9.557075129185458,
+      "norm_gap": 8.47869275026107,
+      "overlap": false
+    },
+    {
+      "a": "2keaLJysnJJf5kkWh75nSt",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 7.685802348668137,
+      "centroid_distance": 9.456646364088314,
+      "norm_gap": 8.478969410014967,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 7.7036669921874985,
+      "centroid_distance": 9.065411718619092,
+      "norm_gap": 7.674209838513019,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 7.709280517578123,
+      "centroid_distance": 9.220681750729314,
+      "norm_gap": 8.504871031829156,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 7.709280517578123,
+      "centroid_distance": 9.202218550965693,
+      "norm_gap": 8.504870767300096,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 7.7215576171875,
+      "centroid_distance": 8.471557725374947,
+      "norm_gap": 8.518414586233307,
+      "overlap": false
+    },
+    {
+      "a": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 7.742411928340958,
+      "centroid_distance": 9.506709472131005,
+      "norm_gap": 8.541419951436652,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 7.750757480458217,
+      "centroid_distance": 9.719989940877674,
+      "norm_gap": 7.721120013569132,
+      "overlap": false
+    },
+    {
+      "a": "31mS1kn4jGy8tfi62PTPP$",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 7.782397914991674,
+      "centroid_distance": 9.439460431712307,
+      "norm_gap": 8.58553244600777,
+      "overlap": false
+    },
+    {
+      "a": "31mS1kn4jGy8tfi62PTPP$",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 7.783333565505369,
+      "centroid_distance": 9.439622422640593,
+      "norm_gap": 8.586565750197684,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 7.820716271177826,
+      "centroid_distance": 9.631136267724766,
+      "norm_gap": 8.627806582265084,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 7.829102059778628,
+      "centroid_distance": 9.248513816995628,
+      "norm_gap": 8.637057506982538,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 7.834046883191641,
+      "centroid_distance": 9.509753783000361,
+      "norm_gap": 8.642512900470525,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 7.841071533203123,
+      "centroid_distance": 9.341153342547642,
+      "norm_gap": 8.65026221800895,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 7.841798344158094,
+      "centroid_distance": 9.402740730209324,
+      "norm_gap": 8.65106403512244,
+      "overlap": false
+    },
+    {
+      "a": "1JDpWPo1rSNPBBqhx62JNf",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 7.851758414452525,
+      "centroid_distance": 9.581237412300718,
+      "norm_gap": 8.662051974639608,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 7.8542466497178305,
+      "centroid_distance": 9.416062221034096,
+      "norm_gap": 8.664797532754905,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 7.861465193478329,
+      "centroid_distance": 9.470636000660654,
+      "norm_gap": 8.67276048348434,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 7.915927978515623,
+      "centroid_distance": 9.034036211334254,
+      "norm_gap": 8.732842658801427,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 7.915927978515623,
+      "centroid_distance": 9.060013642465792,
+      "norm_gap": 8.732842658801427,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 7.919889576314606,
+      "centroid_distance": 9.63474097100759,
+      "norm_gap": 8.737213088945547,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 7.92145475619362,
+      "centroid_distance": 9.634956064172348,
+      "norm_gap": 8.738940908651177,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 7.950721409140888,
+      "centroid_distance": 9.626534587350802,
+      "norm_gap": 8.771227850705626,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 7.987981364888428,
+      "centroid_distance": 9.29510199350183,
+      "norm_gap": 8.812331871934154,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 8.004004765494933,
+      "centroid_distance": 9.700273613699464,
+      "norm_gap": 8.830009995769137,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 8.057965497362657,
+      "centroid_distance": 9.922000151048147,
+      "norm_gap": 8.889538286541372,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 8.101999378290193,
+      "centroid_distance": 9.623692831905739,
+      "norm_gap": 8.938117832395445,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 8.1035234375,
+      "centroid_distance": 9.526006620408056,
+      "norm_gap": 8.93979683705582,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 8.1035234375,
+      "centroid_distance": 9.520020277186662,
+      "norm_gap": 8.93979683705582,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 8.1035234375,
+      "centroid_distance": 9.572970804511641,
+      "norm_gap": 8.93979683705582,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 8.12256538624181,
+      "centroid_distance": 9.499681994865378,
+      "norm_gap": 8.96080480979535,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 8.13159953032292,
+      "centroid_distance": 9.683891468310625,
+      "norm_gap": 8.970770347251854,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 8.146512523708491,
+      "centroid_distance": 10.023920223440438,
+      "norm_gap": 8.987223264358454,
+      "overlap": false
+    },
+    {
+      "a": "3rpMmDkvnJQ9sOnpwriTiP",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 8.152351212718523,
+      "centroid_distance": 9.713976018945147,
+      "norm_gap": 8.993664499371793,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 8.183037353515623,
+      "centroid_distance": 9.674803004461642,
+      "norm_gap": 9.027519128614415,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 8.183037353515623,
+      "centroid_distance": 9.702257687072281,
+      "norm_gap": 9.027518847829304,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 8.187596582262595,
+      "centroid_distance": 9.93099670985659,
+      "norm_gap": 9.032548303116037,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 8.197676028232042,
+      "centroid_distance": 9.79462591969271,
+      "norm_gap": 9.04366793775765,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 8.255997158348245,
+      "centroid_distance": 9.63729997308257,
+      "norm_gap": 9.10800658761004,
+      "overlap": false
+    },
+    {
+      "a": "2hMNdvWdXSfPYrIo8oN6p2",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 8.271392107963452,
+      "centroid_distance": 10.058899580734424,
+      "norm_gap": 8.23976383029582,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "gap": 8.276407468471014,
+      "centroid_distance": 9.939238757039277,
+      "norm_gap": 9.130524383332046,
+      "overlap": false
+    },
+    {
+      "a": "2hMNdvWdXSfPYrIo8oN6p2",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 8.285092773437496,
+      "centroid_distance": 9.692738559833606,
+      "norm_gap": 8.253412106952336,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 8.33379239574075,
+      "centroid_distance": 10.102229686009146,
+      "norm_gap": 9.193831949713504,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 8.337617923837575,
+      "centroid_distance": 10.075432549422752,
+      "norm_gap": 9.198050522401234,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 8.338871440303864,
+      "centroid_distance": 10.227204647656684,
+      "norm_gap": 9.199434574145183,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 8.346884116943594,
+      "centroid_distance": 10.041690527921181,
+      "norm_gap": 9.208272975998659,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 8.39151464805471,
+      "centroid_distance": 10.181005561903609,
+      "norm_gap": 9.257509326686781,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 8.395810887197397,
+      "centroid_distance": 10.253995033244061,
+      "norm_gap": 9.262250114609492,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 8.4715576171875,
+      "centroid_distance": 9.221557725374941,
+      "norm_gap": 9.345813830843495,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 8.4715576171875,
+      "centroid_distance": 9.221557725374948,
+      "norm_gap": 9.345813830843495,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 8.47794682705531,
+      "centroid_distance": 10.02623892040263,
+      "norm_gap": 9.352862983050732,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 8.49241092133201,
+      "centroid_distance": 10.255779426973758,
+      "norm_gap": 9.368817979542326,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 8.526520114470292,
+      "centroid_distance": 10.268033195743428,
+      "norm_gap": 9.4064472022568,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 8.572555329256152,
+      "centroid_distance": 10.450248686424226,
+      "norm_gap": 9.457233198362392,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 8.57617786476708,
+      "centroid_distance": 10.054534017585654,
+      "norm_gap": 9.46122860516165,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "2dFiVqFU5JKBjRvzhpl9Sj",
+      "gap": 8.583971644125798,
+      "centroid_distance": 10.430988893689365,
+      "norm_gap": 9.469827663821215,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 8.606252139917165,
+      "centroid_distance": 10.407255586112504,
+      "norm_gap": 9.49440869265637,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 8.612060839592319,
+      "centroid_distance": 10.168067220433587,
+      "norm_gap": 9.50081465773754,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 8.61679710652362,
+      "centroid_distance": 10.41239779786382,
+      "norm_gap": 9.506042185380387,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "0js6ZvVxLNh92QynYPqk1L",
+      "gap": 8.660726852928056,
+      "centroid_distance": 10.223207740259328,
+      "norm_gap": 8.627609566180647,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 8.665927978515622,
+      "centroid_distance": 9.784020090375577,
+      "norm_gap": 9.560241797838218,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 8.665927978515622,
+      "centroid_distance": 9.808011320489014,
+      "norm_gap": 9.560241797838218,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 8.712597605855462,
+      "centroid_distance": 10.334917884904788,
+      "norm_gap": 9.611726691494098,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 8.715013005283858,
+      "centroid_distance": 10.523910612888262,
+      "norm_gap": 9.614392343021732,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 8.731794675413424,
+      "centroid_distance": 10.02557529176137,
+      "norm_gap": 9.632905862244135,
+      "overlap": false
+    },
+    {
+      "a": "17dp4zlbfGSf0_Im39MOdN",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 8.772330699055304,
+      "centroid_distance": 10.276366228665765,
+      "norm_gap": 9.677626693356164,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 8.80111371256554,
+      "centroid_distance": 10.684108565934322,
+      "norm_gap": 9.709379783340127,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 8.802626421448526,
+      "centroid_distance": 10.579992241911986,
+      "norm_gap": 9.711048602256257,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 8.810059126026129,
+      "centroid_distance": 10.390372991157513,
+      "norm_gap": 9.719248354460149,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 8.832583496394658,
+      "centroid_distance": 10.274959036321285,
+      "norm_gap": 9.744097217164471,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 8.855081051099814,
+      "centroid_distance": 10.215537032615751,
+      "norm_gap": 9.76891525037465,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 8.856932408132735,
+      "centroid_distance": 10.388052628754354,
+      "norm_gap": 9.770957665328101,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1Qmjjyr5TLQvsed607jQQz",
+      "gap": 8.868576264841716,
+      "centroid_distance": 10.33642544054072,
+      "norm_gap": 8.834664750471713,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 8.875591370622978,
+      "centroid_distance": 10.552557243445484,
+      "norm_gap": 9.791541207237389,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 8.920707517909452,
+      "centroid_distance": 10.340330783951858,
+      "norm_gap": 9.841314293223078,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "0js6ZvVxLNh92QynYPqk1L",
+      "gap": 8.95510661013563,
+      "centroid_distance": 10.792605924041638,
+      "norm_gap": 9.879264592839895,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 8.96483961559429,
+      "centroid_distance": 10.778148499913256,
+      "norm_gap": 9.890002034658938,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 8.994692408307277,
+      "centroid_distance": 10.353088442757342,
+      "norm_gap": 9.922934339378934,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 9.063039604019668,
+      "centroid_distance": 10.86284584303685,
+      "norm_gap": 9.998334887229616,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 9.086479470880235,
+      "centroid_distance": 10.825431412168598,
+      "norm_gap": 10.024193721442375,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "gap": 9.105760243433613,
+      "centroid_distance": 10.905118769487714,
+      "norm_gap": 10.045465529357937,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 9.111903930264702,
+      "centroid_distance": 10.853146800489467,
+      "norm_gap": 10.052240925025012,
+      "overlap": false
+    },
+    {
+      "a": "0os72JnbDR9RmSEUWx5kk3",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 9.120689358274989,
+      "centroid_distance": 10.654281112661117,
+      "norm_gap": 10.061935940278143,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 9.157525390624999,
+      "centroid_distance": 10.591299173970487,
+      "norm_gap": 10.102570462562165,
+      "overlap": false
+    },
+    {
+      "a": "2YUldlHfjSawY3CBPVi5_Q",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 9.162853163601502,
+      "centroid_distance": 10.665876460953486,
+      "norm_gap": 10.108448054991094,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 9.218948391512901,
+      "centroid_distance": 10.792183429134969,
+      "norm_gap": 10.17033223968236,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 9.2215576171875,
+      "centroid_distance": 9.971557725374948,
+      "norm_gap": 10.173213075453683,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 9.2215576171875,
+      "centroid_distance": 9.971557725374943,
+      "norm_gap": 10.173213075453683,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 9.2215576171875,
+      "centroid_distance": 9.971557725374947,
+      "norm_gap": 10.173213075453683,
+      "overlap": false
+    },
+    {
+      "a": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 9.2215576171875,
+      "centroid_distance": 9.971557725374945,
+      "norm_gap": 10.173213075453683,
+      "overlap": false
+    },
+    {
+      "a": "3JuMycUIrHxgC8LEsNW9DT",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 9.242412329039677,
+      "centroid_distance": 11.004975989746663,
+      "norm_gap": 10.1962186715606,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 9.298975613521495,
+      "centroid_distance": 10.66886123317027,
+      "norm_gap": 10.258620531034992,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 9.33515617400344,
+      "centroid_distance": 10.968433144978784,
+      "norm_gap": 10.298532518778572,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 9.34002628598155,
+      "centroid_distance": 10.920421926024913,
+      "norm_gap": 10.303907591547246,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 9.370353983273509,
+      "centroid_distance": 10.946373373962926,
+      "norm_gap": 10.33736507665409,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 9.409822403468104,
+      "centroid_distance": 11.223786208759055,
+      "norm_gap": 10.380905273491488,
+      "overlap": false
+    },
+    {
+      "a": "2P1H6hEZrUeB6W8D2HFMbG",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 9.420056547256708,
+      "centroid_distance": 11.188415401490387,
+      "norm_gap": 10.392194503485383,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "17dp4zlbfGSf0_Im39MOdN",
+      "gap": 9.454637902181213,
+      "centroid_distance": 10.941523751674197,
+      "norm_gap": 10.430347336087015,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "2hMNdvWdXSfPYrIo8oN6p2",
+      "gap": 9.471303750010923,
+      "centroid_distance": 10.993597309534975,
+      "norm_gap": 9.435087231561578,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 9.49487959394486,
+      "centroid_distance": 11.202577547637393,
+      "norm_gap": 10.474739194233878,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 9.545144421201577,
+      "centroid_distance": 11.403514350082496,
+      "norm_gap": 10.530192368112017,
+      "overlap": false
+    },
+    {
+      "a": "1Qmjjyr5TLQvsed607jQQz",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 9.561273280694733,
+      "centroid_distance": 10.97884058345454,
+      "norm_gap": 10.547987053277861,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 9.588433153013987,
+      "centroid_distance": 11.184512085616163,
+      "norm_gap": 10.577948447354126,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 9.59336922021977,
+      "centroid_distance": 11.276656117790042,
+      "norm_gap": 10.583393911029184,
+      "overlap": false
+    },
+    {
+      "a": "29vajDGprJ$h3$jUGpDYdd",
+      "b": "3sMQ0Yl6zK4RKrIDv8JG6i",
+      "gap": 9.596715921403456,
+      "centroid_distance": 11.417439399538624,
+      "norm_gap": 10.587085987933177,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 9.653712432705229,
+      "centroid_distance": 11.050043778214835,
+      "norm_gap": 10.649964473772094,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 9.738955078125002,
+      "centroid_distance": 11.15269696536333,
+      "norm_gap": 10.744002960582614,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 9.738955078125002,
+      "centroid_distance": 11.191841807814564,
+      "norm_gap": 10.744002960582614,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 9.754628445059645,
+      "centroid_distance": 11.496823588722684,
+      "norm_gap": 10.761293799219537,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 9.756729779550575,
+      "centroid_distance": 11.280824282873459,
+      "norm_gap": 10.76361198877998,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 9.776151465308555,
+      "centroid_distance": 11.562676287072982,
+      "norm_gap": 10.785037968015876,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "0os72JnbDR9RmSEUWx5kk3",
+      "gap": 9.778720076672819,
+      "centroid_distance": 11.297209618583626,
+      "norm_gap": 10.787874811252523,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "31mS1kn4jGy8tfi62PTPP$",
+      "gap": 9.815543602283512,
+      "centroid_distance": 11.630069543610098,
+      "norm_gap": 10.828497815956988,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 9.8305278568495,
+      "centroid_distance": 11.418479318674141,
+      "norm_gap": 10.845025934590847,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "2VbkxSde9QTOXlxMyoDTd0",
+      "gap": 9.832611756227166,
+      "centroid_distance": 11.689058890086596,
+      "norm_gap": 10.847327386196815,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 9.835517073809765,
+      "centroid_distance": 11.575430537513682,
+      "norm_gap": 10.850531145135808,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "0hRrRMtynPNPzP6yh$HYbs",
+      "gap": 9.856325126613934,
+      "centroid_distance": 11.673361745960932,
+      "norm_gap": 10.873487952523712,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 9.870282822219417,
+      "centroid_distance": 11.450714134464917,
+      "norm_gap": 10.88888606825768,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 9.955647931682957,
+      "centroid_distance": 11.52437977459236,
+      "norm_gap": 10.983060771039279,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 9.9715576171875,
+      "centroid_distance": 10.721557725374947,
+      "norm_gap": 11.00061232006387,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 9.9715576171875,
+      "centroid_distance": 10.721557725374947,
+      "norm_gap": 11.00061232006387,
+      "overlap": false
+    },
+    {
+      "a": "2hMNdvWdXSfPYrIo8oN6p2",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 10.03725568370589,
+      "centroid_distance": 11.386698209199443,
+      "norm_gap": 11.07309036087676,
+      "overlap": false
+    },
+    {
+      "a": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 10.047836556413516,
+      "centroid_distance": 11.865322227383924,
+      "norm_gap": 11.084761754611916,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 10.063687877653152,
+      "centroid_distance": 11.831363469591794,
+      "norm_gap": 11.102247775507916,
+      "overlap": false
+    },
+    {
+      "a": "1NlcVLoeXPOeA7YFm0NjMG",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 10.080070465815918,
+      "centroid_distance": 11.922410012021498,
+      "norm_gap": 11.1203221664617,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "0js6ZvVxLNh92QynYPqk1L",
+      "gap": 10.147784107356632,
+      "centroid_distance": 11.93847559830769,
+      "norm_gap": 11.19502520652553,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "2P1H6hEZrUeB6W8D2HFMbG",
+      "gap": 10.175156489793915,
+      "centroid_distance": 11.972273244583603,
+      "norm_gap": 11.22521980785073,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "3vg93$6i5T0fPZYtdJUD36",
+      "gap": 10.24590958242563,
+      "centroid_distance": 11.902721926910397,
+      "norm_gap": 11.303275689530363,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1Pv1Y1lgHKaOCYyr8zu1b5",
+      "gap": 10.279433304433008,
+      "centroid_distance": 11.848539850883602,
+      "norm_gap": 11.340259021165313,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 10.285382562436334,
+      "centroid_distance": 11.763811119702149,
+      "norm_gap": 11.346822235765126,
+      "overlap": false
+    },
+    {
+      "a": "0IwgYPcYzJ7wT5dJZp4gKB",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 10.29323965993378,
+      "centroid_distance": 12.108994755543481,
+      "norm_gap": 11.355491625627785,
+      "overlap": false
+    },
+    {
+      "a": "31mS1kn4jGy8tfi62PTPP$",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 10.296633898795703,
+      "centroid_distance": 12.103348042616956,
+      "norm_gap": 11.359236146521626,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 10.335629686219676,
+      "centroid_distance": 12.024261826375183,
+      "norm_gap": 11.402254805041675,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 10.381700267872624,
+      "centroid_distance": 12.011943008340737,
+      "norm_gap": 11.453078643358861,
+      "overlap": false
+    },
+    {
+      "a": "2VbkxSde9QTOXlxMyoDTd0",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 10.391250147710354,
+      "centroid_distance": 12.229618092137352,
+      "norm_gap": 11.463616697028067,
+      "overlap": false
+    },
+    {
+      "a": "0$9EwHOwDKmu25$icFA5wm",
+      "b": "0WEjP61oTMbOLVcpUvUD7i",
+      "gap": 10.417670147229622,
+      "centroid_distance": 12.202883694806408,
+      "norm_gap": 11.492760568904593,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 10.427553642076033,
+      "centroid_distance": 12.004461393001503,
+      "norm_gap": 11.5036666754479,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 10.552652677318552,
+      "centroid_distance": 12.22884801889345,
+      "norm_gap": 11.641673125874885,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "3oKhgzCizPDAXIgAVx0Tes",
+      "gap": 10.561785725311633,
+      "centroid_distance": 12.121244504417128,
+      "norm_gap": 11.651751374476683,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 10.7215576171875,
+      "centroid_distance": 11.471557725374945,
+      "norm_gap": 11.828011564674059,
+      "overlap": false
+    },
+    {
+      "a": "0js6ZvVxLNh92QynYPqk1L",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 10.77296691885909,
+      "centroid_distance": 12.539462831447487,
+      "norm_gap": 11.884726254499407,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 10.773219416882322,
+      "centroid_distance": 12.4871002599788,
+      "norm_gap": 11.885002074809254,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 10.884120667377108,
+      "centroid_distance": 12.44849245831487,
+      "norm_gap": 12.007350957911939,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "2YUldlHfjSawY3CBPVi5_Q",
+      "gap": 10.98377471221229,
+      "centroid_distance": 12.647799258133874,
+      "norm_gap": 12.117287653678032,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 11.006748649914204,
+      "centroid_distance": 12.462445963018524,
+      "norm_gap": 12.14263247537783,
+      "overlap": false
+    },
+    {
+      "a": "02Kyw_DsPG5BC3j07wct$4",
+      "b": "0WEjP61oTMbOLVcpUvUD7i",
+      "gap": 11.007736684993269,
+      "centroid_distance": 12.578566392196391,
+      "norm_gap": 12.143724024041713,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "3rpMmDkvnJQ9sOnpwriTiP",
+      "gap": 11.040427287042025,
+      "centroid_distance": 12.784194223193378,
+      "norm_gap": 12.179785460198843,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 11.047992824081772,
+      "centroid_distance": 12.845885325452628,
+      "norm_gap": 12.188133000973203,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 11.078935734430491,
+      "centroid_distance": 12.772148735299467,
+      "norm_gap": 12.222269184148967,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 11.342419260007935,
+      "centroid_distance": 12.916199271904688,
+      "norm_gap": 12.51294550371015,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 11.397657736656587,
+      "centroid_distance": 12.945105362413997,
+      "norm_gap": 12.573881641717328,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 11.4715576171875,
+      "centroid_distance": 12.221557725374943,
+      "norm_gap": 12.655410809284247,
+      "overlap": false
+    },
+    {
+      "a": "253MCEPizVVhXJgdbnIPAD",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 11.4715576171875,
+      "centroid_distance": 12.221557725374948,
+      "norm_gap": 12.655410809284247,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 11.491915151307827,
+      "centroid_distance": 13.092457231369547,
+      "norm_gap": 12.677866302694403,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 11.498462562263509,
+      "centroid_distance": 13.053441615403669,
+      "norm_gap": 12.685092317593805,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "29vajDGprJ$h3$jUGpDYdd",
+      "gap": 11.588580949764452,
+      "centroid_distance": 13.372349042415593,
+      "norm_gap": 12.784509200657686,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 11.633856875849428,
+      "centroid_distance": 13.280591849254382,
+      "norm_gap": 12.834456234208776,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "253MCEPizVVhXJgdbnIPAD",
+      "gap": 11.683284919971095,
+      "centroid_distance": 13.204244340640717,
+      "norm_gap": 12.888986511874142,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "3JuMycUIrHxgC8LEsNW9DT",
+      "gap": 11.723183332903211,
+      "centroid_distance": 13.393426705310164,
+      "norm_gap": 12.93300239521943,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "0aILbvu1bPLRmZCsqZRcR3",
+      "gap": 11.821765425292435,
+      "centroid_distance": 13.507805276125469,
+      "norm_gap": 13.041756708986522,
+      "overlap": false
+    },
+    {
+      "a": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 11.830548027778441,
+      "centroid_distance": 13.409565346363026,
+      "norm_gap": 13.051448668677908,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 11.933190405903568,
+      "centroid_distance": 13.500206559663496,
+      "norm_gap": 13.16468363684554,
+      "overlap": false
+    },
+    {
+      "a": "1pqCYj4xrJTBBuRt3ezUcp",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 12.2215576171875,
+      "centroid_distance": 12.971557725374947,
+      "norm_gap": 13.482810053894436,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "1Ym1ST8jHM8gdkQAlxgZZ5",
+      "gap": 12.344968959270242,
+      "centroid_distance": 13.925863776628331,
+      "norm_gap": 13.618957322181888,
+      "overlap": false
+    },
+    {
+      "a": "0aILbvu1bPLRmZCsqZRcR3",
+      "b": "1pqCYj4xrJTBBuRt3ezUcp",
+      "gap": 12.393661494961558,
+      "centroid_distance": 13.893223334130388,
+      "norm_gap": 13.672673133926159,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 12.398081514142516,
+      "centroid_distance": 13.972967340561928,
+      "norm_gap": 13.677551039222738,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "15Q2Qfhb1VL920J$1Xxxu3",
+      "gap": 12.770699216694265,
+      "centroid_distance": 14.30461761288335,
+      "norm_gap": 14.088622513382338,
+      "overlap": false
+    },
+    {
+      "a": "0AG_FU1oHHxh9s_mH9GMgP",
+      "b": "0WEjP61oTMbOLVcpUvUD7i",
+      "gap": 12.889872660313438,
+      "centroid_distance": 14.469176045899754,
+      "norm_gap": 14.220094536353137,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "2ckUJw96bRRf32T_zhzxFQ",
+      "gap": 13.163477901035462,
+      "centroid_distance": 14.713440257045308,
+      "norm_gap": 14.521935562346192,
+      "overlap": false
+    },
+    {
+      "a": "15Q2Qfhb1VL920J$1Xxxu3",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 13.424467105886382,
+      "centroid_distance": 14.947389690940781,
+      "norm_gap": 14.809858590272945,
+      "overlap": false
+    },
+    {
+      "a": "0hRrRMtynPNPzP6yh$HYbs",
+      "b": "1h3RZClnrIWBrXj7hUcWKo",
+      "gap": 13.586336607740233,
+      "centroid_distance": 15.148384842763615,
+      "norm_gap": 14.98843286168535,
+      "overlap": false
+    },
+    {
+      "a": "2ckUJw96bRRf32T_zhzxFQ",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 13.798648812285895,
+      "centroid_distance": 15.339090511489648,
+      "norm_gap": 15.222655471902156,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "0hRrRMtynPNPzP6yh$HYbs",
+      "gap": 14.0365570702575,
+      "centroid_distance": 15.607267617725386,
+      "norm_gap": 15.485115622478464,
+      "overlap": false
+    },
+    {
+      "a": "1h3RZClnrIWBrXj7hUcWKo",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 14.202608950913646,
+      "centroid_distance": 15.756774316670931,
+      "norm_gap": 15.668303889973128,
+      "overlap": false
+    },
+    {
+      "a": "0WEjP61oTMbOLVcpUvUD7i",
+      "b": "3xGGPvwHLKieA3uVhpQjIN",
+      "gap": 14.633881678500268,
+      "centroid_distance": 16.198431282483178,
+      "norm_gap": 16.144083528674656,
+      "overlap": false
+    }
+  ]
+}
