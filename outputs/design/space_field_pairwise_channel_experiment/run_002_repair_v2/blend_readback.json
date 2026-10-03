@@ -1,0 +1,178 @@
+{
+  "candidate_geometry_matches": {
+    "disconnected_components:candidate:01": true,
+    "multiple_candidate_channels:candidate:01": true,
+    "multiple_candidate_channels:candidate:02": true,
+    "qualified_explicit_domain:candidate:01": true
+  },
+  "contains_required_labels": true,
+  "layout_checks": {
+    "candidate_geometry_matches_serialized": true,
+    "candidate_labels_separated": true,
+    "disconnected_wall_spans_qualified_domain": true,
+    "domain_boundary_separate_from_display_frame": true,
+    "warning_block_above_panel_titles": true
+  },
+  "object_count": 56,
+  "objects": [
+    "DisposableCamera",
+    "candidate_disconnected_components_candidate_01",
+    "candidate_multiple_candidate_channels_candidate_01",
+    "candidate_multiple_candidate_channels_candidate_02",
+    "candidate_qualified_explicit_domain_candidate_01",
+    "connectivity_disconnected_components",
+    "connectivity_multiple_candidate_channels",
+    "connectivity_qualified_explicit_domain",
+    "disconnected_components_fixture:disconnect:w1",
+    "disconnected_components_fixture:g1",
+    "disconnected_components_fixture:g2",
+    "display_frame_disconnected_components_bottom",
+    "display_frame_disconnected_components_left",
+    "display_frame_disconnected_components_right",
+    "display_frame_disconnected_components_top",
+    "display_frame_multiple_candidate_channels_bottom",
+    "display_frame_multiple_candidate_channels_left",
+    "display_frame_multiple_candidate_channels_right",
+    "display_frame_multiple_candidate_channels_top",
+    "display_frame_qualified_explicit_domain_bottom",
+    "display_frame_qualified_explicit_domain_left",
+    "display_frame_qualified_explicit_domain_right",
+    "display_frame_qualified_explicit_domain_top",
+    "domain_disconnected_components_0_0",
+    "domain_disconnected_components_0_1",
+    "domain_disconnected_components_0_2",
+    "domain_disconnected_components_0_3",
+    "domain_multiple_candidate_channels_0_0",
+    "domain_multiple_candidate_channels_0_1",
+    "domain_multiple_candidate_channels_0_2",
+    "domain_multiple_candidate_channels_0_3",
+    "domain_qualified_explicit_domain_0_0",
+    "domain_qualified_explicit_domain_0_1",
+    "domain_qualified_explicit_domain_0_2",
+    "domain_qualified_explicit_domain_0_3",
+    "label_disconnected_components_candidate_01",
+    "label_multiple_candidate_channels_candidate_01",
+    "label_multiple_candidate_channels_candidate_02",
+    "label_qualified_explicit_domain_candidate_01",
+    "multiple_candidate_channels_fixture:g1",
+    "multiple_candidate_channels_fixture:g2",
+    "multiple_candidate_channels_fixture:multi:w1",
+    "multiple_candidate_channels_fixture:multi:w2",
+    "profile_disconnected_components",
+    "profile_multiple_candidate_channels",
+    "profile_qualified_explicit_domain",
+    "qualified_explicit_domain_fixture:g1",
+    "qualified_explicit_domain_fixture:g2",
+    "selection_none_label",
+    "semantic_warning",
+    "semantic_warning_ifc",
+    "semantic_warning_route",
+    "semantic_warning_walk",
+    "title_disconnected_components",
+    "title_multiple_candidate_channels",
+    "title_qualified_explicit_domain"
+  ],
+  "required_labels": {
+    "candidate:01": true,
+    "candidate:02": true,
+    "computed_disconnected": true,
+    "not real IFC partition/channel inference": true,
+    "not route width": true,
+    "not walkability": true,
+    "selection: none": true,
+    "synthetic fixture diagnostic": true
+  },
+  "status": "pass",
+  "text_bodies": [
+    "candidate:01",
+    "candidate:01",
+    "candidate:01",
+    "candidate:02",
+    "computed_disconnected",
+    "connectivity: computed_disconnected",
+    "connectivity: computed_same_component",
+    "connectivity: computed_same_component",
+    "multiple candidates / no winner",
+    "not real IFC partition/channel inference",
+    "not route width",
+    "not walkability",
+    "profile: ambiguous",
+    "profile: computed",
+    "profile: computed",
+    "qualified domain / single candidate",
+    "selection: none",
+    "synthetic fixture diagnostic"
+  ],
+  "text_positions": {
+    "candidate:01": [
+      6.0,
+      4.815000057220459,
+      0.0
+    ],
+    "candidate:02": [
+      20.0,
+      5.601250171661377,
+      0.0
+    ],
+    "computed_disconnected": [
+      34.0,
+      9.0,
+      0.0
+    ],
+    "connectivity: computed_disconnected": [
+      34.0,
+      -0.3400000035762787,
+      0.0
+    ],
+    "connectivity: computed_same_component": [
+      6.0,
+      -0.3400000035762787,
+      0.0
+    ],
+    "multiple candidates / no winner": [
+      20.0,
+      9.0,
+      0.0
+    ],
+    "not real IFC partition/channel inference": [
+      20.0,
+      10.779999732971191,
+      0.0
+    ],
+    "not route width": [
+      20.0,
+      10.34000015258789,
+      0.0
+    ],
+    "not walkability": [
+      20.0,
+      9.899999618530273,
+      0.0
+    ],
+    "profile: ambiguous": [
+      20.0,
+      0.0,
+      0.0
+    ],
+    "profile: computed": [
+      6.0,
+      0.0,
+      0.0
+    ],
+    "qualified domain / single candidate": [
+      6.0,
+      9.0,
+      0.0
+    ],
+    "selection: none": [
+      20.0,
+      0.7799999713897705,
+      0.0
+    ],
+    "synthetic fixture diagnostic": [
+      20.0,
+      11.25,
+      0.0
+    ]
+  }
+}

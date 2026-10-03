@@ -1,0 +1,2425 @@
+{
+  "domain_status_mapping": {
+    "column_between_side_opening": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "column_off_axis_clearance": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "column_overlaps_furniture": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "column_row_open_gap": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "column_wall_contact": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "different_floor_column": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "different_floor_wall": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "disconnected_components": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_disconnected",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "empty_domain_geometry": {
+      "candidate_status": "invalid",
+      "connectivity_status": "not_available",
+      "global_empty_space_status": "not_available",
+      "profile_status": "not_available",
+      "qualification_reason_code": "empty_domain_geometry",
+      "qualification_status": "invalid"
+    },
+    "invalid_domain_geometry": {
+      "candidate_status": "invalid",
+      "connectivity_status": "not_available",
+      "global_empty_space_status": "not_available",
+      "profile_status": "not_available",
+      "qualification_reason_code": "invalid_domain_geometry",
+      "qualification_status": "invalid"
+    },
+    "missing_analysis_domain": {
+      "candidate_status": "not_available",
+      "connectivity_status": "not_available",
+      "global_empty_space_status": "not_available",
+      "profile_status": "not_available",
+      "qualification_reason_code": "missing_analysis_domain_record",
+      "qualification_status": "not_available"
+    },
+    "missing_domain_geometry": {
+      "candidate_status": "invalid",
+      "connectivity_status": "not_available",
+      "global_empty_space_status": "not_available",
+      "profile_status": "not_available",
+      "qualification_reason_code": "missing_domain_geometry",
+      "qualification_status": "invalid"
+    },
+    "missing_invalid_column_geometry": {
+      "candidate_status": "computed",
+      "connectivity_status": "partial",
+      "global_empty_space_status": "computed",
+      "profile_status": "partial",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "multiple_candidate_channels": {
+      "candidate_status": "ambiguous",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "ambiguous",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "no_column": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    },
+    "non_closed_domain_geometry": {
+      "candidate_status": "invalid",
+      "connectivity_status": "not_available",
+      "global_empty_space_status": "not_available",
+      "profile_status": "not_available",
+      "qualification_reason_code": "non_closed_domain_geometry",
+      "qualification_status": "invalid"
+    },
+    "qualified_explicit_domain": {
+      "candidate_status": "computed",
+      "connectivity_status": "computed_same_component",
+      "global_empty_space_status": "computed",
+      "profile_status": "computed",
+      "qualification_reason_code": "qualified_analysis_domain",
+      "qualification_status": "computed"
+    }
+  },
+  "fixture_definitions": {
+    "column_between_side_opening": {
+      "column_count": 1,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "column lies between groups while side openings remain",
+      "wall_count": 0
+    },
+    "column_off_axis_clearance": {
+      "column_count": 1,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "off-axis column changes local clearance",
+      "wall_count": 0
+    },
+    "column_overlaps_furniture": {
+      "column_count": 1,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "column overlaps furniture footprint and is unioned once",
+      "wall_count": 0
+    },
+    "column_row_open_gap": {
+      "column_count": 3,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "column row has gaps and is not a virtual wall",
+      "wall_count": 0
+    },
+    "column_wall_contact": {
+      "column_count": 1,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "column contacts a wall and remains physical occupancy evidence",
+      "wall_count": 1
+    },
+    "different_floor_column": {
+      "column_count": 1,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "different-floor column is retained but explicitly excluded",
+      "wall_count": 0
+    },
+    "different_floor_wall": {
+      "column_count": 0,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "out-of-scope wall must not affect target-floor occupancy",
+      "wall_count": 1
+    },
+    "disconnected_components": {
+      "column_count": 0,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "full-height obstacle separates free-space components",
+      "wall_count": 1
+    },
+    "empty_domain_geometry": {
+      "column_count": 0,
+      "domain_reason_code": "empty_domain_geometry",
+      "domain_status": "invalid",
+      "expected_candidate_status": "invalid",
+      "note": "AnalysisDomain record exists with empty geometry",
+      "wall_count": 0
+    },
+    "invalid_domain_geometry": {
+      "column_count": 0,
+      "domain_reason_code": "invalid_domain_geometry",
+      "domain_status": "invalid",
+      "expected_candidate_status": "invalid",
+      "note": "AnalysisDomain ring is self-intersecting",
+      "wall_count": 0
+    },
+    "missing_analysis_domain": {
+      "column_count": 0,
+      "domain_reason_code": "missing_analysis_domain_record",
+      "domain_status": "not_available",
+      "expected_candidate_status": "not_available",
+      "note": "no AnalysisDomain record; scene frame is diagnostic only",
+      "wall_count": 0
+    },
+    "missing_domain_geometry": {
+      "column_count": 0,
+      "domain_reason_code": "missing_domain_geometry",
+      "domain_status": "invalid",
+      "expected_candidate_status": "invalid",
+      "note": "AnalysisDomain record exists but geometry is missing",
+      "wall_count": 0
+    },
+    "missing_invalid_column_geometry": {
+      "column_count": 2,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "missing and invalid geometry retain separate provenance",
+      "wall_count": 0
+    },
+    "multiple_candidate_channels": {
+      "column_count": 0,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "ambiguous",
+      "note": "two candidate support bands; no candidate is selected",
+      "wall_count": 2
+    },
+    "no_column": {
+      "column_count": 0,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "two groups with no column",
+      "wall_count": 0
+    },
+    "non_closed_domain_geometry": {
+      "column_count": 0,
+      "domain_reason_code": "non_closed_domain_geometry",
+      "domain_status": "invalid",
+      "expected_candidate_status": "invalid",
+      "note": "AnalysisDomain ring is not closed",
+      "wall_count": 0
+    },
+    "qualified_explicit_domain": {
+      "column_count": 0,
+      "domain_reason_code": "qualified_analysis_domain",
+      "domain_status": "computed",
+      "expected_candidate_status": "computed",
+      "note": "qualified explicit domain with valid geometry",
+      "wall_count": 0
+    }
+  },
+  "fixture_ids": [
+    "column_between_side_opening",
+    "column_off_axis_clearance",
+    "column_overlaps_furniture",
+    "column_row_open_gap",
+    "column_wall_contact",
+    "different_floor_column",
+    "different_floor_wall",
+    "disconnected_components",
+    "empty_domain_geometry",
+    "invalid_domain_geometry",
+    "missing_analysis_domain",
+    "missing_domain_geometry",
+    "missing_invalid_column_geometry",
+    "multiple_candidate_channels",
+    "no_column",
+    "non_closed_domain_geometry",
+    "qualified_explicit_domain"
+  ],
+  "fixture_inputs": {
+    "column_between_side_opening": {
+      "columns": [
+        {
+          "geometry_parts": [
+            [
+              [
+                6.05,
+                3.35
+              ],
+              [
+                6.05,
+                3.85
+              ],
+              [
+                5.55,
+                3.85
+              ],
+              [
+                5.55,
+                3.35
+              ],
+              [
+                6.05,
+                3.35
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:between:c1",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:between:c1",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        }
+      ],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "column lies between groups while side openings remain",
+      "support": "direct",
+      "walls": []
+    },
+    "column_off_axis_clearance": {
+      "columns": [
+        {
+          "geometry_parts": [
+            [
+              [
+                6.05,
+                5.2
+              ],
+              [
+                6.05,
+                5.8
+              ],
+              [
+                5.55,
+                5.8
+              ],
+              [
+                5.55,
+                5.2
+              ],
+              [
+                6.05,
+                5.2
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:off_axis:c1",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:off_axis:c1",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        }
+      ],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "off-axis column changes local clearance",
+      "support": "direct",
+      "walls": []
+    },
+    "column_overlaps_furniture": {
+      "columns": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.3,
+                3.4
+              ],
+              [
+                4.3,
+                4.0
+              ],
+              [
+                3.6,
+                4.0
+              ],
+              [
+                3.6,
+                3.4
+              ],
+              [
+                4.3,
+                3.4
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:overlap:c1",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:overlap:c1",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        }
+      ],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "column overlaps furniture footprint and is unioned once",
+      "support": "direct",
+      "walls": []
+    },
+    "column_row_open_gap": {
+      "columns": [
+        {
+          "geometry_parts": [
+            [
+              [
+                5.15,
+                3.35
+              ],
+              [
+                5.15,
+                3.85
+              ],
+              [
+                4.7,
+                3.85
+              ],
+              [
+                4.7,
+                3.35
+              ],
+              [
+                5.15,
+                3.35
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:row:c1",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:row:c1",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                6.45,
+                3.35
+              ],
+              [
+                6.45,
+                3.85
+              ],
+              [
+                6.0,
+                3.85
+              ],
+              [
+                6.0,
+                3.35
+              ],
+              [
+                6.45,
+                3.35
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:row:c2",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:row:c2",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                7.75,
+                3.35
+              ],
+              [
+                7.75,
+                3.85
+              ],
+              [
+                7.3,
+                3.85
+              ],
+              [
+                7.3,
+                3.35
+              ],
+              [
+                7.75,
+                3.35
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:row:c3",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:row:c3",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        }
+      ],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "column row has gaps and is not a virtual wall",
+      "support": "direct",
+      "walls": []
+    },
+    "column_wall_contact": {
+      "columns": [
+        {
+          "geometry_parts": [
+            [
+              [
+                0.6,
+                3.0
+              ],
+              [
+                0.6,
+                3.6
+              ],
+              [
+                0.0,
+                3.6
+              ],
+              [
+                0.0,
+                3.0
+              ],
+              [
+                0.6,
+                3.0
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:wall_contact:c1",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:wall_contact:c1",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        }
+      ],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "column contacts a wall and remains physical occupancy evidence",
+      "support": "direct",
+      "walls": [
+        {
+          "geometry_parts": [
+            [
+              [
+                0.25,
+                0.0
+              ],
+              [
+                0.25,
+                8.0
+              ],
+              [
+                0.0,
+                8.0
+              ],
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.25,
+                0.0
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:wall:w1",
+          "source_kind": "IfcWall",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:wall:w1",
+            "kind": "IfcWall",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        }
+      ]
+    },
+    "different_floor_column": {
+      "columns": [
+        {
+          "geometry_parts": [
+            [
+              [
+                6.05,
+                3.35
+              ],
+              [
+                6.05,
+                3.85
+              ],
+              [
+                5.55,
+                3.85
+              ],
+              [
+                5.55,
+                3.35
+              ],
+              [
+                6.05,
+                3.35
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 2",
+          "source_id": "fixture:level2:c1",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:level2:c1",
+            "kind": "IfcColumn",
+            "level": "Level 2"
+          },
+          "status": "computed"
+        }
+      ],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "different-floor column is retained but explicitly excluded",
+      "support": "direct",
+      "walls": []
+    },
+    "different_floor_wall": {
+      "columns": [],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "out-of-scope wall must not affect target-floor occupancy",
+      "support": "direct",
+      "walls": [
+        {
+          "geometry_parts": [
+            [
+              [
+                6.2,
+                0.0
+              ],
+              [
+                6.2,
+                8.0
+              ],
+              [
+                5.8,
+                8.0
+              ],
+              [
+                5.8,
+                0.0
+              ],
+              [
+                6.2,
+                0.0
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 2",
+          "source_id": "fixture:level2:wall",
+          "source_kind": "IfcWall",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:level2:wall",
+            "kind": "IfcWall",
+            "level": "Level 2"
+          },
+          "status": "computed"
+        }
+      ]
+    },
+    "disconnected_components": {
+      "columns": [],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "full-height obstacle separates free-space components",
+      "support": "direct",
+      "walls": [
+        {
+          "geometry_parts": [
+            [
+              [
+                6.2,
+                0.0
+              ],
+              [
+                6.2,
+                8.0
+              ],
+              [
+                5.8,
+                8.0
+              ],
+              [
+                5.8,
+                0.0
+              ],
+              [
+                6.2,
+                0.0
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:disconnect:w1",
+          "source_kind": "IfcWall",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:disconnect:w1",
+            "kind": "IfcWall",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        }
+      ]
+    },
+    "empty_domain_geometry": {
+      "columns": [],
+      "domain": {
+        "geometry_parts": [],
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:empty_geometry",
+        "validity": "unqualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "AnalysisDomain record exists with empty geometry",
+      "support": "direct",
+      "walls": []
+    },
+    "invalid_domain_geometry": {
+      "columns": [],
+      "domain": {
+        "geometry_parts": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              12.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        ],
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:invalid",
+        "validity": "unqualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "AnalysisDomain ring is self-intersecting",
+      "support": "direct",
+      "walls": []
+    },
+    "missing_analysis_domain": {
+      "columns": [],
+      "domain": null,
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "no AnalysisDomain record; scene frame is diagnostic only",
+      "support": "direct",
+      "walls": []
+    },
+    "missing_domain_geometry": {
+      "columns": [],
+      "domain": {
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:missing_geometry",
+        "validity": "unqualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "AnalysisDomain record exists but geometry is missing",
+      "support": "direct",
+      "walls": []
+    },
+    "missing_invalid_column_geometry": {
+      "columns": [
+        {
+          "geometry_parts": [],
+          "geometry_valid": false,
+          "level": "Level 1",
+          "source_id": "fixture:missing:c1",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:missing:c1",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "missing"
+        },
+        {
+          "geometry_parts": [],
+          "geometry_valid": false,
+          "level": "Level 1",
+          "source_id": "fixture:invalid:c1",
+          "source_kind": "IfcColumn",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:invalid:c1",
+            "kind": "IfcColumn",
+            "level": "Level 1"
+          },
+          "status": "invalid"
+        }
+      ],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "missing and invalid geometry retain separate provenance",
+      "support": "direct",
+      "walls": []
+    },
+    "multiple_candidate_channels": {
+      "columns": [],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "two candidate support bands; no candidate is selected",
+      "support": "ambiguous",
+      "walls": [
+        {
+          "geometry_parts": [
+            [
+              [
+                6.9,
+                2.2
+              ],
+              [
+                6.9,
+                2.5
+              ],
+              [
+                5.1,
+                2.5
+              ],
+              [
+                5.1,
+                2.2
+              ],
+              [
+                6.9,
+                2.2
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:multi:w1",
+          "source_kind": "IfcWall",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:multi:w1",
+            "kind": "IfcWall",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                6.9,
+                4.7
+              ],
+              [
+                6.9,
+                5.0
+              ],
+              [
+                5.1,
+                5.0
+              ],
+              [
+                5.1,
+                4.7
+              ],
+              [
+                6.9,
+                4.7
+              ]
+            ]
+          ],
+          "geometry_valid": true,
+          "level": "Level 1",
+          "source_id": "fixture:multi:w2",
+          "source_kind": "IfcWall",
+          "source_ref": {
+            "fixture": true,
+            "id": "fixture:multi:w2",
+            "kind": "IfcWall",
+            "level": "Level 1"
+          },
+          "status": "computed"
+        }
+      ]
+    },
+    "no_column": {
+      "columns": [],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "two groups with no column",
+      "support": "direct",
+      "walls": []
+    },
+    "non_closed_domain_geometry": {
+      "columns": [],
+      "domain": {
+        "geometry_parts": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ]
+          ]
+        ],
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:non_closed",
+        "validity": "unqualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "AnalysisDomain ring is not closed",
+      "support": "direct",
+      "walls": []
+    },
+    "qualified_explicit_domain": {
+      "columns": [],
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "groups": [
+        {
+          "geometry_parts": [
+            [
+              [
+                4.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.2
+              ],
+              [
+                2.7,
+                4.2
+              ],
+              [
+                2.7,
+                3.0
+              ],
+              [
+                4.0,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g1",
+          "level": "Level 1",
+          "member_count": 2
+        },
+        {
+          "geometry_parts": [
+            [
+              [
+                9.3,
+                3.0
+              ],
+              [
+                9.3,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ],
+              [
+                8.0,
+                3.0
+              ],
+              [
+                9.3,
+                3.0
+              ]
+            ]
+          ],
+          "group_id": "fixture:g2",
+          "level": "Level 1",
+          "member_count": 3
+        }
+      ],
+      "note": "qualified explicit domain with valid geometry",
+      "support": "direct",
+      "walls": []
+    }
+  },
+  "frame": {
+    "bounds_m": [
+      0.0,
+      0.0,
+      12.0,
+      8.0
+    ],
+    "status": "fixture_frame_only_not_analysis_domain"
+  },
+  "schema": "d6-space-field-pairwise-channel-fixtures/repair_v2"
+}

@@ -1,0 +1,67 @@
+{
+  "adapter_rerun": false,
+  "analysis_domain": {
+    "reason": "owner-confirmed AnalysisDomain absent in confirmed real IFC audit",
+    "scene_bbox_substitution": false,
+    "status": "not_available"
+  },
+  "analysis_nodes": {
+    "group_count": 37,
+    "member_count": 95,
+    "members_are_not_split": true,
+    "selection_rule": "exact ObjectType == \"furniture_group\""
+  },
+  "column_occupancy": {
+    "after_uses_declared_furniture_group_geometry": true,
+    "after_uses_eligible_level_1_ifc_column_geometry": true,
+    "after_uses_valid_physical_wall_geometry": true,
+    "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy and _eligible_columns",
+    "invalid_missing_different_level_silent_inclusion": false,
+    "real_column_inventory": {
+      "eligible": 16,
+      "excluded": 0,
+      "exclusion_records": [],
+      "single_storey_source": true,
+      "total": 16
+    },
+    "union_prevents_duplicate_overlap_deduction": {
+      "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+      "overlap_area_removed_m2": 2.382895019081843e-06,
+      "raw_area_sum_m2": 63.927266688482206,
+      "source_count": 64,
+      "union_area_m2": 63.92726430558719,
+      "uses_union_before_frame_difference": true
+    }
+  },
+  "pairwise_boundary_gap": {
+    "semantic_limit": "geometric gap only",
+    "source": "existing furniture-group relation/cut diagnostics",
+    "status": "available_existing_gap_evidence"
+  },
+  "pairwise_candidate_support": {
+    "reason": "run_002 candidate evidence is synthetic-only and no live adapter rerun occurred",
+    "status": "not_available"
+  },
+  "pairwise_connectivity_evidence": {
+    "reason": "no qualified AnalysisDomain; connectivity cannot be inferred",
+    "status": "not_available"
+  },
+  "pairwise_free_space_profile": {
+    "reason": "no qualified AnalysisDomain; no formal pairwise profile is emitted",
+    "status": "not_available"
+  },
+  "provenance": {
+    "confirmed_source_hash_reused": true,
+    "full_ifc_geometry_adapter_rerun": false,
+    "partition_or_channel_inference": "not_selected",
+    "production_conclusions": [],
+    "route_width": "not_selected",
+    "walkability": "not_selected"
+  },
+  "schema": "d6-space-field-pairwise-channel-real-ifc/v2",
+  "source_ifc": {
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "read_only": true,
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  }
+}

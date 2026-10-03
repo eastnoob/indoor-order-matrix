@@ -1,0 +1,55 @@
+{
+  "allowed_statuses": [
+    "computed",
+    "computed_same_component",
+    "computed_disconnected",
+    "partial",
+    "not_available",
+    "invalid",
+    "ambiguous"
+  ],
+  "analysis_domain_status_mapping": {
+    "empty geometry": "invalid qualification; dependent outputs not_available",
+    "invalid or non-closed geometry": "invalid qualification; dependent outputs not_available",
+    "no record": "not_available",
+    "record missing geometry": "invalid qualification; dependent outputs not_available",
+    "valid qualified domain": "computed qualification; dependent outputs may be computed"
+  },
+  "candidate_set_selection_contract": [
+    "selected_candidate_id",
+    "selector"
+  ],
+  "connectivity_contract": [
+    "candidate_selection_independent",
+    "component_count",
+    "group_component_labels",
+    "status"
+  ],
+  "production_api": false,
+  "required_artifacts": [
+    "experiment_record.json",
+    "candidate_evidence.json",
+    "connectivity_evidence.json",
+    "pairwise_diagnostic.json",
+    "provenance.json",
+    "fixture_manifest.json",
+    "schema.json",
+    "validation_report.json",
+    "artifact_manifest.json",
+    "visual_manifest.json",
+    "pairwise_channel_diagnostic.svg",
+    "pairwise_channel_disposable.png",
+    "pairwise_channel_disposable.blend",
+    "blend_readback.json",
+    "repair_record.md",
+    "independent_scope_audit.json",
+    "run_experiment.py",
+    "validate.py",
+    "render_visual.py",
+    "inspect_blend.py"
+  ],
+  "required_fixture_count": 17,
+  "schema": "d6-space-field-pairwise-channel-contract/repair_v2",
+  "schema_validation_note": "schema.json is a declarative contract; validation_report records bounded structural assertions and does not claim full JSON Schema validation",
+  "selection_storage_rule": "selection appears only at candidate_set.selection"
+}

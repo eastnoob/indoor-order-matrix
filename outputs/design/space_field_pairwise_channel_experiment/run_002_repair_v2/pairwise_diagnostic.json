@@ -1,0 +1,3654 @@
+{
+  "estimands_compared": [
+    "pairwise_boundary_gap",
+    "pairwise_free_space_profile",
+    "pairwise_connectivity_evidence"
+  ],
+  "fixtures": {
+    "column_between_side_opening": {
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:between:c1",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:between:c1",
+            "source_kind": "IfcColumn",
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 2.0,
+            "min": 0.0,
+            "p50": 0.8000000000000007,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "column_between_side_opening",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.63,
+        "local_clearance_proxy": {
+          "max_m": 3.982461550347975,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.1,
+          "resolution_m": 0.5,
+          "sample_count": 371,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.370000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.0,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 1.0,
+            "p50_m": 2.0,
+            "p90_m": 3.0,
+            "resolution_m": 0.5,
+            "sample_count": 336,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [
+          "fixture:between:c1"
+        ],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.370000000000001,
+        "source_count": 3,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2",
+          "fixture:between:c1"
+        ],
+        "union_area_m2": 3.370000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [
+          "fixture:between:c1"
+        ],
+        "excluded_source_reason_records": [],
+        "fixture_note": "column lies between groups while side openings remain",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "column_off_axis_clearance": {
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:off_axis:c1",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:off_axis:c1",
+            "source_kind": "IfcColumn",
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 2.4000000000000004,
+            "min": 0.0,
+            "p50": 2.0,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "column_off_axis_clearance",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.58,
+        "local_clearance_proxy": {
+          "max_m": 3.8078865529319543,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 2.9154759474226504,
+          "resolution_m": 0.5,
+          "sample_count": 370,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.420000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.123105625617661,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 0.9999999999999999,
+            "p50_m": 2.0,
+            "p90_m": 3.0,
+            "resolution_m": 0.5,
+            "sample_count": 336,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [
+          "fixture:off_axis:c1"
+        ],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.420000000000001,
+        "source_count": 3,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2",
+          "fixture:off_axis:c1"
+        ],
+        "union_area_m2": 3.420000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [
+          "fixture:off_axis:c1"
+        ],
+        "excluded_source_reason_records": [],
+        "fixture_note": "off-axis column changes local clearance",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "column_overlaps_furniture": {
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:overlap:c1",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:overlap:c1",
+            "source_kind": "IfcColumn",
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 3.5999999999999996,
+            "min": 0.0,
+            "p50": 1.5999999999999996,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "column_overlaps_furniture",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.7,
+        "local_clearance_proxy": {
+          "max_m": 4.5,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.4438350715445125,
+          "resolution_m": 0.5,
+          "sample_count": 371,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.3000000000000007,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.534313619501853,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 1.0,
+            "p50_m": 2.0,
+            "p90_m": 3.059411708155671,
+            "resolution_m": 0.5,
+            "sample_count": 336,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [
+          "fixture:overlap:c1"
+        ],
+        "overlap_removed_m2": 0.2400000000000002,
+        "raw_area_m2": 3.540000000000001,
+        "source_count": 3,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2",
+          "fixture:overlap:c1"
+        ],
+        "union_area_m2": 3.3000000000000007,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [
+          "fixture:overlap:c1"
+        ],
+        "excluded_source_reason_records": [],
+        "fixture_note": "column overlaps furniture footprint and is unioned once",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "column_row_open_gap": {
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:row:c1",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:row:c1",
+            "source_kind": "IfcColumn",
+            "status": "eligible"
+          },
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:row:c2",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:row:c2",
+            "source_kind": "IfcColumn",
+            "status": "eligible"
+          },
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:row:c3",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:row:c3",
+            "source_kind": "IfcColumn",
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 3,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 1.0630145812734657,
+            "min": 0.0,
+            "p50": 0.7000000000000003,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "column_row_open_gap",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.20500000000001,
+        "local_clearance_proxy": {
+          "max_m": 3.8470768123342687,
+          "min_m": 0.0,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.1,
+          "resolution_m": 0.5,
+          "sample_count": 370,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.7950000000000017,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.0,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 0.7000000000000002,
+            "p50_m": 2.0,
+            "p90_m": 3.0,
+            "resolution_m": 0.5,
+            "sample_count": 335,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [
+          "fixture:row:c1",
+          "fixture:row:c2",
+          "fixture:row:c3"
+        ],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.7950000000000017,
+        "source_count": 5,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2",
+          "fixture:row:c1",
+          "fixture:row:c2",
+          "fixture:row:c3"
+        ],
+        "union_area_m2": 3.7950000000000017,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [
+          "fixture:row:c1",
+          "fixture:row:c2",
+          "fixture:row:c3"
+        ],
+        "excluded_source_reason_records": [],
+        "fixture_note": "column row has gaps and is not a virtual wall",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "column_wall_contact": {
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:wall_contact:c1",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:wall_contact:c1",
+            "source_kind": "IfcColumn",
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 4.0,
+            "min": 0.0,
+            "p50": 2.0,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "column_wall_contact",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 90.66999999999999,
+        "local_clearance_proxy": {
+          "max_m": 4.5,
+          "min_m": 0.0,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.5,
+          "resolution_m": 0.5,
+          "sample_count": 371,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 5.330000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.770744176750625,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 0.5999999999999996,
+            "p50_m": 2.0,
+            "p90_m": 3.1622776601683795,
+            "resolution_m": 0.5,
+            "sample_count": 336,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [
+          "fixture:wall:w1",
+          "fixture:wall_contact:c1"
+        ],
+        "overlap_removed_m2": 0.15000000000000036,
+        "raw_area_m2": 5.480000000000001,
+        "source_count": 4,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2",
+          "fixture:wall:w1",
+          "fixture:wall_contact:c1"
+        ],
+        "union_area_m2": 5.330000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [
+          "fixture:wall_contact:c1"
+        ],
+        "excluded_source_reason_records": [],
+        "fixture_note": "column contacts a wall and remains physical occupancy evidence",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": [
+          "fixture:wall:w1"
+        ]
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:wall:w1",
+              "source_kind": "IfcWall"
+            },
+            "source_id": "fixture:wall:w1",
+            "source_kind": "IfcWall",
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      }
+    },
+    "different_floor_column": {
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": false,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 2",
+            "reason": "known_other_floor_exclusion",
+            "reason_record": {
+              "code": "known_other_floor_exclusion",
+              "effect": "excluded",
+              "level": "Level 2",
+              "reason_code": "known_other_floor_exclusion",
+              "scope": "other_floor_source",
+              "source_id": "fixture:level2:c1",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:level2:c1",
+            "source_kind": "IfcColumn",
+            "status": "excluded"
+          }
+        ],
+        "eligible_count": 0,
+        "excluded_count": 1
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 4.0,
+            "min": 0.0,
+            "p50": 2.0,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "different_floor_column",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.88,
+        "local_clearance_proxy": {
+          "max_m": 4.5,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.5,
+          "resolution_m": 0.5,
+          "sample_count": 372,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.120000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.770744176750625,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 1.0,
+            "p50_m": 2.0,
+            "p90_m": 3.1622776601683795,
+            "resolution_m": 0.5,
+            "sample_count": 337,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [
+          "fixture:level2:c1"
+        ],
+        "excluded_source_reason_records": [
+          {
+            "code": "known_other_floor_exclusion",
+            "effect": "excluded",
+            "level": "Level 2",
+            "reason_code": "known_other_floor_exclusion",
+            "scope": "other_floor_source",
+            "source_id": "fixture:level2:c1",
+            "source_kind": "IfcColumn"
+          }
+        ],
+        "fixture_note": "different-floor column is retained but explicitly excluded",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "different_floor_wall": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 4.0,
+            "min": 0.0,
+            "p50": 2.0,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "different_floor_wall",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.88,
+        "local_clearance_proxy": {
+          "max_m": 4.5,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.5,
+          "resolution_m": 0.5,
+          "sample_count": 372,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.120000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.770744176750625,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 1.0,
+            "p50_m": 2.0,
+            "p90_m": 3.1622776601683795,
+            "resolution_m": 0.5,
+            "sample_count": 337,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "baseline_component_count": 1,
+        "baseline_fixture_id": "no_column",
+        "baseline_occupancy_area_m2": 3.120000000000001,
+        "component_count_unchanged": true,
+        "excluded_source_ids": [
+          "fixture:level2:wall"
+        ],
+        "fixture_component_count": 1,
+        "fixture_occupancy_area_m2": 3.120000000000001,
+        "occupancy_area_unchanged": true,
+        "status": "computed"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [
+          {
+            "code": "known_other_floor_exclusion",
+            "effect": "excluded",
+            "level": "Level 2",
+            "reason_code": "known_other_floor_exclusion",
+            "scope": "other_floor_source",
+            "source_id": "fixture:level2:wall",
+            "source_kind": "IfcWall"
+          }
+        ],
+        "fixture_note": "out-of-scope wall must not affect target-floor occupancy",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": [
+          "fixture:level2:wall"
+        ]
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": false,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 2",
+            "reason": "known_other_floor_exclusion",
+            "reason_record": {
+              "code": "known_other_floor_exclusion",
+              "effect": "excluded",
+              "level": "Level 2",
+              "reason_code": "known_other_floor_exclusion",
+              "scope": "other_floor_source",
+              "source_id": "fixture:level2:wall",
+              "source_kind": "IfcWall"
+            },
+            "source_id": "fixture:level2:wall",
+            "source_kind": "IfcWall",
+            "status": "excluded"
+          }
+        ],
+        "eligible_count": 0,
+        "excluded_count": 1
+      }
+    },
+    "disconnected_components": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 2,
+          "group_component_labels": [
+            [
+              1
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_disconnected",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_disconnected"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 5,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 1.5999999999999996,
+            "min": 0.0,
+            "p50": 0.7999999999999989,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "disconnected_components",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 2,
+        "component_count": 2,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 89.67999999999999,
+        "local_clearance_proxy": {
+          "max_m": 3.5,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.09999999999999964,
+          "p50_m": 1.4999999999999998,
+          "p90_m": 2.5,
+          "resolution_m": 0.5,
+          "sample_count": 372,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 6.320000000000004,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 3.862641583165593,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 0.5999999999999996,
+            "p50_m": 1.5999999999999996,
+            "p90_m": 2.9999999999999996,
+            "resolution_m": 0.5,
+            "sample_count": 322,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [
+          "fixture:disconnect:w1"
+        ],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 6.320000000000004,
+        "source_count": 3,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2",
+          "fixture:disconnect:w1"
+        ],
+        "union_area_m2": 6.320000000000004,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "full-height obstacle separates free-space components",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": [
+          "fixture:disconnect:w1"
+        ]
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:disconnect:w1",
+              "source_kind": "IfcWall"
+            },
+            "source_id": "fixture:disconnect:w1",
+            "source_kind": "IfcWall",
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      }
+    },
+    "empty_domain_geometry": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "geometry_parts": [],
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:empty_geometry",
+        "validity": "unqualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "empty",
+        "qualified": false,
+        "reason": "AnalysisDomain geometry is explicitly empty",
+        "reason_code": "empty_domain_geometry",
+        "record_present": true,
+        "status": "invalid"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "domain_reason_code": "empty_domain_geometry",
+          "partial_reason_records": [],
+          "reason": "AnalysisDomain geometry is explicitly empty",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "not_available"
+        },
+        "pairwise_free_space_profile": {
+          "candidate_ids": [],
+          "domain_reason_code": "empty_domain_geometry",
+          "partial_reason_records": [],
+          "reason": "AnalysisDomain geometry is explicitly empty",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "not_available"
+        }
+      },
+      "fixture_id": "empty_domain_geometry",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "domain_reason_code": "empty_domain_geometry",
+        "domain_record_present": true,
+        "reason": "AnalysisDomain geometry is explicitly empty",
+        "status": "not_available",
+        "topology_computed": false
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "AnalysisDomain record exists with empty geometry",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "invalid_domain_geometry": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "geometry_parts": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              12.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        ],
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:invalid",
+        "validity": "unqualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "invalid",
+        "qualified": false,
+        "reason": "AnalysisDomain ring is not valid",
+        "reason_code": "invalid_domain_geometry",
+        "record_present": true,
+        "status": "invalid"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "domain_reason_code": "invalid_domain_geometry",
+          "partial_reason_records": [],
+          "reason": "AnalysisDomain ring is not valid",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "not_available"
+        },
+        "pairwise_free_space_profile": {
+          "candidate_ids": [],
+          "domain_reason_code": "invalid_domain_geometry",
+          "partial_reason_records": [],
+          "reason": "AnalysisDomain ring is not valid",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "not_available"
+        }
+      },
+      "fixture_id": "invalid_domain_geometry",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "domain_reason_code": "invalid_domain_geometry",
+        "domain_record_present": true,
+        "reason": "AnalysisDomain ring is not valid",
+        "status": "not_available",
+        "topology_computed": false
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "AnalysisDomain ring is self-intersecting",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "missing_analysis_domain": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "closure": "none",
+        "source": "none",
+        "status": "not_available",
+        "validity": "missing"
+      },
+      "domain_qualification": {
+        "geometry_status": "missing",
+        "qualified": false,
+        "reason": "no AnalysisDomain record is present",
+        "reason_code": "missing_analysis_domain_record",
+        "record_present": false,
+        "status": "not_available"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "domain_reason_code": "missing_analysis_domain_record",
+          "partial_reason_records": [],
+          "reason": "no AnalysisDomain record is present",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "not_available"
+        },
+        "pairwise_free_space_profile": {
+          "candidate_ids": [],
+          "domain_reason_code": "missing_analysis_domain_record",
+          "partial_reason_records": [],
+          "reason": "no AnalysisDomain record is present",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "not_available"
+        }
+      },
+      "fixture_id": "missing_analysis_domain",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "domain_reason_code": "missing_analysis_domain_record",
+        "domain_record_present": false,
+        "reason": "no AnalysisDomain record is present",
+        "status": "not_available",
+        "topology_computed": false
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "no AnalysisDomain record; scene frame is diagnostic only",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "missing_domain_geometry": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:missing_geometry",
+        "validity": "unqualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "missing",
+        "qualified": false,
+        "reason": "AnalysisDomain record has no usable geometry field",
+        "reason_code": "missing_domain_geometry",
+        "record_present": true,
+        "status": "invalid"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "domain_reason_code": "missing_domain_geometry",
+          "partial_reason_records": [],
+          "reason": "AnalysisDomain record has no usable geometry field",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "not_available"
+        },
+        "pairwise_free_space_profile": {
+          "candidate_ids": [],
+          "domain_reason_code": "missing_domain_geometry",
+          "partial_reason_records": [],
+          "reason": "AnalysisDomain record has no usable geometry field",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "not_available"
+        }
+      },
+      "fixture_id": "missing_domain_geometry",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "domain_reason_code": "missing_domain_geometry",
+        "domain_record_present": true,
+        "reason": "AnalysisDomain record has no usable geometry field",
+        "status": "not_available",
+        "topology_computed": false
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "AnalysisDomain record exists but geometry is missing",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "missing_invalid_column_geometry": {
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": false,
+              "target_level": true,
+              "valid_geometry": false
+            },
+            "geometry_valid": false,
+            "impacts_partial": true,
+            "level": "Level 1",
+            "reason": "missing_geometry",
+            "reason_record": {
+              "code": "missing_geometry",
+              "effect": "partial",
+              "level": "Level 1",
+              "reason_code": "missing_geometry",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:missing:c1",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:missing:c1",
+            "source_kind": "IfcColumn",
+            "status": "excluded"
+          },
+          {
+            "checks": {
+              "computed_status": false,
+              "target_level": true,
+              "valid_geometry": false
+            },
+            "geometry_valid": false,
+            "impacts_partial": true,
+            "level": "Level 1",
+            "reason": "invalid_geometry",
+            "reason_record": {
+              "code": "invalid_geometry",
+              "effect": "partial",
+              "level": "Level 1",
+              "reason_code": "invalid_geometry",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:invalid:c1",
+              "source_kind": "IfcColumn"
+            },
+            "source_id": "fixture:invalid:c1",
+            "source_kind": "IfcColumn",
+            "status": "excluded"
+          }
+        ],
+        "eligible_count": 0,
+        "excluded_count": 2
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [
+            {
+              "code": "missing_geometry",
+              "effect": "partial",
+              "level": "Level 1",
+              "reason_code": "missing_geometry",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:missing:c1",
+              "source_kind": "IfcColumn"
+            },
+            {
+              "code": "invalid_geometry",
+              "effect": "partial",
+              "level": "Level 1",
+              "reason_code": "invalid_geometry",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:invalid:c1",
+              "source_kind": "IfcColumn"
+            }
+          ],
+          "reason": "partial_geometry_reasons",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "partial"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 4.0,
+            "min": 0.0,
+            "p50": 2.0,
+            "sample_count": 21
+          },
+          "partial_reason_records": [
+            {
+              "code": "missing_geometry",
+              "effect": "partial",
+              "level": "Level 1",
+              "reason_code": "missing_geometry",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:missing:c1",
+              "source_kind": "IfcColumn"
+            },
+            {
+              "code": "invalid_geometry",
+              "effect": "partial",
+              "level": "Level 1",
+              "reason_code": "invalid_geometry",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:invalid:c1",
+              "source_kind": "IfcColumn"
+            }
+          ],
+          "reason": "partial_geometry_reasons",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "partial",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "missing_invalid_column_geometry",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.88,
+        "local_clearance_proxy": {
+          "max_m": 4.5,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.5,
+          "resolution_m": 0.5,
+          "sample_count": 372,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.120000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.770744176750625,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 1.0,
+            "p50_m": 2.0,
+            "p90_m": 3.1622776601683795,
+            "resolution_m": 0.5,
+            "sample_count": 337,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [
+          "fixture:missing:c1",
+          "fixture:invalid:c1"
+        ],
+        "excluded_source_reason_records": [
+          {
+            "code": "missing_geometry",
+            "effect": "partial",
+            "level": "Level 1",
+            "reason_code": "missing_geometry",
+            "scope": "in_scope_obstacle",
+            "source_id": "fixture:missing:c1",
+            "source_kind": "IfcColumn"
+          },
+          {
+            "code": "invalid_geometry",
+            "effect": "partial",
+            "level": "Level 1",
+            "reason_code": "invalid_geometry",
+            "scope": "in_scope_obstacle",
+            "source_id": "fixture:invalid:c1",
+            "source_kind": "IfcColumn"
+          }
+        ],
+        "fixture_note": "missing and invalid geometry retain separate provenance",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [
+          {
+            "code": "missing_geometry",
+            "effect": "partial",
+            "level": "Level 1",
+            "reason_code": "missing_geometry",
+            "scope": "in_scope_obstacle",
+            "source_id": "fixture:missing:c1",
+            "source_kind": "IfcColumn"
+          },
+          {
+            "code": "invalid_geometry",
+            "effect": "partial",
+            "level": "Level 1",
+            "reason_code": "invalid_geometry",
+            "scope": "in_scope_obstacle",
+            "source_id": "fixture:invalid:c1",
+            "source_kind": "IfcColumn"
+          }
+        ],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "multiple_candidate_channels": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "candidate_ids": [
+            "candidate:01",
+            "candidate:02"
+          ],
+          "candidate_support_geometry_status": "complete_candidate_set_preserved",
+          "partial_reason_records": [],
+          "reason": "multiple candidate support geometries remain unselected",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "ambiguous"
+        }
+      },
+      "fixture_id": "multiple_candidate_channels",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 91.79999999999998,
+        "local_clearance_proxy": {
+          "max_m": 3.5,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 2.5,
+          "resolution_m": 0.5,
+          "sample_count": 364,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 4.200000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 3.862641583165593,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 0.4472135954999579,
+            "p50_m": 1.5999999999999994,
+            "p90_m": 3.0,
+            "resolution_m": 0.5,
+            "sample_count": 337,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": true,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [
+          "fixture:multi:w1",
+          "fixture:multi:w2"
+        ],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 4.200000000000001,
+        "source_count": 4,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2",
+          "fixture:multi:w1",
+          "fixture:multi:w2"
+        ],
+        "union_area_m2": 4.200000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "two candidate support bands; no candidate is selected",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": [
+          "fixture:multi:w1",
+          "fixture:multi:w2"
+        ]
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:multi:w1",
+              "source_kind": "IfcWall"
+            },
+            "source_id": "fixture:multi:w1",
+            "source_kind": "IfcWall",
+            "status": "eligible"
+          },
+          {
+            "checks": {
+              "computed_status": true,
+              "target_level": true,
+              "valid_geometry": true
+            },
+            "geometry_valid": true,
+            "impacts_partial": false,
+            "level": "Level 1",
+            "reason": "eligible",
+            "reason_record": {
+              "code": "eligible",
+              "effect": "eligible",
+              "level": "Level 1",
+              "reason_code": "eligible",
+              "scope": "in_scope_obstacle",
+              "source_id": "fixture:multi:w2",
+              "source_kind": "IfcWall"
+            },
+            "source_id": "fixture:multi:w2",
+            "source_kind": "IfcWall",
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 2,
+        "excluded_count": 0
+      }
+    },
+    "no_column": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 4.0,
+            "min": 0.0,
+            "p50": 2.0,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "no_column",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.88,
+        "local_clearance_proxy": {
+          "max_m": 4.5,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.5,
+          "resolution_m": 0.5,
+          "sample_count": 372,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.120000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.770744176750625,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 1.0,
+            "p50_m": 2.0,
+            "p90_m": 3.1622776601683795,
+            "resolution_m": 0.5,
+            "sample_count": 337,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "two groups with no column",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "non_closed_domain_geometry": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "geometry_parts": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ]
+          ]
+        ],
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:non_closed",
+        "validity": "unqualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "non_closed",
+        "qualified": false,
+        "reason": "AnalysisDomain ring is not closed",
+        "reason_code": "non_closed_domain_geometry",
+        "record_present": true,
+        "status": "invalid"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "domain_reason_code": "non_closed_domain_geometry",
+          "partial_reason_records": [],
+          "reason": "AnalysisDomain ring is not closed",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "not_available"
+        },
+        "pairwise_free_space_profile": {
+          "candidate_ids": [],
+          "domain_reason_code": "non_closed_domain_geometry",
+          "partial_reason_records": [],
+          "reason": "AnalysisDomain ring is not closed",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "not_available"
+        }
+      },
+      "fixture_id": "non_closed_domain_geometry",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "domain_reason_code": "non_closed_domain_geometry",
+        "domain_record_present": true,
+        "reason": "AnalysisDomain ring is not closed",
+        "status": "not_available",
+        "topology_computed": false
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "AnalysisDomain ring is not closed",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    },
+    "qualified_explicit_domain": {
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "domain": {
+        "analysis_plane": "Level 1 horizontal XY",
+        "closure": "explicit_closed_fixture_polygon",
+        "geometry_parts": [
+          [
+            [
+              12.0,
+              0.0
+            ],
+            [
+              12.0,
+              8.0
+            ],
+            [
+              0.0,
+              8.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.0,
+              0.0
+            ]
+          ]
+        ],
+        "owner_confirmed": false,
+        "source": "explicit_fixture_domain",
+        "source_id": "fixture:analysis_domain:qualified",
+        "units": "metres",
+        "user_confirmed": true,
+        "validity": "qualified"
+      },
+      "domain_qualification": {
+        "geometry_status": "qualified",
+        "qualified": true,
+        "reason": "AnalysisDomain geometry is closed, valid, and non-empty",
+        "reason_code": "qualified_analysis_domain",
+        "record_present": true,
+        "status": "computed"
+      },
+      "estimands": {
+        "pairwise_boundary_gap": {
+          "boundary_gap_m": 4.0,
+          "contact_or_overlap": false,
+          "group_ids": [
+            "fixture:g1",
+            "fixture:g2"
+          ],
+          "nearest_points_xy_m": [
+            [
+              4.0,
+              4.2
+            ],
+            [
+              8.0,
+              4.2
+            ]
+          ],
+          "overlap_area_m2": 0.0,
+          "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+          "status": "computed"
+        },
+        "pairwise_connectivity_evidence": {
+          "candidate_ids_considered": [],
+          "candidate_selection_independent": true,
+          "component_count": 1,
+          "group_component_labels": [
+            [
+              0
+            ],
+            [
+              0
+            ]
+          ],
+          "observed_status": "computed_same_component",
+          "partial_reason_records": [],
+          "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+          "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+          "status": "computed_same_component"
+        },
+        "pairwise_free_space_profile": {
+          "blocked_sample_count": 2,
+          "candidate_ids": [
+            "candidate:01"
+          ],
+          "clearance_profile_m": {
+            "max": 4.0,
+            "min": 0.0,
+            "p50": 2.0,
+            "sample_count": 21
+          },
+          "partial_reason_records": [],
+          "reason": "single diagnostic candidate measured without selector",
+          "semantic_limit": "diagnostic free-space profile; not corridor, route width, or walkability",
+          "status": "computed",
+          "support_geometry": {
+            "coordinates_xy_m": [
+              [
+                4.0,
+                4.2
+              ],
+              [
+                8.0,
+                4.2
+              ]
+            ],
+            "type": "LineString"
+          }
+        }
+      },
+      "fixture_id": "qualified_explicit_domain",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 2,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 3,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "global_empty_space": {
+        "baseline_component_count_without_eligible_columns": 1,
+        "component_count": 1,
+        "domain_area_m2": 96.0,
+        "free_area_m2": 92.88,
+        "local_clearance_proxy": {
+          "max_m": 4.5,
+          "min_m": 0.09999999999999964,
+          "origin_shift_m": [
+            0.0,
+            0.0
+          ],
+          "p10_m": 0.5,
+          "p50_m": 1.5,
+          "p90_m": 3.5,
+          "resolution_m": 0.5,
+          "sample_count": 372,
+          "semantic_limit": "relative local width evidence; not route width or walkability",
+          "status": "computed"
+        },
+        "occupancy_union_area_m2": 3.120000000000001,
+        "resolution_origin_sensitivity": {
+          "interpretation": "sampling sensitivity only; sampled topology is not free-space truth",
+          "shifted_origin": {
+            "max_m": 4.770744176750625,
+            "min_m": 0.0,
+            "origin_shift_m": [
+              0.25,
+              0.25
+            ],
+            "p10_m": 1.0,
+            "p50_m": 2.0,
+            "p90_m": 3.1622776601683795,
+            "resolution_m": 0.5,
+            "sample_count": 337,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "status": "computed"
+          }
+        },
+        "status": "computed"
+      },
+      "multiple_candidate_channels": false,
+      "occupancy_exclusion_effect": {
+        "status": "not_applicable"
+      },
+      "occupancy_union": {
+        "eligible_physical_source_ids": [],
+        "overlap_removed_m2": 0.0,
+        "raw_area_m2": 3.120000000000001,
+        "source_count": 2,
+        "source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_area_m2": 3.120000000000001,
+        "uses_union_before_domain_difference": true
+      },
+      "only_obstacle_or_free_space_evidence_changed": true,
+      "source_provenance": {
+        "column_source_ids": [],
+        "excluded_source_reason_records": [],
+        "fixture_note": "qualified explicit domain with valid geometry",
+        "furniture_occupancy_source_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "partial_reason_records": [],
+        "wall_source_ids": []
+      },
+      "status": "pass",
+      "virtual_wall_or_partition_selected": false,
+      "wall_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      }
+    }
+  },
+  "schema": "d6-space-field-pairwise-channel-diagnostic/repair_v2",
+  "semantic_guardrails": [
+    "pairwise_boundary_gap is not channel or route width",
+    "candidate support is synthetic diagnostic geometry",
+    "connectivity is computed independently of candidate selection",
+    "local clearance proxy is not route width",
+    "component connectivity is not walkability",
+    "walls and columns remain physical occupancy and are not virtual walls",
+    "scene or display frame is not AnalysisDomain"
+  ],
+  "status": "pass",
+  "stop_marker": "STOP FOR PAIRWISE CHANNEL RUN_002 REPAIR V2 REVIEW"
+}

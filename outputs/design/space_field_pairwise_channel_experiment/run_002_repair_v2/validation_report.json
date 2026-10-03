@@ -1,0 +1,280 @@
+{
+  "artifact_sha256_checked": true,
+  "b1_wall_eligibility": {
+    "excluded_wall_absent_from_union": true,
+    "excluded_wall_no_area_effect": true,
+    "excluded_wall_no_component_effect": true,
+    "walls_and_columns_share_eligibility": true
+  },
+  "commands": [
+    "pixi run python run_experiment.py --output run_002_repair_v2",
+    "portable Blender render_visual.py",
+    "portable Blender inspect_blend.py",
+    "pixi run python validate.py"
+  ],
+  "domain_status_mapping": {
+    "domain_fixture_statuses": {
+      "empty_domain_geometry": {
+        "candidate": "invalid",
+        "connectivity": "not_available",
+        "global_empty_space": "not_available",
+        "profile": "not_available",
+        "qualification": "invalid"
+      },
+      "invalid_domain_geometry": {
+        "candidate": "invalid",
+        "connectivity": "not_available",
+        "global_empty_space": "not_available",
+        "profile": "not_available",
+        "qualification": "invalid"
+      },
+      "missing_analysis_domain": {
+        "candidate": "not_available",
+        "connectivity": "not_available",
+        "global_empty_space": "not_available",
+        "profile": "not_available",
+        "qualification": "not_available"
+      },
+      "missing_domain_geometry": {
+        "candidate": "invalid",
+        "connectivity": "not_available",
+        "global_empty_space": "not_available",
+        "profile": "not_available",
+        "qualification": "invalid"
+      },
+      "non_closed_domain_geometry": {
+        "candidate": "invalid",
+        "connectivity": "not_available",
+        "global_empty_space": "not_available",
+        "profile": "not_available",
+        "qualification": "invalid"
+      },
+      "qualified_explicit_domain": {
+        "candidate": "computed",
+        "connectivity": "computed_same_component",
+        "global_empty_space": "computed",
+        "profile": "computed",
+        "qualification": "computed"
+      }
+    },
+    "invalid_domain_topology_rejected": true,
+    "status_ambiguity_documented": true
+  },
+  "geometry_checks": {
+    "area_checks": true,
+    "component_checks": {
+      "column_between_side_opening": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.63
+      },
+      "column_off_axis_clearance": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.58
+      },
+      "column_overlaps_furniture": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.7
+      },
+      "column_row_open_gap": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.20500000000001
+      },
+      "column_wall_contact": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 90.66999999999999
+      },
+      "different_floor_column": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.88
+      },
+      "different_floor_wall": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.88
+      },
+      "disconnected_components": {
+        "candidate_selection_independent": true,
+        "component_count": 2,
+        "free_area_m2": 89.67999999999999
+      },
+      "missing_invalid_column_geometry": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.88
+      },
+      "multiple_candidate_channels": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 91.79999999999998
+      },
+      "no_column": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.88
+      },
+      "qualified_explicit_domain": {
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "free_area_m2": 92.88
+      }
+    },
+    "independent_component_recomputation": true,
+    "membership_preserved": true,
+    "virtual_wall_absent": true
+  },
+  "git_diff_check_scope": "repair_v2 directory only",
+  "input_contract_preserved": true,
+  "json_schema_checked": false,
+  "negative_assertions": {
+    "candidate_count_matches_serialized_candidates": true,
+    "invalid_candidate_geometry_rejected": true,
+    "invalid_domain_geometry_cannot_compute_topology": true,
+    "missing_candidate_geometry_rejected": true
+  },
+  "production_paths_untouched": true,
+  "provenance_separation_checked": {
+    "candidate_geometry_separated": true,
+    "excluded_sources_separated": true,
+    "nonexistent_source_id_rejected": true,
+    "physical_occupancy_separated": true,
+    "support_basis_separated": true
+  },
+  "real_ifc_boundary_checked": {
+    "adapter_rerun": false,
+    "connectivity_not_available": true,
+    "profile_not_available": true,
+    "source_hash": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  },
+  "run_001_preserved": true,
+  "run_002_preserved": true,
+  "run_002_repair_v1_preserved": true,
+  "schema": "d6-space-field-pairwise-channel-repair-validation/repair_v2",
+  "schema_validation_scope": "bounded structural assertions; schema.json is declarative and no full JSON Schema validator was used",
+  "scope_check": {
+    "bounded_root": true,
+    "git_add_dot_used": false,
+    "protected_paths_clean": {
+      "adapters": true,
+      "docs/project/space-field-ifc-neutral-scene-input-contract.md": true,
+      "features": true,
+      "outputs/full-rhino-ifc-2026-09-23": true,
+      "test": true
+    },
+    "repair_v2_git_diff_check": true
+  },
+  "selection_hierarchy_checked": {
+    "candidate_counts": {
+      "column_between_side_opening": 1,
+      "column_off_axis_clearance": 1,
+      "column_overlaps_furniture": 1,
+      "column_row_open_gap": 1,
+      "column_wall_contact": 1,
+      "different_floor_column": 1,
+      "different_floor_wall": 1,
+      "disconnected_components": 1,
+      "empty_domain_geometry": 0,
+      "invalid_domain_geometry": 0,
+      "missing_analysis_domain": 0,
+      "missing_domain_geometry": 0,
+      "missing_invalid_column_geometry": 1,
+      "multiple_candidate_channels": 2,
+      "no_column": 1,
+      "non_closed_domain_geometry": 0,
+      "qualified_explicit_domain": 1
+    },
+    "selection_layer": "candidate_set.selection",
+    "winner_selected": false
+  },
+  "status": "pass",
+  "stop_marker": "STOP FOR PAIRWISE CHANNEL RUN_002 REPAIR V2 REVIEW",
+  "temporary_directory_deterministic_rerun": {
+    "candidate_evidence.json": {
+      "identical": true,
+      "sha256": "e454b5dfc18896498ea5a165c1f43844cd9be818ac6b211419098195564ca9c7",
+      "temporary_sha256": "e454b5dfc18896498ea5a165c1f43844cd9be818ac6b211419098195564ca9c7"
+    },
+    "connectivity_evidence.json": {
+      "identical": true,
+      "sha256": "f2aa153ddfc1c0f39a98df1a53a46e2cee2d2b3cc789c5be64d066c073c3fe91",
+      "temporary_sha256": "f2aa153ddfc1c0f39a98df1a53a46e2cee2d2b3cc789c5be64d066c073c3fe91"
+    },
+    "experiment_record.json": {
+      "identical": true,
+      "sha256": "e0f80b7fa43a072c97fa3f14c6484081495f96fed51e98b0583f4e170ea4675f",
+      "temporary_sha256": "e0f80b7fa43a072c97fa3f14c6484081495f96fed51e98b0583f4e170ea4675f"
+    },
+    "fixture_manifest.json": {
+      "identical": true,
+      "sha256": "dfd75757a7691e6bc1e76f5925efc882ac05ebd01ee7314d5ba3a79afb939d00",
+      "temporary_sha256": "dfd75757a7691e6bc1e76f5925efc882ac05ebd01ee7314d5ba3a79afb939d00"
+    },
+    "independent_scope_audit.json": {
+      "identical": true,
+      "sha256": "1cbdb720705432f11bd93b3c327f36797b16f516280a09c3c397501e84819da1",
+      "temporary_sha256": "1cbdb720705432f11bd93b3c327f36797b16f516280a09c3c397501e84819da1"
+    },
+    "owner_review_record.md": {
+      "identical": true,
+      "sha256": "c23b76bd04f5e12f59a2fd081077f0050fc533a0eed8036a420fa4963d905d8c",
+      "temporary_sha256": "c23b76bd04f5e12f59a2fd081077f0050fc533a0eed8036a420fa4963d905d8c"
+    },
+    "pairwise_channel_diagnostic.svg": {
+      "identical": true,
+      "sha256": "9b561a82689c9c60277f15fc61fc28ae25a1a33beeca6d6a2171c9c0331e59e2",
+      "temporary_sha256": "9b561a82689c9c60277f15fc61fc28ae25a1a33beeca6d6a2171c9c0331e59e2"
+    },
+    "pairwise_diagnostic.json": {
+      "identical": true,
+      "sha256": "8f44104b8ed3b97b218d319894362eb782c38142916673a9ef75daf3fbd85696",
+      "temporary_sha256": "8f44104b8ed3b97b218d319894362eb782c38142916673a9ef75daf3fbd85696"
+    },
+    "provenance.json": {
+      "identical": true,
+      "sha256": "029df8413e04a99029b9392d362c3f16642d67f2d0221063b331c73e5c772bee",
+      "temporary_sha256": "029df8413e04a99029b9392d362c3f16642d67f2d0221063b331c73e5c772bee"
+    },
+    "real_ifc_audit.json": {
+      "identical": true,
+      "sha256": "6c2a7dfc37e0f003dbc0e3c4ee27fb622525772a71eafd4b0777fdf75de4f09a",
+      "temporary_sha256": "6c2a7dfc37e0f003dbc0e3c4ee27fb622525772a71eafd4b0777fdf75de4f09a"
+    },
+    "repair_record.md": {
+      "identical": true,
+      "sha256": "fb2840603ae78963088ff587a46ce4468d6c3f3d42f8a155023423dc4d80c99e",
+      "temporary_sha256": "fb2840603ae78963088ff587a46ce4468d6c3f3d42f8a155023423dc4d80c99e"
+    },
+    "schema.json": {
+      "identical": true,
+      "sha256": "99cb7b50392c985a1e44f9340bb81d63135a342655d884b5a971df89c6ff21f2",
+      "temporary_sha256": "99cb7b50392c985a1e44f9340bb81d63135a342655d884b5a971df89c6ff21f2"
+    },
+    "scope_audit.json": {
+      "identical": true,
+      "sha256": "4dc1468d8b5e49640f73c2154f3718122f81a9f44c3ec7a47f2422312a3e2290",
+      "temporary_sha256": "4dc1468d8b5e49640f73c2154f3718122f81a9f44c3ec7a47f2422312a3e2290"
+    },
+    "visual_manifest.json": {
+      "identical": true,
+      "sha256": "2762793580114f30c2af1b8bc5e3f22d4687c3987f5f1cf90512d0106c1f06e2",
+      "temporary_sha256": "2762793580114f30c2af1b8bc5e3f22d4687c3987f5f1cf90512d0106c1f06e2"
+    }
+  },
+  "visual_readback": {
+    "blend_readback": true,
+    "candidate_ids_associated": true,
+    "candidate_lines_match_serialized_geometry": true,
+    "disconnected_wall_spans_domain": true,
+    "display_only_geometry_recorded": true,
+    "domain_boundary_separate_from_frame": true,
+    "png_readback": true,
+    "selection_none_visible": true,
+    "svg_parse_readback": true,
+    "svg_rasterization_readback": true
+  }
+}

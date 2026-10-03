@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="760" viewBox="0 0 1800 760">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="900" y="28" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold">D6 pairwise channel run_002 repair_v2</text>
+<text x="900" y="55" text-anchor="middle" font-family="Arial" font-size="16">synthetic fixture diagnostic</text>
+<text x="900" y="80" text-anchor="middle" font-family="Arial" font-size="15">not real IFC partition/channel inference · not route width · not walkability</text>
+<g id="qualified_explicit_domain"><rect x="45" y="180" width="510" height="420" rx="8" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+<text x="300" y="157" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">qualified domain / single candidate</text>
+<rect x="67" y="187" width="466" height="326" fill="none" stroke="#94a3b8" stroke-dasharray="8 5" stroke-width="2"/><text x="72" y="530" font-family="Arial" font-size="11" fill="#64748b">display frame (display-only)</text>
+<polygon points="520.000,500.000 520.000,200.000 80.000,200.000 80.000,500.000 520.000,500.000" fill="#eff6ff" fill-opacity="0.25" stroke="#0284c7" stroke-width="3" data-geometry-role="analysis-domain"/>
+<text x="83" y="201" font-family="Arial" font-size="11" fill="#0369a1">qualified AnalysisDomain</text>
+<polygon points="226.667,387.500 226.667,342.500 179.000,342.500 179.000,387.500 226.667,387.500" fill="#2563eb" fill-opacity="0.85" data-source-id="fixture:g1"/>
+<polygon points="421.000,387.500 421.000,342.500 373.333,342.500 373.333,387.500 421.000,387.500" fill="#2563eb" fill-opacity="0.85" data-source-id="fixture:g2"/>
+<line x1="226.667" y1="342.500" x2="373.333" y2="342.500" stroke="#16a34a" stroke-width="5" data-candidate-id="candidate:01" data-geometry="[[4.0,4.2],[8.0,4.2]]"/>
+<text x="300.000" y="332.500" text-anchor="middle" font-family="Arial" font-size="14" fill="#16a34a" data-label-for="candidate:01">candidate:01</text>
+<text x="300" y="555" text-anchor="middle" font-family="Arial" font-size="14">profile: computed</text>
+<text x="300" y="577" text-anchor="middle" font-family="Arial" font-size="14">connectivity: computed_same_component</text></g>
+<g id="multiple_candidate_channels"><rect x="635" y="180" width="510" height="420" rx="8" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+<text x="890" y="157" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">multiple candidates / no winner</text>
+<rect x="657" y="187" width="466" height="326" fill="none" stroke="#94a3b8" stroke-dasharray="8 5" stroke-width="2"/><text x="662" y="530" font-family="Arial" font-size="11" fill="#64748b">display frame (display-only)</text>
+<polygon points="1110.000,500.000 1110.000,200.000 670.000,200.000 670.000,500.000 1110.000,500.000" fill="#eff6ff" fill-opacity="0.25" stroke="#0284c7" stroke-width="3" data-geometry-role="analysis-domain"/>
+<text x="673" y="201" font-family="Arial" font-size="11" fill="#0369a1">qualified AnalysisDomain</text>
+<polygon points="816.667,387.500 816.667,342.500 769.000,342.500 769.000,387.500 816.667,387.500" fill="#2563eb" fill-opacity="0.85" data-source-id="fixture:g1"/>
+<polygon points="1011.000,387.500 1011.000,342.500 963.333,342.500 963.333,387.500 1011.000,387.500" fill="#2563eb" fill-opacity="0.85" data-source-id="fixture:g2"/>
+<polygon points="923.000,417.500 923.000,406.250 857.000,406.250 857.000,417.500 923.000,417.500" fill="#be185d" fill-opacity="0.85" data-source-id="fixture:multi:w1"/>
+<polygon points="923.000,323.750 923.000,312.500 857.000,312.500 857.000,323.750 923.000,323.750" fill="#be185d" fill-opacity="0.85" data-source-id="fixture:multi:w2"/>
+<line x1="816.667" y1="411.875" x2="963.333" y2="411.875" stroke="#16a34a" stroke-width="5" data-candidate-id="candidate:01" data-geometry="[[4.0,2.35],[8.0,2.35]]"/>
+<text x="890.000" y="401.875" text-anchor="middle" font-family="Arial" font-size="14" fill="#16a34a" data-label-for="candidate:01">candidate:01</text>
+<line x1="816.667" y1="318.125" x2="963.333" y2="318.125" stroke="#f97316" stroke-width="5" data-candidate-id="candidate:02" data-geometry="[[4.0,4.85],[8.0,4.85]]"/>
+<text x="890.000" y="290.125" text-anchor="middle" font-family="Arial" font-size="14" fill="#f97316" data-label-for="candidate:02">candidate:02</text>
+<text x="890" y="575" text-anchor="middle" font-family="Arial" font-size="15" font-weight="bold">selection: none</text>
+<text x="890" y="555" text-anchor="middle" font-family="Arial" font-size="14">profile: ambiguous</text>
+<text x="890" y="577" text-anchor="middle" font-family="Arial" font-size="14">connectivity: computed_same_component</text></g>
+<g id="disconnected_components"><rect x="1225" y="180" width="510" height="420" rx="8" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+<text x="1480" y="157" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">computed_disconnected</text>
+<rect x="1247" y="187" width="466" height="326" fill="none" stroke="#94a3b8" stroke-dasharray="8 5" stroke-width="2"/><text x="1252" y="530" font-family="Arial" font-size="11" fill="#64748b">display frame (display-only)</text>
+<polygon points="1700.000,500.000 1700.000,200.000 1260.000,200.000 1260.000,500.000 1700.000,500.000" fill="#eff6ff" fill-opacity="0.25" stroke="#0284c7" stroke-width="3" data-geometry-role="analysis-domain"/>
+<text x="1263" y="201" font-family="Arial" font-size="11" fill="#0369a1">qualified AnalysisDomain</text>
+<polygon points="1406.667,387.500 1406.667,342.500 1359.000,342.500 1359.000,387.500 1406.667,387.500" fill="#2563eb" fill-opacity="0.85" data-source-id="fixture:g1"/>
+<polygon points="1601.000,387.500 1601.000,342.500 1553.333,342.500 1553.333,387.500 1601.000,387.500" fill="#2563eb" fill-opacity="0.85" data-source-id="fixture:g2"/>
+<polygon points="1487.333,500.000 1487.333,200.000 1472.667,200.000 1472.667,500.000 1487.333,500.000" fill="#be185d" fill-opacity="0.85" data-source-id="fixture:disconnect:w1"/>
+<line x1="1406.667" y1="342.500" x2="1553.333" y2="342.500" stroke="#16a34a" stroke-width="5" data-candidate-id="candidate:01" data-geometry="[[4.0,4.2],[8.0,4.2]]"/>
+<text x="1480.000" y="332.500" text-anchor="middle" font-family="Arial" font-size="14" fill="#16a34a" data-label-for="candidate:01">candidate:01</text>
+<text x="1480" y="555" text-anchor="middle" font-family="Arial" font-size="14">profile: computed</text>
+<text x="1480" y="577" text-anchor="middle" font-family="Arial" font-size="14">connectivity: computed_disconnected</text></g>
+</svg>

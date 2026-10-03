@@ -1,0 +1,353 @@
+{
+  "fixtures": {
+    "column_between_side_opening": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "column_between_side_opening",
+      "status": "computed_same_component"
+    },
+    "column_off_axis_clearance": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "column_off_axis_clearance",
+      "status": "computed_same_component"
+    },
+    "column_overlaps_furniture": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "column_overlaps_furniture",
+      "status": "computed_same_component"
+    },
+    "column_row_open_gap": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "column_row_open_gap",
+      "status": "computed_same_component"
+    },
+    "column_wall_contact": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "column_wall_contact",
+      "status": "computed_same_component"
+    },
+    "different_floor_column": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "different_floor_column",
+      "status": "computed_same_component"
+    },
+    "different_floor_wall": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "different_floor_wall",
+      "status": "computed_same_component"
+    },
+    "disconnected_components": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 2,
+        "group_component_labels": [
+          [
+            1
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_disconnected",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_disconnected"
+      },
+      "fixture_id": "disconnected_components",
+      "status": "computed_disconnected"
+    },
+    "empty_domain_geometry": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "domain_reason_code": "empty_domain_geometry",
+        "partial_reason_records": [],
+        "reason": "AnalysisDomain geometry is explicitly empty",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "not_available"
+      },
+      "fixture_id": "empty_domain_geometry",
+      "status": "not_available"
+    },
+    "invalid_domain_geometry": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "domain_reason_code": "invalid_domain_geometry",
+        "partial_reason_records": [],
+        "reason": "AnalysisDomain ring is not valid",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "not_available"
+      },
+      "fixture_id": "invalid_domain_geometry",
+      "status": "not_available"
+    },
+    "missing_analysis_domain": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "domain_reason_code": "missing_analysis_domain_record",
+        "partial_reason_records": [],
+        "reason": "no AnalysisDomain record is present",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "not_available"
+      },
+      "fixture_id": "missing_analysis_domain",
+      "status": "not_available"
+    },
+    "missing_domain_geometry": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "domain_reason_code": "missing_domain_geometry",
+        "partial_reason_records": [],
+        "reason": "AnalysisDomain record has no usable geometry field",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "not_available"
+      },
+      "fixture_id": "missing_domain_geometry",
+      "status": "not_available"
+    },
+    "missing_invalid_column_geometry": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [
+          {
+            "code": "missing_geometry",
+            "effect": "partial",
+            "level": "Level 1",
+            "reason_code": "missing_geometry",
+            "scope": "in_scope_obstacle",
+            "source_id": "fixture:missing:c1",
+            "source_kind": "IfcColumn"
+          },
+          {
+            "code": "invalid_geometry",
+            "effect": "partial",
+            "level": "Level 1",
+            "reason_code": "invalid_geometry",
+            "scope": "in_scope_obstacle",
+            "source_id": "fixture:invalid:c1",
+            "source_kind": "IfcColumn"
+          }
+        ],
+        "reason": "partial_geometry_reasons",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "partial"
+      },
+      "fixture_id": "missing_invalid_column_geometry",
+      "status": "partial"
+    },
+    "multiple_candidate_channels": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "multiple_candidate_channels",
+      "status": "computed_same_component"
+    },
+    "no_column": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "no_column",
+      "status": "computed_same_component"
+    },
+    "non_closed_domain_geometry": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "domain_reason_code": "non_closed_domain_geometry",
+        "partial_reason_records": [],
+        "reason": "AnalysisDomain ring is not closed",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "not_available"
+      },
+      "fixture_id": "non_closed_domain_geometry",
+      "status": "not_available"
+    },
+    "qualified_explicit_domain": {
+      "evidence": {
+        "candidate_ids_considered": [],
+        "candidate_selection_independent": true,
+        "component_count": 1,
+        "group_component_labels": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ],
+        "observed_status": "computed_same_component",
+        "partial_reason_records": [],
+        "reason": "connectivity computed from qualified domain minus unioned physical occupancy",
+        "semantic_limit": "diagnostic connectivity evidence only; not walkability or route existence",
+        "status": "computed_same_component"
+      },
+      "fixture_id": "qualified_explicit_domain",
+      "status": "computed_same_component"
+    }
+  },
+  "schema": "d6-space-field-pairwise-channel-connectivity/repair_v2"
+}

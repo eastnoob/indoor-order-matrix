@@ -1,0 +1,44 @@
+{
+  "bayesian_or_ml_selected": false,
+  "candidate_generation": {
+    "all_candidates_serialized": true,
+    "fixed_threshold_used": false,
+    "method": "group boundary connector or wall-band projection",
+    "selector_used": false,
+    "winner_selected": false
+  },
+  "connectivity_generation": {
+    "candidate_selection_dependency": false,
+    "method": "qualified AnalysisDomain minus unioned eligible physical occupancy",
+    "topology_truth": false
+  },
+  "date": "2026-10-03",
+  "experiment_id": "d6-space-field-pairwise-channel-run_002-repair_v2",
+  "fixture_geometry": "synthetic Shapely rectangles, lines, and explicit AnalysisDomain records",
+  "production_backend_selected": false,
+  "production_selector_selected": false,
+  "reused_inputs": [
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\real_ifc_audit.json",
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\empty_space_candidates.json"
+  ],
+  "sampling": {
+    "experiment_only": true,
+    "origin_shifts_m": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.25,
+        0.25
+      ]
+    ],
+    "resolution_m": 0.5
+  },
+  "schema": "d6-space-field-pairwise-channel-provenance/repair_v2",
+  "source_ifc": {
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "read_only": true,
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  }
+}
