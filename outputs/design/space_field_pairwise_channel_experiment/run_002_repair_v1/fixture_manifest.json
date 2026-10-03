@@ -1,0 +1,112 @@
+{
+  "fixture_definitions": {
+    "column_between_side_opening": {
+      "column_count": 1,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "column lies between groups while side openings remain",
+      "wall_count": 0
+    },
+    "column_off_axis_clearance": {
+      "column_count": 1,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "off-axis column changes local clearance",
+      "wall_count": 0
+    },
+    "column_overlaps_furniture": {
+      "column_count": 1,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "column overlaps furniture footprint and is unioned once",
+      "wall_count": 0
+    },
+    "column_row_open_gap": {
+      "column_count": 3,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "column row has gaps and is not a virtual wall",
+      "wall_count": 0
+    },
+    "column_wall_contact": {
+      "column_count": 1,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "column contacts a wall and remains physical occupancy evidence",
+      "wall_count": 1
+    },
+    "different_floor_column": {
+      "column_count": 1,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "different-floor column is retained but explicitly excluded",
+      "wall_count": 0
+    },
+    "disconnected_components": {
+      "column_count": 0,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "full-height obstacle separates free-space components",
+      "wall_count": 1
+    },
+    "missing_analysis_domain": {
+      "column_count": 0,
+      "domain_status": "not_available",
+      "expected_candidate_status": "not_available",
+      "note": "scene frame is diagnostic only; no AnalysisDomain",
+      "wall_count": 0
+    },
+    "missing_invalid_column_geometry": {
+      "column_count": 2,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "missing and invalid geometry retain separate provenance",
+      "wall_count": 0
+    },
+    "multiple_candidate_channels": {
+      "column_count": 0,
+      "domain_status": "qualified",
+      "expected_candidate_status": "ambiguous",
+      "note": "two candidate support bands; no candidate is selected",
+      "wall_count": 2
+    },
+    "no_column": {
+      "column_count": 0,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "two groups with no column",
+      "wall_count": 0
+    },
+    "qualified_explicit_domain": {
+      "column_count": 0,
+      "domain_status": "qualified",
+      "expected_candidate_status": "computed",
+      "note": "qualified explicit domain with valid geometry",
+      "wall_count": 0
+    }
+  },
+  "fixture_ids": [
+    "column_between_side_opening",
+    "column_off_axis_clearance",
+    "column_overlaps_furniture",
+    "column_row_open_gap",
+    "column_wall_contact",
+    "different_floor_column",
+    "disconnected_components",
+    "missing_analysis_domain",
+    "missing_invalid_column_geometry",
+    "multiple_candidate_channels",
+    "no_column",
+    "qualified_explicit_domain"
+  ],
+  "frame": {
+    "bounds_m": [
+      0.0,
+      0.0,
+      12.0,
+      8.0
+    ],
+    "status": "fixture_frame_only_not_analysis_domain"
+  },
+  "schema": "d6-space-field-pairwise-channel-fixtures/v2"
+}

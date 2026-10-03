@@ -1,0 +1,53 @@
+{
+  "allowed_statuses": [
+    "computed",
+    "computed_same_component",
+    "computed_disconnected",
+    "partial",
+    "not_available",
+    "invalid",
+    "ambiguous"
+  ],
+  "candidate_contract": [
+    "candidate_id",
+    "geometry",
+    "floor_eligibility",
+    "domain_relation",
+    "validity",
+    "provenance"
+  ],
+  "candidate_set_selection_contract": [
+    "selected_candidate_id",
+    "selector"
+  ],
+  "connectivity_contract": [
+    "candidate_selection_independent",
+    "component_count",
+    "group_component_labels",
+    "status"
+  ],
+  "production_api": false,
+  "required_artifacts": [
+    "experiment_record.json",
+    "fixture_manifest.json",
+    "pairwise_diagnostic.json",
+    "candidate_evidence.json",
+    "connectivity_evidence.json",
+    "real_ifc_audit.json",
+    "provenance.json",
+    "schema.json",
+    "visual_manifest.json",
+    "scope_audit.json",
+    "independent_scope_audit.json",
+    "validation_report.json",
+    "repair_record.md",
+    "owner_review_record.md",
+    "pairwise_channel_diagnostic.svg",
+    "pairwise_channel_disposable.png",
+    "pairwise_channel_disposable.blend",
+    "blend_readback.json",
+    "artifact_manifest.json"
+  ],
+  "required_fixture_count": 12,
+  "schema": "d6-space-field-pairwise-channel-contract/v2"
+}

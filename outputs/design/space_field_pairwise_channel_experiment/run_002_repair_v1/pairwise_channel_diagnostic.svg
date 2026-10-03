@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="760" viewBox="0 0 1800 760">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="900" y="30" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold">D6 pairwise channel run_002 repair_v1</text>
+<text x="900" y="58" text-anchor="middle" font-family="Arial" font-size="16">synthetic fixture diagnostic</text>
+<text x="900" y="82" text-anchor="middle" font-family="Arial" font-size="15">not real IFC partition/channel inference · not route width · not walkability</text>
+<g id="qualified_explicit_domain"><rect x="40" y="125" width="520" height="430" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="3"/>
+<text x="300" y="159" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">qualified domain / single candidate</text>
+<rect x="140" y="285" width="75" height="65" fill="#2563eb"/><rect x="385" y="285" width="75" height="65" fill="#2563eb"/>
+<line x1="215" y1="320" x2="385" y2="320" stroke="#16a34a" stroke-width="5"/>
+<text x="300" y="495" text-anchor="middle" font-family="Arial" font-size="15">profile: computed</text>
+<text x="300" y="523" text-anchor="middle" font-family="Arial" font-size="15">connectivity: computed_same_component</text></g>
+<g id="multiple_candidate_channels"><rect x="630" y="125" width="520" height="430" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="3"/>
+<text x="890" y="159" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">multiple candidates / no winner</text>
+<rect x="730" y="285" width="75" height="65" fill="#2563eb"/><rect x="975" y="285" width="75" height="65" fill="#2563eb"/>
+<line x1="805" y1="320" x2="975" y2="320" stroke="#16a34a" stroke-width="5"/><line x1="805" y1="250" x2="975" y2="250" stroke="#f97316" stroke-width="5"/>
+<text x="890" y="395" text-anchor="middle" font-family="Arial" font-size="16">candidate:01</text>
+<text x="890" y="421" text-anchor="middle" font-family="Arial" font-size="16">candidate:02</text>
+<text x="890" y="447" text-anchor="middle" font-family="Arial" font-size="15">selection: none</text>
+<text x="890" y="495" text-anchor="middle" font-family="Arial" font-size="15">profile: ambiguous</text>
+<text x="890" y="523" text-anchor="middle" font-family="Arial" font-size="15">connectivity: computed_same_component</text></g>
+<g id="disconnected_components"><rect x="1220" y="125" width="520" height="430" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="3"/>
+<text x="1480" y="159" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">computed_disconnected</text>
+<rect x="1320" y="285" width="75" height="65" fill="#2563eb"/><rect x="1565" y="285" width="75" height="65" fill="#2563eb"/>
+<line x1="1395" y1="320" x2="1565" y2="320" stroke="#16a34a" stroke-width="5"/>
+<rect x="1475" y="205" width="16" height="300" fill="#be185d"/>
+<text x="1480" y="495" text-anchor="middle" font-family="Arial" font-size="15">profile: computed</text>
+<text x="1480" y="523" text-anchor="middle" font-family="Arial" font-size="15">connectivity: computed_disconnected</text></g>
+</svg>

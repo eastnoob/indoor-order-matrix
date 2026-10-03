@@ -1,0 +1,22 @@
+{
+  "adapter_modified": false,
+  "bayesian_or_ml_selected": false,
+  "fixed_threshold_selected": false,
+  "formal_tests_modified": false,
+  "furniture_membership_rewritten": false,
+  "neutral_scene_input_contract_modified": false,
+  "neutral_scene_v2_modified": false,
+  "new_write_root": "outputs/design/space_field_pairwise_channel_experiment/run_002_repair_v1",
+  "production_backend_selected": false,
+  "production_code_modified": false,
+  "production_selector_selected": false,
+  "public_api_modified": false,
+  "route_width_selected": false,
+  "run_001_modified": false,
+  "schema": "d6-space-field-pairwise-channel-scope/v2",
+  "source_ifc_modified": false,
+  "status": "pass",
+  "user_blender_file_modified": false,
+  "virtual_wall_or_partition_selected": false,
+  "walkability_selected": false
+}

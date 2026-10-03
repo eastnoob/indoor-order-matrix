@@ -1,0 +1,154 @@
+{
+  "contains_required_labels": true,
+  "layout_checks": {
+    "candidate_labels_separated": true,
+    "warning_block_above_panel_titles": true
+  },
+  "object_count": 45,
+  "objects": [
+    "DisposableCamera",
+    "candidate_01_label",
+    "candidate_01_support",
+    "candidate_02_label",
+    "candidate_02_support",
+    "candidate_disconnected_support",
+    "candidate_qualified_support",
+    "candidate_wall_band_01",
+    "candidate_wall_band_02",
+    "connectivity_disconnected",
+    "connectivity_multiple",
+    "connectivity_qualified",
+    "domain_disconnected_bottom",
+    "domain_disconnected_left",
+    "domain_disconnected_right",
+    "domain_disconnected_top",
+    "domain_multiple_bottom",
+    "domain_multiple_left",
+    "domain_multiple_right",
+    "domain_multiple_top",
+    "domain_qualified_bottom",
+    "domain_qualified_left",
+    "domain_qualified_right",
+    "domain_qualified_top",
+    "gap_disconnected",
+    "gap_multiple",
+    "gap_qualified",
+    "group_disconnected_left",
+    "group_disconnected_right",
+    "group_multiple_left",
+    "group_multiple_right",
+    "group_qualified_left",
+    "group_qualified_right",
+    "physical_wall_occupancy",
+    "profile_disconnected",
+    "profile_multiple",
+    "profile_qualified",
+    "selection_none_label",
+    "semantic_warning",
+    "semantic_warning_ifc",
+    "semantic_warning_route",
+    "semantic_warning_walk",
+    "title_disconnected",
+    "title_multiple",
+    "title_qualified"
+  ],
+  "required_labels": {
+    "candidate:01": true,
+    "candidate:02": true,
+    "computed_disconnected": true,
+    "not real IFC partition/channel inference": true,
+    "not route width": true,
+    "not walkability": true,
+    "selection: none": true,
+    "synthetic fixture diagnostic": true
+  },
+  "status": "pass",
+  "text_bodies": [
+    "candidate:01",
+    "candidate:02",
+    "computed_disconnected",
+    "connectivity independent of candidate selection",
+    "connectivity independent of candidate selection",
+    "connectivity independent of candidate selection",
+    "multiple candidates / no winner",
+    "not real IFC partition/channel inference",
+    "not route width",
+    "not walkability",
+    "pairwise boundary gap",
+    "pairwise boundary gap",
+    "pairwise boundary gap",
+    "pairwise free-space diagnostic",
+    "pairwise free-space diagnostic",
+    "pairwise free-space diagnostic",
+    "qualified explicit domain",
+    "selection: none",
+    "synthetic fixture diagnostic"
+  ],
+  "text_positions": {
+    "candidate:01": [
+      20.0,
+      4.550000190734863,
+      0.0
+    ],
+    "candidate:02": [
+      20.0,
+      5.050000190734863,
+      0.0
+    ],
+    "computed_disconnected": [
+      34.0,
+      8.850000381469727,
+      0.0
+    ],
+    "connectivity independent of candidate selection": [
+      6.0,
+      -0.949999988079071,
+      0.0
+    ],
+    "multiple candidates / no winner": [
+      20.0,
+      8.850000381469727,
+      0.0
+    ],
+    "not real IFC partition/channel inference": [
+      20.0,
+      10.699999809265137,
+      0.0
+    ],
+    "not route width": [
+      20.0,
+      10.25,
+      0.0
+    ],
+    "not walkability": [
+      20.0,
+      9.800000190734863,
+      0.0
+    ],
+    "pairwise boundary gap": [
+      6.0,
+      8.350000381469727,
+      0.0
+    ],
+    "pairwise free-space diagnostic": [
+      6.0,
+      -0.550000011920929,
+      0.0
+    ],
+    "qualified explicit domain": [
+      6.0,
+      8.850000381469727,
+      0.0
+    ],
+    "selection: none": [
+      20.0,
+      5.550000190734863,
+      0.0
+    ],
+    "synthetic fixture diagnostic": [
+      20.0,
+      11.149999618530273,
+      0.0
+    ]
+  }
+}

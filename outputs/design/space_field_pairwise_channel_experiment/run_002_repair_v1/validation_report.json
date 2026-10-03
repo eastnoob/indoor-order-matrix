@@ -1,0 +1,145 @@
+{
+  "artifact_sha256_checked": true,
+  "geometry_checks": {
+    "area_checks": true,
+    "component_checks": true,
+    "membership_preserved": true,
+    "virtual_wall_absent": true
+  },
+  "git_diff_check_scope": "repair directory only",
+  "global_git_diff_check": {
+    "command": "git diff --no-ext-diff --check",
+    "exit_code": 0,
+    "prior_review_permission_issue_reproduced": false,
+    "status": "pass"
+  },
+  "input_contract_preserved": true,
+  "json_schema_checked": true,
+  "production_paths_untouched": true,
+  "provenance_separation_checked": {
+    "candidate_geometry_separated": true,
+    "excluded_sources_separated": true,
+    "physical_occupancy_separated": true,
+    "support_basis_separated": true
+  },
+  "real_ifc_boundary_checked": {
+    "adapter_rerun": false,
+    "connectivity_not_available": true,
+    "profile_not_available": true,
+    "source_hash": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  },
+  "reason_specific_status_checked": {
+    "invalid_geometry": true,
+    "known_other_floor_exclusion": true,
+    "missing_geometry": true,
+    "reason_records_queryable": true
+  },
+  "run_001_preserved": true,
+  "run_002_preserved": true,
+  "schema": "d6-space-field-pairwise-channel-repair-validation/v1",
+  "selection_hierarchy_checked": {
+    "candidate_counts": {
+      "column_between_side_opening": 1,
+      "column_off_axis_clearance": 1,
+      "column_overlaps_furniture": 1,
+      "column_row_open_gap": 1,
+      "column_wall_contact": 1,
+      "different_floor_column": 1,
+      "disconnected_components": 1,
+      "missing_analysis_domain": 0,
+      "missing_invalid_column_geometry": 1,
+      "multiple_candidate_channels": 2,
+      "no_column": 1,
+      "qualified_explicit_domain": 1
+    },
+    "selection_layer": "candidate_set.selection",
+    "winner_selected": false
+  },
+  "status": "pass",
+  "status_assertions": {
+    "candidate_selection_independent": true,
+    "disconnected_computed": true,
+    "missing_domain_not_available": true,
+    "partial_preserved": true
+  },
+  "stop_marker": "STOP FOR PAIRWISE CHANNEL RUN_002 REPAIR REVIEW",
+  "temporary_directory_deterministic_rerun": {
+    "candidate_evidence.json": {
+      "identical": true,
+      "sha256": "2ae3d1141bf9420f3d822ed143e02536ee5b834de18f714da82643802028c55e",
+      "temporary_sha256": "2ae3d1141bf9420f3d822ed143e02536ee5b834de18f714da82643802028c55e"
+    },
+    "connectivity_evidence.json": {
+      "identical": true,
+      "sha256": "d0d4b160fa5ec86d7f041d680bc8a98364b7ed9760fd05cf620b8df7e5f87112",
+      "temporary_sha256": "d0d4b160fa5ec86d7f041d680bc8a98364b7ed9760fd05cf620b8df7e5f87112"
+    },
+    "experiment_record.json": {
+      "identical": true,
+      "sha256": "aa7c047afa1deaaa5a21a1f09ee0f8ebde507798338bb394067bf69a8c5268db",
+      "temporary_sha256": "aa7c047afa1deaaa5a21a1f09ee0f8ebde507798338bb394067bf69a8c5268db"
+    },
+    "fixture_manifest.json": {
+      "identical": true,
+      "sha256": "ba78f5a618aab00f585545986928a8900a6338b3110a26896e51c2658b0c7e6e",
+      "temporary_sha256": "ba78f5a618aab00f585545986928a8900a6338b3110a26896e51c2658b0c7e6e"
+    },
+    "independent_scope_audit.json": {
+      "identical": true,
+      "sha256": "0fdf779d45cd037252bdb2cbe027165c364823eba612ec96e3789cec84f4eee3",
+      "temporary_sha256": "0fdf779d45cd037252bdb2cbe027165c364823eba612ec96e3789cec84f4eee3"
+    },
+    "owner_review_record.md": {
+      "identical": true,
+      "sha256": "6df595aef50e2957d4d20d65aeaf2729aff6efb932c81e1730341d152801931a",
+      "temporary_sha256": "6df595aef50e2957d4d20d65aeaf2729aff6efb932c81e1730341d152801931a"
+    },
+    "pairwise_channel_diagnostic.svg": {
+      "identical": true,
+      "sha256": "ada723f96fb4973370468b8895088daf2e401856ca1f288039bf6a551c663795",
+      "temporary_sha256": "ada723f96fb4973370468b8895088daf2e401856ca1f288039bf6a551c663795"
+    },
+    "pairwise_diagnostic.json": {
+      "identical": true,
+      "sha256": "d23a661ea754a1d641d7f575360247f37a4388c5b36f5cdf23811243332231c3",
+      "temporary_sha256": "d23a661ea754a1d641d7f575360247f37a4388c5b36f5cdf23811243332231c3"
+    },
+    "provenance.json": {
+      "identical": true,
+      "sha256": "5b9fa8072cc73b78529b24d1b0fbfd4c71e9277751a4c23ffd6d87a6f77ed4d3",
+      "temporary_sha256": "5b9fa8072cc73b78529b24d1b0fbfd4c71e9277751a4c23ffd6d87a6f77ed4d3"
+    },
+    "real_ifc_audit.json": {
+      "identical": true,
+      "sha256": "6c2a7dfc37e0f003dbc0e3c4ee27fb622525772a71eafd4b0777fdf75de4f09a",
+      "temporary_sha256": "6c2a7dfc37e0f003dbc0e3c4ee27fb622525772a71eafd4b0777fdf75de4f09a"
+    },
+    "repair_record.md": {
+      "identical": true,
+      "sha256": "19ac2e8b2291ccc25d095c34bff39dd8b6ecaa56bdbff237c9525bde4eb4d7fa",
+      "temporary_sha256": "19ac2e8b2291ccc25d095c34bff39dd8b6ecaa56bdbff237c9525bde4eb4d7fa"
+    },
+    "schema.json": {
+      "identical": true,
+      "sha256": "b3c352fb71bd4efeeead10a04f139ec481c3dd1e981b5162adc151e044603620",
+      "temporary_sha256": "b3c352fb71bd4efeeead10a04f139ec481c3dd1e981b5162adc151e044603620"
+    },
+    "scope_audit.json": {
+      "identical": true,
+      "sha256": "8a8843b6912e3c007d68cfd26eba07989ed5be2a107987dd78433b1832fca252",
+      "temporary_sha256": "8a8843b6912e3c007d68cfd26eba07989ed5be2a107987dd78433b1832fca252"
+    },
+    "visual_manifest.json": {
+      "identical": true,
+      "sha256": "babd7262c8d3e6b305339032075046ee346f581ea1c643742650eb87ae97afbf",
+      "temporary_sha256": "babd7262c8d3e6b305339032075046ee346f581ea1c643742650eb87ae97afbf"
+    }
+  },
+  "visual_readback": {
+    "blend_readback": true,
+    "candidate_labels_separated": true,
+    "png_readback": true,
+    "svg_readback": true,
+    "svg_text_layout": true
+  }
+}

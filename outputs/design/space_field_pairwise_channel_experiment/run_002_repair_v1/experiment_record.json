@@ -1,0 +1,16 @@
+{
+  "candidate_set_preserved": true,
+  "connectivity_independent_of_candidate_selection": true,
+  "estimands": {
+    "A": "pairwise_boundary_gap",
+    "B": "pairwise_free_space_profile",
+    "C": "pairwise_connectivity_evidence"
+  },
+  "fixture_count": 12,
+  "mode": "read_only_design_experiment",
+  "owner_review_gate": "STOP FOR PAIRWISE CHANNEL RUN_002 REPAIR REVIEW",
+  "question": "How can pairwise candidate support geometry and domain-bounded connectivity remain separately auditable when candidates are missing, invalid, excluded by floor, multiple, or disconnected?",
+  "real_ifc_profile_status": "not_available",
+  "schema": "d6-space-field-pairwise-channel-experiment/v2",
+  "title": "D6 pairwise channel / free-space evidence design experiment run_002 repair_v1"
+}

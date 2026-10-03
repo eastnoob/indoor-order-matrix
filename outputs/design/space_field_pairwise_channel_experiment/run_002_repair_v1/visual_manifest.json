@@ -1,0 +1,29 @@
+{
+  "blend": "pairwise_channel_disposable.blend",
+  "current_user_blender_file_modified": false,
+  "labels": [
+    "synthetic fixture diagnostic",
+    "not real IFC partition/channel inference",
+    "not route width",
+    "not walkability",
+    "candidate:01",
+    "candidate:02",
+    "selection: none",
+    "computed_disconnected"
+  ],
+  "layout": {
+    "candidate_labels_non_overlapping": true,
+    "png_readback_required": true,
+    "svg_readback_required": true,
+    "warning_block_separated_from_panel_titles": true
+  },
+  "panels": [
+    "qualified_explicit_domain",
+    "multiple_candidate_channels",
+    "disconnected_components"
+  ],
+  "png": "pairwise_channel_disposable.png",
+  "schema": "d6-space-field-pairwise-channel-visuals/v2",
+  "status": "synthetic_diagnostic_required",
+  "svg": "pairwise_channel_diagnostic.svg"
+}

@@ -1,0 +1,1725 @@
+{
+  "fixtures": {
+    "column_between_side_opening": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:between:c1",
+                  "source_kind": "IfcColumn",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [
+                "fixture:between:c1"
+              ],
+              "physical_occupancy_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:between:c1",
+                  "source_kind": "IfcColumn"
+                }
+              ],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "column_between_side_opening",
+      "status": "computed"
+    },
+    "column_off_axis_clearance": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:off_axis:c1",
+                  "source_kind": "IfcColumn",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [
+                "fixture:off_axis:c1"
+              ],
+              "physical_occupancy_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:off_axis:c1",
+                  "source_kind": "IfcColumn"
+                }
+              ],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "column_off_axis_clearance",
+      "status": "computed"
+    },
+    "column_overlaps_furniture": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:overlap:c1",
+                  "source_kind": "IfcColumn",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [
+                "fixture:overlap:c1"
+              ],
+              "physical_occupancy_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:overlap:c1",
+                  "source_kind": "IfcColumn"
+                }
+              ],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "column_overlaps_furniture",
+      "status": "computed"
+    },
+    "column_row_open_gap": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:row:c1",
+                  "source_kind": "IfcColumn",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:row:c2",
+                  "source_kind": "IfcColumn",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:row:c3",
+                  "source_kind": "IfcColumn",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [
+                "fixture:row:c1",
+                "fixture:row:c2",
+                "fixture:row:c3"
+              ],
+              "physical_occupancy_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:row:c1",
+                  "source_kind": "IfcColumn"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:row:c2",
+                  "source_kind": "IfcColumn"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:row:c3",
+                  "source_kind": "IfcColumn"
+                }
+              ],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "column_row_open_gap",
+      "status": "computed"
+    },
+    "column_wall_contact": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:wall:w1",
+                  "source_kind": "IfcWall",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:wall_contact:c1",
+                  "source_kind": "IfcColumn",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [
+                "fixture:wall:w1",
+                "fixture:wall_contact:c1"
+              ],
+              "physical_occupancy_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:wall:w1",
+                  "source_kind": "IfcWall"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:wall_contact:c1",
+                  "source_kind": "IfcColumn"
+                }
+              ],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "column_wall_contact",
+      "status": "computed"
+    },
+    "different_floor_column": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [
+                "fixture:level2:c1"
+              ],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 2",
+                  "reason": "known_other_floor_exclusion",
+                  "source_id": "fixture:level2:c1",
+                  "source_kind": "IfcColumn",
+                  "status": "excluded",
+                  "target_floor": false
+                }
+              ],
+              "status": "qualified_with_excluded_sources"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [
+                {
+                  "level": "Level 2",
+                  "reason": "known_other_floor_exclusion",
+                  "role": "excluded_source",
+                  "source_id": "fixture:level2:c1",
+                  "source_kind": "IfcColumn"
+                }
+              ],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [],
+              "physical_occupancy_source_refs": [],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [
+          "fixture:level2:c1"
+        ],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "different_floor_column",
+      "status": "computed"
+    },
+    "disconnected_components": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:disconnect:w1",
+                  "source_kind": "IfcWall",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [
+                "fixture:disconnect:w1"
+              ],
+              "physical_occupancy_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "eligible in-scope obstacle context; not candidate support",
+                  "role": "physical_occupancy",
+                  "source_id": "fixture:disconnect:w1",
+                  "source_kind": "IfcWall"
+                }
+              ],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "disconnected_components",
+      "status": "computed"
+    },
+    "missing_analysis_domain": {
+      "candidate_set": {
+        "candidate_count": 0,
+        "candidates": [],
+        "reason": "qualified AnalysisDomain missing; candidate geometry is not generated",
+        "selection": {
+          "reason": "no qualified domain",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "not_available"
+      },
+      "fixture_id": "missing_analysis_domain",
+      "status": "not_available"
+    },
+    "missing_invalid_column_geometry": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [
+                "fixture:missing:c1",
+                "fixture:invalid:c1"
+              ],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "missing_geometry",
+                  "source_id": "fixture:missing:c1",
+                  "source_kind": "IfcColumn",
+                  "status": "excluded",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "invalid_geometry",
+                  "source_id": "fixture:invalid:c1",
+                  "source_kind": "IfcColumn",
+                  "status": "excluded",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified_with_excluded_sources"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "missing_geometry",
+                  "role": "excluded_source",
+                  "source_id": "fixture:missing:c1",
+                  "source_kind": "IfcColumn"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "invalid_geometry",
+                  "role": "excluded_source",
+                  "source_id": "fixture:invalid:c1",
+                  "source_kind": "IfcColumn"
+                }
+              ],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [],
+              "physical_occupancy_source_refs": [],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [
+          "fixture:missing:c1",
+          "fixture:invalid:c1"
+        ],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "missing_invalid_column_geometry",
+      "status": "computed"
+    },
+    "multiple_candidate_channels": {
+      "candidate_set": {
+        "candidate_count": 2,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "wall_band_projection",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:multi:w1",
+                  "source_kind": "IfcWall",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  2.35
+                ],
+                [
+                  8.0,
+                  2.35
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:multi:w1",
+                  "source_kind": "IfcWall"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [],
+              "physical_occupancy_source_refs": [],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2",
+                "fixture:multi:w1"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:multi:w1",
+                  "source_kind": "IfcWall"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "wall_band_projection"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          },
+          {
+            "candidate_id": "candidate:02",
+            "candidate_kind": "wall_band_projection",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:multi:w2",
+                  "source_kind": "IfcWall",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.85
+                ],
+                [
+                  8.0,
+                  4.85
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:multi:w2",
+                  "source_kind": "IfcWall"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [],
+              "physical_occupancy_source_refs": [],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2",
+                "fixture:multi:w2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:multi:w2",
+                  "source_kind": "IfcWall"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "wall_band_projection"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "multiple complete candidates serialized without selection",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "ambiguous"
+      },
+      "fixture_id": "multiple_candidate_channels",
+      "status": "ambiguous"
+    },
+    "no_column": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [],
+              "physical_occupancy_source_refs": [],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "no_column",
+      "status": "computed"
+    },
+    "qualified_explicit_domain": {
+      "candidate_set": {
+        "candidate_count": 1,
+        "candidates": [
+          {
+            "candidate_id": "candidate:01",
+            "candidate_kind": "group_nearest_boundary_connector",
+            "domain_relation": {
+              "inside": true,
+              "intersection_measure": 4.0,
+              "reason": "domain covers candidate",
+              "status": "inside"
+            },
+            "evidence_status": "computed",
+            "floor_eligibility": {
+              "excluded_source_ids": [],
+              "source_checks": [
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "target_floor",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group",
+                  "status": "qualified",
+                  "target_floor": true
+                }
+              ],
+              "status": "qualified"
+            },
+            "geometry": {
+              "coordinates_xy_m": [
+                [
+                  4.0,
+                  4.2
+                ],
+                [
+                  8.0,
+                  4.2
+                ]
+              ],
+              "type": "LineString"
+            },
+            "geometry_valid": true,
+            "provenance": {
+              "analysis_plane": "Level 1 horizontal XY",
+              "candidate_geometry_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "source geometry used to construct candidate support",
+                  "role": "candidate_geometry",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "diagnostic_only": true,
+              "excluded_source_refs": [],
+              "fixed_threshold_used": false,
+              "method": "synthetic_fixture_pairwise_support_generation",
+              "physical_occupancy_source_ids": [],
+              "physical_occupancy_source_refs": [],
+              "production_backend_selected": false,
+              "support_basis_source_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "support_basis_source_refs": [
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g1",
+                  "source_kind": "furniture_group"
+                },
+                {
+                  "level": "Level 1",
+                  "reason": "candidate support construction input",
+                  "role": "support_basis",
+                  "source_id": "fixture:g2",
+                  "source_kind": "furniture_group"
+                }
+              ],
+              "units": "metres"
+            },
+            "relation": {
+              "left_group_id": "fixture:g1",
+              "right_group_id": "fixture:g2",
+              "support_basis": "group_nearest_boundary_connector"
+            },
+            "user_confirmed": false,
+            "validity": {
+              "reason": "candidate geometry is valid and fully inside qualified domain",
+              "status": "computed"
+            }
+          }
+        ],
+        "excluded_obstacle_source_ids": [],
+        "qualified_domain_source_id": "fixture:analysis_domain:qualified",
+        "reason": "one complete candidate serialized",
+        "selection": {
+          "reason": "run_002 preserves the full candidate set; no winner is chosen",
+          "selected_candidate_id": null,
+          "selector": "none"
+        },
+        "status": "computed"
+      },
+      "fixture_id": "qualified_explicit_domain",
+      "status": "computed"
+    }
+  },
+  "schema": "d6-space-field-pairwise-channel-candidates/v2"
+}
