@@ -1,0 +1,95 @@
+{
+  "deferred_events": [
+    "resolve_conflict"
+  ],
+  "invariants": [
+    "provisional_diagnostic_only is a derived label only and never an independent source-of-truth state.",
+    "Confirmation changes lifecycle_state to user_confirmed while evidence_state may remain diagnostic_only.",
+    "Rejection and replacement retain evidence states and version history.",
+    "Explicit no-selection is selection_relation_present=true plus selection_state=none and selected_candidate_id=null.",
+    "Absent selection relation is selection_relation_present=false and means selection was not recorded.",
+    "Unresolved conflict retains automatic and authored/user records and blocks silent downstream availability.",
+    "event_sequence is monotonic per candidate-set lineage; date-only recorded_at is not the ordering key.",
+    "Synthetic controls cannot be used as real-IFC conclusions."
+  ],
+  "proposal_only": true,
+  "required_event_fields": [
+    "event_id",
+    "event_type",
+    "target_ids",
+    "event_sequence",
+    "recorded_at",
+    "actor",
+    "reason_code",
+    "is_production_action",
+    "provenance_required"
+  ],
+  "transition_truth": [
+    {
+      "allowed": true,
+      "event": "confirm",
+      "from": "provisional",
+      "to": "user_confirmed"
+    },
+    {
+      "allowed": true,
+      "event": "reject",
+      "from": "provisional",
+      "to": "rejected"
+    },
+    {
+      "allowed": true,
+      "event": "replace",
+      "from": "active_version",
+      "to": "replaced"
+    },
+    {
+      "allowed": true,
+      "event": "assign_authored_domain",
+      "from": "candidate_set",
+      "to": "authored_assignment"
+    },
+    {
+      "allowed": true,
+      "event": "record_conflict",
+      "from": "candidate_set",
+      "to": "conflict"
+    },
+    {
+      "allowed": true,
+      "event": "manual_boundary_edit",
+      "from": "active_version",
+      "to": "replaced"
+    },
+    {
+      "allowed": false,
+      "event": "auto_promote",
+      "from": "singleton",
+      "to": "user_confirmed"
+    },
+    {
+      "allowed": false,
+      "event": "promote_domain",
+      "from": "diagnostic_only",
+      "to": "user_confirmed"
+    },
+    {
+      "allowed": false,
+      "event": "treat_as_complete",
+      "from": "partial",
+      "to": "available"
+    },
+    {
+      "allowed": false,
+      "event": "fallback_to_bbox",
+      "from": "invalid",
+      "to": "available"
+    },
+    {
+      "allowed": false,
+      "event": "silent_resolve",
+      "from": "conflict",
+      "to": "user_confirmed"
+    }
+  ]
+}

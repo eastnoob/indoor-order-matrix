@@ -1,0 +1,51 @@
+flowchart TD
+  SF[Candidate-set facts] --> UA[unassigned]
+  SF --> AM[ambiguous]
+  SF --> SG[singleton]
+  SF --> ES[explicit_selection_state]
+  LS[lifecycle_state] --> PR[provisional]
+  LS --> UC[user_confirmed]
+  LS --> RJ[rejected]
+  LS --> RP[replaced]
+  EV[evidence_state] --> DO[diagnostic_only]
+  EV --> PA[partial]
+  EV --> IV[invalid]
+  EV --> US[unsupported]
+  AV[downstream_availability] --> OK[available]
+  AV --> ENA[not_available]
+  AV --> APART[partial availability]
+  PR -->|confirm event| UC
+  PR -->|reject event| RJ
+  PR -->|replace event| RP
+  RP --> NV[new candidate version]
+  ME[manual_boundary_edit] --> RP
+  AU[assign_authored_domain] --> AP[authored precedence view]
+  PR -. retained provenance .-> AP
+  AU -->|disagreement| CF[conflict unresolved]
+  PR -. competing automatic evidence .-> CF
+  CF -. future resolve_conflict deferred .-> CF
+  ES -->|none + selected id null| NS[explicit no-selection]
+  ES -. relation absent .-> NR[selection not recorded]
+  UC --> DA[downstream availability]
+  AP --> DA
+  UA --> DNA[downstream not_available]
+  CF --> DNA
+  DO --> AV
+  PA --> AV
+  IV --> AV
+  US --> AV
+  UA --> AV
+  CF --> AV
+  AV --> DNA
+  SG -. never confirms .-> PR
+  PR -. derived with diagnostic_only .-> DL[provisional_diagnostic_only display label]
+  classDef fact fill:#dbeafe,stroke:#1d4ed8,color:#111827;
+  classDef life fill:#dcfce7,stroke:#15803d,color:#111827;
+  classDef evidence fill:#fef3c7,stroke:#b45309,color:#111827;
+  classDef availability fill:#ede9fe,stroke:#6d28d9,color:#111827;
+  classDef blocked fill:#fee2e2,stroke:#b91c1c,color:#111827;
+  class SF,UA,AM,SG,ES,NS,NR fact;
+  class LS,PR,UC,RJ,RP,NV,ME,AU,AP,DL life;
+  class EV,DO,PA,IV,US evidence;
+  class AV,OK,ENA,APART availability;
+  class CF,DA,DNA blocked;

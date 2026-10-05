@@ -1,0 +1,153 @@
+{
+  "artifact_type": "d6_lifecycle_status_contract_repair_v1",
+  "date": "2026-10-05",
+  "evidence_limitations": [
+    "Real IFC is reused from serialized evidence only.",
+    "Synthetic controls demonstrate contract relationships, not real-IFC behavior.",
+    "Production enum names, APIs, conflict resolution, selectors, thresholds, geometry backend, and downstream promotion remain deferred."
+  ],
+  "git_facts": {
+    "branch": "codex/d6-pairwise-channel-run2-repair-v2",
+    "new_branch_created": false,
+    "outputs_design_ignored_by_git_info_exclude": true,
+    "preexisting_untracked_paths": 46,
+    "tracked_production_changes": false
+  },
+  "ignored_outputs_handling": "The repaired package is under outputs/design, which is ignored by .git/info/exclude. The repair record under docs/project/evidence is the auditable tracked-scope candidate; no git add . was used.",
+  "proposal_only": true,
+  "real_ifc_context": {
+    "automatic_candidate_promoted": false,
+    "candidate_count": 8,
+    "candidate_ids": [
+      "wall_only:outer_face:outer:04",
+      "wall_only:inner_face:inner:04:01",
+      "wall_only:inner_face:inner:04:02",
+      "wall_plus_column:outer_face:outer:01",
+      "column_assisted_closure:inner_face:inner:01:01",
+      "wall_plus_column:inner_face:inner:01:02",
+      "wall_plus_column:inner_face:inner:01:03",
+      "column_assisted_closure:inner_face:inner:01:04"
+    ],
+    "candidate_set_facts": {
+      "ambiguous": false,
+      "explicit_selection_state": "none",
+      "selection_relation": {
+        "recorded_at": "2026-10-05",
+        "selected_candidate_id": null,
+        "selection_state": "none"
+      },
+      "selection_relation_present": true,
+      "singleton": false,
+      "unassigned": true
+    },
+    "candidate_set_id": "real-ifc-candidate-set-001",
+    "candidates": [
+      {
+        "candidate_id": "wall_only:outer_face:outer:04",
+        "candidate_version_id": "wall_only:outer_face:outer:04:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_only:inner_face:inner:04:01",
+        "candidate_version_id": "wall_only:inner_face:inner:04:01:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_only:inner_face:inner:04:02",
+        "candidate_version_id": "wall_only:inner_face:inner:04:02:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_plus_column:outer_face:outer:01",
+        "candidate_version_id": "wall_plus_column:outer_face:outer:01:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "column_assisted_closure:inner_face:inner:01:01",
+        "candidate_version_id": "column_assisted_closure:inner_face:inner:01:01:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_plus_column:inner_face:inner:01:02",
+        "candidate_version_id": "wall_plus_column:inner_face:inner:01:02:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_plus_column:inner_face:inner:01:03",
+        "candidate_version_id": "wall_plus_column:inner_face:inner:01:03:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "column_assisted_closure:inner_face:inner:01:04",
+        "candidate_version_id": "column_assisted_closure:inner_face:inner:01:04:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      }
+    ],
+    "evidence_only": true,
+    "qualified_authored_domain": false,
+    "record_class": "real_ifc",
+    "source_artifact": "outputs/design/live_ifc_candidate_set_lifecycle_experiment/real_ifc_case.json",
+    "synthetic_controls_must_not_be_interpreted_as_real_ifc": true
+  },
+  "repair_blocker": "provisional_diagnostic_only conflated lifecycle and evidence layers in the original package.",
+  "repair_of": "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/",
+  "scope": {
+    "adapters_modified": false,
+    "candidate_promoted_to_analysis_domain": false,
+    "dependencies_modified": false,
+    "full_ifc_adapter_rerun": false,
+    "full_pytest_rerun": false,
+    "neutral_scene_modified": false,
+    "production_code_modified": false,
+    "public_api_modified": false,
+    "selector_implemented": false,
+    "source_ifc_opened": false,
+    "tests_modified": false,
+    "user_blender_files_modified": false
+  },
+  "skills_and_method": [
+    "stop-that-shit",
+    "experimental-design",
+    "scientific-critical-thinking",
+    "scientific-visualization",
+    "verification-before-completion"
+  ],
+  "sources": [
+    "AGENTS.md",
+    "docs/project/evidence/d6-space-field-candidate-set-lifecycle-final-owner-decision.md",
+    "docs/project/evidence/d6-space-field-candidate-set-lifecycle-render-repair-v1.md",
+    "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/"
+  ]
+}

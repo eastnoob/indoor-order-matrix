@@ -1,0 +1,316 @@
+{
+  "aggregation": {
+    "candidate": [
+      "lifecycle_state comes from ordered explicit events",
+      "evidence_state is independent and may remain diagnostic_only after confirmation",
+      "rejected and replaced versions remain queryable"
+    ],
+    "candidate_set": [
+      "candidate_count retains history",
+      "active_candidate_count excludes replaced versions",
+      "singleton is active count equal to one",
+      "ambiguous is multiple plausible active candidates or unresolved interpretation",
+      "unassigned is no assignment relation"
+    ]
+  },
+  "concepts": [
+    {
+      "classification": "candidate-level lifecycle state",
+      "layer": "lifecycle_state",
+      "semantics": "Automatic candidate is retained and has no confirmation, rejection, or replacement action.",
+      "term": "provisional"
+    },
+    {
+      "classification": "candidate-level lifecycle state",
+      "layer": "lifecycle_state",
+      "semantics": "An explicit actor confirmed a stable candidate version or authored domain.",
+      "term": "user_confirmed"
+    },
+    {
+      "classification": "candidate-level lifecycle state",
+      "layer": "lifecycle_state",
+      "semantics": "An explicit actor rejected a candidate version; evidence remains retained.",
+      "term": "rejected"
+    },
+    {
+      "classification": "candidate-level lifecycle state",
+      "layer": "lifecycle_state",
+      "semantics": "A prior version was superseded by an explicit replacement relation.",
+      "term": "replaced"
+    },
+    {
+      "classification": "cross-source relation / derived set and candidate label",
+      "layer": "lifecycle_relation",
+      "semantics": "Automatic and authored/user records disagree and the disagreement remains unresolved.",
+      "term": "conflict"
+    },
+    {
+      "classification": "candidate/set evidence-quality state",
+      "layer": "evidence_state",
+      "semantics": "Evidence is displayable and auditable but cannot promote a formal domain.",
+      "term": "diagnostic_only"
+    },
+    {
+      "classification": "derived availability state",
+      "layer": "downstream_availability",
+      "semantics": "A consumer evaluated dependencies and cannot produce the requested downstream result.",
+      "term": "not_available"
+    },
+    {
+      "classification": "candidate/set evidence-quality state",
+      "layer": "evidence_state",
+      "semantics": "Some required evidence is present and some is missing or incomplete.",
+      "term": "partial"
+    },
+    {
+      "classification": "candidate/set evidence-quality state",
+      "layer": "evidence_state",
+      "semantics": "A present record fails an applicable validity check.",
+      "term": "invalid"
+    },
+    {
+      "classification": "candidate/set evidence-quality state",
+      "layer": "evidence_state",
+      "semantics": "The representation or operation is outside the supported evidence contract.",
+      "term": "unsupported"
+    },
+    {
+      "classification": "set-level fact / derived label",
+      "layer": "candidate_set_facts",
+      "semantics": "No authored or user assignment relation is recorded.",
+      "term": "unassigned"
+    },
+    {
+      "classification": "set-level fact / derived label",
+      "layer": "candidate_set_facts",
+      "semantics": "Multiple plausible candidates or unresolved interpretations remain without selection.",
+      "term": "ambiguous"
+    },
+    {
+      "classification": "set-level cardinality fact",
+      "layer": "candidate_set_facts",
+      "semantics": "Exactly one active, non-replaced candidate remains; this never confirms it.",
+      "term": "singleton"
+    },
+    {
+      "classification": "set-level selection fact",
+      "layer": "candidate_set_facts",
+      "semantics": "Recorded selection relation state; none plus null selected ID means explicit no-selection.",
+      "term": "explicit_selection_state"
+    },
+    {
+      "classification": "derived label only",
+      "layer": "derived_display_label",
+      "semantics": "Display label derived from lifecycle_state=provisional and evidence_state=diagnostic_only; never serialized as an independent source-of-truth state.",
+      "term": "provisional_diagnostic_only"
+    }
+  ],
+  "contract_shapes": {
+    "explicit_relations_events_plus_derived_views": {
+      "risks": [
+        "requires deterministic aggregation",
+        "requires event validation"
+      ],
+      "role": "recommended design-only source-of-truth shape",
+      "strengths": [
+        "orthogonal layers",
+        "auditable history",
+        "conflict preservation",
+        "no enum freeze"
+      ]
+    },
+    "recommendation": "Use explicit relations/events as source of truth and derive any display status. This is not a production schema decision.",
+    "status_fields": {
+      "risks": [
+        "overloaded status",
+        "lost event history",
+        "ambiguous evidence/lifecycle meaning"
+      ],
+      "role": "derived view only",
+      "strengths": [
+        "simple reads",
+        "compact UI binding"
+      ]
+    }
+  },
+  "event_ordering": {
+    "alternative": "Full timestamp plus stable event-id tie-break is an acceptable later design alternative.",
+    "proposal": "Use a monotonic event_sequence per candidate-set lineage as the primary order.",
+    "status": "Design proposal only; not a frozen production schema."
+  },
+  "identity_provenance_ui": {
+    "required_provenance": [
+      "real_ifc or synthetic_control class",
+      "source IDs/artifact",
+      "units/coordinate frame/analysis plane",
+      "actor/date/sequence/reason",
+      "prior and replacement version refs",
+      "uncertainty and assumptions"
+    ],
+    "stable_ids": [
+      "candidate_set_id",
+      "candidate_id",
+      "candidate_version_id",
+      "event_id",
+      "relation_id"
+    ],
+    "ui": [
+      "Confirmation requires explicit candidate and provenance.",
+      "Rejection hides from active view but keeps evidence history.",
+      "Replacement/manual edit creates a new version and shows prior history.",
+      "Conflict shows both sides and disables silent promotion.",
+      "Singleton displays confirmation-needed, never confirmed."
+    ]
+  },
+  "layers": {
+    "candidate_set_facts": [
+      "unassigned",
+      "ambiguous",
+      "singleton",
+      "explicit_selection_state"
+    ],
+    "derived_display_labels": [
+      "provisional_diagnostic_only"
+    ],
+    "downstream_availability": [
+      "available",
+      "not_available",
+      "partial"
+    ],
+    "evidence_state": [
+      "diagnostic_only",
+      "partial",
+      "invalid",
+      "unsupported"
+    ],
+    "lifecycle_relations_events": [
+      "confirm",
+      "reject",
+      "replace",
+      "assign_authored_domain",
+      "record_conflict",
+      "manual_boundary_edit"
+    ],
+    "lifecycle_state": [
+      "provisional",
+      "user_confirmed",
+      "rejected",
+      "replaced"
+    ]
+  },
+  "null_and_not_available": {
+    "not_available": "Not_available is a downstream availability result after dependency evaluation; it is not a lifecycle state.",
+    "null": "Null records absence of a relation or selected ID.",
+    "rules": [
+      "Explicit no-selection uses selected_candidate_id=null plus selection_state=none.",
+      "Absent selection relation is not recorded and must remain distinguishable.",
+      "Missing domain, unresolved conflict, invalid required evidence, unsupported required representation, or incomplete required evidence propagates not_available.",
+      "No empty geometry, zero, or diagnostic frame substitutes for unavailable qualified output."
+    ]
+  },
+  "precedence_and_conflict": [
+    "Qualified authored/user input has precedence for downstream domain use by owner principle, while automatic candidates remain provenance.",
+    "Automatic and authored/user disagreement remains an unresolved conflict; no production resolution rule is invented here.",
+    "Unresolved conflict cannot silently yield downstream availability; a future explicit resolution event is deferred."
+  ],
+  "production_enum_names_frozen": false,
+  "production_public_api_frozen": false,
+  "production_selector_implemented": false,
+  "proposal_only": true,
+  "selection_semantics": {
+    "explicit_no_selection": "selection_relation_present=true, selection_state=none, selected_candidate_id=null",
+    "rule": "Explicit no-selection and absent selection relation are distinct and must not be conflated.",
+    "selection_not_recorded": "selection_relation_present=false and no selection relation object"
+  },
+  "transition_rules": {
+    "allowed": [
+      {
+        "condition": "explicit actor, stable version, ordered event, no unresolved blocking conflict",
+        "event": "confirm",
+        "from": "provisional",
+        "to": "user_confirmed"
+      },
+      {
+        "condition": "explicit actor, reason, ordered event",
+        "event": "reject",
+        "from": "provisional",
+        "to": "rejected"
+      },
+      {
+        "condition": "new version and prior version reference retained",
+        "event": "replace",
+        "from": "active_version",
+        "to": "replaced"
+      },
+      {
+        "condition": "explicit relation; automatic candidates remain provenance",
+        "event": "assign_authored_domain",
+        "from": "candidate_set",
+        "to": "authored_assignment"
+      },
+      {
+        "condition": "both sides retained; future resolution remains deferred",
+        "event": "record_conflict",
+        "from": "candidate_set",
+        "to": "conflict"
+      },
+      {
+        "condition": "before/after geometry and version references retained",
+        "event": "manual_boundary_edit",
+        "from": "active_version",
+        "to": "replaced"
+      }
+    ],
+    "forbidden": [
+      {
+        "event": "auto_promote",
+        "from": "singleton",
+        "reason": "singleton is a fact only",
+        "to": "user_confirmed"
+      },
+      {
+        "event": "promote_domain",
+        "from": "diagnostic_only",
+        "reason": "evidence quality cannot create confirmation",
+        "to": "user_confirmed"
+      },
+      {
+        "event": "treat_as_complete",
+        "from": "partial",
+        "reason": "limitations remain visible",
+        "to": "available"
+      },
+      {
+        "event": "fallback_to_bbox",
+        "from": "invalid",
+        "reason": "unqualified fallback is forbidden",
+        "to": "available"
+      },
+      {
+        "event": "delete_evidence",
+        "from": "rejected",
+        "reason": "rejection preserves evidence",
+        "to": "absent"
+      },
+      {
+        "event": "delete_prior_version",
+        "from": "replaced",
+        "reason": "replacement preserves history",
+        "to": "absent"
+      },
+      {
+        "event": "silent_resolve",
+        "from": "conflict",
+        "reason": "future resolution event is explicitly deferred",
+        "to": "user_confirmed"
+      }
+    ]
+  },
+  "unresolved_owner_decisions": [
+    "Final production names and serialization.",
+    "Whether qualified authored input can be consumed while conflict remains visible.",
+    "Conflict-resolution authority and override event.",
+    "Active-count rules across rejected/replaced histories.",
+    "Formal AnalysisDomain promotion and all selector/backend/threshold decisions."
+  ]
+}

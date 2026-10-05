@@ -1,0 +1,560 @@
+{
+  "fixture_version": "repair-v1-design-only-2026-10-05",
+  "proposal_only": true,
+  "real_ifc_context": {
+    "automatic_candidate_promoted": false,
+    "candidate_count": 8,
+    "candidate_ids": [
+      "wall_only:outer_face:outer:04",
+      "wall_only:inner_face:inner:04:01",
+      "wall_only:inner_face:inner:04:02",
+      "wall_plus_column:outer_face:outer:01",
+      "column_assisted_closure:inner_face:inner:01:01",
+      "wall_plus_column:inner_face:inner:01:02",
+      "wall_plus_column:inner_face:inner:01:03",
+      "column_assisted_closure:inner_face:inner:01:04"
+    ],
+    "candidate_set_facts": {
+      "ambiguous": false,
+      "explicit_selection_state": "none",
+      "selection_relation": {
+        "recorded_at": "2026-10-05",
+        "selected_candidate_id": null,
+        "selection_state": "none"
+      },
+      "selection_relation_present": true,
+      "singleton": false,
+      "unassigned": true
+    },
+    "candidate_set_id": "real-ifc-candidate-set-001",
+    "candidates": [
+      {
+        "candidate_id": "wall_only:outer_face:outer:04",
+        "candidate_version_id": "wall_only:outer_face:outer:04:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_only:inner_face:inner:04:01",
+        "candidate_version_id": "wall_only:inner_face:inner:04:01:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_only:inner_face:inner:04:02",
+        "candidate_version_id": "wall_only:inner_face:inner:04:02:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_plus_column:outer_face:outer:01",
+        "candidate_version_id": "wall_plus_column:outer_face:outer:01:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "column_assisted_closure:inner_face:inner:01:01",
+        "candidate_version_id": "column_assisted_closure:inner_face:inner:01:01:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_plus_column:inner_face:inner:01:02",
+        "candidate_version_id": "wall_plus_column:inner_face:inner:01:02:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "wall_plus_column:inner_face:inner:01:03",
+        "candidate_version_id": "wall_plus_column:inner_face:inner:01:03:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      },
+      {
+        "candidate_id": "column_assisted_closure:inner_face:inner:01:04",
+        "candidate_version_id": "column_assisted_closure:inner_face:inner:01:04:v1",
+        "derived_display_labels": [
+          "provisional_diagnostic_only"
+        ],
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional"
+      }
+    ],
+    "evidence_only": true,
+    "qualified_authored_domain": false,
+    "record_class": "real_ifc",
+    "source_artifact": "outputs/design/live_ifc_candidate_set_lifecycle_experiment/real_ifc_case.json",
+    "synthetic_controls_must_not_be_interpreted_as_real_ifc": true
+  },
+  "synthetic_controls": [
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:auto:001",
+          "candidate_version_id": "synthetic:auto:001:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "provisional"
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": false,
+        "candidate_set_id": "synthetic:set:no-selection:001",
+        "explicit_selection_state": "none",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": null,
+          "selection_state": "none"
+        },
+        "selection_relation_present": true,
+        "singleton": true,
+        "unassigned": true
+      },
+      "events": [],
+      "expected_after_events": {
+        "derived_display_label": "provisional_diagnostic_only",
+        "downstream_availability": "not_available",
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "provisional",
+        "selected_candidate_id": null,
+        "selection_state": "none"
+      },
+      "fixture_id": "explicit_no_selection",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:auto:001",
+          "candidate_version_id": "synthetic:auto:001:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "provisional"
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": false,
+        "candidate_set_id": "synthetic:set:selection-absent:001",
+        "explicit_selection_state": null,
+        "selection_relation_present": false,
+        "singleton": true,
+        "unassigned": true
+      },
+      "events": [],
+      "expected_after_events": {
+        "meaning": "selection_not_recorded",
+        "selected_candidate_id": null,
+        "selection_relation_recorded": false
+      },
+      "fixture_id": "selection_relation_absent",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:auto:001",
+          "candidate_version_id": "synthetic:auto:001:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "provisional"
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": false,
+        "candidate_set_id": "synthetic:set:confirm:001",
+        "explicit_selection_state": "candidate_id",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": "synthetic:auto:001",
+          "selection_state": "candidate_id"
+        },
+        "selection_relation_present": true,
+        "singleton": true,
+        "unassigned": false
+      },
+      "events": [
+        {
+          "actor": "synthetic_owner",
+          "event_id": "evt:confirm:001",
+          "event_sequence": 1,
+          "event_type": "confirm",
+          "is_production_action": false,
+          "provenance_required": true,
+          "reason_code": "design_control_confirm",
+          "recorded_at": "2026-10-05",
+          "target_ids": [
+            "synthetic:auto:001:v1"
+          ]
+        }
+      ],
+      "expected_after_events": {
+        "derived_display_label": null,
+        "evidence_improved_automatically": false,
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "user_confirmed"
+      },
+      "fixture_id": "explicit_confirmation_preserves_diagnostic_evidence",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:auto:001",
+          "candidate_version_id": "synthetic:auto:001:v1",
+          "evidence_state": "diagnostic_only",
+          "geometry_retained": true,
+          "lifecycle_state": "provisional"
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": false,
+        "candidate_set_id": "synthetic:set:reject:001",
+        "explicit_selection_state": "none",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": null,
+          "selection_state": "none"
+        },
+        "selection_relation_present": true,
+        "singleton": true,
+        "unassigned": true
+      },
+      "events": [
+        {
+          "actor": "synthetic_owner",
+          "event_id": "evt:reject:001",
+          "event_sequence": 1,
+          "event_type": "reject",
+          "is_production_action": false,
+          "provenance_required": true,
+          "reason_code": "design_control_reject",
+          "recorded_at": "2026-10-05",
+          "target_ids": [
+            "synthetic:auto:001:v1"
+          ]
+        }
+      ],
+      "expected_after_events": {
+        "evidence_retained": true,
+        "evidence_state": "diagnostic_only",
+        "lifecycle_state": "rejected"
+      },
+      "fixture_id": "explicit_rejection_preserves_evidence",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:edit:v1",
+          "candidate_version_id": "synthetic:edit:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "provisional"
+        },
+        {
+          "candidate_id": "synthetic:edit:v2",
+          "candidate_version_id": "synthetic:edit:v2",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "provisional",
+          "prior_candidate_version_refs": [
+            "synthetic:edit:v1"
+          ]
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": false,
+        "candidate_set_id": "synthetic:set:replace:001",
+        "explicit_selection_state": "none",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": null,
+          "selection_state": "none"
+        },
+        "selection_relation_present": true,
+        "singleton": true,
+        "unassigned": true
+      },
+      "events": [
+        {
+          "actor": "synthetic_owner",
+          "event_id": "evt:replace:001",
+          "event_sequence": 1,
+          "event_type": "replace",
+          "is_production_action": false,
+          "provenance_required": true,
+          "reason_code": "design_control_replace",
+          "recorded_at": "2026-10-05",
+          "target_ids": [
+            "synthetic:edit:v1",
+            "synthetic:edit:v2"
+          ]
+        }
+      ],
+      "expected_after_events": {
+        "new_version_evidence_state": "diagnostic_only",
+        "new_version_lifecycle_state": "provisional",
+        "prior_version_evidence_state": "diagnostic_only",
+        "prior_version_lifecycle_state": "replaced",
+        "prior_version_retained": true
+      },
+      "fixture_id": "replacement_preserves_history_and_evidence",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:edit:v1",
+          "candidate_version_id": "synthetic:edit:v1",
+          "evidence_state": "diagnostic_only",
+          "geometry": "before",
+          "lifecycle_state": "provisional"
+        },
+        {
+          "candidate_id": "synthetic:edit:v2",
+          "candidate_version_id": "synthetic:edit:v2",
+          "evidence_state": "diagnostic_only",
+          "geometry": "after",
+          "lifecycle_state": "provisional",
+          "prior_candidate_version_refs": [
+            "synthetic:edit:v1"
+          ]
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": false,
+        "candidate_set_id": "synthetic:set:edit:001",
+        "explicit_selection_state": "none",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": null,
+          "selection_state": "none"
+        },
+        "selection_relation_present": true,
+        "singleton": true,
+        "unassigned": true
+      },
+      "events": [
+        {
+          "actor": "synthetic_owner",
+          "event_id": "evt:edit:001",
+          "event_sequence": 1,
+          "event_type": "manual_boundary_edit",
+          "is_production_action": false,
+          "provenance_required": true,
+          "reason_code": "design_control_manual_boundary_edit",
+          "recorded_at": "2026-10-05",
+          "target_ids": [
+            "synthetic:edit:v1",
+            "synthetic:edit:v2"
+          ]
+        }
+      ],
+      "expected_after_events": {
+        "manual_edit_provenance": true,
+        "old_geometry_mutated": false,
+        "prior_version_lifecycle_state": "replaced"
+      },
+      "fixture_id": "manual_boundary_edit_is_ordered_replacement",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:auto:a",
+          "candidate_version_id": "synthetic:auto:a:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "provisional"
+        },
+        {
+          "candidate_id": "synthetic:auto:b",
+          "candidate_version_id": "synthetic:auto:b:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "provisional"
+        },
+        {
+          "candidate_id": "synthetic:authored:001",
+          "candidate_version_id": "synthetic:authored:001:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "user_confirmed"
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": false,
+        "candidate_set_id": "synthetic:set:authored:001",
+        "explicit_selection_state": "authored_domain",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": "synthetic:authored:001",
+          "selection_state": "authored_domain"
+        },
+        "selection_relation_present": true,
+        "singleton": false,
+        "unassigned": false
+      },
+      "events": [
+        {
+          "actor": "synthetic_owner",
+          "event_id": "evt:author:001",
+          "event_sequence": 1,
+          "event_type": "assign_authored_domain",
+          "is_production_action": false,
+          "provenance_required": true,
+          "reason_code": "design_control_assign_authored_domain",
+          "recorded_at": "2026-10-05",
+          "target_ids": [
+            "synthetic:authored:001"
+          ]
+        }
+      ],
+      "expected_after_events": {
+        "authored_precedence": true,
+        "automatic_candidates_retained": true,
+        "automatic_winner": false
+      },
+      "fixture_id": "authored_domain_precedence_retains_automatic",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:auto:conflict",
+          "candidate_version_id": "synthetic:auto:conflict:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "provisional"
+        },
+        {
+          "candidate_id": "synthetic:authored:conflict",
+          "candidate_version_id": "synthetic:authored:conflict:v1",
+          "evidence_state": "diagnostic_only",
+          "lifecycle_state": "user_confirmed"
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": true,
+        "candidate_set_id": "synthetic:set:conflict:001",
+        "explicit_selection_state": "none",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": null,
+          "selection_state": "none"
+        },
+        "selection_relation_present": true,
+        "singleton": false,
+        "unassigned": false
+      },
+      "events": [
+        {
+          "actor": "synthetic_owner",
+          "event_id": "evt:conflict:001",
+          "event_sequence": 1,
+          "event_type": "record_conflict",
+          "is_production_action": false,
+          "provenance_required": true,
+          "reason_code": "design_control_record_conflict",
+          "recorded_at": "2026-10-05",
+          "target_ids": [
+            "synthetic:auto:conflict",
+            "synthetic:authored:conflict"
+          ]
+        }
+      ],
+      "expected_after_events": {
+        "automatic_winner": false,
+        "conflict": true,
+        "downstream_availability": "not_available",
+        "future_resolution_event": "deferred",
+        "unresolved": true
+      },
+      "fixture_id": "unresolved_conflict_defers_resolution",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [
+        {
+          "candidate_id": "synthetic:partial",
+          "candidate_version_id": "synthetic:partial:v1",
+          "evidence_state": "partial",
+          "lifecycle_state": "provisional"
+        },
+        {
+          "candidate_id": "synthetic:invalid",
+          "candidate_version_id": "synthetic:invalid:v1",
+          "evidence_state": "invalid",
+          "lifecycle_state": "provisional"
+        },
+        {
+          "candidate_id": "synthetic:unsupported",
+          "candidate_version_id": "synthetic:unsupported:v1",
+          "evidence_state": "unsupported",
+          "lifecycle_state": "provisional"
+        }
+      ],
+      "candidate_set": {
+        "ambiguous": true,
+        "candidate_set_id": "synthetic:set:evidence:001",
+        "explicit_selection_state": "none",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": null,
+          "selection_state": "none"
+        },
+        "selection_relation_present": true,
+        "singleton": false,
+        "unassigned": true
+      },
+      "events": [],
+      "expected_after_events": {
+        "automatic_winner": false,
+        "downstream_availability": "not_available",
+        "evidence_states_retained": [
+          "partial",
+          "invalid",
+          "unsupported"
+        ]
+      },
+      "fixture_id": "evidence_quality_does_not_create_winner",
+      "record_class": "synthetic_control"
+    },
+    {
+      "candidate_records": [],
+      "candidate_set": {
+        "ambiguous": false,
+        "candidate_set_id": "synthetic:set:missing:001",
+        "explicit_selection_state": "none",
+        "selection_relation": {
+          "recorded_at": "2026-10-05",
+          "selected_candidate_id": null,
+          "selection_state": "none"
+        },
+        "selection_relation_present": true,
+        "singleton": false,
+        "unassigned": true
+      },
+      "events": [],
+      "expected_after_events": {
+        "availability_reason": "missing_qualified_authored_domain",
+        "downstream_availability": "not_available",
+        "selected_candidate_id": null
+      },
+      "fixture_id": "missing_domain_propagates_not_available",
+      "record_class": "synthetic_control"
+    }
+  ]
+}
