@@ -1,0 +1,143 @@
+{
+  "artifact_type": "d6_lifecycle_conflict_preservation_fixtures_v1",
+  "ordering": {
+    "semantic_group_key": ["occurred_at", "sequence", "relation_key"],
+    "audit_sort_key": ["occurred_at", "sequence", "event_id"],
+    "event_id_order": "ascending_ascii_for_audit_only"
+  },
+  "cases": [
+    {
+      "case_id": "contradictory_same_key_confirmation",
+      "initial_state": {
+        "active_candidate_versions": ["boundary-a@1", "boundary-b@1"]
+      },
+      "events": [
+        {
+          "event_id": "evt-confirm-a",
+          "occurred_at": "2026-10-05T12:00:00Z",
+          "sequence": 7,
+          "relation_key": "confirmation:scene-1:exclusive-review",
+          "event_type": "confirm_candidate",
+          "target_candidate_version_id": "boundary-a@1",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "confirmation-record-a"}
+        },
+        {
+          "event_id": "evt-confirm-b",
+          "occurred_at": "2026-10-05T12:00:00Z",
+          "sequence": 7,
+          "relation_key": "confirmation:scene-1:exclusive-review",
+          "event_type": "confirm_candidate",
+          "target_candidate_version_id": "boundary-b@1",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "confirmation-record-b"}
+        }
+      ]
+    },
+    {
+      "case_id": "contradictory_same_key_authored_assignment",
+      "initial_state": {"active_candidate_versions": []},
+      "events": [
+        {
+          "event_id": "evt-assign-domain-a",
+          "occurred_at": "2026-10-05T12:01:00Z",
+          "sequence": 8,
+          "relation_key": "authored-assignment:scene-2:domain",
+          "event_type": "assign_authored_domain",
+          "authored_domain_id": "domain-a",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "assignment-record-a"}
+        },
+        {
+          "event_id": "evt-assign-domain-b",
+          "occurred_at": "2026-10-05T12:01:00Z",
+          "sequence": 8,
+          "relation_key": "authored-assignment:scene-2:domain",
+          "event_type": "assign_authored_domain",
+          "authored_domain_id": "domain-b",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "assignment-record-b"}
+        }
+      ]
+    },
+    {
+      "case_id": "duplicate_identical_event",
+      "initial_state": {"active_candidate_versions": []},
+      "events": [
+        {
+          "event_id": "evt-assign-repeat-a",
+          "occurred_at": "2026-10-05T12:02:00Z",
+          "sequence": 9,
+          "relation_key": "authored-assignment:scene-3:domain",
+          "event_type": "assign_authored_domain",
+          "authored_domain_id": "domain-c",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "assignment-request-1"}
+        },
+        {
+          "event_id": "evt-assign-repeat-b",
+          "occurred_at": "2026-10-05T12:02:00Z",
+          "sequence": 9,
+          "relation_key": "authored-assignment:scene-3:domain",
+          "event_type": "assign_authored_domain",
+          "authored_domain_id": "domain-c",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "assignment-request-2"}
+        }
+      ]
+    },
+    {
+      "case_id": "stale_version_replacement_confirmation",
+      "initial_state": {"active_candidate_versions": ["candidate-c@2"]},
+      "events": [
+        {
+          "event_id": "evt-confirm-stale-v1",
+          "occurred_at": "2026-10-05T12:03:00Z",
+          "sequence": 10,
+          "relation_key": "candidate-lifecycle:candidate-c@1",
+          "event_type": "confirm_candidate",
+          "target_candidate_version_id": "candidate-c@1",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "stale-confirmation"}
+        },
+        {
+          "event_id": "evt-replace-stale-v1",
+          "occurred_at": "2026-10-05T12:03:00Z",
+          "sequence": 10,
+          "relation_key": "candidate-lifecycle:candidate-c@1",
+          "event_type": "replace_candidate_version",
+          "target_candidate_version_id": "candidate-c@1",
+          "replacement_candidate_version_id": "candidate-c@3",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "stale-replacement"}
+        }
+      ]
+    },
+    {
+      "case_id": "non_conflicting_deterministic_tie",
+      "initial_state": {"active_candidate_versions": ["candidate-d@1"]},
+      "events": [
+        {
+          "event_id": "evt-z-confirm-candidate-d",
+          "occurred_at": "2026-10-05T12:04:00Z",
+          "sequence": 11,
+          "relation_key": "confirmation:scene-4:candidate-d@1",
+          "event_type": "confirm_candidate",
+          "target_candidate_version_id": "candidate-d@1",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "candidate-confirmation-d"}
+        },
+        {
+          "event_id": "evt-a-assign-domain-d",
+          "occurred_at": "2026-10-05T12:04:00Z",
+          "sequence": 11,
+          "relation_key": "authored-assignment:scene-4:domain",
+          "event_type": "assign_authored_domain",
+          "authored_domain_id": "domain-d",
+          "actor": "synthetic-user",
+          "provenance": {"source_record_id": "domain-assignment-d"}
+        }
+      ]
+    }
+  ]
+}

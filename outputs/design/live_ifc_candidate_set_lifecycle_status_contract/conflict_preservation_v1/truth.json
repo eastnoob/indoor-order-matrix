@@ -1,0 +1,95 @@
+{
+  "artifact_type": "d6_lifecycle_conflict_preservation_truth_v1",
+  "cases": [
+    {
+      "case_id": "contradictory_same_key_confirmation",
+      "ordered_event_ids": ["evt-confirm-a", "evt-confirm-b"],
+      "relation_outcomes": [
+        {
+          "relation_key": "confirmation:scene-1:exclusive-review",
+          "outcome": "unresolved_conflict",
+          "conflict_class": "same_key_incompatible_candidate_confirmations",
+          "event_ids": ["evt-confirm-a", "evt-confirm-b"],
+          "preserved_event_ids": ["evt-confirm-a", "evt-confirm-b"],
+          "effective_event_count": 0,
+          "lexical_winner_event_id": null,
+          "downstream_promotion": "blocked_unresolved_conflict"
+        }
+      ]
+    },
+    {
+      "case_id": "contradictory_same_key_authored_assignment",
+      "ordered_event_ids": ["evt-assign-domain-a", "evt-assign-domain-b"],
+      "relation_outcomes": [
+        {
+          "relation_key": "authored-assignment:scene-2:domain",
+          "outcome": "unresolved_conflict",
+          "conflict_class": "same_key_incompatible_authored_domain_assignments",
+          "event_ids": ["evt-assign-domain-a", "evt-assign-domain-b"],
+          "preserved_event_ids": ["evt-assign-domain-a", "evt-assign-domain-b"],
+          "effective_event_count": 0,
+          "lexical_winner_event_id": null,
+          "downstream_promotion": "blocked_unresolved_conflict"
+        }
+      ]
+    },
+    {
+      "case_id": "duplicate_identical_event",
+      "ordered_event_ids": ["evt-assign-repeat-a", "evt-assign-repeat-b"],
+      "relation_outcomes": [
+        {
+          "relation_key": "authored-assignment:scene-3:domain",
+          "outcome": "applied_idempotently",
+          "conflict_class": null,
+          "event_ids": ["evt-assign-repeat-a", "evt-assign-repeat-b"],
+          "preserved_event_ids": ["evt-assign-repeat-a", "evt-assign-repeat-b"],
+          "effective_event_count": 1,
+          "lexical_winner_event_id": null,
+          "downstream_promotion": "not_promoted_by_this_evidence"
+        }
+      ]
+    },
+    {
+      "case_id": "stale_version_replacement_confirmation",
+      "ordered_event_ids": ["evt-confirm-stale-v1", "evt-replace-stale-v1"],
+      "relation_outcomes": [
+        {
+          "relation_key": "candidate-lifecycle:candidate-c@1",
+          "outcome": "unresolved_conflict",
+          "conflict_class": "replacement_confirmation_stale_or_inactive_target",
+          "event_ids": ["evt-confirm-stale-v1", "evt-replace-stale-v1"],
+          "preserved_event_ids": ["evt-confirm-stale-v1", "evt-replace-stale-v1"],
+          "effective_event_count": 0,
+          "lexical_winner_event_id": null,
+          "downstream_promotion": "blocked_unresolved_conflict"
+        }
+      ]
+    },
+    {
+      "case_id": "non_conflicting_deterministic_tie",
+      "ordered_event_ids": ["evt-a-assign-domain-d", "evt-z-confirm-candidate-d"],
+      "relation_outcomes": [
+        {
+          "relation_key": "authored-assignment:scene-4:domain",
+          "outcome": "applied",
+          "conflict_class": null,
+          "event_ids": ["evt-a-assign-domain-d"],
+          "preserved_event_ids": ["evt-a-assign-domain-d"],
+          "effective_event_count": 1,
+          "lexical_winner_event_id": null,
+          "downstream_promotion": "not_promoted_by_this_evidence"
+        },
+        {
+          "relation_key": "confirmation:scene-4:candidate-d@1",
+          "outcome": "applied",
+          "conflict_class": null,
+          "event_ids": ["evt-z-confirm-candidate-d"],
+          "preserved_event_ids": ["evt-z-confirm-candidate-d"],
+          "effective_event_count": 1,
+          "lexical_winner_event_id": null,
+          "downstream_promotion": "not_promoted_by_this_evidence"
+        }
+      ]
+    }
+  ]
+}
