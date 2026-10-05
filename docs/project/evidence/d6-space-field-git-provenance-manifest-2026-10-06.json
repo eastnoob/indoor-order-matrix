@@ -1,0 +1,1078 @@
+{
+  "schema": "d6-space-field-git-provenance-manifest/v1",
+  "audit_date": "2026-10-06",
+  "repository": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer",
+  "branch": "codex/d6-analysis-domain-layout-handoff",
+  "head": "a149420faf5dfef9d89293a4c415a08df4964581",
+  "branch_purpose": "Design-only D6 AnalysisDomain/layout handoff and lifecycle evidence checkpoint; no production implementation.",
+  "upstream": {
+    "configured": false,
+    "ref": null,
+    "command_exit_code": 128,
+    "note": "No upstream is configured for this local branch."
+  },
+  "branch_vv": "  archive/local-reference-bim-wip-20260816       f5736d9 feat: add local reference field evidence and overlays\r\n  backup-before-frame-explainability-diagnostics 649767a restore: before region shape selection experiment\r\n  backup-before-member-frame-trend               c76f559 feat: clean up inferred region semantics\r\n  backup-before-region-shape-selection           aa7fbb0 feat: infer activity regions from furniture groups\r\n  codex/d3-d5-evidence-research                  de1c53b chore: checkpoint D6 evidence before boundary repair\r\n* codex/d6-analysis-domain-layout-handoff        a149420 docs: checkpoint D6 lifecycle conflict preservation\r\n  codex/d6-lifecycle-status-contract-design      9672588 docs: checkpoint D6 lifecycle status-contract repair\r\n  codex/d6-pairwise-channel-run2-design          de1c53b chore: checkpoint D6 evidence before boundary repair\r\n  codex/d6-pairwise-channel-run2-repair-v1       f25d367 Repair D6 pairwise channel run 002 evidence contract\r\n  codex/d6-pairwise-channel-run2-repair-v2       9672588 docs: checkpoint D6 lifecycle status-contract repair\r\n  codex/ifc4-bim-description-pipeline            9ce888a feat: add weight-free multi-channel boundary evidence\r\n+ codex/rhino-instance-export-fix                7498b8e (D:/PROJECTS/understandOtherPackage/order_analyzer/.worktrees/rhino-instance-export-fix/order_analyzer) test: verify live Rhino IFC export\r\n  codex/visualarq-source-adapter                 234b95c chore: ignore local worktrees\r\n  feature/continuous-affordance-coverage         c4c3705 feat: score affordance coverage by continuous area\r\n  feature/continuous-conflict-evaluator          1694110 docs: mark continuous conflict complete\r\n  feature/entry-access-point                     0068432 feat: add explicit entry access points\r\n  feature/local-reference-field                  ab12280 docs: specify and plan local reference field\r\n  master                                         14eca2e feat: complete terminal geometry trend pipeline",
+  "checkpoint_ancestors": [
+    {
+      "commit": "96725881df26c6807830aa770cdf2e2e9ed6d788",
+      "is_ancestor": true,
+      "subject": "docs: checkpoint D6 lifecycle status-contract repair",
+      "purpose": "status-contract repair checkpoint"
+    },
+    {
+      "commit": "fa942a788c08301c9cf1fdec881a40bed1882706",
+      "is_ancestor": true,
+      "subject": "docs: checkpoint D6 lifecycle status-contract amendment v1",
+      "purpose": "lifecycle amendment checkpoint"
+    },
+    {
+      "commit": "a149420faf5dfef9d89293a4c415a08df4964581",
+      "is_ancestor": true,
+      "subject": "docs: checkpoint D6 lifecycle conflict preservation",
+      "purpose": "conflict-preservation checkpoint and current HEAD"
+    }
+  ],
+  "worktree": {
+    "identity": "normal_checkout",
+    "git_dir": ".git",
+    "common_dir": ".git",
+    "superproject": null,
+    "list_porcelain": "worktree D:/PROJECTS/understandOtherPackage/order_analyzer\r\nHEAD a149420faf5dfef9d89293a4c415a08df4964581\r\nbranch refs/heads/codex/d6-analysis-domain-layout-handoff\r\n\r\nworktree C:/Users/tianf/.codex/worktrees/8971/order_analyzer\r\nHEAD 594b1d86157913d39b02585ec5a16795335f9f19\r\ndetached\r\n\r\nworktree C:/Users/tianf/.codex/worktrees/9114/order_analyzer\r\nHEAD fd72f9231e1799ee119ba979f8b5da95299e3295\r\ndetached\r\n\r\nworktree D:/PROJECTS/understandOtherPackage/order_analyzer/.worktrees/rhino-instance-export-fix/order_analyzer\r\nHEAD 7498b8e71a7f27f2e6bf6d1995f3e1ffa56b3c73\r\nbranch refs/heads/codex/rhino-instance-export-fix",
+    "no_new_worktree_created": true
+  },
+  "baseline": {
+    "captured_before_audit_artifacts": true,
+    "untracked_count": 46,
+    "paths": [
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json",
+        "bytes": 4459,
+        "sha256": "5f8f5062bb44aafaa56fd58b87870a14264406bf1d27b2681adee5a12e54df57",
+        "current_bytes": 4459,
+        "current_sha256": "5f8f5062bb44aafaa56fd58b87870a14264406bf1d27b2681adee5a12e54df57",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-scope-audit.json",
+        "bytes": 2043,
+        "sha256": "3cb693de27d4848d5428fb9d2c43583db1d52273bfe5338d5b7f75ec62499e29",
+        "current_bytes": 2043,
+        "current_sha256": "3cb693de27d4848d5428fb9d2c43583db1d52273bfe5338d5b7f75ec62499e29",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison.md",
+        "bytes": 5276,
+        "sha256": "5ee974e559aa93fe0cbc98d51540c6c67582ffa53b35ef36d3ec81415753e11b",
+        "current_bytes": 5276,
+        "current_sha256": "5ee974e559aa93fe0cbc98d51540c6c67582ffa53b35ef36d3ec81415753e11b",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison.md",
+        "bytes": 11211,
+        "sha256": "145685a97ca28dbc4d7f20e730fd4e3946122341665a11be083c7120e8cd57c2",
+        "current_bytes": 11211,
+        "current_sha256": "145685a97ca28dbc4d7f20e730fd4e3946122341665a11be083c7120e8cd57c2",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "real_ifc_design_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/live_ifc_boundary_candidate_comparison",
+          "outputs/design/live_ifc_pairwise_relationship_experiment",
+          "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Preserved with provenance while acceptance scope remains outside this checkpoint."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison-owner-decision.md",
+        "bytes": 4013,
+        "sha256": "233ea0cca5772bdab3621754fccf18309f40a1bdbb0a76bf15c4cede0ae9627f",
+        "current_bytes": 4013,
+        "current_sha256": "233ea0cca5772bdab3621754fccf18309f40a1bdbb0a76bf15c4cede0ae9627f",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "real_ifc_design_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/live_ifc_boundary_candidate_comparison",
+          "outputs/design/live_ifc_pairwise_relationship_experiment",
+          "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Prior limited owner decision preserved, but outside current lifecycle checkpoint commit set."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-schema.json",
+        "bytes": 640,
+        "sha256": "bf14e6ff35e4f3ac0f70bcd3db00c3ba3af4939a2ba173f17af732d3d665dd6f",
+        "current_bytes": 640,
+        "current_sha256": "bf14e6ff35e4f3ac0f70bcd3db00c3ba3af4939a2ba173f17af732d3d665dd6f",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-fixtures.json",
+        "bytes": 26198,
+        "sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95",
+        "current_bytes": 26198,
+        "current_sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-before-after.json",
+        "bytes": 279845,
+        "sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7",
+        "current_bytes": 279845,
+        "current_sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-owner-review.md",
+        "bytes": 2163,
+        "sha256": "16503904ce90a4063009502431ed471c49a6604cf1150d311d14a278cdd00a11",
+        "current_bytes": 2163,
+        "current_sha256": "16503904ce90a4063009502431ed471c49a6604cf1150d311d14a278cdd00a11",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-real-ifc.json",
+        "bytes": 240581,
+        "sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32",
+        "current_bytes": 240581,
+        "current_sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-provenance.json",
+        "bytes": 1851,
+        "sha256": "5f7a54300abea7d71d0d3280138bbba18535238d6007fb539106794039238bd3",
+        "current_bytes": 1851,
+        "current_sha256": "5f7a54300abea7d71d0d3280138bbba18535238d6007fb539106794039238bd3",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-real-ifc-pairwise-relationship-experiment.md",
+        "bytes": 5752,
+        "sha256": "7c3bd96f4d748ccd0742ae23e2ef5c838621682803504e8a630be3676d44501b",
+        "current_bytes": 5752,
+        "current_sha256": "7c3bd96f4d748ccd0742ae23e2ef5c838621682803504e8a630be3676d44501b",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "real_ifc_design_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/live_ifc_boundary_candidate_comparison",
+          "outputs/design/live_ifc_pairwise_relationship_experiment",
+          "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Preserved with provenance while acceptance scope remains outside this checkpoint."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-scope-audit.json",
+        "bytes": 2184,
+        "sha256": "d528aeab1902c33d3ca71b80be2fb7822f8f4b5f7cba18087b866163e8f284fd",
+        "current_bytes": 2184,
+        "current_sha256": "d528aeab1902c33d3ca71b80be2fb7822f8f4b5f7cba18087b866163e8f284fd",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json",
+        "bytes": 1920,
+        "sha256": "d390fe8c1bdd5b93a6465d72fcba3228c450b6ab6dfdc12226082404a6081b11",
+        "current_bytes": 1920,
+        "current_sha256": "d390fe8c1bdd5b93a6465d72fcba3228c450b6ab6dfdc12226082404a6081b11",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1.md",
+        "bytes": 6397,
+        "sha256": "ec97fd5717e74d066efd4addc9330c8e5870f839e296087dad5b64b991dda4d8",
+        "current_bytes": 6397,
+        "current_sha256": "ec97fd5717e74d066efd4addc9330c8e5870f839e296087dad5b64b991dda4d8",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "full_pytest_checkpoint1b.log",
+        "bytes": 1099,
+        "sha256": "98f80aa48382ed42a03ba8ab38f09a4e5cf1629380f57022ddebc6715d26db2b",
+        "current_bytes": 1099,
+        "current_sha256": "98f80aa48382ed42a03ba8ab38f09a4e5cf1629380f57022ddebc6715d26db2b",
+        "changed_by_audit": false,
+        "type": "log artifact",
+        "category": "temporary_log_or_artifact",
+        "associated_evidence_or_manifest": [
+          "full_pytest_checkpoint1b.err",
+          "full_pytest_checkpoint1b.log"
+        ],
+        "integrity_status": "preserved_preexisting_log; no rerun",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Pre-existing log artifact retained for provenance; not a design checkpoint."
+      },
+      {
+        "path": "full_pytest_checkpoint1b.err",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "current_bytes": 0,
+        "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "changed_by_audit": false,
+        "type": "stderr log",
+        "category": "temporary_log_or_artifact",
+        "associated_evidence_or_manifest": [
+          "full_pytest_checkpoint1b.err",
+          "full_pytest_checkpoint1b.log"
+        ],
+        "integrity_status": "preserved_empty_stderr_log; no rerun",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Pre-existing log artifact retained for provenance; not a design checkpoint."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-owner-review.md",
+        "bytes": 3005,
+        "sha256": "1455bda9214d98f01dc1473a08397d436eaf1993e8b857e1dddfc70646f8e1de",
+        "current_bytes": 3005,
+        "current_sha256": "1455bda9214d98f01dc1473a08397d436eaf1993e8b857e1dddfc70646f8e1de",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-before-after.json",
+        "bytes": 998,
+        "sha256": "5a9f581f772f3298032cdd37619b0c5a936e4d8e65086a7ab7017dabc494f2b7",
+        "current_bytes": 998,
+        "current_sha256": "5a9f581f772f3298032cdd37619b0c5a936e4d8e65086a7ab7017dabc494f2b7",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+        "bytes": 14984,
+        "sha256": "5c0e6b22d68b2324eecdd6c6d53594981cf074c4b93be17683cc26e3a64eb8ea",
+        "current_bytes": 14984,
+        "current_sha256": "5c0e6b22d68b2324eecdd6c6d53594981cf074c4b93be17683cc26e3a64eb8ea",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-candidates.json",
+        "bytes": 85668,
+        "sha256": "44385072ca5d0479d017a1056f772a6cc35e9384afe1d56a290675d6d5efe357",
+        "current_bytes": 85668,
+        "current_sha256": "44385072ca5d0479d017a1056f772a6cc35e9384afe1d56a290675d6d5efe357",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-field.json",
+        "bytes": 967898,
+        "sha256": "852d2b973a814d010f79021a1b37d8ec1f428575d31a232a562ccababa157349",
+        "current_bytes": 967898,
+        "current_sha256": "852d2b973a814d010f79021a1b37d8ec1f428575d31a232a562ccababa157349",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json",
+        "bytes": 1330260,
+        "sha256": "864d17b6a6e2ca8b372431e0ef87e37847292e4498e1bf3fdef234112b638d7d",
+        "current_bytes": 1330260,
+        "current_sha256": "864d17b6a6e2ca8b372431e0ef87e37847292e4498e1bf3fdef234112b638d7d",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "soft_field_boundary_repair_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-experiment.md",
+        "bytes": 11309,
+        "sha256": "5827c7870786b93387f20e9b32b196e7cfeb4dd6581e8cb1bd824465a9e1d8a0",
+        "current_bytes": 11309,
+        "current_sha256": "5827c7870786b93387f20e9b32b196e7cfeb4dd6581e8cb1bd824465a9e1d8a0",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "lifecycle_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/repair_v1",
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/amendment_v1",
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/conflict_preservation_v1"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Underlying experiment or repair remains at a review stop."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-final-owner-decision.md",
+        "bytes": 3222,
+        "sha256": "ac7137c5fb22b5e47cb1ce64e93fff8b173d1557ac59d4b75cd07fa815996be5",
+        "current_bytes": 3222,
+        "current_sha256": "ac7137c5fb22b5e47cb1ce64e93fff8b173d1557ac59d4b75cd07fa815996be5",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "lifecycle_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/repair_v1",
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/amendment_v1",
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/conflict_preservation_v1"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "commit_explicit",
+        "recommendation_reason": "Final owner decision approves lifecycle principles as limited design evidence and defers production implementation."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-owner-decision.md",
+        "bytes": 2061,
+        "sha256": "370b5d4b8ef2c768c8545a0b24560c3e51bf565e98a57750d14293fae55acab4",
+        "current_bytes": 2061,
+        "current_sha256": "370b5d4b8ef2c768c8545a0b24560c3e51bf565e98a57750d14293fae55acab4",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "lifecycle_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/repair_v1",
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/amendment_v1",
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/conflict_preservation_v1"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Owner record explicitly says review is incomplete and status contract is deferred."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+        "bytes": 9365,
+        "sha256": "ebe3abd77dc26808284c8ff426a8d017611dd5326b4e78073f711430fafe28c8",
+        "current_bytes": 9365,
+        "current_sha256": "ebe3abd77dc26808284c8ff426a8d017611dd5326b4e78073f711430fafe28c8",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-render-repair-v1.md",
+        "bytes": 3773,
+        "sha256": "ccd6fe97c0d522113af8701cb24ace21facb8ee94aba372573363c75561e626a",
+        "current_bytes": 3773,
+        "current_sha256": "ccd6fe97c0d522113af8701cb24ace21facb8ee94aba372573363c75561e626a",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "lifecycle_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/repair_v1",
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/amendment_v1",
+          "outputs/design/live_ifc_candidate_set_lifecycle_status_contract/conflict_preservation_v1"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Underlying experiment or repair remains at a review stop."
+      },
+      {
+        "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v4.md",
+        "bytes": 1966,
+        "sha256": "8cd97a886f293810db27499634e5c2b6242a4d37dcd6a10ba6fc8cfc21efc53a",
+        "current_bytes": 1966,
+        "current_sha256": "8cd97a886f293810db27499634e5c2b6242a4d37dcd6a10ba6fc8cfc21efc53a",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "pairwise_run002_review_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_pairwise_channel_experiment/run_002",
+          "outputs/design/space_field_pairwise_channel_experiment/run_002_repair_v1",
+          "docs/project/space-field-ifc-neutral-scene-input-contract.md"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Prior-branch limited review/repair evidence; implementation remains deferred."
+      },
+      {
+        "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v1-independent-review.md",
+        "bytes": 20992,
+        "sha256": "8cb3470c5e050c22ec941031dae64d2543e33ab1d10a3412844071c94b50a484",
+        "current_bytes": 20992,
+        "current_sha256": "8cb3470c5e050c22ec941031dae64d2543e33ab1d10a3412844071c94b50a484",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "pairwise_run002_review_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_pairwise_channel_experiment/run_002",
+          "outputs/design/space_field_pairwise_channel_experiment/run_002_repair_v1",
+          "docs/project/space-field-ifc-neutral-scene-input-contract.md"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Prior-branch limited review/repair evidence; implementation remains deferred."
+      },
+      {
+        "path": "docs/project/evidence/d6-pairwise-channel-run002-independent-review.md",
+        "bytes": 10603,
+        "sha256": "4c404932cefc9c92fbe0df4740c86c77f0425fb3d17ad16b2843ef2b9f0be77b",
+        "current_bytes": 10603,
+        "current_sha256": "4c404932cefc9c92fbe0df4740c86c77f0425fb3d17ad16b2843ef2b9f0be77b",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "pairwise_run002_review_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_pairwise_channel_experiment/run_002",
+          "outputs/design/space_field_pairwise_channel_experiment/run_002_repair_v1",
+          "docs/project/space-field-ifc-neutral-scene-input-contract.md"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Prior-branch limited review/repair evidence; implementation remains deferred."
+      },
+      {
+        "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v3-status-contract.md",
+        "bytes": 635,
+        "sha256": "790f16a3f5b73a9efe5593752b6caa5a9f9d59ffab94294ce0e6264ae613fae1",
+        "current_bytes": 635,
+        "current_sha256": "790f16a3f5b73a9efe5593752b6caa5a9f9d59ffab94294ce0e6264ae613fae1",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "pairwise_run002_review_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_pairwise_channel_experiment/run_002",
+          "outputs/design/space_field_pairwise_channel_experiment/run_002_repair_v1",
+          "docs/project/space-field-ifc-neutral-scene-input-contract.md"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Prior-branch limited review/repair evidence; implementation remains deferred."
+      },
+      {
+        "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v4-status-contract.md",
+        "bytes": 740,
+        "sha256": "ee5e05d404ab09dcfde74a6e9240ddfd3a0782fd5f6000d0e8387a430eba779b",
+        "current_bytes": 740,
+        "current_sha256": "ee5e05d404ab09dcfde74a6e9240ddfd3a0782fd5f6000d0e8387a430eba779b",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "pairwise_run002_review_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_pairwise_channel_experiment/run_002",
+          "outputs/design/space_field_pairwise_channel_experiment/run_002_repair_v1",
+          "docs/project/space-field-ifc-neutral-scene-input-contract.md"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Prior-branch limited review/repair evidence; implementation remains deferred."
+      },
+      {
+        "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v3.md",
+        "bytes": 3144,
+        "sha256": "68b34a6269694f4ae4228b3b98d21c66dcb330a423d3400c8817e2812162c577",
+        "current_bytes": 3144,
+        "current_sha256": "68b34a6269694f4ae4228b3b98d21c66dcb330a423d3400c8817e2812162c577",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "pairwise_run002_review_evidence",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_pairwise_channel_experiment/run_002",
+          "outputs/design/space_field_pairwise_channel_experiment/run_002_repair_v1",
+          "docs/project/space-field-ifc-neutral-scene-input-contract.md"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Prior-branch limited review/repair evidence; implementation remains deferred."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-fixtures.json",
+        "bytes": 106114,
+        "sha256": "f22b870de038329b91fe0db540697ae4a362a97cf4fce650104f9d70f72689eb",
+        "current_bytes": 106114,
+        "current_sha256": "f22b870de038329b91fe0db540697ae4a362a97cf4fce650104f9d70f72689eb",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-validation.json",
+        "bytes": 5008,
+        "sha256": "8a08f66b19bdacc54790d6042ab4eb2d74b118ebd44e7c3a6e3f2511478f5da9",
+        "current_bytes": 5008,
+        "current_sha256": "8a08f66b19bdacc54790d6042ab4eb2d74b118ebd44e7c3a6e3f2511478f5da9",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-updated-diagnostic.json",
+        "bytes": 135419,
+        "sha256": "47d82c5d2cc674e46ff74d060f429bf89900fbe38a934f64ddfab1b659b7a2ed",
+        "current_bytes": 135419,
+        "current_sha256": "47d82c5d2cc674e46ff74d060f429bf89900fbe38a934f64ddfab1b659b7a2ed",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit.md",
+        "bytes": 4108,
+        "sha256": "c3dbfd6c7ab166a9b913dea842f36d0ec9d2ae21a30e2a2a671fc4ca790ed09d",
+        "current_bytes": 4108,
+        "current_sha256": "c3dbfd6c7ab166a9b913dea842f36d0ec9d2ae21a30e2a2a671fc4ca790ed09d",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+        "bytes": 16263,
+        "sha256": "99ce25a7829a232571ca22575a09d8d32783f5516a3e34ccded57b2ae7acb4a0",
+        "current_bytes": 16263,
+        "current_sha256": "99ce25a7829a232571ca22575a09d8d32783f5516a3e34ccded57b2ae7acb4a0",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "hard_column_comparison_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v1_hard_column_comparison",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-design-progress.md",
+        "bytes": 16068,
+        "sha256": "20dcf9c8aebb1212b51e98abc913e15e6bdb1e5f1e636c8b96e813e18ab9d249",
+        "current_bytes": 21564,
+        "current_sha256": "3344de1fd26fa16c55a8e24f12bfe4ae3a621a1b001c8895953fc40409d06845",
+        "changed_by_audit": true,
+        "type": "Markdown evidence record",
+        "category": "progress_record",
+        "associated_evidence_or_manifest": [
+          "docs/project/space-field-ifc-neutral-scene-input-contract.md",
+          "docs/project/evidence/d6-space-field-input-contract-owner-decision.md",
+          "docs/project/evidence/d6-space-field-git-provenance-checkpoint-2026-10-06.md"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "commit_explicit",
+        "recommendation_reason": "Audit appends the dated provenance and next-gate record without rewriting history."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-scope.json",
+        "bytes": 808,
+        "sha256": "a11c456b4221e8cebe350394e891c1df4a447c7dd3a98d5c5d5720ae4c62942c",
+        "current_bytes": 808,
+        "current_sha256": "a11c456b4221e8cebe350394e891c1df4a447c7dd3a98d5c5d5720ae4c62942c",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-owner-review.md",
+        "bytes": 1043,
+        "sha256": "535acd12416338bc3500f6a7ca03acd0bbd887af4a468c5d0aaa5cf75be9dd3e",
+        "current_bytes": 1043,
+        "current_sha256": "535acd12416338bc3500f6a7ca03acd0bbd887af4a468c5d0aaa5cf75be9dd3e",
+        "changed_by_audit": false,
+        "type": "Markdown evidence record",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "read_ok_nonempty_markdown",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-git-scope.json",
+        "bytes": 586,
+        "sha256": "fc58f59fac68b1a327db2706ad72f46b86692116cf4f15b0b84b69714c4ff3ad",
+        "current_bytes": 586,
+        "current_sha256": "fc58f59fac68b1a327db2706ad72f46b86692116cf4f15b0b84b69714c4ff3ad",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-provenance.json",
+        "bytes": 1759,
+        "sha256": "677e491de469646466bd2987e10490957959148e113c8cec6f1dd9ee9c28eb24",
+        "current_bytes": 1759,
+        "current_sha256": "677e491de469646466bd2987e10490957959148e113c8cec6f1dd9ee9c28eb24",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-schema.json",
+        "bytes": 410,
+        "sha256": "b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62",
+        "current_bytes": 410,
+        "current_sha256": "b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      },
+      {
+        "path": "docs/project/evidence/d6-space-field-column-channel-audit-real-ifc.json",
+        "bytes": 21782,
+        "sha256": "f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31",
+        "current_bytes": 21782,
+        "current_sha256": "f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31",
+        "changed_by_audit": false,
+        "type": "JSON evidence artifact",
+        "category": "column_channel_audit_bundle",
+        "associated_evidence_or_manifest": [
+          "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+          "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+          "docs/project/evidence/d6-space-field-column-channel-audit-validation.json"
+        ],
+        "integrity_status": "json_parse_ok; companion manifest/hash checks where present",
+        "recommendation": "retain_untracked",
+        "recommendation_reason": "Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance."
+      }
+    ]
+  },
+  "created_or_modified": [
+    {
+      "path": "docs/project/evidence/d6-space-field-design-progress.md",
+      "role": "modified baseline progress record",
+      "bytes": 21564,
+      "sha256": "3344de1fd26fa16c55a8e24f12bfe4ae3a621a1b001c8895953fc40409d06845",
+      "baseline_bytes": 16068,
+      "baseline_sha256": "20dcf9c8aebb1212b51e98abc913e15e6bdb1e5f1e636c8b96e813e18ab9d249"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-06-d6-progress-git-provenance-checkpoint.md",
+      "role": "audit plan",
+      "bytes": 5267,
+      "sha256": "7998bf3e6ee335f984356251e4d7c3164b0df2d02238c583c7166cf56e87c3a6"
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-git-provenance-checkpoint-2026-10-06.md",
+      "role": "human-readable provenance report",
+      "self_hash_excluded": true
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-git-provenance-manifest-2026-10-06.json",
+      "role": "machine-readable provenance manifest",
+      "self_hash_excluded": true
+    }
+  ],
+  "explicit_commit_scope": [
+    {
+      "path": "docs/project/evidence/d6-space-field-design-progress.md",
+      "reason": "Dated progress and handoff gate appended by this audit."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-06-d6-progress-git-provenance-checkpoint.md",
+      "reason": "Skill-required audit plan for reproducible checkpoint work."
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-git-provenance-checkpoint-2026-10-06.md",
+      "reason": "Human-readable provenance report with complete baseline inventory."
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-git-provenance-manifest-2026-10-06.json",
+      "reason": "Machine-readable provenance, hashes, scope, and self-consistency record."
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-final-owner-decision.md",
+      "reason": "Completed owner decision accepting lifecycle principles as limited design evidence."
+    }
+  ],
+  "retained_untracked_scope": [
+    "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json",
+    "docs/project/evidence/d6-space-field-hard-column-comparison-scope-audit.json",
+    "docs/project/evidence/d6-space-field-hard-column-comparison.md",
+    "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison.md",
+    "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison-owner-decision.md",
+    "docs/project/evidence/d6-space-field-hard-column-comparison-schema.json",
+    "docs/project/evidence/d6-space-field-hard-column-comparison-fixtures.json",
+    "docs/project/evidence/d6-space-field-hard-column-comparison-before-after.json",
+    "docs/project/evidence/d6-space-field-hard-column-comparison-owner-review.md",
+    "docs/project/evidence/d6-space-field-hard-column-comparison-real-ifc.json",
+    "docs/project/evidence/d6-space-field-hard-column-comparison-provenance.json",
+    "docs/project/evidence/d6-space-field-real-ifc-pairwise-relationship-experiment.md",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-scope-audit.json",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1.md",
+    "full_pytest_checkpoint1b.log",
+    "full_pytest_checkpoint1b.err",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-owner-review.md",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-before-after.json",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-candidates.json",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-field.json",
+    "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json",
+    "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-experiment.md",
+    "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-owner-decision.md",
+    "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+    "docs/project/evidence/d6-space-field-candidate-set-lifecycle-render-repair-v1.md",
+    "docs/project/evidence/d6-pairwise-channel-run002-repair-v4.md",
+    "docs/project/evidence/d6-pairwise-channel-run002-repair-v1-independent-review.md",
+    "docs/project/evidence/d6-pairwise-channel-run002-independent-review.md",
+    "docs/project/evidence/d6-pairwise-channel-run002-repair-v3-status-contract.md",
+    "docs/project/evidence/d6-pairwise-channel-run002-repair-v4-status-contract.md",
+    "docs/project/evidence/d6-pairwise-channel-run002-repair-v3.md",
+    "docs/project/evidence/d6-space-field-column-channel-audit-fixtures.json",
+    "docs/project/evidence/d6-space-field-column-channel-audit-validation.json",
+    "docs/project/evidence/d6-space-field-column-channel-audit-updated-diagnostic.json",
+    "docs/project/evidence/d6-space-field-column-channel-audit.md",
+    "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+    "docs/project/evidence/d6-space-field-column-channel-audit-scope.json",
+    "docs/project/evidence/d6-space-field-column-channel-audit-owner-review.md",
+    "docs/project/evidence/d6-space-field-column-channel-audit-git-scope.json",
+    "docs/project/evidence/d6-space-field-column-channel-audit-provenance.json",
+    "docs/project/evidence/d6-space-field-column-channel-audit-schema.json",
+    "docs/project/evidence/d6-space-field-column-channel-audit-real-ifc.json"
+  ],
+  "audit_commands": [
+    {
+      "command": "git branch --show-current",
+      "exit_code": 0
+    },
+    {
+      "command": "git rev-parse HEAD",
+      "exit_code": 0
+    },
+    {
+      "command": "git log --oneline --decorate --graph -25",
+      "exit_code": 0
+    },
+    {
+      "command": "git branch -vv",
+      "exit_code": 0
+    },
+    {
+      "command": "git rev-parse --abbrev-ref --symbolic-full-name @{u}",
+      "exit_code": 128
+    },
+    {
+      "command": "git worktree list --porcelain",
+      "exit_code": 0
+    },
+    {
+      "command": "git status --short --branch --untracked-files=all",
+      "exit_code": 0
+    },
+    {
+      "command": "git ls-files --others --exclude-standard",
+      "exit_code": 0
+    },
+    {
+      "command": "git merge-base --is-ancestor checkpoint HEAD (three checks)",
+      "exit_code": 0
+    },
+    {
+      "command": "pixi run python -B - (JSON/hash/manifest audit)",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --no-ext-diff --check",
+      "exit_code": 0
+    }
+  ],
+  "scope_audit": {
+    "production_paths_touched": [],
+    "historical_contract_modified": false,
+    "historical_contract_bytes": 23822,
+    "historical_contract_sha256": "b8870bd8f5a1e4be60ac42a7a5a7792ff43b9cc43b5e628aaccd580a40dfca6d",
+    "full_pytest_run_by_this_audit": false,
+    "blender_invoked_by_this_audit": false,
+    "full_ifc_adapter_invoked_by_this_audit": false,
+    "selector_bayesian_ml_invoked_by_this_audit": false,
+    "baseline_untracked_overwritten_moved_deleted": false,
+    "global_diff_check_blocked": false,
+    "notes": [
+      "Existing pytest log and empty stderr were read only; no rerun was performed.",
+      "Ignored output bundles were not rewritten; companion manifests were rehashed read-only.",
+      "No production code, adapter, public API, source IFC, or user Blender file was touched."
+    ]
+  },
+  "validation": {
+    "json_parse": {
+      "status": "pass",
+      "files_checked": 24,
+      "broader_d6_evidence_json_count": 30,
+      "command_exit_code": 0
+    },
+    "existing_bundle_manifests": {
+      "status": "pass",
+      "manifests_checked": 3,
+      "entries_rehashed": 63,
+      "command_exit_code": 0
+    },
+    "contract_unchanged": {
+      "status": "pass",
+      "bytes": 23822,
+      "sha256": "b8870bd8f5a1e4be60ac42a7a5a7792ff43b9cc43b5e628aaccd580a40dfca6d"
+    },
+    "whitespace_pre_stage": {
+      "status": "pass",
+      "command_exit_code": 0
+    }
+  },
+  "self_consistency": {
+    "baseline_rows_match_pre_audit_untracked": true,
+    "baseline_paths_preserved": true,
+    "self_hash_excluded": [
+      "docs/project/evidence/d6-space-field-git-provenance-checkpoint-2026-10-06.md",
+      "docs/project/evidence/d6-space-field-git-provenance-manifest-2026-10-06.json"
+    ],
+    "canonical_encoding": "UTF-8",
+    "rule": "Recompute bytes/SHA-256 for every baseline row and every created file except report/manifest self hashes; compare paths, bytes, and digests."
+  },
+  "stop_condition": "STOP FOR D6 PROGRESS AND GIT PROVENANCE CHECKPOINT REVIEW",
+  "pre_commit": {
+    "cached_name_status_exit_code": 0,
+    "cached_name_status": [
+      "A docs/project/evidence/d6-space-field-candidate-set-lifecycle-final-owner-decision.md",
+      "A docs/project/evidence/d6-space-field-design-progress.md",
+      "A docs/project/evidence/d6-space-field-git-provenance-checkpoint-2026-10-06.md",
+      "A docs/project/evidence/d6-space-field-git-provenance-manifest-2026-10-06.json",
+      "A docs/superpowers/plans/2026-10-06-d6-progress-git-provenance-checkpoint.md"
+    ],
+    "cached_diff_check_exit_code": 0,
+    "cached_diff_check_output": ""
+  }
+}
