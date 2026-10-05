@@ -113,6 +113,57 @@ The final owner decision is the only pre-existing untracked design record select
 | docs/project/evidence/d6-space-field-column-channel-audit-schema.json | 410 | b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62 | column_channel_audit_bundle | json_parse_ok; companion manifest/hash checks where present | retain_untracked |
 | docs/project/evidence/d6-space-field-column-channel-audit-real-ifc.json | 21782 | f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31 | column_channel_audit_bundle | json_parse_ok; companion manifest/hash checks where present | retain_untracked |
 
+## Per-path recommendation reasons
+
+The manifest records the same reason fields machine-readably. The complete path-by-path decisions are:
+
+- docs/project/evidence/d6-space-field-hard-column-comparison-validation.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-hard-column-comparison-scope-audit.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-hard-column-comparison.md — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison.md — retain_untracked — Preserved with provenance while acceptance scope remains outside this checkpoint.
+- docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison-owner-decision.md — retain_untracked — Prior limited owner decision preserved, but outside current lifecycle checkpoint commit set.
+- docs/project/evidence/d6-space-field-hard-column-comparison-schema.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-hard-column-comparison-fixtures.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-hard-column-comparison-before-after.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-hard-column-comparison-owner-review.md — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-hard-column-comparison-real-ifc.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-hard-column-comparison-provenance.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-real-ifc-pairwise-relationship-experiment.md — retain_untracked — Preserved with provenance while acceptance scope remains outside this checkpoint.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-scope-audit.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1.md — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- full_pytest_checkpoint1b.log — retain_untracked — Pre-existing log artifact retained for provenance; not a design checkpoint.
+- full_pytest_checkpoint1b.err — retain_untracked — Pre-existing log artifact retained for provenance; not a design checkpoint.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-owner-review.md — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-before-after.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-candidates.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-field.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-experiment.md — retain_untracked — Underlying experiment or repair remains at a review stop.
+- docs/project/evidence/d6-space-field-candidate-set-lifecycle-final-owner-decision.md — commit_explicit — Final owner decision approves lifecycle principles as limited design evidence and defers production implementation.
+- docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-owner-decision.md — retain_untracked — Owner record explicitly says review is incomplete and status contract is deferred.
+- docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-candidate-set-lifecycle-render-repair-v1.md — retain_untracked — Underlying experiment or repair remains at a review stop.
+- docs/project/evidence/d6-pairwise-channel-run002-repair-v4.md — retain_untracked — Prior-branch limited review/repair evidence; implementation remains deferred.
+- docs/project/evidence/d6-pairwise-channel-run002-repair-v1-independent-review.md — retain_untracked — Prior-branch limited review/repair evidence; implementation remains deferred.
+- docs/project/evidence/d6-pairwise-channel-run002-independent-review.md — retain_untracked — Prior-branch limited review/repair evidence; implementation remains deferred.
+- docs/project/evidence/d6-pairwise-channel-run002-repair-v3-status-contract.md — retain_untracked — Prior-branch limited review/repair evidence; implementation remains deferred.
+- docs/project/evidence/d6-pairwise-channel-run002-repair-v4-status-contract.md — retain_untracked — Prior-branch limited review/repair evidence; implementation remains deferred.
+- docs/project/evidence/d6-pairwise-channel-run002-repair-v3.md — retain_untracked — Prior-branch limited review/repair evidence; implementation remains deferred.
+- docs/project/evidence/d6-space-field-column-channel-audit-fixtures.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-column-channel-audit-validation.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-column-channel-audit-updated-diagnostic.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-column-channel-audit.md — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-design-progress.md — commit_explicit — Audit appends the dated provenance and next-gate record without rewriting history.
+- docs/project/evidence/d6-space-field-column-channel-audit-scope.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-column-channel-audit-owner-review.md — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-column-channel-audit-git-scope.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-column-channel-audit-provenance.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-column-channel-audit-schema.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+- docs/project/evidence/d6-space-field-column-channel-audit-real-ifc.json — retain_untracked — Diagnostic bundle has a review stop or owner-review file; no checkpoint acceptance.
+
 ## Retained untracked paths and correction rule
 
 44 paths remain untracked and are preserved with baseline bytes/SHA-256 in the manifest. If a later owner decision explicitly accepts one bundle, stage only named paths after rehashing and confirming companion review/manifest/verification.
