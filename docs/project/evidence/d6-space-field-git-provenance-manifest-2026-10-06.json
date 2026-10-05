@@ -1074,5 +1074,16 @@
     ],
     "cached_diff_check_exit_code": 0,
     "cached_diff_check_output": ""
+  },
+  "post_commit": {
+    "commit_sha": "b44eaedb72204a41c9ecedbfdfe720534e494e0c",
+    "parent_sha": "a149420faf5dfef9d89293a4c415a08df4964581",
+    "message": "docs: checkpoint D6 progress and Git provenance",
+    "git_commit_exit_code": 0,
+    "scope": "five explicitly staged documentation/provenance paths",
+    "post_commit_index_clean": true,
+    "post_commit_status_exit_code": 0,
+    "post_commit_untracked_count": 44,
+    "post_commit_untracked_preserved": true
   }
 }

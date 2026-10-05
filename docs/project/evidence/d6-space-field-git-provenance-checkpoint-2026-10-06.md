@@ -174,4 +174,14 @@ Explicit staging produced exactly these five `A` paths:
 
 `git diff --cached --check` exited 0 with no diagnostics. No other path was staged. The 44 retained baseline untracked paths remain outside the index.
 
+## Checkpoint commit
+
+- Commit: `b44eaedb72204a41c9ecedbfdfe720534e494e0c`
+- Parent: `a149420faf5dfef9d89293a4c415a08df4964581`
+- Message: `docs: checkpoint D6 progress and Git provenance`
+- Commit command exit code: 0
+- Post-commit index: clean
+- Post-commit status command exit code: 0
+- Post-commit untracked count: 44; all retained baseline paths remained present and unmodified.
+
 STOP FOR D6 PROGRESS AND GIT PROVENANCE CHECKPOINT REVIEW
