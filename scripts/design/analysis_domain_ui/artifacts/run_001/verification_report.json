@@ -1,0 +1,26 @@
+{
+  "byte_comparisons": {
+    "handoff.svg": {
+      "byte_equal": true,
+      "primary_bytes": 14496,
+      "primary_sha256": "b4e91a8facfc853b5c4907d9be24e37ffc5ed34c7217d2a2e1a1cb6737928d3b",
+      "reproduction_bytes": 14496,
+      "reproduction_sha256": "b4e91a8facfc853b5c4907d9be24e37ffc5ed34c7217d2a2e1a1cb6737928d3b"
+    },
+    "result.json": {
+      "byte_equal": true,
+      "primary_bytes": 28501,
+      "primary_sha256": "51fee3e8440ff410b68169b39ea12c264e50a6472999883e46c0d2162f41ab2e",
+      "reproduction_bytes": 28501,
+      "reproduction_sha256": "51fee3e8440ff410b68169b39ea12c264e50a6472999883e46c0d2162f41ab2e"
+    }
+  },
+  "failures": [],
+  "production_adapter_used": false,
+  "real_ifc_status": "not_verified",
+  "schema_version": "d6.analysis_domain_ui.verification_report.v1",
+  "scope_audit_path": "scripts/design/analysis_domain_ui/artifacts/run_001/scope_audit.json",
+  "status": "pass",
+  "svg_xml_parse": "pass",
+  "truth_cases": 12
+}

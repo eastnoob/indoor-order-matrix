@@ -1,0 +1,478 @@
+{
+  "schema_version": "d6.analysis_domain_ui.fixtures.v1",
+  "provenance": {
+    "kind": "synthetic_bounded_design_fixture",
+    "source": "D6 AnalysisDomain/UI handoff design",
+    "production_adapter_used": false,
+    "real_ifc_status": "not_verified"
+  },
+  "cases": [
+    {
+      "case_id": "automatic_singleton_provisional",
+      "description": "One connected closed shell produces an automatic singleton candidate that remains provisional and unassigned.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:auto:singleton-room",
+          "version_id": "candidate:auto:singleton-room@v1",
+          "source_kind": "automatic_candidate",
+          "geometry_ref": "geom:auto:singleton-room",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["fixture:closed-shell", "inference:single-connected-shell"]
+        }
+      ],
+      "events": []
+    },
+    {
+      "case_id": "multi_closed_shell_ambiguous",
+      "description": "Two closed shells remain as ambiguous candidates without an automatic winner.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:auto:shell-a",
+          "version_id": "candidate:auto:shell-a@v1",
+          "source_kind": "automatic_candidate",
+          "geometry_ref": "geom:auto:shell-a",
+          "evidence_state": "ambiguous",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["fixture:closed-shell-a", "inference:multi-shell"]
+        },
+        {
+          "candidate_id": "candidate:auto:shell-b",
+          "version_id": "candidate:auto:shell-b@v1",
+          "source_kind": "automatic_candidate",
+          "geometry_ref": "geom:auto:shell-b",
+          "evidence_state": "ambiguous",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["fixture:closed-shell-b", "inference:multi-shell"]
+        }
+      ],
+      "events": []
+    },
+    {
+      "case_id": "authored_user_precedence",
+      "description": "A qualified authored domain is active while the automatic candidate remains retained provenance.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:auto:room-2",
+          "version_id": "candidate:auto:room-2@v1",
+          "source_kind": "automatic_candidate",
+          "geometry_ref": "geom:auto:room-2",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["fixture:closed-shell", "inference:single-connected-shell"]
+        },
+        {
+          "candidate_id": "candidate:user:room-2",
+          "version_id": "candidate:user:room-2@v1",
+          "source_kind": "user_authored",
+          "geometry_ref": "geom:user:room-2",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["user:closed-curve", "ui:draw-boundary"]
+        }
+      ],
+      "events": [
+        {
+          "event_id": "event:draw:room-2",
+          "event_type": "draw_boundary",
+          "candidate_id": "candidate:user:room-2",
+          "relation_scope": "domain-assignment:room-2",
+          "order_key": "2026-10-06T09:00:00Z",
+          "actor": "user:designer-1",
+          "reason": "closed boundary drawn by user",
+          "provenance": ["ui:draw-boundary", "input:user-authored"]
+        },
+        {
+          "event_id": "event:assign:room-2",
+          "event_type": "assign",
+          "candidate_id": "candidate:user:room-2",
+          "relation_scope": "domain-assignment:room-2",
+          "order_key": "2026-10-06T09:01:00Z",
+          "actor": "user:designer-1",
+          "reason": "use authored domain for analysis",
+          "provenance": ["ui:assign-domain", "input:user-authored"]
+        }
+      ]
+    },
+    {
+      "case_id": "authored_auto_conflict",
+      "description": "Authored and automatic candidates retain both provenances while an unresolved geometry conflict blocks promotion.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:auto:conflict-room",
+          "version_id": "candidate:auto:conflict-room@v1",
+          "source_kind": "automatic_candidate",
+          "geometry_ref": "geom:auto:conflict-room",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["fixture:closed-shell", "inference:single-connected-shell"]
+        },
+        {
+          "candidate_id": "candidate:user:conflict-room",
+          "version_id": "candidate:user:conflict-room@v1",
+          "source_kind": "user_authored",
+          "geometry_ref": "geom:user:conflict-room",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["user:closed-curve", "ui:draw-boundary"]
+        }
+      ],
+      "conflict_relations": [
+        {
+          "conflict_id": "conflict:authored-vs-auto:room-3",
+          "candidate_ids": ["candidate:auto:conflict-room", "candidate:user:conflict-room"],
+          "reason": "candidate geometry disagrees within one domain relation",
+          "provenance": ["fixture:geometry-disagreement", "review:unresolved"],
+          "status": "unresolved"
+        }
+      ],
+      "events": []
+    },
+    {
+      "case_id": "hand_drawn_closed_boundary",
+      "description": "A hand-drawn closed boundary is explicitly confirmed and assigned.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:user:hand-drawn",
+          "version_id": "candidate:user:hand-drawn@v1",
+          "source_kind": "user_authored",
+          "geometry_ref": "geom:user:hand-drawn",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["ui:draw-boundary", "user:closed-curve"]
+        }
+      ],
+      "events": [
+        {
+          "event_id": "event:draw:hand-drawn",
+          "event_type": "draw_boundary",
+          "candidate_id": "candidate:user:hand-drawn",
+          "relation_scope": "domain-assignment:hand-drawn",
+          "order_key": "2026-10-06T09:02:00Z",
+          "actor": "user:designer-1",
+          "reason": "closed boundary drawn and reviewed",
+          "provenance": ["ui:draw-boundary", "input:user-authored"]
+        }
+      ]
+    },
+    {
+      "case_id": "rejected_candidate",
+      "description": "A candidate is explicitly rejected and remains in history.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:auto:rejected",
+          "version_id": "candidate:auto:rejected@v1",
+          "source_kind": "automatic_candidate",
+          "geometry_ref": "geom:auto:rejected",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["fixture:closed-shell", "inference:single-connected-shell"]
+        }
+      ],
+      "events": [
+        {
+          "event_id": "event:reject:rejected",
+          "event_type": "reject",
+          "candidate_id": "candidate:auto:rejected",
+          "relation_scope": "domain-assignment:rejected",
+          "order_key": "2026-10-06T09:03:00Z",
+          "actor": "user:designer-1",
+          "reason": "boundary does not match intended scope",
+          "provenance": ["ui:reject-candidate", "review:user"]
+        }
+      ]
+    },
+    {
+      "case_id": "replacement_lineage",
+      "description": "Replacement keeps lineage but the new version does not inherit confirmation.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:user:replace-room",
+          "version_id": "candidate:user:replace-room@v1",
+          "source_kind": "user_authored",
+          "geometry_ref": "geom:user:replace-room-v1",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["ui:draw-boundary", "user:closed-curve"]
+        }
+      ],
+      "events": [
+        {
+          "event_id": "event:confirm:replace-v1",
+          "event_type": "confirm",
+          "candidate_id": "candidate:user:replace-room",
+          "relation_scope": "domain-assignment:replace-room",
+          "order_key": "2026-10-06T09:04:00Z",
+          "actor": "user:designer-1",
+          "reason": "initial boundary accepted",
+          "provenance": ["ui:confirm-candidate", "review:user"]
+        },
+        {
+          "event_id": "event:replace:replace-v1",
+          "event_type": "replace",
+          "candidate_id": "candidate:user:replace-room",
+          "relation_scope": "domain-assignment:replace-room",
+          "order_key": "2026-10-06T09:05:00Z",
+          "actor": "user:designer-1",
+          "reason": "boundary redrawn after review",
+          "provenance": ["ui:replace-candidate", "ui:draw-boundary"],
+          "replacement": {
+            "candidate_id": "candidate:user:replace-room",
+            "version_id": "candidate:user:replace-room@v2",
+            "source_kind": "user_authored",
+            "geometry_ref": "geom:user:replace-room-v2",
+            "evidence_state": "available",
+            "geometry_state": "valid",
+            "lifecycle": "provisional",
+            "assignment": "unassigned",
+            "user_confirmed": false,
+            "accepted": false,
+            "provenance": ["ui:replace-candidate", "ui:draw-boundary"]
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "unresolved_conflict_blocks_promotion",
+      "description": "Contradictory same-key confirmations retain both events and block promotion.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:user:tie-a",
+          "version_id": "candidate:user:tie-a@v1",
+          "source_kind": "user_authored",
+          "geometry_ref": "geom:user:tie-a",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["ui:draw-boundary", "user:closed-curve"]
+        },
+        {
+          "candidate_id": "candidate:user:tie-b",
+          "version_id": "candidate:user:tie-b@v1",
+          "source_kind": "user_authored",
+          "geometry_ref": "geom:user:tie-b",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["ui:draw-boundary", "user:closed-curve"]
+        }
+      ],
+      "events": [
+        {
+          "event_id": "event:confirm:tie-a",
+          "event_type": "confirm",
+          "candidate_id": "candidate:user:tie-a",
+          "relation_scope": "domain-assignment:tie-room",
+          "order_key": "2026-10-06T09:06:00Z",
+          "actor": "user:designer-1",
+          "reason": "confirm first boundary",
+          "provenance": ["ui:confirm-candidate"]
+        },
+        {
+          "event_id": "event:confirm:tie-b",
+          "event_type": "confirm",
+          "candidate_id": "candidate:user:tie-b",
+          "relation_scope": "domain-assignment:tie-room",
+          "order_key": "2026-10-06T09:06:00Z",
+          "actor": "user:designer-1",
+          "reason": "confirm competing boundary",
+          "provenance": ["ui:confirm-candidate"]
+        }
+      ]
+    },
+    {
+      "case_id": "evidence_state_propagation",
+      "description": "Missing, partial, invalid, and unsupported evidence are preserved and refuse promotion.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:diagnostic:missing",
+          "version_id": "candidate:diagnostic:missing@v1",
+          "source_kind": "explicit_ifc",
+          "geometry_ref": "geom:missing",
+          "evidence_state": "missing",
+          "geometry_state": "missing",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["ifc:space-ref", "adapter:missing-geometry"]
+        },
+        {
+          "candidate_id": "candidate:diagnostic:partial",
+          "version_id": "candidate:diagnostic:partial@v1",
+          "source_kind": "automatic_candidate",
+          "geometry_ref": "geom:open-shell",
+          "evidence_state": "partial",
+          "geometry_state": "open_shell",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["fixture:open-shell", "inference:boundary"]
+        },
+        {
+          "candidate_id": "candidate:diagnostic:invalid",
+          "version_id": "candidate:diagnostic:invalid@v1",
+          "source_kind": "automatic_candidate",
+          "geometry_ref": "geom:non-coplanar",
+          "evidence_state": "invalid",
+          "geometry_state": "non_coplanar",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["fixture:non-coplanar", "inference:boundary"]
+        },
+        {
+          "candidate_id": "candidate:diagnostic:unsupported",
+          "version_id": "candidate:diagnostic:unsupported@v1",
+          "source_kind": "explicit_ifc",
+          "geometry_ref": "geom:unsupported-grid",
+          "evidence_state": "unsupported",
+          "geometry_state": "unsupported",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["ifc:grid-axis", "adapter:unsupported"]
+        }
+      ],
+      "events": []
+    },
+    {
+      "case_id": "hover_only_highlight",
+      "description": "Hover changes display focus only and leaves lifecycle and downstream state unchanged.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:user:hover",
+          "version_id": "candidate:user:hover@v1",
+          "source_kind": "user_authored",
+          "geometry_ref": "geom:user:hover",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["ui:draw-boundary"]
+        }
+      ],
+      "events": [
+        {
+          "event_id": "event:hover:hover",
+          "event_type": "hover",
+          "candidate_id": "candidate:user:hover",
+          "relation_scope": "display-focus:hover",
+          "order_key": "2026-10-06T09:07:00Z",
+          "actor": "user:designer-1",
+          "reason": "pointer focus",
+          "provenance": ["ui:hover"]
+        }
+      ]
+    },
+    {
+      "case_id": "role_separation",
+      "description": "Wall, column, opening, furniture, and context retain separate roles around an authored domain.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:user:roles",
+          "version_id": "candidate:user:roles@v1",
+          "source_kind": "user_authored",
+          "geometry_ref": "geom:user:roles",
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["ui:draw-boundary", "user:closed-curve"]
+        }
+      ],
+      "events": [
+        {
+          "event_id": "event:assign:roles",
+          "event_type": "assign",
+          "candidate_id": "candidate:user:roles",
+          "relation_scope": "domain-assignment:roles",
+          "order_key": "2026-10-06T09:08:00Z",
+          "actor": "user:designer-1",
+          "reason": "use authored domain for role audit",
+          "provenance": ["ui:assign-domain"]
+        }
+      ],
+      "role_records": [
+        {"record_id": "role:wall-1", "kind": "wall", "boundary_evidence": true, "physical_occupancy": true, "provenance": ["ifc:wall-1"]},
+        {"record_id": "role:column-1", "kind": "column", "boundary_evidence": false, "physical_occupancy": true, "contact_relation": "none", "provenance": ["ifc:column-1"]},
+        {"record_id": "role:opening-1", "kind": "opening_host", "boundary_evidence": false, "physical_occupancy": false, "permeability_state": "not_inferred", "provenance": ["ifc:opening-1", "ifc:host-wall-1"]},
+        {"record_id": "role:furniture-group-1", "kind": "authored_furniture_analysis_node", "boundary_evidence": false, "physical_occupancy": true, "membership_mutable_by_domain": false, "provenance": ["ifc:group-1"]},
+        {"record_id": "role:context-1", "kind": "context", "boundary_evidence": false, "physical_occupancy": false, "domain_upgrade": false, "provenance": ["ifc:context-1"]}
+      ]
+    },
+    {
+      "case_id": "no_qualified_domain_downstream_refusal",
+      "description": "An unassigned candidate leaves domain-dependent outputs unavailable; diagnostic bounds remain display-only.",
+      "candidates": [
+        {
+          "candidate_id": "candidate:diagnostic:no-domain",
+          "version_id": "candidate:diagnostic:no-domain@v1",
+          "source_kind": "diagnostic_only",
+          "geometry_ref": "geom:scene-bounds",
+          "evidence_state": "diagnostic_only",
+          "geometry_state": "not_a_domain",
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "provenance": ["scene:diagnostic-bounds"]
+        }
+      ],
+      "events": []
+    }
+  ]
+}
