@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1500" viewBox="0 0 1440 1500">
+<title>AnalysisDomain to UI handoff design states</title>
+<desc>Static design evidence showing lifecycle and visual states. Hover is display-only; grey downstream controls are refused when no qualified domain is active.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="28" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#1f1f1f">AnalysisDomain → UI handoff (design evidence)</text>
+<text x="28" y="58" font-family="Arial, sans-serif" font-size="14" fill="#444444">Lifecycle, evidence state, provenance, and downstream refusal remain separate. Static SVG; no production UI.</text>
+<rect x="28" y="70" width="16" height="16" rx="3" fill="#a9d18e" stroke="#444444"/>
+<text x="52" y="82" font-family="Arial, sans-serif" font-size="12" fill="#333333">active green: qualified + explicit confirmation/assignment</text>
+<rect x="478" y="70" width="16" height="16" rx="3" fill="#f4b183" stroke="#444444"/>
+<text x="502" y="82" font-family="Arial, sans-serif" font-size="12" fill="#333333">automatic singleton/provisional</text>
+<rect x="928" y="70" width="16" height="16" rx="3" fill="#ffd966" stroke="#444444"/>
+<text x="952" y="82" font-family="Arial, sans-serif" font-size="12" fill="#333333">ambiguous or unassigned</text>
+<rect x="28" y="94" width="16" height="16" rx="3" fill="#f4cccc" stroke="#444444"/>
+<text x="52" y="106" font-family="Arial, sans-serif" font-size="12" fill="#333333">conflict: promotion disabled</text>
+<rect x="478" y="94" width="16" height="16" rx="3" fill="#d9d9d9" stroke="#444444"/>
+<text x="502" y="106" font-family="Arial, sans-serif" font-size="12" fill="#333333">rejected/replaced history</text>
+<rect x="928" y="94" width="16" height="16" rx="3" fill="#d9ead3" stroke="#444444"/>
+<text x="952" y="106" font-family="Arial, sans-serif" font-size="12" fill="#333333">hover-only focus</text>
+<rect x="20" y="145" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="34" y="169" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">automatic_singleton_provisional</text>
+<text x="34" y="191" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="34" y="205" width="422" height="26" rx="5" fill="#f4b183" stroke="#7f4f24" stroke-width="1"/>
+<text x="44" y="222" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:auto:singleton-room@v1 · automatic_provisional</text>
+<rect x="34" y="353" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="44" y="375" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<rect x="490" y="145" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="504" y="169" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">multi_closed_shell_ambiguous</text>
+<text x="504" y="191" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="504" y="205" width="422" height="26" rx="5" fill="#ffd966" stroke="#7f6000" stroke-width="1"/>
+<text x="514" y="222" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:auto:shell-a@v1 · ambiguous_unassigned</text>
+<rect x="504" y="239" width="422" height="26" rx="5" fill="#ffd966" stroke="#7f6000" stroke-width="1"/>
+<text x="514" y="256" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:auto:shell-b@v1 · ambiguous_unassigned</text>
+<rect x="504" y="353" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="514" y="375" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<rect x="960" y="145" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="974" y="169" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">authored_user_precedence</text>
+<text x="974" y="191" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: available; selected: candidate:user:room-2</text>
+<rect x="974" y="205" width="422" height="26" rx="5" fill="#f7d7b5" stroke="#7f4f24" stroke-width="1"/>
+<text x="984" y="222" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:auto:room-2@v1 · automatic_provenance</text>
+<rect x="974" y="239" width="422" height="26" rx="5" fill="#a9d18e" stroke="#1b5e20" stroke-width="1"/>
+<text x="984" y="256" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:room-2@v1 · active_green</text>
+<rect x="974" y="353" width="422" height="36" rx="6" fill="#e2f0d9" stroke="#548235"/>
+<text x="984" y="375" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: available</text>
+<rect x="20" y="415" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="34" y="439" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">authored_auto_conflict</text>
+<text x="34" y="461" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="34" y="475" width="422" height="26" rx="5" fill="#f4cccc" stroke="#990000" stroke-width="1"/>
+<text x="44" y="492" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:auto:conflict-room@v1 · conflict</text>
+<rect x="34" y="509" width="422" height="26" rx="5" fill="#f4cccc" stroke="#990000" stroke-width="1"/>
+<text x="44" y="526" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:conflict-room@v1 · conflict</text>
+<rect x="34" y="623" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="44" y="645" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<text x="34" y="667" font-family="Arial, sans-serif" font-size="11" fill="#990000">conflict provenance retained; promotion disabled</text>
+<rect x="490" y="415" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="504" y="439" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">hand_drawn_provisional</text>
+<text x="504" y="461" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="504" y="475" width="422" height="26" rx="5" fill="#ffd966" stroke="#7f6000" stroke-width="1"/>
+<text x="514" y="492" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:hand-drawn-provisional@v1 · ambiguous_unassigned</text>
+<rect x="504" y="623" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="514" y="645" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<rect x="960" y="415" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="974" y="439" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">hand_drawn_closed_boundary</text>
+<text x="974" y="461" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: available; selected: candidate:user:hand-drawn</text>
+<rect x="974" y="475" width="422" height="26" rx="5" fill="#a9d18e" stroke="#1b5e20" stroke-width="1"/>
+<text x="984" y="492" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:hand-drawn@v1 · active_green</text>
+<rect x="974" y="623" width="422" height="36" rx="6" fill="#e2f0d9" stroke="#548235"/>
+<text x="984" y="645" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: available</text>
+<rect x="20" y="685" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="34" y="709" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">rejected_candidate</text>
+<text x="34" y="731" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="34" y="745" width="422" height="26" rx="5" fill="#d9d9d9" stroke="#595959" stroke-width="1"/>
+<text x="44" y="762" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:auto:rejected@v1 · rejected</text>
+<rect x="34" y="893" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="44" y="915" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<rect x="490" y="685" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="504" y="709" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">replacement_lineage</text>
+<text x="504" y="731" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="504" y="745" width="422" height="26" rx="5" fill="#eeeeee" stroke="#666666" stroke-width="1"/>
+<text x="514" y="762" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:replace-room@v1 · replaced_history</text>
+<rect x="504" y="779" width="422" height="26" rx="5" fill="#f4b183" stroke="#7f4f24" stroke-width="1"/>
+<text x="514" y="796" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:replace-room@v2 · replacement_provisional</text>
+<rect x="504" y="893" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="514" y="915" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<text x="504" y="937" font-family="Arial, sans-serif" font-size="11" fill="#666666">lineage retained; new version re-enters provisional</text>
+<rect x="960" y="685" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="974" y="709" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">unresolved_conflict_blocks_promotion</text>
+<text x="974" y="731" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="974" y="745" width="422" height="26" rx="5" fill="#f4cccc" stroke="#990000" stroke-width="1"/>
+<text x="984" y="762" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:tie-a@v1 · conflict</text>
+<rect x="974" y="779" width="422" height="26" rx="5" fill="#f4cccc" stroke="#990000" stroke-width="1"/>
+<text x="984" y="796" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:tie-b@v1 · conflict</text>
+<rect x="974" y="893" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="984" y="915" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<text x="974" y="937" font-family="Arial, sans-serif" font-size="11" fill="#990000">conflict provenance retained; promotion disabled</text>
+<rect x="20" y="955" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="34" y="979" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">evidence_state_propagation</text>
+<text x="34" y="1001" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="34" y="1015" width="422" height="26" rx="5" fill="#f4cccc" stroke="#990000" stroke-width="1"/>
+<text x="44" y="1032" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:diagnostic:invalid@v1 · invalid</text>
+<rect x="34" y="1049" width="422" height="26" rx="5" fill="#e7e6e6" stroke="#666666" stroke-width="1"/>
+<text x="44" y="1066" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:diagnostic:missing@v1 · missing</text>
+<rect x="34" y="1083" width="422" height="26" rx="5" fill="#fce4d6" stroke="#c65911" stroke-width="1"/>
+<text x="44" y="1100" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:diagnostic:partial@v1 · partial</text>
+<rect x="34" y="1117" width="422" height="26" rx="5" fill="#d9e1f2" stroke="#1f4e79" stroke-width="1"/>
+<text x="44" y="1134" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:diagnostic:unsupported@v1 · unsupported</text>
+<rect x="34" y="1163" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="44" y="1185" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<rect x="490" y="955" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="504" y="979" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">hover_only_highlight</text>
+<text x="504" y="1001" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="504" y="1015" width="422" height="26" rx="5" fill="#d9ead3" stroke="#00a6d6" stroke-width="3"/>
+<text x="514" y="1032" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:hover@v1 · hover_only</text>
+<rect x="504" y="1163" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="514" y="1185" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<text x="504" y="1207" font-family="Arial, sans-serif" font-size="11" fill="#007c91">hover: focus only; lifecycle unchanged</text>
+<rect x="960" y="955" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="974" y="979" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">role_separation</text>
+<text x="974" y="1001" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: available; selected: candidate:user:roles</text>
+<rect x="974" y="1015" width="422" height="26" rx="5" fill="#a9d18e" stroke="#1b5e20" stroke-width="1"/>
+<text x="984" y="1032" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:user:roles@v1 · active_green</text>
+<rect x="974" y="1163" width="422" height="36" rx="6" fill="#e2f0d9" stroke="#548235"/>
+<text x="984" y="1185" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: available</text>
+<rect x="20" y="1225" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="34" y="1249" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">no_qualified_domain_downstream_refusal</text>
+<text x="34" y="1271" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: not_available; selected: none</text>
+<rect x="34" y="1285" width="422" height="26" rx="5" fill="#e7e6e6" stroke="#666666" stroke-width="1"/>
+<text x="44" y="1302" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:diagnostic:no-domain@v1 · diagnostic_only</text>
+<rect x="34" y="1433" width="422" height="36" rx="6" fill="#d9d9d9" stroke="#666666"/>
+<text x="44" y="1455" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: not_available</text>
+<rect x="490" y="1225" width="450" height="258" rx="10" fill="#fafafa" stroke="#b7b7b7"/>
+<text x="504" y="1249" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">automatic_explicit_confirmation_active</text>
+<text x="504" y="1271" font-family="Arial, sans-serif" font-size="12" fill="#555555">domain: available; selected: candidate:auto:confirmed</text>
+<rect x="504" y="1285" width="422" height="26" rx="5" fill="#a9d18e" stroke="#1b5e20" stroke-width="1"/>
+<text x="514" y="1302" font-family="Arial, sans-serif" font-size="11" fill="#222222">candidate:auto:confirmed@v1 · active_green</text>
+<rect x="504" y="1433" width="422" height="36" rx="6" fill="#e2f0d9" stroke="#548235"/>
+<text x="514" y="1455" font-family="Arial, sans-serif" font-size="11" fill="#222222">free-space · connectivity · membership · route: available</text>
+</svg>

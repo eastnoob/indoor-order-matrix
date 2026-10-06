@@ -1,0 +1,211 @@
+{
+  "artifacts": [
+    {
+      "bytes": 25092,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/fixtures.json",
+      "producer_command": "pixi run python -B scripts/design/analysis_domain_ui/run_probe.py --fixtures scripts/design/analysis_domain_ui/fixtures.json --output scripts/design/analysis_domain_ui/artifacts/run_001",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "fixture",
+      "sha256": "19f00bd63aa2e5d1f894b3d5e159fe45d285680fec3c62493caf919163cfbd13"
+    },
+    {
+      "bytes": 15306,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/truth.json",
+      "producer_command": "pixi run python -B scripts/design/analysis_domain_ui/verify_probe.py --primary scripts/design/analysis_domain_ui/artifacts/run_001 --reproduction scripts/design/analysis_domain_ui/artifacts/run_002 --baseline-status C:/Users/tianf/AppData/Local/Temp/d6_ui_baseline_git.json --report scripts/design/analysis_domain_ui/artifacts/run_001/verification_report.json --scope-audit scripts/design/analysis_domain_ui/artifacts/run_001/scope_audit.json --manifest scripts/design/analysis_domain_ui/artifacts/run_001/artifact_manifest.json",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "truth",
+      "sha256": "1d81826add4a977cc26611bc08b9ef6906b499d1d25bb5474b45203ab61ac87f"
+    },
+    {
+      "bytes": 21219,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/run_probe.py",
+      "producer_command": "pixi run python -B -m py_compile scripts/design/analysis_domain_ui/run_probe.py scripts/design/analysis_domain_ui/verify_probe.py",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "probe",
+      "sha256": "587bbe0594cecbd5a4ba716e01f3ae6ac3e92b951130bae789bff984f6df746a"
+    },
+    {
+      "bytes": 17578,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/verify_probe.py",
+      "producer_command": "pixi run python -B -m py_compile scripts/design/analysis_domain_ui/run_probe.py scripts/design/analysis_domain_ui/verify_probe.py",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "verifier",
+      "sha256": "5da06aecbb5c5fc2f2c31fcf7daec04fbeb166063be54fd8b1b65d495ef4f4e6"
+    },
+    {
+      "bytes": 32514,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/artifacts/repair_v1/run_001/result.json",
+      "producer_command": "pixi run python -B scripts/design/analysis_domain_ui/run_probe.py --fixtures scripts/design/analysis_domain_ui/fixtures.json --output scripts/design/analysis_domain_ui/artifacts/run_001",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "result",
+      "sha256": "3965f10e33cede4afb7bc22777c83969f903412ab1f57cbc2915128b9a7f0a9c"
+    },
+    {
+      "bytes": 16220,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/artifacts/repair_v1/run_001/handoff.svg",
+      "producer_command": "pixi run python -B scripts/design/analysis_domain_ui/run_probe.py --fixtures scripts/design/analysis_domain_ui/fixtures.json --output scripts/design/analysis_domain_ui/artifacts/run_001",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "visualization",
+      "sha256": "6d82ec7ea636c982e5d6b43d7739b6c0d3ebeb883820ba5722c93a6a44fca8cf"
+    },
+    {
+      "bytes": 32514,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/artifacts/repair_v1/run_002/result.json",
+      "producer_command": "pixi run python -B scripts/design/analysis_domain_ui/run_probe.py --fixtures scripts/design/analysis_domain_ui/fixtures.json --output scripts/design/analysis_domain_ui/artifacts/run_002",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "reproduction_result",
+      "sha256": "3965f10e33cede4afb7bc22777c83969f903412ab1f57cbc2915128b9a7f0a9c"
+    },
+    {
+      "bytes": 16220,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/artifacts/repair_v1/run_002/handoff.svg",
+      "producer_command": "pixi run python -B scripts/design/analysis_domain_ui/run_probe.py --fixtures scripts/design/analysis_domain_ui/fixtures.json --output scripts/design/analysis_domain_ui/artifacts/run_002",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "reproduction_visualization",
+      "sha256": "6d82ec7ea636c982e5d6b43d7739b6c0d3ebeb883820ba5722c93a6a44fca8cf"
+    },
+    {
+      "bytes": 976,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/artifacts/repair_v1/run_001/verification_report.json",
+      "producer_command": "pixi run python -B scripts/design/analysis_domain_ui/verify_probe.py --primary scripts/design/analysis_domain_ui/artifacts/run_001 --reproduction scripts/design/analysis_domain_ui/artifacts/run_002 --baseline-status C:/Users/tianf/AppData/Local/Temp/d6_ui_baseline_git.json --report scripts/design/analysis_domain_ui/artifacts/run_001/verification_report.json --scope-audit scripts/design/analysis_domain_ui/artifacts/run_001/scope_audit.json --manifest scripts/design/analysis_domain_ui/artifacts/run_001/artifact_manifest.json",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "verification_report",
+      "sha256": "348a1f34c91d9922f1aedaa4ffd7c14abf7497b4661b0ebf57b482e57f60be1c"
+    },
+    {
+      "bytes": 426,
+      "exit_code": 0,
+      "path": "scripts/design/analysis_domain_ui/artifacts/repair_v1/run_001/scope_audit.json",
+      "producer_command": "pixi run python -B scripts/design/analysis_domain_ui/verify_probe.py --primary scripts/design/analysis_domain_ui/artifacts/run_001 --reproduction scripts/design/analysis_domain_ui/artifacts/run_002 --baseline-status C:/Users/tianf/AppData/Local/Temp/d6_ui_baseline_git.json --report scripts/design/analysis_domain_ui/artifacts/run_001/verification_report.json --scope-audit scripts/design/analysis_domain_ui/artifacts/run_001/scope_audit.json --manifest scripts/design/analysis_domain_ui/artifacts/run_001/artifact_manifest.json",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "git_scope_audit",
+      "sha256": "0f5f3d8b3534cd302adf296f2e4150b9fbe7ada899436225cf00cdabd6fa3c03"
+    },
+    {
+      "bytes": 11394,
+      "exit_code": 0,
+      "path": "docs/project/evidence/d6-analysis-domain-ui-handoff-design.md",
+      "producer_command": "design evidence authoring step",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "design_record",
+      "sha256": "78d7c3940273b4860fe4e7c5ae7643a0b63714ec637acfff14c491ceff3ac7b4"
+    },
+    {
+      "bytes": 2682,
+      "exit_code": 0,
+      "path": "docs/project/evidence/d6-analysis-domain-ui-handoff-design-repair-v1.md",
+      "producer_command": "bounded design repair authoring step",
+      "provenance": {
+        "generated_on": "2026-10-06",
+        "kind": "bounded_design_evidence",
+        "production_adapter_used": false,
+        "real_ifc_status": "not_verified",
+        "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+      },
+      "role": "repair_record",
+      "sha256": "fc67fb1c6239ef76911cbf18022502042abc7a31a712e954303cfb009d899c33"
+    }
+  ],
+  "commands": [
+    {
+      "command": "pixi run python -B -m py_compile scripts/design/analysis_domain_ui/run_probe.py scripts/design/analysis_domain_ui/verify_probe.py",
+      "exit_code": 0
+    },
+    {
+      "command": "pixi run python -B scripts/design/analysis_domain_ui/run_probe.py --fixtures scripts/design/analysis_domain_ui/fixtures.json --output scripts/design/analysis_domain_ui/artifacts/run_001",
+      "exit_code": 0
+    },
+    {
+      "command": "pixi run python -B scripts/design/analysis_domain_ui/run_probe.py --fixtures scripts/design/analysis_domain_ui/fixtures.json --output scripts/design/analysis_domain_ui/artifacts/run_002",
+      "exit_code": 0
+    },
+    {
+      "command": "pixi run python -B scripts/design/analysis_domain_ui/verify_probe.py --primary scripts/design/analysis_domain_ui/artifacts/run_001 --reproduction scripts/design/analysis_domain_ui/artifacts/run_002 --baseline-status C:/Users/tianf/AppData/Local/Temp/d6_ui_baseline_git.json --report scripts/design/analysis_domain_ui/artifacts/run_001/verification_report.json --scope-audit scripts/design/analysis_domain_ui/artifacts/run_001/scope_audit.json --manifest scripts/design/analysis_domain_ui/artifacts/run_001/artifact_manifest.json",
+      "exit_code": 0
+    }
+  ],
+  "manifest_excludes_itself": true,
+  "provenance": {
+    "generated_on": "2026-10-06",
+    "kind": "bounded_design_evidence",
+    "production_adapter_used": false,
+    "real_ifc_status": "not_verified",
+    "source_identity": "synthetic fixtures only; no IFC geometry adapter"
+  },
+  "schema_version": "d6.analysis_domain_ui.artifact_manifest.v1"
+}

@@ -74,6 +74,27 @@ def verify_truth(result: dict[str, Any], truth: dict[str, Any]) -> list[str]:
             if row["visual_state"] != expected_visual:
                 failures.append(f"{case_id}: {key} visual={row['visual_state']!r}, expected {expected_visual!r}")
 
+        for version_id, expected_state in expected.get("candidate_expectations", {}).items():
+            row = by_version.get(version_id)
+            if row is None:
+                failures.append(f"{case_id}: missing candidate expectation {version_id}")
+                continue
+            for field in (
+                "lifecycle",
+                "assignment",
+                "user_confirmed",
+                "accepted",
+                "evidence_state",
+                "geometry_state",
+                "event_ids",
+                "lineage",
+                "conflict_ids",
+            ):
+                if row[field] != expected_state[field]:
+                    failures.append(
+                        f"{case_id}: {version_id}.{field}={row[field]!r}, expected {expected_state[field]!r}"
+                    )
+
         if case_id == "replacement_lineage":
             if len(case["lineage"]) != 1:
                 failures.append("replacement_lineage: expected one retained lineage relation")
@@ -104,8 +125,20 @@ def verify_truth(result: dict[str, Any], truth: dict[str, Any]) -> list[str]:
             if before is None:
                 failures.append("hover_only_highlight: missing pre-hover projection")
             else:
-                if before["selection"] != case["selection"] or before["downstream"] != case["downstream"]:
-                    failures.append("hover_only_highlight: hover changed lifecycle or downstream state")
+                before_candidates = [
+                    {key: value for key, value in row.items() if key != "visual_state"}
+                    for row in before["candidate_states"]
+                ]
+                after_candidates = [
+                    {key: value for key, value in row.items() if key != "visual_state"}
+                    for row in case["candidate_states"]
+                ]
+                if (
+                    before["selection"] != case["selection"]
+                    or before["downstream"] != case["downstream"]
+                    or before_candidates != after_candidates
+                ):
+                    failures.append("hover_only_highlight: hover changed lifecycle, evidence, or downstream state")
             if case.get("hover_candidate_id") != expected.get("hover_candidate_id"):
                 failures.append("hover_only_highlight: hover candidate identity mismatch")
 
@@ -216,6 +249,9 @@ def write_manifest(
         (scope_audit_path, "git_scope_audit", verify_command),
         (REPO_ROOT / "docs/project/evidence/d6-analysis-domain-ui-handoff-design.md", "design_record", "design evidence authoring step"),
     ]
+    repair_record = REPO_ROOT / "docs/project/evidence/d6-analysis-domain-ui-handoff-design-repair-v1.md"
+    if repair_record.exists():
+        files.append((repair_record, "repair_record", "bounded design repair authoring step"))
     entries = [manifest_entry(path, role, command, 0, provenance) for path, role, command in files]
     manifest = {
         "schema_version": "d6.analysis_domain_ui.artifact_manifest.v1",

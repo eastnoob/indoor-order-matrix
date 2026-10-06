@@ -1,0 +1,13 @@
+{
+  "allowed_new_paths": [
+    "docs/project/evidence/d6-analysis-domain-ui-handoff-design-repair-v1.md",
+    "scripts/design/analysis_domain_ui/artifacts/repair_v1/"
+  ],
+  "baseline_untracked_count": 44,
+  "baseline_untracked_preserved": true,
+  "current_untracked_count": 46,
+  "forbidden_scope_status_rows": [],
+  "missing_baseline_untracked": [],
+  "production_adapter_used": false,
+  "real_ifc_status": "not_verified"
+}

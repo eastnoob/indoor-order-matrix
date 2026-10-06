@@ -1,0 +1,1096 @@
+{
+  "cases": [
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:auto:singleton-room",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "fixture:closed-shell",
+            "inference:single-connected-shell"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": false,
+          "version_id": "candidate:auto:singleton-room@v1",
+          "visual_state": "automatic_provisional"
+        }
+      ],
+      "case_id": "automatic_singleton_provisional",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:auto:singleton-room@v1": "automatic_provisional"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:auto:shell-a",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "ambiguous",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "fixture:closed-shell-a",
+            "inference:multi-shell"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": false,
+          "version_id": "candidate:auto:shell-a@v1",
+          "visual_state": "ambiguous_unassigned"
+        },
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:auto:shell-b",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "ambiguous",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "fixture:closed-shell-b",
+            "inference:multi-shell"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": false,
+          "version_id": "candidate:auto:shell-b@v1",
+          "visual_state": "ambiguous_unassigned"
+        }
+      ],
+      "case_id": "multi_closed_shell_ambiguous",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:auto:shell-a@v1": "ambiguous_unassigned",
+        "candidate:auto:shell-b@v1": "ambiguous_unassigned"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:auto:room-2",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "fixture:closed-shell",
+            "inference:single-connected-shell"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": false,
+          "version_id": "candidate:auto:room-2@v1",
+          "visual_state": "automatic_provenance"
+        },
+        {
+          "accepted": false,
+          "active": true,
+          "assignment": "assigned",
+          "candidate_id": "candidate:user:room-2",
+          "conflict_ids": [],
+          "event_ids": [
+            "event:assign:room-2",
+            "event:draw:room-2"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary",
+            "user:closed-curve"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": false,
+          "version_id": "candidate:user:room-2@v1",
+          "visual_state": "active_green"
+        }
+      ],
+      "case_id": "authored_user_precedence",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "available",
+        "free_space": "available",
+        "membership": "available",
+        "route": "available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:draw:room-2",
+          "provenance": [
+            "ui:draw-boundary",
+            "input:user-authored"
+          ],
+          "status": "applied"
+        },
+        {
+          "event_id": "event:assign:room-2",
+          "provenance": [
+            "ui:assign-domain",
+            "input:user-authored"
+          ],
+          "status": "applied"
+        }
+      ],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [
+          "candidate:user:room-2"
+        ],
+        "domain_status": "available",
+        "selected_candidate_id": "candidate:user:room-2",
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:auto:room-2@v1": "automatic_provenance",
+        "candidate:user:room-2@v1": "active_green"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": true,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:auto:conflict-room",
+          "conflict_ids": [
+            "conflict:authored-vs-auto:room-3"
+          ],
+          "event_ids": [
+            "event:confirm:auto-conflict"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "confirmed",
+          "lineage": [],
+          "provenance": [
+            "fixture:closed-shell",
+            "inference:single-connected-shell"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": true,
+          "version_id": "candidate:auto:conflict-room@v1",
+          "visual_state": "conflict"
+        },
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "assigned",
+          "candidate_id": "candidate:user:conflict-room",
+          "conflict_ids": [
+            "conflict:authored-vs-auto:room-3"
+          ],
+          "event_ids": [
+            "event:assign:user-conflict"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary",
+            "user:closed-curve"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": false,
+          "version_id": "candidate:user:conflict-room@v1",
+          "visual_state": "conflict"
+        }
+      ],
+      "case_id": "authored_auto_conflict",
+      "conflicts": [
+        {
+          "candidate_ids": [
+            "candidate:auto:conflict-room",
+            "candidate:user:conflict-room"
+          ],
+          "conflict_id": "conflict:authored-vs-auto:room-3",
+          "provenance": [
+            "fixture:geometry-disagreement",
+            "review:unresolved"
+          ],
+          "reason": "candidate geometry disagrees within one domain relation",
+          "status": "unresolved"
+        }
+      ],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:confirm:auto-conflict",
+          "provenance": [
+            "ui:confirm-candidate",
+            "review:user"
+          ],
+          "status": "applied"
+        },
+        {
+          "event_id": "event:assign:user-conflict",
+          "provenance": [
+            "ui:assign-domain",
+            "input:user-authored"
+          ],
+          "status": "applied"
+        }
+      ],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": [
+          "conflict:authored-vs-auto:room-3"
+        ]
+      },
+      "visual_states": {
+        "candidate:auto:conflict-room@v1": "conflict",
+        "candidate:user:conflict-room@v1": "conflict"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:user:hand-drawn-provisional",
+          "conflict_ids": [],
+          "event_ids": [
+            "event:draw:hand-drawn-provisional"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary",
+            "user:closed-curve"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": false,
+          "version_id": "candidate:user:hand-drawn-provisional@v1",
+          "visual_state": "ambiguous_unassigned"
+        }
+      ],
+      "case_id": "hand_drawn_provisional",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:draw:hand-drawn-provisional",
+          "provenance": [
+            "ui:draw-boundary",
+            "input:user-authored"
+          ],
+          "status": "applied"
+        }
+      ],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:user:hand-drawn-provisional@v1": "ambiguous_unassigned"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": true,
+          "active": true,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:user:hand-drawn",
+          "conflict_ids": [],
+          "event_ids": [
+            "event:confirm:hand-drawn",
+            "event:draw:hand-drawn"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "confirmed",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary",
+            "user:closed-curve"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": true,
+          "version_id": "candidate:user:hand-drawn@v1",
+          "visual_state": "active_green"
+        }
+      ],
+      "case_id": "hand_drawn_closed_boundary",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "available",
+        "free_space": "available",
+        "membership": "available",
+        "route": "available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:draw:hand-drawn",
+          "provenance": [
+            "ui:draw-boundary",
+            "input:user-authored"
+          ],
+          "status": "applied"
+        },
+        {
+          "event_id": "event:confirm:hand-drawn",
+          "provenance": [
+            "ui:confirm-candidate",
+            "review:user"
+          ],
+          "status": "applied"
+        }
+      ],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [
+          "candidate:user:hand-drawn"
+        ],
+        "domain_status": "available",
+        "selected_candidate_id": "candidate:user:hand-drawn",
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:user:hand-drawn@v1": "active_green"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:auto:rejected",
+          "conflict_ids": [],
+          "event_ids": [
+            "event:reject:rejected"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "rejected",
+          "lineage": [],
+          "provenance": [
+            "fixture:closed-shell",
+            "inference:single-connected-shell"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": false,
+          "version_id": "candidate:auto:rejected@v1",
+          "visual_state": "rejected"
+        }
+      ],
+      "case_id": "rejected_candidate",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:reject:rejected",
+          "provenance": [
+            "ui:reject-candidate",
+            "review:user"
+          ],
+          "status": "applied"
+        }
+      ],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:auto:rejected@v1": "rejected"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:user:replace-room",
+          "conflict_ids": [],
+          "event_ids": [
+            "event:confirm:replace-v1"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "replaced",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary",
+            "user:closed-curve"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": true,
+          "version_id": "candidate:user:replace-room@v1",
+          "visual_state": "replaced_history"
+        },
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:user:replace-room",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [
+            {
+              "event_id": "event:replace:replace-v1",
+              "from_version_id": "candidate:user:replace-room@v1",
+              "relation": "replaces",
+              "to_version_id": "candidate:user:replace-room@v2"
+            }
+          ],
+          "provenance": [
+            "ui:draw-boundary",
+            "ui:replace-candidate"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": false,
+          "version_id": "candidate:user:replace-room@v2",
+          "visual_state": "replacement_provisional"
+        }
+      ],
+      "case_id": "replacement_lineage",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:confirm:replace-v1",
+          "provenance": [
+            "ui:confirm-candidate",
+            "review:user"
+          ],
+          "status": "applied"
+        },
+        {
+          "event_id": "event:replace:replace-v1",
+          "provenance": [
+            "ui:replace-candidate",
+            "ui:draw-boundary"
+          ],
+          "status": "applied"
+        }
+      ],
+      "lineage": [
+        {
+          "event_id": "event:replace:replace-v1",
+          "from_version_id": "candidate:user:replace-room@v1",
+          "relation": "replaces",
+          "to_version_id": "candidate:user:replace-room@v2"
+        }
+      ],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:user:replace-room@v1": "replaced_history",
+        "candidate:user:replace-room@v2": "replacement_provisional"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:user:tie-a",
+          "conflict_ids": [
+            "conflict:event-tie:domain-assignment:tie-room:2026-10-06T09:06:00Z"
+          ],
+          "event_ids": [],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary",
+            "user:closed-curve"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": false,
+          "version_id": "candidate:user:tie-a@v1",
+          "visual_state": "conflict"
+        },
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:user:tie-b",
+          "conflict_ids": [
+            "conflict:event-tie:domain-assignment:tie-room:2026-10-06T09:06:00Z"
+          ],
+          "event_ids": [],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary",
+            "user:closed-curve"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": false,
+          "version_id": "candidate:user:tie-b@v1",
+          "visual_state": "conflict"
+        }
+      ],
+      "case_id": "unresolved_conflict_blocks_promotion",
+      "conflicts": [
+        {
+          "candidate_ids": [
+            "candidate:user:tie-a",
+            "candidate:user:tie-b"
+          ],
+          "conflict_id": "conflict:event-tie:domain-assignment:tie-room:2026-10-06T09:06:00Z",
+          "event_ids": [
+            "event:confirm:tie-a",
+            "event:confirm:tie-b"
+          ],
+          "provenance": [
+            "ui:confirm-candidate",
+            "ui:confirm-candidate"
+          ],
+          "reason": "incompatible semantic events share one ordering key and relation scope",
+          "status": "unresolved"
+        }
+      ],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:confirm:tie-a",
+          "provenance": [
+            "ui:confirm-candidate"
+          ],
+          "status": "retained_conflict"
+        },
+        {
+          "event_id": "event:confirm:tie-b",
+          "provenance": [
+            "ui:confirm-candidate"
+          ],
+          "status": "retained_conflict"
+        }
+      ],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": [
+          "conflict:event-tie:domain-assignment:tie-room:2026-10-06T09:06:00Z"
+        ]
+      },
+      "visual_states": {
+        "candidate:user:tie-a@v1": "conflict",
+        "candidate:user:tie-b@v1": "conflict"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:diagnostic:invalid",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "invalid",
+          "geometry_state": "non_coplanar",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "fixture:non-coplanar",
+            "inference:boundary"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": false,
+          "version_id": "candidate:diagnostic:invalid@v1",
+          "visual_state": "invalid"
+        },
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:diagnostic:missing",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "missing",
+          "geometry_state": "missing",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "adapter:missing-geometry",
+            "ifc:space-ref"
+          ],
+          "source_kind": "explicit_ifc",
+          "user_confirmed": false,
+          "version_id": "candidate:diagnostic:missing@v1",
+          "visual_state": "missing"
+        },
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:diagnostic:partial",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "partial",
+          "geometry_state": "open_shell",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "fixture:open-shell",
+            "inference:boundary"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": false,
+          "version_id": "candidate:diagnostic:partial@v1",
+          "visual_state": "partial"
+        },
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:diagnostic:unsupported",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "unsupported",
+          "geometry_state": "unsupported",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "adapter:unsupported",
+            "ifc:grid-axis"
+          ],
+          "source_kind": "explicit_ifc",
+          "user_confirmed": false,
+          "version_id": "candidate:diagnostic:unsupported@v1",
+          "visual_state": "unsupported"
+        }
+      ],
+      "case_id": "evidence_state_propagation",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:diagnostic:invalid@v1": "invalid",
+        "candidate:diagnostic:missing@v1": "missing",
+        "candidate:diagnostic:partial@v1": "partial",
+        "candidate:diagnostic:unsupported@v1": "unsupported"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:user:hover",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": false,
+          "version_id": "candidate:user:hover@v1",
+          "visual_state": "hover_only"
+        }
+      ],
+      "case_id": "hover_only_highlight",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:hover:hover",
+          "provenance": [
+            "ui:hover"
+          ],
+          "status": "display_only"
+        }
+      ],
+      "hover_candidate_id": "candidate:user:hover",
+      "lineage": [],
+      "pre_hover_projection": {
+        "candidate_states": [
+          {
+            "accepted": false,
+            "active": false,
+            "assignment": "unassigned",
+            "candidate_id": "candidate:user:hover",
+            "conflict_ids": [],
+            "event_ids": [],
+            "evidence_state": "available",
+            "geometry_state": "valid",
+            "lifecycle": "provisional",
+            "lineage": [],
+            "provenance": [
+              "ui:draw-boundary"
+            ],
+            "source_kind": "user_authored",
+            "user_confirmed": false,
+            "version_id": "candidate:user:hover@v1",
+            "visual_state": "ambiguous_unassigned"
+          }
+        ],
+        "downstream": {
+          "connectivity": "not_available",
+          "free_space": "not_available",
+          "membership": "not_available",
+          "route": "not_available"
+        },
+        "selection": {
+          "active_candidate_ids": [],
+          "domain_status": "not_available",
+          "selected_candidate_id": null,
+          "unresolved_conflict_ids": []
+        },
+        "visual_states": {
+          "candidate:user:hover@v1": "ambiguous_unassigned"
+        }
+      },
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:user:hover@v1": "hover_only"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": true,
+          "assignment": "assigned",
+          "candidate_id": "candidate:user:roles",
+          "conflict_ids": [],
+          "event_ids": [
+            "event:assign:roles"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "ui:draw-boundary",
+            "user:closed-curve"
+          ],
+          "source_kind": "user_authored",
+          "user_confirmed": false,
+          "version_id": "candidate:user:roles@v1",
+          "visual_state": "active_green"
+        }
+      ],
+      "case_id": "role_separation",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "available",
+        "free_space": "available",
+        "membership": "available",
+        "route": "available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:assign:roles",
+          "provenance": [
+            "ui:assign-domain"
+          ],
+          "status": "applied"
+        }
+      ],
+      "lineage": [],
+      "roles": [
+        {
+          "boundary_evidence": true,
+          "kind": "wall",
+          "physical_occupancy": true,
+          "provenance": [
+            "ifc:wall-1"
+          ],
+          "record_id": "role:wall-1"
+        },
+        {
+          "boundary_evidence": false,
+          "contact_relation": "none",
+          "kind": "column",
+          "physical_occupancy": true,
+          "provenance": [
+            "ifc:column-1"
+          ],
+          "record_id": "role:column-1"
+        },
+        {
+          "boundary_evidence": false,
+          "kind": "opening_host",
+          "permeability_state": "not_inferred",
+          "physical_occupancy": false,
+          "provenance": [
+            "ifc:opening-1",
+            "ifc:host-wall-1"
+          ],
+          "record_id": "role:opening-1"
+        },
+        {
+          "boundary_evidence": false,
+          "kind": "authored_furniture_analysis_node",
+          "membership_mutable_by_domain": false,
+          "physical_occupancy": true,
+          "provenance": [
+            "ifc:group-1"
+          ],
+          "record_id": "role:furniture-group-1"
+        },
+        {
+          "boundary_evidence": false,
+          "domain_upgrade": false,
+          "kind": "context",
+          "physical_occupancy": false,
+          "provenance": [
+            "ifc:context-1"
+          ],
+          "record_id": "role:context-1"
+        }
+      ],
+      "selection": {
+        "active_candidate_ids": [
+          "candidate:user:roles"
+        ],
+        "domain_status": "available",
+        "selected_candidate_id": "candidate:user:roles",
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:user:roles@v1": "active_green"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": false,
+          "active": false,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:diagnostic:no-domain",
+          "conflict_ids": [],
+          "event_ids": [],
+          "evidence_state": "diagnostic_only",
+          "geometry_state": "not_a_domain",
+          "lifecycle": "provisional",
+          "lineage": [],
+          "provenance": [
+            "scene:diagnostic-bounds"
+          ],
+          "source_kind": "diagnostic_only",
+          "user_confirmed": false,
+          "version_id": "candidate:diagnostic:no-domain@v1",
+          "visual_state": "diagnostic_only"
+        }
+      ],
+      "case_id": "no_qualified_domain_downstream_refusal",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "not_available",
+        "free_space": "not_available",
+        "membership": "not_available",
+        "route": "not_available"
+      },
+      "events_replayed": [],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [],
+        "domain_status": "not_available",
+        "selected_candidate_id": null,
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:diagnostic:no-domain@v1": "diagnostic_only"
+      }
+    },
+    {
+      "candidate_states": [
+        {
+          "accepted": true,
+          "active": true,
+          "assignment": "unassigned",
+          "candidate_id": "candidate:auto:confirmed",
+          "conflict_ids": [],
+          "event_ids": [
+            "event:confirm:auto-confirmed"
+          ],
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "lifecycle": "confirmed",
+          "lineage": [],
+          "provenance": [
+            "fixture:closed-shell",
+            "inference:single-connected-shell"
+          ],
+          "source_kind": "automatic_candidate",
+          "user_confirmed": true,
+          "version_id": "candidate:auto:confirmed@v1",
+          "visual_state": "active_green"
+        }
+      ],
+      "case_id": "automatic_explicit_confirmation_active",
+      "conflicts": [],
+      "downstream": {
+        "connectivity": "available",
+        "free_space": "available",
+        "membership": "available",
+        "route": "available"
+      },
+      "events_replayed": [
+        {
+          "event_id": "event:confirm:auto-confirmed",
+          "provenance": [
+            "ui:confirm-candidate",
+            "review:user"
+          ],
+          "status": "applied"
+        }
+      ],
+      "lineage": [],
+      "roles": [],
+      "selection": {
+        "active_candidate_ids": [
+          "candidate:auto:confirmed"
+        ],
+        "domain_status": "available",
+        "selected_candidate_id": "candidate:auto:confirmed",
+        "unresolved_conflict_ids": []
+      },
+      "visual_states": {
+        "candidate:auto:confirmed@v1": "active_green"
+      }
+    }
+  ],
+  "fixture_schema_version": "d6.analysis_domain_ui.fixtures.v1",
+  "provenance": {
+    "kind": "synthetic_bounded_design_fixture",
+    "production_adapter_used": false,
+    "real_ifc_status": "not_verified",
+    "source": "D6 AnalysisDomain/UI handoff design"
+  },
+  "schema_version": "d6.analysis_domain_ui.result.v1"
+}

@@ -1,17 +1,473 @@
 {
-  "schema_version": "d6.analysis_domain_ui.truth.v1",
+  "schema_version": "d6.analysis_domain_ui.truth.v2",
   "cases": {
-    "automatic_singleton_provisional": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:auto:singleton-room": "automatic_provisional"}, "downstream_status": "not_available"},
-    "multi_closed_shell_ambiguous": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:auto:shell-a": "ambiguous_unassigned", "candidate:auto:shell-b": "ambiguous_unassigned"}, "downstream_status": "not_available"},
-    "authored_user_precedence": {"domain_status": "available", "selected_candidate_id": "candidate:user:room-2", "active_candidate_ids": ["candidate:user:room-2"], "visual_states": {"candidate:auto:room-2": "automatic_provenance", "candidate:user:room-2": "active_green"}, "downstream_status": "available"},
-    "authored_auto_conflict": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:auto:conflict-room": "conflict", "candidate:user:conflict-room": "conflict"}, "downstream_status": "not_available"},
-    "hand_drawn_closed_boundary": {"domain_status": "available", "selected_candidate_id": "candidate:user:hand-drawn", "active_candidate_ids": ["candidate:user:hand-drawn"], "visual_states": {"candidate:user:hand-drawn": "active_green"}, "downstream_status": "available"},
-    "rejected_candidate": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:auto:rejected": "rejected"}, "downstream_status": "not_available"},
-    "replacement_lineage": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:user:replace-room@v1": "replaced_history", "candidate:user:replace-room@v2": "replacement_provisional"}, "downstream_status": "not_available"},
-    "unresolved_conflict_blocks_promotion": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:user:tie-a": "conflict", "candidate:user:tie-b": "conflict"}, "downstream_status": "not_available"},
-    "evidence_state_propagation": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:diagnostic:missing": "missing", "candidate:diagnostic:partial": "partial", "candidate:diagnostic:invalid": "invalid", "candidate:diagnostic:unsupported": "unsupported"}, "downstream_status": "not_available"},
-    "hover_only_highlight": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:user:hover": "hover_only"}, "downstream_status": "not_available", "hover_candidate_id": "candidate:user:hover"},
-    "role_separation": {"domain_status": "available", "selected_candidate_id": "candidate:user:roles", "active_candidate_ids": ["candidate:user:roles"], "visual_states": {"candidate:user:roles": "active_green"}, "downstream_status": "available", "role_expectations": {"wall": {"boundary_evidence": true, "physical_occupancy": true}, "column": {"boundary_evidence": false, "physical_occupancy": true}, "opening_host": {"permeability_state": "not_inferred"}, "authored_furniture_analysis_node": {"membership_mutable_by_domain": false}, "context": {"domain_upgrade": false}}},
-    "no_qualified_domain_downstream_refusal": {"domain_status": "not_available", "selected_candidate_id": null, "active_candidate_ids": [], "visual_states": {"candidate:diagnostic:no-domain": "diagnostic_only"}, "downstream_status": "not_available", "diagnostic_bounds_basis": "scene_geometry_fallback_not_analysis_domain"}
+    "automatic_singleton_provisional": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:auto:singleton-room@v1": "automatic_provisional"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:auto:singleton-room@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      }
+    },
+    "multi_closed_shell_ambiguous": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:auto:shell-a@v1": "ambiguous_unassigned",
+        "candidate:auto:shell-b@v1": "ambiguous_unassigned"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:auto:shell-a@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "ambiguous",
+          "geometry_state": "valid",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        },
+        "candidate:auto:shell-b@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "ambiguous",
+          "geometry_state": "valid",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      }
+    },
+    "authored_user_precedence": {
+      "domain_status": "available",
+      "selected_candidate_id": "candidate:user:room-2",
+      "active_candidate_ids": [
+        "candidate:user:room-2"
+      ],
+      "visual_states": {
+        "candidate:auto:room-2@v1": "automatic_provenance",
+        "candidate:user:room-2@v1": "active_green"
+      },
+      "downstream_status": "available",
+      "candidate_expectations": {
+        "candidate:auto:room-2@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        },
+        "candidate:user:room-2@v1": {
+          "lifecycle": "provisional",
+          "assignment": "assigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:assign:room-2",
+            "event:draw:room-2"
+          ],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      }
+    },
+    "authored_auto_conflict": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:auto:conflict-room@v1": "conflict",
+        "candidate:user:conflict-room@v1": "conflict"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:auto:conflict-room@v1": {
+          "lifecycle": "confirmed",
+          "assignment": "unassigned",
+          "user_confirmed": true,
+          "accepted": true,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:confirm:auto-conflict"
+          ],
+          "lineage": [],
+          "conflict_ids": [
+            "conflict:authored-vs-auto:room-3"
+          ]
+        },
+        "candidate:user:conflict-room@v1": {
+          "lifecycle": "provisional",
+          "assignment": "assigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:assign:user-conflict"
+          ],
+          "lineage": [],
+          "conflict_ids": [
+            "conflict:authored-vs-auto:room-3"
+          ]
+        }
+      }
+    },
+    "hand_drawn_provisional": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:user:hand-drawn-provisional@v1": "ambiguous_unassigned"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:user:hand-drawn-provisional@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:draw:hand-drawn-provisional"
+          ],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      }
+    },
+    "hand_drawn_closed_boundary": {
+      "domain_status": "available",
+      "selected_candidate_id": "candidate:user:hand-drawn",
+      "active_candidate_ids": [
+        "candidate:user:hand-drawn"
+      ],
+      "visual_states": {
+        "candidate:user:hand-drawn@v1": "active_green"
+      },
+      "downstream_status": "available",
+      "candidate_expectations": {
+        "candidate:user:hand-drawn@v1": {
+          "lifecycle": "confirmed",
+          "assignment": "unassigned",
+          "user_confirmed": true,
+          "accepted": true,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:confirm:hand-drawn",
+            "event:draw:hand-drawn"
+          ],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      }
+    },
+    "rejected_candidate": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:auto:rejected@v1": "rejected"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:auto:rejected@v1": {
+          "lifecycle": "rejected",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:reject:rejected"
+          ],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      }
+    },
+    "replacement_lineage": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:user:replace-room@v1": "replaced_history",
+        "candidate:user:replace-room@v2": "replacement_provisional"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:user:replace-room@v1": {
+          "lifecycle": "replaced",
+          "assignment": "unassigned",
+          "user_confirmed": true,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:confirm:replace-v1"
+          ],
+          "lineage": [],
+          "conflict_ids": []
+        },
+        "candidate:user:replace-room@v2": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [],
+          "lineage": [
+            {
+              "event_id": "event:replace:replace-v1",
+              "from_version_id": "candidate:user:replace-room@v1",
+              "relation": "replaces",
+              "to_version_id": "candidate:user:replace-room@v2"
+            }
+          ],
+          "conflict_ids": []
+        }
+      }
+    },
+    "unresolved_conflict_blocks_promotion": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:user:tie-a@v1": "conflict",
+        "candidate:user:tie-b@v1": "conflict"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:user:tie-a@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": [
+            "conflict:event-tie:domain-assignment:tie-room:2026-10-06T09:06:00Z"
+          ]
+        },
+        "candidate:user:tie-b@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": [
+            "conflict:event-tie:domain-assignment:tie-room:2026-10-06T09:06:00Z"
+          ]
+        }
+      }
+    },
+    "evidence_state_propagation": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:diagnostic:invalid@v1": "invalid",
+        "candidate:diagnostic:missing@v1": "missing",
+        "candidate:diagnostic:partial@v1": "partial",
+        "candidate:diagnostic:unsupported@v1": "unsupported"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:diagnostic:invalid@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "invalid",
+          "geometry_state": "non_coplanar",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        },
+        "candidate:diagnostic:missing@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "missing",
+          "geometry_state": "missing",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        },
+        "candidate:diagnostic:partial@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "partial",
+          "geometry_state": "open_shell",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        },
+        "candidate:diagnostic:unsupported@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "unsupported",
+          "geometry_state": "unsupported",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      }
+    },
+    "hover_only_highlight": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:user:hover@v1": "hover_only"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:user:hover@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      },
+      "hover_candidate_id": "candidate:user:hover"
+    },
+    "role_separation": {
+      "domain_status": "available",
+      "selected_candidate_id": "candidate:user:roles",
+      "active_candidate_ids": [
+        "candidate:user:roles"
+      ],
+      "visual_states": {
+        "candidate:user:roles@v1": "active_green"
+      },
+      "downstream_status": "available",
+      "candidate_expectations": {
+        "candidate:user:roles@v1": {
+          "lifecycle": "provisional",
+          "assignment": "assigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:assign:roles"
+          ],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      },
+      "role_expectations": {
+        "wall": {
+          "boundary_evidence": true,
+          "physical_occupancy": true
+        },
+        "column": {
+          "boundary_evidence": false,
+          "physical_occupancy": true
+        },
+        "opening_host": {
+          "permeability_state": "not_inferred"
+        },
+        "authored_furniture_analysis_node": {
+          "membership_mutable_by_domain": false
+        },
+        "context": {
+          "domain_upgrade": false
+        }
+      }
+    },
+    "no_qualified_domain_downstream_refusal": {
+      "domain_status": "not_available",
+      "selected_candidate_id": null,
+      "active_candidate_ids": [],
+      "visual_states": {
+        "candidate:diagnostic:no-domain@v1": "diagnostic_only"
+      },
+      "downstream_status": "not_available",
+      "candidate_expectations": {
+        "candidate:diagnostic:no-domain@v1": {
+          "lifecycle": "provisional",
+          "assignment": "unassigned",
+          "user_confirmed": false,
+          "accepted": false,
+          "evidence_state": "diagnostic_only",
+          "geometry_state": "not_a_domain",
+          "event_ids": [],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      },
+      "diagnostic_bounds_basis": "scene_geometry_fallback_not_analysis_domain"
+    },
+    "automatic_explicit_confirmation_active": {
+      "domain_status": "available",
+      "selected_candidate_id": "candidate:auto:confirmed",
+      "active_candidate_ids": [
+        "candidate:auto:confirmed"
+      ],
+      "visual_states": {
+        "candidate:auto:confirmed@v1": "active_green"
+      },
+      "downstream_status": "available",
+      "candidate_expectations": {
+        "candidate:auto:confirmed@v1": {
+          "lifecycle": "confirmed",
+          "assignment": "unassigned",
+          "user_confirmed": true,
+          "accepted": true,
+          "evidence_state": "available",
+          "geometry_state": "valid",
+          "event_ids": [
+            "event:confirm:auto-confirmed"
+          ],
+          "lineage": [],
+          "conflict_ids": []
+        }
+      }
+    }
   }
 }

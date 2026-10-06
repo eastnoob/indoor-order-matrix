@@ -79,11 +79,14 @@ def apply_event(state: dict[str, Any], event: dict[str, Any]) -> None:
 
     event_type = event["event_type"]
     state["event_ids"].append(event["event_id"])
-    if event_type in {"confirm", "draw_boundary"}:
+    if event_type == "confirm":
         state["user_confirmed"] = True
         state["accepted"] = True
         state["ever_confirmed"] = True
         state["lifecycle"] = "confirmed"
+    elif event_type == "draw_boundary":
+        # Drawing creates authored geometry; confirmation remains an explicit later action.
+        state["lifecycle"] = "provisional"
     elif event_type == "assign":
         state["assignment"] = "assigned"
     elif event_type == "reject":

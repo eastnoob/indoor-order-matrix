@@ -37,8 +37,9 @@ color/outline cues; it is a static contract figure, not a UI implementation.
    candidate and does not elect a winner. `unassigned` preserves candidates.
 3. A qualified authored/user domain has precedence for domain use. Automatic
    candidates remain retained provenance and comparison evidence.
-4. Confirmation, rejection, assignment, replacement, and hand-drawn closed
-   boundaries are explicit events. Every event carries a stable ID, actor,
+4. Drawing a hand-drawn closed boundary only creates or updates a user-authored
+   provisional candidate. Confirmation, rejection, assignment, and replacement
+   are independent explicit events. Every event carries a stable ID, actor,
    timestamp/order key, reason, and provenance. Duplicate semantic events may
    be retained idempotently; incompatible same-key events remain a conflict.
 5. Replacement keeps old and new versions plus a lineage relation. The new
@@ -49,8 +50,11 @@ color/outline cues; it is a static contract figure, not a UI implementation.
    assignment, confirmation, selection, or downstream status. Only a
    qualified candidate with explicit confirmation or assignment can render as
    an active green domain. Automatic singleton, ambiguous, and unassigned
-   candidates use neutral/amber styling. Conflicts are explicit and disable
-   promotion. Rejected/replaced history remains inspectable.
+   candidates use neutral/amber styling. An automatic candidate may become
+   active after an independent explicit confirmation or assignment when all
+   other gates pass; automatic provenance alone never promotes it. Conflicts
+   are explicit and disable promotion. Rejected/replaced history remains
+   inspectable.
 7. Evidence state is separate from lifecycle action. The fixture distinguishes
    `missing`, `partial`, `invalid`, `unsupported`, `not_available`, and
    `diagnostic_only` from `provisional`, `confirmed`, `rejected`, and
@@ -74,13 +78,15 @@ color/outline cues; it is a static contract figure, not a UI implementation.
 | Automatic singleton | Retain one automatic candidate as provisional/unassigned; no selected ID | `automatic_singleton_provisional` |
 | Multiple shells | Retain all candidates as ambiguous/unassigned; selected ID is null | `multi_closed_shell_ambiguous` |
 | Authored precedence | Explicit authored candidate becomes active when qualified and assigned/confirmed; automatic candidate remains provenance | `authored_user_precedence`, `hand_drawn_closed_boundary` |
+| Automatic explicit action | Automatic candidate may become active only after an independent explicit confirm/assign event | `automatic_explicit_confirmation_active` |
 | Explicit confirmation | Sets confirmation/acceptance and records actor/time/reason/provenance | `event:confirm:*` |
 | Explicit assignment | Sets assignment without silently deleting other candidates | `event:assign:*` |
 | Rejection | Sets rejected lifecycle and keeps the candidate in history | `rejected_candidate` |
 | Replacement | Old version becomes replaced history; new version has lineage and fresh provisional state | `replacement_lineage` |
 | Same-key conflict | Retain all incompatible events and provenance; no lexical/event-ID winner; block promotion | `unresolved_conflict_blocks_promotion` |
 | Authored/automatic conflict | Retain both candidate records and conflict provenance; block promotion while unresolved | `authored_auto_conflict` |
-| Hand-drawn boundary | Explicit user-authored geometry is a lifecycle event, not an inferred winner | `hand_drawn_closed_boundary` |
+| Hand-drawn boundary | Explicit user-authored geometry is provisional until a separate confirm/assign event | `hand_drawn_closed_boundary` |
+| Hand-drawn provisional | Drawing alone remains provisional/unassigned and refuses downstream outputs | `hand_drawn_provisional` |
 | Hover | Focus outline/label only; before/after lifecycle and downstream projections are equal | `hover_only_highlight` |
 
 The effective active-domain gate is:
@@ -126,15 +132,15 @@ The role fixture records these invariants independently of domain lifecycle:
 The package is under `scripts/design/analysis_domain_ui/`:
 
 - `fixtures.json` — fixed synthetic cases and event provenance;
-- `truth.json` — expected selection, lifecycle-derived visual labels, refusal
-  status, lineage, conflict, hover, and role assertions;
+- `truth.json` — expected selection, lifecycle/evidence/action fields, visual
+  labels, refusal status, lineage, conflict, hover, and role assertions;
 - `run_probe.py` — deterministic event replay and SVG renderer;
 - `verify_probe.py` — strict JSON/XML checks, truth comparison, two-run byte
   comparison, and scoped Git audit;
-- `artifacts/run_001/` — primary result, SVG, verification report, scope audit,
-  and artifact manifest;
-- `artifacts/run_002/` — independent deterministic reproduction used for byte
-  comparison.
+- `artifacts/run_001/` and `artifacts/run_002/` — original deterministic
+  evidence retained from the initial bounded design package;
+- `artifacts/repair_v1/run_001/` and `artifacts/repair_v1/run_002/` — repaired
+  primary/reproduction outputs, report, scope audit, and manifest.
 
 The figure is generated from `result.json`, so its candidate labels, active
 green state, conflict state, replacement history, hover-only outline, and grey
