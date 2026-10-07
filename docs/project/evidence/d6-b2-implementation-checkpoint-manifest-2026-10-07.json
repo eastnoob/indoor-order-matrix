@@ -1,0 +1,1361 @@
+{
+  "storage": {
+    "local_only": "outputs/ including source IFC and accepted shadow runner/geometry/PNG/blend; hashes do not store their contents in Git",
+    "committed": "explicit checkpoint_files and this compact manifest"
+  },
+  "root": "D:/PROJECTS/understandOtherPackage/order_analyzer",
+  "protected_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "b255f5ded4e011174310cb38ba745ea6c79b1316581625532dc59c8b925f33b8",
+      "bytes": 4279
+    },
+    {
+      "path": "docs/indoor_layout_evaluation_matrix_architecture_memory.md",
+      "sha256": "dcabb125e967e5cb70ff22ba0c2c5aaa82ac591cc3c0021c4662e4be6caa7322",
+      "bytes": 14679
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-design-progress.md",
+      "sha256": "3344de1fd26fa16c55a8e24f12bfe4ae3a621a1b001c8895953fc40409d06845",
+      "bytes": 21564
+    },
+    {
+      "path": "adapters/ifc_bonsai.py",
+      "sha256": "d9c494a0af5a9b5e09c29814de5a8cd2348a7ff5bf31ac48adefec652b041cdd",
+      "bytes": 82655
+    },
+    {
+      "path": "adapters/blender_geometry.py",
+      "sha256": "a0251284925ee3714406ebdca86d904f00b953e70d7affbfa782b36f72542786",
+      "bytes": 17983
+    },
+    {
+      "path": "features/scene_contract.py",
+      "sha256": "60ca090fb5ba9349b3f817bab53a01ffa1a7310d0c1112debb918a4c1a360db7",
+      "bytes": 43313
+    },
+    {
+      "path": "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+      "bytes": 408617800
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\artifact_manifest.json",
+      "sha256": "76e39781da78bd66c7f6a5bc60f841b22179f759f9d32c20560e23cb4a980e45",
+      "bytes": 2490
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\blend_readback.json",
+      "sha256": "604ab9f3c351ef1f0f0c77ba2c950349da3dbde886e15aab55c5ddffef2af583",
+      "bytes": 1759
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\boundary_candidate_shadow_results.json",
+      "sha256": "292a614ab66c1ad3cab5ea2e4b8bf173fa70d95311ecdc1c6a8eb431e8ca5ef2",
+      "bytes": 19825
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\candidate_comparison.blend",
+      "sha256": "015c65634950119a31a06e341b50900750bdd9d970d482ebc8543f524ed67712",
+      "bytes": 135209
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\candidate_comparison.json",
+      "sha256": "93d06638601088b6ba8751be3f2e7a7a479edefd4fd9c682d5da4f0046b3ad87",
+      "bytes": 1393309
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\candidate_comparison.png",
+      "sha256": "c5bacb7a9997814fe2d352d3a5df4a28118a1a58222bda14b4dfcc35cd2f67f6",
+      "bytes": 3129543
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\candidate_comparison.svg",
+      "sha256": "4696e7a8d4535cb48c039c41e79b5bc0a9ee196bdf86f585733995cccf50dd84",
+      "bytes": 196358
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\candidate_diagnostics.json",
+      "sha256": "67222d7c681cca85782af1bbf75b6e6f39459d530fbdeb2ca35539d03cfa702e",
+      "bytes": 47348
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\provenance.json",
+      "sha256": "6712969769df0b611a71dd50a20956672a89ab21f736b5c1829f3dbfa9b08ed4",
+      "bytes": 2863
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\readback_blend.py",
+      "sha256": "9161ae53494b7d9874fc6c33c86dc2a0bcdaed0a9ee7a8a66378eb71a10e873b",
+      "bytes": 3375
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\real_ifc_inventory.json",
+      "sha256": "d0e805c29de992ef1cc79791baddffd2053755adc0d98f702745a02e62e181e5",
+      "bytes": 14154
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\render_candidate_comparison.py",
+      "sha256": "f6d20550e858f3bbd5b0899ccc7e1d6e052a56f1800afb4cf51a94d79ee0f737",
+      "bytes": 16322
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\run_shadow_validation.py",
+      "sha256": "6e8cbccc7e16bb8675d630be82f79b0093a042766823645576355cf7bf7da662",
+      "bytes": 39401
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\source_geometry_snapshot.json",
+      "sha256": "bbe70f83703ae7e961c04367d3c8a0c0414271fad430000d10254ca96cbabed2",
+      "bytes": 816923
+    },
+    {
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\validation_report.json",
+      "sha256": "b06952c33bcba41cd70b7999824ec417f95bc0d662cf13972bca06a2023f8ae0",
+      "bytes": 3773
+    }
+  ],
+  "branch": "codex/d6-analysis-domain-layout-handoff",
+  "initial_dirty_files": [
+    {
+      "path": "features/neutral_scene_views.py",
+      "sha256": "29421243263b54421fc486cfcd2d72b232c5b5fc3f635ca8d797b67af247a714",
+      "status": " M",
+      "bytes": 49155
+    },
+    {
+      "path": "test/test_blender_geometry_adapter.py",
+      "sha256": "fda7098d524210777cb4fc16f6736e7bc2a422cc9fa9b1658dc2730ceb4ceece",
+      "status": " M",
+      "bytes": 10615
+    },
+    {
+      "path": "test/test_group_self_description.py",
+      "sha256": "b2b2bc924ccbef3d1862a6ac77c68924df041887436dcf6c17524d5d38a81666",
+      "status": " M",
+      "bytes": 30029
+    },
+    {
+      "path": "test/test_neutral_scene_analysis_regression.py",
+      "sha256": "3a38407772c9620e53acafc4adb2d44401be1472f5e71a0497b91a4cbe2d14a7",
+      "status": " M",
+      "bytes": 69648
+    },
+    {
+      "path": "test/test_svg_scene_adapter.py",
+      "sha256": "5e01effc035484ca2e00ed578f301025d029659f48e8bb29efc5776b4165e93a",
+      "status": " M",
+      "bytes": 48746
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-implementation-design-independent-review.md",
+      "sha256": "10d3df7b4e7ea7774e1c8ba7ea9044316de174fb80c85e854d4541ce61bdaa77",
+      "status": "??",
+      "bytes": 7888
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-implementation-design-owner-decision.md",
+      "sha256": "474f01fc8bc630256bcf951532a927a9a2699ea69550e1f5eb480de0bafa454a",
+      "status": "??",
+      "bytes": 4098
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-implementation-design-review.md",
+      "sha256": "53ded9b6a9050acad089c4587d129434209a53f90cefe68c552c2d9b156876f7",
+      "status": "??",
+      "bytes": 21349
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair-v2-independent-review.md",
+      "sha256": "237ae3a71b4987f2b80b2d6887337abc6a35a997730170e99a31739a8fb05fa3",
+      "status": "??",
+      "bytes": 6637
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-implementation-independent-review.md",
+      "sha256": "3bc536e0879fad927579e8d8ba89527cfb98b4cbacf3d44e2d39955264efbd8d",
+      "status": "??",
+      "bytes": 8876
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-implementation-plan-independent-review.md",
+      "sha256": "969d489bee5781a461e9e062aee6e3b22080f41cfb02108cc39886d4602b5a46",
+      "status": "??",
+      "bytes": 10059
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-implementation-plan-repair.md",
+      "sha256": "f3d0b12fcad8604a33ba746b7b48f97723147de5760be0f046edd90ac530a6a2",
+      "status": "??",
+      "bytes": 4585
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-implementation-v2-independent-review.md",
+      "sha256": "3685b0548a9bb31bd93ab6980d049540ac6faafc899db5919efa37d079a55a87",
+      "status": "??",
+      "bytes": 8507
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-test-coverage-repair-independent-review.md",
+      "sha256": "2d0fe73c83ca40de2b9553637521061da8ffc124dee5203778b7717e5218b8aa",
+      "status": "??",
+      "bytes": 3453
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-real-ifc-shadow-validation-independent-review.md",
+      "sha256": "f294acd7a8ce83b5baaa8a8856d72bec38c6ee9fbb81f7448b1aab7fe737e5db",
+      "status": "??",
+      "bytes": 23782
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-real-ifc-shadow-validation.md",
+      "sha256": "f708905a221feaae7d39142a65b6840c582d6bd927a9ca117de9df6de2937ddf",
+      "status": "??",
+      "bytes": 6493
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-real-input-validation.md",
+      "sha256": "afa3f0120a84846277aa14c0e7414a1eb42b92f31a0b09be6f031543d93ae636",
+      "status": "??",
+      "bytes": 3462
+    },
+    {
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-independent-review.md",
+      "sha256": "4c404932cefc9c92fbe0df4740c86c77f0425fb3d17ad16b2843ef2b9f0be77b",
+      "status": "??",
+      "bytes": 10603
+    },
+    {
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v1-independent-review.md",
+      "sha256": "8cb3470c5e050c22ec941031dae64d2543e33ab1d10a3412844071c94b50a484",
+      "status": "??",
+      "bytes": 20992
+    },
+    {
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v3-status-contract.md",
+      "sha256": "790f16a3f5b73a9efe5593752b6caa5a9f9d59ffab94294ce0e6264ae613fae1",
+      "status": "??",
+      "bytes": 635
+    },
+    {
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v3.md",
+      "sha256": "68b34a6269694f4ae4228b3b98d21c66dcb330a423d3400c8817e2812162c577",
+      "status": "??",
+      "bytes": 3144
+    },
+    {
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v4-status-contract.md",
+      "sha256": "ee5e05d404ab09dcfde74a6e9240ddfd3a0782fd5f6000d0e8387a430eba779b",
+      "status": "??",
+      "bytes": 740
+    },
+    {
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v4.md",
+      "sha256": "8cd97a886f293810db27499634e5c2b6242a4d37dcd6a10ba6fc8cfc21efc53a",
+      "status": "??",
+      "bytes": 1966
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-experiment.md",
+      "sha256": "5827c7870786b93387f20e9b32b196e7cfeb4dd6581e8cb1bd824465a9e1d8a0",
+      "status": "??",
+      "bytes": 11309
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-owner-decision.md",
+      "sha256": "370b5d4b8ef2c768c8545a0b24560c3e51bf565e98a57750d14293fae55acab4",
+      "status": "??",
+      "bytes": 2061
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-render-repair-v1.md",
+      "sha256": "ccd6fe97c0d522113af8701cb24ace21facb8ee94aba372573363c75561e626a",
+      "status": "??",
+      "bytes": 3773
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+      "sha256": "ebe3abd77dc26808284c8ff426a8d017611dd5326b4e78073f711430fafe28c8",
+      "status": "??",
+      "bytes": 9365
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-fixtures.json",
+      "sha256": "f22b870de038329b91fe0db540697ae4a362a97cf4fce650104f9d70f72689eb",
+      "status": "??",
+      "bytes": 106114
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-git-scope.json",
+      "sha256": "fc58f59fac68b1a327db2706ad72f46b86692116cf4f15b0b84b69714c4ff3ad",
+      "status": "??",
+      "bytes": 586
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-owner-review.md",
+      "sha256": "535acd12416338bc3500f6a7ca03acd0bbd887af4a468c5d0aaa5cf75be9dd3e",
+      "status": "??",
+      "bytes": 1043
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-provenance.json",
+      "sha256": "677e491de469646466bd2987e10490957959148e113c8cec6f1dd9ee9c28eb24",
+      "status": "??",
+      "bytes": 1759
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-real-ifc.json",
+      "sha256": "f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31",
+      "status": "??",
+      "bytes": 21782
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-schema.json",
+      "sha256": "b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62",
+      "status": "??",
+      "bytes": 410
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-scope.json",
+      "sha256": "a11c456b4221e8cebe350394e891c1df4a447c7dd3a98d5c5d5720ae4c62942c",
+      "status": "??",
+      "bytes": 808
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-updated-diagnostic.json",
+      "sha256": "47d82c5d2cc674e46ff74d060f429bf89900fbe38a934f64ddfab1b659b7a2ed",
+      "status": "??",
+      "bytes": 135419
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-validation.json",
+      "sha256": "8a08f66b19bdacc54790d6042ab4eb2d74b118ebd44e7c3a6e3f2511478f5da9",
+      "status": "??",
+      "bytes": 5008
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit.md",
+      "sha256": "c3dbfd6c7ab166a9b913dea842f36d0ec9d2ae21a30e2a2a671fc4ca790ed09d",
+      "status": "??",
+      "bytes": 4108
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+      "sha256": "99ce25a7829a232571ca22575a09d8d32783f5516a3e34ccded57b2ae7acb4a0",
+      "status": "??",
+      "bytes": 16263
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-before-after.json",
+      "sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7",
+      "status": "??",
+      "bytes": 279845
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-fixtures.json",
+      "sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95",
+      "status": "??",
+      "bytes": 26198
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-owner-review.md",
+      "sha256": "16503904ce90a4063009502431ed471c49a6604cf1150d311d14a278cdd00a11",
+      "status": "??",
+      "bytes": 2163
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-provenance.json",
+      "sha256": "5f7a54300abea7d71d0d3280138bbba18535238d6007fb539106794039238bd3",
+      "status": "??",
+      "bytes": 1851
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-real-ifc.json",
+      "sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32",
+      "status": "??",
+      "bytes": 240581
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-schema.json",
+      "sha256": "bf14e6ff35e4f3ac0f70bcd3db00c3ba3af4939a2ba173f17af732d3d665dd6f",
+      "status": "??",
+      "bytes": 640
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-scope-audit.json",
+      "sha256": "3cb693de27d4848d5428fb9d2c43583db1d52273bfe5338d5b7f75ec62499e29",
+      "status": "??",
+      "bytes": 2043
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json",
+      "sha256": "5f8f5062bb44aafaa56fd58b87870a14264406bf1d27b2681adee5a12e54df57",
+      "status": "??",
+      "bytes": 4459
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison.md",
+      "sha256": "5ee974e559aa93fe0cbc98d51540c6c67582ffa53b35ef36d3ec81415753e11b",
+      "status": "??",
+      "bytes": 5276
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison-owner-decision.md",
+      "sha256": "233ea0cca5772bdab3621754fccf18309f40a1bdbb0a76bf15c4cede0ae9627f",
+      "status": "??",
+      "bytes": 4013
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison.md",
+      "sha256": "145685a97ca28dbc4d7f20e730fd4e3946122341665a11be083c7120e8cd57c2",
+      "status": "??",
+      "bytes": 11211
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-real-ifc-pairwise-relationship-experiment.md",
+      "sha256": "7c3bd96f4d748ccd0742ae23e2ef5c838621682803504e8a630be3676d44501b",
+      "status": "??",
+      "bytes": 5752
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+      "sha256": "5c0e6b22d68b2324eecdd6c6d53594981cf074c4b93be17683cc26e3a64eb8ea",
+      "status": "??",
+      "bytes": 14984
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-before-after.json",
+      "sha256": "5a9f581f772f3298032cdd37619b0c5a936e4d8e65086a7ab7017dabc494f2b7",
+      "status": "??",
+      "bytes": 998
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-candidates.json",
+      "sha256": "44385072ca5d0479d017a1056f772a6cc35e9384afe1d56a290675d6d5efe357",
+      "status": "??",
+      "bytes": 85668
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json",
+      "sha256": "864d17b6a6e2ca8b372431e0ef87e37847292e4498e1bf3fdef234112b638d7d",
+      "status": "??",
+      "bytes": 1330260
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-field.json",
+      "sha256": "852d2b973a814d010f79021a1b37d8ec1f428575d31a232a562ccababa157349",
+      "status": "??",
+      "bytes": 967898
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-owner-review.md",
+      "sha256": "1455bda9214d98f01dc1473a08397d436eaf1993e8b857e1dddfc70646f8e1de",
+      "status": "??",
+      "bytes": 3005
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json",
+      "sha256": "d390fe8c1bdd5b93a6465d72fcba3228c450b6ab6dfdc12226082404a6081b11",
+      "status": "??",
+      "bytes": 1920
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-scope-audit.json",
+      "sha256": "d528aeab1902c33d3ca71b80be2fb7822f8f4b5f7cba18087b866163e8f284fd",
+      "status": "??",
+      "bytes": 2184
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1.md",
+      "sha256": "ec97fd5717e74d066efd4addc9330c8e5870f839e296087dad5b64b991dda4d8",
+      "status": "??",
+      "bytes": 6397
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-07-d6-b2-provenance-refusal-implementation-v2.md",
+      "sha256": "7f7a4003cbc0eb2ec4f59315d8bf1ef553ccb42b62b445f6c3638081b5309cec",
+      "status": "??",
+      "bytes": 31294
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-07-d6-b2-provenance-refusal-implementation.md",
+      "sha256": "e11dfc70a1390d1f8cdcbfe3378cf507d92a111e1791e11b68421663e312f72d",
+      "status": "??",
+      "bytes": 20978
+    },
+    {
+      "path": "full_pytest_checkpoint1b.err",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "??",
+      "bytes": 0
+    },
+    {
+      "path": "full_pytest_checkpoint1b.log",
+      "sha256": "98f80aa48382ed42a03ba8ab38f09a4e5cf1629380f57022ddebc6715d26db2b",
+      "status": "??",
+      "bytes": 1099
+    }
+  ],
+  "shadow_validation": {
+    "commands": {
+      "portable_blender_readback_stdout": "Blender quit",
+      "portable_blender_render_stdout": "Blender quit"
+    },
+    "deterministic_rerun": {
+      "candidate_analysis_json_identical": true,
+      "repeat_blender_stdout": "Blender quit",
+      "svg_identical_after_portable_blender_rerun": true
+    },
+    "ifc_source_fingerprint": {
+      "matches_after_read": true,
+      "matches_existing_d6_evidence": true
+    },
+    "independent_geometry_checks": {
+      "all_candidate_polygons_valid": true,
+      "candidate_analysis_json_repeat_identical": true,
+      "candidate_source_ids_resolved": true,
+      "candidate_validity_matches_saved_diagnostics": true,
+      "source_component_counts_match_saved_diagnostics": true,
+      "source_geometry_hash_match": true
+    },
+    "json_parse": {
+      "blend_readback.json": true,
+      "boundary_candidate_shadow_results.json": true,
+      "candidate_comparison.json": true,
+      "candidate_diagnostics.json": true,
+      "provenance.json": true,
+      "real_ifc_inventory.json": true,
+      "source_geometry_snapshot.json": true
+    },
+    "schema_envelopes": {
+      "boundary_results": "d6-b2-real-ifc-boundary-shadow-v1",
+      "inventory": "d6-b2-real-ifc-shadow-inventory-v1",
+      "provenance": "d6-b2-real-ifc-shadow-provenance-v1"
+    },
+    "schema_version": "d6-b2-real-ifc-shadow-validation-report-v1",
+    "scope": {
+      "all_generated_files_under_requested_output_directory": true,
+      "production_paths_modified": false,
+      "source_ifc_read_only": true
+    },
+    "status": "pass",
+    "visuals": {
+      "blend_readback": {
+        "blend_bytes": 135209,
+        "blend_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\candidate_comparison.blend",
+        "candidate_ids_in_blend": [
+          "column_assisted_closure:inner_face:inner:01:01",
+          "column_assisted_closure:inner_face:inner:01:04",
+          "wall_only:inner_face:inner:04:01",
+          "wall_only:inner_face:inner:04:02",
+          "wall_only:outer_face:outer:04",
+          "wall_plus_column:inner_face:inner:01:02",
+          "wall_plus_column:inner_face:inner:01:03",
+          "wall_plus_column:outer_face:outer:01"
+        ],
+        "candidate_ids_in_json": [
+          "column_assisted_closure:inner_face:inner:01:01",
+          "column_assisted_closure:inner_face:inner:01:04",
+          "wall_only:inner_face:inner:04:01",
+          "wall_only:inner_face:inner:04:02",
+          "wall_only:outer_face:outer:04",
+          "wall_plus_column:inner_face:inner:01:02",
+          "wall_plus_column:inner_face:inner:01:03",
+          "wall_plus_column:outer_face:outer:01"
+        ],
+        "candidate_ids_match": true,
+        "missing_required_labels": [],
+        "physical_column_object_count": 16,
+        "physical_wall_object_count": 11,
+        "png_bytes": 3129543,
+        "png_dimensions": {
+          "height": 1400,
+          "width": 2200
+        },
+        "png_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_real_ifc_shadow_validation\\candidate_comparison.png",
+        "required_visible_labels": [
+          "REAL IFC SHADOW DIAGNOSTIC",
+          "NOT PRODUCTION IMPLEMENTATION",
+          "NO DOMAIN PROMOTION",
+          "NO DOMAIN PROMOTION",
+          "NO FREE-SPACE OR WALKABILITY RESULT",
+          "CANDIDATE SET = 8; status = provisional_diagnostic_only",
+          "REAL IFC: no qualified authored AnalysisDomain"
+        ],
+        "scene_object_count": 51,
+        "status": "pass"
+      },
+      "png_dimensions": {
+        "height": 1400,
+        "width": 2200
+      },
+      "png_readable": true,
+      "svg_required_disclaimer_labels": {
+        "NO DOMAIN PROMOTION": true,
+        "NO FREE-SPACE OR WALKABILITY RESULT": true,
+        "NOT PRODUCTION IMPLEMENTATION": true,
+        "REAL IFC SHADOW DIAGNOSTIC": true
+      },
+      "svg_xml_parse": true
+    }
+  },
+  "checkpoint_files": [
+    {
+      "bytes": 49155,
+      "path": "features/neutral_scene_views.py",
+      "sha256": "29421243263b54421fc486cfcd2d72b232c5b5fc3f635ca8d797b67af247a714"
+    },
+    {
+      "bytes": 69648,
+      "path": "test/test_neutral_scene_analysis_regression.py",
+      "sha256": "3a38407772c9620e53acafc4adb2d44401be1472f5e71a0497b91a4cbe2d14a7"
+    },
+    {
+      "bytes": 48746,
+      "path": "test/test_svg_scene_adapter.py",
+      "sha256": "5e01effc035484ca2e00ed578f301025d029659f48e8bb29efc5776b4165e93a"
+    },
+    {
+      "bytes": 10615,
+      "path": "test/test_blender_geometry_adapter.py",
+      "sha256": "fda7098d524210777cb4fc16f6736e7bc2a422cc9fa9b1658dc2730ceb4ceece"
+    },
+    {
+      "bytes": 30029,
+      "path": "test/test_group_self_description.py",
+      "sha256": "b2b2bc924ccbef3d1862a6ac77c68924df041887436dcf6c17524d5d38a81666"
+    },
+    {
+      "bytes": 31294,
+      "path": "docs/superpowers/plans/2026-10-07-d6-b2-provenance-refusal-implementation-v2.md",
+      "sha256": "7f7a4003cbc0eb2ec4f59315d8bf1ef553ccb42b62b445f6c3638081b5309cec"
+    },
+    {
+      "bytes": 8876,
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-implementation-independent-review.md",
+      "sha256": "3bc536e0879fad927579e8d8ba89527cfb98b4cbacf3d44e2d39955264efbd8d"
+    },
+    {
+      "bytes": 3453,
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-test-coverage-repair-independent-review.md",
+      "sha256": "2d0fe73c83ca40de2b9553637521061da8ffc124dee5203778b7717e5218b8aa"
+    },
+    {
+      "bytes": 8507,
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-implementation-v2-independent-review.md",
+      "sha256": "3685b0548a9bb31bd93ab6980d049540ac6faafc899db5919efa37d079a55a87"
+    },
+    {
+      "bytes": 4098,
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-implementation-design-owner-decision.md",
+      "sha256": "474f01fc8bc630256bcf951532a927a9a2699ea69550e1f5eb480de0bafa454a"
+    },
+    {
+      "bytes": 21349,
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-implementation-design-review.md",
+      "sha256": "53ded9b6a9050acad089c4587d129434209a53f90cefe68c552c2d9b156876f7"
+    },
+    {
+      "bytes": 7888,
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-implementation-design-independent-review.md",
+      "sha256": "10d3df7b4e7ea7774e1c8ba7ea9044316de174fb80c85e854d4541ce61bdaa77"
+    },
+    {
+      "bytes": 6493,
+      "path": "docs/project/evidence/d6-b2-real-ifc-shadow-validation.md",
+      "sha256": "f708905a221feaae7d39142a65b6840c582d6bd927a9ca117de9df6de2937ddf"
+    },
+    {
+      "bytes": 23782,
+      "path": "docs/project/evidence/d6-b2-real-ifc-shadow-validation-independent-review.md",
+      "sha256": "f294acd7a8ce83b5baaa8a8856d72bec38c6ee9fbb81f7448b1aab7fe737e5db"
+    },
+    {
+      "bytes": 3520,
+      "path": "docs/project/evidence/d6-b2-implementation-checkpoint-2026-10-07.md",
+      "sha256": "43e0a78c1bb09a2546792415b00ef68a14a2ff37357921dfda84292c4a1ef70d"
+    },
+    {
+      "bytes": 22379,
+      "path": "docs/project/evidence/d6-space-field-design-progress.md",
+      "sha256": "8b05749f4f1fcaa34b2a14af5297b3659ce2e3c272e5d1d5af8334d99d1c205a"
+    }
+  ],
+  "shadow_artifact_manifest": {
+    "artifact_count": 14,
+    "entries": [
+      {
+        "bytes": 1759,
+        "path": "blend_readback.json",
+        "sha256": "604ab9f3c351ef1f0f0c77ba2c950349da3dbde886e15aab55c5ddffef2af583"
+      },
+      {
+        "bytes": 19825,
+        "path": "boundary_candidate_shadow_results.json",
+        "sha256": "292a614ab66c1ad3cab5ea2e4b8bf173fa70d95311ecdc1c6a8eb431e8ca5ef2"
+      },
+      {
+        "bytes": 135209,
+        "path": "candidate_comparison.blend",
+        "sha256": "015c65634950119a31a06e341b50900750bdd9d970d482ebc8543f524ed67712"
+      },
+      {
+        "bytes": 1393309,
+        "path": "candidate_comparison.json",
+        "sha256": "93d06638601088b6ba8751be3f2e7a7a479edefd4fd9c682d5da4f0046b3ad87"
+      },
+      {
+        "bytes": 3129543,
+        "path": "candidate_comparison.png",
+        "sha256": "c5bacb7a9997814fe2d352d3a5df4a28118a1a58222bda14b4dfcc35cd2f67f6"
+      },
+      {
+        "bytes": 196358,
+        "path": "candidate_comparison.svg",
+        "sha256": "4696e7a8d4535cb48c039c41e79b5bc0a9ee196bdf86f585733995cccf50dd84"
+      },
+      {
+        "bytes": 47348,
+        "path": "candidate_diagnostics.json",
+        "sha256": "67222d7c681cca85782af1bbf75b6e6f39459d530fbdeb2ca35539d03cfa702e"
+      },
+      {
+        "bytes": 2863,
+        "path": "provenance.json",
+        "sha256": "6712969769df0b611a71dd50a20956672a89ab21f736b5c1829f3dbfa9b08ed4"
+      },
+      {
+        "bytes": 3375,
+        "path": "readback_blend.py",
+        "sha256": "9161ae53494b7d9874fc6c33c86dc2a0bcdaed0a9ee7a8a66378eb71a10e873b"
+      },
+      {
+        "bytes": 14154,
+        "path": "real_ifc_inventory.json",
+        "sha256": "d0e805c29de992ef1cc79791baddffd2053755adc0d98f702745a02e62e181e5"
+      },
+      {
+        "bytes": 16322,
+        "path": "render_candidate_comparison.py",
+        "sha256": "f6d20550e858f3bbd5b0899ccc7e1d6e052a56f1800afb4cf51a94d79ee0f737"
+      },
+      {
+        "bytes": 39401,
+        "path": "run_shadow_validation.py",
+        "sha256": "6e8cbccc7e16bb8675d630be82f79b0093a042766823645576355cf7bf7da662"
+      },
+      {
+        "bytes": 816923,
+        "path": "source_geometry_snapshot.json",
+        "sha256": "bbe70f83703ae7e961c04367d3c8a0c0414271fad430000d10254ca96cbabed2"
+      },
+      {
+        "bytes": 3773,
+        "path": "validation_report.json",
+        "sha256": "b06952c33bcba41cd70b7999824ec417f95bc0d662cf13972bca06a2023f8ae0"
+      }
+    ],
+    "manifest_excludes": [
+      "artifact_manifest.json"
+    ],
+    "schema_version": "d6-b2-shadow-artifact-manifest-v1"
+  },
+  "schema": "d6-b2-implementation-checkpoint-manifest/v1",
+  "shadow_provenance": {
+    "blender_boundary": "The disposable scene was rendered from serialized D6 geometry and candidate evidence. Blender did not open the source IFC or a user scene.",
+    "existing_evidence": [
+      "docs/project/evidence/d6-contract-closure-owner-decision.md",
+      "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair.md",
+      "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair-manifest.json",
+      "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison.md",
+      "outputs/design/live_ifc_input_mapping_probe/provenance.json",
+      "outputs/design/live_ifc_input_mapping_probe/live_ifc_inventory.json",
+      "outputs/design/live_ifc_input_mapping_probe/source_geometry.json",
+      "outputs/design/live_ifc_boundary_candidate_comparison/provenance.json",
+      "outputs/design/live_ifc_boundary_candidate_comparison/candidate_comparison.json",
+      "outputs/design/live_ifc_boundary_candidate_comparison/candidate_diagnostics.json"
+    ],
+    "experiment": "D6 B2 real IFC shadow validation",
+    "geometry_source_cross_check": {
+      "input_mapping_and_candidate_snapshot_sha256_match": true,
+      "mapping_source_geometry_sha256": "bbe70f83703ae7e961c04367d3c8a0c0414271fad430000d10254ca96cbabed2"
+    },
+    "limitations": [
+      "The level elevation and placement are absent; no vertical datum is inferred.",
+      "World-XY contacts and components are diagnostic projections, not production connectivity.",
+      "Door state and opening-host semantics are unavailable in this IFC.",
+      "The result does not establish production correctness."
+    ],
+    "mode": "read_only_shadow_validation",
+    "production_boundary": {
+      "adapters_modified": false,
+      "analysis_domain_promoted": false,
+      "dependencies_modified": false,
+      "formal_tests_modified": false,
+      "free_space_or_walkability_computed": false,
+      "neutral_scene_v2_modified": false,
+      "production_code_modified": false,
+      "production_selector_or_threshold_changed": false,
+      "public_apis_modified": false,
+      "source_ifc_modified": false
+    },
+    "reused_helpers": [
+      "outputs/design/live_ifc_boundary_candidate_comparison/render_candidate_comparison.py",
+      "outputs/design/live_ifc_boundary_candidate_comparison/readback_blend.py"
+    ],
+    "run_date": "2026-10-07",
+    "schema_version": "d6-b2-real-ifc-shadow-provenance-v1",
+    "source_ifc": {
+      "bytes": 408617800,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+      "read_only": true,
+      "schema": "IFC4",
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+    },
+    "tools": {
+      "blender_executable": "D:\\Blender\\BlenderPortableLTS5.2\\App\\Blender64\\blender.exe",
+      "blender_version": "Blender 5.2.0 LTS",
+      "ifcopenshell": "0.8.5",
+      "shapely": "2.1.2"
+    }
+  },
+  "initial_index_empty": true,
+  "baseline_head": "82d08fe54cf58be519bad6187e1f2f9e499453d5",
+  "shadow_source_inventory": {
+    "authored_analysis_domain": {
+      "explicit_analysis_proxy_count": 0,
+      "explicit_domain_record_count": 0,
+      "ifc_space_count": 0,
+      "ifc_spatial_zone_count": 0,
+      "present": false,
+      "promotion": "refused",
+      "reason": "No IfcSpace, IfcSpatialZone, or explicit OM_AnalysisProxy domain marker exists in the mapped source inventory.",
+      "status": "not_available"
+    },
+    "classification": "diagnostic_only",
+    "coordinate_frame": {
+      "diagnostic_projection": "IFC world coordinates projected to world XY, in metres",
+      "ifc_map_conversion_count": 0,
+      "inference": "No geographic origin, production work plane, or transform was inferred.",
+      "missing_source_facts": [
+        "IfcBuildingStorey.Elevation is null.",
+        "IfcBuildingStorey.ObjectPlacement is absent.",
+        "No IfcMapConversion is present."
+      ],
+      "representation_contexts": [
+        {
+          "context_identifier": null,
+          "context_type": "Model",
+          "coordinate_space_dimension": 3,
+          "precision": 1E-05,
+          "step_id": 8,
+          "true_north": null,
+          "world_coordinate_system_origin": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "context_identifier": "Body",
+          "context_type": "Model",
+          "coordinate_space_dimension": 3,
+          "precision": 1E-05,
+          "step_id": 9,
+          "true_north": [
+            0.0,
+            1.0
+          ],
+          "world_coordinate_system_origin": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "context_identifier": "Analysis",
+          "context_type": "Model",
+          "coordinate_space_dimension": 3,
+          "precision": 1E-05,
+          "step_id": 10,
+          "true_north": [
+            0.0,
+            1.0
+          ],
+          "world_coordinate_system_origin": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "vertical_datum_status": "not_available",
+      "world_xy_is_production_work_plane": false
+    },
+    "counts": {
+      "IfcBuildingStorey": 1,
+      "IfcColumn": 16,
+      "IfcDoor": 6,
+      "IfcMapConversion": 0,
+      "IfcOpeningElement": 0,
+      "IfcProduct": 358,
+      "IfcRelContainedInSpatialStructure": 2,
+      "IfcRelFillsElement": 0,
+      "IfcRelVoidsElement": 0,
+      "IfcSpace": 0,
+      "IfcSpatialZone": 0,
+      "IfcWall": 11
+    },
+    "doors": {
+      "assumed_closed": false,
+      "count": 6,
+      "missing_source_fact": "No observed current open/closed state is recorded; door entity presence and geometry do not establish state.",
+      "represented_count": 6,
+      "state": "not_inferred",
+      "status": "present_only",
+      "true_boundary_opening_observed": false
+    },
+    "formal_outputs": {
+      "domain_promotion": "refused",
+      "free_space": "not_computed",
+      "walkability": "not_computed"
+    },
+    "levels": {
+      "scope": "All inspected walls, columns, and doors are contained in Level 1.",
+      "storey_count": 1,
+      "storeys": [
+        {
+          "composition_type": null,
+          "elevation": null,
+          "global_id": "2udSq8mkbQwxg0XrW$uM_r",
+          "long_name": null,
+          "name": "Level 1",
+          "placement_present": false,
+          "step_id": 13
+        }
+      ]
+    },
+    "mapped_inventory_cross_check": {
+      "IfcColumn": true,
+      "IfcDoor": true,
+      "IfcOpeningElement": true,
+      "IfcRelFillsElement": true,
+      "IfcRelVoidsElement": true,
+      "IfcSpace": true,
+      "IfcSpatialZone": true,
+      "IfcWall": true
+    },
+    "object_identity": {
+      "IfcColumn": [
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3GmZVu1k9LTPtswYG5UTt5",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 59
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "1N82hRNmvUrP89uC6GpdtM",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 15584
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3BjFshT$fV5gPMixJD0Ck6",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 73609
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "36I1jPEOjMyQx5unUr9iRS",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 78434
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "34tr_gMFDIH92Gg8Y0_wlK",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 83259
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "2LB6wGdhPK2P6$81iPN_Yt",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 88084
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "2$2CZwOYXPWhPON1jIJk0O",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 92909
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "35fLMiX0zU5BnKOQAzrKwc",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 97734
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "1wbMK9jQnR08vmw$3y6k_t",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 102559
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3O8wNzsKPHwRKkbarQPpwh",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 107384
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3Mg8ERAE5O8wzTHgdyFyOB",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 112209
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "2eYp_Fe8DNwuz0rddHeX$z",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 117034
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "266BWDILDJWQGDTWqYWMp4",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 121859
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "0hsBLBpxbK4BWjArJa1P48",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 126684
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "2ue8sdDFzHTvh91o0NJ9$g",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 131509
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3hRyH4Zm5MJAnBFFd5qKCO",
+          "name": "Column",
+          "object_type": "column",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 136334
+        }
+      ],
+      "IfcDoor": [
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3y7JkDRLzPT9x47Baq5air",
+          "name": "Door",
+          "object_type": "door",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 6231
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "1ka4nSNvrT3ugC$_WAEDne",
+          "name": "Door",
+          "object_type": "door",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 20409
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "0nEl$1KpfKzOivB2MGeCYh",
+          "name": "Door",
+          "object_type": "door",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 25058
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "0XoSI6VX5UXvNHZefe9_4f",
+          "name": "Door",
+          "object_type": "door",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 29707
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "2KzmpHMSDMxu8vD0I2BZQL",
+          "name": "Door",
+          "object_type": "door",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 34356
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3YIoMlFwPQje3Kz40igFI1",
+          "name": "Door",
+          "object_type": "door",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 39005
+        }
+      ],
+      "IfcOpeningElement": [],
+      "IfcWall": [
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3QAL1kxKLJZxF3Sj5PqTVo",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 141159
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "152X2TIs5Pjh3ub4CncpOk",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 141320
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "1FldTx1tXKGxPGrR3LKCkW",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 141481
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "1n2AgCHXPJkuxzSWZVG3Hw",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 141626
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "360kFZ_HbNugudo1vFPt5i",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 141997
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "299ZbZ1B9NTuGr8zQYE7I9",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 142222
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3P9yDf6TTKUeAy04YS8b3$",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 142689
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "2MVTQC7T1HAhwuCGw2RM0J",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 142850
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "3R_rUQk_TQmBN0VHbYhNx6",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 143733
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "2y0jvrcGTGLAbHHDu7RBOW",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 143854
+        },
+        {
+          "contained_storeys": [
+            "Level 1"
+          ],
+          "global_id": "294Z8iLcPGnwvfQC8ShKsd",
+          "name": "Wall",
+          "object_type": "wall",
+          "placement_present": true,
+          "representation_present": true,
+          "step_id": 143931
+        }
+      ]
+    },
+    "opening_host_relations": {
+      "fill_relation_count": 0,
+      "malformed_conflicting_or_unsupported": "not_verified",
+      "missing_source_facts": [
+        "No IfcOpeningElement exists.",
+        "No IfcRelVoidsElement host relation exists.",
+        "No IfcRelFillsElement door-to-opening relation exists.",
+        "Without an opening entity, opening geometry cannot be inspected."
+      ],
+      "opening_element_count": 0,
+      "opening_geometry_status": "not_available",
+      "status": "missing",
+      "void_host_relation_count": 0
+    },
+    "project_identity": {
+      "global_id": "2uGd6yom9GZe5$z7LfbGW0",
+      "name": "Rhino baseRoom furniture export",
+      "step_id": 1
+    },
+    "schema_version": "d6-b2-real-ifc-shadow-inventory-v1",
+    "source_ifc": {
+      "bytes": 408617800,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+      "read_only": true,
+      "schema": "IFC4",
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+    },
+    "units": {
+      "length_unit_records": [
+        {
+          "ifc_class": "IfcSIUnit",
+          "name": "METRE",
+          "prefix": "MILLI",
+          "unit_type": "LENGTHUNIT"
+        }
+      ],
+      "scale_to_metres": 0.001,
+      "status": "observed"
+    }
+  }
+}

@@ -10,6 +10,7 @@ import pytest
 from ..features.group_self_description import describe_group_relations
 from ..features.affordance.models import Rect
 from ..features.scene_contract import AuthoredGroup, SourceObject, UncertaintyRecord
+from ..features.neutral_scene_views import analysis_scene_view
 from ..adapters.svg_scene import load_svg_neutral_scene
 from .test_neutral_scene_analysis_regression import _neutral_scene
 
@@ -229,6 +230,22 @@ def test_domain_presence_does_not_claim_unimplemented_space_measurements():
     assert space["free_space"]["status"] == "not_available"
     assert space["connectivity"]["status"] == "not_available"
     assert space["bottleneck_profile"]["status"] == "not_available"
+
+
+def test_b2_boundary_diagnostics_stay_private_to_neutral_scene_view():
+    """Private B2 evidence does not leak into the public group description."""
+    scene = _neutral_scene()
+    private_view = analysis_scene_view(scene)
+    diagnostics = private_view["_analysis_view"].get("b2_boundary_diagnostics")
+    result = describe_group_relations(scene)
+    public_json = json.dumps(result, allow_nan=False)
+
+    assert diagnostics is not None
+    assert "_analysis_view" not in public_json
+    assert "b2_boundary_diagnostics" not in public_json
+    assert result["space_observations"]["free_space"]["status"] == "not_available"
+    assert result["space_observations"]["connectivity"]["status"] == "not_available"
+    assert result["space_observations"]["bottleneck_profile"]["status"] == "not_available"
 
 
 def _member(member_id, components, *, group="group-a", **fields):

@@ -103,3 +103,9 @@ Provenance：当前问题边界来自 pairwise run_001 的 [runner](../../../out
 本次 Git 审计只运行分支/祖先/worktree/status、显式路径 hash/bytes、Markdown/JSON 解析、manifest 自洽、scope、whitespace 和历史契约不变检查。46 条原有 untracked 路径全部保留并在 manifest 中逐条列出；其中 owner-review 中、临时日志/产物或无法证明属于已完成 checkpoint 的文件保持 untracked。未运行完整 pytest、完整 IFC adapter、Blender、Bayesian/ML 或 selector。此记录不把文档收口写成 production implementation 完成。
 
 **STOP FOR D6 PROGRESS AND GIT PROVENANCE CHECKPOINT REVIEW**
+
+## 2026-10-07 B2 implementation checkpoint（本轮追加）
+
+已接受的 private provenance/refusal implementation 与 coverage repair 正在形成本地检查点，见 [checkpoint note](d6-b2-implementation-checkpoint-2026-10-07.md) 和其 manifest。只包含精确 shell identity、physical occupancy、opening provenance/uncertainty、私有 refusal 及限定兼容回归。
+accepted shadow 为 **LIMITED REAL-IFC SHADOW DIAGNOSTIC EVIDENCE**；它检查继承候选/几何证据，不证明本轮新 B2 implementation 真实入口调用。
+在检查点阶段，新链 native IFC / live Blender 调用仍 **pending**；随后按本轮已授权的 checkpoint-first probe执行并另记结果。B1 multi-floor/units/work-plane、Bayesian B1 与其他 deferred items 不变，不把全部 B2 标成 complete。

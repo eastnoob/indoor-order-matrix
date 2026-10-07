@@ -14,6 +14,7 @@ from ..features.scene_contract import (
     MeshGeometry3D,
     NEUTRAL_SCENE_V2,
     NeutralSceneV2,
+    SourceOpening,
     SourceObject,
 )
 from ..adapters.blender_geometry import load_blender_neutral_scene
@@ -240,6 +241,24 @@ def test_blender_geometry_rejects_dangling_explicit_domain_reference():
             _blender_source(),
             mode="blender_geometry",
             analysis_domain=domain,
+        )
+
+
+def test_blender_geometry_rejects_dangling_explicit_opening_host_reference():
+    """A dangling opening host remains a rejected adapter reference."""
+    opening = SourceOpening(
+        id="opening:dangling-host",
+        source_id=None,
+        host_refs=("blender-object:missing-host",),
+        geometry_refs=("blender-mesh:chair-helper",),
+        opening_kind="doorway",
+    )
+
+    with pytest.raises(ValueError, match="dangling opening host"):
+        load_blender_neutral_scene(
+            _blender_source(),
+            mode="blender_geometry",
+            openings=(opening,),
         )
 
 

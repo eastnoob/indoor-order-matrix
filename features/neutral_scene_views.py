@@ -13,7 +13,7 @@ from .boundary_evidence import (
 )
 from .geometry_substitutes import mass_patch_from_mesh, surface_patch_from_fact
 from .geometry_views import plan_projection
-from .scene_contract import NeutralSceneV2, SourceObject
+from .scene_contract import NeutralSceneV2, SourceObject, SourceOpening, UncertaintyRecord
 
 
 LegacyAnalysisScene: TypeAlias = dict[str, object]
@@ -103,8 +103,14 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
         }
         for record in records
     ]
-    # Interface candidacy follows factual mass or surface evidence. Source
-    # roles remain identity only and do not decide whether an interface exists.
+    records_by_id = {record["id"]: record for record in records}
+    shell_record_ids, domain_scope = _domain_shell_identity(
+        scene,
+        records,
+        domain_available=bool(domain_points),
+    )
+    # Keep the legacy interface-candidacy rule separate from B2 occupancy:
+    # support geometry is context for interface selection, not mass exclusion.
     support_geometry_refs = (
         set(scene.analysis_domain.geometry_refs)
         if scene.analysis_domain is not None
@@ -122,24 +128,20 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
         | {"channel_evidence": channel_evidence.get(record["id"])}
         for record in surface_interfaces
     ]
-    records_by_id = {record["id"]: record for record in records}
     # Physical occupancy follows explicit mass geometry, not source-role labels.
-    # The selected analysis-domain support is the one intentional exception:
-    # it establishes the reference surface and must not fill negative space.
+    # Exclude a selected support only when exact source identity proves the match.
     physical_mass_records = [
         record
         for record in records
         if _is_physical_mass_record(record)
-        and not support_geometry_refs.intersection(
-            record.get("_source_geometry_refs", ())
-        )
+        and record["id"] not in shell_record_ids
     ]
     walk_blockers = _channel_blocker_records(
         records_by_id,
         channel_evidence,
         channel="walking",
         offset=offset,
-        excluded_geometry_refs=support_geometry_refs,
+        excluded_record_ids=shell_record_ids,
     )
     visibility_blockers = _channel_blocker_records(
         records_by_id,
@@ -148,6 +150,12 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
         offset=offset,
     )
     openings = _opening_records(scene, shifted_geometry)
+    b2_boundary_diagnostics = _b2_boundary_diagnostics(
+        scene,
+        records,
+        shell_record_ids,
+        domain_scope,
+    )
     column_axes = _axis_records(scene, shifted_axes)
     settings = _analysis_settings(scene)
     source = f"{scene.context.source_schema}:{scene.context.adapter_version}"
@@ -190,6 +198,7 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
                 if domain_points
                 else "scene_geometry_fallback_not_analysis_domain"
             ),
+            "b2_boundary_diagnostics": b2_boundary_diagnostics,
         },
     }
 
@@ -557,21 +566,18 @@ def _channel_blocker_records(
     *,
     channel: str,
     offset: tuple[float, float],
-    excluded_geometry_refs: set[str] | None = None,
+    excluded_record_ids: set[str] | None = None,
 ) -> list[dict]:
-    """Build task blockers while preserving analysis-domain support as non-obstacle evidence."""
+    """Build task blockers while excluding only proven analysis-domain records."""
     blockers = []
-    excluded_geometry_refs = excluded_geometry_refs or set()
+    excluded_record_ids = excluded_record_ids or set()
     for source_id, evidence in channel_evidence.items():
         record = records_by_id.get(source_id)
         if record is None:
             continue
-        # The explicit analysis domain may be physically occupied at body height,
-        # but its supporting mass defines the walkable reference surface rather
-        # than an obstacle the user must route around.
-        if excluded_geometry_refs.intersection(
-            record.get("_source_geometry_refs", ())
-        ):
+        # Geometry references can be shared by distinct source records, so only
+        # an exact source-identity match may remove an analysis-domain shell.
+        if record["id"] in excluded_record_ids:
             continue
         projections = [
             projection
@@ -664,6 +670,239 @@ def _domain_points(
         for geometry_ref in scene.analysis_domain.geometry_refs
         for point in geometry_points.get(geometry_ref, ())
     ]
+
+
+def _domain_shell_identity(
+    scene: NeutralSceneV2,
+    records: list[dict],
+    *,
+    domain_available: bool,
+) -> tuple[set[str], dict[str, object]]:
+    """Resolve only an exact, unique source identity for an explicit domain shell."""
+    domain = scene.analysis_domain
+    if domain is None:
+        return set(), {
+            "availability": "not_available",
+            "source": "none",
+            "id": None,
+            "geometry_refs": [],
+            "shell_record_ids": [],
+            "shell_identity": "not_applicable",
+            "blocker": None,
+        }
+
+    scope: dict[str, object] = {
+        "availability": "available" if domain_available else "not_available",
+        "source": "explicit_authored",
+        "id": domain.id,
+        "geometry_refs": list(domain.geometry_refs),
+        "shell_record_ids": [],
+        "shell_identity": "blocked",
+        "blocker": None,
+    }
+    if not domain_available:
+        scope["blocker"] = "analysis_domain_geometry_unavailable"
+        return set(), scope
+
+    source_id = domain.source_id
+    if source_id is None or not source_id.strip():
+        scope["blocker"] = "analysis_domain_source_id_missing"
+        return set(), scope
+
+    matches = [source for source in scene.source_objects if source.source_id == source_id]
+    if not matches:
+        scope["blocker"] = "analysis_domain_source_id_unmatched"
+        return set(), scope
+    if len(matches) != 1:
+        scope["blocker"] = "analysis_domain_source_id_ambiguous"
+        return set(), scope
+
+    source = matches[0]
+    role = (source.source_role or "").strip().lower()
+    if not role or role in {"wall", "boundary", "column"}:
+        scope["blocker"] = "analysis_domain_source_role_ineligible"
+        return set(), scope
+
+    record_ids = {
+        str(record["id"])
+        for record in records
+        if record.get("id") == source.id
+    }
+    if len(record_ids) != 1:
+        scope["blocker"] = "analysis_domain_source_record_unavailable"
+        return set(), scope
+
+    scope["shell_record_ids"] = sorted(record_ids)
+    scope["shell_identity"] = "established"
+    return record_ids, scope
+
+
+def _opening_uncertainty_records(
+    opening: SourceOpening,
+    scene_uncertainties: tuple[UncertaintyRecord, ...],
+) -> list[UncertaintyRecord]:
+    """Join local and scene uncertainty only through the exact opening reference."""
+    records = list(opening.uncertainties)
+    for uncertainty in scene_uncertainties:
+        if opening.id in uncertainty.source_refs and uncertainty not in records:
+            records.append(uncertainty)
+    return records
+
+
+def _opening_local_diagnostic_state(
+    opening: SourceOpening,
+    scene_uncertainties: tuple[UncertaintyRecord, ...],
+) -> tuple[str, str, list[str]]:
+    """Apply the local opening evidence precedence without qualifying subtraction."""
+    uncertainties = _opening_uncertainty_records(opening, scene_uncertainties)
+    codes = [record.code.strip().lower() for record in uncertainties]
+    omitted_host_refs: list[str] = []
+    for uncertainty in uncertainties:
+        if (
+            uncertainty.code == "unresolved_opening_host_ref"
+            and (
+                uncertainty in opening.uncertainties
+                or opening.id in uncertainty.source_refs
+            )
+        ):
+            raw_omitted = uncertainty.details.get("omitted_refs", ())
+            values = (raw_omitted,) if isinstance(raw_omitted, str) else raw_omitted
+            if isinstance(values, (list, tuple)):
+                omitted_host_refs.extend(
+                    value for value in values if isinstance(value, str) and value
+                )
+    omitted_host_refs = list(dict.fromkeys(omitted_host_refs))
+
+    if any("conflict" in code for code in codes):
+        return "conflict", "opening_uncertainty_reports_conflict", omitted_host_refs
+    if any("unsupported" in code for code in codes):
+        return "unsupported", "opening_uncertainty_reports_unsupported", omitted_host_refs
+    if any("invalid" in code or "malformed" in code for code in codes):
+        return "invalid", "opening_uncertainty_reports_invalid_or_malformed", omitted_host_refs
+    if omitted_host_refs or bool(opening.host_refs) != bool(opening.geometry_refs):
+        return "partial", "opening_host_or_geometry_incomplete", omitted_host_refs
+    if (
+        (not opening.host_refs and not opening.geometry_refs)
+        or "missing_geometry" in codes
+    ):
+        return "not_available", "opening_host_or_geometry_unavailable", omitted_host_refs
+    return (
+        "diagnostic_only",
+        "opening_facts_present_without_qualification_policy",
+        omitted_host_refs,
+    )
+
+
+def _b2_opening_diagnostic(
+    opening: SourceOpening,
+    scene_uncertainties: tuple[UncertaintyRecord, ...],
+) -> dict[str, object]:
+    """Serialize one opening's source facts and refusal state for private diagnostics."""
+    state, reason, omitted_host_refs = _opening_local_diagnostic_state(
+        opening,
+        scene_uncertainties,
+    )
+    uncertainties = _opening_uncertainty_records(opening, scene_uncertainties)
+    source_refs = [opening.id]
+    if opening.source_id:
+        source_refs.append(opening.source_id)
+    source_refs.extend(opening.host_refs)
+    source_refs.extend(omitted_host_refs)
+    source_refs.extend(opening.geometry_refs)
+    source_refs.extend(
+        source_ref
+        for uncertainty in uncertainties
+        for source_ref in uncertainty.source_refs
+    )
+    return {
+        "id": opening.id,
+        "source_id": opening.source_id,
+        "host_refs": list(opening.host_refs),
+        "omitted_host_refs": omitted_host_refs,
+        "geometry_refs": list(opening.geometry_refs),
+        "opening_kind": opening.opening_kind,
+        "provenance": opening.to_dict()["provenance"],
+        "uncertainties": [record.to_dict() for record in uncertainties],
+        "local_diagnostic_state": state,
+        "reason": reason,
+        "source_refs": list(dict.fromkeys(source_refs)),
+        "subtraction_performed": False,
+    }
+
+
+def _b2_boundary_diagnostics(
+    scene: NeutralSceneV2,
+    records: list[dict],
+    domain_shell_record_ids: set[str],
+    domain_scope: dict[str, object],
+) -> dict[str, object]:
+    """Build private provenance/refusal diagnostics from existing scene records."""
+    physical_occupancy = []
+    boundary_support = []
+    for record in records:
+        if (
+            record["id"] in domain_shell_record_ids
+            or not _is_physical_mass_record(record)
+        ):
+            continue
+        source_id = record.get("_neutral_source_id")
+        source_role = str(record.get("role", "unknown")).strip().lower()
+        geometry_refs = list(record.get("_source_geometry_refs", ()))
+        physical_occupancy.append(
+            {
+                "source_id": source_id,
+                "source_role": source_role,
+                "geometry_refs": geometry_refs,
+                "included": True,
+            }
+        )
+        if source_role not in {"wall", "boundary", "column"}:
+            continue
+        source_refs = [str(record["id"])]
+        if source_id:
+            source_refs.append(str(source_id))
+        source_refs.extend(str(ref) for ref in geometry_refs)
+        boundary_support.append(
+            {
+                "source_id": source_id,
+                "candidate_segment_ids": [source_id] if source_id else [],
+                "conditional_support": False,
+                "local_diagnostic_state": "diagnostic_only",
+                "reason": "b2_loop_closure_policy_deferred",
+                "source_refs": list(dict.fromkeys(source_refs)),
+            }
+        )
+
+    return {
+        "schema": "d6-b2-neutral-scene-diagnostics/v2",
+        "evidence_class": "source_fact_and_refusal_plumbing",
+        "domain_scope": domain_scope,
+        "candidate_promotion": {
+            "status": "refused",
+            "reason": "inferred_candidate_promotion_not_authorized",
+        },
+        "physical_occupancy": physical_occupancy,
+        "boundary_support": boundary_support,
+        "candidate_polygon_validity": {
+            "status": "not_available",
+            "reason": "no_current_source_observation",
+            "source_refs": [],
+        },
+        "source_components": {
+            "status": "not_available",
+            "reason": "no_current_source_observation",
+            "source_segment_ids": [],
+        },
+        "openings": [
+            _b2_opening_diagnostic(opening, scene.uncertainties)
+            for opening in scene.openings
+        ],
+        "downstream": {
+            "subtraction": "refused",
+            "free_space": "not_evaluated",
+            "route": "not_evaluated",
+        },
+    }
 
 
 def _view_frame(

@@ -13,6 +13,7 @@ import pytest
 from ..features.scene_contract import NeutralSceneV2
 from ..features.scene_evaluator import evaluate_scene
 from ..features.scene_loader import load_structured_svg_scene
+from ..features.neutral_scene_views import analysis_scene_view
 
 
 SVG_FIXTURES = (
@@ -871,6 +872,22 @@ def test_dangling_explicit_references_are_omitted_with_uncertainty(
         "unresolved_affordance_owner_ref",
         "unresolved_opening_host_ref",
     }
+    opening_uncertainty = next(
+        item for item in scene.uncertainties
+        if item.code == "unresolved_opening_host_ref"
+    )
+    assert opening_uncertainty.source_refs == (scene.openings[0].id,)
+    assert scene.openings[0].uncertainties == ()
+
+    diagnostics = analysis_scene_view(scene)["_analysis_view"].get(
+        "b2_boundary_diagnostics"
+    )
+    assert diagnostics is not None
+    opening_diagnostic = diagnostics["openings"][0]
+    assert opening_diagnostic["local_diagnostic_state"] == "partial"
+    assert opening_diagnostic["omitted_host_refs"] == ["missing-wall"]
+    assert opening_uncertainty.to_dict() in opening_diagnostic["uncertainties"]
+    assert opening_diagnostic["subtraction_performed"] is False
 
 
 def test_multiple_explicit_analysis_domains_are_rejected(tmp_path: Path) -> None:

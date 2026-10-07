@@ -4,6 +4,8 @@ from pathlib import Path
 from dataclasses import replace
 from math import cos, radians, sin
 
+import pytest
+
 from ..adapters.ifc_bonsai import load_ifc_neutral_scene
 from ..adapters.svg_scene import load_svg_neutral_scene
 from ..features.affordance.models import Rect
@@ -20,8 +22,10 @@ from ..features.scene_contract import (
     MeshGeometry3D,
     NEUTRAL_SCENE_V2,
     NeutralSceneV2,
+    SourceOpening,
     SourceObject,
     SurfaceFact,
+    UncertaintyRecord,
 )
 from ..features.scene_evaluator import (
     _cad_room_minus_blocker_component_touch_evidence,
@@ -95,6 +99,7 @@ def _neutral_scene() -> NeutralSceneV2:
         ),
         SourceObject(
             id="floor_slab",
+            source_id="source-floor-slab",
             source_role="slab",
             geometry_refs=("mesh_slab",),
         ),
@@ -137,7 +142,7 @@ def _neutral_scene() -> NeutralSceneV2:
         analysis_domain=AnalysisDomain(
             id="domain_room",
             geometry_refs=("mesh_slab",),
-            source_id=None,
+            source_id="source-floor-slab",
             selection_method="test_fixture",
         ),
         source_objects=objects,
@@ -239,6 +244,80 @@ def _closed_channel_scene(
     )
 
 
+def _blocked_domain_identity_scene(
+    *,
+    shell_source_id: str,
+    shell_role: str,
+    shell_geometry_refs: tuple[str, ...],
+    domain_geometry_refs: tuple[str, ...],
+    duplicate_shell_source_id: bool = False,
+) -> NeutralSceneV2:
+    """Build a valid domain fixture with retained wall and column mass."""
+    support = _box_mesh(mesh_id="identity_support", top=0.2)
+    missing_shell_geometry = (
+        ()
+        if shell_geometry_refs
+        else (
+            UncertaintyRecord(
+                code="missing_geometry",
+                message="fixture source geometry is intentionally unavailable",
+                source_refs=(shell_source_id,),
+                operation="test_fixture",
+                severity="warning",
+            ),
+        )
+    )
+    sources = [
+        SourceObject(
+            id="domain_shell",
+            source_id=shell_source_id,
+            source_role=shell_role,
+            geometry_refs=shell_geometry_refs,
+            uncertainties=missing_shell_geometry,
+        ),
+        SourceObject(
+            id="retained_wall",
+            source_id="source-retained-wall",
+            source_role="wall",
+            geometry_refs=(support.id,),
+        ),
+        SourceObject(
+            id="retained_column",
+            source_id="source-retained-column",
+            source_role="column",
+            geometry_refs=(support.id,),
+        ),
+    ]
+    if duplicate_shell_source_id:
+        # Empty geometry is valid; identity matching must count source facts, not only projections.
+        sources.append(
+            SourceObject(
+                id="duplicate_domain_shell",
+                source_id=shell_source_id,
+                source_role="slab",
+                geometry_refs=(),
+                uncertainties=(
+                    UncertaintyRecord(
+                        code="missing_geometry",
+                        message="fixture duplicate has no projected geometry",
+                        source_refs=(shell_source_id,),
+                        operation="test_fixture",
+                        severity="warning",
+                    ),
+                ),
+            )
+        )
+    scene = _closed_channel_scene(tuple(sources), (support,))
+    return replace(
+        scene,
+        analysis_domain=replace(
+            scene.analysis_domain,
+            source_id="source-domain-shell",
+            geometry_refs=domain_geometry_refs,
+        ),
+    )
+
+
 def _placed_box(
     mesh_id: str,
     *,
@@ -296,7 +375,20 @@ def test_analysis_domain_support_mass_is_not_a_walking_blocker_when_overlapping_
         (
             SourceObject(
                 id="analysis_support",
+                source_id="source-analysis-support",
                 source_role="slab",
+                geometry_refs=(support.id,),
+            ),
+            SourceObject(
+                id="wall_shared_geometry",
+                source_id="source-wall",
+                source_role="wall",
+                geometry_refs=(support.id,),
+            ),
+            SourceObject(
+                id="column_shared_geometry",
+                source_id="source-column",
+                source_role="column",
                 geometry_refs=(support.id,),
             ),
         ),
@@ -306,6 +398,7 @@ def test_analysis_domain_support_mass_is_not_a_walking_blocker_when_overlapping_
         scene,
         analysis_domain=replace(
             scene.analysis_domain,
+            source_id="source-analysis-support",
             geometry_refs=(support.id,),
         ),
     )
@@ -313,7 +406,317 @@ def test_analysis_domain_support_mass_is_not_a_walking_blocker_when_overlapping_
     view = analysis_scene_view(scene)
 
     assert view["channel_evidence"]["analysis_support"]["walking"][0]["status"] == "blocked"
-    assert view["walk_blockers"] == []
+    assert [record["id"] for record in view["walk_blockers"]] == [
+        "wall_shared_geometry",
+        "column_shared_geometry",
+    ]
+    assert [record["id"] for record in view["physical_occupancy"]] == [
+        "wall_shared_geometry",
+        "column_shared_geometry",
+    ]
+    diagnostics = view["_analysis_view"].get("b2_boundary_diagnostics")
+    assert diagnostics is not None
+    assert diagnostics["domain_scope"]["shell_record_ids"] == ["analysis_support"]
+    assert diagnostics["domain_scope"]["shell_identity"] == "established"
+    assert [item["source_id"] for item in diagnostics["boundary_support"]] == [
+        "source-wall",
+        "source-column",
+    ]
+
+
+def test_unidentified_analysis_domain_keeps_shared_wall_and_column_occupancy():
+    """Geometry overlap cannot identify a shell or suppress wall and column mass."""
+    support = _box_mesh(mesh_id="unidentified_analysis_support", top=0.2)
+    scene = _closed_channel_scene(
+        (
+            SourceObject(
+                id="unidentified_support",
+                source_id=None,
+                source_role="slab",
+                geometry_refs=(support.id,),
+            ),
+            SourceObject(
+                id="unidentified_wall",
+                source_id=None,
+                source_role="wall",
+                geometry_refs=(support.id,),
+            ),
+            SourceObject(
+                id="unidentified_column",
+                source_id=None,
+                source_role="column",
+                geometry_refs=(support.id,),
+            ),
+        ),
+        (support,),
+    )
+    scene = replace(
+        scene,
+        analysis_domain=replace(
+            scene.analysis_domain,
+            source_id=None,
+            geometry_refs=(support.id,),
+        ),
+    )
+
+    view = analysis_scene_view(scene)
+    diagnostics = view["_analysis_view"].get("b2_boundary_diagnostics")
+    assert diagnostics is not None
+
+    assert diagnostics["domain_scope"]["availability"] == "available"
+    assert diagnostics["domain_scope"]["source"] == "explicit_authored"
+    assert diagnostics["domain_scope"]["shell_identity"] == "blocked"
+    assert diagnostics["domain_scope"]["blocker"] == "analysis_domain_source_id_missing"
+    assert diagnostics["domain_scope"]["shell_record_ids"] == []
+    assert [record["id"] for record in view["physical_occupancy"]] == [
+        "unidentified_support",
+        "unidentified_wall",
+        "unidentified_column",
+    ]
+    assert all(item["source_id"] is None for item in diagnostics["physical_occupancy"])
+    assert [item["source_id"] for item in diagnostics["boundary_support"]] == [None, None]
+    assert [item["candidate_segment_ids"] for item in diagnostics["boundary_support"]] == [
+        [],
+        [],
+    ]
+    assert diagnostics["candidate_promotion"]["status"] == "refused"
+
+
+@pytest.mark.parametrize(
+    (
+        "shell_source_id",
+        "shell_role",
+        "shell_geometry_refs",
+        "domain_geometry_refs",
+        "duplicate_shell_source_id",
+        "expected_blocker",
+    ),
+    (
+        pytest.param(
+            "source-domain-shell",
+            "slab",
+            ("identity_support",),
+            ("identity_support",),
+            True,
+            "analysis_domain_source_id_ambiguous",
+            id="duplicate-source-id",
+        ),
+        pytest.param(
+            "unmatched-shell-source",
+            "slab",
+            ("identity_support",),
+            ("identity_support",),
+            False,
+            "analysis_domain_source_id_unmatched",
+            id="unmatched-source-id",
+        ),
+        pytest.param(
+            "source-domain-shell",
+            "wall",
+            ("identity_support",),
+            ("identity_support",),
+            False,
+            "analysis_domain_source_role_ineligible",
+            id="wall-role",
+        ),
+        pytest.param(
+            "source-domain-shell",
+            "boundary",
+            ("identity_support",),
+            ("identity_support",),
+            False,
+            "analysis_domain_source_role_ineligible",
+            id="boundary-role",
+        ),
+        pytest.param(
+            "source-domain-shell",
+            "column",
+            ("identity_support",),
+            ("identity_support",),
+            False,
+            "analysis_domain_source_role_ineligible",
+            id="column-role",
+        ),
+        pytest.param(
+            "source-domain-shell",
+            "slab",
+            ("identity_support",),
+            (),
+            False,
+            "analysis_domain_geometry_unavailable",
+            id="empty-domain-geometry-refs",
+        ),
+        pytest.param(
+            "source-domain-shell",
+            "slab",
+            (),
+            ("identity_support",),
+            False,
+            "analysis_domain_source_record_unavailable",
+            id="matched-source-without-projected-record",
+        ),
+    ),
+)
+def test_blocked_domain_shell_identity_keeps_wall_and_column_occupancy(
+    shell_source_id: str,
+    shell_role: str,
+    shell_geometry_refs: tuple[str, ...],
+    domain_geometry_refs: tuple[str, ...],
+    duplicate_shell_source_id: bool,
+    expected_blocker: str,
+):
+    """Blocked shell identity never removes shared-geometry walls or columns."""
+    scene = _blocked_domain_identity_scene(
+        shell_source_id=shell_source_id,
+        shell_role=shell_role,
+        shell_geometry_refs=shell_geometry_refs,
+        domain_geometry_refs=domain_geometry_refs,
+        duplicate_shell_source_id=duplicate_shell_source_id,
+    )
+
+    view = analysis_scene_view(scene)
+    diagnostics = view["_analysis_view"]["b2_boundary_diagnostics"]
+    expected_retained = {"retained_wall", "retained_column"}
+
+    assert diagnostics["domain_scope"]["shell_record_ids"] == []
+    assert diagnostics["domain_scope"]["shell_identity"] == "blocked"
+    assert diagnostics["domain_scope"]["blocker"] == expected_blocker
+    assert expected_retained <= {
+        record["id"] for record in view["physical_occupancy"]
+    }
+    assert expected_retained <= {record["id"] for record in view["walk_blockers"]}
+    if shell_geometry_refs:
+        assert "domain_shell" in {
+            record["id"] for record in view["physical_occupancy"]
+        }
+
+
+def _opening_uncertainty(
+    code: str,
+    source_refs: tuple[str, ...],
+    *,
+    details: dict[str, object] | None = None,
+) -> UncertaintyRecord:
+    """Create one concise uncertainty fact for B2 opening-state fixtures."""
+    return UncertaintyRecord(
+        code=code,
+        message=f"fixture uncertainty: {code}",
+        source_refs=source_refs,
+        operation="test_fixture",
+        severity="warning",
+        details=details or {},
+    )
+
+
+@pytest.mark.parametrize(
+    ("host_refs", "geometry_refs", "codes", "expected_state"),
+    (
+        (("wall",), ("opening-mesh",), ("host_conflict", "host_unsupported", "host_invalid"), "conflict"),
+        (("wall",), (), ("host_unsupported", "missing_geometry"), "unsupported"),
+        (("wall",), (), ("host_invalid", "missing_geometry"), "invalid"),
+        (("wall",), (), ("missing_geometry",), "partial"),
+        ((), (), ("missing_geometry",), "not_available"),
+        (("wall",), ("opening-mesh",), (), "diagnostic_only"),
+    ),
+)
+def test_b2_opening_diagnostic_preserves_state_precedence_and_nullable_source_id(
+    host_refs: tuple[str, ...],
+    geometry_refs: tuple[str, ...],
+    codes: tuple[str, ...],
+    expected_state: str,
+):
+    """Opening state follows local precedence and never fabricates source identity."""
+    opening = SourceOpening(
+        id="opening-under-review",
+        source_id=None,
+        host_refs=host_refs,
+        geometry_refs=geometry_refs,
+        opening_kind="boundary_opening",
+        uncertainties=tuple(
+            _opening_uncertainty(code, ("opening-under-review",))
+            for code in codes
+        ),
+    )
+    view = analysis_scene_view(replace(_neutral_scene(), openings=(opening,)))
+    diagnostics = view["_analysis_view"].get("b2_boundary_diagnostics")
+    assert diagnostics is not None
+    diagnostic = diagnostics["openings"][0]
+
+    assert diagnostic["local_diagnostic_state"] == expected_state
+    assert diagnostic["source_id"] is None
+    assert {"opening-under-review", *host_refs, *geometry_refs}.issubset(
+        diagnostic["source_refs"]
+    )
+    assert diagnostic["subtraction_performed"] is False
+    if not geometry_refs:
+        assert "opening-under-review" not in {
+            item["id"] for item in view["entries"]
+        }
+
+
+def test_b2_opening_joins_only_exact_scene_uncertainty_and_keeps_omitted_host():
+    """Opening diagnostics join host omissions only through exact uncertainty refs."""
+    opening = SourceOpening(
+        id="opening-exact-ref",
+        source_id=None,
+        host_refs=("wall",),
+        geometry_refs=("opening-mesh",),
+        opening_kind="boundary_opening",
+    )
+    matching = _opening_uncertainty(
+        "unresolved_opening_host_ref",
+        (opening.id,),
+        details={"omitted_refs": ("missing-wall",)},
+    )
+    unrelated = _opening_uncertainty(
+        "opening_conflict",
+        ("another-opening",),
+    )
+    view = analysis_scene_view(
+        replace(
+            _neutral_scene(),
+            openings=(opening,),
+            uncertainties=(matching, unrelated),
+        )
+    )
+    diagnostics = view["_analysis_view"].get("b2_boundary_diagnostics")
+    assert diagnostics is not None
+    diagnostic = diagnostics["openings"][0]
+
+    assert diagnostic["local_diagnostic_state"] == "partial"
+    assert diagnostic["omitted_host_refs"] == ["missing-wall"]
+    assert [item["code"] for item in diagnostic["uncertainties"]] == [
+        "unresolved_opening_host_ref"
+    ]
+    assert {"opening-exact-ref", "wall", "opening-mesh", "missing-wall"}.issubset(
+        diagnostic["source_refs"]
+    )
+    assert diagnostic["subtraction_performed"] is False
+
+
+def test_b2_diagnostics_are_invariant_to_context_tolerance_values():
+    """Local B2 provenance does not consume unrelated geometry tolerances."""
+    scene = _neutral_scene()
+    changed_tolerance_scene = replace(
+        scene,
+        context=replace(
+            scene.context,
+            geometry_tolerance=0.25,
+            topology_tolerance=0.75,
+        ),
+    )
+
+    first = analysis_scene_view(scene)["_analysis_view"].get("b2_boundary_diagnostics")
+    second = analysis_scene_view(changed_tolerance_scene)["_analysis_view"].get("b2_boundary_diagnostics")
+
+    assert first is not None
+    assert second is not None
+    assert first == second
+    assert first["candidate_polygon_validity"]["status"] == "not_available"
+    assert first["source_components"]["status"] == "not_available"
+    assert first["downstream"]["subtraction"] == "refused"
+    assert first["downstream"]["free_space"] == "not_evaluated"
+    assert first["downstream"]["route"] == "not_evaluated"
 
 
 def test_neutral_role_neutral_mass_enters_physical_occupancy():
