@@ -109,3 +109,13 @@ Provenance：当前问题边界来自 pairwise run_001 的 [runner](../../../out
 已接受的 private provenance/refusal implementation 与 coverage repair 正在形成本地检查点，见 [checkpoint note](d6-b2-implementation-checkpoint-2026-10-07.md) 和其 manifest。只包含精确 shell identity、physical occupancy、opening provenance/uncertainty、私有 refusal 及限定兼容回归。
 accepted shadow 为 **LIMITED REAL-IFC SHADOW DIAGNOSTIC EVIDENCE**；它检查继承候选/几何证据，不证明本轮新 B2 implementation 真实入口调用。
 在检查点阶段，新链 native IFC / live Blender 调用仍 **pending**；随后按本轮已授权的 checkpoint-first probe执行并另记结果。B1 multi-floor/units/work-plane、Bayesian B1 与其他 deferred items 不变，不把全部 B2 标成 complete。
+
+## 2026-10-07 B2 real-input invocation（本轮追加，待独立复审）
+
+implementation checkpoint为 `8fd6f75d8d4444adac53588f642187d489e14831`。唯一完整native IFC adapter attempt在300s预算到期后终止，未返回NeutralScene/B2，保持 **not_verified_timeout**；runner先前一次CRLF identity预检失败发生在loader之前，两者日志分开保留，无完整提取retry。
+新链已通过 **live Blender structural geometry → existing Blender adapter → NeutralSceneV2 → actual private B2** 调用。live关联accepted IFC的path/project/33个structural STEP+GlobalId一致；portable Blender5.2符合约束，但blend未保存，IFC/live geometry parity仍未验证。
+11墙/16柱/6门全部保留physical occupancy，27条support均conditional=False；domain unavailable、promotion/subtraction refused、validity/components unavailable、free_space/route not_evaluated；真实空opening集合，不覆盖opening conflict/partial等分支。结构subset排除其他339个live对象，不计算家具趋势。
+saved snapshot在第二个新进程重跑，raw B2/geometry/audit/validation/PNG byte-identical；报告和compact manifest见 [execution report](d6-b2-real-input-validation.md)。sourceIFC、accepted shadow及无关既有文件hash无漂移。
+以上是本轮执行证据，不是独立接受；B1 multi-floor/units/work-plane、typed家具substitute链和所有其他deferred items不变，不新增partition/free-space/route能力。
+
+**STOP FOR D6 B2 CHECKPOINT AND REAL-INPUT VALIDATION REVIEW**

@@ -1,0 +1,1691 @@
+{
+  "actual_b2": {
+    "boundary_support": [
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-141159",
+          "blender-mesh:live-step-141159"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-141320",
+          "blender-mesh:live-step-141320"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-141481",
+          "blender-mesh:live-step-141481"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-141626",
+          "blender-mesh:live-step-141626"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-141997",
+          "blender-mesh:live-step-141997"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-142222",
+          "blender-mesh:live-step-142222"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-142689",
+          "blender-mesh:live-step-142689"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-142850",
+          "blender-mesh:live-step-142850"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-143733",
+          "blender-mesh:live-step-143733"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-143854",
+          "blender-mesh:live-step-143854"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-143931",
+          "blender-mesh:live-step-143931"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-59",
+          "blender-mesh:live-step-59"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-15584",
+          "blender-mesh:live-step-15584"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-73609",
+          "blender-mesh:live-step-73609"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-78434",
+          "blender-mesh:live-step-78434"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-83259",
+          "blender-mesh:live-step-83259"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-88084",
+          "blender-mesh:live-step-88084"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-92909",
+          "blender-mesh:live-step-92909"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-97734",
+          "blender-mesh:live-step-97734"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-102559",
+          "blender-mesh:live-step-102559"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-107384",
+          "blender-mesh:live-step-107384"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-112209",
+          "blender-mesh:live-step-112209"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-117034",
+          "blender-mesh:live-step-117034"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-121859",
+          "blender-mesh:live-step-121859"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-126684",
+          "blender-mesh:live-step-126684"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-131509",
+          "blender-mesh:live-step-131509"
+        ]
+      },
+      {
+        "candidate_segment_ids": [],
+        "conditional_support": false,
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "b2_loop_closure_policy_deferred",
+        "source_id": null,
+        "source_refs": [
+          "blender-object:live-step-136334",
+          "blender-mesh:live-step-136334"
+        ]
+      }
+    ],
+    "candidate_polygon_validity": {
+      "reason": "no_current_source_observation",
+      "source_refs": [],
+      "status": "not_available"
+    },
+    "candidate_promotion": {
+      "reason": "inferred_candidate_promotion_not_authorized",
+      "status": "refused"
+    },
+    "domain_scope": {
+      "availability": "not_available",
+      "blocker": null,
+      "geometry_refs": [],
+      "id": null,
+      "shell_identity": "not_applicable",
+      "shell_record_ids": [],
+      "source": "none"
+    },
+    "downstream": {
+      "free_space": "not_evaluated",
+      "route": "not_evaluated",
+      "subtraction": "refused"
+    },
+    "evidence_class": "source_fact_and_refusal_plumbing",
+    "openings": [],
+    "physical_occupancy": [
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-141159"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-141320"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-141481"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-141626"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-141997"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-142222"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-142689"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-142850"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-143733"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-143854"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-143931"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "wall"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-59"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-15584"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-73609"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-78434"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-83259"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-88084"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-92909"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-97734"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-102559"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-107384"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-112209"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-117034"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-121859"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-126684"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-131509"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-136334"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "column"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-6231"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "door"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-20409"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "door"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-25058"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "door"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-29707"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "door"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-34356"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "door"
+      },
+      {
+        "geometry_refs": [
+          "blender-mesh:live-step-39005"
+        ],
+        "included": true,
+        "source_id": null,
+        "source_role": "door"
+      }
+    ],
+    "schema": "d6-b2-neutral-scene-diagnostics/v2",
+    "source_components": {
+      "reason": "no_current_source_observation",
+      "source_segment_ids": [],
+      "status": "not_available"
+    }
+  },
+  "artifacts": [
+    {
+      "bytes": 25866,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/baseline.json",
+      "sha256": "3ff26dac1a4b1a13e2aa773789625c8ebd7a2e413d3682bab2ab78c63030d26a"
+    },
+    {
+      "bytes": 1191,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/checkpoint_staged_paths.txt",
+      "sha256": "6f9ed386299b8471de144b952bc7404c3e9a8155707274e332830a7aeb0e8a82"
+    },
+    {
+      "bytes": 359,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/checkpoint_staged_whitespace.log",
+      "sha256": "ddcb31133dd618f0b01315addd540fe9f64872fa304ff7ac6d0696c9b9612952"
+    },
+    {
+      "bytes": 1862,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/delivery_checks.json",
+      "sha256": "2ef95c199dc0ccdf8eb7a880e1c4b89ef3ef64eab1eeb6f8a09c12ad0404410b"
+    },
+    {
+      "bytes": 7040,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/export_live_structural_snapshot.py",
+      "sha256": "157139b28ce0832a68e5bb5ebbe729b307924d6368e86caf1cc90aadaefa28d6"
+    },
+    {
+      "bytes": 488,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/final_scope_audit.log",
+      "sha256": "366940ca3e57dc7ab90a9005f2c25d73e0dae0b87edda7feb654141dcf0ff357"
+    },
+    {
+      "bytes": 2874,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/live_export_raw.json",
+      "sha256": "58b3d967581acceb5744dc7226f8428d23aaaca64b48b632a96065c84e2becb4"
+    },
+    {
+      "bytes": 21004,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/live_identity.json",
+      "sha256": "9775cf7ed98ee5b38a4a3b41713566cc422ab0208a1df68a86a59d3bdbf8937c"
+    },
+    {
+      "bytes": 1922,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/live_identity_query.py",
+      "sha256": "769341584beb8b53a544d4d84b6631e806415f60ac90de55ea5dbd9d29590aaf"
+    },
+    {
+      "bytes": 25922,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/live_identity_raw.json",
+      "sha256": "26f32f3f5b601bae3525e174ef560559b513daebb8ee0787eb27778c9ee0430e"
+    },
+    {
+      "bytes": 1948,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/live_scene_info_raw.json",
+      "sha256": "17d7a55e4560a8dd57ca2c0188711d8e6af057ce15a2daa29e50315a142330a7"
+    },
+    {
+      "bytes": 4318044,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/live_snapshot.json",
+      "sha256": "c5659dcd99d8c4f20b97efd2cc37352d6305436e20e698ccbcf8c89abfe67867"
+    },
+    {
+      "bytes": 854,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/native/exception.json",
+      "sha256": "35c6a55e446632a5f142f5386eeadebdbe6f40f9959ccf51b756e0e4b0619905"
+    },
+    {
+      "bytes": 1201,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/native/execution.json",
+      "sha256": "192f3a97f37a14e755a9b14b010396b22e232a527851435985ffbc79db2d02ee"
+    },
+    {
+      "bytes": 938,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/native/stderr.log",
+      "sha256": "598a7d57d2095723dff26a653fa4dcf22608c31ed83b50bd5ff276c86b3fb7dd"
+    },
+    {
+      "bytes": 0,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/native/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 599,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/outer_command_status.json",
+      "sha256": "80c6cf3b72d51d394e53487507e55a23ca373b20c4d3113e93f00413c3fcf628"
+    },
+    {
+      "bytes": 183,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/regression_a.log",
+      "sha256": "45622bba2c3e84d370cb7cab9be022d729c4f540a06a066a8c0ded5dff5ea729"
+    },
+    {
+      "bytes": 101,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/regression_b.log",
+      "sha256": "9921e4635b46fbb12a914623e1cb26676ce4166168a70a7aed50547d7c96d132"
+    },
+    {
+      "bytes": 4972,
+      "path": "outputs/design/d6_b2_real_input_validation/run_001/verify_delivery.py",
+      "sha256": "9819df507ab5b13796d7003287ef4f517830cfcb5a8f9f78a6a679e698b3874f"
+    },
+    {
+      "bytes": 4122,
+      "path": "outputs/design/d6_b2_real_input_validation/run_002/native/executed_modules.json",
+      "sha256": "f65ceb142a435e1d03436008803708cd6a8875d0328aa13c38f178936271ab78"
+    },
+    {
+      "bytes": 1205,
+      "path": "outputs/design/d6_b2_real_input_validation/run_002/native/execution.json",
+      "sha256": "cd8352a016f844181c57e79bd1fe7ffb2d002ce9afb3418c78b61a027593b5f1"
+    },
+    {
+      "bytes": 407,
+      "path": "outputs/design/d6_b2_real_input_validation/run_002/native/input_provenance.json",
+      "sha256": "eaa61fd0e6266fb507eeb3a2d540ede17003d9d4de44d9163e9874d9e06f1d02"
+    },
+    {
+      "bytes": 476,
+      "path": "outputs/design/d6_b2_real_input_validation/run_002/native/runner_identity.json",
+      "sha256": "867d46deb31b08db6541302b60e0c00e4a3fa8255d93c6953a9ef9e3d8bd45ab"
+    },
+    {
+      "bytes": 0,
+      "path": "outputs/design/d6_b2_real_input_validation/run_002/native/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 60,
+      "path": "outputs/design/d6_b2_real_input_validation/run_002/native/stdout.log",
+      "sha256": "d75df372da378f2b7271fbe76d926b2aced02e49e2be75b1c498db8d37d55530"
+    },
+    {
+      "bytes": 493,
+      "path": "outputs/design/d6_b2_real_input_validation/run_002/rerun_cause.json",
+      "sha256": "5a17d43f956ac1e6f70bff2a180a22966eda7b300c64927b6a570e0260a55b42"
+    },
+    {
+      "bytes": 15087,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/b2_boundary_diagnostics.json",
+      "sha256": "89edf93066c198c5e6dea7b007375f6409f2b9c3d5ffa16d75fa89b760c680a2"
+    },
+    {
+      "bytes": 341488,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/b2_occupancy_refusal.png",
+      "sha256": "63234df8873ba21fb31540e82f4812953ee0b5ed8079a5c7db239fcaaa44258d"
+    },
+    {
+      "bytes": 4122,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/executed_modules.json",
+      "sha256": "f65ceb142a435e1d03436008803708cd6a8875d0328aa13c38f178936271ab78"
+    },
+    {
+      "bytes": 1194,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/execution.json",
+      "sha256": "47b043cec2232b778f098ffc5fc1c9ab987351ef9615c538521acd0088c3f4d9"
+    },
+    {
+      "bytes": 1631,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/input_provenance.json",
+      "sha256": "41db421e22313c0a858af845c3bd6e6f4cc1f63b1ad817860641ddaceb604c96"
+    },
+    {
+      "bytes": 476,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/runner_identity.json",
+      "sha256": "db688c150455758339a3ce1d07c55c90589eee3a26fe18929897603d43600c90"
+    },
+    {
+      "bytes": 1274,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/scene_summary.json",
+      "sha256": "49e8ee9d6c81b3c3920263365ba57ec7886b52728a5cdbf6abd94a9718c4b390"
+    },
+    {
+      "bytes": 0,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 493,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/stdout.log",
+      "sha256": "376a9642f8cee0d26a26d691f1e715318da866a2df2eacb397e542c17d77990d"
+    },
+    {
+      "bytes": 41643,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/structural_projection_audit.json",
+      "sha256": "ce8c81007c6dfe274d96ce4786030a93bbe4a29034e68ceaf8819a08eb4beeaf"
+    },
+    {
+      "bytes": 320,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/validation.json",
+      "sha256": "878e76a4c2e56397941aa6d2c8ed1592a679cb54a5bc064f8d6b62081d26bf54"
+    },
+    {
+      "bytes": 74850,
+      "path": "outputs/design/d6_b2_real_input_validation/run_003/view_geometry.json",
+      "sha256": "5c787265da5bd8154dcf5ca08e34559397f988174201535bccf5541cd6aa628a"
+    },
+    {
+      "bytes": 15087,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/b2_boundary_diagnostics.json",
+      "sha256": "89edf93066c198c5e6dea7b007375f6409f2b9c3d5ffa16d75fa89b760c680a2"
+    },
+    {
+      "bytes": 341488,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/b2_occupancy_refusal.png",
+      "sha256": "63234df8873ba21fb31540e82f4812953ee0b5ed8079a5c7db239fcaaa44258d"
+    },
+    {
+      "bytes": 4122,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/executed_modules.json",
+      "sha256": "f65ceb142a435e1d03436008803708cd6a8875d0328aa13c38f178936271ab78"
+    },
+    {
+      "bytes": 1194,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/execution.json",
+      "sha256": "574997d59b5925b86b8cfda9331f537c697942e4d6350222e13ac36d8c7695d5"
+    },
+    {
+      "bytes": 1631,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/input_provenance.json",
+      "sha256": "41db421e22313c0a858af845c3bd6e6f4cc1f63b1ad817860641ddaceb604c96"
+    },
+    {
+      "bytes": 476,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/runner_identity.json",
+      "sha256": "55bbea8010455540cd364fb1477208c9363a318a5c1c9865764b995868711e05"
+    },
+    {
+      "bytes": 1274,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/scene_summary.json",
+      "sha256": "49e8ee9d6c81b3c3920263365ba57ec7886b52728a5cdbf6abd94a9718c4b390"
+    },
+    {
+      "bytes": 0,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 493,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/stdout.log",
+      "sha256": "38997db5ab69f537609e8a59aa36dc69900cea7f31138efa297866e42d142307"
+    },
+    {
+      "bytes": 41643,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/structural_projection_audit.json",
+      "sha256": "ce8c81007c6dfe274d96ce4786030a93bbe4a29034e68ceaf8819a08eb4beeaf"
+    },
+    {
+      "bytes": 320,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/validation.json",
+      "sha256": "878e76a4c2e56397941aa6d2c8ed1592a679cb54a5bc064f8d6b62081d26bf54"
+    },
+    {
+      "bytes": 74850,
+      "path": "outputs/design/d6_b2_real_input_validation/run_004/view_geometry.json",
+      "sha256": "5c787265da5bd8154dcf5ca08e34559397f988174201535bccf5541cd6aa628a"
+    }
+  ],
+  "blender_execution": {
+    "budget_seconds": 180,
+    "checkpoint_commit": "8fd6f75d8d4444adac53588f642187d489e14831",
+    "coverage": "actual_b2_exercised",
+    "cwd": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer",
+    "elapsed_seconds": 21.59299999999348,
+    "ended_utc": "2026-10-07T19:48:55.130556+00:00",
+    "parent_argv": [
+      "scripts/design/space_field/run_b2_real_input_validation.py",
+      "--route",
+      "blender",
+      "--snapshot",
+      "outputs/design/d6_b2_real_input_validation/run_001/live_snapshot.json",
+      "--output-dir",
+      "outputs/design/d6_b2_real_input_validation/run_003"
+    ],
+    "route": "blender",
+    "started_utc": "2026-10-07T19:48:33.536215+00:00",
+    "timed_out": false,
+    "worker_argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+      "-B",
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_b2_real_input_validation.py",
+      "--route",
+      "blender",
+      "--snapshot",
+      "outputs/design/d6_b2_real_input_validation/run_001/live_snapshot.json",
+      "--output-dir",
+      "outputs/design/d6_b2_real_input_validation/run_003",
+      "--worker"
+    ],
+    "worker_exit_code": 0,
+    "worker_pid": 47616
+  },
+  "checkpoint_commit": "8fd6f75d8d4444adac53588f642187d489e14831",
+  "checks": {
+    "artifact_index_finalized_after_first_delivery_audit": true,
+    "delivery_checks_manifest_fingerprint": "Initial creation fingerprint before final artifact-index additions; final manifest excludes itself.",
+    "deterministic_bytes": {
+      "b2_boundary_diagnostics.json": true,
+      "b2_occupancy_refusal.png": true,
+      "scene_summary.json": true,
+      "structural_projection_audit.json": true,
+      "validation.json": true,
+      "view_geometry.json": true
+    },
+    "final_local_json_parse_count": 33,
+    "final_protected_source_hashes": "pass",
+    "historical_progress_prefix_preserved": true,
+    "json_parse_count": 30,
+    "native_retry": false,
+    "png_inspected_in_codex": true,
+    "public_boundary": "scoped regression plus existing private-key filter in probe",
+    "repeat_excluded_metadata": [
+      "execution.json",
+      "runner_identity.json",
+      "stdout.log",
+      "stderr.log"
+    ],
+    "runner_docstrings": "pass",
+    "source_and_existing_files_drift": [],
+    "staged_paths": [
+      "docs/project/evidence/d6-b2-real-input-validation-manifest.json",
+      "docs/project/evidence/d6-b2-real-input-validation.md",
+      "docs/project/evidence/d6-space-field-design-progress.md",
+      "scripts/design/space_field/run_b2_real_input_validation.py"
+    ]
+  },
+  "exclusions": {
+    "analysis_domain": "none supplied",
+    "furniture": "all furniture and substitutes excluded; trend not recomputed",
+    "openings": "no source entities; none supplied",
+    "other_live_object_count": 339,
+    "scope": "all identified IfcWall/IfcColumn/IfcDoor; other live objects excluded"
+  },
+  "executed_modules": {
+    "adapters.blender_geometry": {
+      "bytes": 17983,
+      "checkpoint_blob_sha256": "640f691e1c42329a3690586755e28191bcc11a79321fd98d65d596727a5406bb",
+      "equality_normalization": "CRLF to LF only",
+      "matches_checkpoint": true,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\adapters\\blender_geometry.py",
+      "sha256": "a0251284925ee3714406ebdca86d904f00b953e70d7affbfa782b36f72542786",
+      "worktree_lf_sha256": "640f691e1c42329a3690586755e28191bcc11a79321fd98d65d596727a5406bb"
+    },
+    "adapters.ifc_bonsai": {
+      "bytes": 82655,
+      "checkpoint_blob_sha256": "9a1427af56ad3645597ef6149918f3febdbb49ff101438a5810e0bae4d5f3d09",
+      "equality_normalization": "CRLF to LF only",
+      "matches_checkpoint": true,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\adapters\\ifc_bonsai.py",
+      "sha256": "d9c494a0af5a9b5e09c29814de5a8cd2348a7ff5bf31ac48adefec652b041cdd",
+      "worktree_lf_sha256": "9a1427af56ad3645597ef6149918f3febdbb49ff101438a5810e0bae4d5f3d09"
+    },
+    "features.analysis_substitute_discovery": {
+      "bytes": 10373,
+      "checkpoint_blob_sha256": "eee19ea4c96a6f30f5a767bcaa8bcc3182c2dbc48f4ca0a324409d2a6beb2f73",
+      "equality_normalization": "CRLF to LF only",
+      "matches_checkpoint": true,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\analysis_substitute_discovery.py",
+      "sha256": "3dd4f6600bee30c6ef2519d79e7c8b71e2469f8c07a31b826d5e95108ab7d4e4",
+      "worktree_lf_sha256": "eee19ea4c96a6f30f5a767bcaa8bcc3182c2dbc48f4ca0a324409d2a6beb2f73"
+    },
+    "features.geometry_substitutes": {
+      "bytes": 6303,
+      "checkpoint_blob_sha256": "fff63b602405cd93b435a89f96f8ada3f77cb04606e30176ac1756aa8ca16015",
+      "equality_normalization": "CRLF to LF only",
+      "matches_checkpoint": true,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\geometry_substitutes.py",
+      "sha256": "124852c4a6e1d061e450f3a304e7bc8e847e0f3a6f63e9d483da180ff39f8fa8",
+      "worktree_lf_sha256": "fff63b602405cd93b435a89f96f8ada3f77cb04606e30176ac1756aa8ca16015"
+    },
+    "features.geometry_views": {
+      "bytes": 29103,
+      "checkpoint_blob_sha256": "ea2ce6150abccb3686160b8c80745d2376ddecbb5d6ea2676242c4596985a376",
+      "equality_normalization": "CRLF to LF only",
+      "matches_checkpoint": true,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\geometry_views.py",
+      "sha256": "8feb3852194401485ade4171ecd13140a256c10d1dff1058589100e1e122ba34",
+      "worktree_lf_sha256": "ea2ce6150abccb3686160b8c80745d2376ddecbb5d6ea2676242c4596985a376"
+    },
+    "features.group_self_description": {
+      "bytes": 45414,
+      "checkpoint_blob_sha256": "982088f38208c53fc7cf2739faea7336a38464c6d37c9c37bc8e75aea75c954a",
+      "equality_normalization": "CRLF to LF only",
+      "matches_checkpoint": true,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\group_self_description.py",
+      "sha256": "36de850c98d0e8cb678743c196c29ac74beb5e782a6311e4ac728866816286e6",
+      "worktree_lf_sha256": "982088f38208c53fc7cf2739faea7336a38464c6d37c9c37bc8e75aea75c954a"
+    },
+    "features.neutral_scene_views": {
+      "bytes": 49155,
+      "checkpoint_blob_sha256": "29421243263b54421fc486cfcd2d72b232c5b5fc3f635ca8d797b67af247a714",
+      "equality_normalization": "CRLF to LF only",
+      "matches_checkpoint": true,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\neutral_scene_views.py",
+      "sha256": "29421243263b54421fc486cfcd2d72b232c5b5fc3f635ca8d797b67af247a714",
+      "worktree_lf_sha256": "29421243263b54421fc486cfcd2d72b232c5b5fc3f635ca8d797b67af247a714"
+    },
+    "features.scene_contract": {
+      "bytes": 43313,
+      "checkpoint_blob_sha256": "877605c7385a89f7324a068a0d0e27e2a14d305b8cf99183aab121ca65e7f039",
+      "equality_normalization": "CRLF to LF only",
+      "matches_checkpoint": true,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\scene_contract.py",
+      "sha256": "60ca090fb5ba9349b3f817bab53a01ffa1a7310d0c1112debb918a4c1a360db7",
+      "worktree_lf_sha256": "877605c7385a89f7324a068a0d0e27e2a14d305b8cf99183aab121ca65e7f039"
+    }
+  },
+  "live_identity": {
+    "blend_path": "",
+    "blender_version": "5.2.0 LTS",
+    "dirty_after": false,
+    "dirty_before": false,
+    "ended_utc": "2026-10-07T19:48:07.221139+00:00",
+    "executable": "D:\\Blender\\BlenderPortableLTS5.2\\App\\Blender64\\blender.exe",
+    "ifc_geometry_parity": "not_verified; unsaved live Blender evaluated geometry",
+    "ifc_schema": "IFC4",
+    "ifc_store_path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+    "project_global_id": "2uGd6yom9GZe5$z7LfbGW0",
+    "scale_policy": "world transform once; no IFC 0.001 rescale",
+    "scene_object_count": 372,
+    "source_association": "path/project/structural STEP+GlobalId matched accepted inventory",
+    "started_utc": "2026-10-07T19:48:06.899639+00:00",
+    "unit_display_length": "MILLIMETERS",
+    "unit_scale_length": 1.0,
+    "unit_system": "METRIC",
+    "work_plane": "existing Blender adapter world XY; diagnostic only"
+  },
+  "native_actual_attempt": {
+    "budget_seconds": 300,
+    "checkpoint_commit": "8fd6f75d8d4444adac53588f642187d489e14831",
+    "coverage": "not_verified_timeout",
+    "cwd": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer",
+    "elapsed_seconds": 300.1719999999623,
+    "ended_utc": "2026-10-07T19:51:04.266822+00:00",
+    "parent_argv": [
+      "scripts/design/space_field/run_b2_real_input_validation.py",
+      "--route",
+      "native",
+      "--source",
+      "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "--output-dir",
+      "outputs/design/d6_b2_real_input_validation/run_002/native"
+    ],
+    "route": "native",
+    "started_utc": "2026-10-07T19:46:04.103693+00:00",
+    "timed_out": true,
+    "worker_argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+      "-B",
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_b2_real_input_validation.py",
+      "--route",
+      "native",
+      "--source",
+      "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "--output-dir",
+      "outputs/design/d6_b2_real_input_validation/run_002/native",
+      "--worker"
+    ],
+    "worker_exit_code": 1,
+    "worker_pid": 86956
+  },
+  "native_preflight_failure": {
+    "budget_seconds": 300,
+    "checkpoint_commit": "8fd6f75d8d4444adac53588f642187d489e14831",
+    "coverage": "failed_attempt",
+    "cwd": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer",
+    "elapsed_seconds": 1.3440000000409782,
+    "ended_utc": "2026-10-07T19:44:56.996820+00:00",
+    "parent_argv": [
+      "scripts/design/space_field/run_b2_real_input_validation.py",
+      "--route",
+      "native",
+      "--source",
+      "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "--output-dir",
+      "outputs/design/d6_b2_real_input_validation/run_001/native"
+    ],
+    "route": "native",
+    "started_utc": "2026-10-07T19:44:55.641429+00:00",
+    "timed_out": false,
+    "worker_argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+      "-B",
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_b2_real_input_validation.py",
+      "--route",
+      "native",
+      "--source",
+      "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "--output-dir",
+      "outputs/design/d6_b2_real_input_validation/run_001/native",
+      "--worker"
+    ],
+    "worker_exit_code": 1,
+    "worker_pid": 90260
+  },
+  "outer_command_status": {
+    "evidence_origin": "Observed exec_command/write_stdin tool completion statuses in this execution session",
+    "first_delivery_audit": {
+      "exit_code": 0,
+      "json_files_parsed": 30
+    },
+    "regression_a": {
+      "exit_code": 0,
+      "passed": 112
+    },
+    "regression_b": {
+      "exit_code": 0,
+      "passed": 56
+    },
+    "run_001_native_preflight": {
+      "loader_invoked": false,
+      "pixi_exit_code": 1
+    },
+    "run_002_native": {
+      "loader_invoked": true,
+      "pixi_exit_code": 1,
+      "timed_out": true
+    },
+    "run_003_blender": {
+      "actual_b2_exercised": true,
+      "pixi_exit_code": 0
+    },
+    "run_004_blender_repeat": {
+      "actual_b2_exercised": true,
+      "pixi_exit_code": 0
+    }
+  },
+  "rerun_cause": {
+    "complete_native_adapter_invocation_count_before_this_run": 0,
+    "previous_failure": "Runner checkpoint equality assertion failed on CRLF worktree versus LF Git storage before load_ifc_neutral_scene was called.",
+    "previous_run": "run_001/native",
+    "runner_fix": "Preserve raw hashes and explicitly compare only CRLF-to-LF normalized code bytes. Eight module checks passed before this attempt.",
+    "this_run": "The sole complete native extraction attempt; no retry after its timeout."
+  },
+  "runner": {
+    "bytes": 15376,
+    "path": "scripts\\design\\space_field\\run_b2_real_input_validation.py",
+    "sha256": "1cf4b8033c44207b89e63d986cd6023817d0280a133fe80685c6697f69d73d0a"
+  },
+  "schema": "d6-b2-real-input-validation-manifest/v1",
+  "snapshot": {
+    "bytes": 4318044,
+    "path": "outputs\\design\\d6_b2_real_input_validation\\run_001\\live_snapshot.json",
+    "sha256": "c5659dcd99d8c4f20b97efd2cc37352d6305436e20e698ccbcf8c89abfe67867"
+  },
+  "snapshot_repeat_execution": {
+    "budget_seconds": 180,
+    "checkpoint_commit": "8fd6f75d8d4444adac53588f642187d489e14831",
+    "coverage": "actual_b2_exercised",
+    "cwd": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer",
+    "elapsed_seconds": 23.21799999999348,
+    "ended_utc": "2026-10-07T19:50:17.762176+00:00",
+    "parent_argv": [
+      "scripts/design/space_field/run_b2_real_input_validation.py",
+      "--route",
+      "blender",
+      "--snapshot",
+      "outputs/design/d6_b2_real_input_validation/run_001/live_snapshot.json",
+      "--output-dir",
+      "outputs/design/d6_b2_real_input_validation/run_004"
+    ],
+    "route": "blender",
+    "started_utc": "2026-10-07T19:49:54.538564+00:00",
+    "timed_out": false,
+    "worker_argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+      "-B",
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_b2_real_input_validation.py",
+      "--route",
+      "blender",
+      "--snapshot",
+      "outputs/design/d6_b2_real_input_validation/run_001/live_snapshot.json",
+      "--output-dir",
+      "outputs/design/d6_b2_real_input_validation/run_004",
+      "--worker"
+    ],
+    "worker_exit_code": 0,
+    "worker_pid": 86200
+  },
+  "source_ifc": {
+    "bytes": 408617800,
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "read_only": true,
+    "schema": "IFC4",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  },
+  "source_scope": [
+    {
+      "adapter_record_id": "blender-object:live-step-141159",
+      "adapter_source_id": null,
+      "global_id": "3QAL1kxKLJZxF3Sj5PqTVo",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-141159",
+      "object_name": "IfcWall/Wall",
+      "reason": null,
+      "status": "present",
+      "step_id": 141159,
+      "triangles": 136,
+      "vertices": 70
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-141320",
+      "adapter_source_id": null,
+      "global_id": "152X2TIs5Pjh3ub4CncpOk",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-141320",
+      "object_name": "IfcWall/Wall.002",
+      "reason": null,
+      "status": "present",
+      "step_id": 141320,
+      "triangles": 136,
+      "vertices": 70
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-141481",
+      "adapter_source_id": null,
+      "global_id": "1FldTx1tXKGxPGrR3LKCkW",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-141481",
+      "object_name": "IfcWall/Wall.001",
+      "reason": null,
+      "status": "present",
+      "step_id": 141481,
+      "triangles": 120,
+      "vertices": 62
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-141626",
+      "adapter_source_id": null,
+      "global_id": "1n2AgCHXPJkuxzSWZVG3Hw",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-141626",
+      "object_name": "IfcWall/Wall.005",
+      "reason": null,
+      "status": "present",
+      "step_id": 141626,
+      "triangles": 346,
+      "vertices": 175
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-141997",
+      "adapter_source_id": null,
+      "global_id": "360kFZ_HbNugudo1vFPt5i",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-141997",
+      "object_name": "IfcWall/Wall.004",
+      "reason": null,
+      "status": "present",
+      "step_id": 141997,
+      "triangles": 200,
+      "vertices": 102
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-142222",
+      "adapter_source_id": null,
+      "global_id": "299ZbZ1B9NTuGr8zQYE7I9",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-142222",
+      "object_name": "IfcWall/Wall.008",
+      "reason": null,
+      "status": "present",
+      "step_id": 142222,
+      "triangles": 442,
+      "vertices": 223
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-142689",
+      "adapter_source_id": null,
+      "global_id": "3P9yDf6TTKUeAy04YS8b3$",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-142689",
+      "object_name": "IfcWall/Wall.003",
+      "reason": null,
+      "status": "present",
+      "step_id": 142689,
+      "triangles": 136,
+      "vertices": 72
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-142850",
+      "adapter_source_id": null,
+      "global_id": "2MVTQC7T1HAhwuCGw2RM0J",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-142850",
+      "object_name": "IfcWall/Wall.009",
+      "reason": null,
+      "status": "present",
+      "step_id": 142850,
+      "triangles": 858,
+      "vertices": 433
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-143733",
+      "adapter_source_id": null,
+      "global_id": "3R_rUQk_TQmBN0VHbYhNx6",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-143733",
+      "object_name": "IfcWall/Wall.007",
+      "reason": null,
+      "status": "present",
+      "step_id": 143733,
+      "triangles": 96,
+      "vertices": 50
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-143854",
+      "adapter_source_id": null,
+      "global_id": "2y0jvrcGTGLAbHHDu7RBOW",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-143854",
+      "object_name": "IfcWall/Wall.006",
+      "reason": null,
+      "status": "present",
+      "step_id": 143854,
+      "triangles": 52,
+      "vertices": 28
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-143931",
+      "adapter_source_id": null,
+      "global_id": "294Z8iLcPGnwvfQC8ShKsd",
+      "ifc_class": "IfcWall",
+      "ifc_name": "Wall",
+      "modifiers": [],
+      "object_id": "live-step-143931",
+      "object_name": "IfcWall/Wall.010",
+      "reason": null,
+      "status": "present",
+      "step_id": 143931,
+      "triangles": 1116,
+      "vertices": 562
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-59",
+      "adapter_source_id": null,
+      "global_id": "3GmZVu1k9LTPtswYG5UTt5",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-59",
+      "object_name": "IfcColumn/Column.001",
+      "reason": null,
+      "status": "present",
+      "step_id": 59,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-15584",
+      "adapter_source_id": null,
+      "global_id": "1N82hRNmvUrP89uC6GpdtM",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-15584",
+      "object_name": "IfcColumn/Column",
+      "reason": null,
+      "status": "present",
+      "step_id": 15584,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-73609",
+      "adapter_source_id": null,
+      "global_id": "3BjFshT$fV5gPMixJD0Ck6",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-73609",
+      "object_name": "IfcColumn/Column.005",
+      "reason": null,
+      "status": "present",
+      "step_id": 73609,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-78434",
+      "adapter_source_id": null,
+      "global_id": "36I1jPEOjMyQx5unUr9iRS",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-78434",
+      "object_name": "IfcColumn/Column.003",
+      "reason": null,
+      "status": "present",
+      "step_id": 78434,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-83259",
+      "adapter_source_id": null,
+      "global_id": "34tr_gMFDIH92Gg8Y0_wlK",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-83259",
+      "object_name": "IfcColumn/Column.002",
+      "reason": null,
+      "status": "present",
+      "step_id": 83259,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-88084",
+      "adapter_source_id": null,
+      "global_id": "2LB6wGdhPK2P6$81iPN_Yt",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-88084",
+      "object_name": "IfcColumn/Column.004",
+      "reason": null,
+      "status": "present",
+      "step_id": 88084,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-92909",
+      "adapter_source_id": null,
+      "global_id": "2$2CZwOYXPWhPON1jIJk0O",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-92909",
+      "object_name": "IfcColumn/Column.007",
+      "reason": null,
+      "status": "present",
+      "step_id": 92909,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-97734",
+      "adapter_source_id": null,
+      "global_id": "35fLMiX0zU5BnKOQAzrKwc",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-97734",
+      "object_name": "IfcColumn/Column.011",
+      "reason": null,
+      "status": "present",
+      "step_id": 97734,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-102559",
+      "adapter_source_id": null,
+      "global_id": "1wbMK9jQnR08vmw$3y6k_t",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-102559",
+      "object_name": "IfcColumn/Column.014",
+      "reason": null,
+      "status": "present",
+      "step_id": 102559,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-107384",
+      "adapter_source_id": null,
+      "global_id": "3O8wNzsKPHwRKkbarQPpwh",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-107384",
+      "object_name": "IfcColumn/Column.006",
+      "reason": null,
+      "status": "present",
+      "step_id": 107384,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-112209",
+      "adapter_source_id": null,
+      "global_id": "3Mg8ERAE5O8wzTHgdyFyOB",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-112209",
+      "object_name": "IfcColumn/Column.013",
+      "reason": null,
+      "status": "present",
+      "step_id": 112209,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-117034",
+      "adapter_source_id": null,
+      "global_id": "2eYp_Fe8DNwuz0rddHeX$z",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-117034",
+      "object_name": "IfcColumn/Column.015",
+      "reason": null,
+      "status": "present",
+      "step_id": 117034,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-121859",
+      "adapter_source_id": null,
+      "global_id": "266BWDILDJWQGDTWqYWMp4",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-121859",
+      "object_name": "IfcColumn/Column.008",
+      "reason": null,
+      "status": "present",
+      "step_id": 121859,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-126684",
+      "adapter_source_id": null,
+      "global_id": "0hsBLBpxbK4BWjArJa1P48",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-126684",
+      "object_name": "IfcColumn/Column.012",
+      "reason": null,
+      "status": "present",
+      "step_id": 126684,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-131509",
+      "adapter_source_id": null,
+      "global_id": "2ue8sdDFzHTvh91o0NJ9$g",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-131509",
+      "object_name": "IfcColumn/Column.009",
+      "reason": null,
+      "status": "present",
+      "step_id": 131509,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-136334",
+      "adapter_source_id": null,
+      "global_id": "3hRyH4Zm5MJAnBFFd5qKCO",
+      "ifc_class": "IfcColumn",
+      "ifc_name": "Column",
+      "modifiers": [],
+      "object_id": "live-step-136334",
+      "object_name": "IfcColumn/Column.010",
+      "reason": null,
+      "status": "present",
+      "step_id": 136334,
+      "triangles": 4800,
+      "vertices": 2402
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-6231",
+      "adapter_source_id": null,
+      "global_id": "3y7JkDRLzPT9x47Baq5air",
+      "ifc_class": "IfcDoor",
+      "ifc_name": "Door",
+      "modifiers": [],
+      "object_id": "live-step-6231",
+      "object_name": "IfcDoor/Door.005",
+      "reason": null,
+      "status": "present",
+      "step_id": 6231,
+      "triangles": 9328,
+      "vertices": 4662
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-20409",
+      "adapter_source_id": null,
+      "global_id": "1ka4nSNvrT3ugC$_WAEDne",
+      "ifc_class": "IfcDoor",
+      "ifc_name": "Door",
+      "modifiers": [],
+      "object_id": "live-step-20409",
+      "object_name": "IfcDoor/Door.001",
+      "reason": null,
+      "status": "present",
+      "step_id": 20409,
+      "triangles": 4624,
+      "vertices": 2324
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-25058",
+      "adapter_source_id": null,
+      "global_id": "0nEl$1KpfKzOivB2MGeCYh",
+      "ifc_class": "IfcDoor",
+      "ifc_name": "Door",
+      "modifiers": [],
+      "object_id": "live-step-25058",
+      "object_name": "IfcDoor/Door",
+      "reason": null,
+      "status": "present",
+      "step_id": 25058,
+      "triangles": 4624,
+      "vertices": 2324
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-29707",
+      "adapter_source_id": null,
+      "global_id": "0XoSI6VX5UXvNHZefe9_4f",
+      "ifc_class": "IfcDoor",
+      "ifc_name": "Door",
+      "modifiers": [],
+      "object_id": "live-step-29707",
+      "object_name": "IfcDoor/Door.004",
+      "reason": null,
+      "status": "present",
+      "step_id": 29707,
+      "triangles": 4624,
+      "vertices": 2324
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-34356",
+      "adapter_source_id": null,
+      "global_id": "2KzmpHMSDMxu8vD0I2BZQL",
+      "ifc_class": "IfcDoor",
+      "ifc_name": "Door",
+      "modifiers": [],
+      "object_id": "live-step-34356",
+      "object_name": "IfcDoor/Door.002",
+      "reason": null,
+      "status": "present",
+      "step_id": 34356,
+      "triangles": 4624,
+      "vertices": 2324
+    },
+    {
+      "adapter_record_id": "blender-object:live-step-39005",
+      "adapter_source_id": null,
+      "global_id": "3YIoMlFwPQje3Kz40igFI1",
+      "ifc_class": "IfcDoor",
+      "ifc_name": "Door",
+      "modifiers": [],
+      "object_id": "live-step-39005",
+      "object_name": "IfcDoor/Door.003",
+      "reason": null,
+      "status": "present",
+      "step_id": 39005,
+      "triangles": 4624,
+      "vertices": 2324
+    }
+  ],
+  "storage": {
+    "committed": [
+      "runner",
+      "report",
+      "this compact manifest/source-scope/B2 copy",
+      "append-only progress"
+    ],
+    "local_only": "all outputs/design/d6_b2_real_input_validation artifacts including 4.3 MB snapshot, PNG, logs, original source IFC; hashes do not store contents in Git"
+  }
+}
