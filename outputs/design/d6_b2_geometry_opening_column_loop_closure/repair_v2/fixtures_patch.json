@@ -1,0 +1,124 @@
+{
+  "schema_version": "d6-b2-uncertainty-fixtures-patch-v1",
+  "evidence_class": "synthetic_design_evidence",
+  "extends": {
+    "fixture_path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/fixtures.json",
+    "fixture_count": 9,
+    "fixture_sha256": "a45ed7441689a63b5fac681f9e9d43607a2c2b0eb2f209bcd0b70a95b5657157"
+  },
+  "scope_note": "Append-only uncertainty propagation fixtures. Existing nine fixture definitions remain unchanged; local diagnostics reuse existing vocabulary and do not define a public status enum.",
+  "fixtures": [
+    {
+      "id": "B2-U01",
+      "title": "Uncertain column-wall contact withholds conditional boundary support",
+      "uncertainty_source": {
+        "kind": "conflicting_geometry_observations",
+        "source_ids": ["wall-face-model-A", "column-face-model-A", "wall-face-model-B", "column-face-model-B"],
+        "provenance_note": "Two synthetic geometry observations disagree on whether the column face contacts the wall; neither observation is selected."
+      },
+      "affected_input_fact": {
+        "fact": "column_wall_contact",
+        "resolution": "unresolved",
+        "observations": [
+          {"source_id": "geometry-observation-A", "contact": true},
+          {"source_id": "geometry-observation-B", "contact": false}
+        ]
+      },
+      "occupancy_role": "physical_column_occupancy_preserved; conditional_boundary_support_unconfirmed",
+      "topology_segments": [
+        {"id": "w-bottom-left", "source": "wall", "a": [0, 0], "b": [1, 0]},
+        {"id": "w-bottom-right", "source": "wall", "a": [3, 0], "b": [4, 0]},
+        {"id": "w-right", "source": "wall", "a": [4, 0], "b": [4, 4]},
+        {"id": "w-top", "source": "wall", "a": [4, 4], "b": [0, 4]},
+        {"id": "w-left", "source": "wall", "a": [0, 4], "b": [0, 0]},
+        {"id": "column-uncertain-face", "source": "column_conditional_boundary_face", "a": [1.125, 0], "b": [2.875, 0]}
+      ],
+      "column_boundary_segment_ids": ["column-uncertain-face"],
+      "contact_evidence": {
+        "kind": "conflicting_contact_observations",
+        "exact_contact": null,
+        "fixture_gap": null,
+        "uncertainty_source_ids": ["geometry-observation-A", "geometry-observation-B"],
+        "resolution": "unresolved"
+      },
+      "physical_occupancy": [
+        {"source_id": "column-uncertain", "kind": "column", "included": true, "footprint": [[1.125, 0], [2.875, 0], [2.875, 1], [1.125, 1], [1.125, 0]]}
+      ],
+      "opening": {"kind": "none", "variants": []},
+      "candidate_polygon": [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+      "expected": {
+        "topology_status": "partial",
+        "source_component_count": 2,
+        "candidate_polygon_status": "valid",
+        "conditional_column_boundary_support": false,
+        "local_diagnostic_state": "conflict",
+        "formal_domain_promotion": "refused",
+        "downstream_free_space_or_route_claim": "not_evaluated"
+      },
+      "oracle_rationale": "Conflicting contact observations remain unresolved and are carried with their source IDs. The column remains physical occupancy, but uncertain contact cannot supply conditional boundary support. The resulting diagnostic is partial/conflict; promotion is refused and free-space/route claims remain not evaluated."
+    },
+    {
+      "id": "B2-U02",
+      "title": "Conflicting opening host and geometry evidence refuses qualification",
+      "uncertainty_source": {
+        "kind": "conflicting_host_and_geometry_observations",
+        "source_ids": ["void-relation-A", "void-relation-B", "opening-geometry-A", "opening-geometry-B"],
+        "provenance_note": "Synthetic host relations disagree and geometry references report incompatible opening evidence; no source is selected."
+      },
+      "affected_input_fact": {
+        "fact": "opening_host_and_geometry_qualification",
+        "resolution": "conflict",
+        "host_observations": [
+          {"source_id": "void-relation-A", "host_ref": "wall-A"},
+          {"source_id": "void-relation-B", "host_ref": "wall-B"}
+        ],
+        "geometry_observations": [
+          {"source_id": "opening-geometry-A", "geometry_status": "valid"},
+          {"source_id": "opening-geometry-B", "geometry_status": "malformed"}
+        ]
+      },
+      "occupancy_role": "host_wall_occupancy_preserved; opening_candidate_not_subtracted",
+      "topology_segments": [
+        {"id": "w-bottom", "source": "wall", "a": [0, 0], "b": [4, 0]},
+        {"id": "w-right", "source": "wall", "a": [4, 0], "b": [4, 4]},
+        {"id": "w-top", "source": "wall", "a": [4, 4], "b": [0, 4]},
+        {"id": "w-left", "source": "wall", "a": [0, 4], "b": [0, 0]}
+      ],
+      "column_boundary_segment_ids": [],
+      "contact_evidence": {"kind": "not_applicable", "exact_contact": false, "fixture_gap": null},
+      "physical_occupancy": [
+        {"source_id": "wall-A", "kind": "wall", "included": true},
+        {"source_id": "opening-uncertain", "kind": "opening_geometry", "included": false, "role": "unqualified_subtractive_candidate"}
+      ],
+      "opening": {
+        "kind": "boundary_opening",
+        "variants": [
+          {
+            "name": "conflicting_host_and_geometry",
+            "relation_state": "conflict",
+            "host_refs": ["wall-A", "wall-B"],
+            "known_host_ids": ["wall-A", "wall-B"],
+            "geometry_refs": ["opening-geometry-A", "opening-geometry-B"],
+            "geometry_status": "conflict",
+            "representation_supported": true,
+            "uncertainty_source_ids": ["void-relation-A", "void-relation-B", "opening-geometry-A", "opening-geometry-B"],
+            "expected_status": "conflict",
+            "expected_review_eligible": false
+          }
+        ]
+      },
+      "candidate_polygon": null,
+      "expected": {
+        "topology_status": "computed",
+        "source_component_count": 1,
+        "candidate_polygon_status": "not_available",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": ["conflict"],
+        "subtraction_performed": false,
+        "formal_domain_promotion": "refused",
+        "downstream_free_space_or_route_claim": "not_evaluated"
+      },
+      "oracle_rationale": "Conflicting host and geometry provenance remains attached to the unqualified opening candidate. The host wall occupancy is preserved, no subtraction is performed, and the existing local conflict state is retained. Domain promotion is refused and downstream free-space/route claims remain not evaluated."
+    }
+  ]
+}

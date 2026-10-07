@@ -1,0 +1,23 @@
+{
+  "blender": "not_run",
+  "evidence_class": "synthetic_design_evidence",
+  "fixture_count": 11,
+  "helper": "scripts.design.space_field.run_boundary_construction_experiment._topology_status",
+  "helper_scope": "existing exact-endpoint diagnostic only; not a production geometry algorithm or tolerance policy",
+  "original_fixture_count": 9,
+  "original_fixture_path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/fixtures.json",
+  "original_fixture_sha256": "a45ed7441689a63b5fac681f9e9d43607a2c2b0eb2f209bcd0b70a95b5657157",
+  "original_runner_path": "scripts/design/space_field/run_d6_b2_geometry_opening_column_loop_closure.py",
+  "original_runner_sha256": "9d432705c7d091f90c2e0c907ec4878d977663c20d9a33e11c3a19e639d699f4",
+  "production_code_modified": false,
+  "real_ifc": "not_verified_not_run",
+  "results_sha256": "9c1a6a805bb19fc7bf7cc471a61d790e9a76d9ae832e6801329446246d885c12",
+  "runner_path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/repair_v2/run_uncertainty_probe.py",
+  "runner_sha256": "df9c4e4579458174bdb5823b6d981884707ee5dd1df4604ea46274dfd5b964e8",
+  "schema_version": "d6-b2-uncertainty-provenance-v1",
+  "summary_svg_sha256": "fe398f9066f5d0adfc6b1413666a43b910ada052c8865ccb3294432aecbccaf0",
+  "uncertainty_fixture_count": 2,
+  "uncertainty_inputs_preserved": true,
+  "uncertainty_patch_path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/repair_v2/fixtures_patch.json",
+  "uncertainty_patch_sha256": "e5e3774b3af1004f4fcf8bf95ffd42f370f6a524d7cf3c4f906e09ad9238e9a3"
+}

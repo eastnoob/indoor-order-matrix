@@ -1,0 +1,65 @@
+{
+  "schema_version": "d6-b2-uncertainty-repair-v2-artifact-manifest-v1",
+  "date": "2026-10-07",
+  "commit_message": "docs: add D6 B2 uncertainty propagation evidence",
+  "evidence_class": "bounded_synthetic_design_evidence",
+  "owner_decision": {
+    "B2": "REVISE",
+    "commit": "9b50bb1f44c0ae7dc2807c17da084d1ab8163393"
+  },
+  "files": [
+    {
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/repair_v2/fixtures_patch.json",
+      "bytes": 6538,
+      "sha256": "e5e3774b3af1004f4fcf8bf95ffd42f370f6a524d7cf3c4f906e09ad9238e9a3"
+    },
+    {
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/repair_v2/run_uncertainty_probe.py",
+      "bytes": 13178,
+      "sha256": "df9c4e4579458174bdb5823b6d981884707ee5dd1df4604ea46274dfd5b964e8"
+    },
+    {
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/repair_v2/results.json",
+      "bytes": 36849,
+      "sha256": "9c1a6a805bb19fc7bf7cc471a61d790e9a76d9ae832e6801329446246d885c12"
+    },
+    {
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/repair_v2/provenance.json",
+      "bytes": 1546,
+      "sha256": "83f4e2e5d93a4c5498e8ae8878f141911a2eb0d67e15b1bf035750111b236869"
+    },
+    {
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/repair_v2/summary.svg",
+      "bytes": 2330,
+      "sha256": "fe398f9066f5d0adfc6b1413666a43b910ada052c8865ccb3294432aecbccaf0"
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair-v2.md",
+      "bytes": 6889,
+      "sha256": "0f48b96358de5ae58e37848d08ab00b95cf0de40d606ab6ba8fe42fce779fd73"
+    }
+  ],
+  "manifest_note": "This manifest hashes every declared repair-v2 artifact except itself; self-hashing is intentionally omitted.",
+  "validation": {
+    "original_fixture_count": 9,
+    "uncertainty_fixture_count": 2,
+    "total_fixture_count": 11,
+    "original_fixture_rerun_exit_code": 0,
+    "repair_v2_probe_exit_code": 0,
+    "fresh_temporary_reproduction_exit_code": 0,
+    "deterministic_results_json": true,
+    "deterministic_provenance_json": true,
+    "deterministic_summary_svg": true,
+    "uncertainty_input_preserved": true,
+    "uncertain_contact_boundary_support": false,
+    "uncertain_opening_subtraction": false,
+    "domain_promotion": "refused",
+    "downstream_free_space_route": "not_evaluated",
+    "json_xml_artifact_parse": "passed_15_json_or_xml_artifacts",
+    "bounded_whitespace": "passed_declared_files",
+    "git_scope": "passed_exact_seven_declared_paths",
+    "real_ifc": "not_verified_not_run",
+    "blender": "not_run",
+    "production_code_modified": false
+  }
+}
