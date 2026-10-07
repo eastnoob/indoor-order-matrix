@@ -1,0 +1,160 @@
+{
+  "schema_version": "d6-b2-synthetic-fixtures-v1",
+  "evidence_class": "synthetic_design_evidence",
+  "scope_note": "Fixture coordinates and local diagnostic labels are illustrative only; they do not define production tolerance, opening policy, domain promotion, or a public status enum.",
+  "fixtures": [
+    {
+      "id": "B2-F01",
+      "title": "Interior column remains physical occupancy without boundary support",
+      "topology_segments": [
+        {"id": "w-bottom", "source": "wall", "a": [0, 0], "b": [4, 0]},
+        {"id": "w-right", "source": "wall", "a": [4, 0], "b": [4, 4]},
+        {"id": "w-top", "source": "wall", "a": [4, 4], "b": [0, 4]},
+        {"id": "w-left", "source": "wall", "a": [0, 4], "b": [0, 0]}
+      ],
+      "column_boundary_segment_ids": [],
+      "contact_evidence": {"kind": "interior_no_wall_contact", "exact_contact": false, "fixture_gap": null},
+      "physical_occupancy": [{"source_id": "column-interior", "kind": "column", "included": true, "footprint": [[1.5, 1.5], [2.5, 1.5], [2.5, 2.5], [1.5, 2.5], [1.5, 1.5]]}],
+      "opening": {"kind": "none", "variants": []},
+      "candidate_polygon": [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+      "expected": {"topology_status": "computed", "source_component_count": 1, "candidate_polygon_status": "valid", "conditional_column_boundary_support": false, "opening_variant_statuses": []},
+      "oracle_rationale": "The wall loop is closed independently. The interior column remains occupied area and supplies no boundary segment."
+    },
+    {
+      "id": "B2-F02",
+      "title": "Exact-contact column face closes a diagnostic boundary loop",
+      "topology_segments": [
+        {"id": "w-bottom-left", "source": "wall", "a": [0, 0], "b": [1, 0]},
+        {"id": "w-bottom-right", "source": "wall", "a": [3, 0], "b": [4, 0]},
+        {"id": "w-right", "source": "wall", "a": [4, 0], "b": [4, 4]},
+        {"id": "w-top", "source": "wall", "a": [4, 4], "b": [0, 4]},
+        {"id": "w-left", "source": "wall", "a": [0, 4], "b": [0, 0]},
+        {"id": "column-boundary-face", "source": "column_conditional_boundary_face", "a": [1, 0], "b": [3, 0]}
+      ],
+      "column_boundary_segment_ids": ["column-boundary-face"],
+      "contact_evidence": {"kind": "exact_shared_endpoints", "exact_contact": true, "fixture_gap": 0},
+      "physical_occupancy": [{"source_id": "column-edge", "kind": "column", "included": true, "footprint": [[1, 0], [3, 0], [3, 1], [1, 1], [1, 0]]}],
+      "opening": {"kind": "none", "variants": []},
+      "candidate_polygon": [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+      "expected": {"topology_status": "computed", "source_component_count": 1, "candidate_polygon_status": "valid", "conditional_column_boundary_support": true, "opening_variant_statuses": []},
+      "oracle_rationale": "The column face uses the exact endpoints of the adjacent wall segments and is included only as a diagnostic boundary-support candidate; the existing exact-endpoint helper reports one closed component."
+    },
+    {
+      "id": "B2-F03",
+      "title": "Near-contact column does not close the diagnostic boundary loop",
+      "topology_segments": [
+        {"id": "w-bottom-left", "source": "wall", "a": [0, 0], "b": [1, 0]},
+        {"id": "w-bottom-right", "source": "wall", "a": [3, 0], "b": [4, 0]},
+        {"id": "w-right", "source": "wall", "a": [4, 0], "b": [4, 4]},
+        {"id": "w-top", "source": "wall", "a": [4, 4], "b": [0, 4]},
+        {"id": "w-left", "source": "wall", "a": [0, 4], "b": [0, 0]},
+        {"id": "column-near-face", "source": "column_conditional_boundary_face", "a": [1.125, 0], "b": [2.875, 0]}
+      ],
+      "column_boundary_segment_ids": ["column-near-face"],
+      "contact_evidence": {"kind": "nonzero_fixture_gap", "exact_contact": false, "fixture_gap": 0.125},
+      "physical_occupancy": [{"source_id": "column-near", "kind": "column", "included": true, "footprint": [[1.125, 0], [2.875, 0], [2.875, 1], [1.125, 1], [1.125, 0]]}],
+      "opening": {"kind": "none", "variants": []},
+      "candidate_polygon": [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+      "expected": {"topology_status": "partial", "source_component_count": 2, "candidate_polygon_status": "valid", "conditional_column_boundary_support": false, "opening_variant_statuses": []},
+      "oracle_rationale": "A deliberately nonzero fixture gap leaves the column face disconnected from both wall endpoints. The gap is illustrative and is not a production tolerance."
+    },
+    {
+      "id": "B2-F04",
+      "title": "True boundary opening keeps host and geometry provenance",
+      "topology_segments": [
+        {"id": "w-bottom-left", "source": "wall", "a": [0, 0], "b": [1, 0]},
+        {"id": "w-bottom-right", "source": "wall", "a": [3, 0], "b": [4, 0]},
+        {"id": "w-right", "source": "wall", "a": [4, 0], "b": [4, 4]},
+        {"id": "w-top", "source": "wall", "a": [4, 4], "b": [0, 4]},
+        {"id": "w-left", "source": "wall", "a": [0, 4], "b": [0, 0]}
+      ],
+      "column_boundary_segment_ids": [],
+      "contact_evidence": {"kind": "not_applicable", "exact_contact": false, "fixture_gap": null},
+      "physical_occupancy": [{"source_id": "wall-boundary", "kind": "wall", "included": true}],
+      "opening": {"kind": "boundary_opening", "variants": [{"name": "hosted_usable_geometry", "relation_state": "present", "host_refs": ["wall-bottom"], "known_host_ids": ["wall-bottom"], "geometry_refs": ["opening-geometry"], "geometry_status": "valid", "representation_supported": true, "expected_status": "diagnostic_only", "expected_review_eligible": true}]},
+      "candidate_polygon": null,
+      "expected": {"topology_status": "partial", "source_component_count": 1, "candidate_polygon_status": "not_available", "conditional_column_boundary_support": false, "opening_variant_statuses": ["diagnostic_only"]},
+      "oracle_rationale": "The wall source is open at the explicitly represented boundary opening. Host and usable geometry references are retained for review, but subtraction, domain promotion, and route interpretation are not performed."
+    },
+    {
+      "id": "B2-F05",
+      "title": "Door treated as a closed design scenario, not as an opening relation",
+      "topology_segments": [
+        {"id": "w-bottom", "source": "wall", "a": [0, 0], "b": [4, 0]},
+        {"id": "w-right", "source": "wall", "a": [4, 0], "b": [4, 4]},
+        {"id": "w-top", "source": "wall", "a": [4, 4], "b": [0, 4]},
+        {"id": "w-left", "source": "wall", "a": [0, 4], "b": [0, 0]}
+      ],
+      "column_boundary_segment_ids": [],
+      "contact_evidence": {"kind": "not_applicable", "exact_contact": false, "fixture_gap": null},
+      "physical_occupancy": [{"source_id": "door-01", "kind": "door", "included": true, "state_basis": "owner_default_closed_design_assumption"}],
+      "opening": {"kind": "door_scenario", "door_ref": "door-01", "fill_relation_host_ref": "wall-bottom", "assumed_closed": true, "assumption_is_source_fact": false, "variants": []},
+      "candidate_polygon": [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+      "expected": {"topology_status": "computed", "source_component_count": 1, "candidate_polygon_status": "valid", "conditional_column_boundary_support": false, "opening_variant_statuses": []},
+      "oracle_rationale": "The closed-door scenario is an explicit assumption. A door/fill relation is not converted into an IfcOpeningElement/void-host fact, and no traversal state is inferred."
+    },
+    {
+      "id": "B2-F06",
+      "title": "Missing, broken, and conflicting opening-host relations refuse subtraction",
+      "topology_segments": [],
+      "column_boundary_segment_ids": [],
+      "contact_evidence": {"kind": "not_applicable", "exact_contact": false, "fixture_gap": null},
+      "physical_occupancy": [{"source_id": "opening-02", "kind": "opening_geometry", "included": false}],
+      "opening": {"kind": "boundary_opening", "variants": [
+        {"name": "missing_relation", "relation_state": "missing", "host_refs": [], "known_host_ids": ["wall-A"], "geometry_refs": ["opening-geometry"], "geometry_status": "valid", "representation_supported": true, "expected_status": "not_available", "expected_review_eligible": false},
+        {"name": "broken_host_reference", "relation_state": "present", "host_refs": ["wall-missing"], "known_host_ids": ["wall-A"], "geometry_refs": ["opening-geometry"], "geometry_status": "valid", "representation_supported": true, "expected_status": "invalid", "expected_review_eligible": false},
+        {"name": "conflicting_hosts", "relation_state": "conflict", "host_refs": ["wall-A", "wall-B"], "known_host_ids": ["wall-A", "wall-B"], "geometry_refs": ["opening-geometry"], "geometry_status": "valid", "representation_supported": true, "expected_status": "conflict", "expected_review_eligible": false}
+      ]},
+      "candidate_polygon": null,
+      "expected": {"topology_status": "not_available", "source_component_count": 0, "candidate_polygon_status": "not_available", "conditional_column_boundary_support": false, "opening_variant_statuses": ["not_available", "invalid", "conflict"]},
+      "oracle_rationale": "Missing, unresolved, and contradictory host provenance remain separate local diagnostics. None qualifies for opening subtraction."
+    },
+    {
+      "id": "B2-F07",
+      "title": "Malformed and unsupported opening geometry remain distinct",
+      "topology_segments": [],
+      "column_boundary_segment_ids": [],
+      "contact_evidence": {"kind": "not_applicable", "exact_contact": false, "fixture_gap": null},
+      "physical_occupancy": [{"source_id": "opening-03", "kind": "opening_geometry", "included": false}],
+      "opening": {"kind": "boundary_opening", "variants": [
+        {"name": "malformed_geometry", "relation_state": "present", "host_refs": ["wall-A"], "known_host_ids": ["wall-A"], "geometry_refs": ["opening-nonfinite"], "geometry_status": "malformed", "representation_supported": true, "expected_status": "invalid", "expected_review_eligible": false},
+        {"name": "unsupported_representation", "relation_state": "present", "host_refs": ["wall-A"], "known_host_ids": ["wall-A"], "geometry_refs": ["opening-curve"], "geometry_status": "present", "representation_supported": false, "expected_status": "unsupported", "expected_review_eligible": false}
+      ]},
+      "candidate_polygon": null,
+      "expected": {"topology_status": "not_available", "source_component_count": 0, "candidate_polygon_status": "not_available", "conditional_column_boundary_support": false, "opening_variant_statuses": ["invalid", "unsupported"]},
+      "oracle_rationale": "A present host relation cannot compensate for malformed geometry or an unsupported representation. The failure reasons remain distinguishable."
+    },
+    {
+      "id": "B2-F08",
+      "title": "Valid candidate polygon with disconnected source components",
+      "topology_segments": [
+        {"id": "source-a", "source": "wall", "a": [0, 0], "b": [1, 0]},
+        {"id": "source-b", "source": "column", "a": [2, 0], "b": [3, 0]}
+      ],
+      "column_boundary_segment_ids": [],
+      "contact_evidence": {"kind": "disconnected_sources", "exact_contact": false, "fixture_gap": 1},
+      "physical_occupancy": [{"source_id": "wall-source-a", "kind": "wall", "included": true}, {"source_id": "column-source-b", "kind": "column", "included": true}],
+      "opening": {"kind": "none", "variants": []},
+      "candidate_polygon": [[0, 0], [3, 0], [3, 2], [0, 2], [0, 0]],
+      "expected": {"topology_status": "partial", "source_component_count": 2, "candidate_polygon_status": "valid", "conditional_column_boundary_support": false, "opening_variant_statuses": []},
+      "oracle_rationale": "Polygon validity is computed from the serialized candidate ring. Source endpoint connectivity is computed independently and remains disconnected."
+    },
+    {
+      "id": "B2-F09",
+      "title": "Invalid candidate polygon with connected closed source components",
+      "topology_segments": [
+        {"id": "s-bottom", "source": "wall", "a": [0, 0], "b": [2, 0]},
+        {"id": "s-right", "source": "wall", "a": [2, 0], "b": [2, 2]},
+        {"id": "s-top", "source": "wall", "a": [2, 2], "b": [0, 2]},
+        {"id": "s-left", "source": "wall", "a": [0, 2], "b": [0, 0]}
+      ],
+      "column_boundary_segment_ids": [],
+      "contact_evidence": {"kind": "not_applicable", "exact_contact": false, "fixture_gap": null},
+      "physical_occupancy": [{"source_id": "wall-loop", "kind": "wall", "included": true}],
+      "opening": {"kind": "none", "variants": []},
+      "candidate_polygon": [[0, 0], [2, 2], [0, 2], [2, 0], [0, 0]],
+      "expected": {"topology_status": "computed", "source_component_count": 1, "candidate_polygon_status": "invalid", "conditional_column_boundary_support": false, "opening_variant_statuses": []},
+      "oracle_rationale": "The source segments form one exact-endpoint closed component, while the independently serialized bow-tie polygon is invalid due to self-intersection. Neither result substitutes for the other."
+    }
+  ]
+}

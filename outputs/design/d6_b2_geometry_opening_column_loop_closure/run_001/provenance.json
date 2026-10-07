@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "scripts/design/space_field/run_d6_b2_geometry_opening_column_loop_closure.py",
+    "--output-dir",
+    "outputs/design/d6_b2_geometry_opening_column_loop_closure/run_001"
+  ],
+  "blender": "not_run",
+  "evidence_class": "synthetic_design_evidence",
+  "fixture_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_geometry_opening_column_loop_closure\\fixtures.json",
+  "fixture_sha256": "a45ed7441689a63b5fac681f9e9d43607a2c2b0eb2f209bcd0b70a95b5657157",
+  "helper": "scripts.design.space_field.run_boundary_construction_experiment._topology_status",
+  "helper_scope": "existing exact-endpoint diagnostic only; not a production geometry algorithm or tolerance policy",
+  "output_dir": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_geometry_opening_column_loop_closure\\run_001",
+  "production_code_modified": false,
+  "real_ifc": "not_verified_not_run",
+  "result_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_geometry_opening_column_loop_closure\\run_001\\results.json",
+  "result_sha256": "47f4bf594874f4cf6ec7f973086dd3737884409484563d3ac3325656aaa8ba19",
+  "runner_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_d6_b2_geometry_opening_column_loop_closure.py",
+  "runner_sha256": "9d432705c7d091f90c2e0c907ec4878d977663c20d9a33e11c3a19e639d699f4",
+  "schema_version": "d6-b2-run-provenance-v1",
+  "summary_svg_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_b2_geometry_opening_column_loop_closure\\run_001\\summary.svg",
+  "summary_svg_sha256": "f826956401df47afc6f405ecbc7c9a03c75dcc6f2a97f4b9f377154cd9098dab"
+}

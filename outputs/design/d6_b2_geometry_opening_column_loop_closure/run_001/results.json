@@ -1,0 +1,781 @@
+{
+  "evidence_class": "synthetic_design_evidence",
+  "fixture_count": 9,
+  "geometry_library": {
+    "name": "Shapely",
+    "version": "2.1.2"
+  },
+  "owner_decision": {
+    "B2": "REVISE",
+    "B5": "narrow_APPROVE",
+    "commit": "9b50bb1f44c0ae7dc2807c17da084d1ab8163393"
+  },
+  "results": [
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [],
+        "conditional_support_in_this_fixture": false,
+        "production_policy_selected": false,
+        "reason": "support not established by this fixture"
+      },
+      "candidate_polygon_validity": {
+        "area_in_fixture_units_squared": 16.0,
+        "reason": "valid_positive_area_polygon",
+        "status": "valid",
+        "valid": true
+      },
+      "contact_evidence": {
+        "exact_contact": false,
+        "fixture_gap": null,
+        "kind": "interior_no_wall_contact"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "valid",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": [],
+        "source_component_count": 1,
+        "topology_status": "computed"
+      },
+      "fixture_id": "B2-F01",
+      "opening_provenance": {
+        "kind": "none",
+        "local_diagnostic_state": "not_available",
+        "reason": "no_opening_source_record_in_fixture",
+        "subtraction_performed": false
+      },
+      "oracle_rationale": "The wall loop is closed independently. The interior column remains occupied area and supplies no boundary segment.",
+      "physical_occupancy": [
+        {
+          "footprint": [
+            [
+              1.5,
+              1.5
+            ],
+            [
+              2.5,
+              1.5
+            ],
+            [
+              2.5,
+              2.5
+            ],
+            [
+              1.5,
+              2.5
+            ],
+            [
+              1.5,
+              1.5
+            ]
+          ],
+          "included": true,
+          "kind": "column",
+          "source_id": "column-interior"
+        }
+      ],
+      "source_components": {
+        "component_count": 1,
+        "degree_histogram": {
+          "2": 4
+        },
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "one_connected_closed_shell",
+        "source_segment_ids": [
+          "w-bottom",
+          "w-right",
+          "w-top",
+          "w-left"
+        ],
+        "status": "computed"
+      },
+      "title": "Interior column remains physical occupancy without boundary support"
+    },
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [
+          "column-boundary-face"
+        ],
+        "conditional_support_in_this_fixture": true,
+        "production_policy_selected": false,
+        "reason": "exact contact plus one closed diagnostic component"
+      },
+      "candidate_polygon_validity": {
+        "area_in_fixture_units_squared": 16.0,
+        "reason": "valid_positive_area_polygon",
+        "status": "valid",
+        "valid": true
+      },
+      "contact_evidence": {
+        "exact_contact": true,
+        "fixture_gap": 0,
+        "kind": "exact_shared_endpoints"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "valid",
+        "conditional_column_boundary_support": true,
+        "opening_variant_statuses": [],
+        "source_component_count": 1,
+        "topology_status": "computed"
+      },
+      "fixture_id": "B2-F02",
+      "opening_provenance": {
+        "kind": "none",
+        "local_diagnostic_state": "not_available",
+        "reason": "no_opening_source_record_in_fixture",
+        "subtraction_performed": false
+      },
+      "oracle_rationale": "The column face uses the exact endpoints of the adjacent wall segments and is included only as a diagnostic boundary-support candidate; the existing exact-endpoint helper reports one closed component.",
+      "physical_occupancy": [
+        {
+          "footprint": [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "included": true,
+          "kind": "column",
+          "source_id": "column-edge"
+        }
+      ],
+      "source_components": {
+        "component_count": 1,
+        "degree_histogram": {
+          "2": 6
+        },
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "one_connected_closed_shell",
+        "source_segment_ids": [
+          "w-bottom-left",
+          "w-bottom-right",
+          "w-right",
+          "w-top",
+          "w-left",
+          "column-boundary-face"
+        ],
+        "status": "computed"
+      },
+      "title": "Exact-contact column face closes a diagnostic boundary loop"
+    },
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [
+          "column-near-face"
+        ],
+        "conditional_support_in_this_fixture": false,
+        "production_policy_selected": false,
+        "reason": "support not established by this fixture"
+      },
+      "candidate_polygon_validity": {
+        "area_in_fixture_units_squared": 16.0,
+        "reason": "valid_positive_area_polygon",
+        "status": "valid",
+        "valid": true
+      },
+      "contact_evidence": {
+        "exact_contact": false,
+        "fixture_gap": 0.125,
+        "kind": "nonzero_fixture_gap"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "valid",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": [],
+        "source_component_count": 2,
+        "topology_status": "partial"
+      },
+      "fixture_id": "B2-F03",
+      "opening_provenance": {
+        "kind": "none",
+        "local_diagnostic_state": "not_available",
+        "reason": "no_opening_source_record_in_fixture",
+        "subtraction_performed": false
+      },
+      "oracle_rationale": "A deliberately nonzero fixture gap leaves the column face disconnected from both wall endpoints. The gap is illustrative and is not a production tolerance.",
+      "physical_occupancy": [
+        {
+          "footprint": [
+            [
+              1.125,
+              0
+            ],
+            [
+              2.875,
+              0
+            ],
+            [
+              2.875,
+              1
+            ],
+            [
+              1.125,
+              1
+            ],
+            [
+              1.125,
+              0
+            ]
+          ],
+          "included": true,
+          "kind": "column",
+          "source_id": "column-near"
+        }
+      ],
+      "source_components": {
+        "component_count": 2,
+        "degree_histogram": {
+          "1": 4,
+          "2": 4
+        },
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "open_or_disconnected_boundary",
+        "source_segment_ids": [
+          "w-bottom-left",
+          "w-bottom-right",
+          "w-right",
+          "w-top",
+          "w-left",
+          "column-near-face"
+        ],
+        "status": "partial"
+      },
+      "title": "Near-contact column does not close the diagnostic boundary loop"
+    },
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [],
+        "conditional_support_in_this_fixture": false,
+        "production_policy_selected": false,
+        "reason": "support not established by this fixture"
+      },
+      "candidate_polygon_validity": {
+        "reason": "candidate_polygon_not_supplied",
+        "status": "not_available",
+        "valid": null
+      },
+      "contact_evidence": {
+        "exact_contact": false,
+        "fixture_gap": null,
+        "kind": "not_applicable"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "not_available",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": [
+          "diagnostic_only"
+        ],
+        "source_component_count": 1,
+        "topology_status": "partial"
+      },
+      "fixture_id": "B2-F04",
+      "opening_provenance": {
+        "kind": "boundary_opening",
+        "variants": [
+          {
+            "eligible_for_opening_review_only": true,
+            "geometry_refs": [
+              "opening-geometry"
+            ],
+            "geometry_status": "valid",
+            "host_refs": [
+              "wall-bottom"
+            ],
+            "known_host_ids": [
+              "wall-bottom"
+            ],
+            "local_diagnostic_state": "diagnostic_only",
+            "reason": "host_and_geometry_refs_present_no_subtraction_performed",
+            "relation_state": "present",
+            "representation_supported": true,
+            "subtraction_performed": false,
+            "variant": "hosted_usable_geometry"
+          }
+        ]
+      },
+      "oracle_rationale": "The wall source is open at the explicitly represented boundary opening. Host and usable geometry references are retained for review, but subtraction, domain promotion, and route interpretation are not performed.",
+      "physical_occupancy": [
+        {
+          "included": true,
+          "kind": "wall",
+          "source_id": "wall-boundary"
+        }
+      ],
+      "source_components": {
+        "component_count": 1,
+        "degree_histogram": {
+          "1": 2,
+          "2": 4
+        },
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "open_or_disconnected_boundary",
+        "source_segment_ids": [
+          "w-bottom-left",
+          "w-bottom-right",
+          "w-right",
+          "w-top",
+          "w-left"
+        ],
+        "status": "partial"
+      },
+      "title": "True boundary opening keeps host and geometry provenance"
+    },
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [],
+        "conditional_support_in_this_fixture": false,
+        "production_policy_selected": false,
+        "reason": "support not established by this fixture"
+      },
+      "candidate_polygon_validity": {
+        "area_in_fixture_units_squared": 16.0,
+        "reason": "valid_positive_area_polygon",
+        "status": "valid",
+        "valid": true
+      },
+      "contact_evidence": {
+        "exact_contact": false,
+        "fixture_gap": null,
+        "kind": "not_applicable"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "valid",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": [],
+        "source_component_count": 1,
+        "topology_status": "computed"
+      },
+      "fixture_id": "B2-F05",
+      "opening_provenance": {
+        "assumed_closed": true,
+        "assumption_is_source_fact": false,
+        "door_ref": "door-01",
+        "fill_relation_host_ref": "wall-bottom",
+        "kind": "door_scenario",
+        "local_diagnostic_state": "diagnostic_only",
+        "reason": "door_fill_and_closed_scenario_are_not_void_opening_evidence",
+        "subtraction_performed": false
+      },
+      "oracle_rationale": "The closed-door scenario is an explicit assumption. A door/fill relation is not converted into an IfcOpeningElement/void-host fact, and no traversal state is inferred.",
+      "physical_occupancy": [
+        {
+          "included": true,
+          "kind": "door",
+          "source_id": "door-01",
+          "state_basis": "owner_default_closed_design_assumption"
+        }
+      ],
+      "source_components": {
+        "component_count": 1,
+        "degree_histogram": {
+          "2": 4
+        },
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "one_connected_closed_shell",
+        "source_segment_ids": [
+          "w-bottom",
+          "w-right",
+          "w-top",
+          "w-left"
+        ],
+        "status": "computed"
+      },
+      "title": "Door treated as a closed design scenario, not as an opening relation"
+    },
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [],
+        "conditional_support_in_this_fixture": false,
+        "production_policy_selected": false,
+        "reason": "support not established by this fixture"
+      },
+      "candidate_polygon_validity": {
+        "reason": "candidate_polygon_not_supplied",
+        "status": "not_available",
+        "valid": null
+      },
+      "contact_evidence": {
+        "exact_contact": false,
+        "fixture_gap": null,
+        "kind": "not_applicable"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "not_available",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": [
+          "not_available",
+          "invalid",
+          "conflict"
+        ],
+        "source_component_count": 0,
+        "topology_status": "not_available"
+      },
+      "fixture_id": "B2-F06",
+      "opening_provenance": {
+        "kind": "boundary_opening",
+        "variants": [
+          {
+            "eligible_for_opening_review_only": false,
+            "geometry_refs": [
+              "opening-geometry"
+            ],
+            "geometry_status": "valid",
+            "host_refs": [],
+            "known_host_ids": [
+              "wall-A"
+            ],
+            "local_diagnostic_state": "not_available",
+            "reason": "opening_host_relation_missing",
+            "relation_state": "missing",
+            "representation_supported": true,
+            "subtraction_performed": false,
+            "variant": "missing_relation"
+          },
+          {
+            "eligible_for_opening_review_only": false,
+            "geometry_refs": [
+              "opening-geometry"
+            ],
+            "geometry_status": "valid",
+            "host_refs": [
+              "wall-missing"
+            ],
+            "known_host_ids": [
+              "wall-A"
+            ],
+            "local_diagnostic_state": "invalid",
+            "reason": "opening_host_reference_unresolved_or_malformed",
+            "relation_state": "present",
+            "representation_supported": true,
+            "subtraction_performed": false,
+            "variant": "broken_host_reference"
+          },
+          {
+            "eligible_for_opening_review_only": false,
+            "geometry_refs": [
+              "opening-geometry"
+            ],
+            "geometry_status": "valid",
+            "host_refs": [
+              "wall-A",
+              "wall-B"
+            ],
+            "known_host_ids": [
+              "wall-A",
+              "wall-B"
+            ],
+            "local_diagnostic_state": "conflict",
+            "reason": "opening_host_relations_conflict",
+            "relation_state": "conflict",
+            "representation_supported": true,
+            "subtraction_performed": false,
+            "variant": "conflicting_hosts"
+          }
+        ]
+      },
+      "oracle_rationale": "Missing, unresolved, and contradictory host provenance remain separate local diagnostics. None qualifies for opening subtraction.",
+      "physical_occupancy": [
+        {
+          "included": false,
+          "kind": "opening_geometry",
+          "source_id": "opening-02"
+        }
+      ],
+      "source_components": {
+        "component_count": 0,
+        "degree_histogram": {},
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "missing_wall_geometry",
+        "source_segment_ids": [],
+        "status": "not_available"
+      },
+      "title": "Missing, broken, and conflicting opening-host relations refuse subtraction"
+    },
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [],
+        "conditional_support_in_this_fixture": false,
+        "production_policy_selected": false,
+        "reason": "support not established by this fixture"
+      },
+      "candidate_polygon_validity": {
+        "reason": "candidate_polygon_not_supplied",
+        "status": "not_available",
+        "valid": null
+      },
+      "contact_evidence": {
+        "exact_contact": false,
+        "fixture_gap": null,
+        "kind": "not_applicable"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "not_available",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": [
+          "invalid",
+          "unsupported"
+        ],
+        "source_component_count": 0,
+        "topology_status": "not_available"
+      },
+      "fixture_id": "B2-F07",
+      "opening_provenance": {
+        "kind": "boundary_opening",
+        "variants": [
+          {
+            "eligible_for_opening_review_only": false,
+            "geometry_refs": [
+              "opening-nonfinite"
+            ],
+            "geometry_status": "malformed",
+            "host_refs": [
+              "wall-A"
+            ],
+            "known_host_ids": [
+              "wall-A"
+            ],
+            "local_diagnostic_state": "invalid",
+            "reason": "opening_geometry_malformed",
+            "relation_state": "present",
+            "representation_supported": true,
+            "subtraction_performed": false,
+            "variant": "malformed_geometry"
+          },
+          {
+            "eligible_for_opening_review_only": false,
+            "geometry_refs": [
+              "opening-curve"
+            ],
+            "geometry_status": "present",
+            "host_refs": [
+              "wall-A"
+            ],
+            "known_host_ids": [
+              "wall-A"
+            ],
+            "local_diagnostic_state": "unsupported",
+            "reason": "opening_representation_unsupported",
+            "relation_state": "present",
+            "representation_supported": false,
+            "subtraction_performed": false,
+            "variant": "unsupported_representation"
+          }
+        ]
+      },
+      "oracle_rationale": "A present host relation cannot compensate for malformed geometry or an unsupported representation. The failure reasons remain distinguishable.",
+      "physical_occupancy": [
+        {
+          "included": false,
+          "kind": "opening_geometry",
+          "source_id": "opening-03"
+        }
+      ],
+      "source_components": {
+        "component_count": 0,
+        "degree_histogram": {},
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "missing_wall_geometry",
+        "source_segment_ids": [],
+        "status": "not_available"
+      },
+      "title": "Malformed and unsupported opening geometry remain distinct"
+    },
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [],
+        "conditional_support_in_this_fixture": false,
+        "production_policy_selected": false,
+        "reason": "support not established by this fixture"
+      },
+      "candidate_polygon_validity": {
+        "area_in_fixture_units_squared": 6.0,
+        "reason": "valid_positive_area_polygon",
+        "status": "valid",
+        "valid": true
+      },
+      "contact_evidence": {
+        "exact_contact": false,
+        "fixture_gap": 1,
+        "kind": "disconnected_sources"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "valid",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": [],
+        "source_component_count": 2,
+        "topology_status": "partial"
+      },
+      "fixture_id": "B2-F08",
+      "opening_provenance": {
+        "kind": "none",
+        "local_diagnostic_state": "not_available",
+        "reason": "no_opening_source_record_in_fixture",
+        "subtraction_performed": false
+      },
+      "oracle_rationale": "Polygon validity is computed from the serialized candidate ring. Source endpoint connectivity is computed independently and remains disconnected.",
+      "physical_occupancy": [
+        {
+          "included": true,
+          "kind": "wall",
+          "source_id": "wall-source-a"
+        },
+        {
+          "included": true,
+          "kind": "column",
+          "source_id": "column-source-b"
+        }
+      ],
+      "source_components": {
+        "component_count": 2,
+        "degree_histogram": {
+          "1": 4
+        },
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "open_or_disconnected_boundary",
+        "source_segment_ids": [
+          "source-a",
+          "source-b"
+        ],
+        "status": "partial"
+      },
+      "title": "Valid candidate polygon with disconnected source components"
+    },
+    {
+      "boundary_support": {
+        "candidate_segment_ids": [],
+        "conditional_support_in_this_fixture": false,
+        "production_policy_selected": false,
+        "reason": "support not established by this fixture"
+      },
+      "candidate_polygon_validity": {
+        "area_in_fixture_units_squared": 0.0,
+        "reason": "Self-intersection[1 1]",
+        "status": "invalid",
+        "valid": false
+      },
+      "contact_evidence": {
+        "exact_contact": false,
+        "fixture_gap": null,
+        "kind": "not_applicable"
+      },
+      "diagnostic_refusal": {
+        "downstream_free_space_or_route_claim": "not_evaluated",
+        "formal_domain_promotion": "refused",
+        "reason": "synthetic B2 contract evidence only; production implementation is not approved",
+        "state": "diagnostic_only"
+      },
+      "evidence_class": "synthetic_design_evidence",
+      "expected": {
+        "candidate_polygon_status": "invalid",
+        "conditional_column_boundary_support": false,
+        "opening_variant_statuses": [],
+        "source_component_count": 1,
+        "topology_status": "computed"
+      },
+      "fixture_id": "B2-F09",
+      "opening_provenance": {
+        "kind": "none",
+        "local_diagnostic_state": "not_available",
+        "reason": "no_opening_source_record_in_fixture",
+        "subtraction_performed": false
+      },
+      "oracle_rationale": "The source segments form one exact-endpoint closed component, while the independently serialized bow-tie polygon is invalid due to self-intersection. Neither result substitutes for the other.",
+      "physical_occupancy": [
+        {
+          "included": true,
+          "kind": "wall",
+          "source_id": "wall-loop"
+        }
+      ],
+      "source_components": {
+        "component_count": 1,
+        "degree_histogram": {
+          "2": 4
+        },
+        "method": "existing run_boundary_construction_experiment._topology_status exact endpoint diagnostic",
+        "reason": "one_connected_closed_shell",
+        "source_segment_ids": [
+          "s-bottom",
+          "s-right",
+          "s-top",
+          "s-left"
+        ],
+        "status": "computed"
+      },
+      "title": "Invalid candidate polygon with connected closed source components"
+    }
+  ],
+  "schema_version": "d6-b2-synthetic-results-v1",
+  "status_vocabulary_note": "Local diagnostic observations reuse existing labels; this file does not define a unified public status enum."
+}

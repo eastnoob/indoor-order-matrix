@@ -1,0 +1,97 @@
+{
+  "commit_message": "docs: repair D6 B2 geometry opening column loop closure contract",
+  "date": "2026-10-07",
+  "evidence_class": "bounded_synthetic_design_evidence",
+  "files": [
+    {
+      "bytes": 14992,
+      "path": "scripts/design/space_field/run_d6_b2_geometry_opening_column_loop_closure.py",
+      "sha256": "9d432705c7d091f90c2e0c907ec4878d977663c20d9a33e11c3a19e639d699f4"
+    },
+    {
+      "bytes": 13065,
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/fixtures.json",
+      "sha256": "a45ed7441689a63b5fac681f9e9d43607a2c2b0eb2f209bcd0b70a95b5657157"
+    },
+    {
+      "bytes": 25841,
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/run_001/results.json",
+      "sha256": "47f4bf594874f4cf6ec7f973086dd3737884409484563d3ac3325656aaa8ba19"
+    },
+    {
+      "bytes": 1723,
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/run_001/provenance.json",
+      "sha256": "7dfec1a760cebbc672fa8e6b2c7c1658c0a36f30b6f3f2c58381a5dd7d2e5b93"
+    },
+    {
+      "bytes": 10819,
+      "path": "outputs/design/d6_b2_geometry_opening_column_loop_closure/run_001/summary.svg",
+      "sha256": "f826956401df47afc6f405ecbc7c9a03c75dcc6f2a97f4b9f377154cd9098dab"
+    },
+    {
+      "bytes": 7484,
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair.md",
+      "sha256": "d8189de3aff6ebf183d1c2519fe2bed631f90aa04c6e6f98fd5ee5920e544737"
+    }
+  ],
+  "manifest_note": "This manifest hashes every declared repair artifact except itself; self-hashing is intentionally omitted.",
+  "owner_decision": {
+    "B2": "REVISE",
+    "B5": "narrow_APPROVE",
+    "commit": "9b50bb1f44c0ae7dc2807c17da084d1ab8163393"
+  },
+  "schema_version": "d6-b2-repair-artifact-manifest-v1",
+  "validation": {
+    "artifact_validation": {
+      "git_diff_cached_check": {
+        "command": "git diff --cached --check",
+        "exit_code": 0,
+        "result": "passed"
+      },
+      "git_diff_check": {
+        "command": "git diff --check",
+        "exit_code": 0
+      },
+      "json_parse_and_fixture_oracles": "passed",
+      "new_text_trailing_whitespace_check": {
+        "exit_code": 0,
+        "result": "passed",
+        "scope": "declared UTF-8 source, JSON, and Markdown files"
+      },
+      "svg_xml_parse_and_nine_card_disclaimer_check": "passed"
+    },
+    "blender": "not_run",
+    "probe": {
+      "command": "pixi run python scripts/design/space_field/run_d6_b2_geometry_opening_column_loop_closure.py --output-dir outputs/design/d6_b2_geometry_opening_column_loop_closure/run_001",
+      "exit_code": 0,
+      "fixtures_asserted": 9,
+      "results_sha256": "47f4bf594874f4cf6ec7f973086dd3737884409484563d3ac3325656aaa8ba19",
+      "summary_svg_sha256": "f826956401df47afc6f405ecbc7c9a03c75dcc6f2a97f4b9f377154cd9098dab"
+    },
+    "pytest": "not_run_by_scope",
+    "real_ifc": "not_verified_not_run",
+    "scope": {
+      "declared_repair_paths": [
+        "scripts/design/space_field/run_d6_b2_geometry_opening_column_loop_closure.py",
+        "outputs/design/d6_b2_geometry_opening_column_loop_closure/fixtures.json",
+        "outputs/design/d6_b2_geometry_opening_column_loop_closure/run_001/results.json",
+        "outputs/design/d6_b2_geometry_opening_column_loop_closure/run_001/provenance.json",
+        "outputs/design/d6_b2_geometry_opening_column_loop_closure/run_001/summary.svg",
+        "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair.md"
+      ],
+      "formal_tests_dependencies_public_api_ifc_blender_modified": false,
+      "historical_evidence_modified": false,
+      "output_artifacts_will_be_force_added_by_explicit_path_only": true,
+      "outputs_are_locally_ignored": ".git/info/exclude:13:outputs/",
+      "preexisting_untracked_files_preserved": true,
+      "production_code_or_adapter_paths_modified": false
+    },
+    "temporary_rerun": {
+      "command": "pixi run python scripts/design/space_field/run_d6_b2_geometry_opening_column_loop_closure.py --output-dir \"$temp\"",
+      "directory": "%TEMP%/d6_b2_geometry_opening_column_loop_closure_20261007_run_002",
+      "exit_code": 0,
+      "results_byte_identical": true,
+      "summary_svg_byte_identical": true
+    }
+  }
+}
