@@ -119,3 +119,11 @@ saved snapshot在第二个新进程重跑，raw B2/geometry/audit/validation/PNG
 以上是本轮执行证据，不是独立接受；B1 multi-floor/units/work-plane、typed家具substitute链和所有其他deferred items不变，不新增partition/free-space/route能力。
 
 **STOP FOR D6 B2 CHECKPOINT AND REAL-INPUT VALIDATION REVIEW**
+
+## 2026-10-07 Native IFC timeout investigation（独立下一任务）
+
+Coordinating chat 已 ACCEPT LIMITED LIVE-BLENDER ADAPTER-TO-B2 SOURCE/PROVENANCE/REFUSAL EVIDENCE；原独立报告保持原样。当前另行调查 native 300s timeout，先测量，再做有界最小修复及真实 native→B2 验证；完整几何 B2、B1 policy 与其他 deferred items 不变。
+
+本次 native 调查结果为 **diagnosed dependency bottleneck / no production repair / review-pending**。300.562s instrumented baseline：176 个唯一 Body create_shape 累计 270.676s，解析 15.721s，完成 Python mesh 10.602s；只读 subset 支持原生 kernel 成本且 Body/Analysis 身份、world/SI provenance 不变。唯一 clean 全源尝试预先扩展至 600s（不是性能修复），600.704s outer timeout，未返回 NeutralScene，未到 B2，180s view budget 未使用；worker 已 kill/reap。175 项限定 synthetic/compatibility 检查通过，未改 production adapter/backend/API/policy，source IFC 指纹不变。证据见 [native report](d6-native-ifc-timeout-repair.md) 及 [manifest](d6-native-ifc-timeout-repair-manifest.json)。不把之前 Blender 成功作为本次 native 成功，完整几何 B2 仍 deferred。
+
+STOP FOR D6 NATIVE IFC TIMEOUT REPAIR REVIEW

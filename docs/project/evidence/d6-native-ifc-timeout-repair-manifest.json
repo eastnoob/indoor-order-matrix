@@ -1,0 +1,5639 @@
+{
+  "accepted_previous_milestone": "LIMITED live-Blender source/provenance/refusal evidence",
+  "actual_b2_returned": false,
+  "artifacts": [
+    {
+      "bytes": 331,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\call_counts.json",
+      "relative_path": "baseline/call_counts.json",
+      "sha256": "9ae160d9fd682bf3fb8e4fecefb535a9ab26602fd4e8ea41650fc7402e9afe6a"
+    },
+    {
+      "bytes": 315607,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\events.jsonl",
+      "relative_path": "baseline/events.jsonl",
+      "sha256": "83f869b5eddb9e5a3363c3edfc24b5ff29d6b105e646e71b8f064e7e28200d3a"
+    },
+    {
+      "bytes": 823,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\execution.json",
+      "relative_path": "baseline/execution.json",
+      "sha256": "1f96b23ab0224549b16d15eac2c0e2d79c6c9e4d5d5acb760e4c3fddc92921a9"
+    },
+    {
+      "bytes": 4177,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\git_baseline.json",
+      "relative_path": "baseline/git_baseline.json",
+      "sha256": "7037349c4e20ae7c2670c87ce87d48fcc87ba435563dbaa1ae456ea0a13b0398"
+    },
+    {
+      "bytes": 2847,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\identity.json",
+      "relative_path": "baseline/identity.json",
+      "sha256": "83c9529aa1d4bb386f362bf8b84005e05a2d5eaff8e9c8ebfdd47a16df299746"
+    },
+    {
+      "bytes": 2536,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\measured_summary.json",
+      "relative_path": "baseline/measured_summary.json",
+      "sha256": "13a66ccde08b62257804de235ba0716040dc345a0811be1fc019da5589396f43"
+    },
+    {
+      "bytes": 88166,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\native_inventory.json",
+      "relative_path": "baseline/native_inventory.json",
+      "sha256": "c84dd2c4e19afe33333b583fb60b654fc97d80e65c4dbe17cfe15e41574064fe"
+    },
+    {
+      "bytes": 90254,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\partial_profile.pstats",
+      "relative_path": "baseline/partial_profile.pstats",
+      "sha256": "ef64cd7ccb049d22da3ca12af2a6f3f645d84bc7f003ace27892f2bc7436a30d"
+    },
+    {
+      "bytes": 3819,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\profile_partial.txt",
+      "relative_path": "baseline/profile_partial.txt",
+      "sha256": "80385beeed66e92b7b45cadd43be2b4723a593e0af07c26d926393b57485883e"
+    },
+    {
+      "bytes": 5669,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\profile_partial_final.txt",
+      "relative_path": "baseline/profile_partial_final.txt",
+      "sha256": "a6a4a11e78070d801c4c676b958d8d34dc6fc0107416234b59f26d4526f03bfb"
+    },
+    {
+      "bytes": 122,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\resource_observation.json",
+      "relative_path": "baseline/resource_observation.json",
+      "sha256": "c6dc45e6b8e891c01a0c03359561d53eea27161a1dd8dfe5405dd99b1daf6de0"
+    },
+    {
+      "bytes": 124,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\resource_observation_late.json",
+      "relative_path": "baseline/resource_observation_late.json",
+      "sha256": "ddd2b33b47d128e08d7a5d2672750000244b82fc8b88b39fc1dc3c89af2e4d82"
+    },
+    {
+      "bytes": 11476,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\runner_snapshot.py",
+      "relative_path": "baseline/runner_snapshot.py",
+      "sha256": "359cec1f2b165d811562bc9b879877684d32bd93a87d4e4c43ca6f23a0f1b0f7"
+    },
+    {
+      "bytes": 761,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\selected_step_records.json",
+      "relative_path": "baseline/selected_step_records.json",
+      "sha256": "d978d83ad0544015349812357a570fb7b24c069be846091f81a8e65f6e7c672a"
+    },
+    {
+      "bytes": 15030,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\stderr.log",
+      "relative_path": "baseline/stderr.log",
+      "sha256": "749cbcb80d1ed1b0f465a3059b0fdbb0ade6773a99e2fc269afb957a2f18945f"
+    },
+    {
+      "bytes": 0,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\baseline\\stdout.log",
+      "relative_path": "baseline/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4944,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\build_manifest.py",
+      "relative_path": "build_manifest.py",
+      "sha256": "129b42d13b6cba25509305ad364d804d921b7a61ae386354433883869ab4c688"
+    },
+    {
+      "bytes": 107,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\events.jsonl",
+      "relative_path": "clean/events.jsonl",
+      "sha256": "3abaaf115f391e41ff79d7a7c10cdca5af151000de68590ef3854c18688815d6"
+    },
+    {
+      "bytes": 891,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\execution.json",
+      "relative_path": "clean/execution.json",
+      "sha256": "bc899f921dd161f83d8ede4aa1abf1829e1112cca996e5be698289e9bcb5fd78"
+    },
+    {
+      "bytes": 4235,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\git_baseline.json",
+      "relative_path": "clean/git_baseline.json",
+      "sha256": "93c0a9c199ffb29b61fc0386632e4a66724844bfad06884a200cc78126f9b8d3"
+    },
+    {
+      "bytes": 2912,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\identity.json",
+      "relative_path": "clean/identity.json",
+      "sha256": "5da7c80b54d6138c3a94397d544ec01298f407ec1bf6e0f2145f7a8692a619fb"
+    },
+    {
+      "bytes": 120,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\resource_observation_times.log",
+      "relative_path": "clean/resource_observation_times.log",
+      "sha256": "a138d76dbd09be3e6ace90a7fcef469bf58dfe99bd932e670e0823d06ac80cfe"
+    },
+    {
+      "bytes": 862,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\resource_observations.jsonl",
+      "relative_path": "clean/resource_observations.jsonl",
+      "sha256": "5866b11ebcad64f6effd4d951f0bf8736ef382123fc648ae96802aca2ddf02ad"
+    },
+    {
+      "bytes": 11482,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\runner_snapshot.py",
+      "relative_path": "clean/runner_snapshot.py",
+      "sha256": "82cfee2a28d9775e02fa29f53a9f00ebae1153d9c4a7ee48a41a1992e3bbeb99"
+    },
+    {
+      "bytes": 0,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\stderr.log",
+      "relative_path": "clean/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\clean\\stdout.log",
+      "relative_path": "clean/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1657,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\delivery_audit.log",
+      "relative_path": "delivery_audit.log",
+      "sha256": "c9acab1c75139e49bc56e2d06d669bf1976ccc605e15475607956fc0ad3fd89f"
+    },
+    {
+      "bytes": 1969,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\delivery_checks.json",
+      "relative_path": "delivery_checks.json",
+      "sha256": "6a6f7ce4f66d8e83cd1ae25c01224399e8588cf5cf8e6cb3af363a927d908c11"
+    },
+    {
+      "bytes": 4146,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\historical_preservation_check.json",
+      "relative_path": "historical_preservation_check.json",
+      "sha256": "0d696c81acf29dbb4db90ccce8314597d5f11ec12a1a2cb47e6e2a600bdc7a7b"
+    },
+    {
+      "bytes": 10044,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\preserved_files_checkpoint.json",
+      "relative_path": "preserved_files_checkpoint.json",
+      "sha256": "217fa92b3646513937cfe00ea292e3b3ccaa67ccc0f93bd358ec69e8d5b9d060"
+    },
+    {
+      "bytes": 157,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\process_reap_check.json",
+      "relative_path": "process_reap_check.json",
+      "sha256": "4c8473287705c05b961893b3c556087d67a458394610c0ca45b582bd058daf71"
+    },
+    {
+      "bytes": 183,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\regression_b2.log",
+      "relative_path": "regression_b2.log",
+      "sha256": "e5329b3ed4d4177fc1822686367e77e82e6d629ad10c159c94b01038fab8b4f2"
+    },
+    {
+      "bytes": 101,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\regression_handoff.log",
+      "relative_path": "regression_handoff.log",
+      "sha256": "8766c59becd558f1c672bf37d8d07c7f568b67781b6575e06b5372fb8eae5dcf"
+    },
+    {
+      "bytes": 100,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\regression_native.log",
+      "relative_path": "regression_native.log",
+      "sha256": "7296a481ec573413faa63e1a9c7bda678c377e394463a10771b5e5c3fec24a97"
+    },
+    {
+      "bytes": 684515,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\staged_whitespace_before_lf.log",
+      "relative_path": "staged_whitespace_before_lf.log",
+      "sha256": "9bfa81b4fac5605586d036fe57d78e23f2ffe7baf15221ed61a64887592e47ef"
+    },
+    {
+      "bytes": 0,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\staged_whitespace_final.log",
+      "relative_path": "staged_whitespace_final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 318,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset\\events.jsonl",
+      "relative_path": "subset/events.jsonl",
+      "sha256": "9696c577a690275d2f648a5a0bfdeb44a6b1968abe430558cf1ccb748ee8817e"
+    },
+    {
+      "bytes": 1525,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset\\identity.json",
+      "relative_path": "subset/identity.json",
+      "sha256": "11b574e767ddad57b4a6059fd17fbfdbce0e8d1a35987bc86ab52505226f2748"
+    },
+    {
+      "bytes": 39,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset\\parse.json",
+      "relative_path": "subset/parse.json",
+      "sha256": "119e0083a2c684a68f0210a4fba124aabd0fcad1bc6d16585339b37bc9420976"
+    },
+    {
+      "bytes": 13807,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset\\profile.pstats",
+      "relative_path": "subset/profile.pstats",
+      "sha256": "82835e3ec51f4c48907c4c6c9d184f97b536aff293dae5ec3c1f9f17fcb3473a"
+    },
+    {
+      "bytes": 3359,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset\\profile.txt",
+      "relative_path": "subset/profile.txt",
+      "sha256": "a37efda45a7168ee08528f91487e5dff32ef488684947221fa3ecba7e0ec8e3e"
+    },
+    {
+      "bytes": 380,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_execution.json",
+      "relative_path": "subset_execution.json",
+      "sha256": "eba073e60939e27fa1e0fb4479e1989e1ee9386d92e3b0f723ec1767961b1330"
+    },
+    {
+      "bytes": 5257,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_probe.py",
+      "relative_path": "subset_probe.py",
+      "sha256": "969c62ef23962f33f1263772ef5aa6655fef5f55cebdbf6e67e4fc3d4d792bfc"
+    },
+    {
+      "bytes": 5266,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_probe_v2.py",
+      "relative_path": "subset_probe_v2.py",
+      "sha256": "df647577c5205abc0d7c6c1fc512ef98781f11acca44b9e32ec84d2778f39a31"
+    },
+    {
+      "bytes": 2186,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_stderr.log",
+      "relative_path": "subset_stderr.log",
+      "sha256": "c66604c508d102b9874b82cab237bd81f42297bc20039199ef7b64f6efbd86c7"
+    },
+    {
+      "bytes": 0,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_stdout.log",
+      "relative_path": "subset_stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1149,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_supervisor.py",
+      "relative_path": "subset_supervisor.py",
+      "sha256": "bca12882e8ad67d95e24502b6767ed70d899c6c017e0ee1643c243d3283ec88a"
+    },
+    {
+      "bytes": 1161,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_supervisor_v2.py",
+      "relative_path": "subset_supervisor_v2.py",
+      "sha256": "9d7d1a8ef2d3d0a819d3319fe03c262c22613989ffad5d50492398a55befdd29"
+    },
+    {
+      "bytes": 5180,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2\\events.jsonl",
+      "relative_path": "subset_v2/events.jsonl",
+      "sha256": "41f5d4a6d775f769fb1a82872003fed06a84bc7a2558e804ed85d433d18a90f4"
+    },
+    {
+      "bytes": 1531,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2\\identity.json",
+      "relative_path": "subset_v2/identity.json",
+      "sha256": "06e2774d1bb3305a875e21c1b4ceac831f145ed40456459e3489c1b4563decb1"
+    },
+    {
+      "bytes": 39,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2\\parse.json",
+      "relative_path": "subset_v2/parse.json",
+      "sha256": "e5c77ac1b727283ed3cdcbd313f0e12e182bd436ed27c938728d5c527ce34107"
+    },
+    {
+      "bytes": 14845,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2\\profile.pstats",
+      "relative_path": "subset_v2/profile.pstats",
+      "sha256": "a076b73a044986e067f9211be4d7a213814ea83cfd59cd5cd2b8de31f2dd36ba"
+    },
+    {
+      "bytes": 3312,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2\\profile.txt",
+      "relative_path": "subset_v2/profile.txt",
+      "sha256": "a0e28b426369237db4b4241efdc4d31fda4e95454a754a1d86afead2576d49ca"
+    },
+    {
+      "bytes": 6238,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2\\results.json",
+      "relative_path": "subset_v2/results.json",
+      "sha256": "283da6d71191b20dbac71d742a391ea31504c65319dd1f6aaebf417951526cff"
+    },
+    {
+      "bytes": 63,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2\\validation.json",
+      "relative_path": "subset_v2/validation.json",
+      "sha256": "26b059f243568e2797cd06576c7a8f08c80dd8fac137a503a0920a34221a3a34"
+    },
+    {
+      "bytes": 383,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2_execution.json",
+      "relative_path": "subset_v2_execution.json",
+      "sha256": "087ea3e798ce87e2760c72994460c0899236de11bc7ac21729262618972f8320"
+    },
+    {
+      "bytes": 0,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2_stderr.log",
+      "relative_path": "subset_v2_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_v2_stdout.log",
+      "relative_path": "subset_v2_stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4210,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\verify_delivery.py",
+      "relative_path": "verify_delivery.py",
+      "sha256": "0957384549c8db814f3d602ae12e7b1c65ea7268af8ca2d4d0b69f6d22ed5bf9"
+    }
+  ],
+  "authorized_staged_paths": [
+    "scripts/design/space_field/run_native_ifc_timeout_probe.py",
+    "docs/project/evidence/d6-native-ifc-timeout-repair.md",
+    "docs/project/evidence/d6-native-ifc-timeout-repair-manifest.json",
+    "docs/project/evidence/d6-space-field-design-progress.md",
+    "docs/project/evidence/d6-b2-real-input-validation-independent-review.md"
+  ],
+  "base_commit": "979a756a9859a81a9b700107675cca3025a08975",
+  "baseline": {
+    "argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+      "-B",
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_native_ifc_timeout_probe.py",
+      "--mode",
+      "baseline",
+      "--source",
+      "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "--output-dir",
+      "outputs/design/d6_native_ifc_timeout_repair/run_001/baseline",
+      "--worker"
+    ],
+    "elapsed_seconds": 300.56199999997625,
+    "exit_code": 1,
+    "instrumented": true,
+    "last_stage": "loader",
+    "monotonic_start": 295400.0,
+    "native_budget": 300,
+    "pid": 62940,
+    "timed_out": true,
+    "utc_end": "2026-10-07T20:54:35.518780+00:00",
+    "utc_start": "2026-10-07T20:49:34.944099+00:00",
+    "view_budget": 180
+  },
+  "baseline_measurements": {
+    "classes": {
+      "IfcBuildingElementProxy": 176
+    },
+    "completed_shapes": 176,
+    "last_events": [
+      {
+        "class": "IfcBuildingElementProxy",
+        "elapsed": 2.4999316000030376,
+        "global_id": "1ALGS597fU7OnPg3u5QyEd",
+        "monotonic": 295698.046,
+        "phase": "exit",
+        "representation": "Body",
+        "representation_step_id": 3155334,
+        "stage": "_native_mesh_record",
+        "step_id": 3142509,
+        "utc": "2026-10-07T20:54:32.991760+00:00"
+      },
+      {
+        "call": 176,
+        "class": "IfcBuildingElementProxy",
+        "global_id": "188pSTO81S4h2PjTrmBjlI",
+        "monotonic": 295698.046,
+        "phase": "enter",
+        "representation": "Body",
+        "representation_step_id": 3168685,
+        "stage": "_native_mesh_record",
+        "step_id": 3155356,
+        "utc": "2026-10-07T20:54:32.991760+00:00"
+      },
+      {
+        "call": 176,
+        "class": "IfcBuildingElementProxy",
+        "global_id": "188pSTO81S4h2PjTrmBjlI",
+        "monotonic": 295698.046,
+        "phase": "enter",
+        "representation": "Body",
+        "representation_step_id": 3168685,
+        "stage": "create_shape",
+        "step_id": 3155356,
+        "utc": "2026-10-07T20:54:32.991760+00:00"
+      },
+      {
+        "class": "IfcBuildingElementProxy",
+        "elapsed": 2.285033199994359,
+        "global_id": "188pSTO81S4h2PjTrmBjlI",
+        "monotonic": 295700.328,
+        "phase": "exit",
+        "representation": "Body",
+        "representation_step_id": 3168685,
+        "stage": "create_shape",
+        "step_id": 3155356,
+        "utc": "2026-10-07T20:54:35.277045+00:00"
+      },
+      {
+        "call": 176,
+        "monotonic": 295700.328,
+        "phase": "enter",
+        "stage": "_mesh_record",
+        "utc": "2026-10-07T20:54:35.284071+00:00"
+      },
+      {
+        "call": 176,
+        "monotonic": 295700.343,
+        "phase": "enter",
+        "stage": "_triangle_topology_flags",
+        "triangle_count": 13326,
+        "utc": "2026-10-07T20:54:35.296082+00:00"
+      }
+    ],
+    "stage_sums": {
+      "_mesh_record": 10.601764199906029,
+      "_native_grid_records": 0.005744499969296157,
+      "_native_group_records": 0.003444499976467341,
+      "_native_length_unit": 0.00355590000981465,
+      "_native_material_records": 0.13141029997495934,
+      "_native_mesh_record": 279.66899719950743,
+      "_native_world_transform": 0.004174000001512468,
+      "_open_source": 15.720670300011989,
+      "_triangle_topology_flags": 6.072654599440284,
+      "create_shape": 270.6762913002749
+    },
+    "unique_reps": 176
+  },
+  "branch": "codex/d6-analysis-domain-layout-handoff",
+  "clean": {
+    "argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+      "-B",
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_native_ifc_timeout_probe.py",
+      "--mode",
+      "clean",
+      "--native-budget",
+      "600",
+      "--view-budget",
+      "180",
+      "--source",
+      "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "--output-dir",
+      "outputs/design/d6_native_ifc_timeout_repair/run_001/clean",
+      "--worker"
+    ],
+    "elapsed_seconds": 600.704000000027,
+    "exit_code": 1,
+    "instrumented": false,
+    "last_stage": "loader",
+    "monotonic_start": 295887.796,
+    "native_budget": 600.0,
+    "pid": 6636,
+    "timed_out": true,
+    "utc_end": "2026-10-07T21:07:43.439030+00:00",
+    "utc_start": "2026-10-07T20:57:42.749630+00:00",
+    "view_budget": 180.0
+  },
+  "delivery_checks": {
+    "assertions": "pass",
+    "clean_execution": {
+      "argv": [
+        "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+        "-B",
+        "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_native_ifc_timeout_probe.py",
+        "--mode",
+        "clean",
+        "--native-budget",
+        "600",
+        "--view-budget",
+        "180",
+        "--source",
+        "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+        "--output-dir",
+        "outputs/design/d6_native_ifc_timeout_repair/run_001/clean",
+        "--worker"
+      ],
+      "elapsed_seconds": 600.704000000027,
+      "exit_code": 1,
+      "instrumented": false,
+      "last_stage": "loader",
+      "monotonic_start": 295887.796,
+      "native_budget": 600.0,
+      "pid": 6636,
+      "timed_out": true,
+      "utc_end": "2026-10-07T21:07:43.439030+00:00",
+      "utc_start": "2026-10-07T20:57:42.749630+00:00",
+      "view_budget": 180.0
+    },
+    "docstring_function_count": 8,
+    "native_inventory_classes": {
+      "IfcBuilding": 1,
+      "IfcBuildingElementProxy": 193,
+      "IfcBuildingStorey": 1,
+      "IfcColumn": 16,
+      "IfcDoor": 6,
+      "IfcFurnishingElement": 27,
+      "IfcFurniture": 95,
+      "IfcGrid": 1,
+      "IfcSite": 1,
+      "IfcSlab": 1,
+      "IfcWall": 11,
+      "IfcWindow": 5
+    },
+    "parsed_json": 22,
+    "preserved_existing_untracked": 49,
+    "production_unchanged": [
+      "adapters/ifc_bonsai.py",
+      "features/neutral_scene_views.py",
+      "features/scene_contract.py",
+      "scripts/design/space_field/run_b2_real_input_validation.py",
+      "docs/project/evidence/d6-b2-real-input-validation-manifest.json"
+    ],
+    "source": {
+      "bytes": 408617800,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+    }
+  },
+  "executed_identity": {
+    "argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_native_ifc_timeout_probe.py",
+      "--mode",
+      "clean",
+      "--native-budget",
+      "600",
+      "--view-budget",
+      "180",
+      "--source",
+      "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "--output-dir",
+      "outputs/design/d6_native_ifc_timeout_repair/run_001/clean",
+      "--worker"
+    ],
+    "base_head": "979a756a9859a81a9b700107675cca3025a08975",
+    "executable": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+    "ifcopenshell": "0.8.5",
+    "modules": {
+      "adapters.ifc_bonsai": {
+        "bytes": 82655,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\adapters\\ifc_bonsai.py",
+        "sha256": "d9c494a0af5a9b5e09c29814de5a8cd2348a7ff5bf31ac48adefec652b041cdd"
+      },
+      "features.analysis_substitute_discovery": {
+        "bytes": 10373,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\analysis_substitute_discovery.py",
+        "sha256": "3dd4f6600bee30c6ef2519d79e7c8b71e2469f8c07a31b826d5e95108ab7d4e4"
+      },
+      "features.geometry_substitutes": {
+        "bytes": 6303,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\geometry_substitutes.py",
+        "sha256": "124852c4a6e1d061e450f3a304e7bc8e847e0f3a6f63e9d483da180ff39f8fa8"
+      },
+      "features.geometry_views": {
+        "bytes": 29103,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\geometry_views.py",
+        "sha256": "8feb3852194401485ade4171ecd13140a256c10d1dff1058589100e1e122ba34"
+      },
+      "features.neutral_scene_views": {
+        "bytes": 49155,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\neutral_scene_views.py",
+        "sha256": "29421243263b54421fc486cfcd2d72b232c5b5fc3f635ca8d797b67af247a714"
+      },
+      "features.scene_contract": {
+        "bytes": 43313,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\features\\scene_contract.py",
+        "sha256": "60ca090fb5ba9349b3f817bab53a01ffa1a7310d0c1112debb918a4c1a360db7"
+      }
+    },
+    "monotonic": 295889.156,
+    "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:36:12) [MSC v.1944 64 bit (AMD64)]",
+    "runner": {
+      "bytes": 11482,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\space_field\\run_native_ifc_timeout_probe.py",
+      "sha256": "82cfee2a28d9775e02fa29f53a9f00ebae1153d9c4a7ee48a41a1992e3bbeb99"
+    },
+    "source": {
+      "bytes": 408617800,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+    },
+    "utc": "2026-10-07T20:57:44.111147+00:00"
+  },
+  "existing_files_fingerprints": [
+    {
+      "bytes": 6637,
+      "path": "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair-v2-independent-review.md",
+      "sha256": "237ae3a71b4987f2b80b2d6887337abc6a35a997730170e99a31739a8fb05fa3"
+    },
+    {
+      "bytes": 10059,
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-implementation-plan-independent-review.md",
+      "sha256": "969d489bee5781a461e9e062aee6e3b22080f41cfb02108cc39886d4602b5a46"
+    },
+    {
+      "bytes": 4585,
+      "path": "docs/project/evidence/d6-b2-provenance-refusal-implementation-plan-repair.md",
+      "sha256": "f3d0b12fcad8604a33ba746b7b48f97723147de5760be0f046edd90ac530a6a2"
+    },
+    {
+      "bytes": 27345,
+      "path": "docs/project/evidence/d6-b2-real-input-validation-independent-review.md",
+      "sha256": "62ab8840191dc4212f23665f36ff8508607220dc65f81878336724932421feeb"
+    },
+    {
+      "bytes": 10603,
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-independent-review.md",
+      "sha256": "4c404932cefc9c92fbe0df4740c86c77f0425fb3d17ad16b2843ef2b9f0be77b"
+    },
+    {
+      "bytes": 20992,
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v1-independent-review.md",
+      "sha256": "8cb3470c5e050c22ec941031dae64d2543e33ab1d10a3412844071c94b50a484"
+    },
+    {
+      "bytes": 635,
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v3-status-contract.md",
+      "sha256": "790f16a3f5b73a9efe5593752b6caa5a9f9d59ffab94294ce0e6264ae613fae1"
+    },
+    {
+      "bytes": 3144,
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v3.md",
+      "sha256": "68b34a6269694f4ae4228b3b98d21c66dcb330a423d3400c8817e2812162c577"
+    },
+    {
+      "bytes": 740,
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v4-status-contract.md",
+      "sha256": "ee5e05d404ab09dcfde74a6e9240ddfd3a0782fd5f6000d0e8387a430eba779b"
+    },
+    {
+      "bytes": 1966,
+      "path": "docs/project/evidence/d6-pairwise-channel-run002-repair-v4.md",
+      "sha256": "8cd97a886f293810db27499634e5c2b6242a4d37dcd6a10ba6fc8cfc21efc53a"
+    },
+    {
+      "bytes": 11309,
+      "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-experiment.md",
+      "sha256": "5827c7870786b93387f20e9b32b196e7cfeb4dd6581e8cb1bd824465a9e1d8a0"
+    },
+    {
+      "bytes": 2061,
+      "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-owner-decision.md",
+      "sha256": "370b5d4b8ef2c768c8545a0b24560c3e51bf565e98a57750d14293fae55acab4"
+    },
+    {
+      "bytes": 3773,
+      "path": "docs/project/evidence/d6-space-field-candidate-set-lifecycle-render-repair-v1.md",
+      "sha256": "ccd6fe97c0d522113af8701cb24ace21facb8ee94aba372573363c75561e626a"
+    },
+    {
+      "bytes": 9365,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+      "sha256": "ebe3abd77dc26808284c8ff426a8d017611dd5326b4e78073f711430fafe28c8"
+    },
+    {
+      "bytes": 106114,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-fixtures.json",
+      "sha256": "f22b870de038329b91fe0db540697ae4a362a97cf4fce650104f9d70f72689eb"
+    },
+    {
+      "bytes": 586,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-git-scope.json",
+      "sha256": "fc58f59fac68b1a327db2706ad72f46b86692116cf4f15b0b84b69714c4ff3ad"
+    },
+    {
+      "bytes": 1043,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-owner-review.md",
+      "sha256": "535acd12416338bc3500f6a7ca03acd0bbd887af4a468c5d0aaa5cf75be9dd3e"
+    },
+    {
+      "bytes": 1759,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-provenance.json",
+      "sha256": "677e491de469646466bd2987e10490957959148e113c8cec6f1dd9ee9c28eb24"
+    },
+    {
+      "bytes": 21782,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-real-ifc.json",
+      "sha256": "f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31"
+    },
+    {
+      "bytes": 410,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-schema.json",
+      "sha256": "b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62"
+    },
+    {
+      "bytes": 808,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-scope.json",
+      "sha256": "a11c456b4221e8cebe350394e891c1df4a447c7dd3a98d5c5d5720ae4c62942c"
+    },
+    {
+      "bytes": 135419,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-updated-diagnostic.json",
+      "sha256": "47d82c5d2cc674e46ff74d060f429bf89900fbe38a934f64ddfab1b659b7a2ed"
+    },
+    {
+      "bytes": 5008,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit-validation.json",
+      "sha256": "8a08f66b19bdacc54790d6042ab4eb2d74b118ebd44e7c3a6e3f2511478f5da9"
+    },
+    {
+      "bytes": 4108,
+      "path": "docs/project/evidence/d6-space-field-column-channel-audit.md",
+      "sha256": "c3dbfd6c7ab166a9b913dea842f36d0ec9d2ae21a30e2a2a671fc4ca790ed09d"
+    },
+    {
+      "bytes": 16263,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+      "sha256": "99ce25a7829a232571ca22575a09d8d32783f5516a3e34ccded57b2ae7acb4a0"
+    },
+    {
+      "bytes": 279845,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-before-after.json",
+      "sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7"
+    },
+    {
+      "bytes": 26198,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-fixtures.json",
+      "sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95"
+    },
+    {
+      "bytes": 2163,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-owner-review.md",
+      "sha256": "16503904ce90a4063009502431ed471c49a6604cf1150d311d14a278cdd00a11"
+    },
+    {
+      "bytes": 1851,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-provenance.json",
+      "sha256": "5f7a54300abea7d71d0d3280138bbba18535238d6007fb539106794039238bd3"
+    },
+    {
+      "bytes": 240581,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-real-ifc.json",
+      "sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32"
+    },
+    {
+      "bytes": 640,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-schema.json",
+      "sha256": "bf14e6ff35e4f3ac0f70bcd3db00c3ba3af4939a2ba173f17af732d3d665dd6f"
+    },
+    {
+      "bytes": 2043,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-scope-audit.json",
+      "sha256": "3cb693de27d4848d5428fb9d2c43583db1d52273bfe5338d5b7f75ec62499e29"
+    },
+    {
+      "bytes": 4459,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json",
+      "sha256": "5f8f5062bb44aafaa56fd58b87870a14264406bf1d27b2681adee5a12e54df57"
+    },
+    {
+      "bytes": 5276,
+      "path": "docs/project/evidence/d6-space-field-hard-column-comparison.md",
+      "sha256": "5ee974e559aa93fe0cbc98d51540c6c67582ffa53b35ef36d3ec81415753e11b"
+    },
+    {
+      "bytes": 4013,
+      "path": "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison-owner-decision.md",
+      "sha256": "233ea0cca5772bdab3621754fccf18309f40a1bdbb0a76bf15c4cede0ae9627f"
+    },
+    {
+      "bytes": 11211,
+      "path": "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison.md",
+      "sha256": "145685a97ca28dbc4d7f20e730fd4e3946122341665a11be083c7120e8cd57c2"
+    },
+    {
+      "bytes": 5752,
+      "path": "docs/project/evidence/d6-space-field-real-ifc-pairwise-relationship-experiment.md",
+      "sha256": "7c3bd96f4d748ccd0742ae23e2ef5c838621682803504e8a630be3676d44501b"
+    },
+    {
+      "bytes": 14984,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+      "sha256": "5c0e6b22d68b2324eecdd6c6d53594981cf074c4b93be17683cc26e3a64eb8ea"
+    },
+    {
+      "bytes": 998,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-before-after.json",
+      "sha256": "5a9f581f772f3298032cdd37619b0c5a936e4d8e65086a7ab7017dabc494f2b7"
+    },
+    {
+      "bytes": 85668,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-candidates.json",
+      "sha256": "44385072ca5d0479d017a1056f772a6cc35e9384afe1d56a290675d6d5efe357"
+    },
+    {
+      "bytes": 1330260,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json",
+      "sha256": "864d17b6a6e2ca8b372431e0ef87e37847292e4498e1bf3fdef234112b638d7d"
+    },
+    {
+      "bytes": 967898,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-field.json",
+      "sha256": "852d2b973a814d010f79021a1b37d8ec1f428575d31a232a562ccababa157349"
+    },
+    {
+      "bytes": 3005,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-owner-review.md",
+      "sha256": "1455bda9214d98f01dc1473a08397d436eaf1993e8b857e1dddfc70646f8e1de"
+    },
+    {
+      "bytes": 1920,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json",
+      "sha256": "d390fe8c1bdd5b93a6465d72fcba3228c450b6ab6dfdc12226082404a6081b11"
+    },
+    {
+      "bytes": 2184,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-scope-audit.json",
+      "sha256": "d528aeab1902c33d3ca71b80be2fb7822f8f4b5f7cba18087b866163e8f284fd"
+    },
+    {
+      "bytes": 6397,
+      "path": "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1.md",
+      "sha256": "ec97fd5717e74d066efd4addc9330c8e5870f839e296087dad5b64b991dda4d8"
+    },
+    {
+      "bytes": 20978,
+      "path": "docs/superpowers/plans/2026-10-07-d6-b2-provenance-refusal-implementation.md",
+      "sha256": "e11dfc70a1390d1f8cdcbfe3378cf507d92a111e1791e11b68421663e312f72d"
+    },
+    {
+      "bytes": 0,
+      "path": "full_pytest_checkpoint1b.err",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1099,
+      "path": "full_pytest_checkpoint1b.log",
+      "sha256": "98f80aa48382ed42a03ba8ab38f09a4e5cf1629380f57022ddebc6715d26db2b"
+    }
+  ],
+  "historical_preservation": {
+    "matched": [
+      "docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair-v2-independent-review.md",
+      "docs/project/evidence/d6-b2-provenance-refusal-implementation-plan-independent-review.md",
+      "docs/project/evidence/d6-b2-provenance-refusal-implementation-plan-repair.md",
+      "docs/project/evidence/d6-pairwise-channel-run002-independent-review.md",
+      "docs/project/evidence/d6-pairwise-channel-run002-repair-v1-independent-review.md",
+      "docs/project/evidence/d6-pairwise-channel-run002-repair-v3-status-contract.md",
+      "docs/project/evidence/d6-pairwise-channel-run002-repair-v3.md",
+      "docs/project/evidence/d6-pairwise-channel-run002-repair-v4-status-contract.md",
+      "docs/project/evidence/d6-pairwise-channel-run002-repair-v4.md",
+      "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-experiment.md",
+      "docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-owner-decision.md",
+      "docs/project/evidence/d6-space-field-candidate-set-lifecycle-render-repair-v1.md",
+      "docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit-fixtures.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit-git-scope.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit-owner-review.md",
+      "docs/project/evidence/d6-space-field-column-channel-audit-provenance.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit-real-ifc.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit-schema.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit-scope.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit-updated-diagnostic.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit-validation.json",
+      "docs/project/evidence/d6-space-field-column-channel-audit.md",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-before-after.json",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-fixtures.json",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-owner-review.md",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-provenance.json",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-real-ifc.json",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-schema.json",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-scope-audit.json",
+      "docs/project/evidence/d6-space-field-hard-column-comparison-validation.json",
+      "docs/project/evidence/d6-space-field-hard-column-comparison.md",
+      "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison-owner-decision.md",
+      "docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison.md",
+      "docs/project/evidence/d6-space-field-real-ifc-pairwise-relationship-experiment.md",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-before-after.json",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-candidates.json",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-field.json",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-owner-review.md",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-scope-audit.json",
+      "docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1.md",
+      "docs/superpowers/plans/2026-10-07-d6-b2-provenance-refusal-implementation.md",
+      "full_pytest_checkpoint1b.err",
+      "full_pytest_checkpoint1b.log"
+    ],
+    "not_matched": [
+      "docs/project/evidence/d6-b2-real-input-validation-independent-review.md"
+    ]
+  },
+  "implementation_checkpoint": "8fd6f75d8d4444adac53588f642187d489e14831",
+  "initial_git_baseline": {
+    "branch": "codex/d6-analysis-domain-layout-handoff\n",
+    "head": "979a756a9859a81a9b700107675cca3025a08975\n",
+    "index": "",
+    "status": " M docs/project/evidence/d6-space-field-design-progress.md\n?? docs/project/evidence/d6-b2-geometry-opening-column-loop-closure-repair-v2-independent-review.md\n?? docs/project/evidence/d6-b2-provenance-refusal-implementation-plan-independent-review.md\n?? docs/project/evidence/d6-b2-provenance-refusal-implementation-plan-repair.md\n?? docs/project/evidence/d6-b2-real-input-validation-independent-review.md\n?? docs/project/evidence/d6-pairwise-channel-run002-independent-review.md\n?? docs/project/evidence/d6-pairwise-channel-run002-repair-v1-independent-review.md\n?? docs/project/evidence/d6-pairwise-channel-run002-repair-v3-status-contract.md\n?? docs/project/evidence/d6-pairwise-channel-run002-repair-v3.md\n?? docs/project/evidence/d6-pairwise-channel-run002-repair-v4-status-contract.md\n?? docs/project/evidence/d6-pairwise-channel-run002-repair-v4.md\n?? docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-experiment.md\n?? docs/project/evidence/d6-space-field-candidate-set-lifecycle-precedence-owner-decision.md\n?? docs/project/evidence/d6-space-field-candidate-set-lifecycle-render-repair-v1.md\n?? docs/project/evidence/d6-space-field-column-channel-audit-artifact-manifest.json\n?? docs/project/evidence/d6-space-field-column-channel-audit-fixtures.json\n?? docs/project/evidence/d6-space-field-column-channel-audit-git-scope.json\n?? docs/project/evidence/d6-space-field-column-channel-audit-owner-review.md\n?? docs/project/evidence/d6-space-field-column-channel-audit-provenance.json\n?? docs/project/evidence/d6-space-field-column-channel-audit-real-ifc.json\n?? docs/project/evidence/d6-space-field-column-channel-audit-schema.json\n?? docs/project/evidence/d6-space-field-column-channel-audit-scope.json\n?? docs/project/evidence/d6-space-field-column-channel-audit-updated-diagnostic.json\n?? docs/project/evidence/d6-space-field-column-channel-audit-validation.json\n?? docs/project/evidence/d6-space-field-column-channel-audit.md\n?? docs/project/evidence/d6-space-field-hard-column-comparison-artifact-manifest.json\n?? docs/project/evidence/d6-space-field-hard-column-comparison-before-after.json\n?? docs/project/evidence/d6-space-field-hard-column-comparison-fixtures.json\n?? docs/project/evidence/d6-space-field-hard-column-comparison-owner-review.md\n?? docs/project/evidence/d6-space-field-hard-column-comparison-provenance.json\n?? docs/project/evidence/d6-space-field-hard-column-comparison-real-ifc.json\n?? docs/project/evidence/d6-space-field-hard-column-comparison-schema.json\n?? docs/project/evidence/d6-space-field-hard-column-comparison-scope-audit.json\n?? docs/project/evidence/d6-space-field-hard-column-comparison-validation.json\n?? docs/project/evidence/d6-space-field-hard-column-comparison.md\n?? docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison-owner-decision.md\n?? docs/project/evidence/d6-space-field-real-ifc-boundary-candidate-comparison.md\n?? docs/project/evidence/d6-space-field-real-ifc-pairwise-relationship-experiment.md\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-artifact-manifest.json\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-before-after.json\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-candidates.json\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-field.json\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-owner-review.md\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-provenance.json\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-scope-audit.json\n?? docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1.md\n?? docs/superpowers/plans/2026-10-07-d6-b2-provenance-refusal-implementation.md\n?? full_pytest_checkpoint1b.err\n?? full_pytest_checkpoint1b.log\n?? scripts/design/space_field/run_native_ifc_timeout_probe.py\n"
+  },
+  "inventory_classes": {
+    "IfcBuilding": 1,
+    "IfcBuildingElementProxy": 193,
+    "IfcBuildingStorey": 1,
+    "IfcColumn": 16,
+    "IfcDoor": 6,
+    "IfcFurnishingElement": 27,
+    "IfcFurniture": 95,
+    "IfcGrid": 1,
+    "IfcSite": 1,
+    "IfcSlab": 1,
+    "IfcWall": 11,
+    "IfcWindow": 5
+  },
+  "kernel_identity": {
+    "adapter": {
+      "bytes": 82655,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\adapters\\ifc_bonsai.py",
+      "sha256": "d9c494a0af5a9b5e09c29814de5a8cd2348a7ff5bf31ac48adefec652b041cdd"
+    },
+    "argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_probe_v2.py"
+    ],
+    "geom_module": {
+      "bytes": 1877,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\Lib\\site-packages\\ifcopenshell\\geom\\__init__.py",
+      "sha256": "d9a3eac4a3a3faf2e885c8f1e60074c136293b2051eec67381ab3c8f60719add"
+    },
+    "kernel": {
+      "bytes": 55996416,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\Lib\\site-packages\\ifcopenshell\\_ifcopenshell_wrapper.cp312-win_amd64.pyd",
+      "sha256": "354f439b6f9e94d588a2e9b675fd65e6597cf312d0bc429ed6c7c2da2b2f24b0"
+    },
+    "probe": {
+      "bytes": 5266,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_probe_v2.py",
+      "sha256": "df647577c5205abc0d7c6c1fc512ef98781f11acca44b9e32ec84d2778f39a31"
+    },
+    "source": {
+      "bytes": 408617800,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+    },
+    "utc": "2026-10-07T20:55:47.957673+00:00"
+  },
+  "limitations": [
+    "No production repair or exact speedup claim; baseline is instrumented and censored.",
+    "Partial cProfile covers only the initial approximately 30.7s; JSONL covers the baseline until timeout.",
+    "Subset mesh hashes do not establish complete-scene before/after equivalence.",
+    "No qualification, opening subtraction, free-space or routes were manufactured."
+  ],
+  "native_inventory": [
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2TmS7mYHHLMhbVvDbNeBfy",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1843714
+        }
+      ],
+      "step_id": 1836854
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3JgVOKAW5NtwyIYRxyv5_i",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1878363
+        }
+      ],
+      "step_id": 1843736
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2cY$RHrCnGvh2ssYZDX7TB",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1880408
+        }
+      ],
+      "step_id": 1878385
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1HLtqYdu1TSuqC1nSILVJu",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1881875
+        }
+      ],
+      "step_id": 1880430
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3q8S32RZ5Lkv2rh_q3x3UX",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1885180
+        }
+      ],
+      "step_id": 1881897
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0l_PEuvKrMs8cF6DWJh0GR",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1900751
+        }
+      ],
+      "step_id": 1885202
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0b6VjKtQPKTRM_utDuQrev",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1908208
+        }
+      ],
+      "step_id": 1900773
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1QBueFJPDL6RCBPhYs7nB_",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1908625
+        }
+      ],
+      "step_id": 1908230
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1nuGcxxVPMzexTK9pztXMY",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1909802
+        }
+      ],
+      "step_id": 1908647
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1xVUDxCfDKT8iT3oDPxkZ1",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1912835
+        }
+      ],
+      "step_id": 1909824
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1U2WZVtGzNRfXOgq7hTitk",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1914531
+        }
+      ],
+      "step_id": 1912857
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3$N4PFx1TPy9jq6O96d3nH",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1916227
+        }
+      ],
+      "step_id": 1914553
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1icBGP3inSK9HkNxJd56c_",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1919260
+        }
+      ],
+      "step_id": 1916249
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "18AqTSEs1K6AspCXMQhAba",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1920437
+        }
+      ],
+      "step_id": 1919282
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2AWGFN6JPRiA4yoYjyy8rE",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1920854
+        }
+      ],
+      "step_id": 1920459
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3YsyVFPJfKOehLtPKoMBs7",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1928311
+        }
+      ],
+      "step_id": 1920876
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1nlY8b3U9Vvfz55HrMNzga",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1943882
+        }
+      ],
+      "step_id": 1928333
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1d3U0Y36bTGQH1RzRui23I",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1947187
+        }
+      ],
+      "step_id": 1943904
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2WO0eJaUnOdgx3O4pFvwe4",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1948654
+        }
+      ],
+      "step_id": 1947209
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "32sbyPBJLP_wa9fPnsz6MQ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1950699
+        }
+      ],
+      "step_id": 1948676
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0W5oW6AafSUxV3_KdqgnsJ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1985348
+        }
+      ],
+      "step_id": 1950721
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "11gVXE7YTJ9BJJJtQtuFRn",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1992230
+        }
+      ],
+      "step_id": 1985370
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1wZJY19NTU$Bn2CE1vayIo",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1996033
+        }
+      ],
+      "step_id": 1992252
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3WkGq8AkzRqe0CqH5RjoKH",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2109680
+        }
+      ],
+      "step_id": 2084491
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1P8xZym6zHZwwhVao3SC8I",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2134891
+        }
+      ],
+      "step_id": 2109702
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2gT1iEOVjGYPFJ8e4gCwl6",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2160102
+        }
+      ],
+      "step_id": 2134913
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2UGikP84zJofXbPktnTzx3",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2162175
+        }
+      ],
+      "step_id": 2160124
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3OvyI2ZSXQbeWo$6sXPAra",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2165394
+        }
+      ],
+      "step_id": 2162197
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0IKbvv1mDLhPLLSoMOSdd$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2167467
+        }
+      ],
+      "step_id": 2165416
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2t_JnYFYnTv9ZwJ4Ajd8GB",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2169540
+        }
+      ],
+      "step_id": 2167489
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0hFIijXLPVs9FE7787NnPV",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2171613
+        }
+      ],
+      "step_id": 2169562
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0zYRy1VO5NTghzPBr57uuR",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2173686
+        }
+      ],
+      "step_id": 2171635
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2$DNUV65nKePqyAQ2wRl4H",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2175382
+        }
+      ],
+      "step_id": 2173708
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1wzU8a9wDQb9TLhk3pZZk3",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2178415
+        }
+      ],
+      "step_id": 2175404
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1zCTx3WEzGYfr39YMhHGrM",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2179592
+        }
+      ],
+      "step_id": 2178437
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0z4446KLnRH9X6Qu1iKRHU",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2180009
+        }
+      ],
+      "step_id": 2179614
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0thhIEDYnTRAYdPwr1pVfq",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2187466
+        }
+      ],
+      "step_id": 2180031
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "25du7OUrDT$eMQfmZwdEBr",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2203037
+        }
+      ],
+      "step_id": 2187488
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "215fXDUUHUqwpyn6bbYyYf",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2206342
+        }
+      ],
+      "step_id": 2203059
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0051dGf7bMoOOrwt2LRyzG",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2207809
+        }
+      ],
+      "step_id": 2206364
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0V1ME2Z65Jw9FjXZakUCX0",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2209854
+        }
+      ],
+      "step_id": 2207831
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2qvz0u_PvSXQD9ikFvm7l7",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2244503
+        }
+      ],
+      "step_id": 2209876
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1fc2Ct8vTGghBLPrwOn93A",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2251385
+        }
+      ],
+      "step_id": 2244525
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1CbxYPPD1SrQmeTgJKi5gs",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2258267
+        }
+      ],
+      "step_id": 2251407
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "31mudzT4XVJwG2hB7N1ZRO",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2292916
+        }
+      ],
+      "step_id": 2258289
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3UJoMehXjUpRenKOhCz$0h",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2294961
+        }
+      ],
+      "step_id": 2292938
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3k3HsSQ$bPo9vHMgChgHZj",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2296428
+        }
+      ],
+      "step_id": 2294983
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0X2AON81HObf7QkG2lz5BN",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2299733
+        }
+      ],
+      "step_id": 2296450
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3Cmu717RvSCRWe4QVQbkco",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2315304
+        }
+      ],
+      "step_id": 2299755
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3h_azLRNLJ3B8RyEISkTa1",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2322761
+        }
+      ],
+      "step_id": 2315326
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0onh3NJBzJwwwPnY96o78E",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2323178
+        }
+      ],
+      "step_id": 2322783
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0OE9mAhJPOaPoJU2YCv3kE",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2324355
+        }
+      ],
+      "step_id": 2323200
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1BIpOmsfDOdA_yGDAim5_$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2327388
+        }
+      ],
+      "step_id": 2324377
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "29UPvUS7vVlAw55CwoSWpi",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2329084
+        }
+      ],
+      "step_id": 2327410
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1R0cv2NJjL8w5Inn$T8ehe",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2330780
+        }
+      ],
+      "step_id": 2329106
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0En8gYPL1SOQdL3bTDfK7D",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2333813
+        }
+      ],
+      "step_id": 2330802
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2qvK5B3ILSmgzyl_9MeLpx",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2334990
+        }
+      ],
+      "step_id": 2333835
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0kY14Aj5DTGx1WYmr3F8s6",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2335407
+        }
+      ],
+      "step_id": 2335012
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2OiWJqbl9S6gxO736cBOiv",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2342864
+        }
+      ],
+      "step_id": 2335429
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0GQFCQnN5UJviPRvom51ij",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2358435
+        }
+      ],
+      "step_id": 2342886
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2SUkGArq5TKQwCdSKdJaz2",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2361740
+        }
+      ],
+      "step_id": 2358457
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2LmXMCnQvIU8SFtBHSZymR",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2363207
+        }
+      ],
+      "step_id": 2361762
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0Wxv8hPBLQvP19Vjnf75W0",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2365252
+        }
+      ],
+      "step_id": 2363229
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1Rmw4Nip9GbPvucBbetbSp",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2399901
+        }
+      ],
+      "step_id": 2365274
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0zr2huR9zLHe3oK$hipE1D",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2406783
+        }
+      ],
+      "step_id": 2399923
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "01AK9Hf6vSC8wowroBOdPx",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2413665
+        }
+      ],
+      "step_id": 2406805
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0TC$Ot7IbK2Ry4utwM5w04",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2448314
+        }
+      ],
+      "step_id": 2413687
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "35YAKVnd5T1RMyaJUZGjX$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2450359
+        }
+      ],
+      "step_id": 2448336
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "28SFBBnpHODv6IbM2Lx6iR",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2451826
+        }
+      ],
+      "step_id": 2450381
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3Y1Prw3O9KfvAGtDPMdbkB",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2455131
+        }
+      ],
+      "step_id": 2451848
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2c8Vm8EPbIfv$LVfbLSaMT",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2470702
+        }
+      ],
+      "step_id": 2455153
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3JjudueGLG4xQDtLEnX_0h",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2478159
+        }
+      ],
+      "step_id": 2470724
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "08L9UZMVHMluApVirFr06A",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2478576
+        }
+      ],
+      "step_id": 2478181
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0P1wHvSgDV4gi4H_60U6yX",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2479753
+        }
+      ],
+      "step_id": 2478598
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1t40SGEvjRBe890ESluZGc",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2482786
+        }
+      ],
+      "step_id": 2479775
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2NZm78xKzRPBFQR37VzNCv",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2484482
+        }
+      ],
+      "step_id": 2482808
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1bf99mMX9Jp9pD7rTywXQd",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2486178
+        }
+      ],
+      "step_id": 2484504
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1ewTTXyXDU5P1hQKHwmWlc",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2489211
+        }
+      ],
+      "step_id": 2486200
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1KAJRRj65JVRahwkBYuenj",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2490388
+        }
+      ],
+      "step_id": 2489233
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3uhSZMMdDLHhIhB$BNjdOu",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2490805
+        }
+      ],
+      "step_id": 2490410
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0ngFBu2HPMpuVmLqfT10uJ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2498262
+        }
+      ],
+      "step_id": 2490827
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3dN0Iigt9QF8nrjYJDfvF9",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2513833
+        }
+      ],
+      "step_id": 2498284
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2cRQrpASbRaPfIS9tlphJm",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2517138
+        }
+      ],
+      "step_id": 2513855
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0nrAiMSuzVL9YCdqy1mu5r",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2518605
+        }
+      ],
+      "step_id": 2517160
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1Zt4r9g1HSmBoZ2YyQWjVG",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2520650
+        }
+      ],
+      "step_id": 2518627
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2k$ENAoHLSJQo9fLbKqSt7",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2555299
+        }
+      ],
+      "step_id": 2520672
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2IkzmVh3bOzv6teid6y00T",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2562181
+        }
+      ],
+      "step_id": 2555321
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3YWYrvzgTU69eKuBwHrKtv",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2569063
+        }
+      ],
+      "step_id": 2562203
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3dAjb5xJvNOgWmdlNKyqlv",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2603712
+        }
+      ],
+      "step_id": 2569085
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1mvQVGImnV58ysWbMilN6S",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2605757
+        }
+      ],
+      "step_id": 2603734
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0yQ18iPynVohXqs73FLcuW",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2607224
+        }
+      ],
+      "step_id": 2605779
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2gA$bCgtPHMxuzmqXV_fIy",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2610529
+        }
+      ],
+      "step_id": 2607246
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1WKwC2CKLReefl5tbhnD4A",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2626100
+        }
+      ],
+      "step_id": 2610551
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0tDnzDrXDU5v7ZbuJbTRUU",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2633557
+        }
+      ],
+      "step_id": 2626122
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3qP9bjnsfMA8p8keS8REFW",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2633974
+        }
+      ],
+      "step_id": 2633579
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0sYQrlyGnGZx9iFyQ1sz1M",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2635151
+        }
+      ],
+      "step_id": 2633996
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2sqdGTdaHRXBg1uF37vyhh",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2638184
+        }
+      ],
+      "step_id": 2635173
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3C_w$RjV5MvAPx7rSgh8xo",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2639880
+        }
+      ],
+      "step_id": 2638206
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0eM$elmK1HBQBe$D47O6$j",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2641576
+        }
+      ],
+      "step_id": 2639902
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0gQ90y_fvR7O2vvFk8COmT",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2644609
+        }
+      ],
+      "step_id": 2641598
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0lpcCrtNTVUe5qEyEDMwlt",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2645786
+        }
+      ],
+      "step_id": 2644631
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2_KNFGk$vHVw8YiVozuKE1",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2646203
+        }
+      ],
+      "step_id": 2645808
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2FsPhsL5jG_R$0NpSv6WJP",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2653660
+        }
+      ],
+      "step_id": 2646225
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2bCAFueeLLNRYAA5Zik8P8",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2669231
+        }
+      ],
+      "step_id": 2653682
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3AP59mDDHSkfMCpsfq4S$s",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2672536
+        }
+      ],
+      "step_id": 2669253
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "18$5KB6FrHxQxrpNfFGfC0",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2674003
+        }
+      ],
+      "step_id": 2672558
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3VubiMxqzH98m$BxGhEPmQ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2676048
+        }
+      ],
+      "step_id": 2674025
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3382fJS9TL89PyDm99clUI",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2710697
+        }
+      ],
+      "step_id": 2676070
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0QPUZwhMvH8u0XT6_SKnvC",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2717579
+        }
+      ],
+      "step_id": 2710719
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2Uxni9DDfStAf7bRSurdln",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2724461
+        }
+      ],
+      "step_id": 2717601
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0td3xRI91IX8MZNREMu3uV",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2759110
+        }
+      ],
+      "step_id": 2724483
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3yGIDU2YPKHQKsL_8qX5aN",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2761155
+        }
+      ],
+      "step_id": 2759132
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2CDnOChtfQkBlUhLxid19Y",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2762622
+        }
+      ],
+      "step_id": 2761177
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "14IiarVADNsfM0M2NG8gIq",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2765927
+        }
+      ],
+      "step_id": 2762644
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1kH7rXyMzH1eRHGcQh0oBl",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2781498
+        }
+      ],
+      "step_id": 2765949
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1Ir0GWfDLR1hFJww8He1SL",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2788955
+        }
+      ],
+      "step_id": 2781520
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1ZNKjfIrXJMgXLN9Mm7X3D",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2789372
+        }
+      ],
+      "step_id": 2788977
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3fiDUhQLzMbPl9HcxiDor1",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2790549
+        }
+      ],
+      "step_id": 2789394
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0IMnaCx4DQRwin3ivGAl4K",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2793582
+        }
+      ],
+      "step_id": 2790571
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0JA6LA$3zUJOrQvKCgFj0K",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2795278
+        }
+      ],
+      "step_id": 2793604
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1yvDhJuVXRiQWSxj_1P$W8",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2796974
+        }
+      ],
+      "step_id": 2795300
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0SKYOOcEvIgAxatv3UnAQR",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2800007
+        }
+      ],
+      "step_id": 2796996
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1g6NEr2sXMug37npPXw$e2",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2801184
+        }
+      ],
+      "step_id": 2800029
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2uwSIUZG1SOxlIjj0Bev2i",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2801601
+        }
+      ],
+      "step_id": 2801206
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "09HR8LLBTUJ9FfZm3K7kec",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2809058
+        }
+      ],
+      "step_id": 2801623
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0gS$F3AKnRYflzS_IT_jKz",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2824629
+        }
+      ],
+      "step_id": 2809080
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "084DDwZAPPWBrcnbxvGaRp",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2827934
+        }
+      ],
+      "step_id": 2824651
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "23Jztyb5vMfuid7HlknmV3",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2829401
+        }
+      ],
+      "step_id": 2827956
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "016z0p9_5G_vJ1c65nr5B7",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2831446
+        }
+      ],
+      "step_id": 2829423
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3fYjGzYXHI7xlSHIwL07GR",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2866095
+        }
+      ],
+      "step_id": 2831468
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1kBYBx$79RPw5Aaxd9H4mw",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2872977
+        }
+      ],
+      "step_id": 2866117
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "10wGnA629SLxKJC2QsoBxt",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2879859
+        }
+      ],
+      "step_id": 2872999
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1tE$OLfY9UPwXIFXZBqk77",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2914508
+        }
+      ],
+      "step_id": 2879881
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1Rs0QVDS5OWu4vPw5Mz_cb",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2916553
+        }
+      ],
+      "step_id": 2914530
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "35aMjkkIXQeBQMgB9HyaGz",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2918020
+        }
+      ],
+      "step_id": 2916575
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0qGdzF7QbMM8BBuINOuMEK",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2921325
+        }
+      ],
+      "step_id": 2918042
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1vD6GqryrLivq4DrThNTy3",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2936896
+        }
+      ],
+      "step_id": 2921347
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "31TbzbaJvJf8LnA$YO5BKp",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2944353
+        }
+      ],
+      "step_id": 2936918
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0ETsYUQrjJKeo$F3T8pg8W",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2944770
+        }
+      ],
+      "step_id": 2944375
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2BCIJbcMDU$vtjbLjhWkJ5",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2945947
+        }
+      ],
+      "step_id": 2944792
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "06VUObrcDSohJNMQVJ7IzE",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2948980
+        }
+      ],
+      "step_id": 2945969
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2DDnXw0DLGJgZ2sJkuhXy$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2950676
+        }
+      ],
+      "step_id": 2949002
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1smF7BJzbLOQsCJ5jw52ng",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2952372
+        }
+      ],
+      "step_id": 2950698
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2$ANGdQFvKOeRjtIc5KwDD",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2955405
+        }
+      ],
+      "step_id": 2952394
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0jvL1zXdnJBu9VbRggHDm$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2956582
+        }
+      ],
+      "step_id": 2955427
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1RGJyHiFvM1hxbqW4QdbTS",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2956999
+        }
+      ],
+      "step_id": 2956604
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1lJP47FZ5LCOIgtAuM7WFv",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2964456
+        }
+      ],
+      "step_id": 2957021
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0vypdLnM1UPO8Fze0dNMwa",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2980027
+        }
+      ],
+      "step_id": 2964478
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2a1TmKqYLPt8fAR4FkYvIl",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2983332
+        }
+      ],
+      "step_id": 2980049
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1IXf3E7ojG_eqU_dS6xacC",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2984799
+        }
+      ],
+      "step_id": 2983354
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2IDb7rSoPIAwF32qO6VNdc",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2986844
+        }
+      ],
+      "step_id": 2984821
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1snFdPiP1TcuHXbwPvxfqG",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3021493
+        }
+      ],
+      "step_id": 2986866
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2gh0OPTXjIDvdwmnzM83o3",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3028375
+        }
+      ],
+      "step_id": 3021515
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2mdL5pqd5NLuOThQYpqXKm",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3035257
+        }
+      ],
+      "step_id": 3028397
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1vCk82p9vN4Rml$ppY5n12",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3069906
+        }
+      ],
+      "step_id": 3035279
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0L0m3HZXbUBODCuZFf_YtU",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3071951
+        }
+      ],
+      "step_id": 3069928
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2rRN6ac2bMORNqFHZ1o18t",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3073418
+        }
+      ],
+      "step_id": 3071973
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0b85ZZRgnRCecX6hGeiXTJ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3076723
+        }
+      ],
+      "step_id": 3073440
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1PlEGdziLV2AZZ5OAWeWeC",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3092294
+        }
+      ],
+      "step_id": 3076745
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0vSp5xXsLOOA8zCTT9PYFp",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3099751
+        }
+      ],
+      "step_id": 3092316
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2EjcpQCizHwRCIXboOuVKg",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3100168
+        }
+      ],
+      "step_id": 3099773
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0Omokm_R5KG9lVlSLiyl9f",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3101345
+        }
+      ],
+      "step_id": 3100190
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2FEn6D2aHM5x0kr3at6AzA",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3104378
+        }
+      ],
+      "step_id": 3101367
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2knRpdZ_HVx8_tc8Yn_7j4",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3106074
+        }
+      ],
+      "step_id": 3104400
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "07GNqDyRzIkf452OwOpa4d",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3109311
+        }
+      ],
+      "step_id": 3106096
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3UpcKCE05PnRNQQ4HNzuRP",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3122662
+        }
+      ],
+      "step_id": 3109333
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "10bJOlxa1TZBZ81YFy1G8r",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3125375
+        }
+      ],
+      "step_id": 3122684
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2hK1APnuvVFQrRH_nIf_xR",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3125786
+        }
+      ],
+      "step_id": 3125397
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0JTH18RlLINwIknSNOviZG",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3132668
+        }
+      ],
+      "step_id": 3125808
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2p7bpWGyTORwMUWBKsoZzu",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3135973
+        }
+      ],
+      "step_id": 3132690
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2djNoF5E9LqRYRq7hvlXx$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3138018
+        }
+      ],
+      "step_id": 3135995
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0ALw25LIjRIxcZy8EozR71",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3140025
+        }
+      ],
+      "step_id": 3138040
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1H6tXoEZvH6fEg_P5dsusn",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3142070
+        }
+      ],
+      "step_id": 3140047
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0V_fGvCDXMsgZjHwYxnX9n",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3142487
+        }
+      ],
+      "step_id": 3142092
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1ALGS597fU7OnPg3u5QyEd",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3155334
+        }
+      ],
+      "step_id": 3142509
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "188pSTO81S4h2PjTrmBjlI",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3168685
+        }
+      ],
+      "step_id": 3155356
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2GkAi7Ov5IPP8segFcYeia",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3171398
+        }
+      ],
+      "step_id": 3168707
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1weneWxlbMpRJjPT3m12lq",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3171809
+        }
+      ],
+      "step_id": 3171420
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0gSRGaubvQ4BS73l$EwLPE",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3173816
+        }
+      ],
+      "step_id": 3171831
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0$AJzao09KEuLqsuRBXYJA",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3175861
+        }
+      ],
+      "step_id": 3173838
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0NhmYmhYXOtf$Cfvf6$KFj",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3188708
+        }
+      ],
+      "step_id": 3175883
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "32WzrzLDHUowNW5rcZxpBL",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3192013
+        }
+      ],
+      "step_id": 3188730
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "1SbaaDhMnNVuyUJu1lq1vv",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3195250
+        }
+      ],
+      "step_id": 3192035
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3rLd136XHRDRmMUJThqLrz",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3195667
+        }
+      ],
+      "step_id": 3195272
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "34j$$vyhrH7Q96CmgyDHzL",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3209018
+        }
+      ],
+      "step_id": 3195689
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2AIjr2doDSR9FNgN3gleBJ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3211731
+        }
+      ],
+      "step_id": 3209040
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0TzdksuCbQzfj_toxxZAmv",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3212142
+        }
+      ],
+      "step_id": 3211753
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "3S6W9ky$vUDB0KZR91t09Z",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3214149
+        }
+      ],
+      "step_id": 3212164
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0bCF0T0EHUgxq_6$gUFHB7",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3216194
+        }
+      ],
+      "step_id": 3214171
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2t9krbsxbU_A8NlKV4Wszy",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3229041
+        }
+      ],
+      "step_id": 3216216
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "0yJ0Koe51HcPrrUWlt18A2",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3232346
+        }
+      ],
+      "step_id": 3229063
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2FQ9ThFfTHP9pTp3EzayJl",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3235583
+        }
+      ],
+      "step_id": 3232368
+    },
+    {
+      "class": "IfcBuildingElementProxy",
+      "global_id": "2LAmEH6GrMxus8LVrybKIC",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3236000
+        }
+      ],
+      "step_id": 3235605
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "3GmZVu1k9LTPtswYG5UTt5",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 4862
+        }
+      ],
+      "step_id": 59
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "1N82hRNmvUrP89uC6GpdtM",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 20387
+        }
+      ],
+      "step_id": 15584
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "3BjFshT$fV5gPMixJD0Ck6",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 78412
+        }
+      ],
+      "step_id": 73609
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "36I1jPEOjMyQx5unUr9iRS",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 83237
+        }
+      ],
+      "step_id": 78434
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "34tr_gMFDIH92Gg8Y0_wlK",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 88062
+        }
+      ],
+      "step_id": 83259
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "2LB6wGdhPK2P6$81iPN_Yt",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 92887
+        }
+      ],
+      "step_id": 88084
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "2$2CZwOYXPWhPON1jIJk0O",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 97712
+        }
+      ],
+      "step_id": 92909
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "35fLMiX0zU5BnKOQAzrKwc",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 102537
+        }
+      ],
+      "step_id": 97734
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "1wbMK9jQnR08vmw$3y6k_t",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 107362
+        }
+      ],
+      "step_id": 102559
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "3O8wNzsKPHwRKkbarQPpwh",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 112187
+        }
+      ],
+      "step_id": 107384
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "3Mg8ERAE5O8wzTHgdyFyOB",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 117012
+        }
+      ],
+      "step_id": 112209
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "2eYp_Fe8DNwuz0rddHeX$z",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 121837
+        }
+      ],
+      "step_id": 117034
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "266BWDILDJWQGDTWqYWMp4",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 126662
+        }
+      ],
+      "step_id": 121859
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "0hsBLBpxbK4BWjArJa1P48",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 131487
+        }
+      ],
+      "step_id": 126684
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "2ue8sdDFzHTvh91o0NJ9$g",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 136312
+        }
+      ],
+      "step_id": 131509
+    },
+    {
+      "class": "IfcColumn",
+      "global_id": "3hRyH4Zm5MJAnBFFd5qKCO",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 141137
+        }
+      ],
+      "step_id": 136334
+    },
+    {
+      "class": "IfcDoor",
+      "global_id": "3y7JkDRLzPT9x47Baq5air",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 15562
+        }
+      ],
+      "step_id": 6231
+    },
+    {
+      "class": "IfcDoor",
+      "global_id": "1ka4nSNvrT3ugC$_WAEDne",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 25036
+        }
+      ],
+      "step_id": 20409
+    },
+    {
+      "class": "IfcDoor",
+      "global_id": "0nEl$1KpfKzOivB2MGeCYh",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 29685
+        }
+      ],
+      "step_id": 25058
+    },
+    {
+      "class": "IfcDoor",
+      "global_id": "0XoSI6VX5UXvNHZefe9_4f",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 34334
+        }
+      ],
+      "step_id": 29707
+    },
+    {
+      "class": "IfcDoor",
+      "global_id": "2KzmpHMSDMxu8vD0I2BZQL",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 38983
+        }
+      ],
+      "step_id": 34356
+    },
+    {
+      "class": "IfcDoor",
+      "global_id": "3YIoMlFwPQje3Kz40igFI1",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 43632
+        }
+      ],
+      "step_id": 39005
+    },
+    {
+      "class": "IfcSlab",
+      "global_id": "2mbfCNlr9T48ZweNBN3dyn",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 6209
+        }
+      ],
+      "step_id": 4884
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "3QAL1kxKLJZxF3Sj5PqTVo",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 141298
+        }
+      ],
+      "step_id": 141159
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "152X2TIs5Pjh3ub4CncpOk",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 141459
+        }
+      ],
+      "step_id": 141320
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "1FldTx1tXKGxPGrR3LKCkW",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 141604
+        }
+      ],
+      "step_id": 141481
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "1n2AgCHXPJkuxzSWZVG3Hw",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 141975
+        }
+      ],
+      "step_id": 141626
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "360kFZ_HbNugudo1vFPt5i",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 142200
+        }
+      ],
+      "step_id": 141997
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "299ZbZ1B9NTuGr8zQYE7I9",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 142667
+        }
+      ],
+      "step_id": 142222
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "3P9yDf6TTKUeAy04YS8b3$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 142828
+        }
+      ],
+      "step_id": 142689
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "2MVTQC7T1HAhwuCGw2RM0J",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 143711
+        }
+      ],
+      "step_id": 142850
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "3R_rUQk_TQmBN0VHbYhNx6",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 143832
+        }
+      ],
+      "step_id": 143733
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "2y0jvrcGTGLAbHHDu7RBOW",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 143909
+        }
+      ],
+      "step_id": 143854
+    },
+    {
+      "class": "IfcWall",
+      "global_id": "294Z8iLcPGnwvfQC8ShKsd",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 145050
+        }
+      ],
+      "step_id": 143931
+    },
+    {
+      "class": "IfcWindow",
+      "global_id": "2$pZmZTQPRNQWDdiOmzSo_",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 49623
+        }
+      ],
+      "step_id": 43654
+    },
+    {
+      "class": "IfcWindow",
+      "global_id": "1cameBqC9H4gRgew6pelrZ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 55614
+        }
+      ],
+      "step_id": 49645
+    },
+    {
+      "class": "IfcWindow",
+      "global_id": "3Ubr6f0zfLAAxYyBdvFyju",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 61605
+        }
+      ],
+      "step_id": 55636
+    },
+    {
+      "class": "IfcWindow",
+      "global_id": "1yil0vYiLSlP7C2s8YPjLM",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 67596
+        }
+      ],
+      "step_id": 61627
+    },
+    {
+      "class": "IfcWindow",
+      "global_id": "05qK_LP$PLHfyzuz5MHWHc",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 73587
+        }
+      ],
+      "step_id": 67618
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "1qm4dCDSTTWBTdF3FUca$l",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2032462
+        }
+      ],
+      "step_id": 1996055
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "3tVuwteKLUAxI0S_ptGNQT",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2051205
+        }
+      ],
+      "step_id": 2032485
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "14kBOLQH5MZvDM_kgI1MGW",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2051562
+        }
+      ],
+      "step_id": 2051227
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "3Rra5NA$9QYP8nGRc6MPb4",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2052987
+        }
+      ],
+      "step_id": 2051584
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "1frmBqaGbPA9BIJetQWrfy",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2082616
+        }
+      ],
+      "step_id": 2053009
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "31IHP3QHrVcfPwKvRNo$wX",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 2084469
+        }
+      ],
+      "step_id": 2082638
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "1ABvcEoPPOdulOu6GfO5ru",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3237853
+        }
+      ],
+      "step_id": 3236022
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "0ZKIA_vCHHJB1xk3DDhXGh",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3267482
+        }
+      ],
+      "step_id": 3237875
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "37gsrisIzOqAPUosvZF$iD",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3268907
+        }
+      ],
+      "step_id": 3267504
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "2WhicnavrSeRyW1470R34f",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3269264
+        }
+      ],
+      "step_id": 3268929
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "2s6tcXT5rR49krD_XhXIfN",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3288006
+        }
+      ],
+      "step_id": 3269286
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "3L4zZ9QavN_gKKzy1ESzAA",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3324435
+        }
+      ],
+      "step_id": 3288028
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "3Svb5ynuHGpPw4F9zJ69eH",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3360864
+        }
+      ],
+      "step_id": 3324457
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "2gb5pTnSvRegw3P6z_p76_",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3362759
+        }
+      ],
+      "step_id": 3360886
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "30K_fAp51TuPwutqECO04e",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3439248
+        }
+      ],
+      "step_id": 3362781
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "3KJj2MHcXLZOO_sCexj$xT",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3515737
+        }
+      ],
+      "step_id": 3439270
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "25P6P$75DG0Qu4WsWXcfW3",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3517632
+        }
+      ],
+      "step_id": 3515759
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "2Jl_0pub1Vae7QfDHHtlmB",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3554061
+        }
+      ],
+      "step_id": 3517654
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "1qmcePwCTQkeQ9QU0ZMOZE",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3554430
+        }
+      ],
+      "step_id": 3554083
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "3iwoSw3uzTrQQ5Zj_o6zwQ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3554535
+        }
+      ],
+      "step_id": 3554452
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "0Fv7QkSVbSQRgyH$6zKnrF",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3554904
+        }
+      ],
+      "step_id": 3554557
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "0uIL1X8IjSBOzlsSPQVSMP",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3555273
+        }
+      ],
+      "step_id": 3554926
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "1sVX9mHp5TDQgBX$xQuU$E",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3555642
+        }
+      ],
+      "step_id": 3555295
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "3XB883QR9KbBp0QM3CtZWT",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3556011
+        }
+      ],
+      "step_id": 3555664
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "1bTV_C_1HRB9_1eZh685xb",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3556204
+        }
+      ],
+      "step_id": 3556033
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "0V8DflmcDJAg__xg8bv2Z8",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3556345
+        }
+      ],
+      "step_id": 3556226
+    },
+    {
+      "class": "IfcFurnishingElement",
+      "global_id": "07CT4xlNfHXu3THmUFSdeq",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 3556464
+        }
+      ],
+      "step_id": 3556367
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2CubOrBpnRtOlT7_f8REA_",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 168180
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3557582
+        }
+      ],
+      "step_id": 145072
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1noIoCRdjODxs$Kkpg7hBI",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 191311
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3558383
+        }
+      ],
+      "step_id": 168203
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0Jm61$l5XPzginaKk8y_yg",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 194080
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3558488
+        }
+      ],
+      "step_id": 191333
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3a9QNsFHnTKh5EAe3MaWgB",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 196850
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3558593
+        }
+      ],
+      "step_id": 194103
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2x76hWAyjPVR8ktWUvY5Ic",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 219980
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3559394
+        }
+      ],
+      "step_id": 196872
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0suY4CFofVdxauLppJYcEB",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 222749
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3559499
+        }
+      ],
+      "step_id": 220002
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3AsH4N94XQ2RlPD0wz8Oyg",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 245879
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3560300
+        }
+      ],
+      "step_id": 222771
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1NdJAemYPKxhV4KXQH88SC",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 269009
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3561101
+        }
+      ],
+      "step_id": 245901
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "270qz_$3zMwu7U_yzCcLm5",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 292139
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3561902
+        }
+      ],
+      "step_id": 269031
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0cFL1P7SrGdfqty84OoCge",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 294908
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3562007
+        }
+      ],
+      "step_id": 292161
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3U_94HVKbHcuK5ruFGHR1N",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 297677
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3562112
+        }
+      ],
+      "step_id": 294930
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2pVkGKhdPScOsSou3DkwsO",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 320807
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3562913
+        }
+      ],
+      "step_id": 297699
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2FT_OfJ0DLpOVNnzp7Wxdc",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 323576
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3563018
+        }
+      ],
+      "step_id": 320829
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3Nh5wkoinSAehUnOw8WYuz",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 346706
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3563819
+        }
+      ],
+      "step_id": 323598
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0bj7QoNlvPYenpROcS$gQT",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 349475
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3563924
+        }
+      ],
+      "step_id": 346728
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0UGldJHiXIFAJg6rXLNAXO",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 372605
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3564725
+        }
+      ],
+      "step_id": 349497
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3btdR9w2bJUeucV2zVbuPX",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 375374
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3564830
+        }
+      ],
+      "step_id": 372627
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "03pEn3VH9UthFB0JBqjlkf",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 398504
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3565631
+        }
+      ],
+      "step_id": 375396
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1pkzGj36LQOgB7c8Dmn6hq",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 401273
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3565736
+        }
+      ],
+      "step_id": 398526
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1acyT4JwbKp9$NF3I5PN6A",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 424403
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3566537
+        }
+      ],
+      "step_id": 401295
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "20EKJOkyrVofv1dDKkL70G",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 427172
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3566642
+        }
+      ],
+      "step_id": 424425
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "33$EJehWvQugoeEOOjooWV",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 450302
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3567443
+        }
+      ],
+      "step_id": 427194
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1B0e72QpvKvfVostErIIie",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 453071
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3567548
+        }
+      ],
+      "step_id": 450324
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1vaC9K_DLLAhbfla8mgFdY",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 476201
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3568349
+        }
+      ],
+      "step_id": 453093
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1kY3OmQILNWRFVRSRMV30A",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 478970
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3568454
+        }
+      ],
+      "step_id": 476223
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "29y0$9H$nMTO_F5bRS7myq",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 502100
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3569255
+        }
+      ],
+      "step_id": 478992
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2krIQoyv1QHvlqIZslSP_1",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 504869
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3569360
+        }
+      ],
+      "step_id": 502122
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0BXHJVRL5TIRQn9HF0etuo",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 527999
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3570161
+        }
+      ],
+      "step_id": 504891
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0cT6kCDHfGQwrJnh63_zE7",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 530768
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3570266
+        }
+      ],
+      "step_id": 528021
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "32aMTzhynQRhf2MWKolXhr",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 553898
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571067
+        }
+      ],
+      "step_id": 530790
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1r2lpneYzKCfc$7l5ElUZU",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 594727
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571172
+        }
+      ],
+      "step_id": 553920
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1mlsAeHW9LnQZGfoK5beQQ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 635557
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571277
+        }
+      ],
+      "step_id": 594750
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0J5xCz6PvII8QrVjV8Z5xh",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 638326
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571382
+        }
+      ],
+      "step_id": 635579
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2KruQC6eXJNB3znXQyVuft",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 679155
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571487
+        }
+      ],
+      "step_id": 638348
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3YUvBLEXjNLOEpVcIbl_Og",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 719984
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571592
+        }
+      ],
+      "step_id": 679177
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1Ei1aAtjXJ4wSRK3SzV66k",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 722753
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571697
+        }
+      ],
+      "step_id": 720006
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2IHdRQdlvVluDtVUbg$M06",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 763582
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571802
+        }
+      ],
+      "step_id": 722775
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1JmExZ5qzGz981L3qQpr7s",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 804411
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3571907
+        }
+      ],
+      "step_id": 763604
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3pYulGeffMSR0FE235T3mE",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 807180
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3572012
+        }
+      ],
+      "step_id": 804433
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0iZbLZw5bR5B0X2skozOE7",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 848009
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3572117
+        }
+      ],
+      "step_id": 807202
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "17dVB53l9GEhndne4PtzOg",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 888838
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3572222
+        }
+      ],
+      "step_id": 848031
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1MjFom_HLLrv5USwaDWR8j",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 891607
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3572327
+        }
+      ],
+      "step_id": 888860
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0OtBTLalPN5xR$kgObsuKu",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 932436
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3572432
+        }
+      ],
+      "step_id": 891629
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0v4tAqy5vOnR_lFTtn1niR",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 973265
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3572537
+        }
+      ],
+      "step_id": 932458
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2wJPT_$mjPEhQldP5Rzps$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 976034
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3572642
+        }
+      ],
+      "step_id": 973287
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3BK9K_jn5KqxOkE02_Vs5X",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 999164
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3573443
+        }
+      ],
+      "step_id": 976056
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3hQEaFtvjG092HW56vRYCV",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1022294
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3574244
+        }
+      ],
+      "step_id": 999186
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3zuGuBRlbTjvz0TmSAvDUi",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1025063
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3574349
+        }
+      ],
+      "step_id": 1022316
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0O1iMGYBXVoOvkJ6pUSYDn",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1048193
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3575150
+        }
+      ],
+      "step_id": 1025085
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1uNdr8ETbHswpDvfccAaK$",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1071323
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3575951
+        }
+      ],
+      "step_id": 1048215
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "040qKSrejRqe3CnOmybzIr",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1074092
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3576056
+        }
+      ],
+      "step_id": 1071345
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0UlTGt3TbSiuTXBxZf5n8H",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1097222
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3576857
+        }
+      ],
+      "step_id": 1074114
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1sxoRbuxjV6vOigI$H7Hlt",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1120352
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3577658
+        }
+      ],
+      "step_id": 1097244
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "38PyIyxn1RYR2H6MtLU8yv",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1123121
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3577763
+        }
+      ],
+      "step_id": 1120374
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2KLPHL6LDMY8kHU4cAEajx",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1146251
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3578564
+        }
+      ],
+      "step_id": 1123143
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3jNXlgYl9GbwNE4loqs0XI",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1169381
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3579365
+        }
+      ],
+      "step_id": 1146273
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2qB73uBzXOC9uDzITH20Rz",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1172150
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3579470
+        }
+      ],
+      "step_id": 1169403
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0hxiF_V_vVNfzUx6Ppt$OP",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1195280
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3580271
+        }
+      ],
+      "step_id": 1172172
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3x4LWF8N5QNQdknvrsp3Yx",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1218410
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3581072
+        }
+      ],
+      "step_id": 1195302
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0eZcepNNfKVe9K5P3BVFaN",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1221179
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3581177
+        }
+      ],
+      "step_id": 1218432
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0bkfmDa_5IA88N6jgwJpNY",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1244309
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3581978
+        }
+      ],
+      "step_id": 1221201
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1ALRBcOVPStQBAXKQfJZFY",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1267439
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3582779
+        }
+      ],
+      "step_id": 1244331
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2AyrVgdknIqu3DVMKJEtE7",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1270208
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3582884
+        }
+      ],
+      "step_id": 1267461
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "21AX1RVk9PqOdkUqNXI7vW",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1293338
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3583685
+        }
+      ],
+      "step_id": 1270230
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1n4m681oLVPh5I13geJgVC",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1316468
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3584486
+        }
+      ],
+      "step_id": 1293360
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "13NP1B3XTPuQeppJG6cLM3",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1319237
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3584591
+        }
+      ],
+      "step_id": 1316490
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2a9vD75hnQNhZjHwYwjuNC",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1342367
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3585392
+        }
+      ],
+      "step_id": 1319259
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2ajHUNgJrSA9z9eB_Yl05u",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1365497
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3586193
+        }
+      ],
+      "step_id": 1342389
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0CYapkFfzSiBbufQ0pFCW1",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1368266
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3586298
+        }
+      ],
+      "step_id": 1365519
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3tTo0KYpzRb9zMQ$y4QDNj",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1391396
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3587099
+        }
+      ],
+      "step_id": 1368288
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2HcnMGLc9HZwzC9uuwcuZ1",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1414526
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3587900
+        }
+      ],
+      "step_id": 1391418
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3zJX1OU5LJxRICy7IzIKrw",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1417295
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3588005
+        }
+      ],
+      "step_id": 1414548
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3fIRVIX6HQxhyvqqo09qCd",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1440425
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3588806
+        }
+      ],
+      "step_id": 1417317
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0aisqCnXDKDBtwJ23mJ6Hz",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1463555
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3589607
+        }
+      ],
+      "step_id": 1440447
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "27Qs2UEJ1Hyxazd6ipw8CL",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1466324
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3589712
+        }
+      ],
+      "step_id": 1463577
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1SZ8yv4xDRwfVuusM7epye",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1469093
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3589817
+        }
+      ],
+      "step_id": 1466346
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3fYa_cAN5MVBAsypyjeMYb",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1492223
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3590618
+        }
+      ],
+      "step_id": 1469115
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0rCUZykZjVrByMQ$HOrNsC",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1494992
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3590723
+        }
+      ],
+      "step_id": 1492245
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0JQKlhiqbOyuNCNGaqq4KD",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1518122
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3591524
+        }
+      ],
+      "step_id": 1495014
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0OfYNtsOfIBReyndAcR4yS",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1520891
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3591629
+        }
+      ],
+      "step_id": 1518144
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1su7RzLV9VBB$f8xQft$8j",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1544021
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3592430
+        }
+      ],
+      "step_id": 1520913
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0C71pYJEjR6uFe$Gtj4KqQ",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1546790
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3592535
+        }
+      ],
+      "step_id": 1544043
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1f8n1aIdrJiOtsuuCw1fmL",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1569920
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3593336
+        }
+      ],
+      "step_id": 1546812
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2av7TYbHXRJhvNhIe7JDq8",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1593050
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3594137
+        }
+      ],
+      "step_id": 1569942
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0L1NsJG_rPMeJo50bjsdse",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1616180
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3594938
+        }
+      ],
+      "step_id": 1593072
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2Jm2V6vG9VQvjRKwWv9DDN",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1618949
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3595043
+        }
+      ],
+      "step_id": 1616202
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3HjxKnVVvS2gwgFZM7$KdF",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1642079
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3595844
+        }
+      ],
+      "step_id": 1618971
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0sGrFCo8fJyRLRrwkZoP1m",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1665209
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3596645
+        }
+      ],
+      "step_id": 1642101
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3zEcrhhKHU$9J6UM0$fRc4",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1667978
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3596750
+        }
+      ],
+      "step_id": 1665231
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1YE2$l3t1UDeXkwnWIRC9L",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1708807
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3596855
+        }
+      ],
+      "step_id": 1668000
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0dlyU0Wi9KQOUCy30J1_qb",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1749636
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3596960
+        }
+      ],
+      "step_id": 1708829
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "2YMsaN$EHOm88Shm0RJkH9",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1752405
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3597065
+        }
+      ],
+      "step_id": 1749658
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "0C09ilcPzGzQddV5tSoGTe",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1793234
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3597170
+        }
+      ],
+      "step_id": 1752427
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "1QnbH1ap9IRxg1iMjPF5jP",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1834063
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3597275
+        }
+      ],
+      "step_id": 1793256
+    },
+    {
+      "class": "IfcFurniture",
+      "global_id": "3EZVIY0rHG9hUTVbU9m5p9",
+      "representations": [
+        {
+          "identifier": "Body",
+          "step_id": 1836832
+        },
+        {
+          "identifier": "Analysis",
+          "step_id": 3597380
+        }
+      ],
+      "step_id": 1834085
+    },
+    {
+      "class": "IfcGrid",
+      "global_id": "3SfDJ3y2TTRf8uUxI9YjK7",
+      "representations": [],
+      "step_id": 17
+    },
+    {
+      "class": "IfcBuilding",
+      "global_id": "3YpUzSDorRuQzI8$llCWmF",
+      "representations": [],
+      "step_id": 12
+    },
+    {
+      "class": "IfcBuildingStorey",
+      "global_id": "2udSq8mkbQwxg0XrW$uM_r",
+      "representations": [],
+      "step_id": 13
+    },
+    {
+      "class": "IfcSite",
+      "global_id": "0C7ZdU2dnMiwHdUCqqrCJz",
+      "representations": [],
+      "step_id": 11
+    }
+  ],
+  "native_scene_returned": false,
+  "outcome": "diagnosed_dependency_bottleneck_no_production_repair",
+  "production_changes": [],
+  "report": {
+    "bytes": 16637,
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\docs\\project\\evidence\\d6-native-ifc-timeout-repair.md",
+    "sha256": "ed4cd3c0525c151396dc16e5e0de12230dabf72585ebb701c00ebc2601a260c9"
+  },
+  "representation_counts": {
+    "Analysis": 95,
+    "Body": 354
+  },
+  "review_status": "pending_independent_review",
+  "schema": "d6-native-ifc-timeout-investigation-evidence/v1",
+  "source": {
+    "bytes": 408617800,
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  },
+  "storage": {
+    "local_only": "All outputs, profiling/reproduction/verification helpers and the source IFC; hashes do not store those bytes.",
+    "tracked": [
+      "scripts/design/space_field/run_native_ifc_timeout_probe.py",
+      "docs/project/evidence/d6-native-ifc-timeout-repair.md",
+      "docs/project/evidence/d6-native-ifc-timeout-repair-manifest.json",
+      "docs/project/evidence/d6-space-field-design-progress.md",
+      "docs/project/evidence/d6-b2-real-input-validation-independent-review.md"
+    ]
+  },
+  "subset_failed": {
+    "argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+      "-B",
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_probe.py"
+    ],
+    "budget_seconds": 120,
+    "elapsed": 26.086669499985874,
+    "exit_code": 1,
+    "pid": 26180,
+    "timed_out": false
+  },
+  "subset_results": {
+    "cases": [
+      {
+        "bounds": [
+          [
+            10.823498046875,
+            11.42821875
+          ],
+          [
+            10.74583984375,
+            11.350556640625
+          ],
+          [
+            2.153189697265625,
+            2.267191162109375
+          ]
+        ],
+        "closed": false,
+        "elapsed_seconds": 6.47610229998827,
+        "global_id": "3JgVOKAW5NtwyIYRxyv5_i",
+        "item_classes": {
+          "IfcPolygonalFaceSet": 1
+        },
+        "manifold": false,
+        "mesh_hash": "9d36702eabd2a55b04ef84218b3b9bfd1181228dbaf643450591aca840660b06",
+        "mesh_id": "ifc-mesh:3JgVOKAW5NtwyIYRxyv5_i",
+        "mesh_provenance": {
+          "coordinate_space": "world",
+          "method": "ifc4_read_only_extraction",
+          "source_global_id": "3JgVOKAW5NtwyIYRxyv5_i",
+          "transform_applied": true
+        },
+        "representation": "Body",
+        "representation_id": "ifc-step:1878363",
+        "representation_step_id": 1878363,
+        "step_id": 1843736,
+        "triangles": 34124,
+        "units": "m",
+        "vertices": 17095,
+        "world_transform": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            10.823498046875
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            10.74583984375
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            2.153189697265625
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      {
+        "bounds": [
+          [
+            10.823498046875,
+            11.42821875
+          ],
+          [
+            10.74583984375,
+            11.350556640625
+          ],
+          [
+            2.153189697265625,
+            2.267191162109375
+          ]
+        ],
+        "closed": false,
+        "elapsed_seconds": 6.486419799970463,
+        "global_id": "3JgVOKAW5NtwyIYRxyv5_i",
+        "item_classes": {
+          "IfcPolygonalFaceSet": 1
+        },
+        "manifold": false,
+        "mesh_hash": "9d36702eabd2a55b04ef84218b3b9bfd1181228dbaf643450591aca840660b06",
+        "mesh_id": "ifc-mesh:3JgVOKAW5NtwyIYRxyv5_i",
+        "mesh_provenance": {
+          "coordinate_space": "world",
+          "method": "ifc4_read_only_extraction",
+          "source_global_id": "3JgVOKAW5NtwyIYRxyv5_i",
+          "transform_applied": true
+        },
+        "representation": "Body",
+        "representation_id": "ifc-step:1878363",
+        "representation_step_id": 1878363,
+        "step_id": 1843736,
+        "triangles": 34124,
+        "units": "m",
+        "vertices": 17095,
+        "world_transform": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            10.823498046875
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            10.74583984375
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            2.153189697265625
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      {
+        "bounds": [
+          [
+            21.232408203125,
+            21.831158203125
+          ],
+          [
+            3.9049755859375,
+            4.5031064453125
+          ],
+          [
+            -0.0022448320388793945,
+            0.6849772338867188
+          ]
+        ],
+        "closed": false,
+        "elapsed_seconds": 4.6346063000382856,
+        "global_id": "2CubOrBpnRtOlT7_f8REA_",
+        "item_classes": {
+          "IfcPolygonalFaceSet": 1
+        },
+        "manifold": false,
+        "mesh_hash": "683af433b38e754a8786eb4c658d92d4c4334c93381f0e6fbcfcdcd2a1d774a7",
+        "mesh_id": "ifc-mesh:2CubOrBpnRtOlT7_f8REA_",
+        "mesh_provenance": {
+          "coordinate_space": "world",
+          "method": "ifc4_read_only_extraction",
+          "source_global_id": "2CubOrBpnRtOlT7_f8REA_",
+          "transform_applied": true
+        },
+        "representation": "Body",
+        "representation_id": "ifc-step:168180",
+        "representation_step_id": 168180,
+        "step_id": 145072,
+        "triangles": 22991,
+        "units": "m",
+        "vertices": 11625,
+        "world_transform": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            21.232408203125
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            3.9049755859375
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            -0.0022448320388793945
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      {
+        "bounds": [
+          [
+            21.21885546875,
+            21.873806640625
+          ],
+          [
+            3.8727900390625,
+            4.52103857421875
+          ],
+          [
+            -0.0024537928104400634,
+            0.6817107543945313
+          ]
+        ],
+        "closed": true,
+        "elapsed_seconds": 0.14347730000736192,
+        "global_id": "2CubOrBpnRtOlT7_f8REA_",
+        "item_classes": {
+          "IfcPolygonalFaceSet": 1
+        },
+        "manifold": true,
+        "mesh_hash": "453a3a6edeb60a5b019b32bae0058da86e5c0b64991bb01e9917ce74feae1e4f",
+        "mesh_id": "ifc-mesh:2CubOrBpnRtOlT7_f8REA_:analysis",
+        "mesh_provenance": {
+          "coordinate_space": "world",
+          "method": "ifc4_read_only_extraction",
+          "source_global_id": "2CubOrBpnRtOlT7_f8REA_:analysis",
+          "transform_applied": true
+        },
+        "representation": "Analysis",
+        "representation_id": "ifc-step:3557582",
+        "representation_step_id": 3557582,
+        "step_id": 145072,
+        "triangles": 792,
+        "units": "m",
+        "vertices": 412,
+        "world_transform": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            21.232408203125
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            3.9049755859375
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            -0.0022448320388793945
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      }
+    ],
+    "scale": 0.001,
+    "scope": "subset_only_not_full_native_success",
+    "source_units": "mm",
+    "unit_metadata": {
+      "ifc_class": "IfcSIUnit",
+      "ifc_name": "METRE",
+      "ifc_prefix": "MILLI",
+      "scale_to_metres": 0.001
+    }
+  },
+  "subset_validation": {
+    "assertions": "pass",
+    "full_source_success": false
+  },
+  "subset_verified": {
+    "argv": [
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\.pixi\\envs\\default\\python.exe",
+      "-B",
+      "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\d6_native_ifc_timeout_repair\\run_001\\subset_probe_v2.py"
+    ],
+    "budget_seconds": 120,
+    "elapsed": 33.339558899984695,
+    "exit_code": 0,
+    "pid": 29676,
+    "timed_out": false
+  },
+  "tests": [
+    {
+      "exit": 0,
+      "log": "regression_b2.log",
+      "passed": 112,
+      "seconds": 5.16
+    },
+    {
+      "exit": 0,
+      "log": "regression_handoff.log",
+      "passed": 56,
+      "seconds": 0.29
+    },
+    {
+      "exit": 0,
+      "log": "regression_native.log",
+      "passed": 7,
+      "seconds": 0.29
+    }
+  ],
+  "utc": "2026-10-07T21:11:33.338651+00:00"
+}
