@@ -41,7 +41,7 @@ from ..features.scene_inference import (
     inferred_region_candidates,
     spatial_networks,
 )
-from ..features.neutral_scene_views import analysis_scene_view
+from ..features.neutral_scene_views import analysis_scene_view, _analysis_scene_view_with_semantic_enclosure
 from .fixtures.ifc4_description_fixture import write_ifc4_description_fixture
 from .test_geometry_substitutes import _box_mesh
 
@@ -1980,3 +1980,194 @@ def test_real_ifc_fixture_keeps_non_furniture_out_of_region_inference(
         item["id"] not in {f"ifc-object:{ids['wall']}", f"ifc-object:{ids['slab']}"}
         for item in matrix["room_analysis_model"]["object_layer"]["objects"]
     )
+
+
+def _enclosure_box(ref, bounds):
+    """Scale a clean existing box fixture to explicit analytic dimensions."""
+    base = _box_mesh(mesh_id=ref)
+    # The general substitute fixture intentionally includes a degenerate face;
+    # remove it while constructing this valid input, never in production.
+    return replace(base, vertices=tuple((bounds[0] + x / 2 * (bounds[3] - bounds[0]),
+                                        bounds[1] + y / 2 * (bounds[4] - bounds[1]),
+                                        bounds[2] + z * (bounds[5] - bounds[2])) for x, y, z in base.vertices),
+                   triangle_indices=tuple(face for face in base.triangle_indices if len(set(face)) == 3))
+
+
+def _enclosure_scene(inset=0.0):
+    """Build two shared-wall contours, a multipart aperture and interior occupancy."""
+    definitions = {"left": (0, 0, 0, 2, .25, 3), "right": (3, 0, 0, 6, .25, 3),
+                   "lintel": (2, 0, 2.1, 3, .25, 3), "north": (0, 5.75, 0, 6, 6, 3),
+                   "west": (0, .25, 0, .25, 5.75, 3), "east": (5.75, .25, 0, 6, 5.75, 3),
+                   "divider": (4, .25, 0, 4.25, 5.75, 3), "column": (1, 2, 0, 1.3, 2.3, 3),
+                   "furniture": (2, 2, 0, 2.5, 2.5, 2), "beam": (3, 3, 0, 3.5, 3.5, 3)}
+    meshes = tuple(_enclosure_box(ref, bounds) for ref, bounds in definitions.items())
+    objects = [SourceObject(id="host", source_role="wall", geometry_refs=("left", "right", "lintel"))]
+    objects.extend(SourceObject(id=ref, source_role=ref if ref in {"column", "furniture", "beam"} else "wall", geometry_refs=(ref,))
+                   for ref in definitions if ref not in {"left", "right", "lintel"})
+    # This horizontal nonwatertight leaf has no material at the cut. Its actual
+    # span can support the authorized scenario without inventing solid mass.
+    window = _mesh("window-mesh", Rect(cx=2.5, cy=.125, width=1 - 2 * inset, height=.25), z=2.5)
+    objects.append(SourceObject(id="window", source_role="window", geometry_refs=(window.id,),
+                                factual_properties={"OM_Layout": {"AnalysisParticipation": "exclude"}}))
+    return replace(_neutral_scene(), source_objects=tuple(objects), geometries=meshes + (window,),
+                   openings=(), analysis_domain=None, authored_groups=())
+
+
+def _enclosure_request(scene, contact=1e-6):
+    """Supply every task/frame/measurement policy explicitly in test calls."""
+    return {"analysis_plane": scene.context.analysis_plane, "units": "m", "datum_m": 0.0,
+            "cut_height_m": 1.5, "contact_distance_m": contact, "aperture_area_budget_m2": 1e-6,
+            "default_closed_authority": "test explicitly authorizes closed doors/windows",
+            "exclude_override_authority": "test overrides exclude for this enclosure scenario"}
+
+
+def _enclosure_diagnostics(scene, request=None):
+    """Invoke the actual private production entry for composed regression cases."""
+    return _analysis_scene_view_with_semantic_enclosure(scene, request=_enclosure_request(scene) if request is None else request)["_analysis_view"]["b2_boundary_diagnostics"]["semantic_enclosure"]
+
+
+def test_private_enclosure_opt_in_preserves_default_sources_and_compound_scope():
+    """Explicit carriers add contours while preserving ordinary occupancy/refusals."""
+    scene = _enclosure_scene()
+    facts = scene.to_dict()
+    ordinary = analysis_scene_view(scene)
+    assert "semantic_enclosure" not in ordinary["_analysis_view"]["b2_boundary_diagnostics"]
+    opted = _analysis_scene_view_with_semantic_enclosure(scene, request=_enclosure_request(scene))
+    result = opted["_analysis_view"]["b2_boundary_diagnostics"].pop("semantic_enclosure")
+    assert opted == ordinary and scene.to_dict() == facts
+    assert len(result["carriers"]) == 1 and len(result["enclosure_contours"]) == 2
+    assert len(result["scope_proposals"]) == 1
+    assert {c["scope_ref"] for c in result["enclosure_contours"]} == {"S1"}
+    assert "column" in result["scope_proposals"][0]["occupancy_source_refs"]
+    assert result["scope_proposals"][0]["geometry"]["area_m2"] == pytest.approx(36)
+    window = next(row for row in result["sources"] if row["source_ref"] == "window")
+    assert window["physical_section"]["area_m2"] == 0 and window["span_qualified"]
+    assert window["source"]["source_id"] is None and window["source"]["source_class"] is None
+    assert window["source"]["factual_properties"]["OM_Layout"]["AnalysisParticipation"] == "exclude"
+    assert all(not row["enclosure_support_eligible"] for row in result["sources"] if row["kind"] in {"beam", "furniture"})
+    assert result["candidate_promotion"] == "refused" and not result["active"]
+    assert result["downstream"] == {"subtraction": "refused", "free_space": "not_evaluated", "route": "not_evaluated"}
+    changed = replace(scene, context=replace(scene.context, geometry_tolerance=.25, topology_tolerance=.75))
+    assert _enclosure_diagnostics(changed) == result
+
+
+def test_private_enclosure_measured_contact_and_explicit_authority():
+    """Distance-qualified contact stays distinct and never moves source coordinates."""
+    scene = _enclosure_scene(inset=5e-7)
+    strict = _enclosure_diagnostics(scene, _enclosure_request(scene, contact=0))
+    measured = _enclosure_diagnostics(scene)
+    assert not strict["carriers"] and len(measured["carriers"]) == 1
+    alternative = measured["treatments"][0]["alternatives"][0]
+    assert alternative["qualified"] and not alternative["literal_contact_qualified"]
+    assert all(0 < c["distance_m"] <= 1e-6 and not c["exact_intersection"] for c in alternative["jamb_contacts"])
+    refused = _enclosure_diagnostics(scene, _enclosure_request(scene) | {"exclude_override_authority": None})
+    assert not refused["carriers"] and refused["treatments"][0]["refusal"] == "authored_exclude_without_task_override"
+    for updates in ({"units": "mm"}, {"contact_distance_m": -1}, {"aperture_area_budget_m2": float("nan")},
+                    {"datum_m": True}, {"cut_height_m": float("inf")}, {"default_closed_authority": ""},
+                    {"exclude_override_authority": True}, {"analysis_plane": AnalysisPlane(name="other", origin=(0, 0, 0), basis=scene.context.analysis_plane.basis)}):
+        with pytest.raises(ValueError):
+            _enclosure_diagnostics(scene, _enclosure_request(scene) | updates)
+    missing = _enclosure_request(scene)
+    del missing["contact_distance_m"]
+    with pytest.raises(ValueError, match="missing"):
+        _enclosure_diagnostics(scene, missing)
+    for key in ("datum_m", "cut_height_m", "contact_distance_m", "aperture_area_budget_m2"):
+        with pytest.raises(ValueError, match=key):
+            _enclosure_diagnostics(scene, _enclosure_request(scene) | {key: 10 ** 400})
+    # Individually representable numbers can still overflow their accumulated
+    # plane height, for both Python integer and floating-point inputs.
+    for value in (10 ** 308, 1e308):
+        with pytest.raises(ValueError, match="datum plus cut"):
+            _enclosure_diagnostics(scene, _enclosure_request(scene) | {"datum_m": value, "cut_height_m": value})
+
+
+def test_private_enclosure_local_refusals_and_authored_opening_precedence():
+    """Preserve missing-only inference while refusing contrary or deficient evidence."""
+    scene = _enclosure_scene()
+    window = scene.source_objects[-1]
+    opening = SourceOpening(id="opening", source_id=None, host_refs=("host",), geometry_refs=("window-mesh",), opening_kind="unfilled")
+    unfilled = _enclosure_diagnostics(replace(scene, openings=(opening,)))
+    assert not unfilled["carriers"] and unfilled["treatments"][0]["alternatives"][0]["opening_veto_refs"] == ["opening"]
+    for kind in ("unfilled", "window", "door", "unknown"):
+        for hosts in ((), ("absent",), ("north",)):
+            local_opening = replace(opening, host_refs=hosts, opening_kind=kind)
+            denied = _enclosure_diagnostics(replace(scene, openings=(local_opening,)))
+            if kind != "unfilled" and hosts != ("north",):
+                # Missing-only contextual facts stay unresolved while a known
+                # leaf independently supplies one qualified inferred candidate.
+                assert len(denied["carriers"]) == 1 and denied["carriers"][0]["association"] == "inferred"
+                assert denied["treatments"][0]["authored_opening_refs"] == []
+                evidence = denied["treatments"][0]["alternatives"][0]["unresolved_contextual_opening_evidence"][0]
+                assert evidence["reason"] == "missing_contextual_host_relation_not_a_leaf_geometry_veto"
+                assert denied["authored_opening_spans"][opening.id]["source"]["host_refs"] == list(hosts)
+            else:
+                assert not denied["carriers"]
+                evidence = denied["treatments"][0]["alternatives"][0]["opening_veto_evidence"][0]
+                reason = "explicit_local_unfilled_extent" if kind == "unfilled" else "unresolved_local_opening_host_relation"
+                assert evidence["reason"] == reason
+            assert evidence["authored_host_refs"] == list(hosts) and not evidence["host_mapping_inferred"]
+            assert evidence["local_overlap"]["area_m2"] > 0
+        unrelated = replace(opening, host_refs=(), geometry_refs=("north",), opening_kind=kind)
+        assert len(_enclosure_diagnostics(replace(scene, openings=(unrelated,)))["carriers"]) == 1
+    contextual = replace(opening, host_refs=(), opening_kind="window")
+    opted = _analysis_scene_view_with_semantic_enclosure(replace(scene, openings=(contextual,)), request=_enclosure_request(scene))
+    original = opted["_analysis_view"]["b2_boundary_diagnostics"]["openings"][0]
+    assert original["host_refs"] == [] and original["local_diagnostic_state"] == "partial"
+    ambiguous_context = replace(scene, openings=(contextual,),
+                                source_objects=scene.source_objects + (replace(scene.source_objects[0], id="other-host"),))
+    assert _enclosure_diagnostics(ambiguous_context)["treatments"][0]["host_mapping"] == "ambiguous"
+    missing_context = replace(scene, openings=(contextual,), geometries=scene.geometries[:-1])
+    assert not _enclosure_diagnostics(missing_context)["carriers"]
+    linked = replace(scene, source_objects=scene.source_objects[:-1] + (replace(window, opening_refs=(opening.id,)),),
+                     openings=(replace(opening, opening_kind="window"),))
+    assert _enclosure_diagnostics(linked)["carriers"][0]["association"] == "authored"
+    valid_link_missing_host = replace(linked, openings=(contextual,))
+    derived = _enclosure_diagnostics(valid_link_missing_host)
+    assert len(derived["carriers"]) == 1 and derived["carriers"][0]["association"] == "inferred"
+    assert derived["treatments"][0]["authored_opening_refs"] == [opening.id]
+    assert derived["treatments"][0]["authored_host_refs"] == []
+    assert derived["authored_opening_spans"][opening.id]["qualified_aperture_refs"] == [derived["carriers"][0]["aperture_ref"]]
+    invalid_host_target = replace(valid_link_missing_host, openings=(replace(contextual, host_refs=("absent",)),))
+    assert not _enclosure_diagnostics(invalid_host_target)["carriers"]
+    invalid_geometry_target = replace(valid_link_missing_host, openings=(replace(contextual, geometry_refs=("absent",)),))
+    assert not _enclosure_diagnostics(invalid_geometry_target)["carriers"]
+    partial = _mesh("partial-opening", Rect(cx=2.25, cy=.125, width=.5, height=.25), z=2.5)
+    for geometry_refs, extra in ((("north",), ()), ((partial.id,), (partial,)), (("window-mesh", "north"), ())):
+        contradictory = replace(linked, geometries=linked.geometries + extra,
+                                 openings=(replace(opening, opening_kind="window", geometry_refs=geometry_refs),))
+        before = contradictory.to_dict()
+        denied = _enclosure_diagnostics(contradictory)
+        assert not denied["carriers"] and denied["treatments"][0]["host_mapping"] == "unresolved"
+        assert denied["treatments"][0]["refusal"] == "authored_opening_span_inconsistent"
+        assert denied["authored_opening_spans"][opening.id]["qualified_aperture_refs"] == []
+        assert contradictory.to_dict() == before
+    duplicate = (replace(opening, opening_kind="window"), replace(opening, opening_kind="window", host_refs=("north",)))
+    for records in (duplicate, duplicate[::-1]):
+        denied = _enclosure_diagnostics(replace(linked, openings=records))
+        assert not denied["carriers"] and denied["treatments"][0]["refusal"] == "authored_opening_mapping_unresolved"
+        assert denied["treatments"][0]["duplicate_opening_refs"] == [opening.id]
+        assert len(denied["opening_identity_conflicts"][0]["source_records"]) == 2
+        # Duplicate authored host evidence must also veto an inferred seal when
+        # no leaf relationship is available, rather than choosing by order.
+        unlinked_duplicate = _enclosure_diagnostics(replace(scene, openings=records))
+        assert not unlinked_duplicate["carriers"]
+    conflict = replace(linked, openings=(replace(opening, opening_kind="window", host_refs=("host", "north")),))
+    assert not _enclosure_diagnostics(conflict)["carriers"]
+    missing_opening = replace(linked, openings=())
+    assert not _enclosure_diagnostics(missing_opening)["carriers"]
+    missing_geometry = replace(scene, source_objects=(replace(scene.source_objects[0], geometry_refs=("left", "right", "absent")),) + scene.source_objects[1:])
+    result = _enclosure_diagnostics(missing_geometry)
+    assert not result["carriers"] and result["sources"][0]["missing_geometry_refs"] == ["absent"]
+    ambiguous = replace(scene, source_objects=scene.source_objects + (replace(scene.source_objects[0], id="second-host"),))
+    assert _enclosure_diagnostics(ambiguous)["treatments"][0]["host_mapping"] == "ambiguous"
+    remote = replace(scene, geometries=scene.geometries[:-1] + (_mesh("window-mesh", Rect(cx=2.5, cy=1, width=1, height=.25), z=2.5),))
+    assert not _enclosure_diagnostics(remote)["carriers"]
+    # Two surface components sharing only a vertex are not a qualified solid,
+    # but their genuine face extent remains independently measurable as a leaf.
+    surface = scene.geometries[-1]
+    pinched = replace(surface, vertices=surface.vertices + ((2.4, .125, 2.6), (2.5, .125, 2.6)),
+                      triangle_indices=surface.triangle_indices + ((0, 4, 5),))
+    surface_result = _enclosure_diagnostics(replace(scene, geometries=scene.geometries[:-1] + (pinched,)))
+    observation = surface_result["sources"][-1]["mesh_observations"][0]
+    assert observation["pinched_components"] and not observation["solid_qualified"] and observation["span_qualified"]
+    assert len(surface_result["carriers"]) == 1

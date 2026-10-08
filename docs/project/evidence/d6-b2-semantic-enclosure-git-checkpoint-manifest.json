@@ -1,0 +1,324 @@
+{
+  "schema": "d6-b2-semantic-enclosure-git-checkpoint/v1",
+  "date": "2026-10-08",
+  "timezone": "Europe/Berlin",
+  "branch": "codex/d6-analysis-domain-layout-handoff",
+  "parent_head": "ab55da50dfb278b639e2327008ad23a50e86973d",
+  "authorization": "One local checkpoint; supervising chat retains final acceptance",
+  "accepted_delivery": "delivery_003 / run_007",
+  "allowlist": [
+    "features/_semantic_enclosure.py",
+    "features/neutral_scene_views.py",
+    "test/test_neutral_scene_analysis_regression.py",
+    "docs/superpowers/plans/2026-10-08-d6-b2-semantic-enclosure-private-integration.md",
+    "docs/project/evidence/d6-b2-semantic-enclosure-private-integration.md",
+    "docs/project/evidence/d6-b2-semantic-enclosure-private-integration-independent-review.md",
+    "docs/project/evidence/d6-space-field-design-progress.md",
+    "docs/project/evidence/d6-b2-semantic-enclosure-git-checkpoint.md",
+    "docs/project/evidence/d6-b2-semantic-enclosure-git-checkpoint-manifest.json"
+  ],
+  "files": [
+    {
+      "path": "features/_semantic_enclosure.py",
+      "scope": "entire accepted file",
+      "retention": "Git-tracked in this checkpoint",
+      "bytes": 29629,
+      "sha256": "d0a5e2c2ad01e804719cebf60d0b1beb0c20f06747d763e04383320ae4ae533b",
+      "git_blob_id": "a200440e0ea99b42aa4d6d4fac27861b30da5ce1",
+      "worktree_bytes": 29629,
+      "worktree_sha256": "d0a5e2c2ad01e804719cebf60d0b1beb0c20f06747d763e04383320ae4ae533b"
+    },
+    {
+      "path": "features/neutral_scene_views.py",
+      "scope": "entire accepted file",
+      "retention": "Git-tracked in this checkpoint",
+      "bytes": 49822,
+      "sha256": "174e75f1097a89ef6838b1a8da01a4cbb5e74a6704ce3f390038abd964b69bf9",
+      "git_blob_id": "3d0fb950219160908ed71a2746b1a51910188dbc",
+      "worktree_bytes": 49822,
+      "worktree_sha256": "174e75f1097a89ef6838b1a8da01a4cbb5e74a6704ce3f390038abd964b69bf9"
+    },
+    {
+      "path": "test/test_neutral_scene_analysis_regression.py",
+      "scope": "entire accepted file",
+      "retention": "Git-tracked in this checkpoint",
+      "bytes": 84428,
+      "sha256": "0a8a6f42ff95a84d6975aeccfa564bcd5d5a67a4991ec117265e0c3896035a84",
+      "git_blob_id": "e17f357a295540b23d6320522abe7a27db1daccb",
+      "worktree_bytes": 84428,
+      "worktree_sha256": "0a8a6f42ff95a84d6975aeccfa564bcd5d5a67a4991ec117265e0c3896035a84"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-08-d6-b2-semantic-enclosure-private-integration.md",
+      "scope": "entire accepted file",
+      "retention": "Git-tracked in this checkpoint",
+      "bytes": 11078,
+      "sha256": "ffe83c9f40d18d0de7e54e369e8cbbd12f843592e72427ea52687aabcab03685",
+      "git_blob_id": "52553ba4c2c3b58dea5e0ce746577115495982ae",
+      "worktree_bytes": 11078,
+      "worktree_sha256": "ffe83c9f40d18d0de7e54e369e8cbbd12f843592e72427ea52687aabcab03685"
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-semantic-enclosure-private-integration.md",
+      "scope": "entire accepted file",
+      "retention": "Git-tracked in this checkpoint",
+      "bytes": 26709,
+      "sha256": "77f36fb0f84486e498ec4a050fdfc4afd8ea75d7b03b861f6e4594a89f14321c",
+      "git_blob_id": "3dd31315d959caed132334eb2e4acc75375352e6",
+      "worktree_bytes": 26709,
+      "worktree_sha256": "77f36fb0f84486e498ec4a050fdfc4afd8ea75d7b03b861f6e4594a89f14321c"
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-semantic-enclosure-private-integration-independent-review.md",
+      "scope": "entire accepted file",
+      "retention": "Git-tracked in this checkpoint",
+      "bytes": 25037,
+      "sha256": "a2697693ac0c5d3fff0fe66cefa8fbdc3307aeb3cd958bf4cfdf154eaf54c55f",
+      "git_blob_id": "33b7fbb92c20bedae8a8face2e32433e6908285c",
+      "worktree_bytes": 25037,
+      "worktree_sha256": "a2697693ac0c5d3fff0fe66cefa8fbdc3307aeb3cd958bf4cfdf154eaf54c55f"
+    },
+    {
+      "path": "docs/project/evidence/d6-space-field-design-progress.md",
+      "scope": "HEAD plus accepted phase and checkpoint append only",
+      "retention": "Git-tracked in this checkpoint",
+      "bytes": 29870,
+      "sha256": "ac56cf88c7882ac4e56017fe58f36dd3a41b324cb82c8037d99791504dd140d5",
+      "git_blob_id": "6464c2ff1713387201f609abd96f7275b0b4a775",
+      "worktree_bytes": 35121,
+      "worktree_sha256": "bfea0c694e85b1c52753a74939d904001e03432c521523c2836bdcdbfd8712c7"
+    },
+    {
+      "path": "docs/project/evidence/d6-b2-semantic-enclosure-git-checkpoint.md",
+      "scope": "entire accepted file",
+      "retention": "Git-tracked in this checkpoint",
+      "bytes": 12027,
+      "sha256": "56680ef95313d1a9edfc86e5d5a252d2c663eee757703aee7adcc435e0013d8d",
+      "git_blob_id": "97ec855278e9e98587d4d987ff76f7cc01e80ee4",
+      "worktree_bytes": 12027,
+      "worktree_sha256": "56680ef95313d1a9edfc86e5d5a252d2c663eee757703aee7adcc435e0013d8d"
+    }
+  ],
+  "manifest_self_hash": "excluded",
+  "manifest_retention": "Git-tracked in this checkpoint; JSON validated before staging",
+  "ledger": {
+    "head_bytes": 25198,
+    "head_sha256": "2bef0083aa2855d8080a0e94a12c11621652a2b758f5e4fb3b06ae8359cf7753",
+    "prephase_prefix_bytes": 30449,
+    "prephase_prefix_sha256": "a3cc04789272ed023d448d8f9a69329cba45339c8b8b56e9cd6ff39096288ebc",
+    "original_worktree_bytes": 33975,
+    "original_worktree_sha256": "9afed1c69e9356d7ddf49141820e97c8510e6215b31358393ef90a89e0edce3d",
+    "excluded_older_dirty_bytes": 5251,
+    "excluded_older_dirty_sha256": "27e2ea1e7cc48c92539bb45201540fc83c37c233f6c0a4c849ded061fb872c08",
+    "accepted_phase_append_bytes": 3526,
+    "accepted_phase_append_sha256": "8a051d1848405e3f399615fadea30d08adb99d7faeb35c18cb6c48c607c30910",
+    "checkpoint_append_bytes": 1146,
+    "checkpoint_append_sha256": "f0d129b1774e560b86ddb4d645087ea3694837f852950e2ab9a54f14e24a2e09",
+    "construction": "index = HEAD + accepted phase + checkpoint entry; worktree = original full ledger + checkpoint entry"
+  },
+  "git_bytes": {
+    "core_autocrlf": false,
+    "applicable_attributes": [],
+    "sha256_basis": "Exact file bytes; Git blob IDs use the Git object header and are separate identities",
+    "ledger_difference": "Intentional exclusion of older dirty text; not newline normalization"
+  },
+  "reused_tests": {
+    "focused_passed": 90,
+    "full_command": "pixi run pytest",
+    "full_exit_code": 0,
+    "full_passed": 874,
+    "full_skipped": 13,
+    "pytest_seconds": 965.37,
+    "execution_seconds": 967.5969052,
+    "configured_testpaths": [
+      "test",
+      "skills/ifc-bim-conversion-workflow/tests"
+    ],
+    "rerun": false,
+    "limitation": "Optional IFC-workflow fixture skips retained; no new native/live parity validation"
+  },
+  "evidence": [
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/integration/verification_final.json",
+      "purpose": "Final coordinator verification and root ACCEPT",
+      "bytes": 9252,
+      "sha256": "7acef2f774de15589289b7fe029e8177c3c46233e277e331c8997f86305be307",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/integration/delivery_manifest.json",
+      "purpose": "Frozen C final delivery",
+      "bytes": 12511,
+      "sha256": "40301f9b5598847b5d193e23d8c36b291ba8a8c2cd6b6f4b493474cee40f16bc",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/delivery_003/manifest.json",
+      "purpose": "Frozen B reviewed source/run delivery",
+      "bytes": 9222,
+      "sha256": "9b871778c2acb908a2a793dc12aa1ac4297cb0e092856208f20d86ee3a33a650",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/integration/full_suite_001/execution.json",
+      "purpose": "Single configured full-suite command/exit/source identities",
+      "bytes": 1115,
+      "sha256": "cc5deb05f9e988d8ecb5a95f6f7b93143408a093229b8cf0068f05632f42f975",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/integration/full_suite_001/pytest.log",
+      "purpose": "874 passed / 13 skipped final summary",
+      "bytes": 4870,
+      "sha256": "3ac0176f947f462dec54b35fb24b9ba2771ea174e2cd9552138980b654498aa6",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/focused_008.log",
+      "purpose": "90 focused cases final log",
+      "bytes": 679,
+      "sha256": "1dc598e1e9aa03e4d3192fd58add8710faf0155441ee978a4b61420f2baf8c46",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/focused_008_execution.json",
+      "purpose": "Focused command/exit",
+      "bytes": 140,
+      "sha256": "6087f5ae018e19b1c67f31a10188947afe3fe0110f4814037d7e30518a37b213",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_007/checks.json",
+      "purpose": "38 sources / 11 carriers / 5 contours / 1 provisional scope",
+      "bytes": 3979,
+      "sha256": "0f9b8d74fc91d25fa5d510e80144e5aeb7cfd1681c0487ed8f1495e0afe72851",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_007/semantic_result.json",
+      "purpose": "Complete final private result",
+      "bytes": 15313537,
+      "sha256": "72ae9cd1f57d91d15e2b739026138682177df02f4c8200297b69cb87962e6a03",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_007/strict_result.json",
+      "purpose": "Separate strict-contact comparison",
+      "bytes": 14291207,
+      "sha256": "c84a0a2dcf7bb8e59a951b2e5f0c0cf03510d2a3fbb8d3e50f751f2bb8322b05",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_007/ordinary_view.json",
+      "purpose": "Ordinary/default compatibility evidence",
+      "bytes": 20506929,
+      "sha256": "1f4e41a59451561f560ad64fbfb0bb98197283fd5b44af1744135f64e1a338f5",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_007/source_scene.json",
+      "purpose": "Frozen adapted factual Neutral Scene input",
+      "bytes": 17731702,
+      "sha256": "7f2ff08d5c305e1bd348df0b3a00445619d101058b56a817f7bdebdcbb000776",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_007/request.json",
+      "purpose": "Explicit frame, budgets and scenario authority",
+      "bytes": 723,
+      "sha256": "927b13895c7cb7cdbafa9144aec678c6e889ef9752c6e654524c7d7e7b1b8cce",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_007/provenance.json",
+      "purpose": "Source-only harness provenance",
+      "bytes": 32470,
+      "sha256": "e3327a1670580e4e3fceea3890c0aedeff1dade485240fdfeea3eb4319cde73b",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_007/production_semantic_enclosure.png",
+      "purpose": "Final production visualization",
+      "bytes": 76224,
+      "sha256": "e80d6ea26dc1b4cbabce68280aafcfc9374341f8beb40a4265d6d2edc38b5f29",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/shadow/run_shadow.py",
+      "purpose": "Read-only replay harness",
+      "bytes": 9283,
+      "sha256": "cb7c60c215cdb1979ae95285f0adb06ab0fba7cce7e8e1625bc2b66d256f9b72",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_semantic_enclosure_window_repair/inputs/run_001/live_snapshot.json",
+      "purpose": "Frozen 38-source mesh capture",
+      "bytes": 5692042,
+      "sha256": "96f40383297fdebb12ed7a26ef9dac38188ed05fcfa7def43c202fceaeb3daad",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/review/final_delivery_001/verification.json",
+      "purpose": "A final independent delivery verification",
+      "bytes": 13233,
+      "sha256": "a5d060e8006a65a743fd75223ad9896adda3d2c512acff1034f579c523f0c643",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/review/final_recheck_002/recheck.json",
+      "purpose": "A selected repaired-case evidence",
+      "bytes": 20773,
+      "sha256": "c368e60134cf36cec4fca273c317d5b40770494d057379260f4021c18eb76d55",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/design/d6_b2_semantic_enclosure_private_integration/integration/d6_progress_before.md",
+      "purpose": "Exact preserved pre-phase ledger prefix",
+      "bytes": 30449,
+      "sha256": "a3cc04789272ed023d448d8f9a69329cba45339c8b8b56e9cd6ff39096288ebc",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    },
+    {
+      "path": "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+      "purpose": "Source IFC factual input; byte preservation only",
+      "bytes": 408617800,
+      "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+      "retention": "external/local-only",
+      "in_checkpoint": false
+    }
+  ],
+  "portability": "Hashes identify files but do not preserve/recover them; local-only artifacts required for full replay/visual inspection",
+  "exclusions": [
+    "source IFC and user/disposable .blend",
+    "large mesh snapshots and rendered binaries",
+    "temporary outputs and older experimental runs",
+    "unrelated preexisting dirty/untracked files",
+    "older ledger history",
+    "dependencies/config/ignore/LFS",
+    "push/merge/tag/amend/branch/worktree changes",
+    "new tests or geometry/IFC/Blender runs"
+  ],
+  "next_stage": "AnalysisDomain handoff, separately scoped; no implementation here",
+  "post_commit_receipt": "outputs/design/d6_b2_semantic_enclosure_git_checkpoint/run_001/post_commit_receipt.json",
+  "stop": "STOP FOR D6 B2 GIT CHECKPOINT REVIEW"
+}

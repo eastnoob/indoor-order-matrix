@@ -29,6 +29,22 @@ def analysis_scene_view(scene: AnalysisSceneInput) -> LegacyAnalysisScene:
     raise TypeError("scene must be a legacy analysis mapping or NeutralSceneV2")
 
 
+def _analysis_scene_view_with_semantic_enclosure(
+    scene: NeutralSceneV2, *, request: Mapping[str, object]
+) -> LegacyAnalysisScene:
+    """Add explicitly authorized enclosure evidence to a private B2 child."""
+    # Lazy handoff keeps the ordinary consumer path and its imports unchanged.
+    from ._semantic_enclosure import semantic_enclosure_diagnostics, validate_request
+
+    validate_request(scene, request)
+    view = analysis_scene_view(scene)
+    diagnostics = view["_analysis_view"]["b2_boundary_diagnostics"]
+    diagnostics["semantic_enclosure"] = semantic_enclosure_diagnostics(
+        scene, request, diagnostics["openings"]
+    )
+    return view
+
+
 def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
     """Project Neutral Scene facts into the existing planar analysis vocabulary."""
     plane = scene.context.analysis_plane
