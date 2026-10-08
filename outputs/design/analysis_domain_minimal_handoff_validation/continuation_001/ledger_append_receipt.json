@@ -1,0 +1,8 @@
+{
+  "original_ledger_bytes": 44275,
+  "original_ledger_sha256": "ac1d4224e6fe6ad736a912338f164951165fedcb30c267c80c870ea40e9a32fa",
+  "appended_bytes": 1163,
+  "current_ledger_bytes": 45438,
+  "current_ledger_sha256": "ab4a736d854cf774f430cc3664e292f83e010055678385826a7142f5e9a50e78",
+  "original_prefix_preserved": true
+}

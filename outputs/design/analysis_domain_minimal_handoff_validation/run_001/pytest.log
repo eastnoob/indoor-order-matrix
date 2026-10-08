@@ -1,0 +1,31 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: D:\PROJECTS\understandOtherPackage\order_analyzer
+configfile: pytest.ini
+testpaths: test, skills/ifc-bim-conversion-workflow/tests
+plugins: anyio-4.15.1
+collected 897 items
+
+test\bim\test_acceptance_manifest.py ..................                  [  2%]
+test\test_affordance_aisle.py .......................................... [  6%]
+.........................                                                [  9%]
+test\test_analysis_substitute_discovery.py ...                           [  9%]
+test\test_bim_acceptance_scene.py ........                               [ 10%]
+test\test_blender_geometry_adapter.py ................                   [ 12%]
+test\test_blender_preview.py .....                                       [ 13%]
+test\test_boundary_evidence.py ............                              [ 14%]
+test\test_canonical_layout_contract.py ........                          [ 15%]
+test\test_canonical_layout_geometry.py ..........                        [ 16%]
+test\test_column_grid_trend_regression.py ...                            [ 16%]
+test\test_final_verification.py ..                                       [ 16%]
+test\test_floorplan_scene_loader.py .................................... [ 20%]
+........................................................................ [ 28%]
+........................................................................ [ 37%]
+...................................                                      [ 40%]
+test\test_full_ifc_export_skill_contract.py ..                           [ 41%]
+test\test_furniture_frame.py ....                                        [ 41%]
+test\test_geometry_substitutes.py ...                                    [ 41%]
+test\test_geometry_views.py ...............                              [ 43%]
+test\test_group_self_description.py .................................... [ 47%]
+...                                                                      [ 47%]
+test\test_ifc_bonsai_adapter.py ........................................ [ 52%]

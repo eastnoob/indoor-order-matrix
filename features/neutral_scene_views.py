@@ -45,6 +45,27 @@ def _analysis_scene_view_with_semantic_enclosure(
     return view
 
 
+def _analysis_scene_view_with_domain_handoff(
+    scene: NeutralSceneV2, *, candidates=(), session_state=None, action=None,
+    expected_session_revision=None, expected_source_revision=None,
+    frame_request: Mapping[str, object], b2_request: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Qualify one private session choice without exposing formal field consumers."""
+    from ._analysis_domain_handoff import domain_handoff
+
+    b2 = None
+    if b2_request is not None:
+        # The accepted B2 helper remains the only semantic-carrier authority.
+        view = _analysis_scene_view_with_semantic_enclosure(scene, request=b2_request)
+        b2 = view["_analysis_view"]["b2_boundary_diagnostics"]["semantic_enclosure"]
+    return domain_handoff(
+        scene, candidates=candidates, session_state=session_state, action=action,
+        expected_session_revision=expected_session_revision,
+        expected_source_revision=expected_source_revision,
+        frame_request=frame_request, b2=b2, b2_request=b2_request,
+    )
+
+
 def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
     """Project Neutral Scene facts into the existing planar analysis vocabulary."""
     plane = scene.context.analysis_plane

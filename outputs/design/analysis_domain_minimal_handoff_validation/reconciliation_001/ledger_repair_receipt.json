@@ -1,0 +1,9 @@
+{
+  "pre_validation_prefix_bytes": 42169,
+  "pre_validation_prefix_sha256": "2d65f8abeba33731efe0c753925058a65acd26d020376a10eec1ca115da976f3",
+  "validation_entry_bytes": 906,
+  "before_ledger_sha256": "2b03592af2b1b63bf5e0a4c8e08fc69513bc395dbcd82f64b5d153fe1a5eb78b",
+  "after_ledger_sha256": "ac1d4224e6fe6ad736a912338f164951165fedcb30c267c80c870ea40e9a32fa",
+  "historical_crlf_count": 2,
+  "archive": "outputs/design/analysis_domain_minimal_handoff_validation/reconciliation_001/post_validation_ledger_before_repair.md"
+}

@@ -5,9 +5,11 @@ from dataclasses import replace
 from math import cos, radians, sin
 
 import pytest
+from shapely.geometry import Polygon, mapping, shape
 
 from ..adapters.ifc_bonsai import load_ifc_neutral_scene
 from ..adapters.svg_scene import load_svg_neutral_scene
+from ..features._analysis_domain_handoff import domain_handoff
 from ..features.affordance.models import Rect
 from ..features.column_grid import column_grid_evidence
 from ..features.room_analysis_model import build_room_analysis_model
@@ -41,7 +43,10 @@ from ..features.scene_inference import (
     inferred_region_candidates,
     spatial_networks,
 )
-from ..features.neutral_scene_views import analysis_scene_view, _analysis_scene_view_with_semantic_enclosure
+from ..features.neutral_scene_views import (
+    analysis_scene_view, _analysis_scene_view_with_semantic_enclosure,
+    _analysis_scene_view_with_domain_handoff,
+)
 from .fixtures.ifc4_description_fixture import write_ifc4_description_fixture
 from .test_geometry_substitutes import _box_mesh
 
@@ -2171,3 +2176,442 @@ def test_private_enclosure_local_refusals_and_authored_opening_precedence():
     observation = surface_result["sources"][-1]["mesh_observations"][0]
     assert observation["pinched_components"] and not observation["solid_qualified"] and observation["span_qualified"]
     assert len(surface_result["carriers"]) == 1
+
+
+def _handoff_frame(scene):
+    """Supply one explicit session plane without authored floor metadata."""
+    return {"analysis_plane": scene.context.analysis_plane, "units": "m",
+            "datum_m": 0.0, "cut_height_m": 1.5}
+
+
+def _handoff_confirm(preview, version_id, action_id="confirm-1", **overrides):
+    """Target a preview's exact session/source/frame/request identities."""
+    action = {"kind": "confirm", "candidate_version_id": version_id,
+              "expected_candidate_identity": next((candidate["identity"] for candidate in preview["candidates"]
+                                                   if candidate["version_id"] == version_id), None),
+              "expected_session_revision": preview["session_revision"],
+              "expected_source_revision": preview["provenance"]["source_revision"],
+              "expected_plane_identity": preview["provenance"]["frame_id"],
+              "expected_request_identity": preview["provenance"]["request_id"],
+              "action_id": action_id, "actor": "test-user", "time": "2026-10-08T00:00:00Z",
+              "reason": "explicitly selected scope"}
+    return action | overrides
+
+
+def test_private_domain_handoff_authored_confirmation_and_default_compatibility():
+    """A caller-qualified authored polygon reaches only the private view seam."""
+    scene = _neutral_scene()
+    original = scene.to_dict()
+    ordinary = analysis_scene_view(scene)
+    frame = _handoff_frame(scene)
+    start = _analysis_scene_view_with_domain_handoff(scene, frame_request=frame)
+    assert start["current"]["status"] == "not_available"
+    assert start["analysis_domain"] is None and start["downstream"]["formal_field"] == "not_available"
+    assert len(start["candidates"]) == 1 and start["candidates"][0]["status"] == "provisional"
+    assert start["session_revision"] == 0
+    selected = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, session_state=start["session_state"],
+        action={"kind": "select", "candidate_version_id": "domain_room"},
+    )
+    assert selected["session_revision"] == 0 and selected["current"]["status"] == "not_available"
+    assert selected["candidates"][0]["status"] == "selected" and not selected["session_state"]["events"]
+    hovered = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, session_state=start["session_state"],
+        action={"kind": "hover", "candidate_version_id": "domain_room"},
+    )
+    assert hovered["candidates"][0]["status"] == "preview" and hovered["session_revision"] == 0
+    action = _handoff_confirm(start, "domain_room")
+    active = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, session_state=start["session_state"], action=action,
+        expected_session_revision=0, expected_source_revision=start["provenance"]["source_revision"],
+    )
+    assert active["attempt"]["status"] == "accepted" and active["current"]["status"] == "active"
+    assert active["candidates"][0]["status"] == "confirmed"
+    assert active["session_revision"] == 1 and active["analysis_domain"] == scene.analysis_domain
+    assert shape(active["scope_polygon"]).equals(shape(start["candidates"][0]["outline"]))
+    assert active["preview"]["physical_occupancy"] == ordinary["physical_occupancy"]
+    assert "floor_slab" not in {item["id"] for item in active["preview"]["physical_occupancy"]}
+    assert "view" not in active and "_analysis_view" not in active["preview"]
+    assert scene.to_dict() == original and analysis_scene_view(scene) == ordinary
+
+
+def test_private_domain_handoff_authored_shape_holes_and_multiple_candidates():
+    """Actual refs define the outline; mismatch and disjoint refs refuse."""
+    scene = _neutral_scene()
+    frame = _handoff_frame(scene)
+    second = AnalysisDomain(id="second-domain", geometry_refs=("mesh_left",),
+                            source_id=None, selection_method="explicit_test")
+    start = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=({"analysis_domain": second},), frame_request=frame,
+    )
+    assert len(start["candidates"]) == 2 and start["current"]["status"] == "not_available"
+    wrong = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=({"analysis_domain": second,
+                            "selected_polygon": start["candidates"][0]["outline"]},),
+        frame_request=frame,
+    )
+    assert wrong["candidates"][1]["reason"] == "authored_outline_projection_mismatch"
+    refused = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=({"analysis_domain": second,
+                            "selected_polygon": start["candidates"][0]["outline"]},),
+        frame_request=frame, session_state=wrong["session_state"],
+        action=_handoff_confirm(wrong, second.id), expected_session_revision=0,
+        expected_source_revision=wrong["provenance"]["source_revision"],
+    )
+    assert refused["attempt"]["reason"] == "authored_outline_projection_mismatch"
+    assert refused["analysis_domain"] is None
+    disjoint = AnalysisDomain(id="disjoint", geometry_refs=("mesh_left", "mesh_right"),
+                              source_id=None, selection_method="explicit_test")
+    split = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=({"analysis_domain": disjoint},), frame_request=frame,
+    )
+    assert split["candidates"][1]["status"] == "refused"
+    ring = _mesh("ring", Rect(cx=2, cy=2, width=4, height=4))
+    ring = replace(ring, vertices=((0, 0, 0), (4, 0, 0), (4, 4, 0), (0, 4, 0),
+                                   (1, 1, 0), (3, 1, 0), (3, 3, 0), (1, 3, 0)),
+                   triangle_indices=((0, 1, 5), (0, 5, 4), (1, 2, 6), (1, 6, 5),
+                                     (2, 3, 7), (2, 7, 6), (3, 0, 4), (3, 4, 7)))
+    holed_scene = replace(scene, analysis_domain=None, geometries=scene.geometries + (ring,))
+    holed = AnalysisDomain(id="holed", geometry_refs=("ring",), source_id=None,
+                            selection_method="explicit_test")
+    holes = _analysis_scene_view_with_domain_handoff(
+        holed_scene, candidates=({"analysis_domain": holed},), frame_request=_handoff_frame(holed_scene),
+    )
+    assert len(shape(holes["candidates"][0]["outline"]).interiors) == 1
+    holed_active = _analysis_scene_view_with_domain_handoff(
+        holed_scene, candidates=({"analysis_domain": holed},),
+        frame_request=_handoff_frame(holed_scene), session_state=holes["session_state"],
+        action=_handoff_confirm(holes, holed.id), expected_session_revision=0,
+        expected_source_revision=holes["provenance"]["source_revision"],
+    )
+    assert holed_active["current"]["status"] == "active"
+    assert len(shape(holed_active["scope_polygon"]).interiors) == 1
+    filled_outline = mapping(Polygon([(0, 0), (4, 0), (4, 4), (0, 4)]))
+    lost_hole = _analysis_scene_view_with_domain_handoff(
+        holed_scene, candidates=({"analysis_domain": holed, "selected_polygon": filled_outline},),
+        frame_request=_handoff_frame(holed_scene),
+    )
+    assert lost_hole["candidates"][0]["reason"] == "authored_outline_projection_mismatch"
+
+
+def test_private_domain_handoff_stale_replacement_and_source_change():
+    """A refused attempt cannot erase a valid current choice or reuse changed input."""
+    scene = _neutral_scene()
+    frame = _handoff_frame(scene)
+    second = AnalysisDomain(id="second-domain", geometry_refs=("mesh_left",),
+                            source_id=None, selection_method="explicit_test")
+    candidates = ({"analysis_domain": second},)
+    start = _analysis_scene_view_with_domain_handoff(scene, candidates=candidates, frame_request=frame)
+    first_action = _handoff_confirm(start, "domain_room")
+    first = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=start["session_state"],
+        action=first_action, expected_session_revision=0,
+        expected_source_revision=start["provenance"]["source_revision"],
+    )
+    stale = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=first["session_state"],
+        action=_handoff_confirm(start, second.id, action_id="stale"), expected_session_revision=0,
+        expected_source_revision=start["provenance"]["source_revision"],
+    )
+    assert stale["attempt"]["reason"] == "stale_session_revision"
+    assert stale["current"]["status"] == "active" and stale["selected_candidate_id"] == "domain_room"
+    assert stale["session_revision"] == 1
+    rejected = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=first["session_state"],
+        action={"kind": "replace", "old_version_id": "domain_room", "new_version_id": "missing",
+                **{k: v for k, v in _handoff_confirm(first, "missing", "bad-replace").items()
+                   if k not in {"kind", "candidate_version_id"}}},
+        expected_session_revision=1, expected_source_revision=first["provenance"]["source_revision"],
+    )
+    assert rejected["attempt"]["reason"] == "candidate_version_unavailable"
+    assert rejected["current"]["status"] == "active" and rejected["analysis_domain"] == scene.analysis_domain
+    changed = replace(scene, geometries=scene.geometries[:-1] +
+                      (replace(scene.geometries[-1], vertices=tuple((x + .1, y, z)
+                                                               for x, y, z in scene.geometries[-1].vertices)),))
+    invalidated = _analysis_scene_view_with_domain_handoff(
+        changed, candidates=candidates, frame_request=_handoff_frame(changed),
+        session_state=rejected["session_state"],
+    )
+    assert invalidated["current"]["status"] == "not_available"
+    assert invalidated["analysis_domain"] is None and invalidated["scope_polygon"] is None
+    restored = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=invalidated["session_state"],
+    )
+    assert restored["current"]["status"] == "not_available" and restored["analysis_domain"] is None
+    standalone = replace(scene, analysis_domain=None)
+    candidate_start = _analysis_scene_view_with_domain_handoff(
+        standalone, candidates=candidates, frame_request=_handoff_frame(standalone),
+    )
+    candidate_active = _analysis_scene_view_with_domain_handoff(
+        standalone, candidates=candidates, frame_request=_handoff_frame(standalone),
+        session_state=candidate_start["session_state"],
+        action=_handoff_confirm(candidate_start, second.id, action_id="candidate-confirm"),
+        expected_session_revision=0,
+        expected_source_revision=candidate_start["provenance"]["source_revision"],
+    )
+    changed_candidate = _analysis_scene_view_with_domain_handoff(
+        standalone, candidates=({"analysis_domain": replace(second, geometry_refs=("mesh_right",))},),
+        frame_request=_handoff_frame(standalone), session_state=candidate_active["session_state"],
+    )
+    assert changed_candidate["current"]["status"] == "not_available"
+    conflict = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=first["session_state"],
+        action=first_action | {"reason": "contradictory reuse"}, expected_session_revision=1,
+        expected_source_revision=first["provenance"]["source_revision"],
+    )
+    assert conflict["current"]["status"] == "conflict" and conflict["analysis_domain"] is None
+    assert conflict["session_revision"] == 2 and len(conflict["session_state"]["events"]) == 2
+
+
+def test_private_domain_handoff_replacement_switchback_and_retry():
+    """A replacement is provisional and an older version needs fresh consent."""
+    scene = _neutral_scene()
+    frame = _handoff_frame(scene)
+    second = AnalysisDomain(id="second-domain", geometry_refs=("mesh_left",),
+                            source_id=None, selection_method="explicit_test")
+    candidates = ({"analysis_domain": second},)
+    start = _analysis_scene_view_with_domain_handoff(scene, candidates=candidates, frame_request=frame)
+    action = _handoff_confirm(start, "domain_room")
+    first = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=start["session_state"],
+        action=action, expected_session_revision=0,
+        expected_source_revision=start["provenance"]["source_revision"],
+    )
+    duplicate = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=first["session_state"],
+        action=action, expected_session_revision=0,
+        expected_source_revision=start["provenance"]["source_revision"],
+    )
+    assert duplicate["attempt"]["status"] == "duplicate" and duplicate["session_revision"] == 1
+    replacement = {"kind": "replace", "old_version_id": "domain_room", "new_version_id": second.id,
+                   **{key: value for key, value in _handoff_confirm(first, second.id, "replace-1").items()
+                      if key not in {"kind", "candidate_version_id"}}}
+    replaced = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=duplicate["session_state"],
+        action=replacement, expected_session_revision=1,
+        expected_source_revision=first["provenance"]["source_revision"],
+    )
+    assert replaced["attempt"]["status"] == "accepted" and replaced["session_revision"] == 2
+    assert replaced["current"]["status"] == "not_available" and replaced["analysis_domain"] is None
+    switched = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=replaced["session_state"],
+        action=_handoff_confirm(replaced, "domain_room", "switch-back"),
+        expected_session_revision=2, expected_source_revision=replaced["provenance"]["source_revision"],
+    )
+    assert switched["attempt"]["status"] == "accepted"
+    assert switched["current"]["status"] == "active" and switched["session_revision"] == 3
+
+
+def test_private_domain_handoff_no_domain_and_changed_frame():
+    """No candidate and a changed caller frame cannot yield a consumable domain."""
+    scene = replace(_neutral_scene(), analysis_domain=None)
+    frame = _handoff_frame(scene)
+    empty = _analysis_scene_view_with_domain_handoff(scene, frame_request=frame)
+    assert not empty["candidates"] and empty["analysis_domain"] is None
+    assert empty["downstream"] == {"formal_field": "not_available", "topology": "not_available",
+                                   "route": "not_available"}
+    domain = AnalysisDomain(id="room", geometry_refs=("mesh_slab",), source_id=None,
+                            selection_method="explicit_test")
+    candidates = ({"analysis_domain": domain},)
+    start = _analysis_scene_view_with_domain_handoff(scene, candidates=candidates, frame_request=frame)
+    active = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame, session_state=start["session_state"],
+        action=_handoff_confirm(start, domain.id), expected_session_revision=0,
+        expected_source_revision=start["provenance"]["source_revision"],
+    )
+    changed = _analysis_scene_view_with_domain_handoff(
+        scene, candidates=candidates, frame_request=frame | {"datum_m": 1.0},
+        session_state=active["session_state"],
+    )
+    assert changed["current"]["status"] == "not_available" and changed["analysis_domain"] is None
+    assert changed["session_state"]["invalidated"]
+    with pytest.raises(ValueError, match="datum_m"):
+        _analysis_scene_view_with_domain_handoff(
+            scene, candidates=candidates, frame_request={key: value for key, value in frame.items()
+                                                   if key != "datum_m"},
+        )
+
+
+def test_private_domain_handoff_inferred_scope_and_explicit_frame():
+    """The accepted B2 helper supplies an inferred scope without auto-activation."""
+    scene = _enclosure_scene()
+    facts = scene.to_dict()
+    request = _enclosure_request(scene)
+    frame = _handoff_frame(scene)
+    start = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request,
+    )
+    assert len(start["candidates"]) == 1 and start["current"]["status"] == "not_available"
+    version = start["candidates"][0]["version_id"]
+    active = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request, session_state=start["session_state"],
+        action=_handoff_confirm(start, version), expected_session_revision=0,
+        expected_source_revision=start["provenance"]["source_revision"],
+    )
+    assert active["attempt"]["status"] == "accepted" and active["current"]["status"] == "active"
+    assert active["analysis_domain"].source_id is None
+    assert active["analysis_domain"].selection_method == "explicit_session_confirmation_of_inferred_candidate"
+    assert shape(active["scope_polygon"]).equals(shape(start["candidates"][0]["outline"]))
+    assert {item["id"] for item in active["preview"]["physical_occupancy"]} >= {"host", "column"}
+    assert "view" not in active and scene.to_dict() == facts
+    with pytest.raises(ValueError, match="analysis_plane"):
+        _analysis_scene_view_with_domain_handoff(
+            scene, frame_request=frame | {"analysis_plane": AnalysisPlane(
+                name="other", origin=(0, 0, 0), basis=scene.context.analysis_plane.basis)},
+        )
+
+
+def test_private_domain_handoff_inferred_conflict_and_local_refusal():
+    """Authored disagreement needs explicit acknowledgement; residuals still refuse."""
+    scene = _enclosure_scene()
+    authored = AnalysisDomain(id="authored-small", geometry_refs=("furniture",),
+                              source_id=None, selection_method="explicit_test")
+    scene = replace(scene, analysis_domain=authored)
+    frame, request = _handoff_frame(scene), _enclosure_request(scene)
+    start = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request,
+    )
+    inferred = next(item for item in start["candidates"] if item["source"] == "inferred")
+    unacknowledged = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request, session_state=start["session_state"],
+        action=_handoff_confirm(start, inferred["version_id"]), expected_session_revision=0,
+        expected_source_revision=start["provenance"]["source_revision"],
+    )
+    assert unacknowledged["attempt"]["reason"] == "authored_inferred_conflict_unacknowledged"
+    assert unacknowledged["analysis_domain"] is None
+    acknowledged = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request, session_state=unacknowledged["session_state"],
+        action=_handoff_confirm(start, inferred["version_id"], action_id="acknowledged",
+                                acknowledged_conflict_ids=[authored.id]),
+        expected_session_revision=0, expected_source_revision=start["provenance"]["source_revision"],
+    )
+    assert acknowledged["current"]["status"] == "active"
+    observed = _enclosure_diagnostics(scene, request)
+    local_scope = dict(observed["scope_proposals"][0], local_unresolved_aperture_refs=["local-open-residual"])
+    unresolved = dict(observed, scope_proposals=[local_scope])
+    probe = domain_handoff(scene, candidates=(), session_state=None, action=None,
+                           expected_session_revision=None, expected_source_revision=None,
+                           frame_request=frame, b2=unresolved, b2_request=request)
+    local = next(item for item in probe["candidates"] if item["source"] == "inferred")
+    assert local["status"] == "refused" and local["reason"] == "unresolved_local_aperture"
+    assert local["unresolved_aperture_refs"] == ("local-open-residual",)
+    denied = domain_handoff(scene, candidates=(), session_state=probe["session_state"],
+                            action=_handoff_confirm(probe, local["version_id"],
+                                                    acknowledged_conflict_ids=[authored.id]),
+                            expected_session_revision=0,
+                            expected_source_revision=probe["provenance"]["source_revision"],
+                            frame_request=frame, b2=unresolved, b2_request=request)
+    assert denied["attempt"]["reason"] == "unresolved_local_aperture"
+    assert denied["current"]["status"] == "not_available" and denied["analysis_domain"] is None
+
+
+def test_private_domain_handoff_rejects_unconfirmed_session_projection():
+    """A claimed current choice needs an accepted confirm in its event history."""
+    scene = _neutral_scene()
+    frame = _handoff_frame(scene)
+    start = _analysis_scene_view_with_domain_handoff(scene, frame_request=frame)
+    candidate = start["candidates"][0]
+    forged = {"revision": 1, "current_version_id": candidate["version_id"],
+              "current_binding": {"source_revision": start["provenance"]["source_revision"],
+                                  "frame_id": start["provenance"]["frame_id"],
+                                  "request_id": start["provenance"]["request_id"],
+                                  "candidate_identity": candidate["identity"],
+                                  "acknowledged_conflicts": []},
+              "conflict": False, "invalidated": False, "events": []}
+    refused = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, session_state=forged,
+    )
+    assert refused["attempt"]["reason"] == "inconsistent_session_state"
+    assert refused["current"]["status"] == "not_available"
+    assert refused["analysis_domain"] is None and refused["session_revision"] == 0
+    # A valid projection cannot change its claimed binding independently of the log.
+    active = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, session_state=start["session_state"],
+        action=_handoff_confirm(start, candidate["version_id"]),
+        expected_session_revision=0, expected_source_revision=start["provenance"]["source_revision"],
+    )
+    inconsistent = active["session_state"] | {"current_binding": forged["current_binding"] | {
+        "candidate_identity": "not-the-confirmed-candidate"}}
+    refused = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, session_state=inconsistent,
+    )
+    assert refused["current"]["status"] == "not_available"
+    assert refused["attempt"]["reason"] == "inconsistent_session_state"
+
+
+def test_private_domain_handoff_rechecks_later_candidate_disagreements():
+    """A later opposite-source disagreement requires a fresh acknowledgement."""
+    scene = _enclosure_scene()
+    scene = replace(scene, geometries=scene.geometries +
+                    (_mesh("equal-scope", Rect(cx=3, cy=3, width=6, height=6)),))
+    frame, request = _handoff_frame(scene), _enclosure_request(scene)
+    start = _analysis_scene_view_with_domain_handoff(scene, frame_request=frame, b2_request=request)
+    inferred = start["candidates"][0]
+    active = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request, session_state=start["session_state"],
+        action=_handoff_confirm(start, inferred["version_id"]),
+        expected_session_revision=0, expected_source_revision=start["provenance"]["source_revision"],
+    )
+    same = AnalysisDomain(id="same-outline", geometry_refs=("equal-scope",),
+                          source_id=None, selection_method="explicit_test")
+    same_source = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request, session_state=active["session_state"],
+        candidates=({"analysis_domain": same},),
+    )
+    assert shape(same_source["candidates"][0]["outline"]).equals(shape(inferred["outline"]))
+    assert same_source["current"]["status"] == "active"
+    authored = AnalysisDomain(id="later-authored", geometry_refs=("furniture",),
+                              source_id=None, selection_method="explicit_test")
+    candidates = ({"analysis_domain": authored},)
+    later = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request, candidates=candidates,
+        session_state=active["session_state"],
+    )
+    assert len(later["candidates"]) == 2
+    assert later["current"]["status"] == "not_available" and later["analysis_domain"] is None
+    assert later["session_state"]["invalidated"] and later["session_revision"] == 2
+    stale = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request, candidates=candidates,
+        session_state=later["session_state"],
+        action=_handoff_confirm(active, inferred["version_id"], action_id="stale-ack",
+                                acknowledged_conflict_ids=[authored.id]),
+        expected_session_revision=active["session_revision"],
+        expected_source_revision=active["provenance"]["source_revision"],
+    )
+    assert stale["attempt"]["reason"] == "stale_session_revision"
+    assert stale["current"]["status"] == "not_available"
+    acknowledged = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request, candidates=candidates,
+        session_state=later["session_state"],
+        action=_handoff_confirm(later, inferred["version_id"], action_id="fresh-ack",
+                                acknowledged_conflict_ids=[authored.id]),
+        expected_session_revision=later["session_revision"],
+        expected_source_revision=later["provenance"]["source_revision"],
+    )
+    assert acknowledged["current"]["status"] == "active"
+    assert acknowledged["analysis_domain"] is not None and acknowledged["session_revision"] == 3
+
+
+def test_private_domain_handoff_preserves_furniture_source_occupancy():
+    """An authored source identifier must not turn furniture into a domain shell."""
+    base = _neutral_scene()
+    scene = replace(base, analysis_domain=None,
+                    source_objects=(replace(base.source_objects[0], source_id="table-src"),)
+                    + base.source_objects[1:])
+    domain = AnalysisDomain(id="table-domain", geometry_refs=("mesh_left",),
+                            source_id="table-src", selection_method="explicit_test")
+    candidates = ({"analysis_domain": domain},)
+    frame = _handoff_frame(scene)
+    start = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, candidates=candidates,
+    )
+    active = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, candidates=candidates, session_state=start["session_state"],
+        action=_handoff_confirm(start, domain.id), expected_session_revision=0,
+        expected_source_revision=start["provenance"]["source_revision"],
+    )
+    ordinary_ids = {item["id"] for item in analysis_scene_view(scene)["physical_occupancy"]}
+    preview_ids = {item["id"] for item in active["preview"]["physical_occupancy"]}
+    assert active["current"]["status"] == "active" and "left_table" in ordinary_ids & preview_ids
+    assert active["analysis_domain"].source_id == "table-src"
+    assert scene.analysis_domain is None

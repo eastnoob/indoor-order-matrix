@@ -1,0 +1,23 @@
+{
+  "command": "pixi run pytest",
+  "exit_code": 1,
+  "status": "incomplete_timeout_stopped_exact_session",
+  "started_utc": "2026-10-08T09:45:54.7512062Z",
+  "ended_utc": "2026-10-08T10:10:09.7537462Z",
+  "elapsed_seconds": 1455.003,
+  "collected": 897,
+  "completed_before_stop": "not available from interrupted pytest output",
+  "passed_before_stop": "not available",
+  "skipped": "not available",
+  "failures": "not available",
+  "source_identities": {
+    "docs/project/analysis-domain-minimal-handoff-design.md": "04d41412fdf620d870cd7520fcfac5c6716fc232ef659a3ec19bc588b7977076",
+    "docs/project/evidence/d6-analysis-domain-minimal-handoff-implementation-independent-review.md": "dd1ea83125baf2566446795439392f5779851970182f9971e774727a3c1430b7",
+    "test/test_neutral_scene_analysis_regression.py": "688109f2074547e272fcfc66656bcd4ce91b2500cc8a52c041086c1c52152b8c",
+    "features/neutral_scene_views.py": "c40cb306a1f2cddfa35eec4631bfe6de0ec369ecc0621089ae4ce38fcc8943bf",
+    "features/_analysis_domain_handoff.py": "7f05bcf40139732d3580e017d7bd20668cbf69d627865d1a67d4f165a2d75c15",
+    "docs/project/evidence/d6-analysis-domain-minimal-handoff-implementation.md": "a060b2f646339e14ba71254f73ef99b72beca1db9c8d9745cdb4682cb5d21ed1"
+  },
+  "log": "pytest.log",
+  "note": "Stopped with Ctrl-C through the owned exec session after the 25-minute runtime bound; no natural pytest summary was produced."
+}
