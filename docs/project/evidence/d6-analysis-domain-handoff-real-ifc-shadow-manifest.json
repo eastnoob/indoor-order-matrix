@@ -1,0 +1,15 @@
+{
+  "files": {
+    "evidence_markdown": {
+      "bytes": 5825,
+      "path": "docs\\project\\evidence\\d6-analysis-domain-handoff-real-ifc-shadow.md",
+      "sha256": "bd024a2aab038606afcde72ef9ac49b2c704551d53cd9d2b8f0fc307d0edba86"
+    },
+    "run_artifact_manifest": {
+      "bytes": 1228,
+      "path": "outputs\\design\\d6_analysis_domain_handoff_real_ifc_shadow\\run_001\\artifact_manifest.json",
+      "sha256": "770473e29a0f9ebd554afde1476472ca436defaf5509172645bdc47e17bf1125"
+    }
+  },
+  "schema": "d6-analysis-domain-handoff-real-ifc-shadow-doc/v1"
+}

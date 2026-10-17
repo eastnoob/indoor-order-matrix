@@ -5,9 +5,14 @@ from __future__ import annotations
 from dataclasses import replace
 import json
 
+import pytest
+from shapely.errors import GEOSException
+from shapely.geometry import Polygon
+
 from ..features.geometry_substitutes import mass_patch_from_mesh, surface_patch_from_fact
 from ..features.geometry_views import (
     clearance_geometry,
+    component_shape,
     occlusion_intersections,
     plan_projection,
     surface_elevation_at,
@@ -47,6 +52,69 @@ def test_plan_projection_preserves_disconnected_mesh_components():
 
     assert len(projection.components) == 2
     assert all(component["holes"] == () for component in projection.components)
+
+
+def test_plan_projection_preserves_tiny_real_bend_but_removes_straight_split():
+    """Canonical rings retain nonzero area while dropping exact collinear points."""
+    points = ((0.0, 0.0), (1.0, -1e-10), (2.0, 0.0), (2.0, 2.0), (0.0, 2.0))
+    mesh = replace(_box_mesh(), vertices=tuple((x, y, 0.0) for x, y in points),
+                   triangle_indices=((0, 1, 2), (0, 2, 3), (0, 3, 4)),
+                   is_manifold=False, is_closed=False)
+    projected = plan_projection(mass_patch_from_mesh(mesh))
+    assert component_shape(projected.components).equals(Polygon(points))
+    assert (1.0, -1e-10) in projected.components[0]["exterior"]
+    straight = replace(mesh, vertices=tuple((x, 0.0 if index == 1 else y, 0.0)
+                                            for index, (x, y) in enumerate(points)))
+    straight_projection = plan_projection(mass_patch_from_mesh(straight))
+    assert (1.0, 0.0) not in straight_projection.components[0]["exterior"]
+    assert component_shape(straight_projection.components).equals(
+        Polygon(((0, 0), (2, 0), (2, 2), (0, 2))))
+
+
+def test_plan_face_union_topology_retry_preserves_holes_and_disconnected_parts(monkeypatch):
+    """The dense-chair GEOS failure path preserves plan topology at bounded precision."""
+    import shapely.ops
+    from ..features.geometry_views import _polygon_components
+
+    faces = (
+        ((0, 0), (4, 0), (4, 1), (0, 1)),
+        ((0, 3), (4, 3), (4, 4), (0, 4)),
+        ((0, 1), (1, 1), (1, 3), (0, 3)),
+        ((3, 1), (4, 1), (4, 3), (3, 3)),
+        ((6, 0), (7, -1e-10), (8, 0), (8, 2), (6, 2)),
+    )
+    expected = shapely.ops.unary_union([Polygon(face) for face in faces])
+
+    def topology_failure(_faces):
+        """Reproduce the exception raised by the frozen dense-chair face union."""
+        raise GEOSException("TopologyException: Ring edge missing at 19.103774438952716 8.542144337381524")
+
+    monkeypatch.setattr(shapely.ops, "unary_union", topology_failure)
+    with pytest.warns(RuntimeWarning, match="1e-12 plane-unit grid"):
+        components = _polygon_components(faces)
+    monkeypatch.undo()
+    result = component_shape(components)
+    assert result.is_valid and len(components) == 2
+    assert sum(len(part["holes"]) for part in components) == 1
+    assert result.symmetric_difference(expected).area < 1e-12
+    assert (7.0, -1e-10) in components[1]["exterior"]
+
+
+def test_plan_face_union_failed_retry_propagates_instead_of_empty(monkeypatch):
+    """A failed precision retry must remain unknown to its caller, never empty mass."""
+    import shapely
+    import shapely.ops
+    from ..features.geometry_views import _polygon_components
+
+    def topology_failure(*_args, **_kwargs):
+        """Keep both union attempts failing to exercise failure propagation."""
+        raise GEOSException("TopologyException: unrecoverable overlay")
+
+    monkeypatch.setattr(shapely.ops, "unary_union", topology_failure)
+    monkeypatch.setattr(shapely, "union_all", topology_failure)
+    with pytest.warns(RuntimeWarning, match="1e-12 plane-unit grid"):
+        with pytest.raises(GEOSException, match="unrecoverable overlay"):
+            _polygon_components((((0, 0), (1, 0), (0, 1)),))
 
 
 def test_plan_projection_uses_analysis_plane_and_intersects_height_band():

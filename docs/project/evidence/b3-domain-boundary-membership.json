@@ -1,0 +1,20 @@
+{
+  "schema": "b3-selected-domain-boundary-membership/v1",
+  "scope_binding": {
+    "acknowledged_conflicts": [],
+    "candidate_identity": "dbd6d9d9e2968aa4e28202d2b829fe45cc8f45bfef2e9b26143f533bb1f8e88b",
+    "frame_id": "04c8a31502b3ccf1cab94cd5b143cbe79da743c4b280d8c9f6d48ea442167ec8",
+    "request_id": "80153b2a3de0c8da18eab569c02b6ea47ed69e7aa5c1593c666be3f98aa9a44f",
+    "source_revision": "e4f19cad8c7d0b6ca8e85fe5efcabbcf25ab8a619c54d938573ef9b8b0c64722"
+  },
+  "baseline_source_sections_ref": {
+    "path": "outputs/design/b3_eye_plane_field/run_20261008T211817Z_095de3/source_sections.json",
+    "bytes": 11397078,
+    "sha256": "57181d1dcf9b57b9386c2be036cfbdedddb641ab5242c9fdf1d01e5d7c7a56e7"
+  },
+  "boundary_member_source_ids": ["live-step-6231"],
+  "authority": "explicit_user_instruction",
+  "local_date": "2026-10-09",
+  "policy": "Explicit members of the selected analysis-domain boundary do not contribute to interior physical occupancy or interior uncertainty; preserve original source facts and qualification errors.",
+  "membership_basis": "The owner confirmed this component lies on the selected S3 boundary."
+}

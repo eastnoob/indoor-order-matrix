@@ -1,0 +1,14 @@
+{
+  "adapter_api_tests_dependencies_touched": [],
+  "new_evidence_records": [
+    "docs/project/evidence/d6-space-field-column-channel-audit.md",
+    "docs/project/evidence/d6-space-field-column-channel-audit-owner-review.md"
+  ],
+  "new_write_root": "outputs/design/space_field_soft_field_experiment/repair_v2_column_channel_audit",
+  "preexisting_worktree_entries_preserved": true,
+  "production_paths_touched": [],
+  "schema": "d6-space-field-column-channel-audit-git-scope/v1",
+  "source_ifc_touched": false,
+  "status": "pass",
+  "user_blender_file_touched": false
+}

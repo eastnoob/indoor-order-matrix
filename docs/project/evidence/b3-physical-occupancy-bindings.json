@@ -1,0 +1,141 @@
+{
+  "schema": "b3-physical-occupancy-bindings/v1",
+  "consumer": "physical_occupancy",
+  "scope_binding": {
+    "acknowledged_conflicts": [],
+    "candidate_identity": "dbd6d9d9e2968aa4e28202d2b829fe45cc8f45bfef2e9b26143f533bb1f8e88b",
+    "frame_id": "04c8a31502b3ccf1cab94cd5b143cbe79da743c4b280d8c9f6d48ea442167ec8",
+    "request_id": "80153b2a3de0c8da18eab569c02b6ea47ed69e7aa5c1593c666be3f98aa9a44f",
+    "source_revision": "e4f19cad8c7d0b6ca8e85fe5efcabbcf25ab8a619c54d938573ef9b8b0c64722"
+  },
+  "primary_plane_world_z_m": 1.6,
+  "proxy_metadata_sha256": "9a6815d2d6291887fd933b6228ae7392ca7088e9e10ac88007295012932caa62",
+  "targets": [
+    {
+      "target_id": "proxy:counter_1992252",
+      "mesh_id": "proxy-mesh:counter_1992252",
+      "representation_identifier": "GeneratedProxy",
+      "obj_ref": {
+        "path": "outputs/design/b3_deferred_convex_meshes/run_20261008T225203Z_aa8aaa/counter_1992252.obj",
+        "bytes": 2561,
+        "sha256": "8a4d7346d8a375946ec8138f2040f14d3b20a06b230c92dfef16a3c674772cbb"
+      },
+      "represented_source_ids": [
+        "live-step-1992252"
+      ],
+      "owner_global_ids": {
+        "live-step-1992252": "1wZJY19NTU$Bn2CE1vayIo"
+      },
+      "owner_capture_sha256": {
+        "live-step-1992252": "60b3c87c6bdbb0830e0cb7bfd7f48721469d85d8cc15088b4993c574779bf751"
+      },
+      "generated_mesh_checks": {
+        "vertex_count": 37,
+        "triangle_count": 70,
+        "edge_count": 105,
+        "all_edges_two_incident_faces": true,
+        "consistent_outward_winding": true,
+        "proxy_volume_m3": 55.90774582625664,
+        "volume_matches_qhull": true
+      },
+      "proxy_role": "provisional_3d_convex_mesh_substitute"
+    },
+    {
+      "target_id": "proxy:assembly_A",
+      "mesh_id": "proxy-mesh:assembly_A",
+      "representation_identifier": "GeneratedProxy",
+      "obj_ref": {
+        "path": "outputs/design/b3_deferred_convex_meshes/run_20261008T225203Z_aa8aaa/assembly_A.obj",
+        "bytes": 4122,
+        "sha256": "6f1733917fc50c45002761ef98c714d2dd7682bcb28d30fad92ae7ac65b96313"
+      },
+      "represented_source_ids": [
+        "live-step-2032485",
+        "live-step-2053009",
+        "live-step-2082638"
+      ],
+      "owner_global_ids": {
+        "live-step-2032485": "3tVuwteKLUAxI0S_ptGNQT",
+        "live-step-2053009": "1frmBqaGbPA9BIJetQWrfy",
+        "live-step-2082638": "31IHP3QHrVcfPwKvRNo$wX"
+      },
+      "owner_capture_sha256": {
+        "live-step-2032485": "d445711608600de8fbefca4f125ad4a48e80af2ebe8cf55c5ab3491d410f9e84",
+        "live-step-2053009": "cde44c69674a807febd16a8fcb331b48a4ff9eb217cf8c0222347d2bfa8007e5",
+        "live-step-2082638": "d9ca5bfac8de3e450eef5fbf9d66d793bcbabac01b836020eff4f4df4c667865"
+      },
+      "generated_mesh_checks": {
+        "vertex_count": 51,
+        "triangle_count": 98,
+        "edge_count": 147,
+        "all_edges_two_incident_faces": true,
+        "consistent_outward_winding": true,
+        "proxy_volume_m3": 0.6647047161519533,
+        "volume_matches_qhull": true
+      },
+      "proxy_role": "provisional_3d_convex_mesh_substitute"
+    },
+    {
+      "target_id": "proxy:assembly_B",
+      "mesh_id": "proxy-mesh:assembly_B",
+      "representation_identifier": "GeneratedProxy",
+      "obj_ref": {
+        "path": "outputs/design/b3_deferred_convex_meshes/run_20261008T225203Z_aa8aaa/assembly_B.obj",
+        "bytes": 4135,
+        "sha256": "9e1f015b91f6663b829bbc10f0045f98f2e81e69d526dfc799de6c980cc55f5f"
+      },
+      "represented_source_ids": [
+        "live-step-3269286",
+        "live-step-3237875",
+        "live-step-3236022"
+      ],
+      "owner_global_ids": {
+        "live-step-3269286": "2s6tcXT5rR49krD_XhXIfN",
+        "live-step-3237875": "0ZKIA_vCHHJB1xk3DDhXGh",
+        "live-step-3236022": "1ABvcEoPPOdulOu6GfO5ru"
+      },
+      "owner_capture_sha256": {
+        "live-step-3269286": "7b46807834a2815ddb131022696dc282d50270c9bfdc28ebfc87eea9da472895",
+        "live-step-3237875": "9d7278c927911712ac3262ccbc51aee79b5ecdd4addc8196cf6d214b522c2a3a",
+        "live-step-3236022": "bb64a725feda0e4dc6c60741c036e0ca0e956ed5227157eb8697aee8f79c32da"
+      },
+      "generated_mesh_checks": {
+        "vertex_count": 51,
+        "triangle_count": 98,
+        "edge_count": 147,
+        "all_edges_two_incident_faces": true,
+        "consistent_outward_winding": true,
+        "proxy_volume_m3": 0.6647048487802639,
+        "volume_matches_qhull": true
+      },
+      "proxy_role": "provisional_3d_convex_mesh_substitute"
+    }
+  ],
+  "frozen_input_refs": [
+    {
+      "path": "outputs/design/b3_occupancy_only_handoff/run_20261009T091601Z_242b33/field_samples.json",
+      "bytes": 6958791,
+      "sha256": "5c9d2c4826ae8159f1b975b759bc43df62d7ca96c1d909973a4b9e12efb426ba"
+    },
+    {
+      "path": "outputs/design/b3_eye_plane_field/run_20261008T211817Z_095de3/source_sections.json",
+      "bytes": 11397078,
+      "sha256": "57181d1dcf9b57b9386c2be036cfbdedddb641ab5242c9fdf1d01e5d7c7a56e7"
+    },
+    {
+      "path": "outputs/design/b3_real_source_field/run_001/capture_manifest.json",
+      "bytes": 637633,
+      "sha256": "776ebd32fe8ae4595c01dc8bf664fb6da456a0d791a4cafd160bda3afa2cafb7"
+    },
+    {
+      "path": "outputs/design/b3_real_source_field/run_001/s3_scope.json",
+      "bytes": 244945,
+      "sha256": "94a28a5f513091e683303faf091081d519769b5a38980cff2438d91a2cfc5591"
+    },
+    {
+      "path": "docs/project/evidence/b3-domain-boundary-membership.json",
+      "bytes": 1141,
+      "sha256": "fbba9075ab76f4a6ea3ed8fcf08c21285613ded9e2237eed23c7bb3c7cbf3a2e"
+    }
+  ]
+}

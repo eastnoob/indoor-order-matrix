@@ -1,0 +1,25 @@
+{
+  "schema": "field-kernel-free-space-s0-session/v1",
+  "session": "S0",
+  "status": "design_only",
+  "formula_scope": "probe_only_not_production",
+  "fixture": "scripts/design/group_level/self_description_competition_fixtures.json",
+  "fixture_sha256": "8A9253DE9294138292E2A47463B847EAEF96152793826DD00965B7D95DE9B74D",
+  "runner": "scripts/design/group_level/run_self_description_competition_probe.py",
+  "runner_sha256": "FFF2411BC0E4E953F0E6594095D360B2E3D3D3AF1C6C340E4DF7CDCB33334C47",
+  "outputs": [
+    {
+      "path": "specs/001-field-kernel-free-space/s0-probe-evidence.json",
+      "sha256": "0F5C71BBD6BAAA86086CD5AC3F560CCB4CE4BA45377832805C4B7814EA992EDD"
+    },
+    {
+      "path": "specs/001-field-kernel-free-space/s0-probe-evidence-2.json",
+      "sha256": "0F5C71BBD6BAAA86086CD5AC3F560CCB4CE4BA45377832805C4B7814EA992EDD"
+    }
+  ],
+  "checks": 8,
+  "passed": 8,
+  "replay_byte_identical": true,
+  "python": "Python 3.12.13",
+  "command": "pixi run python scripts/design/group_level/run_self_description_competition_probe.py --fixtures scripts/design/group_level/self_description_competition_fixtures.json --output <path>"
+}

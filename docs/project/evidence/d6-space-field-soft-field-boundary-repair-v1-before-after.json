@@ -1,0 +1,30 @@
+{
+  "after": {
+    "component_count": 5,
+    "free_area_m2": 326.5176909190218,
+    "label": "repair_v1 walls + eligible columns + declared furniture geometry",
+    "local_width_p50_m": 1.003333333333332,
+    "occupancy_sources": [
+      "valid physical wall geometry",
+      "eligible IfcColumn geometry",
+      "declared furniture_group geometry"
+    ]
+  },
+  "before": {
+    "artifact_preserved": true,
+    "component_count": 1,
+    "free_area_m2": 355.8844144265577,
+    "label": "run_001 furniture-only empty-space diagnostic",
+    "local_width_p50_m": 3.4244381562781934,
+    "occupancy_sources": [
+      "declared furniture_group geometry"
+    ]
+  },
+  "delta": {
+    "component_count": 4,
+    "free_area_m2": -29.366723507535937,
+    "local_width_p50_m": -2.4211048229448613
+  },
+  "interpretation": "physical obstacles reduce the bounded complement; no route or walkability meaning is assigned",
+  "schema": "d6-space-field-boundary-repair-before-after/v1"
+}

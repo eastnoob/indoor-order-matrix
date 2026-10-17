@@ -1,0 +1,22 @@
+{
+  "schema": "field-kernel-free-space-us3-replay-artifacts/v1",
+  "design_only": true,
+  "formula_scope": "probe_only_not_production",
+  "artifacts": [
+    {
+      "path": "us3-replay-run1.json",
+      "bytes": 49577,
+      "sha256": "30ffa9b7b5571aca1d518213288431015f439dfcf864ba3055f1a387ffa7efcb"
+    },
+    {
+      "path": "us3-replay-run2.json",
+      "bytes": 49577,
+      "sha256": "30ffa9b7b5571aca1d518213288431015f439dfcf864ba3055f1a387ffa7efcb"
+    },
+    {
+      "path": "us3-owner-review.md",
+      "bytes": 1330,
+      "sha256": "6cf45ce9a91a9ead790a6f5f69365cb9fd85fce9c679972c43baac398ebd6ce4"
+    }
+  ]
+}

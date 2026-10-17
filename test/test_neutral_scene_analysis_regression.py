@@ -9,7 +9,7 @@ from shapely.geometry import Polygon, mapping, shape
 
 from ..adapters.ifc_bonsai import load_ifc_neutral_scene
 from ..adapters.svg_scene import load_svg_neutral_scene
-from ..features._analysis_domain_handoff import domain_handoff
+from ..features._analysis_domain_handoff import _catalog, _inferred_mesh, domain_handoff
 from ..features.affordance.models import Rect
 from ..features.column_grid import column_grid_evidence
 from ..features.room_analysis_model import build_room_analysis_model
@@ -32,6 +32,8 @@ from ..features.scene_contract import (
 from ..features.scene_evaluator import (
     _cad_room_minus_blocker_component_touch_evidence,
     _line_of_sight_entry_region_evidence,
+    _negative_space_descriptor,
+    _physical_occupancy_blockers,
     evaluate_scene,
 )
 from ..features.scene_inference import (
@@ -427,6 +429,75 @@ def test_analysis_domain_support_mass_is_not_a_walking_blocker_when_overlapping_
         "source-wall",
         "source-column",
     ]
+    assert "analysis_support" not in {
+        item["id"] for item in _physical_occupancy_blockers(view)}
+
+
+def test_selected_boundary_members_leave_interior_occupancy_but_keep_raw_facts():
+    """Exact selected membership scopes occupancy without erasing source evidence."""
+    mass = _box_mesh(mesh_id="shared-boundary-mass", top=2.0)
+    unknown = _mesh("flat-window", Rect(cx=1, cy=1, width=1, height=1))
+    opaque = MaterialFact(id="opaque-boundary", source_id=None, identity="opaque",
+                          visible_transmittance=0.0, viewport_transparency=0.0)
+    sources = (
+        SourceObject(id="door", source_id="source-door", source_role="door",
+                     geometry_refs=(mass.id,), material_refs=(opaque.id,)),
+        SourceObject(id="window", source_role="window", geometry_refs=(unknown.id,)),
+        SourceObject(id="chair", source_role="furniture", geometry_refs=(mass.id,),
+                     material_refs=(opaque.id,)),
+        SourceObject(id="other_wall", source_role="wall", geometry_refs=(mass.id,),
+                     material_refs=(opaque.id,)),
+    )
+    base = _closed_channel_scene(sources, (mass, unknown), materials=(opaque,))
+    uncertainty = UncertaintyRecord(code="missing_geometry", message="window source uncertain",
+                                    source_refs=("window",), operation="test_fixture", severity="warning")
+    scene = replace(base, uncertainties=(uncertainty,),
+                    analysis_domain=replace(base.analysis_domain, source_id=None,
+                                            provenance={"boundary_member_source_ids":
+                                                        ("source-door", "window", "chair")}))
+
+    view = analysis_scene_view(scene)
+    assert {item["id"] for item in view["physical_occupancy"]} == {"other_wall"}
+    assert {item["id"] for item in _physical_occupancy_blockers(view)} == {"other_wall"}
+    assert {item["id"] for item in view["walk_blockers"]} == {"other_wall"}
+    assert {item["id"] for item in view["visibility_blockers"]} == {"other_wall"}
+    assert {item["id"] for item in view["objects"]} == {"chair"}
+    assert view["objects"][0]["_interior_exclusion_reason"] == "selected_analysis_domain_boundary_member"
+    assert view["channel_evidence"]["door"]["walking"][0]["status"] == "blocked"
+    assert view["channel_evidence"]["door"]["visual"][0]["status"] == "blocked"
+    assert view["channel_evidence"]["window"]["geometry_status"] == "unknown"
+    assert not view["_analysis_view"]["capability_flags"]["closed_manifold_mass_geometry"]
+    assert view["uncertainties"] == [uncertainty.to_dict()]
+
+
+def test_boundary_member_identity_refuses_ambiguous_unmatched_and_duplicate_refs():
+    """A class, shared mesh, or uncertain token cannot grant an exclusion."""
+    mass = _box_mesh(mesh_id="membership-mass", top=2.0)
+    sources = (
+        SourceObject(id="door", source_id="duplicate-id", source_role="door", geometry_refs=(mass.id,)),
+        SourceObject(id="window", source_id="duplicate-id", source_role="window", geometry_refs=(mass.id,)),
+        SourceObject(id="chair", source_role="furniture", geometry_refs=(mass.id,)),
+    )
+    base = _closed_channel_scene(sources, (mass,))
+    scene = replace(base, analysis_domain=replace(base.analysis_domain, source_id=None,
+                    provenance={"boundary_member_source_ids":
+                                ("duplicate-id", "missing", "chair", "chair")}))
+    view = analysis_scene_view(scene)
+    assert {item["id"] for item in view["physical_occupancy"]} == {"door", "window", "chair"}
+    assert [item["status"] for item in view["_analysis_view"]["b2_boundary_diagnostics"]
+            ["domain_scope"]["boundary_membership"]] == [
+                "ambiguous", "unmatched", "duplicate_source_ref", "duplicate_source_ref"]
+    no_domain = analysis_scene_view(replace(scene, analysis_domain=None))
+    assert {item["id"] for item in no_domain["physical_occupancy"]} == {"door", "window", "chair"}
+    aliased = replace(scene, source_objects=sources[:2] +
+                      (replace(sources[2], source_id="chair-source"),),
+                      analysis_domain=replace(scene.analysis_domain,
+                                              provenance={"boundary_member_source_ids":
+                                                          ("chair", "chair-source")}))
+    alias_view = analysis_scene_view(aliased)
+    assert "chair" in {item["id"] for item in alias_view["physical_occupancy"]}
+    assert {item["status"] for item in alias_view["_analysis_view"]["b2_boundary_diagnostics"]
+            ["domain_scope"]["boundary_membership"]} == {"duplicate_member"}
 
 
 def test_unidentified_analysis_domain_keeps_shared_wall_and_column_occupancy():
@@ -743,6 +814,25 @@ def test_neutral_role_neutral_mass_enters_physical_occupancy():
     assert "role_neutral_partition" in {
         record["id"] for record in view["physical_occupancy"]
     }
+
+
+def test_nonfurniture_mass_reduces_free_space_independent_of_furniture_eligibility():
+    """A counter-like physical source blocks space without becoming furniture."""
+    mass = _box_mesh(mesh_id="counter_occupancy", top=1.2)
+    source = SourceObject(id="counter", source_role="counter", geometry_refs=(mass.id,),
+                          factual_properties={"OM_Layout": {"AnalysisParticipation": "exclude"}})
+    bare = _closed_channel_scene((), (mass,))
+    excluded = _closed_channel_scene((source,), (mass,))
+    other_policy = replace(excluded, source_objects=(replace(source,
+        factual_properties={"OM_Layout": {"AnalysisParticipation": "include"}}),))
+
+    bare_free = _negative_space_descriptor(analysis_scene_view(bare))["negative_space_area"]
+    for scene in (excluded, other_policy):
+        view = analysis_scene_view(scene)
+        assert {record["id"] for record in view["physical_occupancy"]} == {"counter"}
+        assert view["objects"] == []
+        assert furniture_affordance_extents(scene) == []
+        assert _negative_space_descriptor(view)["negative_space_area"] < bare_free
 
 
 def test_neutral_scene_drives_inference_without_svg_parser():
@@ -2041,10 +2131,12 @@ def test_private_enclosure_opt_in_preserves_default_sources_and_compound_scope()
     result = opted["_analysis_view"]["b2_boundary_diagnostics"].pop("semantic_enclosure")
     assert opted == ordinary and scene.to_dict() == facts
     assert len(result["carriers"]) == 1 and len(result["enclosure_contours"]) == 2
-    assert len(result["scope_proposals"]) == 1
-    assert {c["scope_ref"] for c in result["enclosure_contours"]} == {"S1"}
+    assert len(result["scope_proposals"]) == 2
+    assert {c["scope_ref"] for c in result["enclosure_contours"]} == {"S1", "S2"}
     assert "column" in result["scope_proposals"][0]["occupancy_source_refs"]
-    assert result["scope_proposals"][0]["geometry"]["area_m2"] == pytest.approx(36)
+    assert result["scope_proposals"][0]["geometry"]["hole_count"] == 1
+    assert all(scope["geometry"]["area_m2"] < 36 for scope in result["scope_proposals"])
+    assert sum(scope["geometry"]["area_m2"] for scope in result["scope_proposals"]) == pytest.approx(28.785)
     window = next(row for row in result["sources"] if row["source_ref"] == "window")
     assert window["physical_section"]["area_m2"] == 0 and window["span_qualified"]
     assert window["source"]["source_id"] is None and window["source"]["source_class"] is None
@@ -2054,6 +2146,47 @@ def test_private_enclosure_opt_in_preserves_default_sources_and_compound_scope()
     assert result["downstream"] == {"subtraction": "refused", "free_space": "not_evaluated", "route": "not_evaluated"}
     changed = replace(scene, context=replace(scene.context, geometry_tolerance=.25, topology_tolerance=.75))
     assert _enclosure_diagnostics(changed) == result
+
+
+def test_private_enclosure_nested_wall_loop_emits_each_interior_once():
+    """An inner wall shell must not duplicate its room inside the outer candidate."""
+    bounds = {"outer-south": (0, 0, 0, 12, .25, 3),
+              "outer-north": (0, 11.75, 0, 12, 12, 3),
+              "outer-west": (0, .25, 0, .25, 11.75, 3),
+              "outer-east": (11.75, .25, 0, 12, 11.75, 3),
+              "inner-south": (4, 4, 0, 8, 4.25, 3),
+              "inner-north": (4, 7.75, 0, 8, 8, 3),
+              "inner-west": (4, 4.25, 0, 4.25, 7.75, 3),
+              "inner-east": (7.75, 4.25, 0, 8, 7.75, 3),
+              "column": (2, 2, 0, 2.4, 2.4, 3)}
+    scene = replace(_neutral_scene(), geometries=tuple(_enclosure_box(ref, box) for ref, box in bounds.items()),
+                    source_objects=tuple(SourceObject(id=ref, source_role="column" if ref == "column" else "wall",
+                                                       geometry_refs=(ref,)) for ref in bounds),
+                    openings=(), analysis_domain=None, authored_groups=())
+    original = scene.to_dict()
+    result = _enclosure_diagnostics(scene)
+    scopes = [shape(item["geometry"]["geojson"]) for item in result["scope_proposals"]]
+    structural = shape(result["physical_structural_section"]["geojson"])
+    assert len(scopes) == 2
+    assert scopes[0].intersection(scopes[1]).area == 0
+    assert [round(scope.area, 2) for scope in scopes] == [116.09, 12.25]
+    assert [len(scope.interiors) for scope in scopes] == [2, 0]
+    assert all(ref.startswith("outer-") for ref in result["scope_proposals"][0]["wall_source_refs"])
+    assert all(ref.startswith("inner-") for ref in result["scope_proposals"][1]["wall_source_refs"])
+    assert all(scope.intersection(structural).area == 0 for scope in scopes)
+    assert all(shape(contour["geometry"]["geojson"]).equals(scope)
+               for contour, scope in zip(result["enclosure_contours"], scopes))
+    assert scene.to_dict() == original
+    high_span = _enclosure_box("high-span", (1, .25, 2.1, 1.5, .5, 3))
+    outer_south = replace(scene.source_objects[0], geometry_refs=("outer-south", "high-span"))
+    with_residual = replace(scene, geometries=scene.geometries + (high_span,),
+                            source_objects=(outer_south,) + scene.source_objects[1:])
+    local = _enclosure_diagnostics(with_residual)
+    assert len(local["scope_proposals"]) == 2
+    assert len(local["apertures"]) == 1 and local["apertures"][0]["significant_residual"]
+    assert local["scope_proposals"][0]["local_unresolved_aperture_refs"] == [local["apertures"][0]["id"]]
+    assert local["scope_proposals"][1]["local_unresolved_aperture_refs"] == []
+    assert local["apertures"][0]["affected_scope_ids"] == [local["scope_proposals"][0]["id"]]
 
 
 def test_private_enclosure_measured_contact_and_explicit_authority():
@@ -2068,6 +2201,8 @@ def test_private_enclosure_measured_contact_and_explicit_authority():
     refused = _enclosure_diagnostics(scene, _enclosure_request(scene) | {"exclude_override_authority": None})
     assert not refused["carriers"] and refused["treatments"][0]["refusal"] == "authored_exclude_without_task_override"
     for updates in ({"units": "mm"}, {"contact_distance_m": -1}, {"aperture_area_budget_m2": float("nan")},
+                    {"aperture_residual_tolerance_m2": True}, {"aperture_residual_tolerance_m2": -1},
+                    {"aperture_residual_tolerance_m2": float("inf")},
                     {"datum_m": True}, {"cut_height_m": float("inf")}, {"default_closed_authority": ""},
                     {"exclude_override_authority": True}, {"analysis_plane": AnalysisPlane(name="other", origin=(0, 0, 0), basis=scene.context.analysis_plane.basis)}):
         with pytest.raises(ValueError):
@@ -2093,6 +2228,8 @@ def test_private_enclosure_local_refusals_and_authored_opening_precedence():
     opening = SourceOpening(id="opening", source_id=None, host_refs=("host",), geometry_refs=("window-mesh",), opening_kind="unfilled")
     unfilled = _enclosure_diagnostics(replace(scene, openings=(opening,)))
     assert not unfilled["carriers"] and unfilled["treatments"][0]["alternatives"][0]["opening_veto_refs"] == ["opening"]
+    assert len(unfilled["scope_proposals"]) == 1
+    assert shape(unfilled["scope_proposals"][0]["geometry"]["geojson"]).bounds[0] >= 4.25
     for kind in ("unfilled", "window", "door", "unknown"):
         for hosts in ((), ("absent",), ("north",)):
             local_opening = replace(opening, host_refs=hosts, opening_kind=kind)
@@ -2441,7 +2578,7 @@ def test_private_domain_handoff_inferred_scope_and_explicit_frame():
     start = _analysis_scene_view_with_domain_handoff(
         scene, frame_request=frame, b2_request=request,
     )
-    assert len(start["candidates"]) == 1 and start["current"]["status"] == "not_available"
+    assert len(start["candidates"]) == 2 and start["current"]["status"] == "not_available"
     version = start["candidates"][0]["version_id"]
     active = _analysis_scene_view_with_domain_handoff(
         scene, frame_request=frame, b2_request=request, session_state=start["session_state"],
@@ -2451,14 +2588,33 @@ def test_private_domain_handoff_inferred_scope_and_explicit_frame():
     assert active["attempt"]["status"] == "accepted" and active["current"]["status"] == "active"
     assert active["analysis_domain"].source_id is None
     assert active["analysis_domain"].selection_method == "explicit_session_confirmation_of_inferred_candidate"
+    assert active["analysis_domain"].provenance["boundary_member_source_ids"] == ("window",)
     assert shape(active["scope_polygon"]).equals(shape(start["candidates"][0]["outline"]))
     assert {item["id"] for item in active["preview"]["physical_occupancy"]} >= {"host", "column"}
+    assert "window" not in {item["id"] for item in active["preview"]["physical_occupancy"]}
     assert "view" not in active and scene.to_dict() == facts
+    changed_policy = _analysis_scene_view_with_domain_handoff(
+        scene, frame_request=frame, b2_request=request | {"aperture_residual_tolerance_m2": 0},
+        session_state=active["session_state"],
+    )
+    assert changed_policy["current"]["status"] == "not_available"
+    assert changed_policy["session_state"]["invalidated"]
     with pytest.raises(ValueError, match="analysis_plane"):
         _analysis_scene_view_with_domain_handoff(
             scene, frame_request=frame | {"analysis_plane": AnalysisPlane(
                 name="other", origin=(0, 0, 0), basis=scene.context.analysis_plane.basis)},
         )
+
+
+def test_inferred_domain_refuses_missing_or_duplicate_boundary_contours():
+    """Only one exact B2 contour can promote component membership provenance."""
+    scene = _enclosure_scene()
+    evidence = _enclosure_diagnostics(scene)
+    for contours in ((), tuple(evidence["enclosure_contours"]) * 2):
+        changed = evidence | {"enclosure_contours": contours}
+        catalog = _catalog(scene, (), changed, "source", "frame", "request")
+        assert all(not candidate["boundary_member_source_ids"]
+                   for candidate in catalog.values())
 
 
 def test_private_domain_handoff_inferred_conflict_and_local_refusal():
@@ -2542,8 +2698,9 @@ def test_private_domain_handoff_rejects_unconfirmed_session_projection():
 def test_private_domain_handoff_rechecks_later_candidate_disagreements():
     """A later opposite-source disagreement requires a fresh acknowledgement."""
     scene = _enclosure_scene()
-    scene = replace(scene, geometries=scene.geometries +
-                    (_mesh("equal-scope", Rect(cx=3, cy=3, width=6, height=6)),))
+    inner = shape(_enclosure_diagnostics(scene)["scope_proposals"][0]["geometry"]["geojson"])
+    equal_mesh = replace(_inferred_mesh(inner, scene.context.analysis_plane, "test", "test", "test"), id="equal-scope")
+    scene = replace(scene, geometries=scene.geometries + (equal_mesh,))
     frame, request = _handoff_frame(scene), _enclosure_request(scene)
     start = _analysis_scene_view_with_domain_handoff(scene, frame_request=frame, b2_request=request)
     inferred = start["candidates"][0]
@@ -2567,7 +2724,7 @@ def test_private_domain_handoff_rechecks_later_candidate_disagreements():
         scene, frame_request=frame, b2_request=request, candidates=candidates,
         session_state=active["session_state"],
     )
-    assert len(later["candidates"]) == 2
+    assert len(later["candidates"]) == 3
     assert later["current"]["status"] == "not_available" and later["analysis_domain"] is None
     assert later["session_state"]["invalidated"] and later["session_revision"] == 2
     stale = _analysis_scene_view_with_domain_handoff(

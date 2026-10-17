@@ -1,15 +1,72 @@
 {
   "schema": "d6-trend-substitute-registry/v1",
-  "purpose": "Design-only typed substitute contracts for the D6 trend parity checkpoint.",
+  "purpose": "Shared typed substitute contracts for trend and physical occupancy.",
+  "operations": {
+    "trend": {
+      "consumer": "trend",
+      "input": "analysis_geometry_substitute",
+      "geometry_query": "plan_projection",
+      "fallback": "unresolved",
+      "coverage": "single_source",
+      "substitute_kind": "MassPatch"
+    },
+    "physical_occupancy": {
+      "consumer": "physical_occupancy",
+      "input": "physical_occupancy_substitute",
+      "geometry_query": "whole_height_planar_mass_patch",
+      "fallback": "original_without_required_binding",
+      "coverage": "declared_exact_source_set",
+      "substitute_kind": "MassPatch"
+    },
+    "free_space": {
+      "consumer": "physical_occupancy",
+      "input": "physical_occupancy",
+      "geometry_query": "whole_height_planar_mass_patch",
+      "fallback": "original_without_required_binding",
+      "coverage": "declared_exact_source_set",
+      "substitute_kind": "MassPatch"
+    },
+    "physical_occupancy_section": {
+      "consumer": "physical_occupancy",
+      "input": "physical_occupancy_substitute",
+      "geometry_query": "exact_world_plane_section",
+      "fallback": "original_without_required_binding",
+      "coverage": "declared_exact_source_set",
+      "substitute_kind": "MassPatch"
+    }
+  },
   "contracts": {
     "trend_analysis": {
       "consumer": "trend",
-      "accepted_substitute_kind": ["MassPatch"],
-      "accepted_analysis_role": ["analysis_geometry_substitute"],
+      "accepted_substitute_kind": [
+        "MassPatch"
+      ],
+      "accepted_analysis_role": [
+        "analysis_geometry_substitute"
+      ],
       "accepted_representation_identifier": "Analysis",
       "display": {
         "label": "Trend Analysis / MassPatch",
         "color": "#F28E2B",
+        "line_style": "solid"
+      }
+    },
+    "physical_occupancy": {
+      "consumer": "physical_occupancy",
+      "accepted_substitute_kind": [
+        "MassPatch"
+      ],
+      "accepted_analysis_role": [
+        "physical_occupancy_substitute",
+        "analysis_geometry_substitute"
+      ],
+      "accepted_representation_identifiers": [
+        "Analysis",
+        "GeneratedProxy"
+      ],
+      "display": {
+        "label": "Physical Occupancy / MassPatch",
+        "color": "#4E79A7",
         "line_style": "solid"
       }
     }

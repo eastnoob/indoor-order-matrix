@@ -1,0 +1,410 @@
+{
+  "checks": {
+    "current_blender_observation": {
+      "observed": true,
+      "portable_blender_for_disposable_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+      "source_path_match": true,
+      "this_experiment_opened_current_blender": false
+    },
+    "disposable_blend_readback_checked": true,
+    "json_schema_checked": true,
+    "original_run_001_and_repair_v1_preserved": true,
+    "png_records": [
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "furniture_only_1_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "furniture_only_2_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "furniture_only_3_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "furniture_only_4_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "wall_aware_1_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "wall_aware_2_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "wall_aware_3_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "wall_aware_4_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "wall_plus_column_1_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "wall_plus_column_2_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "wall_plus_column_3_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "wall_plus_column_4_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "cut_edge_before_after.png",
+        "size": [
+          2400,
+          1200
+        ]
+      }
+    ],
+    "png_render_and_crop_checked": true,
+    "production_code_adapter_api_tests_dependencies_modified": false,
+    "schema": "d6-space-field-hard-column-comparison-validation/v1",
+    "source_sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+    "status": "pass",
+    "temporary_reproduction_checked": {
+      "fixture_truth.json": {
+        "identical": true,
+        "main_sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95",
+        "temporary_sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95"
+      },
+      "hard_column_comparison.json": {
+        "identical": true,
+        "main_sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7",
+        "temporary_sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7"
+      },
+      "real_ifc_comparison.json": {
+        "identical": true,
+        "main_sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32",
+        "temporary_sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32"
+      }
+    }
+  },
+  "commands": {
+    "blend_readback": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe -b --factory-startup d6_hard_column_comparison_disposable.blend --python inspect_hard_column_blend.py",
+    "blender_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe -b --factory-startup --python render_hard_column_comparison_blender.py",
+    "default_run": "pixi run python run_hard_column_comparison.py --output .",
+    "temporary_reproduction": "pixi run python run_hard_column_comparison.py --output tmp_reproduction_20261003",
+    "validation": "pixi run python validate_hard_column_comparison.py"
+  },
+  "files": [
+    {
+      "bytes": 5599,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\blend_readback.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "f32e0a5752e0ae646efe926f3cdb9f6515d1677c438a13a9118b1162e10237c8"
+    },
+    {
+      "bytes": 3514,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\blender_render_checks.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "35a0c7671ae775133c846712a0772193c460bd5a51fa9b476416f4c26a2f82c5"
+    },
+    {
+      "bytes": 2340925,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\cut_edge_before_after.png",
+      "role": "comparison PNG",
+      "sha256": "d38b29bd0fc5752f5a9db2f91e6f1a275a3687078136df0549c5b3088c81e0ff"
+    },
+    {
+      "bytes": 3089715,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\d6_hard_column_comparison_disposable.blend",
+      "role": "disposable Blender comparison scenes",
+      "sha256": "407accc38553412ffe47cda9c71d409a3118fe64212f710aca09a5c04ab11dd3"
+    },
+    {
+      "bytes": 26198,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\fixture_truth.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95"
+    },
+    {
+      "bytes": 2414660,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\furniture_only_1_regions.png",
+      "role": "comparison PNG",
+      "sha256": "f93a0bb17e8c047f4b803f5152ae4485a31a29fe3aec689c6112aece1ab29303"
+    },
+    {
+      "bytes": 2411097,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\furniture_only_2_regions.png",
+      "role": "comparison PNG",
+      "sha256": "93e8f280a9c6d2a3ca3497ba8d0bafe596dc4e282459ae7a734c7e6c9b685d2d"
+    },
+    {
+      "bytes": 2413939,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\furniture_only_3_regions.png",
+      "role": "comparison PNG",
+      "sha256": "a671e62b92fe46a159c0e0fd5465125429a6088220c3713c7aba23870bfa5bbc"
+    },
+    {
+      "bytes": 2416680,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\furniture_only_4_regions.png",
+      "role": "comparison PNG",
+      "sha256": "979a22b9468515a55a12de7f4cfd64c04dac1b83cf4129d398d7f41a13033e2e"
+    },
+    {
+      "bytes": 279845,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\hard_column_comparison.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7"
+    },
+    {
+      "bytes": 1822,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\inspect_hard_column_blend.py",
+      "role": "comparison source script",
+      "sha256": "2db10f19a80ed1a6e7acd0b90f6b30e7b2ad49e7bc39589bb9704cbd3d6c68e4"
+    },
+    {
+      "bytes": 640,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\json_schema.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "bf14e6ff35e4f3ac0f70bcd3db00c3ba3af4939a2ba173f17af732d3d665dd6f"
+    },
+    {
+      "bytes": 1851,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\provenance.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "5f7a54300abea7d71d0d3280138bbba18535238d6007fb539106794039238bd3"
+    },
+    {
+      "bytes": 240581,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\real_ifc_comparison.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32"
+    },
+    {
+      "bytes": 28536,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\render_hard_column_comparison_blender.py",
+      "role": "comparison source script",
+      "sha256": "d59db491d79b053abb54260eba7a45ce1257efde02a9564677e68ee607fb866e"
+    },
+    {
+      "bytes": 933705,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\render_input.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "d1794f6b6fd9fd9ef1197d1290148f0eebb64409b19af81194a8960204bf8861"
+    },
+    {
+      "bytes": 27851,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\run_hard_column_comparison.py",
+      "role": "comparison source script",
+      "sha256": "b10bb7962b99aa13900135a96626f6d0c5641b8d48cb80017071476b0a886c39"
+    },
+    {
+      "bytes": 2043,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\scope_audit.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "3cb693de27d4848d5428fb9d2c43583db1d52273bfe5338d5b7f75ec62499e29"
+    },
+    {
+      "bytes": 7406,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\validate_hard_column_comparison.py",
+      "role": "comparison source script",
+      "sha256": "176658f0b2f9b55cff9bc9d44818c4febe99ce4ec2be2b4bfe68d77f9e7c68c5"
+    },
+    {
+      "bytes": 4459,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\validation_report.json",
+      "role": "comparison JSON or validation record",
+      "sha256": "5f8f5062bb44aafaa56fd58b87870a14264406bf1d27b2681adee5a12e54df57"
+    },
+    {
+      "bytes": 2413315,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\wall_aware_1_regions.png",
+      "role": "comparison PNG",
+      "sha256": "8093dbb1d59b69a12b0fd1d0f1f29a83ca3e7317c0ceab385f3f7ad2a85563fb"
+    },
+    {
+      "bytes": 2409778,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\wall_aware_2_regions.png",
+      "role": "comparison PNG",
+      "sha256": "b5439e357e363a895e251ca57176bfac4f27d76412f790e7b9f2a134500444a6"
+    },
+    {
+      "bytes": 2412962,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\wall_aware_3_regions.png",
+      "role": "comparison PNG",
+      "sha256": "0a4e990a899bb17df2f1919ff26eced2e792692f53bd872f1643232520133c3d"
+    },
+    {
+      "bytes": 2415787,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\wall_aware_4_regions.png",
+      "role": "comparison PNG",
+      "sha256": "274820bdf739f4a72d58fa528ffb0bb6b104b77d9979997522d86a5b86b8025d"
+    },
+    {
+      "bytes": 2414772,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\wall_plus_column_1_regions.png",
+      "role": "comparison PNG",
+      "sha256": "3ba46329f13e550b1b17002d8d66f8aef80748da9fb8112861e096b2f2df339a"
+    },
+    {
+      "bytes": 2411161,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\wall_plus_column_2_regions.png",
+      "role": "comparison PNG",
+      "sha256": "1c6d5d978ca3609fde40c5d0d39e43c27c487c6d9474243f38585a20ec6f30bf"
+    },
+    {
+      "bytes": 2414059,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\wall_plus_column_3_regions.png",
+      "role": "comparison PNG",
+      "sha256": "ce9bccbd2cd5567f029e673fc7375f371ef1b0171c5c6231c96eb740dd6e8aa5"
+    },
+    {
+      "bytes": 2416779,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\wall_plus_column_4_regions.png",
+      "role": "comparison PNG",
+      "sha256": "cfbeeccfe342f0a2fe3afc3efb83c6e786591276845f90231a83a9d27c92ee6c"
+    }
+  ],
+  "interpretation": {
+    "A": "furniture-only hard partition baseline",
+    "B": "wall-aware diagnostic evidence, selector deferred",
+    "C": "wall-plus-column diagnostic evidence, selector deferred",
+    "conclusion": "columns affect empty-space evidence but not furniture hard partition under current recipe"
+  },
+  "manifest_self_hash_excluded": true,
+  "output_directory": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison",
+  "schema": "d6-space-field-hard-column-comparison-artifact-manifest/v1",
+  "source_ifc": {
+    "bytes": 408617800,
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  }
+}

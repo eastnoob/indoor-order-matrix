@@ -1,0 +1,14 @@
+{
+  "pairwise_channel_status": "not_available",
+  "required_artifacts": [
+    "updated_diagnostic.json",
+    "real_ifc_audit.json",
+    "fixture_results.json",
+    "provenance.json",
+    "scope_audit.json",
+    "git_scope_audit.json",
+    "audit_report.md"
+  ],
+  "schema": "d6-space-field-column-channel-audit-contract/v1",
+  "schema_status": "experiment-local contract; not a production API"
+}

@@ -15,6 +15,10 @@ from .geometry_views import _project_to_plane, component_shape, plan_projection,
 from .scene_contract import AnalysisPlane, NeutralSceneV2
 
 
+# Ten square millimetres filters measured mesh slivers without treating a door-sized gap as closed.
+DEFAULT_APERTURE_RESIDUAL_TOLERANCE_M2 = 1e-5
+
+
 def validate_request(scene, request):
     """Reject incomplete measurement/task authority before computing any view."""
     if not isinstance(scene, NeutralSceneV2) or not isinstance(request, Mapping):
@@ -27,7 +31,10 @@ def validate_request(scene, request):
         raise ValueError("analysis_plane must equal the scene AnalysisPlane")
     if request["units"] != "m" or scene.context.analysis_length_unit != "m":
         raise ValueError("semantic enclosure supports metre analysis units only")
-    for key in ("datum_m", "cut_height_m", "contact_distance_m", "aperture_area_budget_m2"):
+    for key in ("datum_m", "cut_height_m", "contact_distance_m", "aperture_area_budget_m2",
+                "aperture_residual_tolerance_m2"):
+        if key not in request and key == "aperture_residual_tolerance_m2":
+            continue
         value = request[key]
         try:
             finite = not isinstance(value, bool) and isinstance(value, (int, float)) and isfinite(value)
@@ -35,7 +42,7 @@ def validate_request(scene, request):
             finite = False
         if not finite:
             raise ValueError(f"{key} must be a finite number, not a boolean")
-        if key in {"contact_distance_m", "aperture_area_budget_m2"} and value < 0:
+        if key in {"contact_distance_m", "aperture_area_budget_m2", "aperture_residual_tolerance_m2"} and value < 0:
             raise ValueError(f"{key} must be nonnegative")
     try:
         finite_height = isfinite(request["datum_m"] + request["cut_height_m"])
@@ -207,6 +214,7 @@ def semantic_enclosure_diagnostics(scene, request, opening_diagnostics):
     plane = request["analysis_plane"]
     height = request["datum_m"] + request["cut_height_m"]
     contact_budget, area_budget = request["contact_distance_m"], request["aperture_area_budget_m2"]
+    residual_tolerance = request.get("aperture_residual_tolerance_m2", DEFAULT_APERTURE_RESIDUAL_TOLERANCE_M2)
     geometries, duplicate_ids = {}, set()
     for geometry in scene.geometries:
         if geometry.id in geometries:
@@ -252,6 +260,7 @@ def semantic_enclosure_diagnostics(scene, request, opening_diagnostics):
             jambs = _jambs(polygon.boundary.intersection(cut.boundary))
             apertures.append({"id": ref, "host_ref": source.id, "geometry": _geometry(polygon),
                               "jamb_sides": [mapping(jamb) for jamb in jambs], "above_area_budget": polygon.area > area_budget,
+                              "significant_residual": polygon.area > residual_tolerance,
                               "classification": "host_projection_minus_cut_locator_residual", "scenario_closed": False,
                               "affected_scope_ids": [], "affected_contour_ids": []})
             aperture_shapes[ref], jamb_shapes[ref] = polygon, jambs
@@ -378,25 +387,31 @@ def semantic_enclosure_diagnostics(scene, request, opening_diagnostics):
     structural = [(row["source_ref"], sources[row["source_ref"]][3]) for row in rows if row["enclosure_support_eligible"]]
     assembly = unary_union([cut for _, cut in structural] + [aperture_shapes[c["aperture_ref"]] for c in carriers])
     scopes, contours = [], []
-    for component in _polygons(assembly):
-        walls = [row["source_ref"] for row in rows if row["kind"] == "wall" and row["enclosure_support_eligible"]
-                 and component.intersection(sources[row["source_ref"]][3]).area > 0]
-        if not walls or not component.interiors:
-            continue
-        scope_ref = f"S{len(scopes) + 1}"
-        scope = Polygon(component.exterior)
-        scopes.append({"id": scope_ref, "geometry": _geometry(scope), "supporting_carrier": _geometry(component),
-                       "wall_source_refs": walls, "provisional": True, "selected": False, "active": False,
-                       "construction": "actual_wall_bearing_component_exterior_filled",
-                       "occupancy_source_refs": [ref for ref, cut in structural if scope.intersection(cut).area > 0],
-                       "local_unresolved_aperture_refs": [a["id"] for a in apertures if not a["scenario_closed"]
-                         and a["above_area_budget"] and not scope.intersection(aperture_shapes[a["id"]]).is_empty]})
+    structural_mass = unary_union([cut for _, cut in structural])
+    wall_components = [(component, [row["source_ref"] for row in rows
+                                    if row["kind"] == "wall" and row["enclosure_support_eligible"]
+                                    and component.intersection(sources[row["source_ref"]][3]).area > 0])
+                       for component in _polygons(assembly)]
+    wall_components = [(component, walls) for component, walls in wall_components if walls and component.interiors]
+    for component, walls in wall_components:
         for ring in component.interiors:
             polygon = Polygon(ring)
-            contours.append({"id": f"C{len(contours) + 1}", "scope_ref": scope_ref, "geometry": _geometry(polygon),
-                             "provisional": True, "selected": False,
-                             "semantic_contribution_refs": [c["source_ref"] for c in carriers
-                              if polygon.boundary.intersection(aperture_shapes[c["aperture_ref"]].boundary).length > 0]})
+            # A detached nested wall shell owns its interior; remove its filled exterior
+            # from the parent before retaining structural islands as holes.
+            nested = [Polygon(other.exterior) for other, _ in wall_components
+                      if other is not component and polygon.covers(other)]
+            for scope in _polygons(polygon.difference(unary_union(nested)).difference(structural_mass)):
+                scope_ref = f"S{len(scopes) + 1}"
+                scopes.append({"id": scope_ref, "geometry": _geometry(scope), "supporting_carrier": _geometry(component),
+                               "wall_source_refs": walls, "provisional": True, "selected": False, "active": False,
+                               "construction": "enclosed_interior_minus_structural_section",
+                               "occupancy_source_refs": [ref for ref, cut in structural if polygon.intersection(cut).area > 0],
+                               "local_unresolved_aperture_refs": [a["id"] for a in apertures if not a["scenario_closed"]
+                                 and a["significant_residual"] and not scope.boundary.intersection(aperture_shapes[a["id"]]).is_empty]})
+                contours.append({"id": f"C{len(contours) + 1}", "scope_ref": scope_ref, "geometry": _geometry(scope),
+                                 "provisional": True, "selected": False,
+                                 "semantic_contribution_refs": [c["source_ref"] for c in carriers
+                                  if scope.boundary.intersection(aperture_shapes[c["aperture_ref"]].boundary).length > 0]})
     for aperture in apertures:
         geometry = aperture_shapes[aperture["id"]]
         # Dependencies stay local to measured contact, including unresolved
@@ -407,13 +422,14 @@ def semantic_enclosure_diagnostics(scene, request, opening_diagnostics):
         related = [a for a in apertures if any(alt["aperture_ref"] == a["id"] for alt in treatment["alternatives"])]
         treatment["affected_scope_ids"] = sorted({ref for a in related for ref in a["affected_scope_ids"]})
         treatment["affected_contour_ids"] = [c["id"] for c in contours if treatment["source_ref"] in c["semantic_contribution_refs"]]
-    return {"schema": "d6-b2-private-semantic-enclosure/v1", "request": dict(request) | {"analysis_plane": plane.to_dict()},
+    return {"schema": "d6-b2-private-semantic-enclosure/v1", "request": dict(request) | {
+                "analysis_plane": plane.to_dict(), "aperture_residual_tolerance_m2": residual_tolerance},
             "coordinate_frame": "scene_analysis_plane_local_metres_unshifted", "sources": rows,
             "apertures": apertures, "treatments": treatments, "carriers": carriers,
             "authored_opening_spans": opening_spans,
             "opening_identity_conflicts": [{"id": ref, "reason": "duplicate_opening_identity",
                                              "source_records": [opening.to_dict() for opening in openings[ref]]} for ref in sorted(duplicate_openings)],
-            "enclosure_carrier": _geometry(assembly), "physical_structural_section": _geometry(unary_union([cut for _, cut in structural])),
+            "enclosure_carrier": _geometry(assembly), "physical_structural_section": _geometry(structural_mass),
             "enclosure_contours": contours, "scope_proposals": scopes,
             "physical_sources_unchanged": True, "candidate_promotion": "refused", "selected": False, "active": False,
             "downstream": {"subtraction": "refused", "free_space": "not_evaluated", "route": "not_evaluated"},

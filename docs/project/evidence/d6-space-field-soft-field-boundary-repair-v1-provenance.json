@@ -1,0 +1,47 @@
+{
+  "column_selection": {
+    "all_floor_columns_stacked": false,
+    "analysis_plane": "world XY",
+    "floor": "IfcBuildingStorey/Level 1",
+    "geometry_validity_required": true,
+    "height_band_m": [
+      -0.02085538101196289,
+      4.5
+    ]
+  },
+  "current_blender": {
+    "basis": "existing live Blender inspection retained in source_summary.json",
+    "observed": true,
+    "portable_blender_for_disposable_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+    "source_path_match": true,
+    "this_experiment_opened_current_blender": false
+  },
+  "derived_diagnostics": [
+    "physical occupancy complement",
+    "column boundary candidate evidence",
+    "column line alignment profile",
+    "hard candidate alignment",
+    "before/after comparison"
+  ],
+  "observed_facts": [
+    "one Level 1 storey",
+    "16 IfcColumn products",
+    "37 exact furniture_group nodes",
+    "95 grouped furniture members",
+    "11 walls",
+    "6 doors",
+    "0 IfcSpace"
+  ],
+  "owner_review_gate": "STOP FOR SOFT-FIELD OWNER VISUAL REVIEW",
+  "reused_read_only_inputs": [
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\render_input.json",
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\physical_wall_plan_projection.json",
+    "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_zone_visual_experiment\\run_001\\group_relation_evidence.json"
+  ],
+  "schema": "d6-space-field-boundary-repair-provenance/v1",
+  "source_ifc": {
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "read_only": true,
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  }
+}

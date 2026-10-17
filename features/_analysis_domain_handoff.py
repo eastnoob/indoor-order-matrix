@@ -162,11 +162,30 @@ def _catalog(scene: NeutralSceneV2, authored: Sequence[Mapping[str, object]],
                           else None)
             except ValueError as exc:
                 polygon, reason = None, str(exc)
+            # Only the matching qualified contour can declare semantic boundary
+            # members; wall refs alone do not prove component membership.
+            contours = [contour for contour in b2.get("enclosure_contours", ())
+                        if contour.get("scope_ref") == scope["id"]]
+            member_refs: tuple[str, ...] = ()
+            if len(contours) == 1 and polygon is not None:
+                try:
+                    same_contour = _polygon(contours[0]["geometry"]["geojson"]).equals(polygon)
+                except (KeyError, TypeError, ValueError):
+                    same_contour = False
+                refs = contours[0].get("semantic_contribution_refs", ())
+                matches = ([tuple(source.id for source in scene.source_objects
+                                  if ref in (source.id, source.source_id)) for ref in refs]
+                           if isinstance(refs, (list, tuple)) and all(isinstance(ref, str) for ref in refs)
+                           else [])
+                if (same_contour and matches and all(len(group) == 1 for group in matches)
+                        and len({group[0] for group in matches}) == len(matches)):
+                    member_refs = tuple(refs)
             catalog[version_id] = {"id": scope["id"], "version_id": version_id,
                                    "source": "inferred", "domain": None,
                                    "polygon": polygon, "reason": reason,
                                    "identity": _digest(scope),
                                    "source_refs": tuple(scope["wall_source_refs"]),
+                                   "boundary_member_source_ids": member_refs,
                                    "unresolved_aperture_refs": tuple(scope["local_unresolved_aperture_refs"]),
                                    "source_revision": source_revision, "frame_id": frame_id,
                                    "request_id": request_id}
@@ -192,7 +211,9 @@ def _qualified(scene: NeutralSceneV2, candidate: Mapping[str, object],
         source_id=None, selection_method="explicit_session_confirmation_of_inferred_candidate",
         provenance={"candidate_version_id": candidate["version_id"],
                     "source_revision": source_revision, "request_id": request_id,
-                    "source_refs": candidate["source_refs"]},
+                    "source_refs": candidate["source_refs"],
+                    **({"boundary_member_source_ids": candidate["boundary_member_source_ids"]}
+                       if candidate["boundary_member_source_ids"] else {})},
     )
     return domain, polygon, mesh
 

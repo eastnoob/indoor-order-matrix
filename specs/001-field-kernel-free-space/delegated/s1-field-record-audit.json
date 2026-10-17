@@ -1,0 +1,2278 @@
+{
+  "analysis_frame": {
+    "plane": "XY",
+    "unit": "m"
+  },
+  "api_boundary": {
+    "needs_owner_decision": [
+      "Field versus internal SpatialField protocol",
+      "status precedence for invalid plus missing domain"
+    ],
+    "production_field_api_present": false,
+    "public_name_frozen": false,
+    "status_precedence_frozen": false
+  },
+  "assertions": [
+    {
+      "fixture_id": "minority_mixed",
+      "passed": true,
+      "record_count": 12,
+      "scalar_batch_equivalent": true,
+      "status_provenance_preserved": true,
+      "statuses": [
+        "established",
+        "outside"
+      ]
+    },
+    {
+      "fixture_id": "independent_minority",
+      "passed": true,
+      "record_count": 13,
+      "scalar_batch_equivalent": true,
+      "status_provenance_preserved": true,
+      "statuses": [
+        "established",
+        "outside"
+      ]
+    },
+    {
+      "fixture_id": "geometry_conflict",
+      "passed": true,
+      "record_count": 10,
+      "scalar_batch_equivalent": true,
+      "status_provenance_preserved": true,
+      "statuses": [
+        "established",
+        "outside"
+      ]
+    },
+    {
+      "fixture_id": "space_barrier",
+      "passed": true,
+      "record_count": 7,
+      "scalar_batch_equivalent": true,
+      "status_provenance_preserved": true,
+      "statuses": [
+        "conditional",
+        "established",
+        "outside"
+      ]
+    },
+    {
+      "fixture_id": "semantic_conflict",
+      "passed": true,
+      "record_count": 10,
+      "scalar_batch_equivalent": true,
+      "status_provenance_preserved": true,
+      "statuses": [
+        "established",
+        "outside"
+      ]
+    },
+    {
+      "fixture_id": "context_reference",
+      "passed": true,
+      "record_count": 7,
+      "scalar_batch_equivalent": true,
+      "status_provenance_preserved": true,
+      "statuses": [
+        "established",
+        "outside"
+      ]
+    },
+    {
+      "fixture_id": "missing_channels",
+      "passed": true,
+      "record_count": 7,
+      "scalar_batch_equivalent": true,
+      "status_provenance_preserved": true,
+      "statuses": [
+        "not_available",
+        "outside"
+      ]
+    },
+    {
+      "fixture_id": "invalid_geometry",
+      "passed": true,
+      "record_count": 7,
+      "scalar_batch_equivalent": true,
+      "status_provenance_preserved": true,
+      "statuses": [
+        "established",
+        "invalid",
+        "outside"
+      ]
+    }
+  ],
+  "design_only_constraints": [
+    "No production Field implementation or imports from scripts.design.",
+    "No evaluate_scene, room_analysis_model, B3 loader, test, or architecture changes."
+  ],
+  "fixture_path": "scripts/design/group_level/self_description_competition_fixtures.json",
+  "fixture_sha256": "8a9253de9294138292e2a47463b847eaef96152793826dd00965b7d95de9b74d",
+  "formula_scope": "probe_only_not_production",
+  "observations": [
+    {
+      "fixture_id": "minority_mixed",
+      "records": [
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "self_description_competition_fixtures"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:domain"
+            ],
+            "status": "established",
+            "value": true
+          },
+          "target": "domain"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "C1"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:C1"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                1.6,
+                1.3
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:C1"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "R1"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:R1"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:R1"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "R2"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:R2"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                1.6,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:R2"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "R3"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:R3"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                3.2,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:R3"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "declared_domain_boundary_probe"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [],
+            "status": "outside",
+            "value": null
+          },
+          "target": "outside"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "C1"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:C1"
+            ],
+            "status": "established",
+            "value": "cozy"
+          },
+          "target": "semantic:C1"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "R1"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:R1"
+            ],
+            "status": "established",
+            "value": "regular"
+          },
+          "target": "semantic:R1"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "R2"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:R2"
+            ],
+            "status": "established",
+            "value": "regular"
+          },
+          "target": "semantic:R2"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "R3"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:R3"
+            ],
+            "status": "established",
+            "value": "regular"
+          },
+          "target": "semantic:R3"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "R1|R2|R3",
+              "channel": "space",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:R1",
+              "minority_mixed:group:R2",
+              "minority_mixed:group:R3"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "R1",
+                "R2",
+                "R3"
+              ]
+            }
+          },
+          "target": "space:R1|R2|R3"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "R2|C1",
+              "channel": "space",
+              "fixture_id": "minority_mixed",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "minority_mixed:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "minority_mixed:group:C1",
+              "minority_mixed:group:R2"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "R2",
+                "C1"
+              ]
+            }
+          },
+          "target": "space:R2|C1"
+        }
+      ]
+    },
+    {
+      "fixture_id": "independent_minority",
+      "records": [
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "self_description_competition_fixtures"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:domain"
+            ],
+            "status": "established",
+            "value": true
+          },
+          "target": "domain"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "C1"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:C1"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                5.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:C1"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "C2"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:C2"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                6.6,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:C2"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "R1"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:R1"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:R1"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "R2"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:R2"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                1.6,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:R2"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "declared_domain_boundary_probe"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [],
+            "status": "outside",
+            "value": null
+          },
+          "target": "outside"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "C1"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:C1"
+            ],
+            "status": "established",
+            "value": "cozy"
+          },
+          "target": "semantic:C1"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "C2"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:C2"
+            ],
+            "status": "established",
+            "value": "cozy"
+          },
+          "target": "semantic:C2"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "R1"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:R1"
+            ],
+            "status": "established",
+            "value": "regular"
+          },
+          "target": "semantic:R1"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "R2"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:R2"
+            ],
+            "status": "established",
+            "value": "regular"
+          },
+          "target": "semantic:R2"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "C1|C2",
+              "channel": "space",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:C1",
+              "independent_minority:group:C2"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "C1",
+                "C2"
+              ]
+            }
+          },
+          "target": "space:C1|C2"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "R1|R2",
+              "channel": "space",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:R1",
+              "independent_minority:group:R2"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "R1",
+                "R2"
+              ]
+            }
+          },
+          "target": "space:R1|R2"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "R2|C1",
+              "channel": "space",
+              "fixture_id": "independent_minority",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "independent_minority:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "independent_minority:group:C1",
+              "independent_minority:group:R2"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "R2",
+                "C1"
+              ]
+            }
+          },
+          "target": "space:R2|C1"
+        }
+      ]
+    },
+    {
+      "fixture_id": "geometry_conflict",
+      "records": [
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "self_description_competition_fixtures"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:domain"
+            ],
+            "status": "established",
+            "value": true
+          },
+          "target": "domain"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:group:A"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:group:B"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                1.6,
+                0.0
+              ],
+              "size": [
+                4.0,
+                4.0
+              ]
+            }
+          },
+          "target": "geometry:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "C"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:group:C"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                5.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:C"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "declared_domain_boundary_probe"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [],
+            "status": "outside",
+            "value": null
+          },
+          "target": "outside"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:group:A"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:group:B"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "C"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:group:C"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:C"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "A|B",
+              "channel": "space",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:group:A",
+              "geometry_conflict:group:B"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          "target": "space:A|B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "A|C",
+              "channel": "space",
+              "fixture_id": "geometry_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "geometry_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "geometry_conflict:group:A",
+              "geometry_conflict:group:C"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "A",
+                "C"
+              ]
+            }
+          },
+          "target": "space:A|C"
+        }
+      ]
+    },
+    {
+      "fixture_id": "space_barrier",
+      "records": [
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "space_barrier",
+              "formula_scope": "probe_only_not_production",
+              "source": "self_description_competition_fixtures"
+            },
+            "query_context": {
+              "domain_id": "space_barrier:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "space_barrier:domain"
+            ],
+            "status": "established",
+            "value": true
+          },
+          "target": "domain"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "space_barrier",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "space_barrier:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "space_barrier:group:A"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "space_barrier",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "space_barrier:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "space_barrier:group:B"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                2.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "space_barrier",
+              "formula_scope": "probe_only_not_production",
+              "source": "declared_domain_boundary_probe"
+            },
+            "query_context": {
+              "domain_id": "space_barrier:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [],
+            "status": "outside",
+            "value": null
+          },
+          "target": "outside"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "space_barrier",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "space_barrier:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "space_barrier:group:A"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "space_barrier",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "space_barrier:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "space_barrier:group:B"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "A|B",
+              "channel": "space",
+              "fixture_id": "space_barrier",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "space_barrier:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "space_barrier:group:A",
+              "space_barrier:group:B",
+              "space_barrier:wall:W1"
+            ],
+            "status": "conditional",
+            "value": {
+              "barriers": [
+                {
+                  "id": "W1",
+                  "opening": false,
+                  "x": 1.0,
+                  "y_range": [
+                    -1.0,
+                    1.0
+                  ]
+                }
+              ],
+              "candidate_members": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          "target": "space:A|B"
+        }
+      ]
+    },
+    {
+      "fixture_id": "semantic_conflict",
+      "records": [
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "self_description_competition_fixtures"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:domain"
+            ],
+            "status": "established",
+            "value": true
+          },
+          "target": "domain"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:group:A"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:group:B"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                1.6,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "C"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:group:C"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                3.2,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:C"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "declared_domain_boundary_probe"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [],
+            "status": "outside",
+            "value": null
+          },
+          "target": "outside"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:group:A"
+            ],
+            "status": "established",
+            "value": "cozy"
+          },
+          "target": "semantic:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:group:B"
+            ],
+            "status": "established",
+            "value": "regular"
+          },
+          "target": "semantic:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "C"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:group:C"
+            ],
+            "status": "established",
+            "value": "regular"
+          },
+          "target": "semantic:C"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "A|B",
+              "channel": "space",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:group:A",
+              "semantic_conflict:group:B"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          "target": "space:A|B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "A|C",
+              "channel": "space",
+              "fixture_id": "semantic_conflict",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "semantic_conflict:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "semantic_conflict:group:A",
+              "semantic_conflict:group:C"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "A",
+                "C"
+              ]
+            }
+          },
+          "target": "space:A|C"
+        }
+      ]
+    },
+    {
+      "fixture_id": "context_reference",
+      "records": [
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "context_reference",
+              "formula_scope": "probe_only_not_production",
+              "source": "self_description_competition_fixtures"
+            },
+            "query_context": {
+              "domain_id": "context_reference:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "context_reference:domain"
+            ],
+            "status": "established",
+            "value": true
+          },
+          "target": "domain"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "context_reference",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "context_reference:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "context_reference:group:A"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "context_reference",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "context_reference:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "context_reference:group:B"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                1.6,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "context_reference",
+              "formula_scope": "probe_only_not_production",
+              "source": "declared_domain_boundary_probe"
+            },
+            "query_context": {
+              "domain_id": "context_reference:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [],
+            "status": "outside",
+            "value": null
+          },
+          "target": "outside"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "context_reference",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "context_reference:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "context_reference:group:A"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "context_reference",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "context_reference:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "context_reference:group:B"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "A|B",
+              "channel": "space",
+              "fixture_id": "context_reference",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "context_reference:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "context_reference:group:A",
+              "context_reference:group:B"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          "target": "space:A|B"
+        }
+      ]
+    },
+    {
+      "fixture_id": "missing_channels",
+      "records": [
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "missing_channels",
+              "formula_scope": "probe_only_not_production",
+              "source": "self_description_competition_fixtures"
+            },
+            "query_context": {
+              "domain_id": "missing_channels:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "missing_channels:domain"
+            ],
+            "status": "not_available",
+            "value": false
+          },
+          "target": "domain"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "missing_channels",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "missing_channels:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "missing_channels:group:A"
+            ],
+            "status": "not_available",
+            "value": {
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "missing_channels",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "missing_channels:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "missing_channels:group:B"
+            ],
+            "status": "not_available",
+            "value": {
+              "center": [
+                1.6,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "missing_channels",
+              "formula_scope": "probe_only_not_production",
+              "source": "declared_domain_boundary_probe"
+            },
+            "query_context": {
+              "domain_id": "missing_channels:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [],
+            "status": "outside",
+            "value": null
+          },
+          "target": "outside"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "missing_channels",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "missing_channels:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "missing_channels:group:A"
+            ],
+            "status": "not_available",
+            "value": null
+          },
+          "target": "semantic:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "missing_channels",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "missing_channels:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "missing_channels:group:B"
+            ],
+            "status": "not_available",
+            "value": "regular"
+          },
+          "target": "semantic:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "A|B",
+              "channel": "space",
+              "fixture_id": "missing_channels",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "missing_channels:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "missing_channels:group:A",
+              "missing_channels:group:B"
+            ],
+            "status": "not_available",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          "target": "space:A|B"
+        }
+      ]
+    },
+    {
+      "fixture_id": "invalid_geometry",
+      "records": [
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "invalid_geometry",
+              "formula_scope": "probe_only_not_production",
+              "source": "self_description_competition_fixtures"
+            },
+            "query_context": {
+              "domain_id": "invalid_geometry:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "invalid_geometry:domain"
+            ],
+            "status": "established",
+            "value": true
+          },
+          "target": "domain"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "invalid_geometry",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "invalid_geometry:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "invalid_geometry:group:A"
+            ],
+            "status": "established",
+            "value": {
+              "center": [
+                0.0,
+                0.0
+              ],
+              "size": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "geometry",
+              "fixture_id": "invalid_geometry",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_geometry",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "invalid_geometry:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "invalid_geometry:group:B"
+            ],
+            "status": "invalid",
+            "value": {
+              "center": [
+                1.6,
+                0.0
+              ],
+              "size": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "target": "geometry:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "domain",
+              "fixture_id": "invalid_geometry",
+              "formula_scope": "probe_only_not_production",
+              "source": "declared_domain_boundary_probe"
+            },
+            "query_context": {
+              "domain_id": "invalid_geometry:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [],
+            "status": "outside",
+            "value": null
+          },
+          "target": "outside"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "invalid_geometry",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "A"
+            },
+            "query_context": {
+              "domain_id": "invalid_geometry:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "invalid_geometry:group:A"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:A"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "channel": "semantic",
+              "fixture_id": "invalid_geometry",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_group_label",
+              "source_group_id": "B"
+            },
+            "query_context": {
+              "domain_id": "invalid_geometry:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "invalid_geometry:group:B"
+            ],
+            "status": "established",
+            "value": "table"
+          },
+          "target": "semantic:B"
+        },
+        {
+          "sample": {
+            "provenance": {
+              "candidate_id": "A|B",
+              "channel": "space",
+              "fixture_id": "invalid_geometry",
+              "formula_scope": "probe_only_not_production",
+              "source": "fixture_candidate_and_wall_observation"
+            },
+            "query_context": {
+              "domain_id": "invalid_geometry:domain",
+              "frame": {
+                "plane": "XY",
+                "unit": "m"
+              },
+              "revision": "s1-design-v1"
+            },
+            "source_ids": [
+              "invalid_geometry:group:A",
+              "invalid_geometry:group:B"
+            ],
+            "status": "established",
+            "value": {
+              "barriers": [],
+              "candidate_members": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          "target": "space:A|B"
+        }
+      ]
+    }
+  ],
+  "replay": {
+    "canonical_bytes_equal": true,
+    "canonical_sha256_run_a": "ecd60c712f42d6014d7afa62d489dc5e9eb0a283ca7d7bcf8571ce460a535822",
+    "canonical_sha256_run_b": "ecd60c712f42d6014d7afa62d489dc5e9eb0a283ca7d7bcf8571ce460a535822",
+    "runs": 2
+  },
+  "schema": "field-kernel-free-space-s1-design-field-record-audit/v1",
+  "status_coverage": {
+    "observed": [
+      "conditional",
+      "established",
+      "invalid",
+      "not_available",
+      "outside"
+    ],
+    "required_contract_statuses": [
+      "established",
+      "conditional",
+      "unknown",
+      "outside",
+      "invalid",
+      "not_available"
+    ],
+    "unobserved": [
+      "unknown"
+    ]
+  }
+}

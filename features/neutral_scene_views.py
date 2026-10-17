@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping
 from math import atan2, cos, degrees, radians, sin
 from typing import TypeAlias
@@ -14,6 +15,7 @@ from .boundary_evidence import (
 from .geometry_substitutes import mass_patch_from_mesh, surface_patch_from_fact
 from .geometry_views import plan_projection
 from .scene_contract import NeutralSceneV2, SourceObject, SourceOpening, UncertaintyRecord
+from .analysis_substitute_discovery import resolve_source_representation
 
 
 LegacyAnalysisScene: TypeAlias = dict[str, object]
@@ -122,10 +124,10 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
         for source in scene.source_objects
     ]
     records = [record for record in records if record is not None]
-    channel_evidence, channel_capabilities = _neutral_channel_evidence(
-        scene,
-        records,
+    boundary_member_ids, boundary_membership = _boundary_member_identity(
+        scene, records, domain_available=bool(domain_points)
     )
+    channel_evidence, channel_capabilities = _neutral_channel_evidence(scene, records)
     surface_interfaces = _surface_interface_records(
         scene,
         shifted_geometry,
@@ -146,6 +148,14 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
         records,
         domain_available=bool(domain_points),
     )
+    excluded_record_ids = shell_record_ids | boundary_member_ids
+    domain_scope["boundary_membership"] = boundary_membership
+    for record in records:
+        if record["id"] in excluded_record_ids:
+            record["_interior_exclusion_reason"] = (
+                "selected_analysis_domain_support" if record["id"] in shell_record_ids
+                else "selected_analysis_domain_boundary_member"
+            )
     # Keep the legacy interface-candidacy rule separate from B2 occupancy:
     # support geometry is context for interface selection, not mass exclusion.
     support_geometry_refs = (
@@ -165,32 +175,38 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
         | {"channel_evidence": channel_evidence.get(record["id"])}
         for record in surface_interfaces
     ]
-    # Physical occupancy follows explicit mass geometry, not source-role labels.
-    # Exclude a selected support only when exact source identity proves the match.
-    physical_mass_records = [
-        record
-        for record in records
-        if _is_physical_mass_record(record)
-        and record["id"] not in shell_record_ids
-    ]
+    # Resolve occupancy once so an analysis substitute replaces, rather than
+    # supplements, every represented original source.
+    # Inventory scope is resolved before projection can drop missing geometry.
+    inventory_records = [{"id": source.id} for source in scene.source_objects]
+    occupancy_boundary_ids, _ = _boundary_member_identity(
+        scene, inventory_records, domain_available=bool(domain_points)
+    )
+    occupancy_shell_ids, _ = _domain_shell_identity(
+        scene, inventory_records, domain_available=bool(domain_points)
+    )
+    physical_mass_records, unresolved_occupancy_sources, occupancy_inventory = _resolved_physical_occupancy(
+        scene, records, occupancy_boundary_ids | occupancy_shell_ids
+    )
     walk_blockers = _channel_blocker_records(
         records_by_id,
         channel_evidence,
         channel="walking",
         offset=offset,
-        excluded_record_ids=shell_record_ids,
+        excluded_record_ids=excluded_record_ids,
     )
     visibility_blockers = _channel_blocker_records(
         records_by_id,
         channel_evidence,
         channel="visual",
         offset=offset,
+        excluded_record_ids=boundary_member_ids,
     )
     openings = _opening_records(scene, shifted_geometry)
     b2_boundary_diagnostics = _b2_boundary_diagnostics(
         scene,
         records,
-        shell_record_ids,
+        excluded_record_ids,
         domain_scope,
     )
     column_axes = _axis_records(scene, shifted_axes)
@@ -228,8 +244,13 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
                 scene,
                 domain_available=bool(domain_points),
                 channel_capabilities=channel_capabilities,
-            ),
+            ) | {"physical_planar_occupancy": not unresolved_occupancy_sources},
             "domain_available": bool(domain_points),
+            "physical_occupancy_status": (
+                "unknown" if unresolved_occupancy_sources else "computed"
+            ),
+            "physical_occupancy_unresolved_source_ids": unresolved_occupancy_sources,
+            "physical_occupancy_sources": occupancy_inventory,
             "view_bounds_basis": (
                 "explicit_analysis_domain"
                 if domain_points
@@ -709,6 +730,53 @@ def _domain_points(
     ]
 
 
+def _boundary_member_identity(
+    scene: NeutralSceneV2, records: list[dict], *, domain_available: bool
+) -> tuple[set[str], list[dict[str, object]]]:
+    """Supply selected NeutralScene identity facts to the shared exact resolver."""
+    domain = scene.analysis_domain
+    if domain is None or not domain_available:
+        return set(), []
+    return _resolve_boundary_member_ids(
+        domain.provenance.get("boundary_member_source_ids", ()),
+        ((source.id, source.source_id) for source in scene.source_objects),
+        {record["id"] for record in records},
+    )
+
+
+def _resolve_boundary_member_ids(
+    tokens: object, source_identities, available_record_ids: set[str]
+) -> tuple[set[str], list[dict[str, object]]]:
+    """Resolve only unique, exact declared membership among available records."""
+    if not isinstance(tokens, (list, tuple)):
+        return set(), [{"source_ref": tokens, "status": "invalid_membership_declaration"}]
+    resolved: set[str] = set()
+    diagnostic: list[dict[str, object]] = []
+    identities = tuple(source_identities)
+    for token in tokens:
+        if not isinstance(token, str) or not token:
+            diagnostic.append({"source_ref": token, "status": "invalid_source_ref"})
+            continue
+        if tokens.count(token) != 1:
+            diagnostic.append({"source_ref": token, "status": "duplicate_source_ref"})
+            continue
+        matches = [source_id for source_id, external_id in identities
+                   if token in (source_id, external_id)]
+        status = ("unmatched" if not matches else "ambiguous" if len(matches) != 1
+                  else "unprojected" if matches[0] not in available_record_ids else "resolved")
+        diagnostic.append({"source_ref": token, "status": status,
+                           "record_id": matches[0] if status == "resolved" else None})
+        if status == "resolved":
+            resolved.add(matches[0])
+    for record_id in tuple(resolved):
+        aliases = [item for item in diagnostic if item.get("record_id") == record_id]
+        if len(aliases) > 1:
+            resolved.remove(record_id)
+            for item in aliases:
+                item.update(status="duplicate_member", record_id=None)
+    return resolved, diagnostic
+
+
 def _domain_shell_identity(
     scene: NeutralSceneV2,
     records: list[dict],
@@ -870,7 +938,7 @@ def _b2_opening_diagnostic(
 def _b2_boundary_diagnostics(
     scene: NeutralSceneV2,
     records: list[dict],
-    domain_shell_record_ids: set[str],
+    excluded_record_ids: set[str],
     domain_scope: dict[str, object],
 ) -> dict[str, object]:
     """Build private provenance/refusal diagnostics from existing scene records."""
@@ -878,7 +946,7 @@ def _b2_boundary_diagnostics(
     boundary_support = []
     for record in records:
         if (
-            record["id"] in domain_shell_record_ids
+            record["id"] in excluded_record_ids
             or not _is_physical_mass_record(record)
         ):
             continue
@@ -1067,6 +1135,8 @@ def _source_record(
         "_neutral_source_id": source.source_id,
     }
     bucket = _record_bucket(role)
+    if bucket == "objects" and furniture_analysis_participation(source) not in (None, "included"):
+        bucket = "ignored"
     if bucket == "boundaries":
         bucket = "boundary_facts"
     record["_analysis_bucket"] = bucket
@@ -1198,6 +1268,110 @@ def _is_physical_mass_record(record: Mapping[str, object]) -> bool:
         "grid_axis",
         "analysis_domain",
     }
+
+
+def furniture_analysis_participation(source: SourceObject) -> str | None:
+    """Read only the explicit furniture policy; legacy participation stays raw."""
+    value = source.factual_properties.get("furniture_analysis_participation")
+    if value is None:
+        return None
+    return value if value in ("included", "excluded", "unknown") else "unknown"
+
+
+def _is_original_physical_source(source: SourceObject) -> bool:
+    """Inventory original products independently of geometry and furniture eligibility."""
+    return (source.source_role or "unknown").strip().lower() not in {
+        "analysis_substitute", "path", "authored_path_hint", "region", "authored_region_hint",
+        "entry", "opening", "surface", "grid_axis", "column_axis", "column_grid",
+        "analysis_domain", "affordance", "affordance_zone", "space", "container",
+        "project", "site", "building", "storey", "level",
+    }
+
+
+def _resolved_physical_occupancy(
+    scene: NeutralSceneV2,
+    records: list[dict],
+    excluded_record_ids: set[str],
+    *,
+    operation: str = "free_space",
+    query: Mapping[str, object] | None = None,
+    scoped_out_reasons: Mapping[str, str] | None = None,
+) -> tuple[list[dict], list[str], list[dict]]:
+    """Account for original owners once, using qualified records for explicit sections.
+
+    The default planar caller supplies projected records. Exact-plane callers
+    supply query-bound section records, including records for legal empty mass.
+    """
+    record_by_id = {str(record["id"]): record for record in records}
+    duplicate_record_ids = {key for key, count in Counter(str(record["id"]) for record in records).items() if count > 1}
+    scoped_out_reasons = dict(scoped_out_reasons or {})
+    for source_id in excluded_record_ids:
+        scoped_out_reasons.setdefault(source_id, "selected_analysis_domain_member")
+    scoped_ids = set(scoped_out_reasons)
+    original_ids = {source.id for source in scene.source_objects if _is_original_physical_source(source)}
+    selected: dict[str, dict] = {}
+    inventory = []
+    unresolved = set()
+    for source in scene.source_objects:
+        if source.id not in original_ids and source.id not in scoped_ids:
+            continue
+        entry = {"source_object_id": source.id, "source_id": source.source_id,
+                 "original_geometry_refs": list(source.geometry_refs), "provenance": dict(source.provenance)}
+        if source.id in scoped_ids:
+            inventory.append({**entry, "status": "scoped_out", "reason": scoped_out_reasons[source.id]})
+            continue
+        resolution = resolve_source_representation(scene, source.id, operation, query=query)
+        target_id = resolution.get("selected_source")
+        target = record_by_id.get(target_id)
+        reason = resolution.get("reason")
+        section_mode = resolution.get("geometry_query") == "exact_world_plane_section"
+        if section_mode and resolution["status"] != "unresolved":
+            from .section_views import section_record_rejection
+
+            section_reason = ("duplicate_section_record_id" if target_id in duplicate_record_ids else
+                              section_record_rejection(target, resolution["selected_geometry"], query))
+            if section_reason:
+                target = None
+                reason = section_reason
+        if set(resolution.get("coverage", ())) & scoped_ids:
+            # A combined proxy cannot isolate its interior coverage without separable facts.
+            target = None
+            reason = "mixed_domain_and_interior_coverage"
+        if target is None or resolution["status"] == "unresolved":
+            unresolved.add(source.id)
+            if section_mode:
+                # A required proxy never falls back to any owner's positive original.
+                unresolved.update((set(resolution.get("required_coverage", ())) |
+                                   set(resolution.get("coverage", ()))) & original_ids - scoped_ids)
+            inventory.append({**entry, "status": "unknown", "reason": reason,
+                              "resolution": resolution})
+            continue
+        selected[target_id] = {**target, "represented_source_ids": list(resolution["coverage"]),
+                               "representation_status": resolution["status"],
+                               "representation_diagnostics": resolution["rejection_diagnostics"],
+                               "representation_provenance": resolution.get("provenance")}
+        inventory.append({**entry, "status": "substitute" if resolution["status"] == "accepted" else "original",
+                          "reason": reason, "selected_source_id": target_id,
+                          "selected_geometry_refs": list(resolution["selected_geometry"]),
+                          "represented_source_ids": list(resolution["coverage"]),
+                          "representation_provenance": resolution.get("provenance")})
+    # Every represented owner must qualify; partial selection is never a complete proxy.
+    # Coverage groups can overlap through bad input; propagate refusal to a fixed point
+    # before retaining any positive record from an affected group.
+    changed = True
+    while changed:
+        before = len(unresolved)
+        for record in selected.values():
+            owners = set(record["represented_source_ids"]) - scoped_ids
+            if owners & unresolved:
+                unresolved.update(owners)
+        changed = len(unresolved) != before
+    valid = [record for record in selected.values()
+             if not set(record["represented_source_ids"]) & unresolved]
+    for entry in inventory:
+        if entry["source_object_id"] in unresolved and entry["status"] not in {"unknown", "scoped_out"}:
+            entry.update(status="unknown", reason="represented_owner_unresolved")
+    return valid, sorted(unresolved), inventory
 
 
 def _records_for_bucket(records: list[dict], bucket: str) -> list[dict]:

@@ -1,0 +1,26 @@
+{
+  "required_artifacts": [
+    "hard_column_comparison.json",
+    "real_ifc_comparison.json",
+    "fixture_truth.json",
+    "render_input.json",
+    "provenance.json",
+    "scope_audit.json"
+  ],
+  "required_fields": {
+    "fixture_truth.json": [
+      "schema",
+      "fixtures"
+    ],
+    "real_ifc_comparison.json": [
+      "schema",
+      "analysis_nodes",
+      "variants",
+      "candidate_comparisons",
+      "candidate_summaries",
+      "global_answer"
+    ]
+  },
+  "schema": "d6-space-field-hard-column-comparison-json-contract/v1",
+  "schema_status": "experiment-local contract; not a production API"
+}

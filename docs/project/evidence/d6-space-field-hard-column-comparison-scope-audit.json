@@ -1,0 +1,60 @@
+{
+  "allowed": {
+    "fixtures_included": true,
+    "real_ifc_read_only": true,
+    "repair_v1_preserved": true,
+    "run_001_preserved": true,
+    "same_37_authored_group_nodes": true,
+    "selector_deferred": true,
+    "wall_and_column_evidence_separate": true
+  },
+  "current_blender_observation": {
+    "blender_version": "5.2.0 LTS",
+    "bonsai_ifc_store_path": "D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc",
+    "floor_candidates": [
+      "IfcBuildingStorey/Level 1"
+    ],
+    "ifc_object_counts": {
+      "IfcBuildingStorey": 1,
+      "IfcDoor": 6,
+      "IfcFurniture": 95,
+      "IfcGroup": 37,
+      "IfcOpeningElement": 0,
+      "IfcRelFillsElement": 0,
+      "IfcRelVoidsElement": 0,
+      "IfcSpace": 0,
+      "IfcWall": 11
+    },
+    "match_basis": "Bonsai IfcStore.path read directly from current Blender and equals source_ifc.path.",
+    "mesh_count": 363,
+    "object_count": 372,
+    "observed": true,
+    "observed_at": "2026-10-02",
+    "portable_executable": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+    "scene_filepath": "",
+    "scene_name": "Scene",
+    "source_path_match": true,
+    "unit_settings": {
+      "length_unit": "MILLIMETERS",
+      "scale_length": 1.0,
+      "system": "METRIC"
+    }
+  },
+  "forbidden_or_not_selected": {
+    "adapter_modified": false,
+    "api_modified": false,
+    "bayesian_or_ml_selected": false,
+    "dependencies_modified": false,
+    "empty_components_called_regions": false,
+    "fixed_metre_threshold_selected": false,
+    "formal_tests_modified": false,
+    "furniture_membership_rewritten": false,
+    "pairwise_furniture_relation_replaced": false,
+    "production_code_modified": false,
+    "production_selector_selected": false,
+    "source_ifc_modified": false,
+    "user_blender_file_modified": false,
+    "virtual_wall_selected": false
+  },
+  "schema": "d6-space-field-hard-column-comparison-scope-audit/v1"
+}

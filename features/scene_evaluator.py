@@ -239,6 +239,11 @@ def evaluate_scene(
         else row
         for row in rows
     ]
+    rows = [
+        _require_capability(row, "physical_planar_occupancy")
+        if "physical_planar_occupancy" in _metric_channel_capabilities(row["metric"]) else row
+        for row in rows
+    ]
     rows = _apply_domain_availability(rows, scene)
     score_matrix = _score_matrix(rows)
     adapter_scene = _adapter_scene(scene, inferred_regions=inferred_regions)
@@ -360,6 +365,14 @@ def _channel_available(scene: dict, capability: str) -> bool:
 
 def _metric_channel_capabilities(metric: str) -> tuple[str, ...]:
     """Map channel-dependent metric identities to canonical capabilities."""
+    if ("negative_space" in metric or "free_space" in metric
+            or metric.startswith("cad_room_minus_blocker")
+            or metric in {"inferred_region_gap_path_occupancy_ratio",
+                          "inferred_region_gap_path_walkable_proxy_ratio",
+                          "inferred_region_gap_path_min_width_pass_ratio",
+                          "candidate_path_area_ratio_proxy",
+                          "candidate_path_region_pair_ratio_proxy"}):
+        return ("physical_planar_occupancy",)
     cross_channel_metrics = {
         "walk_visibility_cost_gap",
         "sampled_visibility_only_region_ratio",
@@ -2270,6 +2283,9 @@ def _inferred_region_gap_path_occupancy_row(
     gap_paths: list[dict],
 ) -> dict:
     """Measure component-aware physical occupancy inside inferred gap bands."""
+    if _is_neutral_analysis_view(scene) and not _channel_available(scene, "physical_planar_occupancy"):
+        return _not_available("region_alignment", "inferred_region_gap_path_occupancy_ratio",
+                              "physical occupancy unresolved for one or more source objects")
     candidates_by_id = {
         candidate["id"]: candidate
         for candidate in infer_region_candidates(scene)
@@ -2292,19 +2308,17 @@ def _inferred_region_gap_path_occupancy_row(
                 if item
             )
         occupiers = []
-        for obj in scene.get("objects", []):
-            if obj["id"] in source_member_ids:
+        neutral = _is_neutral_analysis_view(scene)
+        physical_records = _physical_occupancy_blockers(scene) if neutral else scene.get("objects", [])
+        for obj in physical_records:
+            represented = set(obj.get("represented_source_ids", (obj["id"],))) if neutral else {obj["id"]}
+            if represented <= source_member_ids:
                 continue
             overlap = _record_rect_overlap_area(obj, gap_path["rect"])
             if overlap > 0:
-                occupiers.append(
-                    {
-                        "id": obj["id"],
-                        "kind": "object_footprint",
-                        "overlap_area": round(overlap, 4),
-                    }
-                )
-        for zone in affordance_zones:
+                occupiers.append({"id": obj["id"], "kind": "physical_occupancy" if neutral else "object_footprint",
+                                  "overlap_area": round(overlap, 4)})
+        for zone in ([] if neutral else affordance_zones):
             if zone["id"] in source_zone_ids:
                 continue
             overlap = _rect_overlap_area(gap_path["rect"], zone["rect"])
@@ -2317,19 +2331,23 @@ def _inferred_region_gap_path_occupancy_row(
                         "overlap_area": round(overlap, 4),
                     }
                 )
-        for boundary in scene.get("physical_blockers", []):
+        for boundary in ([] if neutral else scene.get("physical_blockers", [])):
             if boundary["id"] in source_member_ids:
                 continue
             overlap = _record_rect_overlap_area(boundary, gap_path["rect"])
             if overlap > 0:
-                occupiers.append(
-                    {
-                        "id": boundary["id"],
-                        "kind": "physical_boundary_geometry",
-                        "overlap_area": round(overlap, 4),
-                    }
-                )
+                occupiers.append({"id": boundary["id"], "kind": "physical_boundary_geometry",
+                                  "overlap_area": round(overlap, 4)})
         occupied_area = sum(item["overlap_area"] for item in occupiers)
+        if neutral:
+            from shapely.geometry import box
+
+            blockers = [obj for obj in physical_records
+                        if not set(obj.get("represented_source_ids", (obj["id"],))) <= source_member_ids]
+            rect = gap_path["rect"]
+            occupied_area = _records_shapely_union(blockers).intersection(
+                box(rect.left, rect.top, rect.right, rect.bottom)
+            ).area
         gap_area = gap_path["rect"].area
         evidence.append(
             {
@@ -2371,6 +2389,10 @@ def _inferred_region_gap_path_free_space_overlap_row(
     gap_paths: list[dict],
     negative_space: dict,
 ) -> dict:
+    """Compare gaps only against a qualified free-space certificate."""
+    if negative_space.get("status") == "not_available":
+        return _not_available("region_alignment", "inferred_region_gap_path_free_space_overlap_ratio",
+                              negative_space.get("uncertainty"))
     free_cells = [
         {
             "id": f"component_{item['component_index']}_cell_{item['cell_index']}",
@@ -4675,6 +4697,16 @@ def _negative_space_descriptor(
         room_rect,
         room_polygon,
     )
+    if _is_neutral_analysis_view(scene) and not _channel_available(scene, "physical_planar_occupancy"):
+        return {
+            "status": "not_available", "room_area": room_area,
+            "blocker_overlap_area": blocker_overlap_area,
+            "summed_blocker_overlap_area": summed_blocker_overlap_area,
+            "negative_space_area": None, "negative_space_area_ratio_proxy": None,
+            "blocker_evidence": [sample["target_id"] for sample in samples],
+            "method": "analysis_domain_minus_physical_occupancy",
+            "uncertainty": "physical occupancy unresolved for one or more source objects",
+        }
     negative_space_area = max(0.0, room_area - blocker_overlap_area)
     components = _negative_space_rect_components(
         room_rect,
@@ -4879,9 +4911,10 @@ def _blocker_union_overlap_area(
 def _physical_occupancy_blockers(scene: dict) -> list[dict]:
     """Return geometry occupancy without asserting walk or visual permeability."""
     if _is_neutral_analysis_view(scene):
+        # Neutral Scene occupancy is already resolved exactly once upstream;
+        # re-adding furniture objects would double-count original/target pairs.
         return _deduplicate_records_by_id(
-            list(scene.get("objects", []))
-            + list(scene.get("physical_occupancy", scene.get("physical_blockers", [])))
+            list(scene.get("physical_occupancy", scene.get("physical_blockers", [])))
         )
     return _path_clearance_blockers(scene)
 
@@ -5755,11 +5788,17 @@ def _component_centroid(component: list[dict]) -> tuple[float, float]:
 def _negative_space_graph(scene: dict, negative_space: dict) -> dict:
     """Build topology only when a factual negative-space domain exists."""
     if negative_space.get("status") == "not_available":
+        # Preserve the metric keys consumed by authored-path rows without asserting zero free space.
+        metrics = {key: None if isinstance(value, (int, float)) else value
+                   for key, value in _negative_space_graph_metrics([], []).items()}
+        metrics.update(entry_region_free_polygon_distance_evidence=[],
+                       mean_entry_region_free_polygon_distance=None,
+                       mean_entry_region_free_polygon_path_length=None)
         return {
             "status": "not_available",
             "nodes": [],
             "edges": [],
-            "metrics": {},
+            "metrics": metrics,
             "uncertainty": negative_space.get("uncertainty"),
         }
     components = negative_space.get("components", [])
@@ -5962,6 +6001,7 @@ def _cell_path_length(cells: list[dict], path_cells: list[int]) -> float:
 
 
 def _negative_space_graph_metrics(nodes: list[dict], edges: list[dict]) -> dict:
+    """Summarize established free-space graph components and entry contacts."""
     component_nodes = [
         node for node in nodes if node["kind"] == "negative_space_component"
     ]
@@ -6957,6 +6997,7 @@ def _path_connectivity_rows(
     line_of_sight_graph: dict,
     isovist_radial_proxy: dict,
 ) -> list[dict]:
+    """Combine authored paths with available channel and free-space evidence."""
     paths = scene.get("paths", [])
     if not paths:
         return [_not_available(
@@ -7134,7 +7175,7 @@ def _path_connectivity_rows(
     candidate_path_score = round(
         (negative_space.get("entry_connected_area_ratio") or 0.0) * width_continuity,
         4,
-    )
+    ) if negative_space.get("status") != "not_available" else None
     boundary_grouping_mean = (
         mean(item["boundary_grouping_strength"] for item in path_region_boundary_cue_evidence)
         if path_region_boundary_cue_evidence
@@ -8339,7 +8380,7 @@ def _path_connectivity_rows(
                 * negative_space_graph_metrics["entry_connected_region_pair_count"]
                 / max(1, negative_space_graph_metrics["total_region_pair_count"]),
                 4,
-            ),
+            ) if candidate_path_score is not None else None,
             "status": negative_space["status"],
             "method": "candidate_path_area_times_entry_connected_region_pair_ratio",
             "evidence": [
@@ -9420,6 +9461,7 @@ def _adapter_payload(
     inferred_region_gap_path_graph: dict,
     score_matrix: dict,
 ) -> dict:
+    """Export analysis evidence and availability for downstream adapter consumers."""
     records = _adapter_scene_records(scene)
     scene_records = []
     external_refs = {}
@@ -9489,6 +9531,22 @@ def _adapter_payload(
         host_relationships,
         inferred_region_gap_path_graph,
     )
+    if _is_neutral_analysis_view(scene) and not _channel_available(scene, "physical_planar_occupancy"):
+        route_handoff.update(status="not_available", uncertainty=negative_space.get("uncertainty"))
+        for key in ("inferred_gap_paths", "inferred_gap_path_graph"):
+            route_handoff[key].update(status="not_available", uncertainty=negative_space.get("uncertainty"))
+        # Empty unavailable evidence must not be exported as a measured zero or a clear gap.
+        route_handoff["inferred_gap_paths"].update(clear_count=None, occupied_count=None)
+        for key in ("inferred_region_gap_paths", "inferred_region_gap_path_occupancy",
+                    "inferred_region_gap_path_free_space_overlap", "inferred_region_gap_path_cad_free_space_overlap",
+                    "free_space_polygons", "room_minus_blocker_polygons", "cad_room_minus_blocker_polygons"):
+            evidence_geometry[key].update(status="not_available", uncertainty=negative_space.get("uncertainty"))
+            if key != "inferred_region_gap_paths":
+                evidence_geometry[key]["count"] = None
+        for item in evidence_geometry["inferred_region_gap_paths"]["items"]:
+            item.update(occupied=None, occupancy_ratio=None, occupied_area=None, clear_status="unknown",
+                        free_space_overlap_ratio=None, free_space_overlap_area=None,
+                        cad_free_space_overlap_ratio=None, cad_free_space_overlap_area=None)
     visual_handoff = _adapter_visual_analysis_handoff(
         line_of_sight_graph,
         isovist_radial_proxy,
@@ -11149,4 +11207,3 @@ def _longest_edge_angle(points: list[tuple[float, float]]) -> float:
         if length_sq > best[0]:
             best = (length_sq, degrees(atan2(dy, dx)) % 180)
     return best[1]
-

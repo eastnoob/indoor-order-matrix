@@ -29,16 +29,19 @@ _DEFAULT_REGISTRY = (
 def load_substitute_registry(path: Path = _DEFAULT_REGISTRY) -> dict[str, object]:
     """Load the repository's single substitute contract registry."""
     registry = json.loads(path.read_text(encoding="utf-8"))
-    if registry.get("schema") != SCHEMA or not isinstance(registry.get("contracts"), dict):
+    if registry.get("schema") not in {SCHEMA, "d6-substitute-registry/v2"} or not isinstance(registry.get("contracts"), dict):
         raise ValueError(f"unsupported registry schema: {registry.get('schema')!r}")
     for key, contract in registry["contracts"].items():
         if (
             not contract.get("consumer")
             or not contract.get("accepted_substitute_kind")
             or not contract.get("accepted_analysis_role")
-            or not contract.get("accepted_representation_identifier")
+            or not (contract.get("accepted_representation_identifier") or contract.get("accepted_representation_identifiers"))
         ):
             raise ValueError(f"incomplete contract: {key}")
+    operations = registry.get("operations", {})
+    if operations and not isinstance(operations, Mapping):
+        raise ValueError("operations must be a mapping")
     return registry
 
 
@@ -69,20 +72,21 @@ def resolve_substitute_contract(
             continue
         if record.get("analysis_role") not in contract.get("accepted_analysis_role", []):
             continue
-        expected_representation = contract.get("accepted_representation_identifier")
-        if record.get("representation_identifier") != expected_representation:
+        accepted_representations = contract.get("accepted_representation_identifiers") or [contract.get("accepted_representation_identifier")]
+        expected_representation = record.get("representation_identifier")
+        if expected_representation not in accepted_representations:
             return {
                 "status": "rejected",
                 "reason_code": "wrong_representation_identifier",
                 "contract_key": key,
-                "expected": expected_representation,
+                "expected": accepted_representations,
             }
         if record["provenance"].get("representation_identifier") != expected_representation:
             return {
                 "status": "rejected",
                 "reason_code": "wrong_representation_identifier",
                 "contract_key": key,
-                "expected": expected_representation,
+                "expected": accepted_representations,
             }
         return {
             "status": "accepted",

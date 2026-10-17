@@ -1,0 +1,849 @@
+{
+  "fixtures": {
+    "column_pair_near_furniture_gap": {
+      "before_after_empty_space": {
+        "after": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 93.5,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 2,
+            "furniture_groups": 2,
+            "walls": 0
+          }
+        },
+        "before": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 94.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 2,
+            "walls": 0
+          }
+        },
+        "component_count_delta": 0
+      },
+      "before_after_hard_candidates": {
+        "A_furniture_only": {
+          "candidate_id": "fixture:column_pair_near_furniture_gap:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 2,
+              "group_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "region_id": "fixture:column_pair_near_furniture_gap:region:1"
+            }
+          ],
+          "selector_status": "deferred_for_nontrivial_split"
+        },
+        "B_wall_aware": {
+          "candidate_id": "fixture:column_pair_near_furniture_gap:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 2,
+              "group_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "region_id": "fixture:column_pair_near_furniture_gap:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        },
+        "C_wall_plus_column_aware": {
+          "candidate_id": "fixture:column_pair_near_furniture_gap:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 2,
+              "group_ids": [
+                "fixture:g1",
+                "fixture:g2"
+              ],
+              "region_id": "fixture:column_pair_near_furniture_gap:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        }
+      },
+      "cut_edge_changes": {
+        "wall_aware": {
+          "changed": false,
+          "status": "deferred"
+        },
+        "wall_plus_column_aware": {
+          "changed": false,
+          "status": "deferred"
+        }
+      },
+      "fixture_id": "column_pair_near_furniture_gap",
+      "furniture_membership_changed": false,
+      "provenance": {
+        "column_floor": "Level 1",
+        "geometry": "pair near group gap, open passage retained"
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "column_row_aligned_with_wall": {
+      "before_after_empty_space": {
+        "after": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 91.92,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 3,
+            "furniture_groups": 1,
+            "walls": 1
+          }
+        },
+        "before": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 93.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 1
+          }
+        },
+        "component_count_delta": 0
+      },
+      "before_after_hard_candidates": {
+        "A_furniture_only": {
+          "candidate_id": "fixture:column_row_aligned_with_wall:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:column_row_aligned_with_wall:region:1"
+            }
+          ],
+          "selector_status": "deferred_for_nontrivial_split"
+        },
+        "B_wall_aware": {
+          "candidate_id": "fixture:column_row_aligned_with_wall:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:column_row_aligned_with_wall:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        },
+        "C_wall_plus_column_aware": {
+          "candidate_id": "fixture:column_row_aligned_with_wall:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:column_row_aligned_with_wall:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        }
+      },
+      "cut_edge_changes": {
+        "wall_aware": {
+          "changed": false,
+          "status": "deferred"
+        },
+        "wall_plus_column_aware": {
+          "changed": false,
+          "status": "deferred"
+        }
+      },
+      "fixture_id": "column_row_aligned_with_wall",
+      "furniture_membership_changed": false,
+      "provenance": {
+        "column_floor": "Level 1",
+        "geometry": "row aligned with wall, no virtual closure"
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "column_row_open_gap": {
+      "before_after_empty_space": {
+        "after": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 94.28,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 2,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "before": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 95.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "component_count_delta": 0
+      },
+      "before_after_hard_candidates": {
+        "A_furniture_only": {
+          "candidate_id": "fixture:column_row_open_gap:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:column_row_open_gap:region:1"
+            }
+          ],
+          "selector_status": "deferred_for_nontrivial_split"
+        },
+        "B_wall_aware": {
+          "candidate_id": "fixture:column_row_open_gap:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:column_row_open_gap:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        },
+        "C_wall_plus_column_aware": {
+          "candidate_id": "fixture:column_row_open_gap:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:column_row_open_gap:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        }
+      },
+      "cut_edge_changes": {
+        "wall_aware": {
+          "changed": false,
+          "status": "deferred"
+        },
+        "wall_plus_column_aware": {
+          "changed": false,
+          "status": "deferred"
+        }
+      },
+      "fixture_id": "column_row_open_gap",
+      "furniture_membership_changed": false,
+      "provenance": {
+        "column_floor": "Level 1",
+        "geometry": "open gap intentionally retained"
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "columns_different_level": {
+      "before_after_empty_space": {
+        "after": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 95.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "before": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 95.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "component_count_delta": 0
+      },
+      "before_after_hard_candidates": {
+        "A_furniture_only": {
+          "candidate_id": "fixture:columns_different_level:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:columns_different_level:region:1"
+            }
+          ],
+          "selector_status": "deferred_for_nontrivial_split"
+        },
+        "B_wall_aware": {
+          "candidate_id": "fixture:columns_different_level:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:columns_different_level:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        },
+        "C_wall_plus_column_aware": {
+          "candidate_id": "fixture:columns_different_level:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:columns_different_level:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        }
+      },
+      "cut_edge_changes": {
+        "wall_aware": {
+          "changed": false,
+          "status": "deferred"
+        },
+        "wall_plus_column_aware": {
+          "changed": false,
+          "status": "deferred"
+        }
+      },
+      "fixture_id": "columns_different_level",
+      "furniture_membership_changed": false,
+      "provenance": {
+        "column_floor": "Level 2 excluded",
+        "geometry": "valid but ineligible floor"
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "invalid_or_missing_column_geometry": {
+      "before_after_empty_space": {
+        "after": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 95.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "before": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 95.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "component_count_delta": 0
+      },
+      "before_after_hard_candidates": {
+        "A_furniture_only": {
+          "candidate_id": "fixture:invalid_or_missing_column_geometry:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:invalid_or_missing_column_geometry:region:1"
+            }
+          ],
+          "selector_status": "deferred_for_nontrivial_split"
+        },
+        "B_wall_aware": {
+          "candidate_id": "fixture:invalid_or_missing_column_geometry:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:invalid_or_missing_column_geometry:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        },
+        "C_wall_plus_column_aware": {
+          "candidate_id": "fixture:invalid_or_missing_column_geometry:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:invalid_or_missing_column_geometry:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        }
+      },
+      "cut_edge_changes": {
+        "wall_aware": {
+          "changed": false,
+          "status": "deferred"
+        },
+        "wall_plus_column_aware": {
+          "changed": false,
+          "status": "deferred"
+        }
+      },
+      "fixture_id": "invalid_or_missing_column_geometry",
+      "furniture_membership_changed": false,
+      "provenance": {
+        "column_floor": "Level 1",
+        "geometry": "missing/invalid"
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "isolated_interior_column": {
+      "before_after_empty_space": {
+        "after": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 94.51,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 1,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "before": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 95.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "component_count_delta": 0
+      },
+      "before_after_hard_candidates": {
+        "A_furniture_only": {
+          "candidate_id": "fixture:isolated_interior_column:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:isolated_interior_column:region:1"
+            }
+          ],
+          "selector_status": "deferred_for_nontrivial_split"
+        },
+        "B_wall_aware": {
+          "candidate_id": "fixture:isolated_interior_column:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:isolated_interior_column:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        },
+        "C_wall_plus_column_aware": {
+          "candidate_id": "fixture:isolated_interior_column:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:isolated_interior_column:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        }
+      },
+      "cut_edge_changes": {
+        "wall_aware": {
+          "changed": false,
+          "status": "deferred"
+        },
+        "wall_plus_column_aware": {
+          "changed": false,
+          "status": "deferred"
+        }
+      },
+      "fixture_id": "isolated_interior_column",
+      "furniture_membership_changed": false,
+      "provenance": {
+        "column_floor": "Level 1",
+        "geometry": "valid interior footprint"
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "three_column_row": {
+      "before_after_empty_space": {
+        "after": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 93.98,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 3,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "before": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 95.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 0
+          }
+        },
+        "component_count_delta": 0
+      },
+      "before_after_hard_candidates": {
+        "A_furniture_only": {
+          "candidate_id": "fixture:three_column_row:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:three_column_row:region:1"
+            }
+          ],
+          "selector_status": "deferred_for_nontrivial_split"
+        },
+        "B_wall_aware": {
+          "candidate_id": "fixture:three_column_row:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:three_column_row:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        },
+        "C_wall_plus_column_aware": {
+          "candidate_id": "fixture:three_column_row:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:three_column_row:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        }
+      },
+      "cut_edge_changes": {
+        "wall_aware": {
+          "changed": false,
+          "status": "deferred"
+        },
+        "wall_plus_column_aware": {
+          "changed": false,
+          "status": "deferred"
+        }
+      },
+      "fixture_id": "three_column_row",
+      "furniture_membership_changed": false,
+      "provenance": {
+        "column_floor": "Level 1",
+        "geometry": "three aligned valid footprints"
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "wall_edge_column": {
+      "before_after_empty_space": {
+        "after": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 92.685,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 1,
+            "furniture_groups": 1,
+            "walls": 1
+          }
+        },
+        "before": {
+          "component_count": 1,
+          "diagnostic_attribute": "empty_space_field",
+          "free_area_m2": 93.0,
+          "not_inferred": [
+            "corridor",
+            "route",
+            "walkability",
+            "activity area"
+          ],
+          "occupancy_source_counts": {
+            "eligible_columns": 0,
+            "furniture_groups": 1,
+            "walls": 1
+          }
+        },
+        "component_count_delta": 0
+      },
+      "before_after_hard_candidates": {
+        "A_furniture_only": {
+          "candidate_id": "fixture:wall_edge_column:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:wall_edge_column:region:1"
+            }
+          ],
+          "selector_status": "deferred_for_nontrivial_split"
+        },
+        "B_wall_aware": {
+          "candidate_id": "fixture:wall_edge_column:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:wall_edge_column:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        },
+        "C_wall_plus_column_aware": {
+          "candidate_id": "fixture:wall_edge_column:baseline:one_region",
+          "cut_edges": [],
+          "hard_partition_change_status": "not_computable",
+          "region_count": 1,
+          "regions": [
+            {
+              "group_count": 1,
+              "group_ids": [
+                "fixture:g1"
+              ],
+              "region_id": "fixture:wall_edge_column:region:1"
+            }
+          ],
+          "selector_status": "deferred"
+        }
+      },
+      "cut_edge_changes": {
+        "wall_aware": {
+          "changed": false,
+          "status": "deferred"
+        },
+        "wall_plus_column_aware": {
+          "changed": false,
+          "status": "deferred"
+        }
+      },
+      "fixture_id": "wall_edge_column",
+      "furniture_membership_changed": false,
+      "provenance": {
+        "column_floor": "Level 1",
+        "geometry": "valid wall-edge footprint"
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    }
+  },
+  "frame": "synthetic 12m x 8m diagnostic frame",
+  "schema": "d6-space-field-hard-column-comparison-fixtures/v1"
+}

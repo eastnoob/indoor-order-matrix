@@ -527,6 +527,10 @@ def _polygon_components(
     polygons: Iterable[tuple[tuple[float, float], ...]],
 ) -> tuple[dict[str, object], ...]:
     """Union clipped faces while retaining disconnected components and holes."""
+    import warnings
+
+    from shapely import union_all
+    from shapely.errors import GEOSException
     from shapely.geometry import Polygon
     from shapely.ops import unary_union
 
@@ -534,7 +538,19 @@ def _polygon_components(
     valid = [polygon for polygon in candidates if polygon.is_valid and polygon.area > 1e-12]
     if not valid:
         return ()
-    union = unary_union(valid)
+    try:
+        union = unary_union(valid)
+    except GEOSException as error:
+        if "TopologyException" not in str(error):
+            raise
+        # Dense projected faces can defeat floating overlay; retry only the
+        # derived union at picometre precision, leaving source vertices intact.
+        warnings.warn(
+            "Plan face union topology retry on a 1e-12 plane-unit grid",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        union = union_all(valid, grid_size=1e-12)
     return _shapely_polygon_components(union)
 
 
@@ -589,7 +605,8 @@ def _without_collinear_vertices(
             (current[0] - previous[0]) * (following[1] - current[1])
             - (current[1] - previous[1]) * (following[0] - current[0])
         )
-        if math.isclose(cross, 0.0, abs_tol=1e-9):
+        # A nearly straight boundary can bound real area; only remove an exact split point.
+        if cross == 0.0:
             continue
         retained.append(current)
     return tuple(retained) if len(retained) >= 3 else points

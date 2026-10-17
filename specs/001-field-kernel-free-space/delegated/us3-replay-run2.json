@@ -1,0 +1,1783 @@
+{
+  "schema": "field-kernel-free-space-fixture-replay/v1",
+  "fixture_path": "scripts\\design\\group_level\\self_description_competition_fixtures.json",
+  "fixture_sha256": "8a9253de9294138292e2a47463b847eaef96152793826dd00965b7d95de9b74d",
+  "probe_path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\scripts\\design\\group_level\\run_self_description_competition_probe.py",
+  "probe_sha256": "fff2411bc0e4e953f0e6594095d360b2e3d3d3af1c6c340e4df7cdcb33334c47",
+  "fixture_count": 8,
+  "analysis_frame": {
+    "plane": "XY",
+    "unit": "m"
+  },
+  "design_only": true,
+  "formula_scope": "probe_only_not_production",
+  "canonical_observations": [
+    {
+      "fixture_id": "context_reference",
+      "question": "Context geometry changes a permitted spatial reference channel, not eligibility.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": true
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 1
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "geometry_conflict",
+      "question": "Equal labels do not erase a strong relative geometry mismatch.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 0.0625,
+            "gap_proximity": 1.0,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.9375,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 0.0,
+                "normalized_gap": 0.0,
+                "overlap_area": 0.8999999999999999,
+                "shape_similarity": 0.0625
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "A",
+            "C"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.26120387,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "C"
+              ],
+              "geometry": {
+                "raw_gap": 4.0,
+                "normalized_gap": 2.82842712474619,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "independent_minority",
+      "question": "The same semantic minority forms a spatially coherent island separated from the regular organization.",
+      "candidates": [
+        {
+          "candidate": [
+            "C1",
+            "C2"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "C1",
+                "C2"
+              ],
+              "geometry": {
+                "raw_gap": 0.5999999999999996,
+                "normalized_gap": 0.42426406871192823,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "R2",
+            "C1"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.37077461,
+            "semantic": -0.25,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 1,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "R2",
+                "C1"
+              ],
+              "geometry": {
+                "raw_gap": 2.4,
+                "normalized_gap": 1.6970562748477138,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "soft_negative"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "R1",
+            "R2"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "R1",
+                "R2"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "invalid_geometry",
+      "question": "Invalid geometry is not silently converted to missing or usable support.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "invalid",
+          "support": {
+            "geometry_similarity": 0.0,
+            "gap_proximity": 0.47619048,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 1.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 1.1,
+                "normalized_gap": 1.1,
+                "overlap_area": 0.0,
+                "shape_similarity": 0.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "minority_mixed",
+      "question": "A small semantic minority is geometrically embedded in a regular local organization.",
+      "candidates": [
+        {
+          "candidate": [
+            "R2",
+            "C1"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.82499263,
+            "semantic": -0.25,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 1,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "R2",
+                "C1"
+              ],
+              "geometry": {
+                "raw_gap": 0.30000000000000004,
+                "normalized_gap": 0.21213203435596428,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "soft_negative"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "R1",
+            "R2",
+            "R3"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.59850872,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "R1",
+                "R2"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            },
+            {
+              "groups": [
+                "R1",
+                "R3"
+              ],
+              "geometry": {
+                "raw_gap": 2.2,
+                "normalized_gap": 1.5556349186104046,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            },
+            {
+              "groups": [
+                "R2",
+                "R3"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "missing_channels",
+      "question": "Missing semantic and domain channels are unavailable, not negative evidence.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": 0.0,
+            "space": 0.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "not_available",
+                "barrier": "not_available",
+                "context_alignment_reference": false
+              },
+              "semantic": "not_available"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": false,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "semantic_conflict",
+      "question": "Ordinary label disagreement is soft; explicit mutual exclusion is a candidate veto.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "vetoed_mutual_exclusion",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": -0.25,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 1,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "soft_negative"
+            }
+          ],
+          "mutual_exclusion_conflicts": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "A",
+            "C"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.3912922,
+            "semantic": -0.25,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 1,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "C"
+              ],
+              "geometry": {
+                "raw_gap": 2.2,
+                "normalized_gap": 1.5556349186104046,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "soft_negative"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "space_barrier",
+      "question": "Geometric proximity is separated by a closed wall; opening is a different observation.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "space_conflict",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.58578644,
+            "semantic": 1.0,
+            "space": -1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 1
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 1.0,
+                "normalized_gap": 0.7071067811865475,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "blocked",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    }
+  ],
+  "canonical_sha256": "a734362f175c04bd1da21cd4155e46ba1546058800320106dc240c5e6c019a04",
+  "canonical_bytes": 9656,
+  "fixtures": [
+    {
+      "fixture_id": "context_reference",
+      "question": "Context geometry changes a permitted spatial reference channel, not eligibility.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": true
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 1
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "geometry_conflict",
+      "question": "Equal labels do not erase a strong relative geometry mismatch.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 0.0625,
+            "gap_proximity": 1.0,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.9375,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 0.0,
+                "normalized_gap": 0.0,
+                "overlap_area": 0.8999999999999999,
+                "shape_similarity": 0.0625
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "A",
+            "C"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.26120387,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "C"
+              ],
+              "geometry": {
+                "raw_gap": 4.0,
+                "normalized_gap": 2.82842712474619,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "independent_minority",
+      "question": "The same semantic minority forms a spatially coherent island separated from the regular organization.",
+      "candidates": [
+        {
+          "candidate": [
+            "C1",
+            "C2"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "C1",
+                "C2"
+              ],
+              "geometry": {
+                "raw_gap": 0.5999999999999996,
+                "normalized_gap": 0.42426406871192823,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "R2",
+            "C1"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.37077461,
+            "semantic": -0.25,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 1,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "R2",
+                "C1"
+              ],
+              "geometry": {
+                "raw_gap": 2.4,
+                "normalized_gap": 1.6970562748477138,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "soft_negative"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "R1",
+            "R2"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "R1",
+                "R2"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "invalid_geometry",
+      "question": "Invalid geometry is not silently converted to missing or usable support.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "invalid",
+          "support": {
+            "geometry_similarity": 0.0,
+            "gap_proximity": 0.47619048,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 1.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 1.1,
+                "normalized_gap": 1.1,
+                "overlap_area": 0.0,
+                "shape_similarity": 0.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "minority_mixed",
+      "question": "A small semantic minority is geometrically embedded in a regular local organization.",
+      "candidates": [
+        {
+          "candidate": [
+            "R2",
+            "C1"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.82499263,
+            "semantic": -0.25,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 1,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "R2",
+                "C1"
+              ],
+              "geometry": {
+                "raw_gap": 0.30000000000000004,
+                "normalized_gap": 0.21213203435596428,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "soft_negative"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "R1",
+            "R2",
+            "R3"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.59850872,
+            "semantic": 1.0,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "R1",
+                "R2"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            },
+            {
+              "groups": [
+                "R1",
+                "R3"
+              ],
+              "geometry": {
+                "raw_gap": 2.2,
+                "normalized_gap": 1.5556349186104046,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            },
+            {
+              "groups": [
+                "R2",
+                "R3"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "missing_channels",
+      "question": "Missing semantic and domain channels are unavailable, not negative evidence.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": 0.0,
+            "space": 0.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "not_available",
+                "barrier": "not_available",
+                "context_alignment_reference": false
+              },
+              "semantic": "not_available"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": false,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "semantic_conflict",
+      "question": "Ordinary label disagreement is soft; explicit mutual exclusion is a candidate veto.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "vetoed_mutual_exclusion",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.70211699,
+            "semantic": -0.25,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 1,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 0.6000000000000001,
+                "normalized_gap": 0.42426406871192857,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "soft_negative"
+            }
+          ],
+          "mutual_exclusion_conflicts": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        },
+        {
+          "candidate": [
+            "A",
+            "C"
+          ],
+          "status": "computed",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.3912922,
+            "semantic": -0.25,
+            "space": 1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 1,
+            "barrier": 0
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "C"
+              ],
+              "geometry": {
+                "raw_gap": 2.2,
+                "normalized_gap": 1.5556349186104046,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "clear",
+                "context_alignment_reference": false
+              },
+              "semantic": "soft_negative"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixture_id": "space_barrier",
+      "question": "Geometric proximity is separated by a closed wall; opening is a different observation.",
+      "candidates": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "space_conflict",
+          "support": {
+            "geometry_similarity": 1.0,
+            "gap_proximity": 0.58578644,
+            "semantic": 1.0,
+            "space": -1.0
+          },
+          "negative_evidence": {
+            "geometry_mismatch": 0.0,
+            "semantic_disagreement": 0,
+            "barrier": 1
+          },
+          "pair_observations": [
+            {
+              "groups": [
+                "A",
+                "B"
+              ],
+              "geometry": {
+                "raw_gap": 1.0,
+                "normalized_gap": 0.7071067811865475,
+                "overlap_area": 0.0,
+                "shape_similarity": 1.0
+              },
+              "space": {
+                "domain_status": "computed",
+                "barrier": "blocked",
+                "context_alignment_reference": false
+              },
+              "semantic": "compatible"
+            }
+          ],
+          "mutual_exclusion_conflicts": [],
+          "provenance": {
+            "formula_scope": "probe_only",
+            "domain_available": true,
+            "context_count": 0
+          }
+        }
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "id": "minority_label_is_soft",
+      "pass": true
+    },
+    {
+      "id": "independent_minority_has_more_gap_support",
+      "pass": true
+    },
+    {
+      "id": "geometry_mismatch_is_negative_evidence",
+      "pass": true
+    },
+    {
+      "id": "closed_barrier_is_separate_channel",
+      "pass": true
+    },
+    {
+      "id": "explicit_mutual_exclusion_vetoes_candidate",
+      "pass": true
+    },
+    {
+      "id": "missing_semantic_and_domain_are_unavailable",
+      "pass": true
+    },
+    {
+      "id": "invalid_geometry_is_not_missing",
+      "pass": true
+    },
+    {
+      "id": "context_keeps_candidate_eligibility",
+      "pass": true
+    }
+  ],
+  "status_matrix": [
+    {
+      "fixture_id": "context_reference",
+      "statuses": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed"
+        }
+      ]
+    },
+    {
+      "fixture_id": "geometry_conflict",
+      "statuses": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed"
+        },
+        {
+          "candidate": [
+            "A",
+            "C"
+          ],
+          "status": "computed"
+        }
+      ]
+    },
+    {
+      "fixture_id": "independent_minority",
+      "statuses": [
+        {
+          "candidate": [
+            "C1",
+            "C2"
+          ],
+          "status": "computed"
+        },
+        {
+          "candidate": [
+            "R2",
+            "C1"
+          ],
+          "status": "computed"
+        },
+        {
+          "candidate": [
+            "R1",
+            "R2"
+          ],
+          "status": "computed"
+        }
+      ]
+    },
+    {
+      "fixture_id": "invalid_geometry",
+      "statuses": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "invalid"
+        }
+      ]
+    },
+    {
+      "fixture_id": "minority_mixed",
+      "statuses": [
+        {
+          "candidate": [
+            "R2",
+            "C1"
+          ],
+          "status": "computed"
+        },
+        {
+          "candidate": [
+            "R1",
+            "R2",
+            "R3"
+          ],
+          "status": "computed"
+        }
+      ]
+    },
+    {
+      "fixture_id": "missing_channels",
+      "statuses": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "computed"
+        }
+      ]
+    },
+    {
+      "fixture_id": "semantic_conflict",
+      "statuses": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "vetoed_mutual_exclusion"
+        },
+        {
+          "candidate": [
+            "A",
+            "C"
+          ],
+          "status": "computed"
+        }
+      ]
+    },
+    {
+      "fixture_id": "space_barrier",
+      "statuses": [
+        {
+          "candidate": [
+            "A",
+            "B"
+          ],
+          "status": "space_conflict"
+        }
+      ]
+    }
+  ],
+  "provenance": [
+    {
+      "fixture_id": "context_reference",
+      "candidate": [
+        "A",
+        "B"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 1
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "geometry_conflict",
+      "candidate": [
+        "A",
+        "B"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "geometry_conflict",
+      "candidate": [
+        "A",
+        "C"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "independent_minority",
+      "candidate": [
+        "C1",
+        "C2"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "independent_minority",
+      "candidate": [
+        "R2",
+        "C1"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "independent_minority",
+      "candidate": [
+        "R1",
+        "R2"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "invalid_geometry",
+      "candidate": [
+        "A",
+        "B"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "minority_mixed",
+      "candidate": [
+        "R2",
+        "C1"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "minority_mixed",
+      "candidate": [
+        "R1",
+        "R2",
+        "R3"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "missing_channels",
+      "candidate": [
+        "A",
+        "B"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": false,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "semantic_conflict",
+      "candidate": [
+        "A",
+        "B"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "semantic_conflict",
+      "candidate": [
+        "A",
+        "C"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    },
+    {
+      "fixture_id": "space_barrier",
+      "candidate": [
+        "A",
+        "B"
+      ],
+      "provenance": {
+        "formula_scope": "probe_only",
+        "domain_available": true,
+        "context_count": 0
+      },
+      "formula_scope": "probe_only_not_production"
+    }
+  ],
+  "channel_isolation": {
+    "passed": 8,
+    "total": 8,
+    "design_only": true,
+    "assertions": [
+      {
+        "id": "minority_label_is_soft",
+        "pass": true
+      },
+      {
+        "id": "independent_minority_has_more_gap_support",
+        "pass": true
+      },
+      {
+        "id": "geometry_mismatch_is_negative_evidence",
+        "pass": true
+      },
+      {
+        "id": "closed_barrier_is_separate_channel",
+        "pass": true
+      },
+      {
+        "id": "explicit_mutual_exclusion_vetoes_candidate",
+        "pass": true
+      },
+      {
+        "id": "missing_semantic_and_domain_are_unavailable",
+        "pass": true
+      },
+      {
+        "id": "invalid_geometry_is_not_missing",
+        "pass": true
+      },
+      {
+        "id": "context_keeps_candidate_eligibility",
+        "pass": true
+      }
+    ]
+  },
+  "perturbations": [
+    {
+      "name": "identifier_order",
+      "passed": true,
+      "formula_scope": "probe_only_not_production",
+      "design_only": true,
+      "detail": "reordering identifiers and candidate input preserves canonical observations"
+    },
+    {
+      "name": "translation",
+      "passed": true,
+      "formula_scope": "probe_only_not_production",
+      "design_only": true,
+      "detail": "rigid translation preserves probe-local geometry channel values"
+    },
+    {
+      "name": "supported_rotation",
+      "passed": true,
+      "formula_scope": "probe_only_not_production",
+      "design_only": true,
+      "detail": "wall-free quarter-turn preserves probe-local geometry relations"
+    },
+    {
+      "name": "opening_mutation",
+      "passed": true,
+      "formula_scope": "probe_only_not_production",
+      "design_only": true,
+      "detail": "declared opening changes only the space barrier observation"
+    },
+    {
+      "name": "missing_domain",
+      "passed": true,
+      "formula_scope": "probe_only_not_production",
+      "design_only": true,
+      "detail": "missing domain preserves geometry and marks space evidence unavailable"
+    }
+  ],
+  "blocked_cases": [
+    {
+      "name": "invalid_geometry_to_missing",
+      "blocked": true,
+      "design_only": true,
+      "formula_scope": "probe_only_not_production",
+      "reason": "fixture schema has invalid but no distinct missing geometry state"
+    },
+    {
+      "name": "rotated_wall_representation",
+      "blocked": true,
+      "design_only": true,
+      "formula_scope": "probe_only_not_production",
+      "reason": "fixture wall schema only represents vertical x plus y-range walls"
+    },
+    {
+      "name": "section_vs_whole_height",
+      "blocked": true,
+      "design_only": true,
+      "formula_scope": "probe_only_not_production",
+      "reason": "fixtures have XY geometry but no height-band or whole-height channel"
+    }
+  ]
+}

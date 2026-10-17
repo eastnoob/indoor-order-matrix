@@ -11,7 +11,7 @@ from .affordance.models import Rect
 from .analysis_substitute_discovery import resolve_function_substitute
 from .geometry_substitutes import mass_patch_from_mesh
 from .geometry_views import plan_projection
-from .neutral_scene_views import AnalysisSceneInput, analysis_scene_view
+from .neutral_scene_views import AnalysisSceneInput, analysis_scene_view, furniture_analysis_participation
 from .scene_contract import NeutralSceneV2
 
 
@@ -125,6 +125,7 @@ def _neutral_inputs(scene: NeutralSceneV2):
         sources_by_id.setdefault(source.id, []).append(source)
     objects = []
     for source in scene.source_objects:
+        participation = furniture_analysis_participation(source)
         components = []
         for geometry_ref in source.geometry_refs:
             mesh = meshes.get(geometry_ref)
@@ -143,7 +144,11 @@ def _neutral_inputs(scene: NeutralSceneV2):
                 }
                 for component in projection.components
             )
-        trend_resolution = resolve_function_substitute(scene, source.id, "trend")
+        trend_resolution = (
+            {"status": "not_available", "reason": "furniture_analysis_" + participation}
+            if participation in ("excluded", "unknown")
+            else resolve_function_substitute(scene, source.id, "trend")
+        )
         trend_components = []
         if trend_resolution["status"] == "accepted":
             # Trend descriptors may consume only the independently typed
@@ -176,6 +181,7 @@ def _neutral_inputs(scene: NeutralSceneV2):
                 "type_ref": source.type_ref,
                 "factual_properties": dict(source.factual_properties),
                 "source_role": source.source_role,
+                "_furniture_analysis_participation": participation,
                 "provenance": dict(source.provenance),
                 "_trend_geometry_components": trend_components,
                 "_trend_geometry_refs": (
@@ -228,6 +234,11 @@ def _group_geometry(group, object_by_id, tolerance):
         if item is None:
             excluded.append({"member_id": member_id, "status": "invalid", "reason": "unresolved_member_ref", "source_refs": []})
             invalid = True
+            continue
+        if item.get("_furniture_analysis_participation") in ("excluded", "unknown"):
+            excluded.append({"member_id": member_id, "status": "not_available",
+                             "reason": "furniture_analysis_" + item["_furniture_analysis_participation"],
+                             "source_refs": list(item["geometry_refs"])})
             continue
         geometry, reason = _member_geometry(item, tolerance)
         if geometry is None:
@@ -621,6 +632,8 @@ def _local_neighborhood(relations):
 
 def _member_geometry(item, tolerance):
     """Parse simple polygon components or an explicitly approved rectangle fallback."""
+    if item.get("_furniture_analysis_participation") in ("excluded", "unknown"):
+        return None, "furniture_analysis_" + item["_furniture_analysis_participation"]
     components = item.get("geometry_components", ())
     if components:
         parts = []

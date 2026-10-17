@@ -856,6 +856,7 @@ def build_inferred_region_gap_path_graph(
     scene: dict | None = None,
 ) -> dict:
     """Build graph evidence that connects inferred regions through usable gap bands."""
+    occupancy_unknown = (scene or {}).get("_analysis_view", {}).get("physical_occupancy_status") == "unknown"
     occupancy_by_gap_path = {
         item["gap_path_id"]: item
         for item in gap_path_occupancy or []
@@ -889,11 +890,10 @@ def build_inferred_region_gap_path_graph(
             "orientation": path["orientation"],
             "thickness": round(path["thickness"], 4),
             "overlap_span": round(path["overlap_span"], 4),
-            "clear_status": gap_path_clear_status(occupancy_ratio),
-            "occupancy_ratio": occupancy_ratio,
-            "free_space_overlap_ratio": free_space_overlap.get(
-                "free_space_overlap_ratio",
-                0.0,
+            "clear_status": "unknown" if occupancy_unknown else gap_path_clear_status(occupancy_ratio),
+            "occupancy_ratio": None if occupancy_unknown else occupancy_ratio,
+            "free_space_overlap_ratio": None if occupancy_unknown else free_space_overlap.get(
+                "free_space_overlap_ratio", 0.0,
             ),
         }
         if has_cad_free_space_overlap:
@@ -980,7 +980,7 @@ def build_inferred_region_gap_path_graph(
             1 for edge in edges if edge["clear_status"] == "occupied_proxy"
         ),
         "free_space_supported_edge_count": sum(
-            1 for edge in edges if edge["free_space_overlap_ratio"] > 0
+            1 for edge in edges if (edge["free_space_overlap_ratio"] or 0.0) > 0
         ),
         "walkable_proxy_edge_count": len(walkable_proxy_edges),
         "walkable_proxy_min_thickness": min(
@@ -1024,6 +1024,14 @@ def build_inferred_region_gap_path_graph(
                 "cad_free_space_supported_edges": cad_free_space_supported_edges,
             }
         )
+    if occupancy_unknown:
+        # Region adjacency remains evidence; occupancy-dependent route support is unknown.
+        graph.update(status="not_available", uncertainty="physical occupancy unresolved",
+                     walkable_proxy_components=[])
+        for key in ("clear_edge_count", "occupied_edge_count", "free_space_supported_edge_count",
+                    "walkable_proxy_edge_count", "walkable_proxy_component_count",
+                    "width_pass_edge_count", "width_fail_edge_count"):
+            graph[key] = None
     return graph
 
 

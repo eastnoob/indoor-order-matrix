@@ -1,0 +1,67 @@
+{
+  "schema": "field-kernel-free-space-s3-perturbation-audit/v1",
+  "status": "design_only",
+  "formula_scope": "probe_only_not_production",
+  "checks": [
+    {
+      "id": "id_order_rename_preserves_channel_observations",
+      "pass": true,
+      "scope": "all fixtures",
+      "detail": "Identifier/provenance labels are intentionally excluded from equivalence; channel values/statuses retained"
+    },
+    {
+      "id": "translation_preserves_observations",
+      "pass": true,
+      "scope": "all fixtures",
+      "detail": "Centers and wall coordinates translated together; values compared at 1e-10 rounding"
+    },
+    {
+      "id": "rotation_preserves_geometry_relations",
+      "pass": true,
+      "scope": "geometry_conflict only",
+      "detail": "90-degree transform; no wall channel"
+    },
+    {
+      "id": "closed_wall_to_opening_changes_space_only",
+      "pass": true,
+      "scope": "space_barrier",
+      "detail": "Barrier observation changes blocked -> opening; geometry and semantic channels remain fixed"
+    },
+    {
+      "id": "domain_false_preserves_geometry_without_known_free",
+      "pass": true,
+      "scope": "space_barrier",
+      "detail": "Probe exposes unavailable space support (0.0), never a known-free value; production unknown status is not modeled"
+    },
+    {
+      "id": "invalid_to_missing_geometry",
+      "pass": false,
+      "scope": "invalid_geometry",
+      "detail": "BLOCKED/design-only: no missing-geometry record in fixture schema; removing status produces computed geometry rather than unavailable/unknown"
+    },
+    {
+      "id": "eye_height_does_not_upgrade_whole_height",
+      "pass": false,
+      "scope": "all fixtures",
+      "detail": "BLOCKED/design-only: fixture is 2D XY and has no z, eye-height, height-band, or whole-height channel"
+    },
+    {
+      "id": "rotation_with_wall_channel",
+      "pass": false,
+      "scope": "space_barrier",
+      "detail": "BLOCKED/design-only: wall schema only supports vertical x/y_range barriers; no rotated wall representation"
+    }
+  ],
+  "replay": {
+    "base_fixtures": 8,
+    "deterministic_base_sha256": "08e2397374ad3f0cdf05df41039d0b2eeae15bb47d44777d52bf16b5510e8410",
+    "command": "pixi run python - (in-memory script importing scripts/design/group_level/run_self_description_competition_probe.py)",
+    "result": "5 executable checks pass; 3 checks blocked/design-only"
+  },
+  "limits": [
+    "No production Field implementation or evaluator path exercised",
+    "2D fixture cannot validate eye-height z=1.6 m versus whole-height",
+    "Missing geometry is not represented distinctly from absent status",
+    "Rotated wall channel is not represented"
+  ]
+}

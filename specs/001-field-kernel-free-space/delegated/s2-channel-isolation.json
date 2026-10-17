@@ -1,0 +1,131 @@
+{
+  "schema": "d6-channel-isolation-evidence/v1",
+  "formula_scope": "probe_only_not_production",
+  "fixture_schema": "d6-self-description-competition-fixtures/v1",
+  "fixture_path": "scripts/design/group_level/self_description_competition_fixtures.json",
+  "probe_path": "scripts/design/group_level/run_self_description_competition_probe.py",
+  "replay": {
+    "fixture_count": 8,
+    "run1_sha256": "c8df438eb7a47735461f58daa9b6c849c376938cef316a77b6eea94293b9dca0",
+    "run2_sha256": "c8df438eb7a47735461f58daa9b6c849c376938cef316a77b6eea94293b9dca0",
+    "byte_identical": true
+  },
+  "assertions": [
+    {
+      "id": "minority_mixed_soft_semantic_preserves_geometry",
+      "fixture_id": "minority_mixed",
+      "input_fixture": "baseline plus C1 label cozy->regular",
+      "status": "pass",
+      "evidence": {
+        "baseline_status": "computed",
+        "baseline_semantic_disagreement": 1,
+        "perturbed_status": "computed",
+        "geometry_equal": true,
+        "occupancy_equal": true
+      }
+    },
+    {
+      "id": "independent_minority_geometry_channel_survives_semantic_change",
+      "fixture_id": "independent_minority",
+      "input_fixture": "baseline plus C1/C2 labels cozy->other",
+      "status": "pass",
+      "evidence": {
+        "baseline_geometry_similarity": 1.0,
+        "perturbed_geometry_similarity": 1.0,
+        "baseline_gap_proximity": 0.70211699,
+        "perturbed_gap_proximity": 0.70211699,
+        "occupancy_equal": true
+      }
+    },
+    {
+      "id": "geometry_conflict_remains_negative_evidence",
+      "fixture_id": "geometry_conflict",
+      "input_fixture": "baseline plus B label table->chair",
+      "status": "pass",
+      "evidence": {
+        "baseline_shape_similarity": 0.0625,
+        "perturbed_shape_similarity": 0.0625,
+        "baseline_geometry_mismatch": 0.9375,
+        "perturbed_geometry_mismatch": 0.9375,
+        "occupancy_equal": true
+      }
+    },
+    {
+      "id": "space_barrier_isolated_from_geometry",
+      "fixture_id": "space_barrier",
+      "input_fixture": "baseline plus W1 opening false->true",
+      "status": "pass",
+      "evidence": {
+        "baseline_barrier": "blocked",
+        "perturbed_barrier": "opening",
+        "baseline_status": "space_conflict",
+        "perturbed_status": "computed",
+        "geometry_equal": true,
+        "occupancy_equal": true
+      }
+    },
+    {
+      "id": "hard_mutual_exclusion_does_not_change_physical_occupancy",
+      "fixture_id": "semantic_conflict",
+      "input_fixture": "baseline plus mutual_exclusion cleared",
+      "status": "pass",
+      "evidence": {
+        "baseline_status": "vetoed_mutual_exclusion",
+        "perturbed_status": "computed",
+        "geometry_equal": true,
+        "occupancy_equal": true,
+        "baseline_conflicts": [["A", "B"]],
+        "perturbed_conflicts": []
+      }
+    },
+    {
+      "id": "context_does_not_invent_membership",
+      "fixture_id": "context_reference",
+      "input_fixture": "baseline plus context removed",
+      "status": "pass",
+      "evidence": {
+        "baseline_status": "computed",
+        "perturbed_status": "computed",
+        "baseline_context_count": 1,
+        "perturbed_context_count": 0,
+        "baseline_context_reference": true,
+        "perturbed_context_reference": false,
+        "occupancy_equal": true
+      }
+    },
+    {
+      "id": "missing_channels_preserve_unavailable",
+      "fixture_id": "missing_channels",
+      "input_fixture": "original missing domain and A label",
+      "status": "pass",
+      "evidence": {
+        "candidate_status": "computed",
+        "semantic_status": "not_available",
+        "domain_status": "not_available",
+        "barrier_status": "not_available",
+        "semantic_negative_count": 0,
+        "space_support": 0.0
+      }
+    },
+    {
+      "id": "invalid_geometry_preserves_invalid_state",
+      "fixture_id": "invalid_geometry",
+      "input_fixture": "original B size [0,1] status invalid",
+      "status": "pass",
+      "evidence": {
+        "candidate_status": "invalid",
+        "geometry_similarity": 0.0,
+        "geometry_mismatch": 1.0,
+        "semantic_status": "compatible",
+        "domain_status": "computed"
+      }
+    }
+  ],
+  "overall": "pass",
+  "unable_to_determine": [
+    "This is a probe-local rectangle replay; it does not validate a production Field implementation.",
+    "Physical occupancy is checked by unchanged source rectangle bounds, not by certified free-space, clearance, or connectivity computation.",
+    "The opening mutation changes the probe barrier observation only; no opening-state inference is performed.",
+    "No live evaluator, BIM/Blender adapter, B3 promotion, or psychological ground truth was evaluated."
+  ]
+}

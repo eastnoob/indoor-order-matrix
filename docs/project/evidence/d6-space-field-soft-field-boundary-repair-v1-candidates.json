@@ -1,0 +1,2024 @@
+{
+  "before_after": {
+    "after": {
+      "component_count": 5,
+      "free_area_m2": 326.5176909190218,
+      "label": "repair_v1 walls + eligible columns + declared furniture geometry",
+      "local_width_p50_m": 1.003333333333332,
+      "occupancy_sources": [
+        "valid physical wall geometry",
+        "eligible IfcColumn geometry",
+        "declared furniture_group geometry"
+      ]
+    },
+    "before": {
+      "artifact_preserved": true,
+      "component_count": 1,
+      "free_area_m2": 355.8844144265577,
+      "label": "run_001 furniture-only empty-space diagnostic",
+      "local_width_p50_m": 3.4244381562781934,
+      "occupancy_sources": [
+        "declared furniture_group geometry"
+      ]
+    },
+    "delta": {
+      "component_count": 4,
+      "free_area_m2": -29.366723507535937,
+      "local_width_p50_m": -2.4211048229448613
+    },
+    "interpretation": "physical obstacles reduce the bounded complement; no route or walkability meaning is assigned",
+    "schema": "d6-space-field-boundary-repair-before-after/v1"
+  },
+  "boundary_evidence": {
+    "column_boundary_candidates": [
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "3GmZVu1k9LTPtswYG5UTt5",
+        "uses_same_geometry_ref": "3GmZVu1k9LTPtswYG5UTt5",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "1N82hRNmvUrP89uC6GpdtM",
+        "uses_same_geometry_ref": "1N82hRNmvUrP89uC6GpdtM",
+        "wall_adjacency_evidence": false
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "3BjFshT$fV5gPMixJD0Ck6",
+        "uses_same_geometry_ref": "3BjFshT$fV5gPMixJD0Ck6",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "36I1jPEOjMyQx5unUr9iRS",
+        "uses_same_geometry_ref": "36I1jPEOjMyQx5unUr9iRS",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "34tr_gMFDIH92Gg8Y0_wlK",
+        "uses_same_geometry_ref": "34tr_gMFDIH92Gg8Y0_wlK",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "2LB6wGdhPK2P6$81iPN_Yt",
+        "uses_same_geometry_ref": "2LB6wGdhPK2P6$81iPN_Yt",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "2$2CZwOYXPWhPON1jIJk0O",
+        "uses_same_geometry_ref": "2$2CZwOYXPWhPON1jIJk0O",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "35fLMiX0zU5BnKOQAzrKwc",
+        "uses_same_geometry_ref": "35fLMiX0zU5BnKOQAzrKwc",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "1wbMK9jQnR08vmw$3y6k_t",
+        "uses_same_geometry_ref": "1wbMK9jQnR08vmw$3y6k_t",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "3O8wNzsKPHwRKkbarQPpwh",
+        "uses_same_geometry_ref": "3O8wNzsKPHwRKkbarQPpwh",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "uses_same_geometry_ref": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "2eYp_Fe8DNwuz0rddHeX$z",
+        "uses_same_geometry_ref": "2eYp_Fe8DNwuz0rddHeX$z",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "266BWDILDJWQGDTWqYWMp4",
+        "uses_same_geometry_ref": "266BWDILDJWQGDTWqYWMp4",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "0hsBLBpxbK4BWjArJa1P48",
+        "uses_same_geometry_ref": "0hsBLBpxbK4BWjArJa1P48",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "2ue8sdDFzHTvh91o0NJ9$g",
+        "uses_same_geometry_ref": "2ue8sdDFzHTvh91o0NJ9$g",
+        "wall_adjacency_evidence": true
+      },
+      {
+        "candidate_type": "column_geometry_boundary_source",
+        "inside_provisional_frame": true,
+        "interpretation": "candidate evidence only; adjacency is one signal and does not gate inclusion",
+        "selected": false,
+        "source_id": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "uses_same_geometry_ref": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "wall_adjacency_evidence": false
+      }
+    ],
+    "column_line_separation_clue": {
+      "source_ids": [
+        "3GmZVu1k9LTPtswYG5UTt5",
+        "1N82hRNmvUrP89uC6GpdtM",
+        "3BjFshT$fV5gPMixJD0Ck6",
+        "36I1jPEOjMyQx5unUr9iRS",
+        "34tr_gMFDIH92Gg8Y0_wlK",
+        "2LB6wGdhPK2P6$81iPN_Yt",
+        "2$2CZwOYXPWhPON1jIJk0O",
+        "35fLMiX0zU5BnKOQAzrKwc",
+        "1wbMK9jQnR08vmw$3y6k_t",
+        "3O8wNzsKPHwRKkbarQPpwh",
+        "3Mg8ERAE5O8wzTHgdyFyOB",
+        "2eYp_Fe8DNwuz0rddHeX$z",
+        "266BWDILDJWQGDTWqYWMp4",
+        "0hsBLBpxbK4BWjArJa1P48",
+        "2ue8sdDFzHTvh91o0NJ9$g",
+        "3hRyH4Zm5MJAnBFFd5qKCO"
+      ],
+      "status": "reference_only_unselected_virtual_partition"
+    },
+    "external_domain_enclosure": {
+      "source_ids": [
+        "152X2TIs5Pjh3ub4CncpOk",
+        "1FldTx1tXKGxPGrR3LKCkW",
+        "1n2AgCHXPJkuxzSWZVG3Hw",
+        "294Z8iLcPGnwvfQC8ShKsd",
+        "299ZbZ1B9NTuGr8zQYE7I9",
+        "2MVTQC7T1HAhwuCGw2RM0J",
+        "2y0jvrcGTGLAbHHDu7RBOW",
+        "360kFZ_HbNugudo1vFPt5i",
+        "3P9yDf6TTKUeAy04YS8b3$",
+        "3QAL1kxKLJZxF3Sj5PqTVo",
+        "3R_rUQk_TQmBN0VHbYhNx6"
+      ],
+      "source_type": "physical_wall_geometry",
+      "status": "diagnostic_boundary_evidence"
+    },
+    "frame": {
+      "owner_confirmed": false,
+      "source_extent_is_not_true_boundary": true,
+      "status": "provisional diagnostic frame"
+    },
+    "internal_obstacle_boundary": {
+      "source_ids": [
+        "3GmZVu1k9LTPtswYG5UTt5",
+        "1N82hRNmvUrP89uC6GpdtM",
+        "3BjFshT$fV5gPMixJD0Ck6",
+        "36I1jPEOjMyQx5unUr9iRS",
+        "34tr_gMFDIH92Gg8Y0_wlK",
+        "2LB6wGdhPK2P6$81iPN_Yt",
+        "2$2CZwOYXPWhPON1jIJk0O",
+        "35fLMiX0zU5BnKOQAzrKwc",
+        "1wbMK9jQnR08vmw$3y6k_t",
+        "3O8wNzsKPHwRKkbarQPpwh",
+        "3Mg8ERAE5O8wzTHgdyFyOB",
+        "2eYp_Fe8DNwuz0rddHeX$z",
+        "266BWDILDJWQGDTWqYWMp4",
+        "0hsBLBpxbK4BWjArJa1P48",
+        "2ue8sdDFzHTvh91o0NJ9$g",
+        "3hRyH4Zm5MJAnBFFd5qKCO"
+      ],
+      "status": "included_in_empty_space_occupancy_when_eligible"
+    },
+    "wall_adjacency_is_not_a_selection_gate": true
+  },
+  "column_line_evidence": {
+    "fixed_metre_threshold": false,
+    "interpretation": "column rows are a separate, unselected spatial-separation clue; no virtual wall is constructed",
+    "pair_records": [
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 4.9999999999999964,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.008403361344537815,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 5.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "35fLMiX0zU5BnKOQAzrKwc",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.037815126050420166,
+        "right": "1wbMK9jQnR08vmw$3y6k_t",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 5.000000000000001,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.06302521008403361,
+        "right": "36I1jPEOjMyQx5unUr9iRS",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 5.000000000000002,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2ue8sdDFzHTvh91o0NJ9$g",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.07983193277310924,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 5.000000000000002,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.07983193277310924,
+        "right": "34tr_gMFDIH92Gg8Y0_wlK",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "y",
+        "centroid_distance_m": 5.999999999999988,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.1092436974789916,
+        "right": "35fLMiX0zU5BnKOQAzrKwc",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "y",
+        "centroid_distance_m": 5.999999999999992,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.11764705882352941,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "y",
+        "centroid_distance_m": 5.999999999999998,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.13025210084033614,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "y",
+        "centroid_distance_m": 5.999999999999998,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.13025210084033614,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "y",
+        "centroid_distance_m": 5.999999999999999,
+        "clue_status": "relative_column_line_evidence",
+        "left": "266BWDILDJWQGDTWqYWMp4",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.14285714285714285,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 9.999999999999996,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.31512605042016806,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 9.999999999999998,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.3277310924369748,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 10.000000000000004,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.37815126050420167,
+        "right": "34tr_gMFDIH92Gg8Y0_wlK",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "y",
+        "centroid_distance_m": 11.999999999999982,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.5042016806722689,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "y",
+        "centroid_distance_m": 11.99999999999999,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.5168067226890757,
+        "right": "1wbMK9jQnR08vmw$3y6k_t",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "y",
+        "centroid_distance_m": 11.99999999999999,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.5168067226890757,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 14.999999999999998,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.6176470588235294,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 15.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.6470588235294118,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.07563025210084033,
+        "axis": "x",
+        "centroid_distance_m": 19.997999999999998,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 0.0,
+        "proximity_relative_rank": 0.8487394957983193,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.18067226890756302,
+        "axis": "x",
+        "centroid_distance_m": 4.997999999999999,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 8.881784197001252e-16,
+        "proximity_relative_rank": 0.0,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.18067226890756302,
+        "axis": "x",
+        "centroid_distance_m": 5.001999999999999,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 8.881784197001252e-16,
+        "proximity_relative_rank": 0.09243697478991597,
+        "right": "2$2CZwOYXPWhPON1jIJk0O",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.18067226890756302,
+        "axis": "x",
+        "centroid_distance_m": 9.998000000000001,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 8.881784197001252e-16,
+        "proximity_relative_rank": 0.3025210084033613,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.18067226890756302,
+        "axis": "x",
+        "centroid_distance_m": 9.999999999999996,
+        "clue_status": "relative_column_line_evidence",
+        "left": "0hsBLBpxbK4BWjArJa1P48",
+        "orthogonal_alignment_residual_m": 8.881784197001252e-16,
+        "proximity_relative_rank": 0.31512605042016806,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.18067226890756302,
+        "axis": "x",
+        "centroid_distance_m": 14.999999999999998,
+        "clue_status": "relative_column_line_evidence",
+        "left": "0hsBLBpxbK4BWjArJa1P48",
+        "orthogonal_alignment_residual_m": 8.881784197001252e-16,
+        "proximity_relative_rank": 0.6176470588235294,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.18067226890756302,
+        "axis": "x",
+        "centroid_distance_m": 24.999999999999996,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 8.881784197001252e-16,
+        "proximity_relative_rank": 0.957983193277311,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.21428571428571427,
+        "axis": "y",
+        "centroid_distance_m": 5.999999999999973,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3O8wNzsKPHwRKkbarQPpwh",
+        "orthogonal_alignment_residual_m": 1.7763568394002505e-15,
+        "proximity_relative_rank": 0.10084033613445378,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.21428571428571427,
+        "axis": "y",
+        "centroid_distance_m": 11.999999999999972,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 1.7763568394002505e-15,
+        "proximity_relative_rank": 0.4957983193277311,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.23949579831932774,
+        "axis": "x",
+        "centroid_distance_m": 4.999999999999998,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 3.552713678800501e-15,
+        "proximity_relative_rank": 0.01680672268907563,
+        "right": "2LB6wGdhPK2P6$81iPN_Yt",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.23949579831932774,
+        "axis": "x",
+        "centroid_distance_m": 10.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 3.552713678800501e-15,
+        "proximity_relative_rank": 0.35294117647058826,
+        "right": "2LB6wGdhPK2P6$81iPN_Yt",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.23949579831932774,
+        "axis": "x",
+        "centroid_distance_m": 15.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 3.552713678800501e-15,
+        "proximity_relative_rank": 0.6470588235294118,
+        "right": "2LB6wGdhPK2P6$81iPN_Yt",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.23949579831932774,
+        "axis": "x",
+        "centroid_distance_m": 19.999999999999996,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 3.552713678800501e-15,
+        "proximity_relative_rank": 0.8571428571428571,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.27310924369747897,
+        "axis": "y",
+        "centroid_distance_m": 6.000000000000009,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 3.608224830031759e-15,
+        "proximity_relative_rank": 0.15126050420168066,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.27310924369747897,
+        "axis": "x",
+        "centroid_distance_m": 10.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1wbMK9jQnR08vmw$3y6k_t",
+        "orthogonal_alignment_residual_m": 3.608224830031759e-15,
+        "proximity_relative_rank": 0.35294117647058826,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.27310924369747897,
+        "axis": "y",
+        "centroid_distance_m": 12.000000000000009,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 3.608224830031759e-15,
+        "proximity_relative_rank": 0.5294117647058824,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.27310924369747897,
+        "axis": "x",
+        "centroid_distance_m": 15.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "35fLMiX0zU5BnKOQAzrKwc",
+        "orthogonal_alignment_residual_m": 3.608224830031759e-15,
+        "proximity_relative_rank": 0.6470588235294118,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.29831932773109243,
+        "axis": "x",
+        "centroid_distance_m": 15.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1wbMK9jQnR08vmw$3y6k_t",
+        "orthogonal_alignment_residual_m": 3.6637359812630166e-15,
+        "proximity_relative_rank": 0.6470588235294118,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.29831932773109243,
+        "axis": "x",
+        "centroid_distance_m": 20.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "35fLMiX0zU5BnKOQAzrKwc",
+        "orthogonal_alignment_residual_m": 3.6637359812630166e-15,
+        "proximity_relative_rank": 0.8697478991596639,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.31092436974789917,
+        "axis": "x",
+        "centroid_distance_m": 5.000000000000001,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "orthogonal_alignment_residual_m": 7.271960811294775e-15,
+        "proximity_relative_rank": 0.06302521008403361,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.31932773109243695,
+        "axis": "x",
+        "centroid_distance_m": 10.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3O8wNzsKPHwRKkbarQPpwh",
+        "orthogonal_alignment_residual_m": 1.0935696792557792e-14,
+        "proximity_relative_rank": 0.35294117647058826,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.3319327731092437,
+        "axis": "x",
+        "centroid_distance_m": 5.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1wbMK9jQnR08vmw$3y6k_t",
+        "orthogonal_alignment_residual_m": 1.459943277382081e-14,
+        "proximity_relative_rank": 0.037815126050420166,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.3319327731092437,
+        "axis": "x",
+        "centroid_distance_m": 10.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "35fLMiX0zU5BnKOQAzrKwc",
+        "orthogonal_alignment_residual_m": 1.459943277382081e-14,
+        "proximity_relative_rank": 0.35294117647058826,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.3487394957983193,
+        "axis": "x",
+        "centroid_distance_m": 5.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3O8wNzsKPHwRKkbarQPpwh",
+        "orthogonal_alignment_residual_m": 1.8207657603852567e-14,
+        "proximity_relative_rank": 0.037815126050420166,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.3487394957983193,
+        "axis": "x",
+        "centroid_distance_m": 10.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 1.8207657603852567e-14,
+        "proximity_relative_rank": 0.35294117647058826,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.36554621848739494,
+        "axis": "x",
+        "centroid_distance_m": 20.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 2.1815882433884326e-14,
+        "proximity_relative_rank": 0.8697478991596639,
+        "right": "1wbMK9jQnR08vmw$3y6k_t",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.36554621848739494,
+        "axis": "x",
+        "centroid_distance_m": 25.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 2.1815882433884326e-14,
+        "proximity_relative_rank": 0.9663865546218487,
+        "right": "35fLMiX0zU5BnKOQAzrKwc",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.37815126050420167,
+        "axis": "x",
+        "centroid_distance_m": 5.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 2.5479618415147343e-14,
+        "proximity_relative_rank": 0.037815126050420166,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.3865546218487395,
+        "axis": "x",
+        "centroid_distance_m": 15.0,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 3.6415315207705135e-14,
+        "proximity_relative_rank": 0.6470588235294118,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.39915966386554624,
+        "axis": "y",
+        "centroid_distance_m": 6.000000333333312,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 0.0019999999999988916,
+        "proximity_relative_rank": 0.15966386554621848,
+        "right": "1wbMK9jQnR08vmw$3y6k_t",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.39915966386554624,
+        "axis": "y",
+        "centroid_distance_m": 6.000000333333327,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 0.0019999999999988916,
+        "proximity_relative_rank": 0.16806722689075632,
+        "right": "2LB6wGdhPK2P6$81iPN_Yt",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.4117647058823529,
+        "axis": "y",
+        "centroid_distance_m": 7.808969458257599,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 4.997999999999999,
+        "proximity_relative_rank": 0.18487394957983194,
+        "right": "34tr_gMFDIH92Gg8Y0_wlK",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.42016806722689076,
+        "axis": "y",
+        "centroid_distance_m": 7.80896945825758,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 4.998000000000001,
+        "proximity_relative_rank": 0.17647058823529413,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.4369747899159664,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906639,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2eYp_Fe8DNwuz0rddHeX$z",
+        "orthogonal_alignment_residual_m": 4.9999999999999964,
+        "proximity_relative_rank": 0.20168067226890757,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.4369747899159664,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906651,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 4.9999999999999964,
+        "proximity_relative_rank": 0.24369747899159663,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.4369747899159664,
+        "axis": "y",
+        "centroid_distance_m": 12.999999999999982,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2eYp_Fe8DNwuz0rddHeX$z",
+        "orthogonal_alignment_residual_m": 4.9999999999999964,
+        "proximity_relative_rank": 0.5546218487394958,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.46218487394957986,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906643,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1wbMK9jQnR08vmw$3y6k_t",
+        "orthogonal_alignment_residual_m": 4.999999999999998,
+        "proximity_relative_rank": 0.2184873949579832,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.46218487394957986,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906655,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 4.999999999999998,
+        "proximity_relative_rank": 0.2773109243697479,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.46218487394957986,
+        "axis": "y",
+        "centroid_distance_m": 12.999999999999986,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 4.999999999999998,
+        "proximity_relative_rank": 0.5714285714285714,
+        "right": "1wbMK9jQnR08vmw$3y6k_t",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5042016806722689,
+        "axis": "y",
+        "centroid_distance_m": 7.8102496759066335,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3O8wNzsKPHwRKkbarQPpwh",
+        "orthogonal_alignment_residual_m": 5.0,
+        "proximity_relative_rank": 0.19327731092436976,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5042016806722689,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906645,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 5.0,
+        "proximity_relative_rank": 0.226890756302521,
+        "right": "1wbMK9jQnR08vmw$3y6k_t",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5042016806722689,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906656,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 5.0,
+        "proximity_relative_rank": 0.2857142857142857,
+        "right": "2$2CZwOYXPWhPON1jIJk0O",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5042016806722689,
+        "axis": "y",
+        "centroid_distance_m": 12.999999999999973,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 5.0,
+        "proximity_relative_rank": 0.5378151260504201,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5042016806722689,
+        "axis": "y",
+        "centroid_distance_m": 12.999999999999977,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 5.0,
+        "proximity_relative_rank": 0.5462184873949579,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5042016806722689,
+        "axis": "y",
+        "centroid_distance_m": 12.99999999999999,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 5.0,
+        "proximity_relative_rank": 0.5798319327731093,
+        "right": "35fLMiX0zU5BnKOQAzrKwc",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5042016806722689,
+        "axis": "y",
+        "centroid_distance_m": 13.000000000000009,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 5.0,
+        "proximity_relative_rank": 0.6050420168067226,
+        "right": "3BjFshT$fV5gPMixJD0Ck6",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5504201680672269,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906642,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2eYp_Fe8DNwuz0rddHeX$z",
+        "orthogonal_alignment_residual_m": 5.000000000000001,
+        "proximity_relative_rank": 0.21008403361344538,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5504201680672269,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906654,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 5.000000000000001,
+        "proximity_relative_rank": 0.2605042016806723,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5504201680672269,
+        "axis": "y",
+        "centroid_distance_m": 12.999999999999984,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 5.000000000000001,
+        "proximity_relative_rank": 0.5630252100840336,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5504201680672269,
+        "axis": "y",
+        "centroid_distance_m": 12.999999999999991,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 5.000000000000001,
+        "proximity_relative_rank": 0.592436974789916,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5840336134453782,
+        "axis": "y",
+        "centroid_distance_m": 7.8102496759066495,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "orthogonal_alignment_residual_m": 5.000000000000002,
+        "proximity_relative_rank": 0.23529411764705882,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5840336134453782,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906654,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 5.000000000000002,
+        "proximity_relative_rank": 0.2605042016806723,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5840336134453782,
+        "axis": "y",
+        "centroid_distance_m": 7.810249675906654,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 5.000000000000002,
+        "proximity_relative_rank": 0.2605042016806723,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.5840336134453782,
+        "axis": "y",
+        "centroid_distance_m": 12.999999999999991,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 5.000000000000002,
+        "proximity_relative_rank": 0.592436974789916,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6050420168067226,
+        "axis": "y",
+        "centroid_distance_m": 7.811530195806698,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 5.001999999999999,
+        "proximity_relative_rank": 0.29411764705882354,
+        "right": "35fLMiX0zU5BnKOQAzrKwc",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6134453781512605,
+        "axis": "x",
+        "centroid_distance_m": 16.1554944214035,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3O8wNzsKPHwRKkbarQPpwh",
+        "orthogonal_alignment_residual_m": 5.9999999999999725,
+        "proximity_relative_rank": 0.7478991596638656,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6218487394957983,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690587,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 5.999999999999973,
+        "proximity_relative_rank": 0.40336134453781514,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6302521008403361,
+        "axis": "x",
+        "centroid_distance_m": 16.153637485099132,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 5.999999999999983,
+        "proximity_relative_rank": 0.7310924369747899,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6428571428571429,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690596,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2eYp_Fe8DNwuz0rddHeX$z",
+        "orthogonal_alignment_residual_m": 5.999999999999984,
+        "proximity_relative_rank": 0.4411764705882353,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6428571428571429,
+        "axis": "x",
+        "centroid_distance_m": 20.880613017821094,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 5.999999999999984,
+        "proximity_relative_rank": 0.9033613445378151,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6722689075630253,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690593,
+        "clue_status": "relative_column_line_evidence",
+        "left": "35fLMiX0zU5BnKOQAzrKwc",
+        "orthogonal_alignment_residual_m": 5.999999999999988,
+        "proximity_relative_rank": 0.41596638655462187,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6722689075630253,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690594,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1wbMK9jQnR08vmw$3y6k_t",
+        "orthogonal_alignment_residual_m": 5.999999999999988,
+        "proximity_relative_rank": 0.42857142857142855,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6722689075630253,
+        "axis": "x",
+        "centroid_distance_m": 16.155494421403507,
+        "clue_status": "relative_column_line_evidence",
+        "left": "35fLMiX0zU5BnKOQAzrKwc",
+        "orthogonal_alignment_residual_m": 5.999999999999988,
+        "proximity_relative_rank": 0.7563025210084033,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6722689075630253,
+        "axis": "x",
+        "centroid_distance_m": 20.880613017821094,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1wbMK9jQnR08vmw$3y6k_t",
+        "orthogonal_alignment_residual_m": 5.999999999999988,
+        "proximity_relative_rank": 0.9033613445378151,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.6722689075630253,
+        "axis": "x",
+        "centroid_distance_m": 25.709920264364875,
+        "clue_status": "relative_column_line_evidence",
+        "left": "35fLMiX0zU5BnKOQAzrKwc",
+        "orthogonal_alignment_residual_m": 5.999999999999988,
+        "proximity_relative_rank": 0.9747899159663865,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7016806722689075,
+        "axis": "x",
+        "centroid_distance_m": 11.660188849242534,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 5.999999999999991,
+        "proximity_relative_rank": 0.3865546218487395,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7016806722689075,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690593,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "orthogonal_alignment_residual_m": 5.999999999999991,
+        "proximity_relative_rank": 0.41596638655462187,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7142857142857143,
+        "axis": "x",
+        "centroid_distance_m": 16.15549442140351,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 5.999999999999992,
+        "proximity_relative_rank": 0.7773109243697479,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7478991596638656,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690596,
+        "clue_status": "relative_column_line_evidence",
+        "left": "266BWDILDJWQGDTWqYWMp4",
+        "orthogonal_alignment_residual_m": 5.999999999999998,
+        "proximity_relative_rank": 0.4411764705882353,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7478991596638656,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690598,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 5.999999999999998,
+        "proximity_relative_rank": 0.4579831932773109,
+        "right": "2$2CZwOYXPWhPON1jIJk0O",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7478991596638656,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690603,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 5.999999999999998,
+        "proximity_relative_rank": 0.4789915966386555,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7478991596638656,
+        "axis": "x",
+        "centroid_distance_m": 16.15549442140351,
+        "clue_status": "relative_column_line_evidence",
+        "left": "266BWDILDJWQGDTWqYWMp4",
+        "orthogonal_alignment_residual_m": 5.999999999999998,
+        "proximity_relative_rank": 0.7773109243697479,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7478991596638656,
+        "axis": "x",
+        "centroid_distance_m": 16.15549442140351,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 5.999999999999998,
+        "proximity_relative_rank": 0.7773109243697479,
+        "right": "2$2CZwOYXPWhPON1jIJk0O",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7478991596638656,
+        "axis": "x",
+        "centroid_distance_m": 20.8806130178211,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 5.999999999999998,
+        "proximity_relative_rank": 0.9243697478991597,
+        "right": "2$2CZwOYXPWhPON1jIJk0O",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7478991596638656,
+        "axis": "x",
+        "centroid_distance_m": 25.70992026436488,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2$2CZwOYXPWhPON1jIJk0O",
+        "orthogonal_alignment_residual_m": 5.999999999999998,
+        "proximity_relative_rank": 0.9831932773109243,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7983193277310925,
+        "axis": "x",
+        "centroid_distance_m": 11.660188849242537,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 5.999999999999999,
+        "proximity_relative_rank": 0.3949579831932773,
+        "right": "36I1jPEOjMyQx5unUr9iRS",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7983193277310925,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690598,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 5.999999999999999,
+        "proximity_relative_rank": 0.4579831932773109,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7983193277310925,
+        "axis": "x",
+        "centroid_distance_m": 16.15363748509914,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 5.999999999999999,
+        "proximity_relative_rank": 0.7394957983193278,
+        "right": "3BjFshT$fV5gPMixJD0Ck6",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7983193277310925,
+        "axis": "x",
+        "centroid_distance_m": 16.15549442140351,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 5.999999999999999,
+        "proximity_relative_rank": 0.7773109243697479,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.7983193277310925,
+        "axis": "x",
+        "centroid_distance_m": 20.878697373160037,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1N82hRNmvUrP89uC6GpdtM",
+        "orthogonal_alignment_residual_m": 5.999999999999999,
+        "proximity_relative_rank": 0.8823529411764706,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.8235294117647058,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690601,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 6.000000000000002,
+        "proximity_relative_rank": 0.47058823529411764,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.8319327731092437,
+        "axis": "x",
+        "centroid_distance_m": 20.880613017821098,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 6.000000000000003,
+        "proximity_relative_rank": 0.9159663865546218,
+        "right": "0hsBLBpxbK4BWjArJa1P48",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.8403361344537815,
+        "axis": "x",
+        "centroid_distance_m": 20.878697373160044,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 6.000000000000009,
+        "proximity_relative_rank": 0.8907563025210085,
+        "right": "1N82hRNmvUrP89uC6GpdtM",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.8571428571428571,
+        "axis": "x",
+        "centroid_distance_m": 11.661903789690607,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 6.00000000000001,
+        "proximity_relative_rank": 0.48739495798319327,
+        "right": "2ue8sdDFzHTvh91o0NJ9$g",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.8571428571428571,
+        "axis": "x",
+        "centroid_distance_m": 16.155494421403517,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 6.00000000000001,
+        "proximity_relative_rank": 0.7983193277310925,
+        "right": "3hRyH4Zm5MJAnBFFd5qKCO",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.8571428571428571,
+        "axis": "x",
+        "centroid_distance_m": 25.709920264364886,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 6.00000000000001,
+        "proximity_relative_rank": 0.9915966386554622,
+        "right": "2$2CZwOYXPWhPON1jIJk0O",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.8739495798319328,
+        "axis": "y",
+        "centroid_distance_m": 15.620499351813299,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "orthogonal_alignment_residual_m": 9.999999999999996,
+        "proximity_relative_rank": 0.7058823529411765,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.8823529411764706,
+        "axis": "y",
+        "centroid_distance_m": 15.620499351813297,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 9.999999999999998,
+        "proximity_relative_rank": 0.6890756302521008,
+        "right": "35fLMiX0zU5BnKOQAzrKwc",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9033613445378151,
+        "axis": "y",
+        "centroid_distance_m": 15.620499351813287,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 10.0,
+        "proximity_relative_rank": 0.6722689075630253,
+        "right": "3O8wNzsKPHwRKkbarQPpwh",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9033613445378151,
+        "axis": "y",
+        "centroid_distance_m": 15.620499351813297,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 10.0,
+        "proximity_relative_rank": 0.6890756302521008,
+        "right": "1wbMK9jQnR08vmw$3y6k_t",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9033613445378151,
+        "axis": "y",
+        "centroid_distance_m": 15.620499351813303,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 10.0,
+        "proximity_relative_rank": 0.7142857142857143,
+        "right": "3Mg8ERAE5O8wzTHgdyFyOB",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9033613445378151,
+        "axis": "y",
+        "centroid_distance_m": 15.620499351813315,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 10.0,
+        "proximity_relative_rank": 0.7226890756302521,
+        "right": "36I1jPEOjMyQx5unUr9iRS",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9243697478991597,
+        "axis": "y",
+        "centroid_distance_m": 15.620499351813297,
+        "clue_status": "relative_column_line_evidence",
+        "left": "34tr_gMFDIH92Gg8Y0_wlK",
+        "orthogonal_alignment_residual_m": 10.000000000000004,
+        "proximity_relative_rank": 0.6890756302521008,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9327731092436975,
+        "axis": "x",
+        "centroid_distance_m": 19.209372712298524,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3O8wNzsKPHwRKkbarQPpwh",
+        "orthogonal_alignment_residual_m": 11.999999999999972,
+        "proximity_relative_rank": 0.8067226890756303,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9621848739495799,
+        "axis": "x",
+        "centroid_distance_m": 19.20937271229854,
+        "clue_status": "relative_column_line_evidence",
+        "left": "2LB6wGdhPK2P6$81iPN_Yt",
+        "orthogonal_alignment_residual_m": 11.999999999999986,
+        "proximity_relative_rank": 0.8235294117647058,
+        "right": "2eYp_Fe8DNwuz0rddHeX$z",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9621848739495799,
+        "axis": "x",
+        "centroid_distance_m": 19.20937271229854,
+        "clue_status": "relative_column_line_evidence",
+        "left": "36I1jPEOjMyQx5unUr9iRS",
+        "orthogonal_alignment_residual_m": 11.999999999999986,
+        "proximity_relative_rank": 0.8235294117647058,
+        "right": "35fLMiX0zU5BnKOQAzrKwc",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9621848739495799,
+        "axis": "x",
+        "centroid_distance_m": 19.20937271229854,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 11.999999999999986,
+        "proximity_relative_rank": 0.8235294117647058,
+        "right": "1wbMK9jQnR08vmw$3y6k_t",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9621848739495799,
+        "axis": "x",
+        "centroid_distance_m": 23.323807579381192,
+        "clue_status": "relative_column_line_evidence",
+        "left": "1wbMK9jQnR08vmw$3y6k_t",
+        "orthogonal_alignment_residual_m": 11.999999999999986,
+        "proximity_relative_rank": 0.9327731092436975,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9621848739495799,
+        "axis": "x",
+        "centroid_distance_m": 23.323807579381196,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3BjFshT$fV5gPMixJD0Ck6",
+        "orthogonal_alignment_residual_m": 11.999999999999986,
+        "proximity_relative_rank": 0.9411764705882353,
+        "right": "35fLMiX0zU5BnKOQAzrKwc",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9621848739495799,
+        "axis": "x",
+        "centroid_distance_m": 27.730849247724084,
+        "clue_status": "relative_column_line_evidence",
+        "left": "35fLMiX0zU5BnKOQAzrKwc",
+        "orthogonal_alignment_residual_m": 11.999999999999986,
+        "proximity_relative_rank": 1.0,
+        "right": "266BWDILDJWQGDTWqYWMp4",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 0.9915966386554622,
+        "axis": "x",
+        "centroid_distance_m": 19.209372712298553,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 12.000000000000009,
+        "proximity_relative_rank": 0.8403361344537815,
+        "right": "34tr_gMFDIH92Gg8Y0_wlK",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      },
+      {
+        "alignment_relative_rank": 1.0,
+        "axis": "x",
+        "centroid_distance_m": 23.323807579381207,
+        "clue_status": "relative_column_line_evidence",
+        "left": "3GmZVu1k9LTPtswYG5UTt5",
+        "orthogonal_alignment_residual_m": 12.000000000000012,
+        "proximity_relative_rank": 0.9495798319327731,
+        "right": "2LB6wGdhPK2P6$81iPN_Yt",
+        "virtual_separation_hypothesis": {
+          "reason": "alignment or proximity never fills gaps, closes a corridor, or cuts connectivity",
+          "status": "not_selected"
+        }
+      }
+    ],
+    "virtual_partition_selected": false
+  },
+  "frame": {
+    "analysis_domain": "not_available",
+    "basis": "bounding extent of extracted furniture_group footprints plus physical wall projections",
+    "is_room_boundary": false,
+    "margin_fraction": 0.05,
+    "owner_confirmed": false,
+    "source_extent_is_not_true_boundary": true,
+    "status": "diagnostic_only"
+  },
+  "minimal_cases": {
+    "cases": {
+      "column_row": {
+        "after_free_area_m2": 98.92,
+        "before_free_area_m2": 100.0,
+        "checks": {
+          "does_not_silently_disconnect": true,
+          "occupancy_reduces_free_area": true,
+          "wall_adjacency_does_not_gate_column_use": true
+        },
+        "column_line_clue": true,
+        "component_count_after": 1,
+        "internal_obstacle_boundary": true,
+        "topology_cut_applied": false,
+        "virtual_separation_hypothesis": "not_selected",
+        "wall_adjacency_evidence": [
+          false,
+          false,
+          false
+        ]
+      },
+      "isolated_column": {
+        "after_free_area_m2": 99.0,
+        "before_free_area_m2": 100.0,
+        "checks": {
+          "does_not_silently_disconnect": true,
+          "occupancy_reduces_free_area": true,
+          "wall_adjacency_does_not_gate_column_use": true
+        },
+        "column_line_clue": false,
+        "component_count_after": 1,
+        "internal_obstacle_boundary": true,
+        "topology_cut_applied": false,
+        "virtual_separation_hypothesis": "not_selected",
+        "wall_adjacency_evidence": [
+          false
+        ]
+      },
+      "wall_edge_column": {
+        "after_free_area_m2": 99.4,
+        "before_free_area_m2": 100.0,
+        "checks": {
+          "does_not_silently_disconnect": true,
+          "occupancy_reduces_free_area": true,
+          "wall_adjacency_does_not_gate_column_use": true
+        },
+        "column_line_clue": false,
+        "component_count_after": 1,
+        "internal_obstacle_boundary": true,
+        "topology_cut_applied": false,
+        "virtual_separation_hypothesis": "not_selected",
+        "wall_adjacency_evidence": [
+          true
+        ]
+      }
+    },
+    "frame": "synthetic 10m x 10m diagnostic frame",
+    "schema": "d6-space-field-boundary-repair-minimal-cases/v1",
+    "status": "pass"
+  },
+  "owner_review_gate": "STOP FOR SOFT-FIELD OWNER VISUAL REVIEW",
+  "schema": "d6-space-field-boundary-repair-candidates/v1",
+  "source_ifc": {
+    "bytes": 408617800,
+    "counts": {
+      "IfcBuildingStorey": 1,
+      "IfcDoor": 6,
+      "IfcFurniture": 95,
+      "IfcGroup": 37,
+      "IfcOpeningElement": 0,
+      "IfcRelFillsElement": 0,
+      "IfcRelVoidsElement": 0,
+      "IfcSpace": 0,
+      "IfcWall": 11
+    },
+    "ifc_schema": "IFC4",
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+    "units": {
+      "scale_to_metres": 0.001,
+      "token": "mm"
+    }
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "current_blender_observation": {
+    "observed": true,
+    "portable_blender_for_disposable_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+    "source_path_match": true,
+    "this_experiment_opened_current_blender": false
+  },
+  "disposable_blend_readback_checked": true,
+  "json_schema_checked": true,
+  "original_run_001_and_repair_v1_preserved": true,
+  "png_records": [
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "furniture_only_1_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "furniture_only_2_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "furniture_only_3_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "furniture_only_4_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "wall_aware_1_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "wall_aware_2_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "wall_aware_3_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "wall_aware_4_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "wall_plus_column_1_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "wall_plus_column_2_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "wall_plus_column_3_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "wall_plus_column_4_regions.png",
+      "size": [
+        2400,
+        1200
+      ]
+    },
+    {
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1200
+      ],
+      "mode": "RGBA",
+      "name": "cut_edge_before_after.png",
+      "size": [
+        2400,
+        1200
+      ]
+    }
+  ],
+  "png_render_and_crop_checked": true,
+  "production_code_adapter_api_tests_dependencies_modified": false,
+  "schema": "d6-space-field-hard-column-comparison-validation/v1",
+  "source_sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+  "status": "pass",
+  "temporary_reproduction_checked": {
+    "fixture_truth.json": {
+      "identical": true,
+      "main_sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95",
+      "temporary_sha256": "731926d3fc4dd14223baff875a3d419ef7b775b3df9368eb8b2c489faa1b9a95"
+    },
+    "hard_column_comparison.json": {
+      "identical": true,
+      "main_sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7",
+      "temporary_sha256": "9fae4a09b3ce362a09d464f038a75f2379dc4b4f90233898051d8ef7ee6776e7"
+    },
+    "real_ifc_comparison.json": {
+      "identical": true,
+      "main_sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32",
+      "temporary_sha256": "c913462abbd11e2db7281a333cb60d201ab6ce13b2dcf7b31f3d427683845b32"
+    }
+  }
+}

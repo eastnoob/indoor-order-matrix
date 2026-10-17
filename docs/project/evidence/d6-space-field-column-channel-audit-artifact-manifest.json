@@ -1,0 +1,177 @@
+{
+  "checks": {
+    "deterministic_status_assertions": true,
+    "files": [
+      {
+        "bytes": 135419,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\updated_diagnostic.json",
+        "role": "audit artifact",
+        "sha256": "47d82c5d2cc674e46ff74d060f429bf89900fbe38a934f64ddfab1b659b7a2ed"
+      },
+      {
+        "bytes": 21782,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\real_ifc_audit.json",
+        "role": "audit artifact",
+        "sha256": "f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31"
+      },
+      {
+        "bytes": 106114,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\fixture_results.json",
+        "role": "audit artifact",
+        "sha256": "f22b870de038329b91fe0db540697ae4a362a97cf4fce650104f9d70f72689eb"
+      },
+      {
+        "bytes": 1759,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\provenance.json",
+        "role": "audit artifact",
+        "sha256": "677e491de469646466bd2987e10490957959148e113c8cec6f1dd9ee9c28eb24"
+      },
+      {
+        "bytes": 808,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\scope_audit.json",
+        "role": "audit artifact",
+        "sha256": "a11c456b4221e8cebe350394e891c1df4a447c7dd3a98d5c5d5720ae4c62942c"
+      },
+      {
+        "bytes": 586,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\git_scope_audit.json",
+        "role": "audit artifact",
+        "sha256": "fc58f59fac68b1a327db2706ad72f46b86692116cf4f15b0b84b69714c4ff3ad"
+      },
+      {
+        "bytes": 410,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\json_schema.json",
+        "role": "audit artifact",
+        "sha256": "b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62"
+      },
+      {
+        "bytes": 2681,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\audit_report.md",
+        "role": "audit artifact",
+        "sha256": "beef5cc884fb92b1cc38811bb741ad902f86987229d5886b75bd8ac303e23206"
+      },
+      {
+        "bytes": 5008,
+        "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\validation_report.json",
+        "role": "validation report",
+        "sha256": "8a08f66b19bdacc54790d6042ab4eb2d74b118ebd44e7c3a6e3f2511478f5da9"
+      }
+    ],
+    "json_schema_checked": true,
+    "pairwise_channel_status": "not_available",
+    "schema": "d6-space-field-column-channel-audit-validation/v1",
+    "scope_audit_checked": true,
+    "source_sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+    "status": "pass",
+    "temporary_reproduction_checked": {
+      "audit_report.md": {
+        "identical": true,
+        "main_sha256": "beef5cc884fb92b1cc38811bb741ad902f86987229d5886b75bd8ac303e23206",
+        "temporary_sha256": "beef5cc884fb92b1cc38811bb741ad902f86987229d5886b75bd8ac303e23206"
+      },
+      "fixture_results.json": {
+        "identical": true,
+        "main_sha256": "f22b870de038329b91fe0db540697ae4a362a97cf4fce650104f9d70f72689eb",
+        "temporary_sha256": "f22b870de038329b91fe0db540697ae4a362a97cf4fce650104f9d70f72689eb"
+      },
+      "git_scope_audit.json": {
+        "identical": true,
+        "main_sha256": "fc58f59fac68b1a327db2706ad72f46b86692116cf4f15b0b84b69714c4ff3ad",
+        "temporary_sha256": "fc58f59fac68b1a327db2706ad72f46b86692116cf4f15b0b84b69714c4ff3ad"
+      },
+      "json_schema.json": {
+        "identical": true,
+        "main_sha256": "b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62",
+        "temporary_sha256": "b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62"
+      },
+      "provenance.json": {
+        "identical": true,
+        "main_sha256": "677e491de469646466bd2987e10490957959148e113c8cec6f1dd9ee9c28eb24",
+        "temporary_sha256": "677e491de469646466bd2987e10490957959148e113c8cec6f1dd9ee9c28eb24"
+      },
+      "real_ifc_audit.json": {
+        "identical": true,
+        "main_sha256": "f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31",
+        "temporary_sha256": "f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31"
+      },
+      "scope_audit.json": {
+        "identical": true,
+        "main_sha256": "a11c456b4221e8cebe350394e891c1df4a447c7dd3a98d5c5d5720ae4c62942c",
+        "temporary_sha256": "a11c456b4221e8cebe350394e891c1df4a447c7dd3a98d5c5d5720ae4c62942c"
+      },
+      "updated_diagnostic.json": {
+        "identical": true,
+        "main_sha256": "47d82c5d2cc674e46ff74d060f429bf89900fbe38a934f64ddfab1b659b7a2ed",
+        "temporary_sha256": "47d82c5d2cc674e46ff74d060f429bf89900fbe38a934f64ddfab1b659b7a2ed"
+      }
+    }
+  },
+  "commands": {
+    "default_run": "pixi run python run_column_channel_audit.py --output .",
+    "temporary_reproduction": "pixi run python run_column_channel_audit.py --output tmp_reproduction_20261003",
+    "validation": "pixi run python validate_column_channel_audit.py"
+  },
+  "files": [
+    {
+      "bytes": 2681,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\audit_report.md",
+      "role": "audit artifact",
+      "sha256": "beef5cc884fb92b1cc38811bb741ad902f86987229d5886b75bd8ac303e23206"
+    },
+    {
+      "bytes": 106114,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\fixture_results.json",
+      "role": "audit artifact",
+      "sha256": "f22b870de038329b91fe0db540697ae4a362a97cf4fce650104f9d70f72689eb"
+    },
+    {
+      "bytes": 586,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\git_scope_audit.json",
+      "role": "audit artifact",
+      "sha256": "fc58f59fac68b1a327db2706ad72f46b86692116cf4f15b0b84b69714c4ff3ad"
+    },
+    {
+      "bytes": 410,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\json_schema.json",
+      "role": "audit artifact",
+      "sha256": "b8102211eaf99b6a992feeef0ce8c4567b040fba14bdeb8638c59117f8521e62"
+    },
+    {
+      "bytes": 1759,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\provenance.json",
+      "role": "audit artifact",
+      "sha256": "677e491de469646466bd2987e10490957959148e113c8cec6f1dd9ee9c28eb24"
+    },
+    {
+      "bytes": 21782,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\real_ifc_audit.json",
+      "role": "audit artifact",
+      "sha256": "f043537b61a2d2a2a7cd5e6727e9714a920cd6b0c13ec544d0ed51667c1c2e31"
+    },
+    {
+      "bytes": 808,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\scope_audit.json",
+      "role": "audit artifact",
+      "sha256": "a11c456b4221e8cebe350394e891c1df4a447c7dd3a98d5c5d5720ae4c62942c"
+    },
+    {
+      "bytes": 135419,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\updated_diagnostic.json",
+      "role": "audit artifact",
+      "sha256": "47d82c5d2cc674e46ff74d060f429bf89900fbe38a934f64ddfab1b659b7a2ed"
+    },
+    {
+      "bytes": 5008,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit\\validation_report.json",
+      "role": "validation report",
+      "sha256": "8a08f66b19bdacc54790d6042ab4eb2d74b118ebd44e7c3a6e3f2511478f5da9"
+    }
+  ],
+  "manifest_self_hash_excluded": true,
+  "output_directory": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v2_column_channel_audit",
+  "schema": "d6-space-field-column-channel-audit-manifest/v1",
+  "source_ifc": {
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  }
+}

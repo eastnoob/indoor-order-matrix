@@ -137,6 +137,7 @@ def mass_patch_from_mesh(mesh: MeshGeometry3D) -> MassPatch:
             "method": "mesh_geometry_transport",
             "source_representation_id": mesh.source_representation_id,
             "units": mesh.units,
+            "world_transform_applied": mesh.local_to_world_provenance.get("world_transform_applied"),
         },
     )
 

@@ -1,0 +1,360 @@
+{
+  "checks": {
+    "current_blender_observation": {
+      "basis": "existing live Blender inspection retained in source_summary.json",
+      "observed": true,
+      "portable_blender_for_disposable_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe",
+      "source_path_match": true,
+      "this_experiment_opened_current_blender": false
+    },
+    "disposable_blend_readback_checked": true,
+    "json_schema_checked": true,
+    "png_records": [
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "hard_1_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "hard_2_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "hard_3_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "hard_4_regions.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "soft_field_diagnostic.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "empty_space_diagnostic.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "before_furniture_only.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "before_after_comparison.png",
+        "size": [
+          2400,
+          1200
+        ]
+      },
+      {
+        "content_bbox": [
+          0,
+          0,
+          2400,
+          1200
+        ],
+        "mode": "RGBA",
+        "name": "boundary_evidence.png",
+        "size": [
+          2400,
+          1200
+        ]
+      }
+    ],
+    "png_render_and_crop_checked": true,
+    "production_code_and_formal_tests_modified": false,
+    "schema": "d6-space-field-boundary-repair-validation/v1",
+    "source_sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+    "status": "pass",
+    "temporary_reproduction_checked": {
+      "before_after_comparison.json": {
+        "identical": true,
+        "main_sha256": "5a9f581f772f3298032cdd37619b0c5a936e4d8e65086a7ab7017dabc494f2b7",
+        "temporary_sha256": "5a9f581f772f3298032cdd37619b0c5a936e4d8e65086a7ab7017dabc494f2b7"
+      },
+      "boundary_repair_candidates.json": {
+        "identical": true,
+        "main_sha256": "44385072ca5d0479d017a1056f772a6cc35e9384afe1d56a290675d6d5efe357",
+        "temporary_sha256": "44385072ca5d0479d017a1056f772a6cc35e9384afe1d56a290675d6d5efe357"
+      },
+      "empty_space_candidates.json": {
+        "identical": true,
+        "main_sha256": "864d17b6a6e2ca8b372431e0ef87e37847292e4498e1bf3fdef234112b638d7d",
+        "temporary_sha256": "864d17b6a6e2ca8b372431e0ef87e37847292e4498e1bf3fdef234112b638d7d"
+      },
+      "minimal_cases.json": {
+        "identical": true,
+        "main_sha256": "e1d14f02c4e40b2c02aa6fc115a9849b490db66b1425efb29ef24a26ec6d3a9f",
+        "temporary_sha256": "e1d14f02c4e40b2c02aa6fc115a9849b490db66b1425efb29ef24a26ec6d3a9f"
+      },
+      "soft_field_candidates.json": {
+        "identical": true,
+        "main_sha256": "852d2b973a814d010f79021a1b37d8ec1f428575d31a232a562ccababa157349",
+        "temporary_sha256": "852d2b973a814d010f79021a1b37d8ec1f428575d31a232a562ccababa157349"
+      }
+    },
+    "unrelated_full_test_suite_run": false
+  },
+  "commands": {
+    "blend_readback": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe -b --factory-startup d6_soft_field_boundary_repair_v1_disposable.blend --python inspect_boundary_repair_blend.py",
+    "blender_render": "D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe -b --factory-startup --python render_boundary_repair_blender.py",
+    "default_run": "pixi run python outputs/design/space_field_soft_field_experiment/repair_v1/run_boundary_repair.py --output repair_v1",
+    "temporary_reproduction": "pixi run python run_boundary_repair.py --output tmp_reproduction_20261002_a",
+    "validation": "pixi run python validate_boundary_repair.py"
+  },
+  "current_blender_scene": {
+    "disposable_preview_process": "portable Blender --background",
+    "observed": true,
+    "source_path_match": true,
+    "this_experiment_opened_current_blender": false,
+    "user_file_modified": false
+  },
+  "files": [
+    {
+      "bytes": 998,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\before_after_comparison.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "5a9f581f772f3298032cdd37619b0c5a936e4d8e65086a7ab7017dabc494f2b7"
+    },
+    {
+      "bytes": 3050800,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\before_after_comparison.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "5dd2e6a535691f02500c5cb6162253e68b8c27e5276f12219c6d5ed376aa6f3e"
+    },
+    {
+      "bytes": 3066865,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\before_furniture_only.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "a2ace8a1d15f87a2b1d8c25915d4e8d31bf194f6db52a890d80927f1335bb228"
+    },
+    {
+      "bytes": 3955,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\blend_readback.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "0836e7af0ae60ff3d2b26297929085c92fed6027d38a2a619b426a68141e7bea"
+    },
+    {
+      "bytes": 2438,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\blender_render_checks.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "35a74090a623dfa303e443c4e697449b805dfe68f88cf797b672bd7b18cbbb65"
+    },
+    {
+      "bytes": 2330924,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\boundary_evidence.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "19a0f18a932da38ed496d4f4df26fbfce03203bf848cc06cbee2265286a47fdb"
+    },
+    {
+      "bytes": 85668,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\boundary_repair_candidates.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "44385072ca5d0479d017a1056f772a6cc35e9384afe1d56a290675d6d5efe357"
+    },
+    {
+      "bytes": 2600535,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\d6_soft_field_boundary_repair_v1_disposable.blend",
+      "role": "disposable Blender scenes",
+      "sha256": "05e299386787ac93856ea503e70f3d6d21621b51b062a1bc7d861012b685c80b"
+    },
+    {
+      "bytes": 1330260,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\empty_space_candidates.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "864d17b6a6e2ca8b372431e0ef87e37847292e4498e1bf3fdef234112b638d7d"
+    },
+    {
+      "bytes": 3041104,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\empty_space_diagnostic.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "b88507a84806f0ea699e70b285402640d0e18a6186313ef6cad8b1180bb8a79b"
+    },
+    {
+      "bytes": 2390170,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\hard_1_regions.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "fd39b1f8faee409aaf1d4cafe03b6ee98cb300e13f09f44c87bc14e23a00089b"
+    },
+    {
+      "bytes": 2386184,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\hard_2_regions.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "fb12688973ef05396883dceb907a6f5121a73f053b2ed6cd709dfdafc5ca95ca"
+    },
+    {
+      "bytes": 2388040,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\hard_3_regions.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "76a4da21f77245784fa86bbbe769904348c07e3a6accdf578f754a18b5864cf2"
+    },
+    {
+      "bytes": 2390220,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\hard_4_regions.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "57a69dc99c68941f947598f530a855cf1715aa996460fdadf7ceedc33b655190"
+    },
+    {
+      "bytes": 2194,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\inspect_boundary_repair_blend.py",
+      "role": "experiment source script",
+      "sha256": "261c6b28bac353c83cc1cc5fc7ecc3f8fb09a5d9aade9ceee438f56bc9396db0"
+    },
+    {
+      "bytes": 758,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\json_schema.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "ab782b84b84baf3ba073d74a14b7babdc4559271fa4768862a53300236db707c"
+    },
+    {
+      "bytes": 1841,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\minimal_cases.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "e1d14f02c4e40b2c02aa6fc115a9849b490db66b1425efb29ef24a26ec6d3a9f"
+    },
+    {
+      "bytes": 1920,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\provenance.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "d390fe8c1bdd5b93a6465d72fcba3228c450b6ab6dfdc12226082404a6081b11"
+    },
+    {
+      "bytes": 25853,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\render_boundary_repair_blender.py",
+      "role": "experiment source script",
+      "sha256": "d6ded5d978d8b0cf2b148bdb675803110db0f24bb08beacb8692d29d850c1267"
+    },
+    {
+      "bytes": 3216228,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\render_input.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "87581be48135f0b4809ff4a69f93f564497bdff6f9092be1e4e0bcb8a9c50167"
+    },
+    {
+      "bytes": 35983,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\run_boundary_repair.py",
+      "role": "experiment source script",
+      "sha256": "eb14b7e175b7c3d6184924c6e17ea794fced5c330b99248871fc391835e45f24"
+    },
+    {
+      "bytes": 2184,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\scope_audit.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "d528aeab1902c33d3ca71b80be2fb7822f8f4b5f7cba18087b866163e8f284fd"
+    },
+    {
+      "bytes": 967898,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\soft_field_candidates.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "852d2b973a814d010f79021a1b37d8ec1f428575d31a232a562ccababa157349"
+    },
+    {
+      "bytes": 2961607,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\soft_field_diagnostic.png",
+      "role": "Blender top-down owner-view PNG",
+      "sha256": "7dba013707b5a89d7568b35fbe5bc77087ab4636f3be1fd008e1f4f2bb42be91"
+    },
+    {
+      "bytes": 8355,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\validate_boundary_repair.py",
+      "role": "experiment source script",
+      "sha256": "3c6912d86a11e0f9e0d2d0d80c58b299ede2529f6f9d1c5eac745edbecbf64a4"
+    },
+    {
+      "bytes": 4072,
+      "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\validation_report.json",
+      "role": "experiment JSON or validation record",
+      "sha256": "7a1ca34b56db264e637203607d33f50d06ad9fa6999d56512e3c6cc4ecacc5d3"
+    }
+  ],
+  "manifest_self_hash_excluded": true,
+  "output_directory": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1",
+  "repair_scope": {
+    "column_rows": "unselected virtual separation clue; no gap filling or topology cut",
+    "columns": "all eligible columns are candidate boundary sources, internal obstacles, and arrangement references",
+    "empty_space": "independent empty_space_field diagnostic; no furniture membership rewrite",
+    "walls": "external enclosure boundary evidence and physical occupancy"
+  },
+  "schema": "d6-space-field-boundary-repair-artifact-manifest/v1",
+  "source_ifc": {
+    "bytes": 408617800,
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240"
+  }
+}

@@ -41,9 +41,16 @@ Short Chinese annotations are allowed when they improve communication, but they 
 ## Project Memory
 
 For layout-matrix work, read `docs/indoor_layout_evaluation_matrix_architecture_memory.md` first.
+Then read `docs/software-architecture.md` before any project work. Use it to decide what to write, how to write it, and where it belongs. If the architecture map is incomplete or stale, inspect the actual code, tests, fixtures, configuration, and exports and update the map before proceeding. Keep architecture changes and code changes synchronized; never use an old diagram to conceal implementation drift.
 Read `docs/room_analysis_model_development_standard.md` when adding model layers or metrics.
 Read `docs/room_analysis_model_interface.md` only when changing the exported `room_analysis_model` shape.
 Use `docs/indoor_layout_evaluation_matrix_task_status.md` only as a history ledger; do not load it by default for ordinary feature work.
+
+## Version and Workspace Management
+
+Prefer **Jujutsu (`jj`)** for all future project version and workspace management, including delegated work. Prefer **`jj workspace`** over Git worktrees for isolated/parallel working copies, and use **`jj git push`** for remote pushes when available. Prefer jj for changes/checkpoints, bookmarks, history, integration and recovery. If jj is unavailable or cannot perform the required operation, Git commands and Git worktrees are allowed fallbacks: briefly record the concrete reason and preserve consistent working-copy/history state. Do not block authorized work solely because jj cannot perform it.
+
+Follow the durable rule in `docs/indoor_layout_evaluation_matrix_architecture_memory.md` (jj-first Version and Workspace Management), including installed-command verification, `jj --ignore-working-copy` for read-only inspection, preservation of unrelated dirty work and existing version-writer/push/merge authorization boundaries. This overrides older Git-first instructions and absolute Git bans; Pixi continues to manage the development environment.
 
 ## Architecture
 

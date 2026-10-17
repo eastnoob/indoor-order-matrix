@@ -1,0 +1,540 @@
+{
+  "analysis_nodes": {
+    "group_count": 37,
+    "member_count": 95,
+    "members_are_not_split": true,
+    "selection_rule": "exact ObjectType == \"furniture_group\""
+  },
+  "before_after_reference": {
+    "after": {
+      "component_count": 5,
+      "free_area_m2": 326.5176909190218,
+      "label": "repair_v1 walls + eligible columns + declared furniture geometry",
+      "local_width_p50_m": 1.003333333333332,
+      "occupancy_sources": [
+        "valid physical wall geometry",
+        "eligible IfcColumn geometry",
+        "declared furniture_group geometry"
+      ]
+    },
+    "before": {
+      "artifact_preserved": true,
+      "component_count": 1,
+      "free_area_m2": 355.8844144265577,
+      "label": "run_001 furniture-only empty-space diagnostic",
+      "local_width_p50_m": 3.4244381562781934,
+      "occupancy_sources": [
+        "declared furniture_group geometry"
+      ]
+    },
+    "delta": {
+      "component_count": 4,
+      "free_area_m2": -29.366723507535937,
+      "local_width_p50_m": -2.4211048229448613
+    },
+    "interpretation": "physical obstacles reduce the bounded complement; no route or walkability meaning is assigned",
+    "schema": "d6-space-field-boundary-repair-before-after/v1"
+  },
+  "candidate_summaries": {
+    "candidate:baseline:one_region": {
+      "column_effect_on_empty_space": "computed",
+      "column_effect_on_furniture_hard_partition": "columns_affect_empty_space_but_not_furniture_hard_partition_under_current_recipe",
+      "column_effect_on_pairwise_channel": "not_available",
+      "cut_edge_sets_identical": true,
+      "cut_edge_sorting_changed": false,
+      "disappeared_candidates": [],
+      "hard_partition_change_status": "not_computable",
+      "hard_partition_under_current_furniture_only_recipe": "unchanged",
+      "legacy_boolean_interpretation": "the earlier false value did not prove columns cannot alter a future selector",
+      "membership_sets_identical": true,
+      "new_candidates": [],
+      "only_diagnostic_evidence_changed": true,
+      "region_counts": {
+        "A_furniture_only": 1,
+        "B_wall_aware": 1,
+        "C_wall_plus_column_aware": 1
+      },
+      "selector_status": "deferred",
+      "wall_only_effect": "evidence_attached_without_selector_effect",
+      "wall_plus_column_effect": "evidence_attached_without_selector_effect"
+    },
+    "candidate:mst_gap_cut:2_regions": {
+      "column_effect_on_empty_space": "computed",
+      "column_effect_on_furniture_hard_partition": "columns_affect_empty_space_but_not_furniture_hard_partition_under_current_recipe",
+      "column_effect_on_pairwise_channel": "not_available",
+      "cut_edge_sets_identical": true,
+      "cut_edge_sorting_changed": false,
+      "disappeared_candidates": [],
+      "hard_partition_change_status": "not_computable",
+      "hard_partition_under_current_furniture_only_recipe": "unchanged",
+      "legacy_boolean_interpretation": "the earlier false value did not prove columns cannot alter a future selector",
+      "membership_sets_identical": true,
+      "new_candidates": [],
+      "only_diagnostic_evidence_changed": true,
+      "region_counts": {
+        "A_furniture_only": 2,
+        "B_wall_aware": 2,
+        "C_wall_plus_column_aware": 2
+      },
+      "selector_status": "deferred",
+      "wall_only_effect": "evidence_attached_without_selector_effect",
+      "wall_plus_column_effect": "evidence_attached_without_selector_effect"
+    },
+    "candidate:mst_gap_cut:3_regions": {
+      "column_effect_on_empty_space": "computed",
+      "column_effect_on_furniture_hard_partition": "columns_affect_empty_space_but_not_furniture_hard_partition_under_current_recipe",
+      "column_effect_on_pairwise_channel": "not_available",
+      "cut_edge_sets_identical": true,
+      "cut_edge_sorting_changed": false,
+      "disappeared_candidates": [],
+      "hard_partition_change_status": "not_computable",
+      "hard_partition_under_current_furniture_only_recipe": "unchanged",
+      "legacy_boolean_interpretation": "the earlier false value did not prove columns cannot alter a future selector",
+      "membership_sets_identical": true,
+      "new_candidates": [],
+      "only_diagnostic_evidence_changed": true,
+      "region_counts": {
+        "A_furniture_only": 3,
+        "B_wall_aware": 3,
+        "C_wall_plus_column_aware": 3
+      },
+      "selector_status": "deferred",
+      "wall_only_effect": "evidence_attached_without_selector_effect",
+      "wall_plus_column_effect": "evidence_attached_without_selector_effect"
+    },
+    "candidate:mst_gap_cut:4_regions": {
+      "column_effect_on_empty_space": "computed",
+      "column_effect_on_furniture_hard_partition": "columns_affect_empty_space_but_not_furniture_hard_partition_under_current_recipe",
+      "column_effect_on_pairwise_channel": "not_available",
+      "cut_edge_sets_identical": true,
+      "cut_edge_sorting_changed": false,
+      "disappeared_candidates": [],
+      "hard_partition_change_status": "not_computable",
+      "hard_partition_under_current_furniture_only_recipe": "unchanged",
+      "legacy_boolean_interpretation": "the earlier false value did not prove columns cannot alter a future selector",
+      "membership_sets_identical": true,
+      "new_candidates": [],
+      "only_diagnostic_evidence_changed": true,
+      "region_counts": {
+        "A_furniture_only": 4,
+        "B_wall_aware": 4,
+        "C_wall_plus_column_aware": 4
+      },
+      "selector_status": "deferred",
+      "wall_only_effect": "evidence_attached_without_selector_effect",
+      "wall_plus_column_effect": "evidence_attached_without_selector_effect"
+    }
+  },
+  "global_answer": {
+    "A_furniture_partition_reused_by_B_and_C": true,
+    "B_wall_selector_status": "deferred",
+    "C_wall_plus_column_selector_status": "deferred",
+    "column_effect_on_empty_space": "computed",
+    "column_effect_on_pairwise_channel": "not_available",
+    "columns_change_hard_partition": null,
+    "cut_edge_sorting_changed_under_current_recipe": false,
+    "diagnostic_only_results": [
+      "free area",
+      "connected component count",
+      "global local_width_proxy",
+      "relative bottleneck samples",
+      "existing pairwise boundary gaps",
+      "wall/column source profiles"
+    ],
+    "furniture_relation_graph_and_obstacle_boundary_graph_separate": true,
+    "hard_partition_change_status": "not_computable",
+    "hard_partition_under_current_furniture_only_recipe": "unchanged",
+    "interpretation": "The current furniture-only recipe is structurally unchanged; a future boundary/obstacle-aware selector is not computable from this audit.",
+    "membership_changed_under_current_recipe": false,
+    "pairwise_channel_metric": "not_available"
+  },
+  "input_audit": {
+    "before_after_comparison": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\before_after_comparison.json",
+    "empty_space_candidates": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1\\empty_space_candidates.json",
+    "hard_column_comparison": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\space_field_soft_field_experiment\\repair_v1_hard_column_comparison\\hard_column_comparison.json"
+  },
+  "legacy_payload_scope_preserved": {
+    "bayesian_or_ml": false,
+    "column_rows_create_virtual_walls": false,
+    "columns_join_furniture_membership": false,
+    "columns_replace_pairwise_furniture_relations": false,
+    "empty_space_component_count_equals_furniture_region_count": false,
+    "fixed_metre_threshold": false,
+    "production_selector_selected": false
+  },
+  "legacy_result_preserved_for_traceability": {
+    "answer_status": "computed_structural_comparison_with_selector_effect_deferred",
+    "columns_affect_empty_space_but_not_furniture_hard_partition_under_current_recipe": true,
+    "columns_change_hard_partition": false,
+    "cut_edge_sorting_changed": false,
+    "diagnostic_only_results": [
+      "wall/column distance profiles per cut",
+      "empty-space occupancy change",
+      "column-line clue",
+      "relative evidence ranks"
+    ],
+    "future_selector_choice": "deferred; keep furniture relation graph and boundary/obstacle evidence graph separate until owner accepts a selector",
+    "hard_partition_still_uses_furniture_group_relations": true,
+    "membership_changed": false,
+    "only_auxiliary_evidence_changed": true
+  },
+  "metrics": {
+    "furniture_only": {
+      "bottleneck_evidence": {
+        "definition": "lowest relative-clearance display samples",
+        "lowest_samples": [
+          {
+            "clearance_proxy_m": 0.0013058771224592515,
+            "relative_clearance": 0.0007626810956215529,
+            "x_m": 13.777777777777782,
+            "y_m": 9.765000000000004
+          },
+          {
+            "clearance_proxy_m": 0.001660455627862409,
+            "relative_clearance": 0.0009697682084392225,
+            "x_m": 16.90666666666667,
+            "y_m": 8.738333333333339
+          },
+          {
+            "clearance_proxy_m": 0.003744739123717504,
+            "relative_clearance": 0.0021870677482389847,
+            "x_m": 20.035555555555558,
+            "y_m": 10.278333333333336
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.003255045318442267,
+            "x_m": 19.644444444444446,
+            "y_m": 1.038333333333353
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.003255045318442267,
+            "x_m": 19.644444444444446,
+            "y_m": 1.2950000000000195
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.003255045318442267,
+            "x_m": 19.644444444444446,
+            "y_m": 1.5516666666666854
+          },
+          {
+            "clearance_proxy_m": 0.00765013766190198,
+            "relative_clearance": 0.004467966605194257,
+            "x_m": 22.773333333333337,
+            "y_m": 9.251666666666672
+          },
+          {
+            "clearance_proxy_m": 0.008504132743515485,
+            "relative_clearance": 0.004966731682932824,
+            "x_m": 16.515555555555558,
+            "y_m": 7.455000000000008
+          },
+          {
+            "clearance_proxy_m": 0.008634513804924623,
+            "relative_clearance": 0.005042879100674975,
+            "x_m": 18.471111111111114,
+            "y_m": 6.1716666666666775
+          },
+          {
+            "clearance_proxy_m": 0.009048537138606445,
+            "relative_clearance": 0.005284684217185999,
+            "x_m": 20.42666666666667,
+            "y_m": 9.508333333333338
+          },
+          {
+            "clearance_proxy_m": 0.012161775550364136,
+            "relative_clearance": 0.007102931923630944,
+            "x_m": 22.773333333333337,
+            "y_m": 5.658333333333346
+          },
+          {
+            "clearance_proxy_m": 0.012612682656254324,
+            "relative_clearance": 0.007366278543025146,
+            "x_m": 18.080000000000002,
+            "y_m": 7.711666666666676
+          }
+        ],
+        "relative_rank_only": true,
+        "sample_count": 3544
+      },
+      "component_count": 1,
+      "free_area_m2": 355.8844144265577,
+      "local_width_proxy": {
+        "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+        "max": 24.770945295273957,
+        "min": 0.002611754244918503,
+        "p10": 0.49872989908850074,
+        "p50": 3.4244381562781934,
+        "p90": 19.318995008680552,
+        "semantic_limit": "relative local width evidence; not route width or walkability",
+        "unit": "m"
+      }
+    },
+    "stage_deltas": {
+      "columns_minus_wall": {
+        "component_count": 2,
+        "free_area_m2": -5.7599999999997635,
+        "local_width_p50_m": -0.03728038194444849
+      },
+      "wall_minus_furniture": {
+        "component_count": 2,
+        "free_area_m2": -23.606723507536174,
+        "local_width_p50_m": -2.383824441000413
+      }
+    },
+    "wall_aware": {
+      "bottleneck_evidence": {
+        "definition": "lowest relative-clearance display samples",
+        "lowest_samples": [
+          {
+            "clearance_proxy_m": 0.0013058771224592515,
+            "relative_clearance": 0.0025098210859361234,
+            "x_m": 13.777777777777782,
+            "y_m": 9.765000000000004
+          },
+          {
+            "clearance_proxy_m": 0.001660455627862409,
+            "relative_clearance": 0.0031913006785984333,
+            "x_m": 16.90666666666667,
+            "y_m": 8.738333333333339
+          },
+          {
+            "clearance_proxy_m": 0.003744739123717504,
+            "relative_clearance": 0.007197174261186605,
+            "x_m": 20.035555555555558,
+            "y_m": 10.278333333333336
+          },
+          {
+            "clearance_proxy_m": 0.005465943945017491,
+            "relative_clearance": 0.010505231412519711,
+            "x_m": 9.475555555555559,
+            "y_m": 0.26833333333335463
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.010711661037364774,
+            "x_m": 19.644444444444446,
+            "y_m": 1.038333333333353
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.010711661037364774,
+            "x_m": 19.644444444444446,
+            "y_m": 1.2950000000000195
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.010711661037364774,
+            "x_m": 19.644444444444446,
+            "y_m": 1.5516666666666854
+          },
+          {
+            "clearance_proxy_m": 0.00765013766190198,
+            "relative_clearance": 0.014703126721446023,
+            "x_m": 22.773333333333337,
+            "y_m": 9.251666666666672
+          },
+          {
+            "clearance_proxy_m": 0.008504132743515485,
+            "relative_clearance": 0.016344456388882784,
+            "x_m": 16.515555555555558,
+            "y_m": 7.455000000000008
+          },
+          {
+            "clearance_proxy_m": 0.008634513804924623,
+            "relative_clearance": 0.016595041326396,
+            "x_m": 18.471111111111114,
+            "y_m": 6.1716666666666775
+          },
+          {
+            "clearance_proxy_m": 0.009048537138606445,
+            "relative_clearance": 0.01739077047661444,
+            "x_m": 20.42666666666667,
+            "y_m": 9.508333333333338
+          },
+          {
+            "clearance_proxy_m": 0.009635269944318962,
+            "relative_clearance": 0.018518437346843792,
+            "x_m": 22.773333333333337,
+            "y_m": 9.508333333333338
+          }
+        ],
+        "relative_rank_only": true,
+        "sample_count": 3233
+      },
+      "component_count": 3,
+      "free_area_m2": 332.27769091902155,
+      "local_width_proxy": {
+        "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+        "max": 9.99071756394491,
+        "min": 0.002611754244918503,
+        "p10": 0.23666666666665392,
+        "p50": 1.0406137152777806,
+        "p90": 3.488888888888889,
+        "semantic_limit": "relative local width evidence; not route width or walkability",
+        "unit": "m"
+      }
+    },
+    "wall_plus_column_aware": {
+      "bottleneck_evidence": {
+        "definition": "lowest relative-clearance display samples",
+        "lowest_samples": [
+          {
+            "clearance_proxy_m": 0.0013058771224592515,
+            "relative_clearance": 0.0026030773205167838,
+            "x_m": 13.777777777777782,
+            "y_m": 9.765000000000004
+          },
+          {
+            "clearance_proxy_m": 0.001660455627862409,
+            "relative_clearance": 0.0033098783279649387,
+            "x_m": 16.90666666666667,
+            "y_m": 8.738333333333339
+          },
+          {
+            "clearance_proxy_m": 0.003744739123717504,
+            "relative_clearance": 0.007464596259902011,
+            "x_m": 20.035555555555558,
+            "y_m": 10.278333333333336
+          },
+          {
+            "clearance_proxy_m": 0.005465943945017491,
+            "relative_clearance": 0.010895569325616276,
+            "x_m": 9.475555555555559,
+            "y_m": 0.26833333333335463
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.011109669158360548,
+            "x_m": 19.644444444444446,
+            "y_m": 1.038333333333353
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.011109669158360548,
+            "x_m": 19.644444444444446,
+            "y_m": 1.2950000000000195
+          },
+          {
+            "clearance_proxy_m": 0.005573350694444201,
+            "relative_clearance": 0.011109669158360548,
+            "x_m": 19.644444444444446,
+            "y_m": 1.5516666666666854
+          },
+          {
+            "clearance_proxy_m": 0.00765013766190198,
+            "relative_clearance": 0.015249443844322903,
+            "x_m": 22.773333333333337,
+            "y_m": 9.251666666666672
+          },
+          {
+            "clearance_proxy_m": 0.008504132743515485,
+            "relative_clearance": 0.01695175962162557,
+            "x_m": 16.515555555555558,
+            "y_m": 7.455000000000008
+          },
+          {
+            "clearance_proxy_m": 0.008634513804924623,
+            "relative_clearance": 0.017211655425098938,
+            "x_m": 18.471111111111114,
+            "y_m": 6.1716666666666775
+          },
+          {
+            "clearance_proxy_m": 0.009048537138606445,
+            "relative_clearance": 0.018036951106856724,
+            "x_m": 20.42666666666667,
+            "y_m": 9.508333333333338
+          },
+          {
+            "clearance_proxy_m": 0.009635269944318962,
+            "relative_clearance": 0.01920651816143317,
+            "x_m": 22.773333333333337,
+            "y_m": 9.508333333333338
+          }
+        ],
+        "relative_rank_only": true,
+        "sample_count": 3163
+      },
+      "component_count": 5,
+      "free_area_m2": 326.5176909190218,
+      "local_width_proxy": {
+        "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+        "max": 9.99071756394491,
+        "min": 0.002611754244918503,
+        "p10": 0.2246362323327098,
+        "p50": 1.003333333333332,
+        "p90": 3.488888888888889,
+        "semantic_limit": "relative local width evidence; not route width or walkability",
+        "unit": "m"
+      }
+    }
+  },
+  "occupancy_audit": {
+    "after_uses_declared_furniture_group_geometry": true,
+    "after_uses_eligible_level_1_ifc_column_geometry": true,
+    "after_uses_valid_physical_wall_geometry": true,
+    "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy and _eligible_columns",
+    "invalid_missing_different_level_silent_inclusion": false,
+    "real_column_inventory": {
+      "eligible": 16,
+      "excluded": 0,
+      "exclusion_records": [],
+      "single_storey_source": true,
+      "total": 16
+    },
+    "union_prevents_duplicate_overlap_deduction": {
+      "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+      "overlap_area_removed_m2": 2.382895019081843e-06,
+      "raw_area_sum_m2": 63.927266688482206,
+      "source_count": 64,
+      "union_area_m2": 63.92726430558719,
+      "uses_union_before_frame_difference": true
+    }
+  },
+  "pairwise_vs_global": {
+    "global_empty_space_field": "computed",
+    "pairwise_boundary_gap": "computed only for existing furniture relation/cut records",
+    "pairwise_channel_free_space_profile": "not_available",
+    "route_width_walkability_true_traversal": "not_computable"
+  },
+  "schema": "d6-space-field-column-channel-audit-real-ifc/v1",
+  "source_ifc": {
+    "bytes": 408617800,
+    "counts": {
+      "IfcBuildingStorey": 1,
+      "IfcDoor": 6,
+      "IfcFurniture": 95,
+      "IfcGroup": 37,
+      "IfcOpeningElement": 0,
+      "IfcRelFillsElement": 0,
+      "IfcRelVoidsElement": 0,
+      "IfcSpace": 0,
+      "IfcWall": 11
+    },
+    "ifc_schema": "IFC4",
+    "path": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\full-rhino-ifc-2026-09-23\\live-rhino-10500-furniture-groups.ifc",
+    "sha256": "018fca31c0d5b0a952d74baa52cd7da56a4a1a36e6df2e5c5f070a0ca35a1240",
+    "units": {
+      "scale_to_metres": 0.001,
+      "token": "mm"
+    }
+  },
+  "variants": {
+    "A_furniture_only": {
+      "definition": "original hard_candidate_alignment.json; furniture-group relation evidence only",
+      "selector_status": "reused_existing_furniture_only_recipe"
+    },
+    "B_wall_aware": {
+      "definition": "A cuts plus separately recorded physical wall boundary evidence",
+      "not_computable": "no accepted boundary-aware selector",
+      "selector_status": "deferred"
+    },
+    "C_wall_plus_column_aware": {
+      "definition": "B evidence plus separately recorded eligible column obstacle evidence",
+      "not_computable": "no accepted boundary/obstacle-aware selector",
+      "selector_status": "deferred"
+    }
+  }
+}

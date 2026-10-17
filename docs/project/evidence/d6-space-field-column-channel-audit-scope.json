@@ -1,0 +1,25 @@
+{
+  "allowed": {
+    "deterministic_metrics": true,
+    "hard_column_comparison_read_only": true,
+    "repair_v1_read_only": true,
+    "synthetic_design_probe": true
+  },
+  "forbidden_or_not_selected": {
+    "adapter_modified": false,
+    "api_modified": false,
+    "bayesian_or_ml_selected": false,
+    "dependencies_modified": false,
+    "fixed_threshold_selected": false,
+    "formal_tests_modified": false,
+    "furniture_membership_rewritten": false,
+    "production_code_modified": false,
+    "production_selector_selected": false,
+    "route_width_selected": false,
+    "source_ifc_modified": false,
+    "space_role_selected": false,
+    "user_blender_file_modified": false,
+    "virtual_wall_selected": false
+  },
+  "schema": "d6-space-field-column-channel-audit-scope/v1"
+}

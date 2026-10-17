@@ -1,0 +1,3129 @@
+{
+  "fixtures": {
+    "column_near_group_gap_open": {
+      "before_after_empty_space": {
+        "after_stage": "wall_plus_eligible_columns",
+        "before_stage": "furniture_only",
+        "component_count_delta": 0,
+        "free_area_delta_m2": -0.29999999999999716,
+        "local_width_p50_delta_m": -0.09444152327099609
+      },
+      "column_effect_on_empty_space": "computed",
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "height_range": true,
+              "status_computed": true,
+              "target_level": true,
+              "valid_geometry": true,
+              "world_xy_geometry": true
+            },
+            "reason": "all recorded level/plane/height/geometry checks passed",
+            "source_id": "fixture:near_gap:c1",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:near_gap:c1",
+              "level": "Level 1"
+            },
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      },
+      "fixture_id": "column_near_group_gap_open",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 1,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 1,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "obstacle_union_sources": {
+        "columns_all": [
+          "fixture:near_gap:c1"
+        ],
+        "columns_eligible": [
+          "fixture:near_gap:c1"
+        ],
+        "columns_excluded": [],
+        "declared_furniture_groups": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_deduplication": {
+          "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+          "overlap_area_removed_m2": 0.0,
+          "raw_area_sum_m2": 2.3000000000000003,
+          "source_count": 3,
+          "union_area_m2": 2.3000000000000003,
+          "uses_union_before_frame_difference": true
+        },
+        "walls": []
+      },
+      "only_empty_space_evidence_changed": true,
+      "pairwise_channel_evidence": {
+        "not_inferred": [
+          "route width",
+          "walkability",
+          "true bottleneck width",
+          "real traversal capacity"
+        ],
+        "reason": "current design probe has no pairwise free-space profile, qualified AnalysisDomain, axis/path selector, or accepted channel rule",
+        "status": "not_available"
+      },
+      "pairwise_gap_evidence": {
+        "boundary_gap_m": 4.0,
+        "group_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "segment_xy_m": [
+          [
+            4.0,
+            4.0
+          ],
+          [
+            8.0,
+            4.0
+          ]
+        ],
+        "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+        "status": "computed_geometric_gap_only"
+      },
+      "provenance": {
+        "fixture_geometry": "column near the group gap while leaving an open diagonal passage",
+        "level_rule": "Level 1 only",
+        "source": "synthetic design probe"
+      },
+      "stages": {
+        "furniture_only": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_aware": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_plus_eligible_columns": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058823529411764705,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1498
+          },
+          "component_count": 1,
+          "free_area_m2": 93.7,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.25,
+            "p50": 4.25,
+            "p90": 6.839204631973578,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        }
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "column_overlaps_furniture": {
+      "before_after_empty_space": {
+        "after_stage": "wall_plus_eligible_columns",
+        "before_stage": "furniture_only",
+        "component_count_delta": 0,
+        "free_area_delta_m2": 0.0,
+        "local_width_p50_delta_m": 0.0
+      },
+      "column_effect_on_empty_space": "computed_no_net_change_after_union",
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "height_range": true,
+              "status_computed": true,
+              "target_level": true,
+              "valid_geometry": true,
+              "world_xy_geometry": true
+            },
+            "reason": "all recorded level/plane/height/geometry checks passed",
+            "source_id": "fixture:overlap:c1",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:overlap:c1",
+              "level": "Level 1"
+            },
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      },
+      "fixture_id": "column_overlaps_furniture",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 1,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 1,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "obstacle_union_sources": {
+        "columns_all": [
+          "fixture:overlap:c1"
+        ],
+        "columns_eligible": [
+          "fixture:overlap:c1"
+        ],
+        "columns_excluded": [],
+        "declared_furniture_groups": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_deduplication": {
+          "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+          "overlap_area_removed_m2": 0.2999999999999998,
+          "raw_area_sum_m2": 2.3,
+          "source_count": 3,
+          "union_area_m2": 2.0,
+          "uses_union_before_frame_difference": true
+        },
+        "walls": []
+      },
+      "only_empty_space_evidence_changed": true,
+      "pairwise_channel_evidence": {
+        "not_inferred": [
+          "route width",
+          "walkability",
+          "true bottleneck width",
+          "real traversal capacity"
+        ],
+        "reason": "current design probe has no pairwise free-space profile, qualified AnalysisDomain, axis/path selector, or accepted channel rule",
+        "status": "not_available"
+      },
+      "pairwise_gap_evidence": {
+        "boundary_gap_m": 4.0,
+        "group_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "segment_xy_m": [
+          [
+            4.0,
+            4.0
+          ],
+          [
+            8.0,
+            4.0
+          ]
+        ],
+        "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+        "status": "computed_geometric_gap_only"
+      },
+      "provenance": {
+        "fixture_geometry": "column footprint overlaps fixture:g1 and is unioned once",
+        "level_rule": "Level 1 only",
+        "source": "synthetic design probe"
+      },
+      "stages": {
+        "furniture_only": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_aware": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_plus_eligible_columns": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        }
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "column_row_open_gap": {
+      "before_after_empty_space": {
+        "after_stage": "wall_plus_eligible_columns",
+        "before_stage": "furniture_only",
+        "component_count_delta": 0,
+        "free_area_delta_m2": -0.8999999999999915,
+        "local_width_p50_delta_m": -0.08709493178939542
+      },
+      "column_effect_on_empty_space": "computed",
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "height_range": true,
+              "status_computed": true,
+              "target_level": true,
+              "valid_geometry": true,
+              "world_xy_geometry": true
+            },
+            "reason": "all recorded level/plane/height/geometry checks passed",
+            "source_id": "fixture:row:c1",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:row:c1",
+              "level": "Level 1"
+            },
+            "status": "eligible"
+          },
+          {
+            "checks": {
+              "height_range": true,
+              "status_computed": true,
+              "target_level": true,
+              "valid_geometry": true,
+              "world_xy_geometry": true
+            },
+            "reason": "all recorded level/plane/height/geometry checks passed",
+            "source_id": "fixture:row:c2",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:row:c2",
+              "level": "Level 1"
+            },
+            "status": "eligible"
+          },
+          {
+            "checks": {
+              "height_range": true,
+              "status_computed": true,
+              "target_level": true,
+              "valid_geometry": true,
+              "world_xy_geometry": true
+            },
+            "reason": "all recorded level/plane/height/geometry checks passed",
+            "source_id": "fixture:row:c3",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:row:c3",
+              "level": "Level 1"
+            },
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 3,
+        "excluded_count": 0
+      },
+      "fixture_id": "column_row_open_gap",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 1,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 1,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "obstacle_union_sources": {
+        "columns_all": [
+          "fixture:row:c1",
+          "fixture:row:c2",
+          "fixture:row:c3"
+        ],
+        "columns_eligible": [
+          "fixture:row:c1",
+          "fixture:row:c2",
+          "fixture:row:c3"
+        ],
+        "columns_excluded": [],
+        "declared_furniture_groups": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_deduplication": {
+          "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+          "overlap_area_removed_m2": 0.0,
+          "raw_area_sum_m2": 2.8999999999999995,
+          "source_count": 5,
+          "union_area_m2": 2.8999999999999995,
+          "uses_union_before_frame_difference": true
+        },
+        "walls": []
+      },
+      "only_empty_space_evidence_changed": true,
+      "pairwise_channel_evidence": {
+        "not_inferred": [
+          "route width",
+          "walkability",
+          "true bottleneck width",
+          "real traversal capacity"
+        ],
+        "reason": "current design probe has no pairwise free-space profile, qualified AnalysisDomain, axis/path selector, or accepted channel rule",
+        "status": "not_available"
+      },
+      "pairwise_gap_evidence": {
+        "boundary_gap_m": 4.0,
+        "group_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "segment_xy_m": [
+          [
+            4.0,
+            4.0
+          ],
+          [
+            8.0,
+            4.0
+          ]
+        ],
+        "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+        "status": "computed_geometric_gap_only"
+      },
+      "provenance": {
+        "fixture_geometry": "column row retains open gaps and is not a virtual wall",
+        "level_rule": "Level 1 only",
+        "source": "synthetic design probe"
+      },
+      "stages": {
+        "furniture_only": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_aware": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_plus_eligible_columns": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 4.625,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 4.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 6.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 6.375,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 7.625,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 4.625,
+                "y_m": 3.875
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 4.875,
+                "y_m": 3.875
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 6.125,
+                "y_m": 3.875
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 6.375,
+                "y_m": 3.875
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 7.625,
+                "y_m": 3.875
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 7.875,
+                "y_m": 3.875
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1492
+          },
+          "component_count": 1,
+          "free_area_m2": 93.10000000000001,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.15000000000000036,
+            "p10": 1.0606601717798212,
+            "p50": 4.257346591481601,
+            "p90": 7.1501748230375455,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        }
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "different_level_column": {
+      "before_after_empty_space": {
+        "after_stage": "wall_plus_eligible_columns",
+        "before_stage": "furniture_only",
+        "component_count_delta": 0,
+        "free_area_delta_m2": 0.0,
+        "local_width_p50_delta_m": 0.0
+      },
+      "column_effect_on_empty_space": "computed_no_eligible_columns",
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "height_range": false,
+              "status_computed": true,
+              "target_level": false,
+              "valid_geometry": true,
+              "world_xy_geometry": true
+            },
+            "reason": "one or more recorded eligibility checks failed",
+            "source_id": "fixture:level2:c1",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:level2:c1",
+              "level": "Level 2"
+            },
+            "status": "excluded"
+          }
+        ],
+        "eligible_count": 0,
+        "excluded_count": 1
+      },
+      "fixture_id": "different_level_column",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 1,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 1,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "obstacle_union_sources": {
+        "columns_all": [
+          "fixture:level2:c1"
+        ],
+        "columns_eligible": [],
+        "columns_excluded": [
+          "fixture:level2:c1"
+        ],
+        "declared_furniture_groups": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_deduplication": {
+          "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+          "overlap_area_removed_m2": 0.0,
+          "raw_area_sum_m2": 2.0,
+          "source_count": 2,
+          "union_area_m2": 2.0,
+          "uses_union_before_frame_difference": true
+        },
+        "walls": []
+      },
+      "only_empty_space_evidence_changed": true,
+      "pairwise_channel_evidence": {
+        "not_inferred": [
+          "route width",
+          "walkability",
+          "true bottleneck width",
+          "real traversal capacity"
+        ],
+        "reason": "current design probe has no pairwise free-space profile, qualified AnalysisDomain, axis/path selector, or accepted channel rule",
+        "status": "not_available"
+      },
+      "pairwise_gap_evidence": {
+        "boundary_gap_m": 4.0,
+        "group_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "segment_xy_m": [
+          [
+            4.0,
+            4.0
+          ],
+          [
+            8.0,
+            4.0
+          ]
+        ],
+        "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+        "status": "computed_geometric_gap_only"
+      },
+      "provenance": {
+        "fixture_geometry": "valid geometry on a non-target level is excluded",
+        "level_rule": "Level 1 only",
+        "source": "synthetic design probe"
+      },
+      "stages": {
+        "furniture_only": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_aware": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_plus_eligible_columns": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        }
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "internal_column": {
+      "before_after_empty_space": {
+        "after_stage": "wall_plus_eligible_columns",
+        "before_stage": "furniture_only",
+        "component_count_delta": 0,
+        "free_area_delta_m2": -0.29999999999999716,
+        "local_width_p50_delta_m": -0.08709493178939542
+      },
+      "column_effect_on_empty_space": "computed",
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "height_range": true,
+              "status_computed": true,
+              "target_level": true,
+              "valid_geometry": true,
+              "world_xy_geometry": true
+            },
+            "reason": "all recorded level/plane/height/geometry checks passed",
+            "source_id": "fixture:internal:c1",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:internal:c1",
+              "level": "Level 1"
+            },
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      },
+      "fixture_id": "internal_column",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 1,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 1,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "obstacle_union_sources": {
+        "columns_all": [
+          "fixture:internal:c1"
+        ],
+        "columns_eligible": [
+          "fixture:internal:c1"
+        ],
+        "columns_excluded": [],
+        "declared_furniture_groups": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_deduplication": {
+          "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+          "overlap_area_removed_m2": 0.0,
+          "raw_area_sum_m2": 2.3,
+          "source_count": 3,
+          "union_area_m2": 2.3,
+          "uses_union_before_frame_difference": true
+        },
+        "walls": []
+      },
+      "only_empty_space_evidence_changed": true,
+      "pairwise_channel_evidence": {
+        "not_inferred": [
+          "route width",
+          "walkability",
+          "true bottleneck width",
+          "real traversal capacity"
+        ],
+        "reason": "current design probe has no pairwise free-space profile, qualified AnalysisDomain, axis/path selector, or accepted channel rule",
+        "status": "not_available"
+      },
+      "pairwise_gap_evidence": {
+        "boundary_gap_m": 4.0,
+        "group_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "segment_xy_m": [
+          [
+            4.0,
+            4.0
+          ],
+          [
+            8.0,
+            4.0
+          ]
+        ],
+        "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+        "status": "computed_geometric_gap_only"
+      },
+      "provenance": {
+        "fixture_geometry": "interior column occupies part of the open field",
+        "level_rule": "Level 1 only",
+        "source": "synthetic design probe"
+      },
+      "stages": {
+        "furniture_only": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_aware": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_plus_eligible_columns": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 5.625,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 5.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 5.625,
+                "y_m": 3.875
+              },
+              {
+                "clearance_proxy_m": 0.07500000000000018,
+                "relative_clearance": 0.03523321317088229,
+                "x_m": 5.875,
+                "y_m": 3.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058722021951470346,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058722021951470346,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058722021951470346,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058722021951470346,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058722021951470346,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058722021951470346,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058722021951470346,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.058722021951470346,
+                "x_m": 8.875,
+                "y_m": 2.875
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1500
+          },
+          "component_count": 1,
+          "free_area_m2": 93.7,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.15000000000000036,
+            "p10": 1.25,
+            "p50": 4.257346591481601,
+            "p90": 7.1501748230375455,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        }
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "missing_invalid_column_geometry": {
+      "before_after_empty_space": {
+        "after_stage": "wall_plus_eligible_columns",
+        "before_stage": "furniture_only",
+        "component_count_delta": 0,
+        "free_area_delta_m2": 0.0,
+        "local_width_p50_delta_m": 0.0
+      },
+      "column_effect_on_empty_space": "computed_no_eligible_columns",
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "height_range": false,
+              "status_computed": false,
+              "target_level": true,
+              "valid_geometry": false,
+              "world_xy_geometry": false
+            },
+            "reason": "one or more recorded eligibility checks failed",
+            "source_id": "fixture:invalid:c1",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:invalid:c1",
+              "level": "Level 1"
+            },
+            "status": "excluded"
+          }
+        ],
+        "eligible_count": 0,
+        "excluded_count": 1
+      },
+      "fixture_id": "missing_invalid_column_geometry",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 1,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 1,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "obstacle_union_sources": {
+        "columns_all": [
+          "fixture:invalid:c1"
+        ],
+        "columns_eligible": [],
+        "columns_excluded": [
+          "fixture:invalid:c1"
+        ],
+        "declared_furniture_groups": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_deduplication": {
+          "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+          "overlap_area_removed_m2": 0.0,
+          "raw_area_sum_m2": 2.0,
+          "source_count": 2,
+          "union_area_m2": 2.0,
+          "uses_union_before_frame_difference": true
+        },
+        "walls": []
+      },
+      "only_empty_space_evidence_changed": true,
+      "pairwise_channel_evidence": {
+        "not_inferred": [
+          "route width",
+          "walkability",
+          "true bottleneck width",
+          "real traversal capacity"
+        ],
+        "reason": "current design probe has no pairwise free-space profile, qualified AnalysisDomain, axis/path selector, or accepted channel rule",
+        "status": "not_available"
+      },
+      "pairwise_gap_evidence": {
+        "boundary_gap_m": 4.0,
+        "group_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "segment_xy_m": [
+          [
+            4.0,
+            4.0
+          ],
+          [
+            8.0,
+            4.0
+          ]
+        ],
+        "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+        "status": "computed_geometric_gap_only"
+      },
+      "provenance": {
+        "fixture_geometry": "missing geometry is excluded and provenance is retained",
+        "level_rule": "Level 1 only",
+        "source": "synthetic design probe"
+      },
+      "stages": {
+        "furniture_only": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_aware": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_plus_eligible_columns": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        }
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "two_groups_no_columns": {
+      "before_after_empty_space": {
+        "after_stage": "wall_plus_eligible_columns",
+        "before_stage": "furniture_only",
+        "component_count_delta": 0,
+        "free_area_delta_m2": 0.0,
+        "local_width_p50_delta_m": 0.0
+      },
+      "column_effect_on_empty_space": "computed_no_eligible_columns",
+      "column_eligibility": {
+        "all": [],
+        "eligible_count": 0,
+        "excluded_count": 0
+      },
+      "fixture_id": "two_groups_no_columns",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 1,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 1,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "obstacle_union_sources": {
+        "columns_all": [],
+        "columns_eligible": [],
+        "columns_excluded": [],
+        "declared_furniture_groups": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_deduplication": {
+          "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+          "overlap_area_removed_m2": 0.0,
+          "raw_area_sum_m2": 2.0,
+          "source_count": 2,
+          "union_area_m2": 2.0,
+          "uses_union_before_frame_difference": true
+        },
+        "walls": []
+      },
+      "only_empty_space_evidence_changed": true,
+      "pairwise_channel_evidence": {
+        "not_inferred": [
+          "route width",
+          "walkability",
+          "true bottleneck width",
+          "real traversal capacity"
+        ],
+        "reason": "current design probe has no pairwise free-space profile, qualified AnalysisDomain, axis/path selector, or accepted channel rule",
+        "status": "not_available"
+      },
+      "pairwise_gap_evidence": {
+        "boundary_gap_m": 4.0,
+        "group_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "segment_xy_m": [
+          [
+            4.0,
+            4.0
+          ],
+          [
+            8.0,
+            4.0
+          ]
+        ],
+        "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+        "status": "computed_geometric_gap_only"
+      },
+      "provenance": {
+        "fixture_geometry": "baseline with two authored furniture_group nodes and no column source",
+        "level_rule": "Level 1 only",
+        "source": "synthetic design probe"
+      },
+      "stages": {
+        "furniture_only": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_aware": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_plus_eligible_columns": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        }
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    },
+    "wall_edge_column": {
+      "before_after_empty_space": {
+        "after_stage": "wall_plus_eligible_columns",
+        "before_stage": "furniture_only",
+        "component_count_delta": 0,
+        "free_area_delta_m2": -2.210000000000008,
+        "local_width_p50_delta_m": -0.653235758212646
+      },
+      "column_effect_on_empty_space": "computed",
+      "column_eligibility": {
+        "all": [
+          {
+            "checks": {
+              "height_range": true,
+              "status_computed": true,
+              "target_level": true,
+              "valid_geometry": true,
+              "world_xy_geometry": true
+            },
+            "reason": "all recorded level/plane/height/geometry checks passed",
+            "source_id": "fixture:wall_edge:c1",
+            "source_ref": {
+              "fixture": true,
+              "ifc_class": "IfcColumn",
+              "ifc_global_id": "fixture:wall_edge:c1",
+              "level": "Level 1"
+            },
+            "status": "eligible"
+          }
+        ],
+        "eligible_count": 1,
+        "excluded_count": 0
+      },
+      "fixture_id": "wall_edge_column",
+      "furniture_group_nodes": [
+        {
+          "group_id": "fixture:g1",
+          "member_count": 1,
+          "membership_changed": false
+        },
+        {
+          "group_id": "fixture:g2",
+          "member_count": 1,
+          "membership_changed": false
+        }
+      ],
+      "furniture_membership_changed": false,
+      "obstacle_union_sources": {
+        "columns_all": [
+          "fixture:wall_edge:c1"
+        ],
+        "columns_eligible": [
+          "fixture:wall_edge:c1"
+        ],
+        "columns_excluded": [],
+        "declared_furniture_groups": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "union_deduplication": {
+          "implementation_reference": "repair_v1/run_boundary_repair.py::_empty_space_with_occupancy",
+          "overlap_area_removed_m2": 0.15000000000000036,
+          "raw_area_sum_m2": 4.36,
+          "source_count": 4,
+          "union_area_m2": 4.21,
+          "uses_union_before_frame_difference": true
+        },
+        "walls": [
+          "fixture:wall:w1"
+        ]
+      },
+      "only_empty_space_evidence_changed": true,
+      "pairwise_channel_evidence": {
+        "not_inferred": [
+          "route width",
+          "walkability",
+          "true bottleneck width",
+          "real traversal capacity"
+        ],
+        "reason": "current design probe has no pairwise free-space profile, qualified AnalysisDomain, axis/path selector, or accepted channel rule",
+        "status": "not_available"
+      },
+      "pairwise_gap_evidence": {
+        "boundary_gap_m": 4.0,
+        "group_ids": [
+          "fixture:g1",
+          "fixture:g2"
+        ],
+        "segment_xy_m": [
+          [
+            4.0,
+            4.0
+          ],
+          [
+            8.0,
+            4.0
+          ]
+        ],
+        "semantic_limit": "pairwise boundary separation; not a channel, route width, or walkability result",
+        "status": "computed_geometric_gap_only"
+      },
+      "provenance": {
+        "fixture_geometry": "column touches a wall; no internal region is selected",
+        "level_rule": "Level 1 only",
+        "source": "synthetic design probe"
+      },
+      "stages": {
+        "furniture_only": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 3.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.125,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.375,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.625,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 8.875,
+                "y_m": 2.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 2.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 4.125,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 7.875,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.057544795725958164,
+                "x_m": 9.125,
+                "y_m": 3.125
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1504
+          },
+          "component_count": 1,
+          "free_area_m2": 94.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 1.4577379737113252,
+            "p50": 4.344441523270996,
+            "p90": 7.25,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_aware": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 0.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 0.375
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 0.625
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 0.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 1.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 1.375
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 1.625
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 1.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 2.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 2.375
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 2.625
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06901908208518814,
+                "x_m": 0.375,
+                "y_m": 2.875
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1472
+          },
+          "component_count": 1,
+          "free_area_m2": 92.0,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.25,
+            "p10": 0.7905694150420949,
+            "p50": 3.6221866829731617,
+            "p90": 6.7175144212722016,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        },
+        "wall_plus_eligible_columns": {
+          "bottleneck_evidence": {
+            "definition": "lowest relative-clearance display samples",
+            "lowest_samples": [
+              {
+                "clearance_proxy_m": 0.02499999999999991,
+                "relative_clearance": 0.01354570922957188,
+                "x_m": 0.375,
+                "y_m": 3.625
+              },
+              {
+                "clearance_proxy_m": 0.025000000000000022,
+                "relative_clearance": 0.013545709229571939,
+                "x_m": 0.625,
+                "y_m": 3.125
+              },
+              {
+                "clearance_proxy_m": 0.025000000000000022,
+                "relative_clearance": 0.013545709229571939,
+                "x_m": 0.625,
+                "y_m": 3.375
+              },
+              {
+                "clearance_proxy_m": 0.03535533905932733,
+                "relative_clearance": 0.019156525704423003,
+                "x_m": 0.625,
+                "y_m": 3.625
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06772854614785964,
+                "x_m": 0.375,
+                "y_m": 0.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06772854614785964,
+                "x_m": 0.375,
+                "y_m": 0.375
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06772854614785964,
+                "x_m": 0.375,
+                "y_m": 0.625
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06772854614785964,
+                "x_m": 0.375,
+                "y_m": 0.875
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06772854614785964,
+                "x_m": 0.375,
+                "y_m": 1.125
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06772854614785964,
+                "x_m": 0.375,
+                "y_m": 1.375
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06772854614785964,
+                "x_m": 0.375,
+                "y_m": 1.625
+              },
+              {
+                "clearance_proxy_m": 0.125,
+                "relative_clearance": 0.06772854614785964,
+                "x_m": 0.375,
+                "y_m": 1.875
+              }
+            ],
+            "relative_rank_only": true,
+            "sample_count": 1470
+          },
+          "component_count": 1,
+          "free_area_m2": 91.78999999999999,
+          "local_width_proxy": {
+            "definition": "two times point-to-occupancy-boundary clearance at display-grid samples",
+            "max": 9.650129532809391,
+            "min": 0.04999999999999982,
+            "p10": 0.7905694150420949,
+            "p50": 3.69120576505835,
+            "p90": 6.720762979144986,
+            "semantic_limit": "relative local width evidence; not route width or walkability",
+            "unit": "m"
+          }
+        }
+      },
+      "status": "pass",
+      "virtual_separation_selected": false
+    }
+  },
+  "frame": "synthetic 12m x 8m fixture frame; not an AnalysisDomain",
+  "schema": "d6-space-field-column-channel-audit-fixtures/v1"
+}
