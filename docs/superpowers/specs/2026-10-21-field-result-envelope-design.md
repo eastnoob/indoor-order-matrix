@@ -57,6 +57,14 @@ result may still contain useful structured evidence.
 - projection to the existing visualization manifest family;
 - exact lookup and ordered batch lookup compatibility for relation fields.
 
+Existing free-space `FieldSample` producers and consumers remain valid in this
+slice. They may be wrapped or projected into the envelope, but they are not
+rewritten wholesale merely to adopt the new outer contract.
+
+Existing free-space `FieldSample` producers and consumers remain valid in this
+slice. They may be wrapped or projected into the envelope, but they are not
+rewritten wholesale merely to adopt the new outer contract.
+
 ### Out of scope
 
 - generating or selecting candidate groups;
@@ -81,7 +89,8 @@ FieldResultEnvelope {
   schema: "field-result-envelope/v1",
   target: {
     kind: string,
-    id: string
+    id: string,
+    identity: string
   },
   query: {
     domain_id: string | null,
@@ -94,6 +103,7 @@ FieldResultEnvelope {
   },
   raw_status: computed | partial | not_evaluated | not_available |
               invalid | outside | ambiguous,
+  channel_set: [string, ...] | [],
   value: {
     channels: [EvidenceChannelRecord, ...]
   } | null,
@@ -111,8 +121,12 @@ FieldResultEnvelope {
   },
   cache_identity: {
     input_fingerprint: string,
+    source_fingerprint: string,
     query_fingerprint: string,
     channel_fingerprint: string,
+    recipe_fingerprint: string,
+    algorithm_version: string,
+    schema_version: string,
     identity: string
   },
   visualization_ref: {
@@ -128,11 +142,25 @@ FieldResultEnvelope {
 envelope is allowed to carry usable evidence alongside missing or conflicting
 channels. This is the deliberate difference from `FieldSample`.
 
+`channel_set` is the normalized, sorted set of admitted channel identifiers.
+Every channel record names an identifier in this set. An admitted channel with
+no usable observation still receives a record with a null observation and an
+appropriate `not_available` or `not_evaluated` status, so the cache boundary
+does not confuse "not admitted" with "admitted but unavailable".
+
+`target.id` is a stable canonical key. For a relation target such as
+`object × candidate_group`, it is a deterministic encoding of both identities
+(or another declared canonical relation key); it must not depend on input
+traversal order. `target.identity` is the canonical target fingerprint used in
+cache identity. A target with no single natural id must provide a stable
+canonical payload fingerprint rather than an arbitrary display label.
+
 `EvidenceChannelRecord` contains:
 
 ```text
 EvidenceChannelRecord {
   channel: string,
+  required: boolean,
   polarity: positive | negative | conflict | descriptive,
   observation: JSON value | null,
   support: JSON value | null,
@@ -145,10 +173,38 @@ EvidenceChannelRecord {
 }
 ```
 
-Channel records are sorted by canonical channel id and cannot contain duplicate
-channel/polarity keys. A descriptive record is allowed to explain a grammar
-fit or diagnostic pattern without becoming positive or negative membership
-evidence.
+Channel identifiers are non-empty canonical strings. `required` declares
+whether that channel is required for a `computed` result under the current
+field declaration; it is not a numeric weight. Channel records are
+sorted by canonical channel id and cannot contain duplicate channel/polarity
+keys. A descriptive record is allowed to explain a grammar fit or diagnostic
+pattern without becoming positive or negative membership evidence. Top-level
+provenance must contain `algorithm_version` and `schema_version`; channel
+provenance either contains those same required keys or explicitly declares
+that it inherits the top-level versions.
+
+The implementation exposes two adapter seams without changing the existing
+`Field` API:
+
+```text
+project_field_sample(result: FieldResultEnvelope) -> FieldSample | None
+build_field_result_layer_manifest(
+    *, layer_id: string, channel: string,
+    results: Iterable[FieldResultEnvelope]
+) -> JSON mapping
+```
+
+`project_field_sample` returns `None` when the raw result cannot be represented
+without discarding structured evidence. `build_field_result_layer_manifest`
+uses the existing `field-layer-manifest/v1` outer shape and retains raw status
+and channel records in each relation record; it may delegate compatible
+records to the existing `build_field_layer_manifest` implementation.
+
+The relation adapter adds `raw_status`, `channel_set`, and `channel_records` as
+additive record fields in that existing v1 manifest. It does not change the
+meaning of the existing `status`, `value`, `support`, `visual_state`, query,
+or provenance fields. A future incompatible manifest shape requires a new
+manifest schema version rather than silently changing v1.
 
 ## 5. Status semantics
 
@@ -204,21 +260,38 @@ No channel receives an implicit weight merely because it appears in the
 envelope. Any later scalar projection must be separately named, versioned, and
 calibrated.
 
+`support` is an audit/support payload such as witness ids, measured support
+geometry, or contributing source references. It is not a membership strength,
+probability, or hidden score.
+
 ## 7. Cache and freshness contract
 
 The `identity` value is a deterministic digest of the canonical target, query,
-channel set, input fingerprint, algorithm version, schema version, and all
-parameters that affect the computation. It is derived by the producer and is
-not an arbitrary caller label.
+channel set, source and input fingerprints, algorithm version, schema version,
+recipe/representation parameters, and all other inputs that affect the
+computation. It is derived by the producer and is not an arbitrary caller
+label. `source_ids` are audit references and are not a substitute for the
+source fingerprint.
+
+`channel_fingerprint` is computed from the normalized admitted channel ids and
+their declared channel parameters/versions, including an explicit record for
+an admitted but unavailable channel. It is not computed from display order or
+from a scalar result.
+
+The top-level `schema` identifies this envelope contract. The
+`provenance.schema_version` and `cache_identity.schema_version` identify the
+producer's value/provenance schema used for the computation. They may have the
+same string in a simple implementation, but they have different meanings and
+must not be used interchangeably.
 
 A cached envelope is reusable only when all of these match:
 
 - target identity;
 - query/domain/frame/revision;
-- source and input fingerprint;
+- source and input fingerprints;
 - admitted channel set and channel fingerprint;
 - algorithm and schema versions;
-- declared recipe or representation parameters.
+- declared recipe or representation parameters and recipe fingerprint.
 
 If a channel is removed, its source fingerprint and identity must change. A
 cache hit must never retain influence from a removed channel. A stale or
@@ -261,13 +334,32 @@ It must reject:
 - non-finite numbers or non-JSON-safe values;
 - missing algorithm or schema provenance;
 - duplicate canonical channel records;
+- an empty channel identifier or a channel record outside `channel_set`;
 - an invalid `FieldStatus` projection or an empty mapping reason;
-- cache identities that do not include the declared input and channel
-  fingerprints.
+- empty cache-identity components or cache identities that do not include the
+  declared input, source, channel, and recipe fingerprints.
 
 The envelope is immutable after construction. Serialization order is
 deterministic so that equal inputs produce equal cache identity and manifest
 bytes.
+
+At minimum, a `computed` result has a non-null structured value with at least
+one channel record and a non-empty `channel_set`. A `partial` or `ambiguous`
+result may carry a non-null structured value, but the raw status and
+incomplete/conflicting channels must remain visible. When `channel_set` is
+non-empty, `value.channels` contains at least one record for every admitted
+channel, even when every observation is null. For `not_available`, `outside`,
+`not_evaluated`, or `invalid`, those records are status-bearing diagnostics and
+are never presented as a valid field observation. A completely empty
+`channel_set` may use `value=null`.
+
+The optional `field_projection` does not duplicate the projected payload. When
+`project_field_sample` succeeds, its `FieldSample.value` is the envelope's
+structured `value`, its `support` and `source_ids` come from the corresponding
+envelope fields, its `query` is reconstructed from the envelope query, and its
+provenance includes the envelope provenance plus the raw-status and mapping
+reason. The projection is rejected if those values would violate any existing
+`FieldSample` invariant.
 
 ## 10. Acceptance criteria for this contract
 
