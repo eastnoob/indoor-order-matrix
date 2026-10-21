@@ -94,6 +94,21 @@ def test_result_manifest_uses_unknown_fallback_for_partial_and_unavailable_chann
     assert record["explanation"] == "semantic evidence is unavailable"
 
 
+def test_result_manifest_fallback_prefers_projection_mapping_reason():
+    """An unavailable display projection explains its adapter decision when provided."""
+    result = _result(
+        FieldResultStatus.PARTIAL,
+        projection={"status": "conditional", "mapping_reason": "partial evidence cannot project"},
+        explanation="raw computation remains partial",
+    )
+    record = build_field_result_layer_manifest(
+        layer_id="relations", channel="occupancy", results=(result,)
+    )["samples"][0]
+    assert record["status"] == record["visual_state"] == "unknown"
+    assert record["raw_status"] == "partial"
+    assert record["explanation"] == "partial evidence cannot project"
+
+
 def test_manifest_retains_layer_channel_coordinates_status_sources_and_provenance():
     """A manifest record carries the audit fields needed by a standalone renderer."""
     samples = (_sample(FieldStatus.CONDITIONAL, True),)
@@ -184,4 +199,32 @@ def test_result_manifest_serialization_is_deterministic():
         results=(_result(FieldResultStatus.PARTIAL, value=False, explanation="semantic evidence is unavailable"),),
     )
     encode = lambda value: json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    assert encode(first) == encode(second)
+
+
+def test_result_manifest_sorts_nested_mapping_keys():
+    """Nested evidence mappings serialize identically despite input insertion order."""
+    first = build_field_result_layer_manifest(
+        layer_id="nested-order",
+        channel="relation",
+        results=(
+            _result(
+                FieldResultStatus.PARTIAL,
+                value={"outer": {"z": 1, "a": 2}, "first": 0},
+                explanation="partial evidence",
+            ),
+        ),
+    )
+    second = build_field_result_layer_manifest(
+        layer_id="nested-order",
+        channel="relation",
+        results=(
+            _result(
+                FieldResultStatus.PARTIAL,
+                value={"first": 0, "outer": {"a": 2, "z": 1}},
+                explanation="partial evidence",
+            ),
+        ),
+    )
+    encode = lambda value: json.dumps(value, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
     assert encode(first) == encode(second)

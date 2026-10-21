@@ -336,3 +336,27 @@ live promotion, clearance, connectivity, or decay semantics. Final precision
 independent review is complete for this slice, with the final focused and
 combined evidence recorded as 67 and 141 passed. B3/live promotion and
 constitution ratification remain open.
+
+The shared field output boundary is the immutable
+`FieldResultEnvelope` (`field-result-envelope/v1`). It carries the canonical
+target and query, raw result status, normalized channel set, frozen channel
+records, support, projection metadata, provenance, explanation, and cache
+identity. Cache identity is computed at the complete target/query/channel and
+input/source/recipe/algorithm/schema boundary; a `FieldSample` or rendered
+manifest is only a projection and never defines cache validity. Raw status and
+unavailable channel records remain auditable even when no scalar value can be
+projected.
+
+`FieldSample` is the validated scalar projection used by existing field
+consumers. `field-layer-manifest/v1` is the visualization projection. Its
+adapter preserves raw status, channel set, channel records, provenance, and
+mapping explanation; when the envelope cannot produce a valid sample it uses
+the conservative `unknown` status and `unknown` visual state. This retains the
+existing free-space compatibility semantics and does not reinterpret partial,
+unavailable, invalid, outside, or ambiguous evidence as known free space.
+
+This implementation slice has no group candidate inference, group candidate
+selector, scalar aggregation, score or weight calculation, or job/result
+registry. Object-to-candidate-group relation evidence and later scalar
+aggregation remain future/design-only work and must not be described as
+implemented by the field envelope.

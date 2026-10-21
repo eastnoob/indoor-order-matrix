@@ -26,7 +26,10 @@ def _json_value(value: Any) -> Any:
             for field in fields(value)
         }
     if isinstance(value, Mapping):
-        return {str(key): _json_value(item) for key, item in value.items()}
+        return {
+            str(key): _json_value(item)
+            for key, item in sorted(value.items(), key=lambda item: str(item[0]))
+        }
     if isinstance(value, tuple):
         return [_json_value(item) for item in value]
     if isinstance(value, list):
@@ -106,7 +109,11 @@ def build_field_result_layer_manifest(
             support = result.support
             source_ids = result.source_ids
             provenance = result.provenance
-            explanation = result.explanation
+            explanation = (
+                result.field_projection["mapping_reason"]
+                if result.field_projection is not None
+                else result.explanation
+            )
         else:
             query = sample.query
             status = sample.status.value

@@ -408,3 +408,77 @@ def test_mutable_dataclass_payload_is_rejected() -> None:
             MutableEvidence(1.0),
             provenance=_provenance(),
         )
+
+
+def test_frozen_dataclass_payload_is_deeply_frozen() -> None:
+    """Frozen dataclasses cannot retain mutable nested containers in evidence."""
+
+    @dataclass(frozen=True)
+    class FrozenEvidence:
+        metadata: dict[str, str]
+
+    record = EvidenceChannelRecord(
+        "geometry",
+        True,
+        "positive",
+        FrozenEvidence({"unit": "m"}),
+        provenance=_provenance(),
+    )
+    with pytest.raises((AttributeError, TypeError)):
+        record.observation.metadata["unit"] = "cm"
+
+
+def test_nonempty_channel_set_requires_records_but_empty_set_may_be_null() -> None:
+    """Admitted channels retain explicit null records while an empty set stays representable."""
+    query = _query()
+    with pytest.raises(ValueError):
+        FieldResultEnvelope(
+            target={"kind": "object", "id": "obj-1", "identity": "obj-1"},
+            query=query,
+            raw_status=FieldResultStatus.PARTIAL,
+            channel_set=("geometry",),
+            value=None,
+            provenance=_provenance(),
+            cache_identity=_cache(query, [{"channel": "geometry"}]),
+            explanation="geometry was not evaluated",
+        )
+    empty = FieldResultEnvelope(
+        target={"kind": "object", "id": "obj-1", "identity": "obj-1"},
+        query=query,
+        raw_status=FieldResultStatus.NOT_EVALUATED,
+        channel_set=(),
+        value=None,
+        provenance=_provenance(),
+        cache_identity=_cache(query, []),
+        explanation="evaluation was skipped",
+    )
+    assert empty.value is None
+
+
+def test_same_channel_supports_distinct_polarities_but_not_duplicate_keys() -> None:
+    """Positive and negative evidence share a channel while each polarity key stays unique."""
+    query = _query()
+    positive = EvidenceChannelRecord("semantic", False, "positive", True, provenance=_provenance())
+    negative = EvidenceChannelRecord("semantic", False, "negative", False, provenance=_provenance())
+    result = FieldResultEnvelope(
+        target={"kind": "object", "id": "obj-1", "identity": "obj-1"},
+        query=query,
+        raw_status=FieldResultStatus.AMBIGUOUS,
+        channel_set=("semantic",),
+        value={"channels": (positive, negative)},
+        provenance=_provenance(),
+        cache_identity=_cache(query, [{"channel": "semantic"}]),
+        explanation="positive and negative evidence conflict",
+    )
+    assert [record.polarity for record in result.value["channels"]] == ["negative", "positive"]
+    with pytest.raises(ValueError):
+        FieldResultEnvelope(
+            target={"kind": "object", "id": "obj-1", "identity": "obj-1"},
+            query=query,
+            raw_status=FieldResultStatus.AMBIGUOUS,
+            channel_set=("semantic",),
+            value={"channels": (positive, positive)},
+            provenance=_provenance(),
+            cache_identity=_cache(query, [{"channel": "semantic"}]),
+            explanation="duplicate positive evidence",
+        )

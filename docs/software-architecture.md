@@ -358,6 +358,33 @@ components. It uses existing geometry composition helpers and does not add a
 second base hierarchy, runtime `FieldBundle`, source scanning, or resolver
 logic. The live evaluator bridge remains absent.
 
+`FieldResultEnvelope` is the shared immutable output and audit boundary for
+field computations. Its schema identity is `field-result-envelope/v1`; it
+retains the canonical target, query, raw result status, normalized channel
+set, per-channel observations and requirements, support, provenance,
+explanation, projection metadata, and a cache identity derived from the
+target/query/channel declarations and input, source, recipe, algorithm, and
+schema fingerprints. Raw status and channel records are preserved even when
+an individual channel is unavailable or a structured value is only partial.
+The cache identity therefore belongs to the complete envelope input boundary,
+not to a display sample or a rendered manifest.
+
+`FieldSample` is a validated scalar projection of an envelope. The
+`field-layer-manifest/v1` representation is a visualization projection built
+from the same envelope and may use the sample when its invariants are met.
+When no valid sample projection exists, the manifest keeps raw status,
+channel-set, channel records, provenance, and explanation and falls back to
+`status="unknown"` and `visual_state="unknown"`; it must not turn partial,
+unavailable, invalid, outside, or ambiguous evidence into known free space.
+This preserves the existing free-space field compatibility path and its
+whole-height limitations while keeping audit data recoverable.
+
+This slice does not implement group candidate inference, a group candidate
+selector, scalar aggregation, perceptual scores or weights, or a job/result
+registry. Relation fields and object-to-candidate-group evidence remain
+future/design-only channels; any later group inference or scalar aggregation
+must consume envelopes without changing this boundary.
+
 ```mermaid
 flowchart LR
     domain["AnalysisDomain + frame + query context"] --> core["Field core\nvalue schema + status + provenance"]

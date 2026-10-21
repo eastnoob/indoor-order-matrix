@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass, fields, is_dataclass
+from dataclasses import dataclass, fields, is_dataclass, replace
 from enum import Enum
 import hashlib
 import json
@@ -45,10 +45,28 @@ def _freeze(value: Any) -> Any:
     if value is None or isinstance(value, (str, bool, int)):
         return value
     if is_dataclass(value):
-        # Only frozen contract records are safe to retain inside an immutable payload.
-        if getattr(value, "__dataclass_params__", None).frozen:
+        params = getattr(value, "__dataclass_params__", None)
+        if params is None or not params.frozen:
+            raise TypeError(f"mutable dataclass {type(value).__name__} is not JSON-safe")
+        frozen_fields = {}
+        for field in fields(value):
+            nested = getattr(value, field.name)
+            frozen = _freeze(nested)
+            if frozen is not nested:
+                if not field.init:
+                    raise TypeError(
+                        f"frozen dataclass {type(value).__name__} has an unsafe non-init field"
+                    )
+                frozen_fields[field.name] = frozen
+        if not frozen_fields:
             return value
-        raise TypeError(f"mutable dataclass {type(value).__name__} is not JSON-safe")
+        try:
+            # Rebuild the same dataclass type so contract records retain their API.
+            return replace(value, **frozen_fields)
+        except (TypeError, ValueError) as exc:
+            raise TypeError(
+                f"frozen dataclass {type(value).__name__} cannot be safely frozen"
+            ) from exc
     if isinstance(value, float):
         if not isfinite(value):
             raise ValueError("JSON-safe values cannot contain non-finite floats")
@@ -248,20 +266,23 @@ class FieldResultEnvelope:
             raise ValueError("channel_set cannot contain duplicates")
         channels = tuple(sorted(channels))
         records = ()
+        if channels and self.value is None:
+            raise ValueError("non-empty channel_set requires channel records")
         if self.value is not None:
             if not isinstance(self.value, Mapping) or "channels" not in self.value:
                 raise TypeError("value must be a mapping containing channels")
             records = tuple(self.value["channels"])
             if any(not isinstance(record, EvidenceChannelRecord) for record in records):
                 raise TypeError("value.channels must contain EvidenceChannelRecord values")
+            keys = [(record.channel, record.polarity) for record in records]
+            if len(set(keys)) != len(keys):
+                raise ValueError("channel records cannot duplicate channel/polarity keys")
             names = [record.channel for record in records]
-            if len(set(names)) != len(names):
-                raise ValueError("channel records cannot contain duplicate channels")
             if any(record.channel not in channels for record in records):
                 raise ValueError("channel record is outside channel_set")
             if set(names) != set(channels):
                 raise ValueError("value.channels must represent every admitted channel")
-            records = tuple(sorted(records, key=lambda record: record.channel))
+            records = tuple(sorted(records, key=lambda record: (record.channel, record.polarity)))
         if raw_status is FieldResultStatus.COMPUTED and (not channels or self.value is None):
             raise ValueError("computed results require channel evidence")
         if raw_status is not FieldResultStatus.COMPUTED and not isinstance(self.explanation, str):
