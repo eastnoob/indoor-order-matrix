@@ -206,6 +206,14 @@ meaning of the existing `status`, `value`, `support`, `visual_state`, query,
 or provenance fields. A future incompatible manifest shape requires a new
 manifest schema version rather than silently changing v1.
 
+For an envelope with a valid `field_projection`, the manifest's existing
+`status`, `value`, `support`, and `visual_state` fields use that projection. If
+no compatible projection exists, the adapter uses `status="unknown"` and
+`visual_state="unknown"` as a conservative renderer fallback, records the
+mapping reason in `explanation`, and preserves the actual `raw_status` and all
+channel records in the additive fields. This fallback is a display state only;
+it never changes the canonical envelope status.
+
 ## 5. Status semantics
 
 `raw_status` describes the result produced by the domain computation. It must
