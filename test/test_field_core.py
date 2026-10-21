@@ -8,7 +8,17 @@ from typing import Any
 
 import pytest
 
-from features.field_core import Field, FieldQuery, FieldSample, FieldStatus
+from features.field_core import (
+    EvidenceChannelRecord,
+    Field,
+    FieldQuery,
+    FieldResultEnvelope,
+    FieldResultStatus,
+    FieldSample,
+    FieldStatus,
+    build_field_result_cache_identity,
+    project_field_sample,
+)
 
 
 ALGORITHM_VERSION = "dict-field-test/1"
@@ -320,3 +330,64 @@ def test_structural_errors_raise_but_evidence_shortfall_returns_a_sample() -> No
     result = DictField({}).evaluate("a", _query())
     assert isinstance(result, FieldSample)
     assert result.status is FieldStatus.UNKNOWN
+
+
+def _cache(query: FieldQuery, channels: list[dict[str, Any]], *, source: str = "source-r1", recipe: str = "recipe-r1") -> dict[str, str]:
+    """Build a cache identity for envelope-focused tests."""
+    return build_field_result_cache_identity(
+        target={"kind": "object", "id": "obj-1", "identity": "obj-1"},
+        query=query,
+        channel_declarations=channels,
+        input_fingerprint="input-r1",
+        source_fingerprint=source,
+        recipe_fingerprint=recipe,
+        algorithm_version=ALGORITHM_VERSION,
+        schema_version=SCHEMA_VERSION,
+    )
+
+
+def test_result_envelope_preserves_sorted_channels_and_raw_status() -> None:
+    """Envelope records remain immutable and admitted channels are canonicalized."""
+    query = _query()
+    declarations = [{"channel": "semantic", "version": 1}, {"channel": "geometry", "version": 1}]
+    records = [
+        EvidenceChannelRecord("semantic", False, "descriptive", None, status=FieldResultStatus.NOT_AVAILABLE, provenance={"inherits_top_level": True}),
+        EvidenceChannelRecord("geometry", True, "positive", {"distance": 1}, provenance=_provenance()),
+    ]
+    result = FieldResultEnvelope(
+        target={"kind": "object", "id": "obj-1", "identity": "obj-1"}, query=query,
+        raw_status=FieldResultStatus.PARTIAL, channel_set=("semantic", "geometry"),
+        value={"channels": records}, provenance=_provenance(), cache_identity=_cache(query, declarations),
+        explanation="semantic evidence is unavailable",
+    )
+    assert result.channel_set == ("geometry", "semantic")
+    assert result.value["channels"][0].channel == "geometry"
+    assert project_field_sample(result) is None
+
+
+def test_result_envelope_projects_complete_structured_value() -> None:
+    """A complete computed envelope projects with raw status and mapping reason."""
+    query = _query()
+    channel = EvidenceChannelRecord("geometry", True, "positive", {"distance": 1}, provenance=_provenance())
+    result = FieldResultEnvelope(
+        target={"kind": "object", "id": "obj-1", "identity": "obj-1"}, query=query,
+        raw_status=FieldResultStatus.COMPUTED, channel_set=("geometry",), value={"channels": (channel,)},
+        support={"count": 1}, source_ids=("src-1",), field_projection={"status": "established", "mapping_reason": "complete evidence"},
+        provenance=_provenance(), cache_identity=_cache(query, [{"channel": "geometry", "version": 1}]),
+    )
+    sample = project_field_sample(result)
+    assert sample is not None
+    assert sample.value == result.value
+    assert sample.provenance["raw_status"] == "computed"
+    assert sample.provenance["mapping_reason"] == "complete evidence"
+
+
+def test_cache_identity_is_order_independent_but_input_sensitive() -> None:
+    """Canonical declarations hash independently of traversal order and vary on inputs."""
+    query = _query()
+    a = [{"channel": "geometry", "version": 1}, {"channel": "semantic", "version": 1}]
+    b = list(reversed(a))
+    first = _cache(query, a)
+    assert first == _cache(query, b)
+    assert first["identity"] != _cache(query, a, source="source-r2")["identity"]
+    assert first["identity"] != _cache(_query(revision="query-r2"), a)["identity"]
