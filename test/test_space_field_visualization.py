@@ -6,8 +6,19 @@ import json
 
 import pytest
 
-from ..features.field_core import FieldQuery, FieldSample, FieldStatus
-from ..features.space_field_visualization import build_field_layer_manifest
+from ..features.field_core import (
+    EvidenceChannelRecord,
+    FieldQuery,
+    FieldResultEnvelope,
+    FieldResultStatus,
+    FieldSample,
+    FieldStatus,
+    build_field_result_cache_identity,
+)
+from ..features.space_field_visualization import (
+    build_field_layer_manifest,
+    build_field_result_layer_manifest,
+)
 
 
 ALGORITHM_VERSION = "visualization-test/1"
@@ -37,6 +48,50 @@ def _sample(status: FieldStatus, value=None, *, explanation: str = "") -> FieldS
         },
         explanation=explanation,
     )
+
+
+def _result(raw_status: FieldResultStatus, *, projection=None, value=True, channels=None, explanation=""):
+    """Build a valid envelope for manifest adapter contract tests."""
+    query = FieldQuery(domain_id="room-a", frame="world-xy", revision="visual-r1")
+    channels = channels or (EvidenceChannelRecord("geometry", True, "positive", value, provenance={"algorithm_version": ALGORITHM_VERSION, "schema_version": SCHEMA_VERSION}),)
+    cache = build_field_result_cache_identity(
+        target={"kind": "object", "id": "obj-1", "identity": "obj-1"}, query=query,
+        channel_declarations=[{"channel": record.channel} for record in channels],
+        input_fingerprint="input-r1", source_fingerprint="source-r1", recipe_fingerprint="recipe-r1",
+        algorithm_version=ALGORITHM_VERSION, schema_version=SCHEMA_VERSION,
+    )
+    return FieldResultEnvelope(
+        target={"kind": "object", "id": "obj-1", "identity": "obj-1"}, query=query,
+        raw_status=raw_status, channel_set=tuple(record.channel for record in channels),
+        value={"channels": channels} if value is not None else None,
+        support={"count": 1}, source_ids=("source-1",), field_projection=projection,
+        provenance={"algorithm_version": ALGORITHM_VERSION, "schema_version": SCHEMA_VERSION, "units": "m"},
+        cache_identity=cache, explanation=explanation or ("evidence incomplete" if raw_status is not FieldResultStatus.COMPUTED else ""),
+    )
+
+
+def test_result_manifest_projects_established_envelope_and_preserves_raw_evidence():
+    """Complete envelopes use the legacy display fields and retain relation evidence."""
+    result = _result(FieldResultStatus.COMPUTED, projection={"status": "established", "mapping_reason": "complete evidence"})
+    record = build_field_result_layer_manifest(layer_id="relations", channel="occupancy", results=(result,))["samples"][0]
+    assert record["status"] == "established"
+    assert record["visual_state"] == "established"
+    assert record["raw_status"] == "computed"
+    assert record["channel_set"] == ["geometry"]
+    assert record["channel_records"][0]["status"] == "computed"
+    assert record["explanation"] == "complete evidence"
+
+
+def test_result_manifest_uses_unknown_fallback_for_partial_and_unavailable_channels():
+    """Unprojectable results stay conservative while preserving unavailable evidence."""
+    unavailable = EvidenceChannelRecord("semantic", False, "descriptive", None, status=FieldResultStatus.NOT_AVAILABLE, provenance={"inherits_top_level": True}, explanation="channel unavailable")
+    result = _result(FieldResultStatus.PARTIAL, value=False, channels=(unavailable,), explanation="semantic evidence is unavailable")
+    record = build_field_result_layer_manifest(layer_id="relations", channel="occupancy", results=(result,))["samples"][0]
+    assert record["status"] == record["visual_state"] == "unknown"
+    assert record["raw_status"] == "partial"
+    assert record["channel_set"] == ["semantic"]
+    assert record["channel_records"][0]["status"] == "not_available"
+    assert record["explanation"] == "semantic evidence is unavailable"
 
 
 def test_manifest_retains_layer_channel_coordinates_status_sources_and_provenance():
