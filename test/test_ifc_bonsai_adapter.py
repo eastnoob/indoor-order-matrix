@@ -673,6 +673,42 @@ def test_adapter_preserves_native_ifc_group_and_grid_axis_facts(tmp_path):
     assert furniture_record.group_refs == (f"ifc-group:{group.GlobalId}",)
 
 
+def test_adapter_retains_empty_ifc_groups_for_authored_group_audit():
+    """Preserve explicit empty groups without promoting generic groups to furniture."""
+    import ifcopenshell
+
+    model = ifcopenshell.file(schema="IFC4")
+    empty_furniture_group = model.create_entity("IfcGroup", Name="Empty furniture group")
+    empty_furniture_group.GlobalId = ifcopenshell.guid.new()
+    empty_furniture_group.ObjectType = "furniture_group"
+    ordinary_group = model.create_entity("IfcGroup", Name="Ordinary empty group")
+    ordinary_group.GlobalId = ifcopenshell.guid.new()
+
+    scene = load_ifc_neutral_scene(model)
+
+    groups = {group.source_id: group for group in scene.authored_groups}
+    furniture = groups[empty_furniture_group.GlobalId]
+    ordinary = groups[ordinary_group.GlobalId]
+    assert furniture.member_refs == ()
+    assert furniture.group_role == "furniture_group"
+    assert ordinary.member_refs == ()
+    assert ordinary.group_role == "ifc_group"
+
+    from ..features.group_self_description import describe_group_relations
+
+    result = describe_group_relations(scene)
+    inventory = result["input_inventory"]
+    empty_audit = next(
+        record for record in inventory["input_audit"]
+        if record["group_id"] == furniture.id
+    )
+    assert empty_audit["completeness_status"] == "empty_group"
+    assert furniture.id not in {item["group_id"] for item in inventory["eligible_groups"]}
+    assert ordinary.id not in {item["group_id"] for item in inventory["eligible_groups"]}
+    assert result["eligibility"] == []
+    assert result["group_geometry"] == []
+
+
 def test_adapter_applies_grid_placement_and_same_sense(tmp_path):
     """Grid axes enter world metres with authored direction semantics preserved."""
     import ifcopenshell

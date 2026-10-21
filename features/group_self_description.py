@@ -9,19 +9,19 @@ from typing import Any
 
 from .affordance.models import Rect
 from .analysis_substitute_discovery import resolve_function_substitute
-from .geometry_substitutes import mass_patch_from_mesh
-from .geometry_views import plan_projection
 from .neutral_scene_views import AnalysisSceneInput, analysis_scene_view, furniture_analysis_participation
+from ._authored_group_inventory import _build_authored_group_inventory
 from .scene_contract import NeutralSceneV2
 
 
 def describe_group_relations(scene: AnalysisSceneInput) -> dict[str, object]:
     """Return standalone authored-group geometry and deferred relation evidence."""
     if isinstance(scene, NeutralSceneV2):
-        objects, groups, frame, provenance, tolerances, uncertainties, view = _neutral_inputs(scene)
+        objects, groups, frame, provenance, tolerances, uncertainties, view, input_inventory = _neutral_inputs(scene)
     elif isinstance(scene, dict):
         view = analysis_scene_view(scene)
         objects, groups, frame, provenance, tolerances, uncertainties = _legacy_inputs(view)
+        input_inventory = None
     else:
         raise TypeError("scene must be a legacy analysis mapping or NeutralSceneV2")
     object_by_id = {str(item["id"]): item for item in objects}
@@ -38,10 +38,13 @@ def describe_group_relations(scene: AnalysisSceneInput) -> dict[str, object]:
         "eligibility": [
             {
                 "eligible_group_id": group["id"],
-                "member_object_ids": sorted(group["member_refs"]),
+                "member_object_ids": sorted(group.get("declared_member_refs", group["member_refs"])),
                 "membership_provenance": group.get("provenance", {}),
                 "excluded_context_object_ids": context_ids,
-                "completeness_status": "computed",
+                # Preserve authored-reference completeness separately from the
+                # geometry status computed for the group below.
+                "input_completeness_status": group.get("input_completeness_status", "computed"),
+                "completeness_status": group.get("input_completeness_status", "computed"),
             }
             for group in groups
         ],
@@ -72,6 +75,8 @@ def describe_group_relations(scene: AnalysisSceneInput) -> dict[str, object]:
         "provenance": provenance,
         "_tolerances": {"geometry": tolerances[0], "topology": tolerances[1]},
     }
+    if input_inventory is not None:
+        result["input_inventory"] = input_inventory
     return _json_ready(result)
 
 
@@ -119,7 +124,8 @@ def _legacy_inputs(scene: Mapping[str, object]):
 def _neutral_inputs(scene: NeutralSceneV2):
     """Project Neutral Scene geometry while preserving unresolved authored members."""
     plane = scene.context.analysis_plane
-    meshes = {mesh.id: mesh for mesh in scene.geometries}
+    view = analysis_scene_view(scene)
+    projected_geometry_components = view["_analysis_view"]["projected_geometry_components"]
     sources_by_id = {}
     for source in scene.source_objects:
         sources_by_id.setdefault(source.id, []).append(source)
@@ -128,22 +134,7 @@ def _neutral_inputs(scene: NeutralSceneV2):
         participation = furniture_analysis_participation(source)
         components = []
         for geometry_ref in source.geometry_refs:
-            mesh = meshes.get(geometry_ref)
-            if mesh is None:
-                continue
-            projection = plan_projection(mass_patch_from_mesh(mesh), plane)
-            # Keep the source projection in the authored plane; the generic
-            # consumer view shifts coordinates for rendering compatibility.
-            components.extend(
-                {
-                    "exterior": tuple(tuple(float(value) for value in point) for point in component.get("exterior", ())),
-                    "holes": tuple(
-                        tuple(tuple(float(value) for value in point) for point in hole)
-                        for hole in component.get("holes", ())
-                    ),
-                }
-                for component in projection.components
-            )
+            components.extend(projected_geometry_components.get(geometry_ref, ()))
         trend_resolution = (
             {"status": "not_available", "reason": "furniture_analysis_" + participation}
             if participation in ("excluded", "unknown")
@@ -158,20 +149,7 @@ def _neutral_inputs(scene: NeutralSceneV2):
             targets = sources_by_id.get(str(substitute_id), ())
             if len(targets) == 1:
                 for geometry_ref in targets[0].geometry_refs:
-                    mesh = meshes.get(geometry_ref)
-                    if mesh is None:
-                        continue
-                    projection = plan_projection(mass_patch_from_mesh(mesh), plane)
-                    trend_components.extend(
-                        {
-                            "exterior": tuple(tuple(float(value) for value in point) for point in component.get("exterior", ())),
-                            "holes": tuple(
-                                tuple(tuple(float(value) for value in point) for point in hole)
-                                for hole in component.get("holes", ())
-                            ),
-                        }
-                        for component in projection.components
-                    )
+                    trend_components.extend(projected_geometry_components.get(geometry_ref, ()))
         objects.append(
             {
                 "id": source.id,
@@ -193,12 +171,8 @@ def _neutral_inputs(scene: NeutralSceneV2):
                 "_trend_resolution": trend_resolution,
             }
         )
-    groups = [
-        {"id": group.id, "member_refs": list(group.member_refs), "provenance": dict(group.provenance)}
-        for group in scene.authored_groups
-        if group.group_role == "furniture_group"
-    ]
-    view = analysis_scene_view(scene)
+    input_inventory = _build_authored_group_inventory(scene)
+    groups = input_inventory["eligible_groups"]
     view["_group_analysis_unit"] = scene.context.analysis_length_unit
     return (
         objects,
@@ -221,14 +195,20 @@ def _neutral_inputs(scene: NeutralSceneV2):
         [record.to_dict() for record in scene.uncertainties]
         + [uncertainty for item in objects for uncertainty in item["uncertainties"]],
         view,
+        input_inventory,
     )
 
 
 def _group_geometry(group, object_by_id, tolerance):
     """Compute additive member moments, status propagation, and frame descriptors."""
     valid = []
-    excluded = []
-    invalid = False
+    # Keep unresolved authored refs in completeness evidence while excluding
+    # them from object resolution and all geometric calculations.
+    excluded = [
+        {"member_id": member_id, "status": "invalid", "reason": "unresolved_member_ref", "source_refs": []}
+        for member_id in group.get("unresolved_member_refs", ())
+    ]
+    invalid = bool(excluded)
     for member_id in sorted(group["member_refs"]):
         item = object_by_id.get(member_id)
         if item is None:
@@ -320,7 +300,10 @@ def _group_geometry(group, object_by_id, tolerance):
         "between_member_covariance": representative["between_member_covariance"] if representative else None,
         "covariance": representative["covariance"] if representative else None,
         "excluded_member_reasons": excluded,
-        "geometry_completeness": {"usable_members": len(valid), "declared_members": len(group["member_refs"])},
+        "geometry_completeness": {
+            "usable_members": len(valid),
+            "declared_members": len(group.get("declared_member_refs", group["member_refs"])),
+        },
         "member_geometry": valid,
         "diagnostic_geometry": diagnostic,
         **direction,

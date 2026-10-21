@@ -1,0 +1,243 @@
+{
+  "checks": [
+    {
+      "candidate_local_readouts": [
+        0.56,
+        0.67
+      ],
+      "id": "complete_scope_and_overlap",
+      "overlap_group": "G2",
+      "result": "passed"
+    },
+    {
+      "cell": {
+        "boundary_tension": true,
+        "candidate_id": "K1",
+        "group_id": "G3",
+        "in_proposal_extent": false,
+        "readout": 0.31,
+        "reason": null,
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [
+          "attribution:K1:G3"
+        ],
+        "status": "computed"
+      },
+      "id": "extent_external_field_cell",
+      "result": "passed"
+    },
+    {
+      "K2_valid_readout_coverage": 0.3333333333333333,
+      "conditional_cell": {
+        "boundary_tension": false,
+        "candidate_id": "K2",
+        "group_id": "G3",
+        "in_proposal_extent": true,
+        "readout": null,
+        "reason": "semantic_channel_is_conditional",
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [
+          "attribution:K2:G3"
+        ],
+        "status": "conditional"
+      },
+      "id": "categorical_unknown_and_conditional",
+      "result": "passed",
+      "unknown_cell": {
+        "boundary_tension": false,
+        "candidate_id": "K2",
+        "group_id": "G1",
+        "in_proposal_extent": false,
+        "readout": null,
+        "reason": "attribution_channel_not_observed",
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [],
+        "status": "unknown"
+      }
+    },
+    {
+      "complete_profile": {
+        "coverage": 1.0,
+        "expected_member_count": 5,
+        "mean": 0.43999999999999995,
+        "median": 0.5125,
+        "members": [
+          {
+            "id": "core_1",
+            "readout": 0.5125,
+            "status": "computed"
+          },
+          {
+            "id": "core_2",
+            "readout": 0.5125,
+            "status": "computed"
+          },
+          {
+            "id": "core_3",
+            "readout": 0.5125,
+            "status": "computed"
+          },
+          {
+            "id": "core_4",
+            "readout": 0.5125,
+            "status": "computed"
+          },
+          {
+            "id": "bridge",
+            "readout": 0.15,
+            "status": "computed"
+          }
+        ],
+        "valid_member_count": 5,
+        "weakest_member": 0.15
+      },
+      "id": "weak_bridge_and_missing_coverage",
+      "masked_profile": {
+        "coverage": 0.8,
+        "expected_member_count": 5,
+        "mean": 0.42187499999999994,
+        "median": 0.5125,
+        "members": [
+          {
+            "id": "core_1",
+            "readout": null,
+            "status": "unknown"
+          },
+          {
+            "id": "core_2",
+            "readout": 0.5125,
+            "status": "computed"
+          },
+          {
+            "id": "core_3",
+            "readout": 0.5125,
+            "status": "computed"
+          },
+          {
+            "id": "core_4",
+            "readout": 0.5125,
+            "status": "computed"
+          },
+          {
+            "id": "bridge",
+            "readout": 0.15,
+            "status": "computed"
+          }
+        ],
+        "valid_member_count": 4,
+        "weakest_member": 0.15
+      },
+      "result": "passed"
+    }
+  ],
+  "design_only": true,
+  "field_domain": {
+    "candidate_ids": [
+      "K1",
+      "K2"
+    ],
+    "cells": [
+      {
+        "boundary_tension": false,
+        "candidate_id": "K1",
+        "group_id": "G1",
+        "in_proposal_extent": true,
+        "readout": 0.82,
+        "reason": null,
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [
+          "attribution:K1:G1"
+        ],
+        "status": "computed"
+      },
+      {
+        "boundary_tension": false,
+        "candidate_id": "K1",
+        "group_id": "G2",
+        "in_proposal_extent": true,
+        "readout": 0.56,
+        "reason": null,
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [
+          "attribution:K1:G2"
+        ],
+        "status": "computed"
+      },
+      {
+        "boundary_tension": true,
+        "candidate_id": "K1",
+        "group_id": "G3",
+        "in_proposal_extent": false,
+        "readout": 0.31,
+        "reason": null,
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [
+          "attribution:K1:G3"
+        ],
+        "status": "computed"
+      },
+      {
+        "boundary_tension": false,
+        "candidate_id": "K2",
+        "group_id": "G1",
+        "in_proposal_extent": false,
+        "readout": null,
+        "reason": "attribution_channel_not_observed",
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [],
+        "status": "unknown"
+      },
+      {
+        "boundary_tension": false,
+        "candidate_id": "K2",
+        "group_id": "G2",
+        "in_proposal_extent": true,
+        "readout": 0.67,
+        "reason": null,
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [
+          "attribution:K2:G2"
+        ],
+        "status": "computed"
+      },
+      {
+        "boundary_tension": false,
+        "candidate_id": "K2",
+        "group_id": "G3",
+        "in_proposal_extent": true,
+        "readout": null,
+        "reason": "semantic_channel_is_conditional",
+        "scale_query_id": "diagnostic-scale-0",
+        "source_refs": [
+          "attribution:K2:G3"
+        ],
+        "status": "conditional"
+      }
+    ],
+    "cross_candidate_normalization": "none",
+    "eligible_group_ids": [
+      "G1",
+      "G2",
+      "G3"
+    ],
+    "expected_cells": 6,
+    "observed_cells": 6,
+    "out_of_scope_records_without_cells": [
+      {
+        "group_id": "GX",
+        "reason": "not_in_frozen_eligible_scope",
+        "source_ref": "input:authored-group-GX"
+      }
+    ],
+    "scale_query_id": "diagnostic-scale-0"
+  },
+  "fixture_id": "overlapping-attribution-field-slice",
+  "fixture_sha256": "3010f5bba9746d711ca2a6901511861e961bef12d6c563108a8487eb2699a868",
+  "limitations": [
+    "Readouts are supplied diagnostic inputs; no evidence-to-readout rule is tested or selected.",
+    "Candidate proposals are frozen inputs; candidate generation, driver/modifier effects, and search completeness are not tested.",
+    "The synthetic arithmetic does not validate a real-world scale or calibration.",
+    "Proposal-evidence leakage requires a separate same-source/ablation/independent comparison."
+  ],
+  "schema": "group-attribution-field-slice-result/v1"
+}

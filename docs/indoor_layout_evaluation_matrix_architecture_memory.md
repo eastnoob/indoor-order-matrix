@@ -357,6 +357,30 @@ unavailable, invalid, outside, or ambiguous evidence as known free space.
 
 This implementation slice has no group candidate inference, group candidate
 selector, scalar aggregation, score or weight calculation, or job/result
-registry. Object-to-candidate-group relation evidence and later scalar
-aggregation remain future/design-only work and must not be described as
-implemented by the field envelope.
+registry. Object-to-candidate-group evidence and later scalar aggregation
+remain future/design-only work and must not be described as implemented by the
+field envelope.
+
+The first geometry relation package is implemented in
+`features/group_geometry_relation_field.py`. It adapts the existing
+IFC-derived authored-group member-pair observations into descriptive
+`FieldResultEnvelope` records. The package does not infer group membership,
+support, potential, strength, or a winner. The 2026-10-27 delivery maps every
+one of the 666 group-pair envelopes to pair JSON/SVG with an overview and
+source/plane/unit manifest; all 667 SVG files parsed and representative PNG
+views were visually reviewed. The corrected contract test passed on the
+retained real IFC scene/description, not an independent geometry extraction.
+Overlap, shared-member and missing/invalid/partial branches are not covered
+by this source. The user accepted the geometry-field sample review on
+2026-10-27 ("合理"); next clarify evidence use and rules before stage-2
+comparisons. Complete candidate-by-unit attribution, strength and further
+evidence packages remain pending. See the [package record](project/evidence/geometry-relation-field-package-v1.md#current-verification-and-limits).
+`describe_group_relations`
+reuses the unshifted geometry projections from its single `analysis_scene_view`
+call to avoid projecting those meshes twice; this invocation-local cache is a
+temporary performance workaround, not a shared cache contract.
+
+The user's 2026-10-27 plane decision is temporary world-XY supplied by
+`scene.context.analysis_plane`. Group queries must match that plane and
+diagnostic drawing must consume the same plane-local polygons. Do not encode
+world-XY as an evidence rule or treat this as camera-plane integration.

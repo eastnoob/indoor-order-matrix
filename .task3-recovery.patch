@@ -1,0 +1,252 @@
+Commit ID: fabeada6c062e6290ec30c74c4bf7f631b0048a7
+Change ID: lwozplvpszpwyvymslyyrxwkwrrowmtv
+Bookmarks: group-inference-design group-inference-design@git
+Author   : Fengxu Tian <61303573+eastnoob@users.noreply.github.com> (2026-10-17 13:46:32)
+Committer: Fengxu Tian <61303573+eastnoob@users.noreply.github.com> (2026-10-22 01:36:41)
+
+    docs: record field result envelope architecture boundary
+
+diff --git a/docs/indoor_layout_evaluation_matrix_architecture_memory.md b/docs/indoor_layout_evaluation_matrix_architecture_memory.md
+index c82bf47f01..ff76b25d76 100644
+--- a/docs/indoor_layout_evaluation_matrix_architecture_memory.md
++++ b/docs/indoor_layout_evaluation_matrix_architecture_memory.md
+@@ -1,7 +1,29 @@
+ # Indoor Layout Matrix Architecture Memory
+ 
++## Spec008 workflow completion — planned boundary
++
++The 2026-10-19 [Spec008 design](../specs/008-analyzer-workflow-completion/plan.md) completes the camera → Space → free-space workflow, with implementation and native acceptance still pending. Four user decisions are fixed: explicit traceable authored storey height or manual height, never adjacent elevation subtraction; selected slab's horizontal upper surface; two thin native Plane/Space composition bindings; actual Bonsai drawing-camera creation or existing-camera adoption. Native identity/geometry remain authoritative, unsupported tilt is never flattened, and base elevation/B4 cut/extrusion height are separate. B4 exact shell and holes must reach a native void-capable profile/extrusion after explicit confirmation; seed-only native re-inference and exterior-only polygon helpers do not satisfy the design. Furniture eligibility never deletes physical occupancy.
++
++Main-tree workflow dependencies remain absent. Sibling delivery `4b332704` is an inspected integration source, not proof of main-tree availability or a clean snapshot of all current bytes; sibling workflow007 has an unresolved request conflict. First recover a bounded dependency closure in a task-owned jj workspace, preserving dirty work and version-writer boundaries. Native transaction failure recovery, loaded-byte proof and disposable save/reopen validation remain implementation gates. See the [current architecture map](software-architecture.md#spec008-analyzer-workflow-completion--design--implementation-pending); B3 stays OPEN.
++
++## Spec004 Blender analysis workflow — APPROVED / IMPLEMENTATION IN PROGRESS
++
++[Spec004](../specs/004-blender-analysis-workflow/spec.md) / [plan](../specs/004-blender-analysis-workflow/plan.md) were approved by the user on 2026-10-15 and are **APPROVED / IMPLEMENTATION IN PROGRESS**. They propose a lightweight Blender addon over canonical capture, independent structural B4 context and Pixi analysis/display fragments. Request/plane/live-capture dependencies from Spec003 are **CURRENT TREE ABSENT**; existing B4/domain handoff does not satisfy them. T0 requires isolated verification of Git checkpoint `23d24a3` and its approved dependency/import closure while preserving dirty history; missing Spec003 documents remain Git references. Production implementation and acceptance are not claimed here. Existing historical memory below is preserved.
++
++Scope is the unified Analysis workbench, a station toward long-term delivery: one `N → Analysis` panel, independently collapsible Domain and Free-space sections, complete independently usable B4 capabilities plus new free-space. Preserve B4 tolerance/closed-aperture assumptions, outline/holes/area/labels/counts, selection/explicit confirmation, current/attempt/refusal/stale and significant aperture diagnostics in the original service payload. B4 retains its reducer/service and free-space retains AnalysisRequest/Field; future operations join the same UI/service incrementally using existing operation vocabulary and shared capture/identity/confirmed-domain/result access. No new framework/DSL/job-result registry; substitute registry stays substitute selection. Planned read-only metadata list/exact immutable ResultRef open/sample read handles live and restored embedded documents identically, with version/source/domain/plane/query/freshness checks, no stale-as-current or mesh-derived truth, and preserved unknown/conditional/provenance. Headless consumer tests define this seam; no real downstream consumer or future analysis is implemented. B3 OPEN.
++
+ This is the durable boundary for the indoor layout evaluation work.
+ 
++## jj-first Version and Workspace Management
++
++User decision, clarified 2026-10-15: **prefer Jujutsu (`jj`) for all future project version and workspace management**, including delegated work and remote pushes. Git remains an allowed fallback when jj is unavailable or cannot perform the required operation; do not let the tool preference block authorized work.
++
++- Prefer jj for changes/checkpoints, bookmarks, history, integration and recovery. Prefer **`jj workspace`** over Git worktrees or app/skill tools that create managed Git worktrees for isolated or parallel working copies and their lifecycle.
++- Use **`jj git push`** for remote pushes when available; Git may remain jj's storage or remote backend. Historical Git commit hashes remain valid references and do not require rewriting history.
++- Check the installed jj help before choosing commands. If jj is unavailable or cannot perform the required operation, use the necessary Git command or Git worktree fallback and briefly record the concrete reason. Keep working-copy and history state consistent when switching tools; a fallback within authorized scope does not itself require another permission request.
++- Use `jj --ignore-working-copy` for read-only inspection so that inspection does not snapshot unrelated working-copy changes. Preserve existing dirty work and isolate task changes before any authorized checkpoint. Existing version-specialist ownership and push/merge authorization boundaries continue to apply.
++- This rule supersedes both older Git-first plans and absolute Git bans. Pixi remains the development environment manager.
++
+ ## Boundary Rule
+ 
+ SVG is a neutral BIM proxy/base map. SVG does not define the evaluation matrix.
+@@ -11,6 +33,8 @@
+ ## Reading Rule
+ 
+ Read this memory first when adding layout abstractions or changing inference/evaluation boundaries.
++Then read [`docs/software-architecture.md`](software-architecture.md). It is the canonical project map for operation contracts, substitute selection, layer ownership, implementation placement, and architecture-sensitive verification. Any code or documentation change that crosses a shared analysis boundary must update that map before implementation and keep it consistent with this memory.
++Any project work must use the software architecture map to decide what to write, how to write it, and where to place it. If the map is missing a layer or no longer matches code, tests, fixtures, configuration, or exports, inspect those actual artifacts and update the map first. Architecture and implementation changes are maintained together; an older diagram is not evidence that current code follows it.
+ Read `docs/room_analysis_model_development_standard.md` when adding a model layer or metric.
+ Read `docs/room_analysis_model_interface.md` only when changing the exported `room_analysis_model` shape.
+ Read `docs/superpowers/specs/2026-07-22-local-reference-field-research-note.md` before implementing local reference, boundary cue, surface cue, or subject-cue relation features.
+@@ -112,6 +136,59 @@
+ legacy `physical_blockers` field retains its boundary-only compatibility
+ meaning.
+ 
++Physical volume contributes to interior occupancy and downstream free-space
++analysis independently of furniture eligibility. This includes counters, plants,
++and other non-furniture sources. A qualified, source-bound substitute may stand
++for represented originals once; their raw facts remain, but their mass and
++uncertainty must not be counted again. Missing or failed substitute geometry
++keeps the affected source unknown, never known free. Excluding a source from
++furniture, group, trend, orientation, or affordance analysis does not remove its
++physical obstacle. Selected-domain boundary members follow the separate exact
++membership exclusion rule below.
++
++The shared operation registry is `scripts/design/group_level/trend_substitute_registry.json`,
++loaded by `features/substitute_contract.py`. `resolve_source_representation` in
++`features/analysis_substitute_discovery.py` executes its consumer, input,
++representation, fallback, and exact coverage policies. `free_space` consumes
++`physical_occupancy`; the trend compatibility wrapper uses the same resolver.
++`_resolved_physical_occupancy` in `features/neutral_scene_views.py` accounts for
++original sources independently of projection success and selects each approved
++`MassPatch` once. `GeneratedProxy` describes provenance, not a new geometry kind.
++The default shared query is whole-height planar projection. The B3 shared
++enrollment route is now implemented for an explicit world-XY query at `z=1.6 m`
++through `physical_occupancy_section`, `features/section_views.py`, and the
++isolated `run_b3_shared_occupancy_enrollment.py` runner. It uses the same
++physical `MassPatch` representative as the default query; a second query-specific
++binding for the same consumer is ambiguous and must be rejected. Missing required
++geometry prevents dependent free-space scores/topology from being certified,
++while known occupied evidence remains. Arbitrary tilted planes, general
++height-bands, live adapter promotion, complete occupancy, and complete clearance
++remain open. See the current software architecture and
++`docs/project/b3-shared-occupancy-enrollment-plan.md` for implementation scope,
++validation, and remaining limits.
++
++For a selected analysis domain, `provenance.boundary_member_source_ids` may
++declare exact component membership. A token must uniquely identify one
++`SourceObject.id` or `SourceObject.source_id`; unmatched, duplicated, or ambiguous
++tokens exclude nothing and remain diagnostic. Occupancy inventory uses raw
++source identities, so missing projected geometry does not erase an exact boundary
++membership. Projected channel consumers still retain an `unprojected` diagnostic
++when they have no record for that member. Qualified B2
++semantic contour contribution refs may populate this provenance for the one
++selected inferred scope. `SourceOpening.host_refs`, source class, name, geometry
++overlap, and proximity never establish membership. Resolved members remain in
++raw source, uncertainty, and channel evidence, but are omitted from interior
++physical occupancy and interior blocker selections. This scope rule does not
++assert physical absence, walking permeability, optical transparency, or
++complete channel availability. Legacy `physical_blockers` keeps its existing
++compatibility meaning.
++Doors, windows, and similar infill confirmed as selected-domain boundary
++members count as the closed analysis boundary for interior occupancy and
++uncertainty selection; the component class never supplies that confirmation.
++Serialized field consumers may use the same exact-identity resolver with a
++scope- and source-bound human membership declaration, preserving original
++source records and qualification errors.
++
+ Subject-interface relation scope is explicit in `AnalysisContext`.
+ `subject_interface_max_distance` defines the production query range;
+ `subject_interface_all_pairs` is an explicit validation mode. Member-owned
+@@ -198,3 +275,88 @@
+ Before each checkpoint, audit the touched project-owned files for this rule and
+ repair omissions before declaring the checkpoint ready.
+ Vendored OCTA toolbox code is exempt unless it is edited.
++
++## Unified Field kernel — US1/US2/US3 implemented; FreeSpaceField instance implemented
++
++### IMPLEMENTED — Spec002 offline inspection output
++
++Spec002 implements an output-only HTML/SVG inspection layer for the frozen
++whole-height `FreeSpaceField` handoff. The implemented route is:
++
++```text
++authenticated frozen package
++  -> runner-local whole-height NeutralSceneV2
++  -> analysis_scene_view
++  -> existing FreeSpaceField
++  -> build_field_layer_manifest
++  -> self-contained HTML/SVG inspection
++```
++
++This implemented layer does not create a second semantic field, alter the Field core,
++rebuild a direct-preview resolver, or promote into the evaluator, room model,
++B3 loader, clearance, or connectivity. It must preserve explicit world-XY
++metres, frozen source-origin metadata, the effective shared-view offset, exact domain holes, upstream boundary identity,
++and per-proxy provenance. The five locked unresolved ids retain canonical
++`missing_geometry` uncertainty before shared-view promotion; captured
++references/arrays are audit-only where qualified geometry refs are absent.
++Historical `z=1.6 m` samples remain section evidence only and are not reused as
++whole-height values. Serialization may deduplicate repeated global provenance
++only if each original cell record remains exactly recoverable.
++
++US1 now implements one global `Field` concept with shallow capabilities in
++`features/field_core.py`: `Field`, `FieldQuery`, `FieldSample`, and the
++six-state status vocabulary are production code with immutable query/sample
++metadata and exact scalar/batch lookup. US2 now implements
++`features/space_field_adapter.py:B3AdapterView` and
++`features/space_field_visualization.py:build_field_layer_manifest` as
++read-only seams over validated B3 data. The B3 loader, free-space bundle, and
++live evaluator promotion remain unchanged or planned; the Spec002 runner owns
++its output-only SVG/HTML renderer.
++Spatial occupancy, distance, demand, influence, and object-to-candidate-group
++evidence share domain/frame/query/provenance semantics but remain distinct
++channels. Exact lookup and batch lookup are required; interpolation is
++optional. A missing domain is `not_available`, a valid query outside an
++available domain is `outside`, incomplete evidence is `unknown`, and a limited
++accepted-substitute whole-height result is `conditional`; every conditional
++sample must include a non-empty explanation of its representation limitation.
++None may be silently
++converted to known free or whole-height truth. See
++`specs/001-field-kernel-free-space/owner-decision.md` and the implementation
++section in `docs/software-architecture.md`.
++
++The concrete `FreeSpaceField` instance in
++`features/free_space_field.py` is an exact-cell, two-dimensional
++physical-occupancy field over already resolved `analysis_scene_view` plan
++components. It composes the shared `Field` core and existing geometry helper;
++it does not rescan sources, call the resolver, introduce a runtime
++`FieldBundle`, or alter boundary exclusion. It supports only the frozen
++whole-height handoff; section/height-band/tilted-plane/demand requests remain
++`not_available`. It does not change `evaluate_scene`, room-model output, B3
++live promotion, clearance, connectivity, or decay semantics. Final precision
++independent review is complete for this slice, with the final focused and
++combined evidence recorded as 67 and 141 passed. B3/live promotion and
++constitution ratification remain open.
++
++The shared field output boundary is the immutable
++`FieldResultEnvelope` (`field-result-envelope/v1`). It carries the canonical
++target and query, raw result status, normalized channel set, frozen channel
++records, support, projection metadata, provenance, explanation, and cache
++identity. Cache identity is computed at the complete target/query/channel and
++input/source/recipe/algorithm/schema boundary; a `FieldSample` or rendered
++manifest is only a projection and never defines cache validity. Raw status and
++unavailable channel records remain auditable even when no scalar value can be
++projected.
++
++`FieldSample` is the validated scalar projection used by existing field
++consumers. `field-layer-manifest/v1` is the visualization projection. Its
++adapter preserves raw status, channel set, channel records, provenance, and
++mapping explanation; when the envelope cannot produce a valid sample it uses
++the conservative `unknown` status and `unknown` visual state. This retains the
++existing free-space compatibility semantics and does not reinterpret partial,
++unavailable, invalid, outside, or ambiguous evidence as known free space.
++
++This implementation slice has no group candidate inference, group candidate
++selector, scalar aggregation, score or weight calculation, or job/result
++registry. Object-to-candidate-group relation evidence and later scalar
++aggregation remain future/design-only work and must not be described as
++implemented by the field envelope.
+diff --git a/docs/software-architecture.md b/docs/software-architecture.md
+index 6644da6761..8ec0f5d609 100644
+--- a/docs/software-architecture.md
++++ b/docs/software-architecture.md
+@@ -1,5 +1,13 @@
+ # 软件架构
+ 
++## Spec008 Analyzer workflow completion — DESIGN / IMPLEMENTATION PENDING
++
++[Spec008](../specs/008-analyzer-workflow-completion/spec.md) / [plan](../specs/008-analyzer-workflow-completion/plan.md) record the 2026-10-19 workflow completion design. This is planned behavior, not current-tree implementation or native acceptance. The inspected workflow baseline is sibling `order_analyzer_spec004_delivery` (`spec004-delivery@4b332704`, actual file bytes also require verification); the main workspace still lacks its addon/request/live-session dependencies. `workflow007@1a271593` has an unresolved `features/analysis_requests.py` conflict and is not the integration baseline. Implementation must first recover the bounded dependency closure into an isolated jj workspace and reconcile intended changes without overwriting unrelated dirty work.
++
++Planned ownership: the addon owns explicit drawing-camera create/adopt/refresh and Space confirmation; `adapters/bonsai_analysis_plane.py` reuses `CameraBinding` and `AnalysisPlane`; `adapters/bonsai_live.py` retains canonical source, storey and structural-context qualification; one narrow planned `adapters/bonsai_space_authoring.py` translates the exact frozen B4 shell/holes into native profiles/extrusion and coordinates transaction recovery. Plane and Space get only thin composition bindings, with native identity/geometry authoritative. Base elevation, B4 cut height and extrusion height remain distinct. Storey height comes from an explicit traceable authored quantity or manual entry; selected slab base is its unique horizontal upper surface. Tilted/multilevel unsupported inputs reject explicitly. Existing B4 service/reducer, both wall modes, candidate UI and diagnostics remain authoritative.
++
++The inspected native `Spatial.set_space_representation_from_polygon` uses only the exterior ring; Spec008 therefore plans `ShapeBuilder.profile(..., inner_curves=...)` before native extrusion/representation assignment. Seed-only `bim.generate_space` cannot satisfy this contract. Exceptions in native `IfcStore.execute_ifc_operator` finalize undo bookkeeping; they do not establish automatic atomic rollback. Exact identity return and fault-injected IFC/Blender/history recovery are release gates. Furniture participation must reach group/affordance/trend consumers through the shared policy while retaining physical occupancy. Existing AnalysisRequest/Field/result persistence stay in use; no public `room_analysis_model` shape change, new enclosure algorithm or general object/result framework. B3 remains OPEN.
++
+ ## Spec004 Blender analysis workflow — APPROVED / IMPLEMENTATION IN PROGRESS
+ 
+ [Spec004](../specs/004-blender-analysis-workflow/spec.md) and [plan](../specs/004-blender-analysis-workflow/plan.md) were approved by the user on 2026-10-15 and are **APPROVED / IMPLEMENTATION IN PROGRESS**. They describe the planned lightweight Blender addon, canonical capture, separate B4 structural context, Pixi occupancy/display fragments and persisted results. Current-tree Spec003 request/plane/live-capture dependencies are **CURRENT TREE ABSENT**, while B4/domain handoff files exist; T0 must verify Git checkpoint `23d24a3` and its approved dependency/import closure in isolation, preserving dirty history. Production implementation and acceptance are not yet claimed; historical architecture statements below are not proof that absent files exist in this checkout.
+@@ -350,6 +358,33 @@
+ second base hierarchy, runtime `FieldBundle`, source scanning, or resolver
+ logic. The live evaluator bridge remains absent.
+ 
++`FieldResultEnvelope` is the shared immutable output and audit boundary for
++field computations. Its schema identity is `field-result-envelope/v1`; it
++retains the canonical target, query, raw result status, normalized channel
++set, per-channel observations and requirements, support, provenance,
++explanation, projection metadata, and a cache identity derived from the
++target/query/channel declarations and input, source, recipe, algorithm, and
++schema fingerprints. Raw status and channel records are preserved even when
++an individual channel is unavailable or a structured value is only partial.
++The cache identity therefore belongs to the complete envelope input boundary,
++not to a display sample or a rendered manifest.
++
++`FieldSample` is a validated scalar projection of an envelope. The
++`field-layer-manifest/v1` representation is a visualization projection built
++from the same envelope and may use the sample when its invariants are met.
++When no valid sample projection exists, the manifest keeps raw status,
++channel-set, channel records, provenance, and explanation and falls back to
++`status="unknown"` and `visual_state="unknown"`; it must not turn partial,
++unavailable, invalid, outside, or ambiguous evidence into known free space.
++This preserves the existing free-space field compatibility path and its
++whole-height limitations while keeping audit data recoverable.
++
++This slice does not implement group candidate inference, a group candidate
++selector, scalar aggregation, perceptual scores or weights, or a job/result
++registry. Relation fields and object-to-candidate-group evidence remain
++future/design-only channels; any later group inference or scalar aggregation
++must consume envelopes without changing this boundary.
++
+ ```mermaid
+ flowchart LR
+     domain["AnalysisDomain + frame + query context"] --> core["Field core\nvalue schema + status + provenance"]

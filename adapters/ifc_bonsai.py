@@ -718,8 +718,6 @@ def _native_group_records(source: object) -> tuple[AuthoredGroup, ...]:
         for relation in getattr(group, "IsGroupedBy", ()) or ():
             for member in getattr(relation, "RelatedObjects", ()) or ():
                 members.append(f"ifc-object:{_native_source_id(member)}")
-        if not members:
-            continue
         source_id = _native_source_id(group)
         records.append(
             AuthoredGroup(

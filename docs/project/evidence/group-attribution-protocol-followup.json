@@ -1,0 +1,510 @@
+{
+  "checks": [
+    {
+      "attribution_channels_by_case": {
+        "baseline": [
+          "geometry_relation",
+          "semantic_role"
+        ],
+        "driver_removed": [
+          "semantic_role"
+        ],
+        "modifier_removed": [
+          "geometry_relation"
+        ]
+      },
+      "baseline_proposal_extent": [
+        "G1",
+        "G2"
+      ],
+      "complete_field_status_by_proposed_case": {
+        "baseline": {
+          "G1": {
+            "reason": null,
+            "status": "computed"
+          },
+          "G2": {
+            "reason": null,
+            "status": "computed"
+          },
+          "G3": {
+            "reason": "no_fixture_observation",
+            "status": "not_available"
+          },
+          "G4": {
+            "reason": "channel_not_observed",
+            "status": "unknown"
+          }
+        },
+        "modifier_removed": {
+          "G1": {
+            "reason": null,
+            "status": "computed"
+          },
+          "G2": {
+            "reason": "semantic_modifier_removed",
+            "status": "partial"
+          },
+          "G3": {
+            "reason": "no_fixture_observation",
+            "status": "not_available"
+          },
+          "G4": {
+            "reason": "channel_not_observed",
+            "status": "unknown"
+          }
+        }
+      },
+      "driver_removed_proposal_extent": [],
+      "id": "driver_modifier_separation",
+      "modifier_removed_proposal_extent": [
+        "G1",
+        "G2"
+      ],
+      "result": "passed"
+    },
+    {
+      "id": "proposal_attribution_dependency",
+      "interpretation": "dependency is visible; causal inflation is unresolved because readouts are supplied synthetic inputs",
+      "result": "passed",
+      "scenarios": [
+        {
+          "attribution_source_refs": [
+            "observation:gap-G1-G2",
+            "observation:semantic-role"
+          ],
+          "discovery_exposure": "exposed",
+          "proposal_source_refs": [
+            "observation:gap-G1-G2"
+          ],
+          "readout_mapping": "fixture_supplied_readout_only",
+          "scenario_id": "same_source",
+          "shared_source_refs": [
+            "observation:gap-G1-G2"
+          ],
+          "supplied_readout": 0.9
+        },
+        {
+          "attribution_source_refs": [
+            "observation:semantic-role"
+          ],
+          "discovery_exposure": "not_shared_in_fixture",
+          "proposal_source_refs": [
+            "observation:gap-G1-G2"
+          ],
+          "readout_mapping": "fixture_supplied_readout_only",
+          "scenario_id": "proposal_source_ablated",
+          "shared_source_refs": [],
+          "supplied_readout": 0.55
+        },
+        {
+          "attribution_source_refs": [
+            "observation:blind-holdout"
+          ],
+          "discovery_exposure": "not_shared_in_fixture",
+          "proposal_source_refs": [
+            "observation:gap-G1-G2"
+          ],
+          "readout_mapping": "fixture_supplied_readout_only",
+          "scenario_id": "independent_holdout",
+          "shared_source_refs": [],
+          "supplied_readout": 0.61
+        }
+      ]
+    },
+    {
+      "cases": [
+        {
+          "case_id": "valid_exact_pair",
+          "declaration_retained": true,
+          "hard_veto": true,
+          "resolved_endpoints": [
+            "G1",
+            "G2"
+          ],
+          "status": "resolved"
+        },
+        {
+          "case_id": "dangling_endpoint",
+          "declaration_retained": true,
+          "hard_veto": false,
+          "resolved_endpoints": [
+            "G1",
+            null
+          ],
+          "status": "unresolved_endpoint"
+        },
+        {
+          "case_id": "ambiguous_endpoint",
+          "declaration_retained": true,
+          "hard_veto": false,
+          "resolved_endpoints": [
+            null,
+            "G2"
+          ],
+          "status": "unresolved_endpoint"
+        },
+        {
+          "case_id": "out_of_scope_endpoint",
+          "declaration_retained": true,
+          "hard_veto": false,
+          "resolved_endpoints": [
+            "G1",
+            null
+          ],
+          "status": "unresolved_endpoint"
+        }
+      ],
+      "id": "invalid_exclusion_endpoints",
+      "result": "passed"
+    },
+    {
+      "closure_claim": "not_claimed",
+      "field_cells": [
+        {
+          "evidence_status": "computed",
+          "group_id": "G1"
+        },
+        {
+          "evidence_status": "unknown",
+          "group_id": "G2",
+          "reason": "channel_not_observed"
+        }
+      ],
+      "id": "search_completeness_separate_from_evidence",
+      "result": "passed",
+      "search_status": "incomplete"
+    },
+    {
+      "coverage_by_family": [
+        {
+          "coverage": 0.5,
+          "expected": 4,
+          "family_id": "geometry_relation",
+          "observed_unique_sources": 2
+        },
+        {
+          "coverage": 0.25,
+          "expected": 4,
+          "family_id": "semantic_role",
+          "observed_unique_sources": 1
+        }
+      ],
+      "id": "family_coverage_and_shared_source",
+      "result": "passed",
+      "shared_source_refs_counted_once": [
+        "physical:shared-gap-23"
+      ]
+    },
+    {
+      "case": {
+        "candidate_id": "K_single",
+        "member_readout": null,
+        "members": [
+          "G1"
+        ],
+        "reason": "no_within_candidate_pair_evidence",
+        "status": "not_available",
+        "within_candidate_pair_count": 0
+      },
+      "complete_scope_field_cells": [
+        {
+          "candidate_id": "K_single",
+          "group_id": "G1",
+          "in_proposal_extent": true,
+          "readout": null,
+          "reason": "no_within_candidate_pair_evidence",
+          "scale_query_id": "followup-diagnostic-scale-0",
+          "status": "not_available"
+        },
+        {
+          "candidate_id": "K_single",
+          "group_id": "G2",
+          "in_proposal_extent": false,
+          "readout": null,
+          "reason": "no_attribution_observation_in_fixture",
+          "scale_query_id": "followup-diagnostic-scale-0",
+          "status": "not_available"
+        },
+        {
+          "candidate_id": "K_single",
+          "group_id": "G3",
+          "in_proposal_extent": false,
+          "readout": null,
+          "reason": "no_attribution_observation_in_fixture",
+          "scale_query_id": "followup-diagnostic-scale-0",
+          "status": "not_available"
+        },
+        {
+          "candidate_id": "K_single",
+          "group_id": "G4",
+          "in_proposal_extent": false,
+          "readout": null,
+          "reason": "no_attribution_observation_in_fixture",
+          "scale_query_id": "followup-diagnostic-scale-0",
+          "status": "not_available"
+        }
+      ],
+      "id": "singleton_low_evidence",
+      "result": "passed"
+    },
+    {
+      "complete_scope_field_views": [
+        {
+          "candidate_id": "original_A",
+          "cells": [
+            {
+              "boundary_tension": null,
+              "candidate_id": "original_A",
+              "group_id": "G1",
+              "in_proposal_extent": true,
+              "readout": 0.82,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G1",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "original_A",
+              "group_id": "G2",
+              "in_proposal_extent": true,
+              "readout": 0.56,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G2",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": "not_evaluated",
+              "candidate_id": "original_A",
+              "group_id": "G3",
+              "in_proposal_extent": false,
+              "readout": 0.31,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G3",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": "not_evaluated",
+              "candidate_id": "original_A",
+              "group_id": "G4",
+              "in_proposal_extent": false,
+              "readout": 0.4,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G4",
+              "status": "computed"
+            }
+          ]
+        },
+        {
+          "candidate_id": "original_B",
+          "cells": [
+            {
+              "boundary_tension": "not_evaluated",
+              "candidate_id": "original_B",
+              "group_id": "G1",
+              "in_proposal_extent": false,
+              "readout": 0.82,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G1",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": "not_evaluated",
+              "candidate_id": "original_B",
+              "group_id": "G2",
+              "in_proposal_extent": false,
+              "readout": 0.56,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G2",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "original_B",
+              "group_id": "G3",
+              "in_proposal_extent": true,
+              "readout": 0.31,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G3",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "original_B",
+              "group_id": "G4",
+              "in_proposal_extent": true,
+              "readout": 0.4,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G4",
+              "status": "computed"
+            }
+          ]
+        },
+        {
+          "candidate_id": "overlapping_merge",
+          "cells": [
+            {
+              "boundary_tension": "not_evaluated",
+              "candidate_id": "overlapping_merge",
+              "group_id": "G1",
+              "in_proposal_extent": false,
+              "readout": 0.82,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G1",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "overlapping_merge",
+              "group_id": "G2",
+              "in_proposal_extent": true,
+              "readout": 0.56,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G2",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "overlapping_merge",
+              "group_id": "G3",
+              "in_proposal_extent": true,
+              "readout": 0.31,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G3",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "overlapping_merge",
+              "group_id": "G4",
+              "in_proposal_extent": true,
+              "readout": 0.4,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G4",
+              "status": "computed"
+            }
+          ]
+        },
+        {
+          "candidate_id": "broad",
+          "cells": [
+            {
+              "boundary_tension": null,
+              "candidate_id": "broad",
+              "group_id": "G1",
+              "in_proposal_extent": true,
+              "readout": 0.82,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G1",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "broad",
+              "group_id": "G2",
+              "in_proposal_extent": true,
+              "readout": 0.56,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G2",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "broad",
+              "group_id": "G3",
+              "in_proposal_extent": true,
+              "readout": 0.31,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G3",
+              "status": "computed"
+            },
+            {
+              "boundary_tension": null,
+              "candidate_id": "broad",
+              "group_id": "G4",
+              "in_proposal_extent": true,
+              "readout": 0.4,
+              "scale_query_id": "followup-diagnostic-scale-0",
+              "source_ref": "profile-input:G4",
+              "status": "computed"
+            }
+          ]
+        }
+      ],
+      "id": "original_merge_broad_profiles",
+      "normalization": "none_across_candidates",
+      "profiles": [
+        {
+          "candidate_id": "original_A",
+          "coverage": 1.0,
+          "expected_member_count": 2,
+          "kind": "original",
+          "mean": 0.69,
+          "median": 0.69,
+          "members": [
+            "G1",
+            "G2"
+          ],
+          "valid_member_count": 2,
+          "weakest_member": 0.56
+        },
+        {
+          "candidate_id": "original_B",
+          "coverage": 1.0,
+          "expected_member_count": 2,
+          "kind": "original",
+          "mean": 0.355,
+          "median": 0.355,
+          "members": [
+            "G3",
+            "G4"
+          ],
+          "valid_member_count": 2,
+          "weakest_member": 0.31
+        },
+        {
+          "candidate_id": "overlapping_merge",
+          "coverage": 1.0,
+          "expected_member_count": 3,
+          "kind": "overlapping_merge",
+          "mean": 0.42333333333333334,
+          "median": 0.4,
+          "members": [
+            "G2",
+            "G3",
+            "G4"
+          ],
+          "valid_member_count": 3,
+          "weakest_member": 0.31
+        },
+        {
+          "candidate_id": "broad",
+          "coverage": 1.0,
+          "expected_member_count": 4,
+          "kind": "broad",
+          "mean": 0.5225,
+          "median": 0.48000000000000004,
+          "members": [
+            "G1",
+            "G2",
+            "G3",
+            "G4"
+          ],
+          "valid_member_count": 4,
+          "weakest_member": 0.31
+        }
+      ],
+      "result": "passed"
+    }
+  ],
+  "design_only": true,
+  "fixture_id": "attribution-contract-followup-v1",
+  "fixture_sha256": "f7ac16a9a2621c3e59d4dde9edb95332fec38279d22bfb3fc6f08f0702e6f6a3",
+  "limitations": [
+    "The driver/modifier and endpoint cases validate declared contract handling, not a selected production recipe.",
+    "Proposal-dependence readouts are supplied synthetic inputs; the comparison exposes dependencies but does not estimate causal inflation.",
+    "Coverage uses source references as diagnostic denominators and does not select cross-family weights.",
+    "Profile values are supplied synthetic observations; they do not calibrate a real-world intensity scale."
+  ],
+  "schema": "group-attribution-protocol-followup-result/v1"
+}

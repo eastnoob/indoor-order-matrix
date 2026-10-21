@@ -140,7 +140,7 @@ flowchart TD
 | Evaluation | `features/scene_evaluator.py:evaluate_scene` | Rows, score matrix, free-space/LOS/path graphs, evidence geometry, adapter payload |
 | Room model | `features/room_analysis_model.py:build_room_analysis_model` | Description/model aggregation; does not define scoring algorithms |
 | Standalone frame | `features/furniture_frame.py:infer_furniture_frame`, used by `test/bim/run_ifc_furniture_frames.py` | Furniture mesh frame calculation outside `infer_scene_evidence` |
-| Standalone authored-group API | `features/group_self_description.py:describe_group_relations` | Authored-group relations and typed trend binding; separate from `scene_inference.py` |
+| Standalone authored-group API | `features/group_self_description.py:describe_group_relations`; `features/_authored_group_inventory.py:_build_authored_group_inventory`; `adapters/ifc_bonsai.py:_native_group_records` | Direct Neutral Scene inventory preserves raw references, duplicate/unresolved-reference audit, shared membership, and explicit empty IFC groups before geometry/relation description. Reuses the unshifted geometry projections held by the current `analysis_scene_view` call; this is an invocation-local performance workaround. Eligibility reports input completeness separately from `group_geometry.geometry_status`; empty groups remain audit-only and ordinary IFC groups remain non-furniture. Separate from `scene_inference.py` and the lossy compatibility view. |
 | Position grammar | `features/position_grammar.py:region_position_grammar_evidence`, `group_assembly_grammar_evidence` | Evaluator-side grammar evidence |
 | Column grid | `features/column_grid.py:column_grid_evidence` | Evaluator passes `analysis_scene` containing view data plus inferred regions |
 | Preview | `adapters/blender_preview.py:build_preview_manifest(scene, matrix)` | Consumes Neutral Scene source geometry plus evaluator matrix evidence; output-only inspection |
@@ -381,9 +381,36 @@ whole-height limitations while keeping audit data recoverable.
 
 This slice does not implement group candidate inference, a group candidate
 selector, scalar aggregation, perceptual scores or weights, or a job/result
-registry. Relation fields and object-to-candidate-group evidence remain
-future/design-only channels; any later group inference or scalar aggregation
-must consume envelopes without changing this boundary.
+registry. Candidate-group evidence remains future/design-only; any later group
+inference or scalar aggregation must consume envelopes without changing this
+boundary.
+
+The first relation evidence package is now implemented in
+`features/group_geometry_relation_field.py`. It wraps the existing IFC-driven
+`describe_group_relations` member-pair observations into
+`FieldResultEnvelope` records with descriptive boundary-gap, contact, and
+positive-area-overlap channels. It remains diagnostic-only: group-level
+aggregation, candidate inference, the complete candidate-by-unit attribution
+field, membership edges, potential, and strength remain separate work.
+
+The package requires `FieldQuery.plane == scene.context.analysis_plane`.
+The current IFC supplies world-XY by the user's temporary choice; neither the
+package nor the planar renderer owns that choice. The 1B contract test calls
+`scripts/design/group_level/render_group_geometry_relation_field_ifc.py`,
+which consumes that run's description/envelopes and draws the existing
+plane-local member polygons without loading IFC or projecting meshes again.
+The 2026-10-27 delivery maps all 666 group-pair envelopes to pair JSON/SVG,
+with an overview and source/plane/unit manifest. All 667 SVG files parsed;
+overview, near/far separation and contact PNG samples were visually reviewed.
+The corrected contract test passed by replaying the retained real IFC scene
+and description; this was not an independent second geometry extraction.
+This source covers computed gap/contact observations only: overlap, shared
+members and missing/invalid/partial branches remain unverified. See the
+[package verification record](project/evidence/geometry-relation-field-package-v1.md#current-verification-and-limits).
+The user accepted the geometry-field sample review on 2026-10-27 ("合理").
+The next step is stage-2 clarification of evidence use and rules, with no
+membership/strength mapping yet approved. Camera integration and other
+analysis planes have not been verified.
 
 ```mermaid
 flowchart LR

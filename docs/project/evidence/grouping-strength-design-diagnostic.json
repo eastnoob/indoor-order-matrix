@@ -1,0 +1,71 @@
+{
+  "schema": "grouping-strength-design-diagnostic/v1",
+  "date": "2026-10-25",
+  "status": "design_gate_not_passed",
+  "design_only": true,
+  "production_strength_rule_selected": false,
+  "summary": {
+    "resolved": 0,
+    "provisionally_supported": 1,
+    "unresolved": 15,
+    "core_finding": "Stage A/D6 supports candidate-proposal and evidence-status diagnostics but does not test per-authored-group attribution fields or group profiles.",
+    "input_contract": "AuthoredGroup, analysis_scene_view, and group_self_description disagree on eligibility, empty groups, duplicate/dangling references, and shared-member identity."
+  },
+  "runtime_reproduction": {
+    "fixture_description": "One generic all-furniture group, two explicit furniture groups sharing left_table, and one empty explicit furniture group.",
+    "analysis_scene_view_member_groups": {
+      "left_table": "generic",
+      "right_table": "fg-first"
+    },
+    "group_self_description_eligible_groups": [
+      "fg-empty",
+      "fg-first",
+      "fg-second"
+    ],
+    "observation": "Generic membership wins first-owner mapping in analysis_scene_view; group_self_description excludes the generic group while retaining both explicit memberships and the empty explicit group."
+  },
+  "replay": {
+    "command": "pixi run python scripts/design/group_level/run_inferred_group_candidate_field_probe.py --fixtures scripts/design/group_level/inferred_group_candidate_field_fixtures.json --output %TEMP%/group-attribution-d6-replay.json",
+    "fixture_count": 8,
+    "fixture_sha256": "6199c764aaf28c999b10194deaed33b92314c4f448c3b091af9234b342d5944a",
+    "output_sha256_run_1": "d0096c9236a183bf5147c6a3db2a72fdf7f9eb2f8317ced7e7d4a39f648ddbc3",
+    "output_sha256_run_2": "d0096c9236a183bf5147c6a3db2a72fdf7f9eb2f8317ced7e7d4a39f648ddbc3",
+    "assertions_passed": 10,
+    "prior_d6_report_fixture_sha256": "b4aaeb588fe6ebbbc3033f1bd93b48d1696a7be931c12aaa79488cc89ab4dc2a",
+    "prior_hash_matches_current_fixture": false
+  },
+  "tests": {
+    "command": "pixi run pytest -q test/test_group_self_description.py test/test_scene_contract.py test/test_neutral_scene_analysis_regression.py",
+    "passed": 206,
+    "failed": 0
+  },
+  "matrix": [
+    {"id": "I1", "status": "unresolved", "finding": "Generic all-furniture groups qualify in analysis_scene_view but are excluded by group_self_description."},
+    {"id": "I2", "status": "unresolved", "finding": "Empty explicit group handling differs; duplicate references lack a shared audit/deduplication contract."},
+    {"id": "I3", "status": "unresolved", "finding": "Dangling members are invalid in group_self_description but not exposed consistently in analysis_scene_view; canonical contract rejects them."},
+    {"id": "I4", "status": "unresolved", "finding": "Shared membership is retained in group_self_description but first-wins in analysis_scene_view."},
+    {"id": "C1", "status": "unresolved", "finding": "No driver/modifier perturbation separates candidate changes from attribution changes."},
+    {"id": "C2", "status": "provisionally_supported", "finding": "Exact valid-endpoint candidate veto with unavailable geometry is supported; full attribution-field effects remain untested."},
+    {"id": "C3", "status": "unresolved", "finding": "Dangling, ambiguous, and out-of-scope exclusion endpoints are not tested."},
+    {"id": "S1", "status": "unresolved", "finding": "No membership attribution tests for unknown/conditional statuses or scalar-readout eligibility."},
+    {"id": "S2", "status": "unresolved", "finding": "Bounded search exists as historical design evidence but lacks an explicit separate completeness state in target output."},
+    {"id": "F1", "status": "unresolved", "finding": "No complete candidate-by-eligible-group-by-scale/query attribution field."},
+    {"id": "F2", "status": "unresolved", "finding": "No out-of-scope/uncovered attribution record semantics; scope exclusion is candidate-level only."},
+    {"id": "D1", "status": "unresolved", "finding": "Proposal holdout analogues exist, but no attribution ablation/independent-evidence comparison."},
+    {"id": "P1", "status": "unresolved", "finding": "Bridge-chain proposal fixture is not a member attribution profile; protocol arithmetic lacks a located frozen source fixture."},
+    {"id": "P2", "status": "unresolved", "finding": "No expected/observed attribution evidence coverage denominator."},
+    {"id": "P3", "status": "unresolved", "finding": "Singleton proposal diagnostics exist, but singleton/low-coverage attribution profiles do not."},
+    {"id": "P4", "status": "unresolved", "finding": "Nested/overlapping proposals exist, but comparable member profiles do not."}
+  ],
+  "next_design_work": [
+    "Resolve the authored-group eligibility and identity contract.",
+    "Specify complete field domain and explicit absent-cell statuses.",
+    "Add design-only attribution fixtures for driver/modifier perturbation, invalid veto endpoints, proposal leakage, and member profiles.",
+    "Revise and review the non-probabilistic strength spec before any implementation plan."
+  ],
+  "limitations": [
+    "The sibling Stage A checkout is dirty; its runner was not executed and its report is treated as historical evidence only.",
+    "No real-scene blind review or 37-node search-cost benchmark was performed.",
+    "No production score, scalar mapping, probability, or calibration claim was tested."
+  ]
+}

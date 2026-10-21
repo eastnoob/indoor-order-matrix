@@ -122,6 +122,22 @@ def test_valid_records_round_trip_and_canonicalize_reference_order() -> None:
     validate_canonical_scene(restored)
 
 
+def test_canonical_authored_groups_reject_duplicate_and_dangling_member_refs() -> None:
+    """Canonical input remains strict even when Neutral Scene keeps audit facts."""
+    with pytest.raises(ValueError, match="duplicate ids"):
+        AuthoredGroupFact("group-1", ("object-a", "object-a"), "IfcGroup:G1")
+
+    with pytest.raises(ValueError, match="references unknown object"):
+        scene = _scene()
+        CanonicalScene(
+            frame=scene.frame,
+            objects=scene.objects,
+            source_geometries=scene.source_geometries,
+            plan_geometries=scene.plan_geometries,
+            authored_groups=(AuthoredGroupFact("group-1", ("missing-object",), "IfcGroup:G1"),),
+        )
+
+
 @pytest.mark.parametrize("status", tuple(ResultStatus))
 def test_descriptor_result_accepts_each_status_with_explicit_value_rules(
     status: ResultStatus,

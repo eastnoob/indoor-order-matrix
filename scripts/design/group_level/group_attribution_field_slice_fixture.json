@@ -1,0 +1,46 @@
+{
+  "schema": "group-attribution-field-slice-fixture/v1",
+  "id": "overlapping-attribution-field-slice",
+  "purpose": "Design-only representation check; values are supplied diagnostic inputs, not a selected scoring rule.",
+  "scale_query_id": "diagnostic-scale-0",
+  "scope": {
+    "eligible_groups": ["G1", "G2", "G3"],
+    "out_of_scope_groups": ["GX"],
+    "out_of_scope_records": [
+      {"group_id": "GX", "source_ref": "input:authored-group-GX", "reason": "not_in_frozen_eligible_scope"}
+    ]
+  },
+  "candidates": [
+    {
+      "id": "K1",
+      "proposal_extent": ["G1", "G2"],
+      "proposal_evidence_refs": ["proposal:K1:geometry"],
+      "attribution": {
+        "G1": {"status": "computed", "readout": 0.82, "reason": null, "source_refs": ["attribution:K1:G1"]},
+        "G2": {"status": "computed", "readout": 0.56, "reason": null, "source_refs": ["attribution:K1:G2"]},
+        "G3": {"status": "computed", "readout": 0.31, "reason": null, "source_refs": ["attribution:K1:G3"], "boundary_tension": true}
+      }
+    },
+    {
+      "id": "K2",
+      "proposal_extent": ["G2", "G3"],
+      "proposal_evidence_refs": ["proposal:K2:pattern"],
+      "attribution": {
+        "G1": {"status": "unknown", "readout": null, "reason": "attribution_channel_not_observed", "source_refs": []},
+        "G2": {"status": "computed", "readout": 0.67, "reason": null, "source_refs": ["attribution:K2:G2"]},
+        "G3": {"status": "conditional", "readout": null, "reason": "semantic_channel_is_conditional", "source_refs": ["attribution:K2:G3"]}
+      }
+    }
+  ],
+  "weak_bridge_profile": {
+    "candidate_id": "K_bridge",
+    "members": [
+      {"id": "core_1", "status": "computed", "readout": 0.5125},
+      {"id": "core_2", "status": "computed", "readout": 0.5125},
+      {"id": "core_3", "status": "computed", "readout": 0.5125},
+      {"id": "core_4", "status": "computed", "readout": 0.5125},
+      {"id": "bridge", "status": "computed", "readout": 0.15}
+    ],
+    "mask_member_for_coverage_case": "core_1"
+  }
+}

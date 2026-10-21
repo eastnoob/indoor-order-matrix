@@ -119,6 +119,87 @@ def test_neutral_scene_ordinary_authored_group_is_excluded():
     assert "left_table" in result["eligibility"][0]["excluded_context_object_ids"]
 
 
+def test_neutral_group_description_keeps_inventory_edges_and_deduplicates_geometry():
+    """Expose source audit while computing shared memberships only once per group."""
+    scene = _neutral_scene()
+    scene = replace(
+        scene,
+        authored_groups=(
+            AuthoredGroup("empty", "ifc-empty", (), "furniture_group"),
+            AuthoredGroup("left-duplicate", "ifc-left", ("left_table", "left_table"), "furniture_group"),
+            AuthoredGroup("shared", "ifc-shared", ("left_table", "right_table"), "furniture_group"),
+            AuthoredGroup("generic", "ifc-generic", ("left_table", "right_table"), "logical_group"),
+        ),
+    )
+
+    result = describe_group_relations(scene)
+
+    inventory = result["input_inventory"]
+    assert inventory["member_group_ids"]["left_table"] == ["left-duplicate", "shared"]
+    assert inventory["excluded_groups"][0]["reason"] == "empty_group"
+    assert inventory["excluded_groups"][1]["reason"] == "non_furniture_group_role"
+    assert inventory["input_audit"][0]["group_id"] == "empty"
+    assert inventory["input_audit"][1]["duplicate_refs"] == ["left_table"]
+    assert [item["eligible_group_id"] for item in result["eligibility"]] == [
+        "left-duplicate",
+        "shared",
+    ]
+    geometry = {item["target_id"]: item for item in result["group_geometry"]}
+    assert geometry["left-duplicate"]["support_area"] == geometry["shared"]["member_geometry"][0]["area"]
+    assert geometry["left-duplicate"]["geometry_completeness"] == {
+        "usable_members": 1,
+        "declared_members": 1,
+    }
+
+
+def test_neutral_eligibility_preserves_input_status_separately_from_geometry_status():
+    """Keep authored reference completeness distinct from computed geometry state."""
+    scene = _neutral_scene()
+    scene = replace(
+        scene,
+        authored_groups=(
+            replace(
+                scene.authored_groups[0],
+                id="partial-group",
+                member_refs=("left_table", "missing-member"),
+            ),
+            replace(
+                scene.authored_groups[1],
+                id="invalid-group",
+                member_refs=("missing-member",),
+            ),
+        ),
+    )
+
+    result = describe_group_relations(scene)
+
+    eligibility = {item["eligible_group_id"]: item for item in result["eligibility"]}
+    geometry = {item["target_id"]: item for item in result["group_geometry"]}
+    assert eligibility["partial-group"]["input_completeness_status"] == "partial"
+    assert eligibility["partial-group"]["completeness_status"] == "partial"
+    assert eligibility["invalid-group"]["input_completeness_status"] == "invalid"
+    assert eligibility["invalid-group"]["completeness_status"] == "invalid"
+    assert geometry["partial-group"]["geometry_status"] == "invalid"
+    assert geometry["invalid-group"]["geometry_status"] == "invalid"
+
+
+def test_empty_authored_furniture_group_stays_in_audit_not_eligibility():
+    """Empty authored groups remain auditable without becoming analysis nodes."""
+    scene = _neutral_scene()
+    scene = replace(
+        scene,
+        authored_groups=(AuthoredGroup("empty", "ifc-empty", (), "furniture_group"),),
+    )
+
+    result = describe_group_relations(scene)
+
+    assert result["input_inventory"]["authored_groups"][0]["completeness_status"] == "empty_group"
+    assert result["input_inventory"]["input_audit"][0]["group_id"] == "empty"
+    assert result["eligibility"] == []
+    assert result["group_geometry"] == []
+    assert result["candidate_views"] is None
+
+
 def test_representative_geometry_is_additive_and_area_weighted():
     """Additive area and area-weighted moments stay separate from deferred union evidence."""
     objects = [

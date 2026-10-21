@@ -239,6 +239,7 @@ def _neutral_scene_view(scene: NeutralSceneV2) -> LegacyAnalysisScene:
             "method": "neutral_scene_plan_projection",
             "origin_offset": offset,
             "analysis_plane": plane.name,
+            "projected_geometry_components": geometry_components,
             "input_mode": scene.context.input_mode,
             "capability_flags": _normalized_capability_flags(
                 scene,

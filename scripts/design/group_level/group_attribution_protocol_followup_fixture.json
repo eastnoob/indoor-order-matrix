@@ -1,0 +1,113 @@
+{
+  "schema": "group-attribution-protocol-followup-fixture/v1",
+  "id": "attribution-contract-followup-v1",
+  "scale_query_id": "followup-diagnostic-scale-0",
+  "scope": ["G1", "G2", "G3", "G4"],
+  "driver_modifier_cases": [
+    {
+      "id": "baseline",
+      "driver_present": true,
+      "proposal_extent": ["G1", "G2"],
+      "proposal_status": "proposed",
+      "attribution_channels": ["geometry_relation", "semantic_role"],
+      "attribution_field_status_by_group": {
+        "G1": {"status": "computed", "reason": null},
+        "G2": {"status": "computed", "reason": null},
+        "G3": {"status": "not_available", "reason": "no_fixture_observation"},
+        "G4": {"status": "unknown", "reason": "channel_not_observed"}
+      }
+    },
+    {
+      "id": "driver_removed",
+      "driver_present": false,
+      "proposal_extent": [],
+      "proposal_status": "not_proposed",
+      "attribution_channels": ["semantic_role"],
+      "attribution_field_status_by_group": null
+    },
+    {
+      "id": "modifier_removed",
+      "driver_present": true,
+      "proposal_extent": ["G1", "G2"],
+      "proposal_status": "proposed",
+      "attribution_channels": ["geometry_relation"],
+      "attribution_field_status_by_group": {
+        "G1": {"status": "computed", "reason": null},
+        "G2": {"status": "partial", "reason": "semantic_modifier_removed"},
+        "G3": {"status": "not_available", "reason": "no_fixture_observation"},
+        "G4": {"status": "unknown", "reason": "channel_not_observed"}
+      }
+    }
+  ],
+  "proposal_attribution_dependence": {
+    "proposal_source_refs": ["observation:gap-G1-G2"],
+    "illustrative_mapping": "fixture_supplied_readout_only",
+    "scenarios": [
+      {
+        "id": "same_source",
+        "attribution_source_refs": ["observation:gap-G1-G2", "observation:semantic-role"],
+        "readout": 0.90
+      },
+      {
+        "id": "proposal_source_ablated",
+        "attribution_source_refs": ["observation:semantic-role"],
+        "readout": 0.55
+      },
+      {
+        "id": "independent_holdout",
+        "attribution_source_refs": ["observation:blind-holdout"],
+        "readout": 0.61
+      }
+    ]
+  },
+  "exclusion_endpoint_cases": {
+    "endpoint_matches": {
+      "exact-G1": ["G1"],
+      "exact-G2": ["G2"],
+      "ambiguous-G1-or-G3": ["G1", "G3"],
+      "outside-GX": ["GX"]
+    },
+    "cases": [
+      {"id": "valid_exact_pair", "endpoints": ["exact-G1", "exact-G2"], "expected_hard_veto": true},
+      {"id": "dangling_endpoint", "endpoints": ["exact-G1", "missing-G9"], "expected_hard_veto": false},
+      {"id": "ambiguous_endpoint", "endpoints": ["ambiguous-G1-or-G3", "exact-G2"], "expected_hard_veto": false},
+      {"id": "out_of_scope_endpoint", "endpoints": ["exact-G1", "outside-GX"], "expected_hard_veto": false}
+    ]
+  },
+  "search_and_evidence_status": {
+    "search_status": "incomplete",
+    "search_reason": "declared_search_budget_reached",
+    "closure_claim": "not_claimed",
+    "field_cells": [
+      {"group_id": "G1", "evidence_status": "computed"},
+      {"group_id": "G2", "evidence_status": "unknown", "reason": "channel_not_observed"}
+    ]
+  },
+  "coverage": {
+    "evidence_families": [
+      {"id": "geometry_relation", "expected_observations": 4, "observed_source_refs": ["physical:gap-12", "physical:shared-gap-23"]},
+      {"id": "semantic_role", "expected_observations": 4, "observed_source_refs": ["semantic:role-1"]}
+    ],
+    "cell_source_refs": [
+      {"cell": "K1/G2", "source_ref": "physical:shared-gap-23"},
+      {"cell": "K2/G2", "source_ref": "physical:shared-gap-23"}
+    ]
+  },
+  "singleton_case": {
+    "candidate_id": "K_single",
+    "members": ["G1"],
+    "within_candidate_pair_count": 0,
+    "member_readout": null,
+    "status": "not_available",
+    "reason": "no_within_candidate_pair_evidence"
+  },
+  "profile_comparison": {
+    "group_readouts": {"G1": 0.82, "G2": 0.56, "G3": 0.31, "G4": 0.40},
+    "candidates": [
+      {"id": "original_A", "kind": "original", "members": ["G1", "G2"]},
+      {"id": "original_B", "kind": "original", "members": ["G3", "G4"]},
+      {"id": "overlapping_merge", "kind": "overlapping_merge", "members": ["G2", "G3", "G4"]},
+      {"id": "broad", "kind": "broad", "members": ["G1", "G2", "G3", "G4"]}
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "group-clustering-stage-b-fixture-config/v1",
+  "fixture_seed": 20261022,
+  "scenario_types": ["linear_pattern", "grid_pattern", "overlap_nested", "bridge_chain", "semantic_conflict", "shared_source_dependence", "missing_invalid_conflict", "scale_perturbation"],
+  "source_family_seeds": [1101, 1202, 1303, 1404, 1505, 1606],
+  "split_by_seed": {"1101": "development", "1202": "development", "1303": "development", "1404": "validation", "1505": "holdout", "1606": "holdout"},
+  "limits": {"authored_nodes_per_scene": 6, "candidates_per_scene": 3, "targets_per_candidate_max": 4, "targets_per_scene_max": 12},
+  "selection_sensitivity": {"status": "not_run", "reason": "Task 1 does not execute Stage A proposal policies."}
+}
+
