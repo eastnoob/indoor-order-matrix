@@ -169,3 +169,19 @@ def test_manifest_serialization_is_deterministic():
         value, sort_keys=True, separators=(",", ":"), ensure_ascii=True
     ).encode("utf-8")
     assert encode(first) == encode(second)
+
+
+def test_result_manifest_serialization_is_deterministic():
+    """Equivalent envelope manifests serialize identically with nested evidence."""
+    first = build_field_result_layer_manifest(
+        layer_id="deterministic-results",
+        channel="relation",
+        results=(_result(FieldResultStatus.PARTIAL, value=False, explanation="semantic evidence is unavailable"),),
+    )
+    second = build_field_result_layer_manifest(
+        layer_id="deterministic-results",
+        channel="relation",
+        results=(_result(FieldResultStatus.PARTIAL, value=False, explanation="semantic evidence is unavailable"),),
+    )
+    encode = lambda value: json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    assert encode(first) == encode(second)
