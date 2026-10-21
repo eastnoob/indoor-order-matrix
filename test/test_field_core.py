@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any
 
@@ -391,3 +392,19 @@ def test_cache_identity_is_order_independent_but_input_sensitive() -> None:
     assert first == _cache(query, b)
     assert first["identity"] != _cache(query, a, source="source-r2")["identity"]
     assert first["identity"] != _cache(_query(revision="query-r2"), a)["identity"]
+
+
+def test_mutable_dataclass_payload_is_rejected() -> None:
+    """Mutable dataclasses cannot bypass the envelope's immutable payload boundary."""
+    @dataclass
+    class MutableEvidence:
+        score: float
+
+    with pytest.raises(TypeError):
+        EvidenceChannelRecord(
+            "geometry",
+            True,
+            "positive",
+            MutableEvidence(1.0),
+            provenance=_provenance(),
+        )

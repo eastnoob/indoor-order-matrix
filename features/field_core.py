@@ -44,9 +44,11 @@ def _freeze(value: Any) -> Any:
     """Return a JSON-safe immutable representation of a nested value."""
     if value is None or isinstance(value, (str, bool, int)):
         return value
-    if is_dataclass(value) and getattr(value, "__dataclass_params__", None) is not None:
-        # Frozen contract records already recursively freeze their own payloads.
-        return value
+    if is_dataclass(value):
+        # Only frozen contract records are safe to retain inside an immutable payload.
+        if getattr(value, "__dataclass_params__", None).frozen:
+            return value
+        raise TypeError(f"mutable dataclass {type(value).__name__} is not JSON-safe")
     if isinstance(value, float):
         if not isfinite(value):
             raise ValueError("JSON-safe values cannot contain non-finite floats")
