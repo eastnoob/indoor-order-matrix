@@ -3,9 +3,10 @@
 ## Purpose and boundary
 
 This audit checks what the repository already computes for furniture-group
-trend/alignment before defining the second evidence package. It does not add a
-trend channel to the geometry relation package, choose a trend estimand, or
-produce a current-IFC trend result.
+trend/alignment and records the approved working contract for the second
+evidence package. It does not add trend channels to the geometry relation
+package, choose a combined trend estimand, or claim a current-IFC package
+result.
 
 ## Existing implementation
 
@@ -78,15 +79,30 @@ This is a sample audit only. The reused design probe stops after three complete
 groups; it is not a 37-group current-IFC package run and it does not emit a
 second field Envelope.
 
-## Candidate second-package contract (pending review)
+## Approved second-package working contract
 
-The existing output suggests a group-targeted package rather than another
-group-pair package. A possible Envelope target is one `furniture_group` under
-the same `FieldQuery`, with parallel channels for `overall_group_axis`,
-`member_frame`, `member_axis` and `layout_axis`. The package would preserve
-member bindings, source references, descriptor status, diagnostic evidence and
-the four estimands separately. This is a proposal for the next discussion,
-not an approved combination rule or strength formula.
+The existing output supports a group-targeted package rather than another
+group-pair package. The approved working Envelope target is one
+`furniture_group` under the same `FieldQuery`, with four parallel channels:
+`overall_group_axis`, `member_frame`, `member_axis` and `layout_axis`.
+
+The package must preserve, separately for every channel:
+
+- typed `Analysis` member bindings;
+- source IDs and provenance;
+- `computed`, `partial`, `invalid`, and `not_available` status;
+- diagnostic evidence and excluded-member reasons; and
+- the channel's own angle/strength/coherence fields as currently produced.
+
+This approval is a working package contract only. It does not choose how the
+channels combine, define an overall potential or strength, add weights or
+thresholds, select a candidate/winner, or permit nested evidence packages.
+Those decisions remain deferred until multiple real evidence packages have
+been structurally reviewed.
+
+The user approved this contract on 2026-10-27. The next implementation step is
+a read-only full run on the pinned IFC, with one Envelope/JSON record and a
+plane-local visualization for every eligible authored furniture group.
 
 Before implementation, a full current-IFC trend package run still needs its
 own source manifest, complete-group coverage and plane-local visualization.
