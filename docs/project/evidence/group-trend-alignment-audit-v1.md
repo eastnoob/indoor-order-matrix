@@ -104,6 +104,22 @@ The user approved this contract on 2026-10-27. The next implementation step is
 a read-only full run on the pinned IFC, with one Envelope/JSON record and a
 plane-local visualization for every eligible authored furniture group.
 
-Before implementation, a full current-IFC trend package run still needs its
-own source manifest, complete-group coverage and plane-local visualization.
-No trend result has yet been added to the geometry relation Envelope.
+The full current-IFC diagnostic then ran with the approved group-targeted
+working contract. It produced 37 computed `furniture_group` Envelopes, each
+with the four independent channels, and 148 plane-local SVG views (37 groups ×
+4 channels). The source fingerprint and query plane match the pinned IFC:
+
+```text
+run: outputs/design/group_trend_alignment_field_ifc/run_20261027T224335Z
+groups: 37
+envelopes: 37
+channels: overall_group_axis, member_frame, member_axis, layout_axis
+visualizations: 148/148 XML-parseable
+source sha256: 1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077
+raw status: computed 37, partial 0, invalid 0, not_available 0
+potential/composition/strength/candidate/winner: null
+```
+
+This is a descriptive trend package only. It has not been added to the
+geometry-relation Envelope, and it does not create pairwise potential
+similarity, candidate participation, or an upper-group average.

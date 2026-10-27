@@ -297,6 +297,21 @@ D6 目标语义表已把这一边界写成：趋势一致是独立 descriptor，
 验证限制不变。下一步先澄清阶段 2 所需的证据用途/规则；完整候选×单元
 归属场、强度与下一证据包尚未推进。
 
+### 第二个证据包：势/趋势对齐（2026-10-27）
+
+用户同意先把已有趋势实现作为独立、可审计的第二证据包接入共享 Field core。
+该包以一个 `furniture_group` 为 target，保留四个并行通道：
+`overall_group_axis`、`member_frame`、`member_axis`、`layout_axis`。每个通道
+分别保留 typed `Analysis` bindings、source/provenance、状态和诊断证据；现有
+`strength`/`coherence` 只表示几何集中度或成员方向一致度，不是势1强度、组势、
+归属支持或最终标量。当前 IFC 全量只读诊断已产生 37 个 group Envelope 和
+148 张同一分析平面的 SVG，详情见[趋势证据包记录](evidence/group-trend-alignment-field-package-v1.md)。
+
+这一步只证明已有事实可以被结构化承载，不决定四通道如何合成，也不改变组的
+无硬边界设计；potential、membership、candidate、winner、权重、阈值和强度
+仍未决。当前 IFC 没有出现 partial/invalid/not_available 趋势成员，因此这些
+状态的传播仍由契约保留、待后续真实来源覆盖。
+
 2026-10-27 用户补充：当前先用 world-XY，但后续需要切换。证据包的 query
 必须与 `scene.context.analysis_plane` 一致，图面也使用该平面的局部坐标；
 world-XY 是当前数据上下文的选择，不得写死成证据规则。相机接入本身另行处理。

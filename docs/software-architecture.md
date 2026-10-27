@@ -408,9 +408,16 @@ This source covers computed gap/contact observations only: overlap, shared
 members and missing/invalid/partial branches remain unverified. See the
 [package verification record](project/evidence/geometry-relation-field-package-v1.md#current-verification-and-limits).
 The user accepted the geometry-field sample review on 2026-10-27 ("合理").
-The next step is stage-2 clarification of evidence use and rules, with no
-membership/strength mapping yet approved. Camera integration and other
-analysis planes have not been verified.
+The second package is the diagnostic-only
+`features/group_trend_alignment_field.py`. It wraps the existing typed
+`Analysis` group descriptors as four parallel channels
+(`overall_group_axis`, `member_frame`, `member_axis`, and `layout_axis`) for
+one `furniture_group` target. The current IFC run produced 37 envelopes and
+148 plane-local SVG views. These descriptors preserve geometric
+concentration/consensus diagnostics; they do not define potential, membership,
+strength, candidate closure, or a winner. See the [trend package record](project/evidence/group-trend-alignment-field-package-v1.md).
+Stage-2 readout comparison, blind review, and recipe decisions remain open.
+Camera integration and other analysis planes have not been verified.
 
 ```mermaid
 flowchart LR

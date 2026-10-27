@@ -380,6 +380,13 @@ reuses the unshifted geometry projections from its single `analysis_scene_view`
 call to avoid projecting those meshes twice; this invocation-local cache is a
 temporary performance workaround, not a shared cache contract.
 
+The second diagnostic package is `features/group_trend_alignment_field.py`.
+It preserves the existing typed `Analysis` group trend descriptors as four
+parallel group-target channels: `overall_group_axis`, `member_frame`,
+`member_axis`, and `layout_axis`. Its current-IFC run is recorded in
+`project/evidence/group-trend-alignment-field-package-v1.md`; it does not
+compose potential or strength and does not mutate group membership.
+
 The user's 2026-10-27 plane decision is temporary world-XY supplied by
 `scene.context.analysis_plane`. Group queries must match that plane and
 diagnostic drawing must consume the same plane-local polygons. Do not encode
