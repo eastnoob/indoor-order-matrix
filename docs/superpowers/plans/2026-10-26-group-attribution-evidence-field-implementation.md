@@ -159,6 +159,7 @@
 - **执行记录（续，2026-10-27）：**按历史记录推断并暂锁定 IFC 源；1B.0 已通过：当前文件为 408618044 bytes、SHA-256 `1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`，IFC4，Project GlobalId `2uGd6yom9GZe5$z7LfbGW0`，长度单位 mm（0.001 m），37 个精确标记家具组、95 条唯一 IfcFurniture 成员引用均有 Body representation；核验前后 hash 一致。Source manifest：`docs/project/evidence/group-attribution-ifc-source-manifest.json`。Body 几何有效性、关系包、契约测试和平面图结果尚未完成；当前下一项为 1B.1，仅用此 IFC 编写契约测试。不得直接实现 trend、语义、自由空间、墙体或强度包。
 - **执行记录（续，2026-10-27，阶段 2A）：**在不重新加载 IFC 的前提下，使用同一指纹运行产物生成 seed 关系剖面。`pixi run python -m scripts.design.group_level.run_seed_candidate_profile_experiment` 成功；脚本自检并外部审计确认 37 seed、666 组对、每 seed 36 条关系、完整 37 组 scope、37 张平面 SVG，全部 XML 可解析，source fingerprint 与 query plane 对齐。输出只保留 gap/contact/overlap 观察和相对排序；参与度、membership、support、strength、closure、winner 均未生成。阶段 2A 可勾选，但用户仍需审阅少量 seed SVG；正式 recipe、参与公式与强度决策保持未决。
 - **jj 记录（2026-10-27，阶段 2A checkpoint）：**实验与证据文档已提交到本地 change `uovrnnxq`（bookmark `codex/group-attribution-seed-experiment`，message `experiment: complete seed relation profile diagnostic`）；当前工作区保留空的后续 change，未执行 push/merge。`jj status` 反复报告一个既有的未跟踪文件 `docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json`（约 1.3 MiB）超过默认新文件快照上限；本次未删除、未修改、未纳入该文件，也未让它阻断本实验 checkpoint。
+- **用户审阅记录（2026-10-27，阶段 2A 距离表达）：**用户确认 seed 图作为“距离”表达是正确且有用的。该确认只通过几何距离的可视化表达门；尚未批准距离到软参与、候选闭包、势/强度或其他证据的映射。下一步先讨论距离在场中的保留与使用规则。
 
 ## 计划自检
 
