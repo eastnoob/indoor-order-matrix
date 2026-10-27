@@ -123,8 +123,11 @@
 
 **试验增补（2026-10-27）：**用户同意先试 seed 思路。先做只读诊断：以现有真实 IFC 运行产物中的每个 AuthoredGroup 作为 seed，输出其对完整 scope 的组对距离剖面和可定位平面图；只保留原始/汇总几何观察与相对排序，不生成 participation、membership、support、strength、candidate closure 或 winner。该试验用于检查表示是否足以承载“总体方向”的后续输入，不改变阶段 2 的正式 recipe/读数决策。
 
+**证据结构渐进原则（2026-10-27，用户确认）：**证据包、证据通道、Envelope 与最小证据分辨率先作为可演进的工作契约，不在首个几何包之后提前锁死最终组合方式。每新增一个证据包，先记录其输入数据、几何/标签规则、原子观察、通道、Envelope 目标、状态与来源要求；实现后检查现有结构是否能无损承载这些事实。若不能，先扩展契约并记录审阅，再继续实现；不得为了适配旧结构而丢弃原始观察、共享依赖、状态或来源。只有在多个真实证据包都完成结构审阅后，才裁定最小证据分辨率、跨通道派生规则和是否允许显式的有向证据组合。任何组合都必须保留输入通道和来源链，不能自动压成总分。
+
 - [x] 将协议夹具已覆盖的完整 candidate×scope 表示、scope 外事实、状态分层、依赖引用、profile 覆盖和 singleton 缺证据视为设计诊断基线；如阶段 1 暴露新的契约缺口，只补那个缺口，不复制既有矩阵。证据：协议结果报告及 `scripts/design/group_level/run_group_attribution_field_slice.py`、`run_group_attribution_protocol_followup.py`。
 - [x] **阶段 2A：seed 关系剖面诊断（仅表示试验）。**从现有指定 IFC 的完整几何关系产物生成每个 AuthoredGroup 作为 seed 的完整 scope 关系剖面和逐 seed 平面图；只输出 raw/normalized gap、contact/overlap 状态、source refs 与相对排序，不输出 participation 或任何归属/强度读数。验证命令：`pixi run python -m scripts.design.group_level.run_seed_candidate_profile_experiment`；外部审计确认 37 个真实 seed、666 个组对、每 seed 36 个关系、每 seed 37 个 scope 成员、37/37 SVG XML 可解析、source fingerprint/query plane 对齐，且 `participation_formula=null`、`strength_formula=null`、`candidate_closure=not_evaluated`。证据：[`group-seed-relation-profile-experiment-v1.md`](../../project/evidence/group-seed-relation-profile-experiment-v1.md) 与 [`run_20261027T_seed_profile_v1`](../../../outputs/design/group_seed_candidate_experiment/run_20261027T_seed_profile_v1)。该项只证明表示试验完成，不批准 seed recipe、参与度或强度；下一步为用户审阅少量 seed 平面图。
+- [ ] **阶段 2B：证据结构适配审阅。**对每个后续证据包逐项记录输入、原子观察、通道、Envelope 目标、状态/来源和可视化定位；检查现有契约能否无损承载。若出现结构缺口，先更新 spec、架构文档和 checklist，再实现该包。阶段 2B 不提前裁定最终最小证据分辨率、跨通道组合或包套包规则；这些决定留到多个真实证据包完成结构审阅后。
 - [ ] 对指定 IFC 中可观测的同源、移除提议证据、独立/留出 attribution 三臂做读数比较；所有比较输入、输出及其差异都映射到该 IFC 平面图。只有存在可解释且可辩护的读数映射时才比较数值；若缺少映射或真正独立证据，记录为未决并停止标量 `M` 决策。不得使用合成预置读数估计膨胀效应。
 - [ ] 仅用指定 IFC 选择未参与规则设计、来源可追且可遮蔽 authored-group 名称的真实场景进行盲审；审阅材料及记录都由该 IFC 的平面图呈现，并记录证据链是否可理解、异议、缺失和冲突。场景不合适或无法盲化时，记录原因并保持现实解释性未决，不换用或构造其他场景。
 - [ ] 形成基于指定 IFC 的 recipe 决策记录，附可定位全部相关读数的平面图；仅在审阅证据支持时固定 recipe 语义，否则保留并行 recipe 或未决，不选唯一候选。不得把构造 fixture 的成功写成现实有效性。
@@ -160,6 +163,7 @@
 - **执行记录（续，2026-10-27，阶段 2A）：**在不重新加载 IFC 的前提下，使用同一指纹运行产物生成 seed 关系剖面。`pixi run python -m scripts.design.group_level.run_seed_candidate_profile_experiment` 成功；脚本自检并外部审计确认 37 seed、666 组对、每 seed 36 条关系、完整 37 组 scope、37 张平面 SVG，全部 XML 可解析，source fingerprint 与 query plane 对齐。输出只保留 gap/contact/overlap 观察和相对排序；参与度、membership、support、strength、closure、winner 均未生成。阶段 2A 可勾选，但用户仍需审阅少量 seed SVG；正式 recipe、参与公式与强度决策保持未决。
 - **jj 记录（2026-10-27，阶段 2A checkpoint）：**实验与证据文档已提交到本地 change `uovrnnxq`（bookmark `codex/group-attribution-seed-experiment`，message `experiment: complete seed relation profile diagnostic`）；当前工作区保留空的后续 change，未执行 push/merge。`jj status` 反复报告一个既有的未跟踪文件 `docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json`（约 1.3 MiB）超过默认新文件快照上限；本次未删除、未修改、未纳入该文件，也未让它阻断本实验 checkpoint。
 - **用户审阅记录（2026-10-27，阶段 2A 距离表达）：**用户确认 seed 图作为“距离”表达是正确且有用的。该确认只通过几何距离的可视化表达门；尚未批准距离到软参与、候选闭包、势/强度或其他证据的映射。下一步先讨论距离在场中的保留与使用规则。
+- **用户计划补充（2026-10-27，证据结构渐进）：**用户确认将“先让证据包暴露结构需求，再逐步调整证据结构，最后裁定最小分辨率与组合规则”纳入当前计划。该原则已写入阶段 2 的固定工作规则；不得把当前几何包的结构试验提前宣称为最终 spec。
 
 ## 计划自检
 
