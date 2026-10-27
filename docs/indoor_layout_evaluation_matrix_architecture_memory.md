@@ -392,3 +392,14 @@ The user's 2026-10-27 plane decision is temporary world-XY supplied by
 `scene.context.analysis_plane`. Group queries must match that plane and
 diagnostic drawing must consume the same plane-local polygons. Do not encode
 world-XY as an evidence rule or treat this as camera-plane integration.
+
+The geometry and trend package runners also emit the shared read-only
+`field-evidence-package-status/v1` payload beside their contracts. This is a
+UI-facing handoff only; the future UI consumes `recompute_required`, `reasons`,
+and `affected_targets` without deriving freshness from rendered views.
+The runner-written status compares a new contract with itself as a write-time
+receipt. Later consumers must compare the stored contract with a newly built
+current contract. Artifact validation checks every declared path for non-empty
+readable bytes; it does not validate content or checksums.
+Automatic recomputation, cache storage/eviction, and target-level dependency
+graphs are outside this boundary.

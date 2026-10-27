@@ -336,6 +336,299 @@ def build_field_result_cache_identity(*, target: Mapping[str, Any], query: Field
     return {"input_fingerprint": input_fingerprint, "source_fingerprint": source_fingerprint, "query_fingerprint": query_fingerprint, "channel_fingerprint": channel_fingerprint, "recipe_fingerprint": recipe_fingerprint, "algorithm_version": algorithm_version, "schema_version": schema_version, "identity": identity}
 
 
+_EVIDENCE_PACKAGE_CONTRACT_SCHEMA = "field-evidence-package-contract/v1"
+_EVIDENCE_PACKAGE_STATUS_SCHEMA = "field-evidence-package-status/v1"
+_EVIDENCE_PACKAGE_DEPENDENCIES = (
+    "scene",
+    "model",
+    "source",
+    "plane",
+    "query",
+    "recipe",
+    "channels",
+)
+_EVIDENCE_PACKAGE_REASON_CODES = {
+    "scene": "scene_changed",
+    "model": "model_changed",
+    "source": "source_changed",
+    "plane": "plane_changed",
+    "query": "query_changed",
+    "recipe": "recipe_changed",
+    "channels": "channel_set_changed",
+}
+
+
+def fingerprint_evidence_dependency(value: Any) -> str:
+    """Return a content-derived SHA-256 for one package dependency value."""
+    return hashlib.sha256(_canonical_json(_freeze(value)).encode()).hexdigest()
+
+
+def _package_target_ids(value: Any) -> tuple[str, ...]:
+    """Normalize a package target sequence and reject duplicate identifiers."""
+    if isinstance(value, (str, bytes)) or not isinstance(value, Iterable):
+        raise TypeError("target_ids must be an iterable of strings")
+    target_ids = tuple(value)
+    if any(not isinstance(target, str) for target in target_ids):
+        raise TypeError("target_ids must contain strings")
+    target_ids = tuple(sorted(target_ids))
+    if any(not target.strip() for target in target_ids):
+        raise ValueError("target_ids must contain non-empty strings")
+    if len(set(target_ids)) != len(target_ids):
+        raise ValueError("target_ids cannot contain duplicates")
+    return target_ids
+
+
+def _package_dependencies(value: Any) -> tuple[dict[str, str], ...]:
+    """Normalize named package dependencies into deterministic records."""
+    if isinstance(value, Mapping):
+        records = ({"name": name, "fingerprint": fingerprint} for name, fingerprint in value.items())
+    else:
+        records = value
+    if isinstance(records, (str, bytes)) or not isinstance(records, Iterable):
+        raise TypeError("dependencies must be a mapping or iterable of mappings")
+    normalized = []
+    for record in records:
+        if not isinstance(record, Mapping):
+            raise TypeError("dependency records must be mappings")
+        name = record.get("name")
+        fingerprint = record.get("fingerprint")
+        if name not in _EVIDENCE_PACKAGE_DEPENDENCIES:
+            raise ValueError(f"unsupported evidence package dependency: {name!r}")
+        if not isinstance(fingerprint, str) or not fingerprint:
+            raise ValueError(f"dependency {name!r} requires a non-empty fingerprint")
+        normalized.append({"name": name, "fingerprint": fingerprint})
+    normalized.sort(key=lambda item: item["name"])
+    names = [item["name"] for item in normalized]
+    missing = set(_EVIDENCE_PACKAGE_DEPENDENCIES) - set(names)
+    if missing:
+        raise ValueError(f"dependencies missing required names: {sorted(missing)}")
+    if len(set(names)) != len(names):
+        raise ValueError("dependencies cannot contain duplicate names")
+    return tuple(normalized)
+
+
+def _package_identity_payload(contract: Mapping[str, Any]) -> dict[str, Any]:
+    """Return the identity-bearing subset of a package contract."""
+    return {
+        "package_id": contract["package_id"],
+        "package_schema": contract["package_schema"],
+        "producer": contract["producer"],
+        "target_ids": tuple(contract["target_ids"]),
+        "dependencies": tuple(contract["dependencies"]),
+        "algorithm_version": contract["algorithm_version"],
+        "schema_version": contract["schema_version"],
+        "invalidation_scope": contract["invalidation_scope"],
+    }
+
+
+def build_evidence_package_contract(
+    *,
+    package_id: str,
+    package_schema: str,
+    producer: str,
+    target_ids: Iterable[str],
+    dependencies: Mapping[str, str] | Iterable[Mapping[str, str]],
+    algorithm_version: str,
+    schema_version: str,
+    artifacts: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build a deterministic package contract without reading or recomputing evidence."""
+    for name, value in (
+        ("package_id", package_id),
+        ("package_schema", package_schema),
+        ("producer", producer),
+        ("algorithm_version", algorithm_version),
+        ("schema_version", schema_version),
+    ):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{name} must be a non-empty string")
+    normalized = {
+        "schema": _EVIDENCE_PACKAGE_CONTRACT_SCHEMA,
+        "package_id": package_id,
+        "package_schema": package_schema,
+        "producer": producer,
+        "target_ids": list(_package_target_ids(target_ids)),
+        "dependencies": list(_package_dependencies(dependencies)),
+        "algorithm_version": algorithm_version,
+        "schema_version": schema_version,
+        "invalidation_scope": "whole_package",
+        "artifacts": {},
+    }
+    artifact_mapping = {} if artifacts is None else artifacts
+    if not isinstance(artifact_mapping, Mapping):
+        raise TypeError("artifacts must be a JSON mapping")
+    frozen_artifacts = _freeze(artifact_mapping)
+    normalized["artifacts"] = _json_value(frozen_artifacts)
+    identity_payload = _package_identity_payload(normalized)
+    normalized["package_identity"] = hashlib.sha256(
+        _canonical_json(identity_payload).encode()
+    ).hexdigest()
+    return normalized
+
+
+def _validate_evidence_package_contract(contract: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate and normalize a stored package contract for status comparison."""
+    if not isinstance(contract, Mapping):
+        raise TypeError("package contract must be a mapping")
+    if contract.get("schema") != _EVIDENCE_PACKAGE_CONTRACT_SCHEMA:
+        raise ValueError("unsupported evidence package contract schema")
+    normalized = build_evidence_package_contract(
+        package_id=contract.get("package_id"),
+        package_schema=contract.get("package_schema"),
+        producer=contract.get("producer"),
+        target_ids=contract.get("target_ids", ()),
+        dependencies=contract.get("dependencies", ()),
+        algorithm_version=contract.get("algorithm_version"),
+        schema_version=contract.get("schema_version"),
+        artifacts=contract.get("artifacts", {}),
+    )
+    if contract.get("invalidation_scope") != "whole_package":
+        raise ValueError("evidence package invalidation_scope must be whole_package")
+    if contract.get("package_identity") != normalized["package_identity"]:
+        raise ValueError("package_identity does not match contract contents")
+    return normalized
+
+
+def _best_effort_package_targets(contract: Any) -> tuple[str, ...]:
+    """Read target ids for unavailable-status reporting without trusting the contract."""
+    if not isinstance(contract, Mapping):
+        return ()
+    try:
+        return _package_target_ids(contract.get("target_ids", ()))
+    except (TypeError, ValueError):
+        return ()
+
+
+def evaluate_evidence_package_freshness(
+    *,
+    cached_contract: Mapping[str, Any] | None,
+    current_contract: Mapping[str, Any] | None,
+    artifacts_available: bool = True,
+) -> dict[str, Any]:
+    """Compare package identities and return a UI-facing, read-only status payload."""
+    cached_targets = _best_effort_package_targets(cached_contract)
+    current_targets = _best_effort_package_targets(current_contract)
+    affected_targets = tuple(sorted(set(cached_targets) | set(current_targets)))
+    reasons: list[dict[str, Any]] = []
+    cached = current = None
+    try:
+        if cached_contract is not None:
+            cached = _validate_evidence_package_contract(cached_contract)
+        if current_contract is not None:
+            current = _validate_evidence_package_contract(current_contract)
+    except (TypeError, ValueError):
+        package_id = (
+            str(current_contract.get("package_id"))
+            if isinstance(current_contract, Mapping) and current_contract.get("package_id")
+            else str(cached_contract.get("package_id"))
+            if isinstance(cached_contract, Mapping) and cached_contract.get("package_id")
+            else ""
+        )
+        reasons.append({"code": "package_invalid", "dependency": None, "cached": None, "current": None})
+        return {
+            "schema": _EVIDENCE_PACKAGE_STATUS_SCHEMA,
+            "package_id": package_id,
+            "cached_package_identity": None,
+            "current_package_identity": None,
+            "freshness": "unavailable",
+            "recompute_required": True,
+            "reasons": reasons,
+            "affected_targets": list(affected_targets),
+            "invalidation_scope": "whole_package",
+            "algorithm": {
+                "status": "unknown",
+                "cached_version": None,
+                "current_version": None,
+                "recompute_required": True,
+            },
+        }
+
+    package_id = (
+        current["package_id"]
+        if current is not None
+        else cached["package_id"]
+        if cached is not None
+        else ""
+    )
+    if cached is None:
+        reasons.append({"code": "package_missing", "dependency": None, "cached": None, "current": current["package_identity"] if current else None})
+    if current is None and cached is not None:
+        reasons.append({"code": "package_invalid", "dependency": None, "cached": cached["package_identity"] if cached else None, "current": None})
+
+    algorithm_status = "unknown"
+    algorithm_recompute = True
+    cached_algorithm = cached["algorithm_version"] if cached else None
+    current_algorithm = current["algorithm_version"] if current else None
+    if cached is not None and current is not None:
+        if cached_algorithm == current_algorithm:
+            algorithm_status = "same"
+            algorithm_recompute = False
+        else:
+            algorithm_status = "changed"
+            reasons.append({"code": "algorithm_version_changed", "dependency": "algorithm", "cached": cached_algorithm, "current": current_algorithm})
+
+    if cached is not None and current is not None:
+        cached_dependencies = {item["name"]: item["fingerprint"] for item in cached["dependencies"]}
+        current_dependencies = {item["name"]: item["fingerprint"] for item in current["dependencies"]}
+        for name in _EVIDENCE_PACKAGE_DEPENDENCIES:
+            if cached_dependencies.get(name) != current_dependencies.get(name):
+                reasons.append({
+                    "code": _EVIDENCE_PACKAGE_REASON_CODES[name],
+                    "dependency": name,
+                    "cached": cached_dependencies.get(name),
+                    "current": current_dependencies.get(name),
+                })
+        if cached["target_ids"] != current["target_ids"]:
+            reasons.append({
+                "code": "model_changed",
+                "dependency": "target_ids",
+                "cached": fingerprint_evidence_dependency(cached["target_ids"]),
+                "current": fingerprint_evidence_dependency(current["target_ids"]),
+            })
+        if cached["package_id"] != current["package_id"] or cached["producer"] != current["producer"]:
+            reasons.append({
+                "code": "model_changed",
+                "dependency": "package_definition",
+                "cached": cached["package_id"] + "::" + cached["producer"],
+                "current": current["package_id"] + "::" + current["producer"],
+            })
+        if cached["package_schema"] != current["package_schema"] or cached["schema_version"] != current["schema_version"]:
+            reasons.append({
+                "code": "schema_changed",
+                "dependency": "schema",
+                "cached": cached["package_schema"] + "::" + cached["schema_version"],
+                "current": current["package_schema"] + "::" + current["schema_version"],
+            })
+
+    if not artifacts_available:
+        reasons.append({"code": "package_invalid", "dependency": "artifacts", "cached": None, "current": None})
+
+    freshness = (
+        "unavailable"
+        if not artifacts_available or cached is None or current is None
+        else "fresh"
+        if not reasons
+        else "stale"
+    )
+    return {
+        "schema": _EVIDENCE_PACKAGE_STATUS_SCHEMA,
+        "package_id": package_id,
+        "cached_package_identity": cached["package_identity"] if cached else None,
+        "current_package_identity": current["package_identity"] if current else None,
+        "freshness": freshness,
+        "recompute_required": bool(reasons),
+        "reasons": reasons,
+        "affected_targets": list(affected_targets if reasons else ()),
+        "invalidation_scope": "whole_package",
+        "algorithm": {
+            "status": algorithm_status,
+            "cached_version": cached_algorithm,
+            "current_version": current_algorithm,
+            "recompute_required": algorithm_recompute if algorithm_status != "same" else False,
+        },
+    }
+
+
 def project_field_sample(result: FieldResultEnvelope) -> FieldSample[Any] | None:
     """Project only semantically complete envelopes into the legacy sample contract."""
     if not isinstance(result, FieldResultEnvelope) or result.field_projection is None or result.value is None:

@@ -424,6 +424,18 @@ history record](project/evidence/group-relation-history-audit-v1.md).
 Stage-2 readout comparison, blind review, and recipe decisions remain open.
 Camera integration and other analysis planes have not been verified.
 
+Both group runners now write `package_contract.json` and a stable
+`package_status.json` using the shared read-only freshness protocol in
+`features/field_core.py`. The status payload is the planned UI handoff: a future
+Analysis consumer reads `freshness`, `recompute_required`, `reasons`, and
+`affected_targets` directly and does not infer freshness from visual manifests or
+per-envelope status. UI implementation, automatic recomputation, cache storage
+policy, and target-level dependency graphs remain deferred.
+The runner-written status is a write-time receipt comparing the newly created
+contract with itself; a later consumer must compare the saved contract with a
+freshly built current contract. Each runner checks all declared artifact paths
+for non-empty readable bytes, but does not validate artifact contents or hashes.
+
 ```mermaid
 flowchart LR
     domain["AnalysisDomain + frame + query context"] --> core["Field core\nvalue schema + status + provenance"]

@@ -25,7 +25,12 @@ from adapters.ifc_bonsai import (  # noqa: E402
     _native_group_records,
     _scene_from_records,
 )
-from features.field_core import FieldQuery  # noqa: E402
+from features.field_core import (  # noqa: E402
+    FieldQuery,
+    build_evidence_package_contract,
+    evaluate_evidence_package_freshness,
+    fingerprint_evidence_dependency,
+)
 from features.group_self_description import describe_group_relations  # noqa: E402
 from features.group_trend_alignment_field import build_group_trend_alignment_envelopes  # noqa: E402
 from features.scene_contract import AuthoredGroup, SourceObject  # noqa: E402
@@ -36,6 +41,8 @@ SCHEMA = "group-trend-alignment-ifc-diagnostic/v2"
 PACKAGE_SCHEMA = "group-trend-alignment-envelopes/v2"
 CHANNELS = ("overall_group_axis", "layout_axis")
 SUPPRESSED_CHANNELS = ("member_frame", "member_axis")
+PACKAGE_ID = "group-trend-alignment"
+PACKAGE_PRODUCER = "features.group_trend_alignment_field.build_group_trend_alignment_envelopes"
 
 
 def _plain(value: Any) -> Any:
@@ -61,6 +68,18 @@ def _write(path: Path, value: Any) -> None:
     path.write_text(json.dumps(_plain(value), indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
 
 
+def _artifacts_readable(root: Path, paths: tuple[str, ...] | list[str]) -> bool:
+    """Check that every package artifact reference resolves to readable bytes."""
+    try:
+        for path in paths:
+            with (root / path).open("rb") as stream:
+                if not stream.read(1):
+                    return False
+    except OSError:
+        return False
+    return True
+
+
 def _fingerprint(path: Path) -> dict[str, object]:
     """Capture the pinned IFC identity before and after extraction."""
     digest = hashlib.sha256()
@@ -68,6 +87,57 @@ def _fingerprint(path: Path) -> dict[str, object]:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return {"path": str(path.resolve()), "byte_length": path.stat().st_size, "sha256": digest.hexdigest()}
+
+
+def _package_contract(
+    description: Mapping[str, Any],
+    envelopes: tuple[Any, ...],
+    manifest: Mapping[str, Any],
+    query: FieldQuery,
+    plane: Mapping[str, Any],
+    source_sha256: str,
+    visualization_paths: tuple[str, ...] | list[str] = (),
+) -> dict[str, Any]:
+    """Build the trend package contract from the computed evidence boundary."""
+    target_ids = tuple(sorted(str(envelope.target["id"]) for envelope in envelopes))
+    first = envelopes[0] if envelopes else None
+    provenance = _plain(first.provenance) if first is not None else {}
+    algorithm_version = str(provenance.get("algorithm_version", "group-trend-alignment-field-v2"))
+    schema_version = str(provenance.get("schema_version", PACKAGE_SCHEMA))
+    dependencies = {
+        "scene": fingerprint_evidence_dependency(description.get("group_geometry", ())),
+        "model": fingerprint_evidence_dependency(
+            {
+                "selection": manifest.get("selection"),
+                "target_kind": "furniture_group",
+                "suppressed_channels": SUPPRESSED_CHANNELS,
+            }
+        ),
+        "source": source_sha256,
+        "plane": fingerprint_evidence_dependency(plane),
+        "query": fingerprint_evidence_dependency(_plain(query)),
+        "recipe": fingerprint_evidence_dependency(
+            {"package_recipe": "trend-alignment-v2", "diagnostic_only": True}
+        ),
+        "channels": fingerprint_evidence_dependency(CHANNELS),
+    }
+    return build_evidence_package_contract(
+        package_id=PACKAGE_ID,
+        package_schema=PACKAGE_SCHEMA,
+        producer=PACKAGE_PRODUCER,
+        target_ids=target_ids,
+        dependencies=dependencies,
+        algorithm_version=algorithm_version,
+        schema_version=schema_version,
+        artifacts={
+            "source_manifest": "source_manifest.json",
+            "description": "description.json",
+            "envelopes": "envelopes.json",
+            "report": "report.json",
+            "view_manifest": "view_manifest.json",
+            "visualizations": list(visualization_paths),
+        },
+    )
 
 
 def _representation(entity: object, identifier: str) -> object | None:
@@ -80,8 +150,12 @@ def _representation(entity: object, identifier: str) -> object | None:
     )
 
 
-def _build_scene(source_path: Path) -> tuple[object, dict[str, object], tuple[AuthoredGroup, ...]]:
-    """Extract only the 37 authored furniture groups and their 95 IFC members."""
+def _build_scene(
+    source_path: Path,
+    *,
+    group_limit: int | None = None,
+) -> tuple[object, dict[str, object], tuple[AuthoredGroup, ...]]:
+    """Extract authored furniture groups and their direct IFC members."""
     import ifcopenshell
     import ifcopenshell.geom  # noqa: F401
     import ifcopenshell.util.shape  # noqa: F401
@@ -89,7 +163,8 @@ def _build_scene(source_path: Path) -> tuple[object, dict[str, object], tuple[Au
     source = ifcopenshell.open(str(source_path))
     module = importlib.import_module("ifcopenshell")
     units, scale, _, _ = _native_length_unit(source)
-    authored = tuple(group for group in _native_group_records(source) if group.group_role == "furniture_group")
+    all_authored = tuple(group for group in _native_group_records(source) if group.group_role == "furniture_group")
+    authored = tuple(sorted(all_authored, key=lambda group: group.id)[:group_limit])
     member_ids = sorted({ref.removeprefix("ifc-object:") for group in authored for ref in group.member_refs})
     products = {_native_source_id(entity): entity for entity in source.by_type("IfcProduct")}
     geometries = []
@@ -158,8 +233,13 @@ def _build_scene(source_path: Path) -> tuple[object, dict[str, object], tuple[Au
         "source_unit": units,
         "analysis_unit": "m",
         "authored_furniture_group_count": len(authored),
+        "source_authored_furniture_group_count": len(all_authored),
         "member_count": len(member_ids),
-        "selection": "all exact IfcGroup.ObjectType=furniture_group groups and their direct members",
+        "selection": (
+            "first stable-ID furniture_group groups and their direct members"
+            if group_limit is not None
+            else "all exact IfcGroup.ObjectType=furniture_group groups and their direct members"
+        ),
     }
     return scene, metadata, authored
 
@@ -250,7 +330,8 @@ def run(source_path: Path, output_root: Path) -> Path:
     run_dir = output_root / datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
     run_dir.mkdir(parents=True, exist_ok=False)
     plane = _plain(scene.context.analysis_plane)
-    _write(run_dir / "source_manifest.json", {"schema": "group-trend-alignment-source-manifest/v1", **metadata, "source_after": after, "analysis_plane": plane})
+    source_manifest = {"schema": "group-trend-alignment-source-manifest/v1", **metadata, "source_after": after, "analysis_plane": plane, "selection": metadata.get("selection")}
+    _write(run_dir / "source_manifest.json", source_manifest)
     _write(run_dir / "description.json", description)
     _write(run_dir / "envelopes.json", {"schema": PACKAGE_SCHEMA, "query": query, "envelopes": envelopes})
     by_group = {str(group["target_id"]): group for group in description.get("group_geometry", ())}
@@ -261,6 +342,8 @@ def run(source_path: Path, output_root: Path) -> Path:
         "channels": CHANNELS,
         "suppressed_channels": SUPPRESSED_CHANNELS,
         "artifacts": [],
+        "package_contract": "package_contract.json",
+        "package_status": "package_status.json",
     }
     envelope_by_id = {str(envelope.target["id"]): envelope for envelope in envelopes}
     for group_id, envelope in sorted(envelope_by_id.items()):
@@ -290,10 +373,39 @@ def run(source_path: Path, output_root: Path) -> Path:
         "winner": None,
         "read_only": True,
         "synthetic_input": False,
+        "package_contract": "package_contract.json",
+        "package_status": "package_status.json",
     }
     _write(run_dir / "report.json", report)
     if len(envelopes) != len(authored) or len(manifest["artifacts"]) != len(envelopes) * len(CHANNELS):
         raise AssertionError("trend package coverage does not match authored group/channel coverage")
+    visualization_paths = tuple(sorted(
+        str(Path(item["path"]).relative_to(run_dir.resolve()))
+        for item in manifest["artifacts"]
+    ))
+    package_contract = _package_contract(
+        description,
+        envelopes,
+        source_manifest,
+        query,
+        plane,
+        str(before["sha256"]),
+        visualization_paths,
+    )
+    _write(run_dir / "package_contract.json", package_contract)
+    artifact_paths = [
+        path
+        for value in package_contract["artifacts"].values()
+        for path in (value if isinstance(value, list) else [value])
+    ]
+    artifact_paths.append("package_contract.json")
+    artifacts_available = _artifacts_readable(run_dir, artifact_paths)
+    package_status = evaluate_evidence_package_freshness(
+        cached_contract=package_contract,
+        current_contract=package_contract,
+        artifacts_available=artifacts_available,
+    )
+    _write(run_dir / "package_status.json", package_status)
     return run_dir
 
 

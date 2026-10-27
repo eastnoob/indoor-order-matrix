@@ -12,9 +12,18 @@ from pathlib import Path
 from typing import Any, Mapping
 import uuid
 
+from features.field_core import (
+    build_evidence_package_contract,
+    evaluate_evidence_package_freshness,
+    fingerprint_evidence_dependency,
+)
+
 
 ROOT = Path(__file__).resolve().parents[3]
 OUTPUT = ROOT / "outputs/design/group_geometry_relation_field_ifc"
+PACKAGE_ID = "group-geometry-relation"
+PACKAGE_SCHEMA = "group-geometry-relation-envelopes/v1"
+PACKAGE_PRODUCER = "features.group_geometry_relation_field.build_group_geometry_relation_envelopes"
 
 
 def fingerprint(path: Path) -> dict[str, Any]:
@@ -54,6 +63,18 @@ def _write_json(path: Path, value: Any) -> None:
         json.dumps(_plain(value), indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
     )
+
+
+def _artifacts_readable(root: Path, paths: Any) -> bool:
+    """Check that every package artifact reference resolves to readable bytes."""
+    try:
+        for relative_path in paths:
+            with (root / str(relative_path)).open("rb") as stream:
+                if not stream.read(1):
+                    return False
+    except OSError:
+        return False
+    return True
 
 
 def _xml(value: Any) -> str:
@@ -354,6 +375,60 @@ def _shared_dependency_present(value: Any) -> bool:
     )
 
 
+def _package_contract(
+    description: Mapping[str, Any],
+    envelopes: tuple[Any, ...] | list[Any],
+    manifest: Mapping[str, Any],
+    plane: Mapping[str, Any],
+    source_sha256: str,
+) -> dict[str, Any]:
+    """Build the geometry package contract from the computed evidence boundary."""
+    target_ids = tuple(sorted(str(envelope.target["id"]) for envelope in envelopes))
+    first = envelopes[0] if envelopes else None
+    query = _plain(first.query) if first is not None else {}
+    provenance = _plain(first.provenance) if first is not None else {}
+    channels = tuple(
+        sorted({str(channel) for envelope in envelopes for channel in envelope.channel_set})
+    )
+    algorithm_version = str(provenance.get("algorithm_version", "group-geometry-relation-field-v1"))
+    schema_version = str(provenance.get("schema_version", PACKAGE_SCHEMA))
+    dependencies = {
+        "scene": fingerprint_evidence_dependency(description.get("group_geometry", ())),
+        "model": fingerprint_evidence_dependency(
+            {
+                "group_selection_rule": manifest.get("group_selection_rule"),
+                "target_kind": "furniture_group_pair",
+                "aggregation": "deferred",
+            }
+        ),
+        "source": source_sha256,
+        "plane": fingerprint_evidence_dependency(plane),
+        "query": fingerprint_evidence_dependency(query),
+        "recipe": fingerprint_evidence_dependency(
+            {"member_pairs_role": "audit_only", "package_recipe": "geometry-relation-v1"}
+        ),
+        "channels": fingerprint_evidence_dependency(channels),
+    }
+    return build_evidence_package_contract(
+        package_id=PACKAGE_ID,
+        package_schema=PACKAGE_SCHEMA,
+        producer=PACKAGE_PRODUCER,
+        target_ids=target_ids,
+        dependencies=dependencies,
+        algorithm_version=algorithm_version,
+        schema_version=schema_version,
+        artifacts={
+            "envelopes": "envelopes.json",
+            "report": "report.json",
+            "view_manifest": "view_manifest.json",
+            "plan_geometry": "plan_geometry.json",
+            "overview": "overview.svg",
+            "pair_json": [f"pairs/{index:04d}.json" for index in range(len(envelopes))],
+            "pair_svg": [f"pairs/{index:04d}.svg" for index in range(len(envelopes))],
+        },
+    )
+
+
 def write_report(
     description: Mapping[str, Any],
     envelopes: tuple[Any, ...] | list[Any],
@@ -466,6 +541,10 @@ def write_report(
         _overview_svg(plan_geometry["groups"], plane_data, source_hash, source_metadata),
         encoding="utf-8",
     )
+    package_contract = _package_contract(
+        description, envelopes, manifest, plane_data, source_hash
+    )
+    _write_json(output / "package_contract.json", package_contract)
     coverage = (
         "not covered by this pinned IFC"
         if not member_status_counts.get("invalid") and not member_status_counts.get("not_available")
@@ -505,6 +584,8 @@ def write_report(
             "plan_geometry": "plan_geometry.json",
             "envelopes": "envelopes.json",
             "pair_manifest": "view_manifest.json",
+            "package_contract": "package_contract.json",
+            "package_status": "package_status.json",
         },
     }
     _write_json(output / "report.json", report)
@@ -517,6 +598,8 @@ def write_report(
             "analysis_plane": plane_data,
             "units": report["units"],
             "diagnostic_only": True,
+            "package_contract": "package_contract.json",
+            "package_status": "package_status.json",
             "overview": "overview.svg",
             "pairs": [
                 {
@@ -531,6 +614,21 @@ def write_report(
             ],
         },
     )
+    artifact_paths = [
+        path
+        for value in package_contract["artifacts"].values()
+        for path in (value if isinstance(value, list) else [value])
+    ]
+    artifacts_available = _artifacts_readable(
+        output,
+        (*artifact_paths, "package_contract.json"),
+    )
+    package_status = evaluate_evidence_package_freshness(
+        cached_contract=package_contract,
+        current_contract=package_contract,
+        artifacts_available=artifacts_available,
+    )
+    _write_json(output / "package_status.json", package_status)
     return output
 
 
