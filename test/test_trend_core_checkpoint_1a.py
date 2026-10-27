@@ -9,6 +9,7 @@ import pytest
 from ..features.analysis_substitute_discovery import resolve_function_substitute
 from ..features.affordance.models import Rect
 from ..features import group_self_description as group_description
+from ..features import neutral_scene_views
 from ..features.geometry_views import PlanProjection
 from ..features.group_self_description import describe_group_relations
 from ..features.scene_contract import SourceObject
@@ -135,7 +136,7 @@ def test_missing_geometry_is_not_rewritten_as_body_fallback():
 
 def test_malformed_analysis_geometry_is_invalid(monkeypatch):
     """Malformed Analysis polygon evidence is invalid rather than unavailable."""
-    original_projection = group_description.plan_projection
+    original_projection = neutral_scene_views.plan_projection
 
     def malformed_projection(patch, plane):
         """Inject one malformed typed polygon while preserving other projections."""
@@ -148,7 +149,7 @@ def test_malformed_analysis_geometry_is_invalid(monkeypatch):
             )
         return original_projection(patch, plane)
 
-    monkeypatch.setattr(group_description, "plan_projection", malformed_projection)
+    monkeypatch.setattr(neutral_scene_views, "plan_projection", malformed_projection)
     geometry = _geometry(_typed_scene(add_right_to_left_group=True))
     assert geometry["trend_descriptors"]["status"] == "invalid"
     excluded = geometry["trend_descriptors"]["diagnostic_evidence"]["excluded_members"]

@@ -57,11 +57,26 @@ The focused trend regression command was run during this audit:
 pixi run pytest test/test_trend_core_checkpoint_1a.py -q
 ```
 
-Result: **12 passed, 1 failed**. The failure is
-`test_malformed_analysis_geometry_is_invalid`, which still references the
-removed `group_self_description.plan_projection` helper. This is test/code
-drift, not evidence that the trend descriptors are wrong; it must be repaired
-or explicitly resolved before the second package is called regression-clean.
+The test initially exposed one stale monkeypatch target. The test now patches
+the current `neutral_scene_views.plan_projection` seam, and the rerun is
+**13 passed**. No production trend calculation was changed.
+
+A current-IFC sample replay was then run through the existing design probe's
+real-IFC path (without executing its synthetic cases): three complete groups
+were selected, all had accepted typed Analysis bindings, and all four existing
+estimands were `computed`. The replay source is the current pinned file:
+
+```text
+bytes: 408618044
+sha256: 1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077
+schema: IFC4
+unit: mm
+selected groups: 3
+```
+
+This is a sample audit only. The reused design probe stops after three complete
+groups; it is not a 37-group current-IFC package run and it does not emit a
+second field Envelope.
 
 ## Candidate second-package contract (pending review)
 
@@ -73,6 +88,6 @@ member bindings, source references, descriptor status, diagnostic evidence and
 the four estimands separately. This is a proposal for the next discussion,
 not an approved combination rule or strength formula.
 
-Before implementation, the current IFC must be re-audited for typed Analysis
-bindings and the stale focused test must be addressed. No trend result is
-claimed by this audit.
+Before implementation, a full current-IFC trend package run still needs its
+own source manifest, complete-group coverage and plane-local visualization.
+No trend result has yet been added to the geometry relation Envelope.
