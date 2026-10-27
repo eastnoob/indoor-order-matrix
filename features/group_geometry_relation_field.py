@@ -1,4 +1,9 @@
-"""Adapt authored-group pair observations into immutable field envelopes."""
+"""Adapt authored-group pair observations into immutable field envelopes.
+
+The public target is always a furniture-group pair.  Member-pair geometry is
+retained for provenance and replay, but it is explicitly audit-only until a
+reviewed group-level aggregation rule is approved.
+"""
 
 from __future__ import annotations
 
@@ -113,7 +118,19 @@ def build_group_geometry_relation_envelopes(
                     channel=channel,
                     required=True,
                     polarity="descriptive",
-                    observation={"member_pairs": tuple(observations)},
+                    observation={
+                        # The public target is the furniture-group pair.  The
+                        # raw member observations stay available only as an
+                        # audit trail until a reviewed group-level aggregate
+                        # rule exists.
+                        "group_pair_aggregation": {
+                            "status": "deferred",
+                            "reason": "group_aggregation_policy_deferred",
+                            "value": None,
+                        },
+                        "member_pairs": tuple(observations),
+                        "member_pairs_role": "audit_only",
+                    },
                     units=relation.get("unit"),
                     status=_result_status(statuses),
                     source_ids=tuple(sorted(channel_sources)),
@@ -121,7 +138,10 @@ def build_group_geometry_relation_envelopes(
                         "inherits_top_level": True,
                         "method": "existing_member_pair_boundary_observation",
                     },
-                    explanation=_CHANNELS[channel],
+                    explanation=(
+                        _CHANNELS[channel]
+                        + " Group-level aggregation is deferred; member-pair values are audit-only."
+                    ),
                 )
             )
 
@@ -160,6 +180,27 @@ def build_group_geometry_relation_envelopes(
                     "tolerance": relation.get("tolerance"),
                     "shared_member_dependency": relation.get("shared_member_dependency"),
                     "relation_status": relation.get("status"),
+                    "member_pair_role": "audit_only",
+                    "historical_relation_inventory": {
+                        "semantic_relation": {
+                            "status": relation.get("semantic_channel_status"),
+                            "negative_evidence": relation.get("negative_evidence"),
+                            "conflicts": relation.get("semantic_conflicts"),
+                        },
+                        "local_neighborhood": {
+                            "status": relation.get("status"),
+                            "symmetric": True,
+                            "formal_membership_edge": relation.get("formal_membership_edge"),
+                        },
+                        "position_grammar": {
+                            "status": "not_attached",
+                            "reason": "scope_is_group_or_region_pattern_evidence",
+                        },
+                        "column_grid": {
+                            "status": "not_attached",
+                            "reason": "independent_structural_evidence_scope",
+                        },
+                    },
                 },
                 cache_identity=identity,
                 explanation=(

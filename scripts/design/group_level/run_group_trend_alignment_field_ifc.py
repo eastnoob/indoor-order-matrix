@@ -32,9 +32,10 @@ from features.scene_contract import AuthoredGroup, SourceObject  # noqa: E402
 
 
 DEFAULT_IFC = ROOT / "outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc"
-SCHEMA = "group-trend-alignment-ifc-diagnostic/v1"
-PACKAGE_SCHEMA = "group-trend-alignment-envelopes/v1"
-CHANNELS = ("overall_group_axis", "member_frame", "member_axis", "layout_axis")
+SCHEMA = "group-trend-alignment-ifc-diagnostic/v2"
+PACKAGE_SCHEMA = "group-trend-alignment-envelopes/v2"
+CHANNELS = ("overall_group_axis", "layout_axis")
+SUPPRESSED_CHANNELS = ("member_frame", "member_axis")
 
 
 def _plain(value: Any) -> Any:
@@ -240,7 +241,7 @@ def run(source_path: Path, output_root: Path) -> Path:
         input_fingerprint=before["sha256"],
         source_fingerprint=before["sha256"],
         recipe_fingerprint="group-trend-alignment-working-contract-v1",
-        algorithm_version="group-trend-alignment-field-v1",
+        algorithm_version="group-trend-alignment-field-v2",
         schema_version=PACKAGE_SCHEMA,
     )
     after = _fingerprint(source_path)
@@ -253,7 +254,14 @@ def run(source_path: Path, output_root: Path) -> Path:
     _write(run_dir / "description.json", description)
     _write(run_dir / "envelopes.json", {"schema": PACKAGE_SCHEMA, "query": query, "envelopes": envelopes})
     by_group = {str(group["target_id"]): group for group in description.get("group_geometry", ())}
-    manifest = {"schema": "group-trend-alignment-visual-manifest/v1", "source": before, "analysis_plane": plane, "channels": CHANNELS, "artifacts": []}
+    manifest = {
+        "schema": "group-trend-alignment-visual-manifest/v2",
+        "source": before,
+        "analysis_plane": plane,
+        "channels": CHANNELS,
+        "suppressed_channels": SUPPRESSED_CHANNELS,
+        "artifacts": [],
+    }
     envelope_by_id = {str(envelope.target["id"]): envelope for envelope in envelopes}
     for group_id, envelope in sorted(envelope_by_id.items()):
         group = by_group[group_id]
@@ -272,6 +280,7 @@ def run(source_path: Path, output_root: Path) -> Path:
         "eligible_authored_groups": len(authored),
         "envelopes": len(envelopes),
         "expected_channels": len(CHANNELS),
+        "suppressed_channels": list(SUPPRESSED_CHANNELS),
         "visualizations": len(manifest["artifacts"]),
         "status_counts": {status: sum(1 for item in envelopes if _plain(item.raw_status) == status) for status in ("computed", "partial", "invalid", "not_available")},
         "composition": None,

@@ -1,4 +1,10 @@
-# Group trend alignment evidence package v1
+# Group trend alignment evidence package v1 (historical)
+
+> This document records the former four-channel diagnostic run. The current
+> public package boundary is v2: `overall_group_axis` and `layout_axis` remain
+> active; `member_frame` and `member_axis` are suppressed audit data. The old
+> run and its 148 SVG files are retained for traceability and are not evidence
+> that the suppressed channels remain active.
 
 ## Boundary
 

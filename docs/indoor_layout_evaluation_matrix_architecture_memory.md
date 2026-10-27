@@ -381,11 +381,12 @@ call to avoid projecting those meshes twice; this invocation-local cache is a
 temporary performance workaround, not a shared cache contract.
 
 The second diagnostic package is `features/group_trend_alignment_field.py`.
-It preserves the existing typed `Analysis` group trend descriptors as four
-parallel group-target channels: `overall_group_axis`, `member_frame`,
-`member_axis`, and `layout_axis`. Its current-IFC run is recorded in
-`project/evidence/group-trend-alignment-field-package-v1.md`; it does not
-compose potential or strength and does not mutate group membership.
+Its current public group-target channels are `overall_group_axis` and
+`layout_axis`. The lower-level `member_frame` and `member_axis` descriptors
+remain available as suppressed audit data so the single-furniture layer can be
+restored without deleting history. The former four-channel IFC run remains a
+historical v1 artifact; the current runner uses the v2 schema. The package
+does not compose potential or strength and does not mutate group membership.
 
 The user's 2026-10-27 plane decision is temporary world-XY supplied by
 `scene.context.analysis_plane`. Group queries must match that plane and

@@ -3,9 +3,12 @@
 ## Scope
 
 This package is the first evidence package in the group-attribution field. It
-reads only the pinned IFC source and wraps the existing authored-group member
-pair observations. The package is diagnostic evidence: it does not decide
-membership, support, potential, strength, candidate selection, or a winner.
+reads only the pinned IFC source and exposes one furniture-group pair as the
+public target. The existing authored-group member-pair observations remain in
+the envelope for replay and provenance, but are explicitly `audit_only` until
+a reviewed group-level aggregation rule exists. The package is diagnostic
+evidence: it does not decide membership, support, potential, strength,
+candidate selection, or a winner.
 
 The source boundary is `IfcGroup.ObjectType == "furniture_group"`. Group and
 member identities, Body geometry, IFC placement, source units, analysis frame,
@@ -32,9 +35,13 @@ Each envelope contains three descriptive channels:
 - `positive_area_overlap`: overlap flag and positive intersection area.
 
 Every channel retains member-pair status, reason, witness, source references,
-units, and provenance. Missing or invalid geometry stays unavailable or
-invalid. Shared-member dependency stays diagnostic metadata. The envelope has
-no `field_projection` and no support value.
+units, and provenance. The channel observation also states
+`group_pair_aggregation.status = deferred` and
+`member_pairs_role = audit_only`. Missing or invalid geometry stays
+unavailable or invalid. Shared-member dependency stays diagnostic metadata.
+Historical semantic/neighborhood relation inventory is recorded in provenance;
+position-grammar and column-grid evidence remain separate domains. The
+envelope has no `field_projection` and no support value.
 
 ## Shared field boundary
 

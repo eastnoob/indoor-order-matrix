@@ -16,9 +16,15 @@ from .group_self_description import describe_group_relations
 
 _CHANNELS = {
     "overall_group_axis": "Area-weighted total-geometry axis descriptor.",
+    "layout_axis": "Between-member centroid layout-axis descriptor.",
+}
+
+# These descriptors remain in the lower-level description for provenance and
+# future recovery, but they are intentionally silent at the evidence-package
+# boundary while a furniture group is treated as the smallest public unit.
+_SUPPRESSED_CHANNELS = {
     "member_frame": "Four-angle member-frame consensus descriptor.",
     "member_axis": "Two-angle member-axis consensus descriptor.",
-    "layout_axis": "Between-member centroid layout-axis descriptor.",
 }
 
 
@@ -87,8 +93,12 @@ def build_group_trend_alignment_envelopes(
                     polarity="descriptive",
                     observation={
                         "descriptor": descriptor,
-                        "member_bindings": tuple(descriptors.get("member_bindings", ())),
-                        "diagnostic_evidence": descriptors.get("diagnostic_evidence"),
+                        "suppressed_member_channels": {
+                            name: descriptors.get(name)
+                            for name in _SUPPRESSED_CHANNELS
+                        },
+                        "member_bindings_audit": tuple(descriptors.get("member_bindings", ())),
+                        "diagnostic_evidence_audit": descriptors.get("diagnostic_evidence"),
                     },
                     units="degrees_or_coherence",
                     status=status,
@@ -116,12 +126,21 @@ def build_group_trend_alignment_envelopes(
             "geometry_status": group.get("geometry_status"),
             "geometry_completeness": group.get("geometry_completeness"),
             "trend_status": descriptors.get("status"),
-            "member_bindings": descriptors.get("member_bindings", ()),
-            "diagnostic_evidence": descriptors.get("diagnostic_evidence"),
+            "member_bindings_audit": descriptors.get("member_bindings", ()),
+            "diagnostic_evidence_audit": descriptors.get("diagnostic_evidence"),
+            "suppressed_channels": {
+                name: {
+                    "status": "suppressed",
+                    "reason": "public_unit_is_furniture_group",
+                    "descriptor": descriptors.get(name),
+                }
+                for name in _SUPPRESSED_CHANNELS
+            },
         }
         explanation = (
-            "Trend alignment descriptors are preserved as separate descriptive channels; "
-            "no channel composition, potential, membership, strength, candidate, or winner is produced."
+            "Group-level trend descriptors remain separate descriptive channels; "
+            "member-frame and member-axis channels are suppressed at this package boundary. "
+            "No channel composition, potential, membership, strength, candidate, or winner is produced."
         )
         envelopes.append(
             FieldResultEnvelope(

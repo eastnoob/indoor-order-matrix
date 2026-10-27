@@ -282,9 +282,10 @@ D6 目标语义表已把这一边界写成：趋势一致是独立 descriptor，
 ### 首个几何关系证据包的当前实现状态（2026-10-27）
 
 `features/group_geometry_relation_field.py` 已把指定 IFC 的 authored-group
-成员对观察接入共享 `FieldResultEnvelope`。它只提供边界间隙、接触和正面积
-重叠三个 descriptive 通道，保留 member pair、witness、source refs、单位、
-状态和 shared-member 依赖；不提供势1、支持、归属、强度或 winner。真实 IFC
+组对观察接入共享 `FieldResultEnvelope`。公开 target 是家具组对；三个几何
+通道仍保留边界间隙、接触和正面积重叠的 member-pair 原始事实，但这些明细
+现在标为 `audit_only`，组级聚合继续 deferred。它保留 witness、source refs、
+单位、状态和 shared-member 依赖；不提供势1、支持、归属、强度或 winner。真实 IFC
 初版契约测试已通过 666 个无序组对。本轮完整结果已交付：37 组、95 成员、
 666 组对全部映射到对应 JSON/SVG，另有总览及来源/平面/单位 manifest；
 667 张 SVG 均可解析，总览、近距、远距、接触 PNG 样本已目视审阅。
@@ -300,14 +301,15 @@ D6 目标语义表已把这一边界写成：趋势一致是独立 descriptor，
 ### 第二个证据包：势/趋势对齐（2026-10-27）
 
 用户同意先把已有趋势实现作为独立、可审计的第二证据包接入共享 Field core。
-该包以一个 `furniture_group` 为 target，保留四个并行通道：
-`overall_group_axis`、`member_frame`、`member_axis`、`layout_axis`。每个通道
-分别保留 typed `Analysis` bindings、source/provenance、状态和诊断证据；现有
-`strength`/`coherence` 只表示几何集中度或成员方向一致度，不是势1强度、组势、
-归属支持或最终标量。当前 IFC 全量只读诊断已产生 37 个 group Envelope 和
-148 张同一分析平面的 SVG，详情见[趋势证据包记录](evidence/group-trend-alignment-field-package-v1.md)。
+当前公开通道收缩为组级 `overall_group_axis` 与 `layout_axis`；
+`member_frame`、`member_axis` 仍保留在底层描述和 provenance 中，但在证据包
+边界暂时静音。旧 v1 全量诊断的 37 个 group Envelope 和 148 张 SVG 不删除，
+作为历史粒度结果保留；当前 runner 使用 v2 schema 并只绘制两个 active channel。
+现有 `strength`/`coherence` 只表示几何集中度或成员方向一致度，不是势1强度、
+组势、归属支持或最终标量。历史关系对照见
+[group-relation-history-audit-v1](evidence/group-relation-history-audit-v1.md)。
 
-这一步只证明已有事实可以被结构化承载，不决定四通道如何合成，也不改变组的
+这一步只证明已有事实可以被结构化承载，不决定 active 通道如何合成，也不改变组的
 无硬边界设计；potential、membership、candidate、winner、权重、阈值和强度
 仍未决。当前 IFC 没有出现 partial/invalid/not_available 趋势成员，因此这些
 状态的传播仍由契约保留、待后续真实来源覆盖。

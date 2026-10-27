@@ -385,13 +385,16 @@ registry. Candidate-group evidence remains future/design-only; any later group
 inference or scalar aggregation must consume envelopes without changing this
 boundary.
 
-The first relation evidence package is now implemented in
-`features/group_geometry_relation_field.py`. It wraps the existing IFC-driven
-`describe_group_relations` member-pair observations into
-`FieldResultEnvelope` records with descriptive boundary-gap, contact, and
-positive-area-overlap channels. It remains diagnostic-only: group-level
-aggregation, candidate inference, the complete candidate-by-unit attribution
-field, membership edges, potential, and strength remain separate work.
+The first relation evidence package is implemented in
+`features/group_geometry_relation_field.py`. Its public target is an
+authored furniture-group pair. Boundary-gap, contact, and positive-area
+overlap observations remain available for replay, but the raw member-pair
+records are explicitly audit-only and group-level aggregation is still
+deferred. The adapter also records the historical semantic/neighborhood
+relations and why position-grammar and column-grid evidence are not attached
+to this envelope. Candidate inference, the complete candidate-by-unit
+attribution field, membership edges, potential, and strength remain separate
+work.
 
 The package requires `FieldQuery.plane == scene.context.analysis_plane`.
 The current IFC supplies world-XY by the user's temporary choice; neither the
@@ -409,13 +412,15 @@ members and missing/invalid/partial branches remain unverified. See the
 [package verification record](project/evidence/geometry-relation-field-package-v1.md#current-verification-and-limits).
 The user accepted the geometry-field sample review on 2026-10-27 ("合理").
 The second package is the diagnostic-only
-`features/group_trend_alignment_field.py`. It wraps the existing typed
-`Analysis` group descriptors as four parallel channels
-(`overall_group_axis`, `member_frame`, `member_axis`, and `layout_axis`) for
-one `furniture_group` target. The current IFC run produced 37 envelopes and
-148 plane-local SVG views. These descriptors preserve geometric
-concentration/consensus diagnostics; they do not define potential, membership,
-strength, candidate closure, or a winner. See the [trend package record](project/evidence/group-trend-alignment-field-package-v1.md).
+`features/group_trend_alignment_field.py`. Its current public channels are
+`overall_group_axis` and `layout_axis` for one `furniture_group` target.
+`member_frame` and `member_axis` remain in lower-level descriptors and
+provenance as suppressed audit data. The historical v1 run (37 envelopes and
+148 plane-local SVG views) is retained; the current runner uses the v2 schema
+and draws only the two active group-level channels. These descriptors preserve
+geometric concentration diagnostics; they do not define potential,
+membership, strength, candidate closure, or a winner. See the [trend package
+history record](project/evidence/group-relation-history-audit-v1.md).
 Stage-2 readout comparison, blind review, and recipe decisions remain open.
 Camera integration and other analysis planes have not been verified.
 
