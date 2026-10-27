@@ -121,7 +121,10 @@
 
 **当前交接（2026-10-27）：**阶段 1B 样本审阅已获用户“合理”的答复。用户随后确认距离的软关联方向，并澄清上层组没有硬边界、不作“是否同组”的二值判定，但需可描述的组织功能以计算总体朝向。用户对“候选组织方式（这里简称组织视图）→完整 scope 软参与→总体方向/离散度”结构表示暂时同意；“组织视图”不是新增对象，只是对计划/spec 中 candidate `k` 的解释性称呼。该结构作为讨论基线，尚未批准候选 recipe、参与公式、阈值或成员对到组对的聚合；`seed/seed-set` 也只是待审提出方案，不是原计划既有机制，也不隐式加入方向相似性证据包。下一项讨论候选如何提出，以及距离怎样转成软参与程度；涉及输出/汇总边界时先增补 spec/checklist，再实施。需要用户回答时停止。下方真实比较、盲审及 recipe 等未执行项保持未勾选。
 
+**试验增补（2026-10-27）：**用户同意先试 seed 思路。先做只读诊断：以现有真实 IFC 运行产物中的每个 AuthoredGroup 作为 seed，输出其对完整 scope 的组对距离剖面和可定位平面图；只保留原始/汇总几何观察与相对排序，不生成 participation、membership、support、strength、candidate closure 或 winner。该试验用于检查表示是否足以承载“总体方向”的后续输入，不改变阶段 2 的正式 recipe/读数决策。
+
 - [x] 将协议夹具已覆盖的完整 candidate×scope 表示、scope 外事实、状态分层、依赖引用、profile 覆盖和 singleton 缺证据视为设计诊断基线；如阶段 1 暴露新的契约缺口，只补那个缺口，不复制既有矩阵。证据：协议结果报告及 `scripts/design/group_level/run_group_attribution_field_slice.py`、`run_group_attribution_protocol_followup.py`。
+- [x] **阶段 2A：seed 关系剖面诊断（仅表示试验）。**从现有指定 IFC 的完整几何关系产物生成每个 AuthoredGroup 作为 seed 的完整 scope 关系剖面和逐 seed 平面图；只输出 raw/normalized gap、contact/overlap 状态、source refs 与相对排序，不输出 participation 或任何归属/强度读数。验证命令：`pixi run python -m scripts.design.group_level.run_seed_candidate_profile_experiment`；外部审计确认 37 个真实 seed、666 个组对、每 seed 36 个关系、每 seed 37 个 scope 成员、37/37 SVG XML 可解析、source fingerprint/query plane 对齐，且 `participation_formula=null`、`strength_formula=null`、`candidate_closure=not_evaluated`。证据：[`group-seed-relation-profile-experiment-v1.md`](../../project/evidence/group-seed-relation-profile-experiment-v1.md) 与 [`run_20261027T_seed_profile_v1`](../../../outputs/design/group_seed_candidate_experiment/run_20261027T_seed_profile_v1)。该项只证明表示试验完成，不批准 seed recipe、参与度或强度；下一步为用户审阅少量 seed 平面图。
 - [ ] 对指定 IFC 中可观测的同源、移除提议证据、独立/留出 attribution 三臂做读数比较；所有比较输入、输出及其差异都映射到该 IFC 平面图。只有存在可解释且可辩护的读数映射时才比较数值；若缺少映射或真正独立证据，记录为未决并停止标量 `M` 决策。不得使用合成预置读数估计膨胀效应。
 - [ ] 仅用指定 IFC 选择未参与规则设计、来源可追且可遮蔽 authored-group 名称的真实场景进行盲审；审阅材料及记录都由该 IFC 的平面图呈现，并记录证据链是否可理解、异议、缺失和冲突。场景不合适或无法盲化时，记录原因并保持现实解释性未决，不换用或构造其他场景。
 - [ ] 形成基于指定 IFC 的 recipe 决策记录，附可定位全部相关读数的平面图；仅在审阅证据支持时固定 recipe 语义，否则保留并行 recipe 或未决，不选唯一候选。不得把构造 fixture 的成功写成现实有效性。
@@ -154,6 +157,7 @@
 - 停止时保留已计算的证据及其状态，不回退成硬分区，不删掉未知，不以“继续实现”为理由补默认值。
 - **执行记录（2026-10-27）：**阶段 1 已完成：`eligibility` 透传 authored input completeness，IFC adapter 保留空 `IfcGroup`，完整阶段 1 回归 `221 passed`，architecture map 同步；详见阶段 1 checklist 的逐项证据。历史 IFC 关系实验在指定路径的旧字节版本上记录 37 组/666 组对、650 gap/10 contact/6 overlap，且全部 diagnostic-only；当前同路径文件的长度和 SHA-256 已变化，旧计数及图不能作为当前结果。此前 1B.1 RED 测试使用 `_neutral_scene()` 合成矩形几何，违反本阶段 IFC-only 数据边界，已撤下该测试。
 - **执行记录（续，2026-10-27）：**按历史记录推断并暂锁定 IFC 源；1B.0 已通过：当前文件为 408618044 bytes、SHA-256 `1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`，IFC4，Project GlobalId `2uGd6yom9GZe5$z7LfbGW0`，长度单位 mm（0.001 m），37 个精确标记家具组、95 条唯一 IfcFurniture 成员引用均有 Body representation；核验前后 hash 一致。Source manifest：`docs/project/evidence/group-attribution-ifc-source-manifest.json`。Body 几何有效性、关系包、契约测试和平面图结果尚未完成；当前下一项为 1B.1，仅用此 IFC 编写契约测试。不得直接实现 trend、语义、自由空间、墙体或强度包。
+- **执行记录（续，2026-10-27，阶段 2A）：**在不重新加载 IFC 的前提下，使用同一指纹运行产物生成 seed 关系剖面。`pixi run python -m scripts.design.group_level.run_seed_candidate_profile_experiment` 成功；脚本自检并外部审计确认 37 seed、666 组对、每 seed 36 条关系、完整 37 组 scope、37 张平面 SVG，全部 XML 可解析，source fingerprint 与 query plane 对齐。输出只保留 gap/contact/overlap 观察和相对排序；参与度、membership、support、strength、closure、winner 均未生成。阶段 2A 可勾选，但用户仍需审阅少量 seed SVG；正式 recipe、参与公式与强度决策保持未决。
 
 ## 计划自检
 
