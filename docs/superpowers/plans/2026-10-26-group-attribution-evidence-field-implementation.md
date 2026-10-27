@@ -163,6 +163,7 @@
 - **执行记录（续，2026-10-27，阶段 2A）：**在不重新加载 IFC 的前提下，使用同一指纹运行产物生成 seed 关系剖面。`pixi run python -m scripts.design.group_level.run_seed_candidate_profile_experiment` 成功；脚本自检并外部审计确认 37 seed、666 组对、每 seed 36 条关系、完整 37 组 scope、37 张平面 SVG，全部 XML 可解析，source fingerprint 与 query plane 对齐。输出只保留 gap/contact/overlap 观察和相对排序；参与度、membership、support、strength、closure、winner 均未生成。阶段 2A 可勾选，但用户仍需审阅少量 seed SVG；正式 recipe、参与公式与强度决策保持未决。
 - **jj 记录（2026-10-27，阶段 2A checkpoint）：**实验与证据文档已提交到本地 change `uovrnnxq`（bookmark `codex/group-attribution-seed-experiment`，message `experiment: complete seed relation profile diagnostic`）；当前工作区保留空的后续 change，未执行 push/merge。`jj status` 反复报告一个既有的未跟踪文件 `docs/project/evidence/d6-space-field-soft-field-boundary-repair-v1-empty-space.json`（约 1.3 MiB）超过默认新文件快照上限；本次未删除、未修改、未纳入该文件，也未让它阻断本实验 checkpoint。
 - **用户审阅记录（2026-10-27，阶段 2A 距离表达）：**用户确认 seed 图作为“距离”表达是正确且有用的。该确认只通过几何距离的可视化表达门；尚未批准距离到软参与、候选闭包、势/强度或其他证据的映射。下一步先讨论距离在场中的保留与使用规则。
+- **逐层可视化记录（2026-10-27，阶段 2A）：**按用户要求，对一个真实且含接触关系的 seed 生成距离、接触、正面积重叠、来源/状态四张同源平面图。选定 seed 覆盖 36 个组对，其中 1 个接触成员对、0 个正面积重叠成员对，36/36 关系有 source IDs；四个 SVG 均由同一指纹 IFC 的已保存投影几何生成并通过 XML 解析。证据：[`group-seed-evidence-layer-visualization-v1.md`](../../project/evidence/group-seed-evidence-layer-visualization-v1.md)。该图层交付只验证通道可分别呈现，不改变参与度、组合或强度未决状态。
 - **用户计划补充（2026-10-27，证据结构渐进）：**用户确认将“先让证据包暴露结构需求，再逐步调整证据结构，最后裁定最小分辨率与组合规则”纳入当前计划。该原则已写入阶段 2 的固定工作规则；不得把当前几何包的结构试验提前宣称为最终 spec。
 
 ## 计划自检
