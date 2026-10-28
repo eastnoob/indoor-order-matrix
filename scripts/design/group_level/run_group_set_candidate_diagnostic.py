@@ -28,7 +28,13 @@ DEFAULT_OUTPUT = (
     / "outputs/design/group_set_candidate_diagnostic/run_20261028T_set_level_v1"
 )
 
-RECIPES = ("nearest-neighbour-components", "contact-components")
+RECIPES = (
+    "nearest-neighbour-components",
+    "contact-components",
+    "nearest-neighbour-complete-link",
+    "contact-complete-link",
+)
+GRAPH_BASES = ("nearest-neighbour", "contact")
 
 
 def _read_json(path: Path) -> Any:
@@ -45,7 +51,7 @@ def _write_json(path: Path, value: Any) -> None:
 def _graphs(seed_document: Mapping[str, Any]) -> dict[str, dict[str, set[str]]]:
     """Build undirected nearest-neighbour and contact graphs from all seed views."""
     group_ids = sorted(str(group_id) for group_id in seed_document["views"][0]["scope_group_ids"])
-    graphs = {recipe: {group_id: set() for group_id in group_ids} for recipe in RECIPES}
+    graphs = {base: {group_id: set() for group_id in group_ids} for base in GRAPH_BASES}
     for view in seed_document["views"]:
         seed_id = str(view["seed_group_id"])
         related = [item for item in view["members"] if item.get("role") == "scope_member"]
@@ -54,11 +60,11 @@ def _graphs(seed_document: Mapping[str, Any]) -> dict[str, dict[str, set[str]]]:
             group_id = str(item["group_id"])
             relation = item["relation"]
             if abs(float(relation["normalized_boundary_gap"]["minimum"]) - minimum) <= 1e-12:
-                graphs["nearest-neighbour-components"][seed_id].add(group_id)
-                graphs["nearest-neighbour-components"][group_id].add(seed_id)
+                graphs["nearest-neighbour"][seed_id].add(group_id)
+                graphs["nearest-neighbour"][group_id].add(seed_id)
             if int(relation["contact_count"]) > 0:
-                graphs["contact-components"][seed_id].add(group_id)
-                graphs["contact-components"][group_id].add(seed_id)
+                graphs["contact"][seed_id].add(group_id)
+                graphs["contact"][group_id].add(seed_id)
     return graphs
 
 
@@ -93,6 +99,38 @@ def _relation_lookup(seed_document: Mapping[str, Any]) -> dict[str, dict[str, An
     return lookup
 
 
+def _maximal_cliques(graph: Mapping[str, set[str]]) -> list[list[str]]:
+    """Return deterministic maximal cliques for a small diagnostic graph."""
+    cliques: list[list[str]] = []
+
+    def visit(current: set[str], possible: set[str], excluded: set[str]) -> None:
+        """Enumerate maximal cliques with Bron-Kerbosch recursion."""
+        if not possible and not excluded:
+            if len(current) >= 2:
+                cliques.append(sorted(current))
+            return
+        pivot_pool = possible | excluded
+        pivot = max(pivot_pool, key=lambda node: (len(graph[node] & possible), node)) if pivot_pool else None
+        blocked = graph[pivot] if pivot is not None else set()
+        for node in sorted(possible - blocked):
+            visit(current | {node}, possible & graph[node], excluded & graph[node])
+            possible.remove(node)
+            excluded.add(node)
+
+    visit(set(), set(graph), set())
+    return sorted(cliques, key=lambda members: (members[0], len(members), members))
+
+
+def _candidate_sets(recipe: str, graph: Mapping[str, set[str]]) -> list[list[str]]:
+    """Build component or complete-link candidate sets for one graph."""
+    if recipe.endswith("-components"):
+        return _components(graph)
+    cliques = _maximal_cliques(graph)
+    covered = {group_id for clique in cliques for group_id in clique}
+    singleton_sets = [[group_id] for group_id in sorted(set(graph) - covered)]
+    return cliques + singleton_sets
+
+
 def build_set_candidate_diagnostic(seed_document: Mapping[str, Any]) -> dict[str, Any]:
     """Build multi-group candidate proposals from two graph constructions."""
     graphs = _graphs(seed_document)
@@ -100,8 +138,9 @@ def build_set_candidate_diagnostic(seed_document: Mapping[str, Any]) -> dict[str
     scope = sorted(str(group_id) for group_id in seed_document["views"][0]["scope_group_ids"])
     candidates_by_recipe: dict[str, list[dict[str, Any]]] = {}
     for recipe in RECIPES:
+        base = "nearest-neighbour" if recipe.startswith("nearest-neighbour") else "contact"
         candidates = []
-        for index, members in enumerate(_components(graphs[recipe])):
+        for index, members in enumerate(_candidate_sets(recipe, graphs[base])):
             member_set = set(members)
             relation_ids = []
             for pair_id, relation in relations.items():
@@ -114,7 +153,7 @@ def build_set_candidate_diagnostic(seed_document: Mapping[str, Any]) -> dict[str
                     "scope_group_ids": scope,
                     "proposal_extent": members,
                     "closure_status": "not_evaluated",
-                    "candidate_status": "diagnostic_only",
+                    "candidate_status": "diagnostic_singleton" if len(members) == 1 else "diagnostic_only",
                     "proposal_evidence": {
                         "graph_rule": recipe,
                         "relation_ids": sorted(relation_ids),

@@ -435,7 +435,8 @@ parallel and unresolved until the Stage-2 review gates are satisfied.
 The set-level diagnostic runner
 `scripts/design/group_level/run_group_set_candidate_diagnostic.py` converts
 the retained pair observations into multi-group component views. Its
-nearest-neighbour and contact graphs are chaining baselines only; candidate
+nearest-neighbour and contact graphs are chaining baselines, and its
+complete-link views expose the current geometry-only limitation. Candidate
 selection, authored membership, attribution and strength remain deferred.
 
 Both group runners now write `package_contract.json` and a stable
