@@ -424,6 +424,14 @@ history record](project/evidence/group-relation-history-audit-v1.md).
 Stage-2 readout comparison, blind review, and recipe decisions remain open.
 Camera integration and other analysis planes have not been verified.
 
+The output-only diagnostic runner
+`scripts/design/group_level/run_group_candidate_recipe_diagnostic.py` compares
+parallel one-step proposal shapes from the retained geometry observations. It
+reuses stored IFC-derived projections and emits complete-scope plane-local SVG
+views; it does not implement candidate inference, attribution, membership,
+strength, closure, or winner selection. The two diagnostic recipes remain
+parallel and unresolved until the Stage-2 review gates are satisfied.
+
 Both group runners now write `package_contract.json` and a stable
 `package_status.json` using the shared read-only freshness protocol in
 `features/field_core.py`. The status payload is the planned UI handoff: a future
