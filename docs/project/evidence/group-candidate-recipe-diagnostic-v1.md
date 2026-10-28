@@ -64,3 +64,16 @@ candidate recipe diagnostic: .../run_20261028T_parallel_v1
 This result only makes the two proposal shapes inspectable. It does not show
 that either rule is perceptually or operationally correct, and it does not
 unblock scalar readouts or strength `M`.
+
+## Visual audit
+
+Two representative views were rasterized from the same SVGs for inspection:
+
+- nearest-neighbour seed `0003` highlights the red seed plus one yellow nearest
+  proposal group;
+- contact-only seed `0003` highlights only the red seed because that seed has no
+  computed contact relation.
+
+The red/yellow/grey distinction is readable, the complete scope remains
+visible, and the contact-only seed-only case is represented without inventing a
+neighbor. This is a visualization audit only; it does not favor either recipe.
