@@ -1,0 +1,166 @@
+# 证据包最小通用规范
+
+状态：**设计基线；复用现有 `FieldResultEnvelope` 与 `EvidencePackageOutput`，不新增框架。**
+
+本规范只规定所有证据包必须共有的边界。几何计算、证据语义和包内公式仍由各证据包自己定义。
+
+## 包内内聚与结果保留（2026-11-01 用户确认）
+
+- 包拥有解释其目标关系所需的计算与逻辑，包括适用的几何计算；不以其他证据包必须启用为前置条件。可以复用普通函数和有效缓存，不新增公共测量层或包间调度框架。
+- 输入仍由调用者按现有 `FieldResultEnvelope` 契约提供并声明来源；本次确认不改变 `evaluate(source_envelopes)`，也不表示已支持直接传入 scene/polygon。
+- 当前纯轴支持保留。未来距离条件势、距离包或联合场只能追加具名结果，不能覆盖原始渠道或擅自改写原结果的含义；场景变化仍按真实依赖检查失效、重算。
+- 保留渠道不等于增加独立票数；联合输出已使用的方向、距离不能默认再各计一票。
+
+本次只确认职责边界；整组距离、尺度、距离条件势公式、具体输入适配及跨包融合仍未定稿或实现。不改变主计划先完成势场 hierarchy/merge spec，再写实现计划的顺序。
+
+## 1. 必须定义的内容
+
+每个证据包必须声明：
+
+- `package_id`、`package_schema`、`algorithm_version`；
+- `producer`、`output_function_id` 和 `output_function_version`；
+- 输入的 source envelope、target、query、scope 和分析平面；
+- 稳定且排序后的 target set，以及会影响结果的依赖指纹；
+- 包自己的计算函数及其输入渠道；
+- 每个输出渠道的名称、含义、单位、状态、来源和 provenance；
+- 若输出是支持值：极性必须是“非负且越大越支持声明命题”，并声明归一化方法和范围；
+- 缓存身份中会影响结果的 source、query、scope、recipe、算法和 schema 指纹；
+- 现实 IFC 验证命令、图面和 manifest 位置。
+
+未定义的内容不得由共享核心猜测或补默认值。
+
+## 2. 最小包模板
+
+每个包只需要补齐下面这组信息；共享核心已经提供执行和校验，不再为每个包复制一套 field/cache/result 类型。
+
+```text
+PackageDefinition {
+  package_id, package_schema, producer,
+  output_function_id, output_function_version,
+  source_channels, target_rule, query/scope/plane rule,
+  dependency_fingerprints,
+  channel_declarations, recipe, normalization_rule,
+  visualization_manifest_rule
+}
+
+PackageResult = EvidencePackageOutput {
+  source_envelopes, outputs, output_identity
+}
+
+PackageStatus = {
+  freshness, recompute_required, reasons, affected_targets
+}
+```
+
+`PackageDefinition` 是声明；`EvidencePackage` 是当前已有的可调用执行模板；
+`EvidencePackageOutput` 是当前已有的结果承载；`PackageStatus` 复用现有 freshness
+协议。它们不是四套运行时框架，也不要求新增注册表。
+
+## 3. 统一输入口
+
+当前共享执行模板的计算函数接收不可变的 `FieldResultEnvelope` 序列。query、scope、
+分析平面和版本必须从这些 envelope 的 `FieldQuery`/provenance 及包 contract 中取得；
+不得读取未声明的全局状态、世界轴、其他包的私有对象或旧缓存。包特有的 target
+枚举与依赖声明属于包 contract，不扩展现有 `EvidencePackage.evaluate()` 的最小签名。
+
+输入必须能回答：
+
+```text
+对哪个 target，在什么 query、分析平面、scope 和版本下，使用哪些 source channels 计算？
+```
+
+包不得偷偷读取未声明的全局状态、世界轴、其他包的私有对象或旧缓存。
+
+target set 必须在包 contract 中先确定并按稳定身份排序；重复 target、隐式 first-wins
+和依赖输入顺序造成的随机结果都不允许。没有目标的包结果应显式为 unavailable，不能
+用空列表伪装为已计算。
+
+## 4. 统一输出口
+
+输出使用现有 `EvidencePackageOutput`：
+
+- 完整保留所有 source envelopes 和其中的原始 channels；
+- 派生结果作为新的 `EvidenceOutputChannel` 追加；
+- 每个派生渠道引用实际使用的 source channels；
+- 派生渠道不能覆盖、删除或把输入状态改成数值零；
+- 输出函数和版本必须写入输出身份。
+
+原始观察、描述性读数、支持读数和状态读数必须分开。角度、距离等原始量不因支持输出规则而被覆盖。
+
+输出渠道的 provenance 至少继承其实际使用的 source envelope 身份、输入 channel
+引用、分析平面和 package/function version；包新增的解释只能追加，不能覆盖来源状态。
+
+## 5. 状态和缺失
+
+包必须区分 `computed`、`partial`、`not_evaluated`、`not_available`、`invalid`、`outside` 和 `ambiguous`。
+
+- 缺失、无效、未知和不适用不填零；
+- 不得临时改变分母来掩盖缺失；
+- `partial` 可以保留可用的结构化观察；
+- `ambiguous` 不得偷偷选择一个赢家；
+- 每个非 `computed` 输出必须有原因说明。
+
+## 6. 支持输出与归一化
+
+只有明确声明支持命题的渠道才可以标为 support。支持值必须满足：
+
+```text
+value >= 0
+更大的 value = 对声明命题更强的支持
+```
+
+包可以自行选择单调转换、组合和归一化，但必须保留原始值、公式、参数、范围和端点含义。`[0,1]` 只统一数值范围，不自动证明跨包语义可比。
+
+同一原始事实的多个派生表达不能因为渠道数量增加而重复投票。包内逻辑应按“充分理由、必要条件、质量调制或描述性诊断”明确区分。
+
+## 7. 缓存和失效
+
+复用现有缓存身份和 freshness 机制。结果只有在以下内容都一致时才可复用：
+
+- target、query、分析平面和 scope；
+- source/input fingerprint；
+- channel set 和 recipe fingerprint；
+- algorithm/schema version；
+- 任何会影响公式结果的参数。
+
+首版允许整个证据包全量失效。UI 对接至少得到：
+
+```text
+recompute_required: bool
+reasons: [reason]
+affected_targets: [target]
+```
+
+缓存是结果，不是新的证据来源；过期结果可以保留审计，但不得当作当前结果。
+
+freshness 结果是只读的 UI 对接口，不触发计算。其最小字段固定为：
+
+```text
+recompute_required: bool
+reasons: [{code, dependency, cached, current}, ...]
+affected_targets: [stable target id, ...]
+```
+
+首版允许整个包失效；`affected_targets` 为空只表示当前结果可复用，不表示没有
+目标。算法版本变化单独报告，不能被渲染器版本或文件时间替代。
+
+## 8. 来源、图面和验证
+
+每个包必须保留 source IDs、输入身份、分析平面、算法/schema 版本和计算解释。需要空间解释的输出必须由同一 IFC 指纹生成平面图，并由 manifest 将结果 ID 映射到图层或图面。
+
+最低验证清单：
+
+- [ ] 输入身份、query、scope 和分析平面已核验；
+- [ ] 所有原始渠道和状态都被保留；
+- [ ] 派生渠道有公式、来源链和版本；
+- [ ] 缺失不被改写为零；
+- [ ] 输出 JSON 可序列化，缓存身份稳定；
+- [ ] 指定 IFC 的平面图、manifest 和 XML/结构解析通过；
+- [ ] replay 在相同输入下得到相同结果；
+- [ ] 未覆盖状态被明确记录，没有用模拟数据冒充现实覆盖。
+
+## 9. 明确不属于通用模板的内容
+
+通用模板不决定：候选如何生成、成员是否归属、跨包权重、统一融合公式、概率解释、阈值、winner、UI 颜色或某个证据包的几何算法。
+
+这些内容必须在对应证据包或独立融合设计中定义，并继续保留在同一输出契约下。

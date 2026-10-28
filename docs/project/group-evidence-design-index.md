@@ -1,0 +1,33 @@
+# Group Evidence Design Index
+
+One-line decisions for the furniture-group evidence work. Keep this index
+short. Each entry points to the implementation or the design record that owns
+the detail.
+
+| Decision | Meaning | Status | Code / evidence |
+| --- | --- | --- | --- |
+| Public unit | A furniture group is the active analysis unit; single-furniture channels remain suppressed/audit. | Confirmed, implemented | `features/group_trend_alignment_field.py`; `features/group_geometry_relation_field.py` |
+| Group axis | `overall_group_axis` is the whole-group PCA major axis, undirected modulo 180°. | Confirmed, implemented | `features/group_self_description.py`; `features/group_trend_alignment_field.py` |
+| Axis clarity | `strength = (λ1−λ2)/(λ1+λ2)` describes how clearly one group axis is expressed; it is not probability or physical force. | Confirmed, implemented | `features/group_self_description.py`; `test/test_group_axis_potential_field.py` |
+| Axis potential aggregate | Use clarity-weighted doubled-angle resultant; keep direction, coherence, support, coverage and exclusions separate. | Confirmed, implemented | `features/group_axis_potential_field.py`; `outputs/design/group_axis_potential_ifc/run_20261029T010230Z/` |
+| Axis relation | Every unordered full-scope pair is only a relation address; preserve angle, `cos²(δ)`, clarity similarity, and `min(ca,cb)` support separately. No combined score or extra global-resultant vote. | Confirmed, implemented | `features/group_axis_potential_field.py`; `scripts/design/group_level/run_group_axis_relation_ifc.py`; `outputs/design/group_axis_relation_diagnostic/run_20261029T131057Z/`; detailed rule in `docs/project/group-potential-and-trend-design-note.md` |
+| Package output | A package owns its output function; source envelopes/channels are preserved and derived channels are additive and traceable. | Confirmed, implemented | `features/field_core.py`; `docs/superpowers/specs/2026-10-28-evidence-package-output-contract.md` |
+| Package minimum standard | Every package declares producer/function identity, source channels, deterministic targets, query/scope/plane, dependency fingerprints, channel semantics, normalization, freshness, and visualization manifest; shared core reuses the existing envelope/output/status contracts. | Design baseline | `docs/superpowers/specs/2026-10-30-evidence-package-minimal-standard.md` |
+| Package cohesion | Each package owns its required calculations without requiring another evidence package to be enabled. Retain pure-axis/source channels; future conditioned or joint results are additive, with real invalidation dependencies and no automatic extra votes. No new measurement layer or evaluate signature. | User-confirmed design 2026-11-01; distance rules/conditional implementation pending | [`Package minimum standard`](../superpowers/specs/2026-10-30-evidence-package-minimal-standard.md); `features/field_core.py` |
+| Fusion output / research | 支持输出非负且越大越支持；正式底层保留完整向量。建议同问题、固定配方、完整覆盖时以等语义证据族均值给单值，未知凸权重范围作旁侧诊断；场支持映射仍待定。 | 正向约束已确认；融合建议待审阅、未实现 | `docs/project/evidence-field-fusion-kernel-research-note.md` |
+| Geometry package | Group geometry relations are descriptive observations only; they do not create support, strength, candidates or membership. | Confirmed, implemented | `features/group_geometry_relation_field.py` |
+| Potential field identity | Every usable actual whole-group axis supplies an anchored reference view; all qualified scope groups remain rows. No fixed region/K, threshold, winner or discovered-cluster claim. | Implemented, replay-validated; current result accepted 2026-10-31 (.12.6) | [`Identity/generation protocol`](../superpowers/specs/2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md); [`IFC replay evidence`](evidence/group-axis-source-axis-field-v1.md); [`Visual review`](evidence/group-axis-source-axis-visual-preview-v1.md) |
+| Potential field support | `S(g,alpha)=c_g cos²(theta_g−alpha)` is a reference-conditioned projection; preserve complete E/channels/status/lineage, not a replacement general M. Self retained; non-self profile excludes anchor; package signature unchanged. | Implemented, replay-validated; current result accepted 2026-10-31 (.12.6) | [`Support mapping`](../superpowers/specs/2026-10-30-group-axis-potential-field-support-mapping.md); [`IFC replay evidence`](evidence/group-axis-source-axis-field-v1.md); [`Visual review`](evidence/group-axis-source-axis-visual-preview-v1.md) |
+| Soft-view direction | Read-only `Q_k=ΣS(g,k)exp(i2theta_g)` uses support once, includes/identifies self and anchor_only, never updates reference or validates support. | Implemented, replay-validated; current result accepted 2026-10-31 (.12.6) | [`Identity/generation protocol`](../superpowers/specs/2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md); [`IFC replay evidence`](evidence/group-axis-source-axis-field-v1.md); [`Visual review`](evidence/group-axis-source-axis-visual-preview-v1.md) |
+| Field hierarchy / merge | Owner-selected circular angular-arc recipe over exact source-axis direction classes: `beta<90°`, all retained leaves/small families, `J_F(g)=max S(g,k)`, complementary residual against `P\F`, scale persistence only, no promotion/compression/new anchor. | Owner-reviewed frozen design; implementation pending | [`Frozen hierarchy spec`](../superpowers/specs/2026-11-01-group-axis-field-hierarchy-design.md); [`Implementation plan`](../superpowers/plans/2026-11-01-group-axis-field-hierarchy-implementation.md); [`Historical merge note`](group-field-merge-decision-note.md) |
+| Next step | .14 is frozen and .15 plan is written; execute the four .16 tasks in order, keeping the main checklist and this index evidence-linked. | .14 complete; .15 plan complete; .16 execution pending; hierarchy not implemented | [`Hierarchy plan`](../superpowers/plans/2026-11-01-group-axis-field-hierarchy-implementation.md); [`Execution checklist`](../superpowers/plans/2026-10-26-group-attribution-evidence-field-implementation.md); [`Visual review`](evidence/group-axis-source-axis-visual-preview-v1.md) |
+
+Status meanings: **Confirmed, implemented** has code and recorded
+verification; **Design confirmed; implementation pending** is user-approved
+but not coded; **Owner-reviewed frozen design** is accepted as the current
+rule but is not implementation evidence; **Owner-reviewed draft** still awaits user review and is not implemented;
+**Design under review** must not be coded as settled behavior;
+**Planned** has ordering but needs its own rule review.
+
+The execution checklist and full rationale remain in the implementation plan
+and the potential/trend design note. This index is the first lookup point.

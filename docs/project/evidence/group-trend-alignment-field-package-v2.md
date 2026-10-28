@@ -18,3 +18,11 @@ This v2 boundary has focused contract coverage in
 `test/test_group_evidence_unit_boundary.py`. A fresh full IFC v2 run is still
 pending because the prior runner performs the expensive IFC extraction; the
 old v1 artifacts must not be reported as v2 validation.
+
+The shared `EvidencePackageOutput` contract preserves the complete trend
+envelope and records derived channels separately with source-channel lineage
+and scale metadata. This trend-descriptor package itself does not emit
+axis-similarity or resultant channels. The independent
+`group-axis-potential` package consumes its `overall_group_axis` source channel
+and implements the reviewed aggregate baseline; that package boundary does
+not add similarity or clarity-compatibility channels to this trend package.

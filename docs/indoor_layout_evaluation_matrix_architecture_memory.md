@@ -203,6 +203,86 @@ through evidence geometry and route-topology handoffs.
 
 Column-grid field evidence is an additive continuous layer over the explicit axis/branch/bay scaffold. It summarizes local support, clarity, and strength at deterministic region probes, and it must not replace bay-based local profiles or force orthogonal snapping.
 
+Current axis-only group-potential architecture (2026-10-29): the independent
+`group-axis-potential` package consumes only each furniture group's
+`overall_group_axis`, applies the reviewed clarity-weighted doubled-angle
+operator, and emits additive direction, coherence, resultant-strength,
+coverage, and exclusion diagnostics while preserving the trend envelopes.
+`layout_axis` and member channels remain audit/source data. The user-confirmed
+pairwise axis-similarity and clarity-compatibility channels are active additive
+outputs of the same package. The retained full-scope IFC replay covers 37
+groups, 666 unordered pairs, and 2,664 pair-channel outputs; it does not create
+a combined score or use pair readings as extra votes in the global resultant.
+Keep the compact group evidence index current as the lookup entry; the
+implementation plan is the live checklist and the potential/trend note owns
+detailed rationale. See
+[`docs/software-architecture.md`](software-architecture.md),
+[`project/group-evidence-design-index.md`](project/group-evidence-design-index.md),
+and the verified replay record under
+`outputs/design/group_axis_potential_ifc/run_20261029T010230Z/`.
+
+The shared minimum evidence-package standard is recorded in
+[`docs/superpowers/specs/2026-10-30-evidence-package-minimal-standard.md`](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md).
+It reuses `FieldResultEnvelope`, `EvidencePackage`, `EvidencePackageOutput`,
+and the package freshness/status protocol. A package must declare its producer,
+function identity, source channels, deterministic target set,
+query/scope/plane, dependency fingerprints, output semantics, normalization,
+visualization manifest, and invalidation behavior. The shared core checks
+structure and lineage; package formulas remain local.
+
+User confirmation (2026-11-01): keep packages cohesive, without requiring another
+evidence package to be enabled or adding a measurement layer. Reuse the existing
+source-envelope input; retain pure-axis/source channels and append future
+conditioned/joint results without extra votes. Real dependency changes still
+require freshness checks. Distance rules and conditional implementation remain
+pending; hierarchy spec .14 is frozen and plan .15 is written, with .16.1 as the
+next execution gate.
+See the minimum standard for the bounded decision.
+
+The source-axis `g→k` field view is implemented and replay-validated from
+retained IFC-derived envelopes at
+`outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/`.
+Every usable actual whole-group
+axis provides a reference view; all qualified scope groups remain rows of
+`S(g,k)=c_g*cos²(theta_g-theta_k)`, modulo 180°. No fixed region/K, threshold,
+winner or true-cluster claim; this projection preserves complete E and is not
+general M. Reuse existing envelopes/output/freshness and unchanged evaluate
+signature, not a proposal framework. Separate stable scene/anchor/query-plane/
+recipe identity from canonical content/version fingerprints for edit/undo reuse.
+Retain source and pair channels, provenance and shared-source dependencies;
+anchor clarity stays separate. Self cells remain computable but are excluded
+from non-self profile; extent stays unspecified. A read-only support-weighted
+soft-view direction includes and identifies self, reports anchor_only/coverage/
+zero/cancellation, never multiplies clarity twice or updates the reference.
+The replay contains 37 usable axes and 1,369 cells, with package freshness
+`fresh`. Owner/user result review .12.6 closed on 2026-10-31: after the real
+matrix and representative IFC plans, the user replied “不错，我理解了” and
+the owner accepted the current overlapping reference-support views. See the
+[visual review record](project/evidence/group-axis-source-axis-visual-preview-v1.md).
+This does not approve hierarchy, reality calibration or browser interaction.
+Unobserved invalid/no-anchor/zero-support states are covered only by focused
+structural or mathematical checks and are not claimed as pinned-IFC facts.
+See [`2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md`](superpowers/specs/2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md).
+Geometry, Frame, Form+Scale, and arrangement work remain deferred. Hierarchy
+spec .14 and plan .15 are complete as documentation gates; .16 execution is
+pending and must finish before any later Frame work is scheduled.
+
+### Group-field hierarchy decision — frozen .14 / pending .16 execution
+
+The owner-reviewed frozen spec
+[`2026-11-01-group-axis-field-hierarchy-design.md`](superpowers/specs/2026-11-01-group-axis-field-hierarchy-design.md)
+defines one circular angular-arc recipe over actual source-axis classes with
+`beta<90°`. Every leaf and scope row remains durable; families retain all
+leaves, use `J_F(g)=max S(g,k)` once, compare residual against `P\F`, and report
+scale persistence only as scale persistence. No fixed K, winner, hard
+membership, formal promotion, compression, or parent-as-new-anchor is allowed.
+
+The implementation plan is
+[`2026-11-01-group-axis-field-hierarchy-implementation.md`](superpowers/plans/2026-11-01-group-axis-field-hierarchy-implementation.md).
+The hierarchy builder, namespace factory seam, retained replay, indexed
+same-plane visualization, live/UI integration and .16 execution remain
+unimplemented. The 2026-10-31 decision note is historical and superseded.
+
 ## BIM Preview And Handoff Rule
 
 The Blender preview is an output-only inspection surface. It consumes a
@@ -354,6 +434,25 @@ mapping explanation; when the envelope cannot produce a valid sample it uses
 the conservative `unknown` status and `unknown` visual state. This retains the
 existing free-space compatibility semantics and does not reinterpret partial,
 unavailable, invalid, outside, or ambiguous evidence as known free space.
+
+The shared core provides `EvidencePackage` as the execution template for
+package-owned derived outputs and `EvidencePackageOutput` as the validated
+result. A package supplies a required callable and version; the template runs
+it against immutable source envelopes and validates additive output channels,
+status/scale metadata, lineage, and preservation of every source envelope and
+channel. The package function owns its calculation and any declared
+normalization; shared validation checks structure, not scientific correctness.
+Direct `EvidencePackageOutput` construction remains possible, so the template
+is the canonical execution path rather than a global restriction on callers.
+Cross-package fusion still requires reviewed semantic-scale compatibility and
+must retain every package contribution.
+
+For the furniture-group evidence work, keep the compact decision index at
+[`project/group-evidence-design-index.md`](project/group-evidence-design-index.md).
+Every new group-evidence design decision must be recorded there before its
+implementation is treated as settled. Each entry stays concise and points to
+the owning code, test, or design record; the implementation plan remains the
+checklist and the potential/trend note remains the detailed rationale.
 
 This implementation slice has no group candidate inference, group candidate
 selector, scalar aggregation, score or weight calculation, or job/result

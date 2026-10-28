@@ -10,7 +10,7 @@ import hashlib
 import json
 from math import isfinite
 from types import MappingProxyType
-from typing import Any, Generic, TypeVar
+from typing import Any, Callable, Generic, TypeVar
 
 
 Target = TypeVar("Target")
@@ -317,6 +317,265 @@ class FieldResultEnvelope:
         object.__setattr__(self, "provenance", provenance)
         object.__setattr__(self, "cache_identity", cache_identity)
         object.__setattr__(self, "visualization_ref", None if self.visualization_ref is None else _freeze(self.visualization_ref))
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceChannelReference:
+    """Identify one input channel within an immutable field result."""
+
+    result_identity: str
+    target_identity: str
+    channel: str
+
+    def __post_init__(self) -> None:
+        """Reject incomplete references so package outputs remain traceable."""
+        for name in ("result_identity", "target_identity", "channel"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+
+    @classmethod
+    def from_envelope(cls, envelope: FieldResultEnvelope, channel: str) -> EvidenceChannelReference:
+        """Create a stable reference to an admitted channel on an envelope."""
+        if not isinstance(envelope, FieldResultEnvelope):
+            raise TypeError("envelope must be a FieldResultEnvelope")
+        if channel not in envelope.channel_set:
+            raise ValueError("channel must be admitted by the envelope")
+        return cls(
+            result_identity=envelope.cache_identity["identity"],
+            target_identity=envelope.target["identity"],
+            channel=channel,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceOutputScale:
+    """Describe an output's meaning and any claimed normalization scale."""
+
+    meaning: str
+    scale_id: str | None = None
+    units: str | None = None
+    normalization_method: str | None = None
+    value_range: tuple[float, float] | None = None
+    endpoint_meanings: tuple[str, str] | None = None
+
+    def __post_init__(self) -> None:
+        """Validate declared output scale metadata without choosing a scale."""
+        if not isinstance(self.meaning, str) or not self.meaning.strip():
+            raise ValueError("meaning must be a non-empty string")
+        for name in ("scale_id", "units", "normalization_method"):
+            value = getattr(self, name)
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ValueError(f"{name} must be a non-empty string or None")
+        if self.value_range is not None:
+            if len(self.value_range) != 2:
+                raise ValueError("value_range must contain exactly two bounds")
+            lower, upper = self.value_range
+            if (
+                isinstance(lower, bool)
+                or isinstance(upper, bool)
+                or not isinstance(lower, (int, float))
+                or not isinstance(upper, (int, float))
+                or not isfinite(float(lower))
+                or not isfinite(float(upper))
+                or lower >= upper
+            ):
+                raise ValueError("value_range must contain finite increasing bounds")
+            object.__setattr__(self, "value_range", (float(lower), float(upper)))
+            if self.endpoint_meanings is None:
+                raise ValueError("bounded scales require endpoint_meanings")
+        if self.endpoint_meanings is not None:
+            endpoints = tuple(self.endpoint_meanings)
+            if len(endpoints) != 2 or any(not isinstance(item, str) or not item.strip() for item in endpoints):
+                raise ValueError("endpoint_meanings must contain two non-empty strings")
+            if self.value_range is None:
+                raise ValueError("endpoint_meanings require value_range")
+            object.__setattr__(self, "endpoint_meanings", endpoints)
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceOutputChannel:
+    """Store one package-derived output without replacing its source evidence."""
+
+    target: Mapping[str, str]
+    channel: str
+    observation: Any
+    status: FieldResultStatus
+    scale: EvidenceOutputScale
+    derived_from: tuple[EvidenceChannelReference, ...]
+    source_ids: tuple[str, ...] = ()
+    provenance: Mapping[str, Any] = MappingProxyType({})
+    explanation: str = ""
+
+    def __post_init__(self) -> None:
+        """Freeze output data and require explicit input-channel lineage."""
+        target = _freeze(self.target)
+        if not isinstance(target, Mapping) or any(
+            not isinstance(target.get(key), str) or not target[key].strip()
+            for key in ("kind", "id", "identity")
+        ):
+            raise ValueError("target requires non-empty kind, id, and identity")
+        if not isinstance(self.channel, str) or not self.channel.strip():
+            raise ValueError("channel must be a non-empty string")
+        try:
+            status = self.status if isinstance(self.status, FieldResultStatus) else FieldResultStatus(self.status)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("status must be a valid FieldResultStatus") from exc
+        if not isinstance(self.scale, EvidenceOutputScale):
+            raise TypeError("scale must be an EvidenceOutputScale")
+        lineage = tuple(self.derived_from)
+        if not lineage or any(not isinstance(item, EvidenceChannelReference) for item in lineage):
+            raise ValueError("derived_from must contain at least one EvidenceChannelReference")
+        if len(set(lineage)) != len(lineage):
+            raise ValueError("derived_from cannot contain duplicate references")
+        source_ids = tuple(self.source_ids)
+        if any(not isinstance(source_id, str) for source_id in source_ids):
+            raise TypeError("source_ids must contain strings")
+        if not isinstance(self.explanation, str):
+            raise TypeError("explanation must be a string")
+        if status is not FieldResultStatus.COMPUTED and not self.explanation.strip():
+            raise ValueError("non-computed outputs require an explanation")
+        provenance = _freeze(self.provenance)
+        if not isinstance(provenance, Mapping):
+            raise TypeError("provenance must be a mapping")
+        object.__setattr__(self, "target", target)
+        object.__setattr__(self, "channel", self.channel.strip())
+        object.__setattr__(self, "observation", _freeze(self.observation))
+        object.__setattr__(self, "status", status)
+        object.__setattr__(self, "derived_from", tuple(sorted(lineage, key=lambda ref: (ref.result_identity, ref.target_identity, ref.channel))))
+        object.__setattr__(self, "source_ids", source_ids)
+        object.__setattr__(self, "provenance", provenance)
+
+
+@dataclass(frozen=True, slots=True)
+class EvidencePackageOutput:
+    """Pair immutable source envelopes with additive package-owned outputs."""
+
+    package_id: str
+    output_function: str
+    output_function_version: str
+    source_envelopes: tuple[FieldResultEnvelope, ...]
+    outputs: tuple[EvidenceOutputChannel, ...]
+    schema: str = "evidence-package-output/v1"
+
+    def __post_init__(self) -> None:
+        """Validate output lineage while retaining every input envelope unchanged."""
+        for name in ("package_id", "output_function", "output_function_version"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+        if self.schema != "evidence-package-output/v1":
+            raise ValueError("schema must be evidence-package-output/v1")
+        envelopes = tuple(self.source_envelopes)
+        if not envelopes or any(not isinstance(item, FieldResultEnvelope) for item in envelopes):
+            raise ValueError("source_envelopes must contain FieldResultEnvelope values")
+        identities = [item.cache_identity["identity"] for item in envelopes]
+        if len(set(identities)) != len(identities):
+            raise ValueError("source_envelopes cannot contain duplicate result identities")
+        envelopes = tuple(sorted(envelopes, key=lambda item: item.cache_identity["identity"]))
+        outputs = tuple(self.outputs)
+        if not outputs or any(not isinstance(item, EvidenceOutputChannel) for item in outputs):
+            raise ValueError("outputs must contain EvidenceOutputChannel values")
+        output_keys = [(item.target["identity"], item.channel) for item in outputs]
+        if len(set(output_keys)) != len(output_keys):
+            raise ValueError("outputs cannot duplicate target/channel pairs")
+
+        available_refs = {
+            (item.cache_identity["identity"], item.target["identity"], channel)
+            for item in envelopes
+            for channel in item.channel_set
+        }
+        for output in outputs:
+            for ref in output.derived_from:
+                key = (ref.result_identity, ref.target_identity, ref.channel)
+                if key not in available_refs:
+                    raise ValueError("output lineage must reference a channel in source_envelopes")
+            if any(
+                output.target["identity"] == envelope.target["identity"]
+                and output.channel in envelope.channel_set
+                for envelope in envelopes
+            ):
+                raise ValueError("package outputs must not replace source evidence channels")
+
+        outputs = tuple(sorted(outputs, key=lambda item: (item.target["identity"], item.channel)))
+        object.__setattr__(self, "package_id", self.package_id.strip())
+        object.__setattr__(self, "output_function", self.output_function.strip())
+        object.__setattr__(self, "output_function_version", self.output_function_version.strip())
+        object.__setattr__(self, "source_envelopes", envelopes)
+        object.__setattr__(self, "outputs", outputs)
+
+    @property
+    def output_identity(self) -> str:
+        """Return a stable cache key for these inputs and output declarations."""
+        # The source identity and output declaration versioning invalidate derived results together.
+        payload = {
+            "schema": self.schema,
+            "source_result_identities": tuple(
+                envelope.cache_identity["identity"] for envelope in self.source_envelopes
+            ),
+            "package_id": self.package_id,
+            "output_function": self.output_function,
+            "output_function_version": self.output_function_version,
+            "outputs": tuple(
+                {
+                    "target": output.target,
+                    "channel": output.channel,
+                    "derived_from": output.derived_from,
+                    "scale": output.scale,
+                }
+                for output in self.outputs
+            ),
+        }
+        return hashlib.sha256(_canonical_json(payload).encode()).hexdigest()
+
+
+@dataclass(frozen=True, slots=True)
+class EvidencePackage:
+    """Define the required callable output step for one evidence package."""
+
+    package_id: str
+    output_function_id: str
+    output_function_version: str
+    output_function: Callable[[tuple[FieldResultEnvelope, ...]], Iterable[EvidenceOutputChannel]]
+
+    def __post_init__(self) -> None:
+        """Validate stable function metadata before a package can run."""
+        for name in ("package_id", "output_function_id", "output_function_version"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+        if not callable(self.output_function):
+            raise TypeError("output_function must be callable")
+
+    def evaluate(self, source_envelopes: Iterable[FieldResultEnvelope]) -> EvidencePackageOutput:
+        """Run the package function and validate its complete additive output."""
+        envelopes = tuple(source_envelopes)
+        if not envelopes or any(not isinstance(item, FieldResultEnvelope) for item in envelopes):
+            raise TypeError("source_envelopes must contain FieldResultEnvelope values")
+
+        produced = self.output_function(envelopes)
+        if isinstance(produced, (str, bytes, Mapping)) or not isinstance(produced, Iterable):
+            raise TypeError("output_function must return an iterable of EvidenceOutputChannel values")
+        outputs = tuple(produced)
+
+        # EvidencePackageOutput enforces lineage, status explanations, scale metadata,
+        # duplicate prevention, and source-channel preservation in one shared boundary.
+        return EvidencePackageOutput(
+            package_id=self.package_id,
+            output_function=self.output_function_id,
+            output_function_version=self.output_function_version,
+            source_envelopes=envelopes,
+            outputs=outputs,
+        )
+
+
+def serialize_evidence_package_output(result: EvidencePackageOutput) -> dict[str, Any]:
+    """Serialize package outputs together with their complete source envelopes."""
+    if not isinstance(result, EvidencePackageOutput):
+        raise TypeError("result must be an EvidencePackageOutput")
+    serialized = _json_value(result)
+    serialized["output_identity"] = result.output_identity
+    return serialized
 
 
 def build_field_result_cache_identity(*, target: Mapping[str, Any], query: FieldQuery, channel_declarations: Iterable[Any], input_fingerprint: str, source_fingerprint: str, recipe_fingerprint: str, algorithm_version: str, schema_version: str) -> dict[str, str]:

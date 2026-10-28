@@ -43,6 +43,13 @@ Historical semantic/neighborhood relation inventory is recorded in provenance;
 position-grammar and column-grid evidence remain separate domains. The
 envelope has no `field_projection` and no support value.
 
+The shared field core now also exposes `EvidencePackageOutput` for a future
+package-owned output function. It is additive: source envelopes and all three
+raw channels remain intact, while any derived channel must cite its source
+channels and declare its own scale metadata. This package does not currently
+use that output contract because group-level aggregation and strength rules
+are still deferred.
+
 ## Shared field boundary
 
 The package uses `FieldQuery`, `EvidenceChannelRecord`,

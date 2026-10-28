@@ -424,6 +424,131 @@ history record](project/evidence/group-relation-history-audit-v1.md).
 Stage-2 readout comparison, blind review, and recipe decisions remain open.
 Camera integration and other analysis planes have not been verified.
 
+`features/field_core.py` defines `EvidencePackage` as the shared execution
+template for package-owned derived outputs and `EvidencePackageOutput` as its
+validated additive result. A package must provide a callable output function
+and version; the template runs it against immutable source envelopes and
+validates channel shape, status, scale metadata, lineage, duplicate prevention
+and complete source preservation. Derived channels remain separate from raw
+channels, and output-function version participates in the derived identity.
+`features/group_axis_potential_field.py` now adds the reviewed axis-only
+diagnostic package. It consumes only each source envelope's
+`overall_group_axis`, weights the undirected doubled-angle vectors by the
+existing PCA clarity, and emits additive `aggregate_direction`,
+`direction_coherence`, `resultant_strength`, `coverage`, and excluded-axis
+diagnostics. `layout_axis` and suppressed member channels remain source audit
+data and do not enter the resultant. The complete-scene target summarizes all
+currently supplied authored furniture groups; it does not infer a higher-level
+group, membership, candidate, or winner. The pinned-IFC replay runner reuses
+the verified IFC-derived trend envelopes and analysis-plane geometry without
+rerunning extraction. The contract does not verify the scientific correctness
+of a package formula or define cross-package fusion; raw source channels remain
+present in serialized output.
+
+The full-scope pairwise axis-relation channels are user-confirmed additive
+evidence in the axis-potential package: undirected angle gap, `cos²(δ)`
+direction similarity, clarity similarity, and `min(ca, cb)` common clarity
+support. The read-only IFC diagnostic runner is
+`scripts/design/group_level/run_group_axis_relation_ifc.py`; its retained
+artifact at `outputs/design/group_axis_relation_diagnostic/run_20261029T131057Z/`
+covers all 37 groups and 666 unordered pairs, writes symmetric matrices and a
+neutral plan, and keeps each pair as a relation address rather than a pairing or
+group selection. The package replay preserves all source envelopes and emits
+2,664 independently traceable pair-channel outputs. It does not emit a
+combined score or add pair readings as extra votes in the global resultant.
+Existing group-pair geometry observations remain a separate package and do not
+satisfy this axis-relation layer.
+
+All evidence packages follow the minimum shared declaration in
+[`docs/superpowers/specs/2026-10-30-evidence-package-minimal-standard.md`](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md):
+producer/function identity, declared source channels, deterministic targets,
+query/scope/plane, dependency fingerprints, channel semantics, package-owned
+normalization, freshness status, and IFC visualization manifest. The shared
+core validates structure and lineage; it does not choose package formulas or
+cross-package fusion.
+
+On 2026-11-01 the user confirmed package cohesion: a package owns the calculations
+needed for its declared relation without requiring another evidence package to
+be enabled. Reuse ordinary functions and valid caches; do not introduce a shared
+measurement layer or package scheduler. Inputs remain declared source envelopes
+through the existing evaluate signature. Pure-axis/source channels stay intact;
+future distance-conditioned or joint results are additional named outputs, not
+automatic extra votes. Real source changes still invalidate dependent results.
+Whole-group distance, scale, conditional formulas and their source adapters remain
+undecided and unimplemented; this confirmation does not change the .14/.15 order.
+
+The source-axis `g→k` support mapping is implemented and replay-validated against
+the retained IFC-derived trend envelopes. The owner-reviewed design supersedes the
+external-only prerequisite: continuous `S(g,alpha)=c_g*cos²(theta_g-alpha)`
+uses every usable actual `overall_group_axis` as an anchored reference view k,
+with every qualified scope group retained as a row. No fixed region/K, radius,
+threshold, mode detection or winner is introduced. Parallel references remain
+views/aliases, not extra votes or discovered organization clusters. This is a
+reference-conditioned projection of complete E, not its replacement or final M.
+The proposed fixed producer reads existing source envelopes;
+`EvidencePackage.evaluate(source_envelopes)` stays unchanged, without a new
+proposal-envelope framework. Logical field identity binds scene namespace,
+immutable anchor group ID, query/plane identity and recipe; canonical content
+fingerprints include normalized scope/query/plane/source axes/envelopes/versions,
+excluding timestamps/revisions so edit/undo can reuse original contents.
+Cell lineage references the actual row and anchor axis channels; all original
+and pair channels/states/provenance remain. Anchor clarity is separate, not
+another factor. Extent stays absent/unspecified; no extent profile is fabricated.
+Self cells are retained but excluded from the non-self known-value profile
+(`expected=N_scope-1`, unknown not zero, valid zero counts toward coverage).
+A separate proposed read-only `Q_k=ΣS(g,k)exp(i2theta_g)` describes the full soft
+view including self, using support once and reporting self weight/fraction,
+positive count, anchor_only, coverage, zero-support and cancellation states.
+It never updates the reference, validates support, or changes the existing
+global aggregate helper's singleton semantics. No usable anchor in nonempty
+scope yields an actual-source scope diagnostic; empty scope is handled before
+evaluate, preserving existing core nonempty contracts.
+The retained-envelope replay at
+`outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/`
+contains 37 usable source axes and 1,369 cells (37 self, 1,332 non-self), 37
+non-self profiles, 37 read-only direction descriptions and 37 same-plane SVG
+views. It writes the shared package contract and a `fresh` package status while
+reusing retained geometry without extraction or synthetic scenes. No-anchor
+scope diagnostics and singleton/zero/cancellation semantics have focused
+structural or mathematical checks. This does not claim those unobserved states
+occur in the pinned IFC. Owner/user result review closed on 2026-10-31 for
+the current overlapping reference-support views: the user replied
+“不错，我理解了” after viewing the matrix and representative IFC plans.
+This acceptance does not establish reality calibration, hierarchy approval or
+browser interaction acceptance; see the [visual review record](project/evidence/group-axis-source-axis-visual-preview-v1.md). See
+[`2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md`](superpowers/specs/2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md).
+Geometry, Frame, Form+Scale, and arrangement packages remain deferred. Hierarchy
+spec .14 is frozen and plan .15 is written; the next execution gate is .16.1 in
+the hierarchy implementation plan. No hierarchy implementation is claimed.
+
+The output-only renderer
+`scripts/design/group_level/render_group_axis_potential_preview.py` reads that
+retained replay without reevaluating support or extracting IFC geometry. Its
+standalone HTML links the complete numerical group-by-anchor matrix, a selected
+field's same-plane furniture geometry, and one group's support across every
+field. Three sampled reference views and a source/artifact manifest accompany
+the preview under `outputs/design/group_axis_potential_visual_preview/`.
+This presentation layer preserves the original matrix/profile/direction values
+and does not change production semantics, membership, or field-family behavior.
+
+### Group-field hierarchy / merge — FROZEN DESIGN, IMPLEMENTATION PENDING
+
+The owner-reviewed spec
+[`2026-11-01-group-axis-field-hierarchy-design.md`](superpowers/specs/2026-11-01-group-axis-field-hierarchy-design.md)
+freezes an automatic circular angular-arc family recipe over actual source-axis
+classes with `beta<90°`. Every source-axis leaf and scope row remains durable;
+families retain all leaves, use `J_F(g)=max S(g,k)` once, compare child residual
+against `P\F`, and report scale persistence as a scale measure only. There is
+no formal promotion, compression, fixed K, winner, hard membership, or
+parent-as-new-anchor.
+
+This layer is downstream of the source-axis `g→k` mapping and reuses the
+existing `EvidencePackage`/`FieldResultEnvelope` contracts. The implementation
+plan [`2026-11-01-group-axis-field-hierarchy-implementation.md`](superpowers/plans/2026-11-01-group-axis-field-hierarchy-implementation.md)
+defines the future helper, explicit factory namespace seam, retained replay and
+complete indexed visualization. No hierarchy builder, live consumer, UI seam,
+or IFC runner is implemented yet; .16 execution remains unchecked.
+
 The output-only diagnostic runner
 `scripts/design/group_level/run_group_candidate_recipe_diagnostic.py` compares
 parallel one-step proposal shapes from the retained geometry observations. It

@@ -1,7 +1,7 @@
 # Field Result Envelope Design
 
 - Date: 2026-10-21
-- Status: design review; no production implementation
+- Status: shared envelope implemented; additive package-output contract is a working extension
 - Scope: shared output contract for free-space and group-evidence field results
 - Branch: `group-inference-design`
 
@@ -267,6 +267,23 @@ The envelope carries evidence vectors, not a universal numeric transform.
 No channel receives an implicit weight merely because it appears in the
 envelope. Any later scalar projection must be separately named, versioned, and
 calibrated.
+
+### Additive package outputs
+
+An evidence package may apply its own output function to one or more source
+envelopes. The shared `EvidencePackageOutput` contract stores the exact source
+envelopes together with additive `EvidenceOutputChannel` records. Each derived
+channel declares its meaning/scale metadata and references the admitted source
+channels used to compute it. It cannot overwrite an input channel or discard
+its status, source ids, or provenance. The contract records output function
+identity and version so a changed package rule cannot reuse an old derived
+result silently.
+
+This contract does not define a universal normalization, score, weight,
+probability, or cross-package fusion rule. A numeric range such as 0–1 is not a
+shared semantic scale by itself. A later fusion layer may combine outputs only
+after explicit scale compatibility has been reviewed, while retaining each
+package contribution and all original channels.
 
 `support` is an audit/support payload such as witness ids, measured support
 geometry, or contributing source references. It is not a membership strength,
