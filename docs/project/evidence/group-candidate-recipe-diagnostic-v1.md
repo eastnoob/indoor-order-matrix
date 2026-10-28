@@ -1,7 +1,7 @@
 # Group candidate recipe diagnostic v1
 
 - Date: 2026-10-28
-- Status: geometry-only diagnostic; no recipe selected
+- Status: geometry-only diagnostic; no recipe selected; pair-expansion display is not the target candidate model
 - Source: pinned IFC-derived seed and geometry artifacts
 
 ## Purpose
@@ -11,6 +11,12 @@ same 37 real furniture groups and 666 real group-pair observations already
 produced from the pinned IFC. It checks whether the candidate record can keep a
 proposal extent, complete scope exposure, source references, and a plane-local
 visualization without turning a proposal into membership or strength.
+
+The run is retained as a structural diagnostic only. Because each sample is
+anchored by one seed and may highlight one neighbor, it must not be
+interpreted as a pairwise grouping result. The intended next design is a
+multi-group candidate view in which pairwise observations are only evidence
+channels.
 
 ## Parallel recipes
 
@@ -61,9 +67,10 @@ candidate recipe diagnostic: .../run_20261028T_parallel_v1
 37 seeds × 2 recipes = 74 views; 74/74 SVG XML parses successfully.
 ```
 
-This result only makes the two proposal shapes inspectable. It does not show
-that either rule is perceptually or operationally correct, and it does not
-unblock scalar readouts or strength `M`.
+This result only makes two pair-expansion shapes inspectable. It does not show
+that either rule is perceptually or operationally correct, does not define a
+multi-group candidate proposal, and does not unblock scalar readouts or
+strength `M`.
 
 ## Visual audit
 

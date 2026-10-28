@@ -49,7 +49,7 @@ retain their states; they are never replaced by zero. `proposal_extent` is an
 observation range, not a hard membership boundary. Groups outside it but inside
 the frozen scope remain visible as boundary tension or unresolved evidence.
 
-## Smallest currently supported view
+## Current diagnostic view (not the target candidate model)
 
 The existing seed relation profile is the only view that can be produced from
 the current IFC without inventing a rule:
@@ -65,6 +65,13 @@ the current IFC without inventing a rule:
 
 This is a traceable organization view for inspection. It is not yet a
 candidate proposal algorithm.
+
+This seed-to-group display must not be read as pairwise grouping. A sample
+with one red seed and one highlighted neighbor only visualizes one raw
+relation used by a diagnostic recipe; it does not answer whether two groups
+belong together. The intended candidate is a multi-group organization view.
+Pairwise gap, contact, and overlap observations are inputs to that set-level
+proposal and remain separate evidence channels.
 
 ## Choices that must be approved before a real proposal recipe
 
@@ -96,7 +103,8 @@ AuthoredGroup declarations are input facts, not validation labels.
 
 Choose whether to:
 
-- keep seed views diagnostic only and first discuss a proposal extent rule; or
+- keep seed views diagnostic only and first define a multi-group candidate-set
+  proposal rule; or
 - add a new evidence package before defining proposal extent.
 
 If defining proposal extent now, choose one of nearest-neighbour,
