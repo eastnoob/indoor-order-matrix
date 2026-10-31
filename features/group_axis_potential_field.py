@@ -7,6 +7,8 @@ import json
 from math import atan2, cos, degrees, hypot, isfinite, radians, sin
 from typing import Any
 
+from .group_field_hierarchy import build_axis_field_hierarchy
+
 from .field_core import (
     EvidenceChannelReference,
     EvidenceOutputChannel,
@@ -20,6 +22,8 @@ from .field_core import (
 PACKAGE_ID = "group-axis-potential"
 OUTPUT_FUNCTION_ID = "aggregate_group_axis_potential"
 OUTPUT_FUNCTION_VERSION = "axis-with-relations-v1"
+HIERARCHY_OUTPUT_FUNCTION_ID = "aggregate_group_axis_potential_with_hierarchy"
+HIERARCHY_OUTPUT_FUNCTION_VERSION = "axis-with-hierarchy-v1"
 AGGREGATE_TARGET = {
     "kind": "furniture_group_axis_potential_summary",
     "id": "all_supplied_authored_groups_diagnostic",
@@ -747,16 +751,40 @@ def aggregate_group_axis_potential_outputs(
             provenance=provenance,
         ),
     ]
-    return tuple(outputs) + _relation_outputs(source_envelopes) + _source_axis_field_outputs(source_envelopes)
+    source_axis_outputs = _source_axis_field_outputs(source_envelopes)
+    return tuple(outputs) + _relation_outputs(source_envelopes) + source_axis_outputs
 
 
-def build_group_axis_potential_package() -> EvidencePackage:
-    """Return the reviewed axis-only package execution template."""
+def build_group_axis_potential_package(*, scene_namespace: str | None = None) -> EvidencePackage:
+    """Return the legacy package or an additive namespace-bound hierarchy package."""
+    if scene_namespace is not None and (not isinstance(scene_namespace, str) or not scene_namespace.strip()):
+        raise ValueError("scene_namespace must be non-empty when hierarchy mode is requested")
+    if scene_namespace is None:
+        return EvidencePackage(
+            package_id=PACKAGE_ID,
+            output_function_id=OUTPUT_FUNCTION_ID,
+            output_function_version=OUTPUT_FUNCTION_VERSION,
+            output_function=aggregate_group_axis_potential_outputs,
+        )
+
+    def output_function(source_envelopes: tuple[FieldResultEnvelope, ...]) -> tuple[EvidenceOutputChannel, ...]:
+        """Compute legacy outputs once, then append namespace-bound hierarchy records."""
+        legacy = aggregate_group_axis_potential_outputs(source_envelopes)
+        source_axis = tuple(
+            output for output in legacy
+            if output.channel in {"axis_field_support", "non_self_profile", "soft_view_direction", "source_axis_scope_diagnostics"}
+        )
+        return legacy + build_axis_field_hierarchy(
+            source_envelopes,
+            source_axis,
+            scene_namespace=scene_namespace,
+        )
+
     return EvidencePackage(
         package_id=PACKAGE_ID,
-        output_function_id=OUTPUT_FUNCTION_ID,
-        output_function_version=OUTPUT_FUNCTION_VERSION,
-        output_function=aggregate_group_axis_potential_outputs,
+        output_function_id=HIERARCHY_OUTPUT_FUNCTION_ID,
+        output_function_version=HIERARCHY_OUTPUT_FUNCTION_VERSION,
+        output_function=output_function,
     )
 
 

@@ -1,8 +1,12 @@
 # Group axis-field hierarchy：圆周方向族设计
 
-日期：2026-11-01。状态：**owner-reviewed frozen design；.14 complete；实现未开始。**
+日期：2026-11-01。状态：**owner-reviewed frozen design；.14/.15/.16 complete；owner 已接受 frozen axis-only 范围内的 retained replay 与离线图面结果。**
 
-本稿冻结 .14 首版行为；.15 implementation plan 已存在，索引、架构说明和主 checklist 已同步。实现、测试、指定 IFC replay 与新 artifacts 尚未开始。沿用[分组目标](../../project/grouping-goal-alignment.md)、[证据包最小规范](2026-10-30-evidence-package-minimal-standard.md)和[源轴身份协议](2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md)。当前边界见[架构记忆](../../indoor_layout_evaluation_matrix_architecture_memory.md#group-field-hierarchy-decision-2026-10-31)与[实际架构](../../software-architecture.md#group-field-hierarchy--frozen-design-implementation-pending)。
+本稿冻结 .14 首版行为；当前实施状态与真实覆盖见[hierarchy 证据记录](../../project/evidence/group-axis-field-hierarchy-v1.md)和[implementation plan](../plans/2026-11-01-group-axis-field-hierarchy-implementation.md)。最终 independent audit 无剩余 blocker；owner 于 2026-11-01 授权勾选 `.16.4`、Task 4 全部子项及总体 `.16`。这是 owner 接受，不是 user-reviewed、browser/live UI 或现实 cluster validity 接受。沿用[分组目标](../../project/grouping-goal-alignment.md)、[证据包最小规范](2026-10-30-evidence-package-minimal-standard.md)和[源轴身份协议](2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md)。当前边界见[架构记忆](../../indoor_layout_evaluation_matrix_architecture_memory.md)与[实际架构](../../software-architecture.md)。
+
+**冻结时历史状态：**.14/.15 文档门完成时，helper/factory seam/runner、hierarchy tests、指定 replay 和 artifacts 尚未开始。该状态由下述 `.16.1-.16.3` 执行记录更新；设计冻结本身不构成实现证据。
+
+**最终结果续记：**当前 replay 为 `outputs/design/group_axis_field_hierarchy_ifc/replay_v2/`，preview 为 `outputs/design/group_axis_field_hierarchy_preview/run_20261101T101331Z/`。HTML `JSON.parse` 的大 rational numerator 显示问题已以 browser-facing decimal strings 修复，machine integer pairs 原样保留。no-axis/zero-mass unavailable、canonical modulo endpoint、valid descriptor admission、anchor contribution mass/fraction/positive-contributor `anchor_only`、profile leaf-cell coverage/status、residual known mass/mean 与 actual cell target refs 已修复。107 retained files 未变，17 artifact/14 input hashes 匹配，完整索引通过；独立 audit 覆盖 314,167 actual source refs/1,332 residual summaries，实际 retained `S`/`J`/topology 与 v1 相同。v1/旧 preview 与早先 pending/失败状态保留为历史，已由最终 owner GO supersede。
 
 ## 1. 首版职责与对旧草案的收缩
 
@@ -127,7 +131,7 @@ coherence = |Q_F|/support_mass
 
 ## 7. 现有封装的具体接线
 
-复用 [`features/group_axis_potential_field.py`](../../../features/group_axis_potential_field.py) 的实际轴判定、source-axis 计算及 [`features/field_core.py`](../../../features/field_core.py) 的 `EvidencePackage` / `EvidenceOutputChannel`。内部普通函数可以复用同一批轴输入和原叶输出；现有 factory 拟增声明参数 `build_group_axis_potential_package(*, scene_namespace=None)`。无参数调用继续原 axis-only 行为；传入非空稳定 namespace 时，以不可变闭包固定这个 recipe/target 参数，在一次 evaluate 内追加 hierarchy 输出；空字符串拒绝。扩展模式使用新的 output function/schema 版本，保留全部既有纯轴值与叶身份；不新建必须启用的 hierarchy evidence package。
+复用 [`features/group_axis_potential_field.py`](../../../features/group_axis_potential_field.py) 的实际轴判定、source-axis 计算及 [`features/field_core.py`](../../../features/field_core.py) 的 `EvidencePackage` / `EvidenceOutputChannel`。内部普通函数复用同一批轴输入和原叶输出；现有 factory 已在 `.16.2` 增加声明参数 `build_group_axis_potential_package(*, scene_namespace=None)`。无参数调用继续原 axis-only 行为；传入非空稳定 namespace 时，以不可变闭包固定这个 recipe/target 参数，在一次 evaluate 内追加 hierarchy 输出；空字符串拒绝。扩展模式使用新的 output function/schema 版本，保留全部既有纯轴值与叶身份；不新建必须启用的 hierarchy evidence package。
 
 `EvidencePackage.evaluate(source_envelopes)` 签名不变。其输入只能为 `FieldResultEnvelope`；现有 `EvidencePackageOutput` 不是任意嵌套输入。`derived_from` 必须引用本次 source envelopes 中实际存在的渠道，不能把内存中的 child output 伪装成合法 `EvidenceChannelReference`。因此 hierarchy 渠道直接引用实际 row/anchor `overall_group_axis`，并在 provenance 追加 `leaf_output_refs`、`child_family_refs`、公式和版本；这是可审计结果关系，不绕过 shared-core 校验。
 
@@ -158,7 +162,7 @@ recipe_id = source-axis-circular-arc-lt90-v1
 
 family logical identity 不含当前角度、birth/death、运行时间、非语义 revision、child output IDs 或原 leaf IDs；叶 ID 可能含版本化 query 指纹，仅作为原样来源引用保存。相同 anchor 集合在方向变化后若仍合法，逻辑身份相同，内容指纹必须改变；若不再生成则从 current target set 消失，旧结果仅供审计。新增/删除成员或 scene/semantic query/recipe 改变产生相应新身份。
 
-scene namespace 与可变 source-content fingerprint 分开，不能以 IFC 文件内容 hash 或每次编辑生成的 ID 代替。**当前 retained envelopes 没有稳定 scene namespace；实际 `source_manifest.project_global_id`（manifest 顶层）为 `2uGd6yom9GZe5$z7LfbGW0`。** replay caller 在核验 manifest/源指纹后，显式向上述 factory 传入 `scene_namespace="ifc-project:"+project_global_id`，作为声明的 recipe 参数；不能假定 sidecar 自动进入 evaluate。namespace、hierarchy recipe/version 必须同时进入输出 provenance 和 package contract 的 recipe dependency fingerprint，不能只藏在闭包或 target ID 中。原始 envelopes、cache identities、legacy leaf IDs 均不重封装或改写。hierarchy 请求缺失/冲突 namespace 时拒绝伪造身份，不能悄用 path、世界坐标或全局变量。此 factory seam 尚未实现。
+scene namespace 与可变 source-content fingerprint 分开，不能以 IFC 文件内容 hash 或每次编辑生成的 ID 代替。**当前 retained envelopes 没有稳定 scene namespace；实际 `source_manifest.project_global_id`（manifest 顶层）为 `2uGd6yom9GZe5$z7LfbGW0`。** replay caller 在核验 manifest/源指纹后，显式向上述 factory 传入 `scene_namespace="ifc-project:"+project_global_id`，作为声明的 recipe 参数；不能假定 sidecar 自动进入 evaluate。namespace、hierarchy recipe/version 必须同时进入输出 provenance 和 package contract 的 recipe dependency fingerprint，不能只藏在闭包或 target ID 中。原始 envelopes、cache identities、legacy leaf IDs 均不重封装或改写。hierarchy 请求缺失/冲突 namespace 时拒绝伪造身份，不能悄用 path、世界坐标或全局变量。此 factory seam 与 contract 接线已在 `.16.2` 实现；真实 metadata counters 与 live edit/undo 不在本次接受范围。
 
 family semantic content 身份包含规范化 scope/semantic query/plane、namespace、实际原始角度与 clarity/状态/完整 sources、recipe、算法/schema/output function 版本、numerical policy、targets/channels。timestamp 与纯递增 UI/capture counters 不作为语义内容；真实 query/protocol、算法或 source 版本必须保留。实际 package cache/output_identity 仍含原始 envelope references 及现有 dependency identities，遵守 shared core；family content key 不能直接替换它或保证跨不同 source/result identities 的复用。
 
@@ -176,14 +180,16 @@ family semantic content 身份包含规范化 scope/semantic query/plane、names
 
 所有未出现在实际 retained 数据的 singleton、two-group、missing/invalid、zero-clarity、cancellation、精确事件 tie、跨平面等情形，按真实覆盖清单如实标记 uncovered；纯代数断言只证明公式性质。禁止用修改真实数值或造家具的方式补称 IFC 覆盖。
 
-实施计划将给出精确命令；拟议输出入口延续旧决策笔记的 `scripts/design/group_level/run_group_field_hierarchy_ifc.py`（当前不存在），仅接 retained run 和 output root。其验收应有 Pixi focused tests 与 retained replay；本稿不创建脚本或执行这些未来命令。
+规划时拟议入口 `scripts/design/group_level/run_group_field_hierarchy_ifc.py` 尚不存在；该 runner 现已在 `.16.3` 实现，仅接 retained run 和 output root。精确 Pixi 命令及既有结果见 [implementation plan](../plans/2026-11-01-group-axis-field-hierarchy-implementation.md) 与 [hierarchy 证据记录](../../project/evidence/group-axis-field-hierarchy-v1.md)：37 leaves、703 families、34,268 outputs/index entries，replay 与 indexed preview 均已生成。本次 `.16.4` 仅同步文档，复用既有证据，不重复测试/回放。
 
 图面交付覆盖 **每个原叶与每个生成族**：完整 group×leaf/family 数值矩阵、可索引的同 IFC/同 analysis-plane plan views、尺度事件/包含关系表、可读 manifest 与 contract/status。复用一份 retained geometry dataset 和被选中的 family 向量即可；每个视图可按 manifest 索引展开，不要求为每族复制几何或另建 UI 框架。manifest 将每个 leaf/family/cell、birth/death、状态、来源指纹映射到实际可读的图层/索引视图；无族也保留原叶和 scope 诊断。平面展示连续支持/unknown 样式、实际 axes、覆盖和 residual 来源，不画硬场边界、阈值成员圈或 winner 分区。全部声明的 SVG/XML 和 JSON 结构可解析、所有索引视图可访问，owner 查看总览及代表小族/重叠族/顶部族后才裁定现实解释性；不能仅交截图或采样矩阵。
 
 ## 10. Owner 审阅项与停止点
 
-owner 已选择这个明确收缩：方向带上限 `<90°`、完整连续窗口枚举、保留所有叶与小族、max 支持、互补 residual、仅 scale persistence、取消 formal 晋升/近似压缩。focused review corrections（manifest 顶层 project ID 与精确 dyadic topology/event 约定）已写入本稿，仍待 targeted reviewer 确认；不提前改变 .14/.15 或草案最终状态。算法本身没有留给实现者选择的关系门或核心规模参数。
+owner 已选择这个明确收缩：方向带上限 `<90°`、完整连续窗口枚举、保留所有叶与小族、max 支持、互补 residual、仅 scale persistence、取消 formal 晋升/近似压缩。focused review corrections（manifest 顶层 project ID 与精确 dyadic topology/event 约定）已写入并由 owner 冻结为 .14；冻结前的 targeted review 待确认状态是历史记录。算法本身没有留给实现者选择的关系门或核心规模参数；`.16.4` 已获 owner 最终接受。
 
 实施接线限定为：①现有 factory 的显式 namespace 参数、已核验 manifest caller、recipe dependency 与扩展函数版本；②核查语义 query tag 与非语义编辑计数的分离，以及当前 dependency identities 下的 cache/edit-undo 行为。不存在已批准的 raw-envelope 重封装或通用 cache 重写。既有架构/2026-10-31 说明仍是历史设计基线；本稿接受后应同步为新的圆周 recipe，不能把两套规则同时宣称现行实现。
 
-本稿已由 owner 接受并冻结为 .14 设计；.15 implementation plan 现已单独记录在 [`2026-11-01-group-axis-field-hierarchy-implementation.md`](../plans/2026-11-01-group-axis-field-hierarchy-implementation.md)，但实现、测试、IFC replay 与 artifacts 尚未开始。不要把本冻结设计或计划自检写成实现证据；不改代码/测试/脚本、不新跑 IFC、不创建输出 artifacts、不做 commit/push/merge/jj snapshot。
+本稿已由 owner 接受并冻结为 .14 设计；.15 implementation plan 单独记录在 [`2026-11-01-group-axis-field-hierarchy-implementation.md`](../plans/2026-11-01-group-axis-field-hierarchy-implementation.md)。最终 helper check 8 passed/42.33s；summary/ref 改动后 targeted invariant check 1 passed、7 deselected/22.40s；renderer tests 3 passed/35.72s；compilation 与 exact replay/renderer CLI exit 0。旧 52/4 runs 仅保留为当时范围的历史证据，本次没有重跑。
+
+owner 检查最终 report/status/metadata/code/test changes 和三张离线 PNG，接受 H204 两个 anchor 仍保留 37 行，以及 H159/H174 不可比较的重叠 top families（27 shared refs，G06 0.227040/0.592176）。H174 的 `[89.9999974008°,90°)` lifespan 不代表 robustness。实际 singleton subset 已测，但不是原 37-group 全场观察；missing/invalid、zero clarity/mass、cancellation、exact event ties 与其他 planes 在原场景仍未观察到。浏览器 file-URL policy 阻止 local HTML，未绕过；browser/live UI、现实 cluster validity、跨包融合、真实 rotation/undo 与 metadata counters 不在接受范围。`.16.4`、全部 Task 4 子项和总体 `.16` 按最终 owner GO 完成；本次仅文档，不改代码、不重跑测试/IFC、不执行版本操作，不启动 Frame/geometry/fusion。
