@@ -19,6 +19,7 @@ from features.field_core import (
 from features.group_axis_potential_field import (
     FIELD_OUTPUT_SCHEMA,
     FIELD_RECIPE_ID,
+    HIERARCHY_OUTPUT_FUNCTION_VERSION,
     OUTPUT_FUNCTION_VERSION,
     build_group_axis_potential_package,
 )
@@ -80,40 +81,67 @@ def _package_contract(
     source_sha256: str,
     artifact_paths: tuple[str, ...],
     result: Any,
+    *,
+    scene_namespace: str | None = None,
 ) -> dict[str, Any]:
     """Declare source-axis dependencies and all replayable package artifacts."""
-    target_ids = tuple(sorted(str(envelope.target["id"]) for envelope in envelopes))
+    if scene_namespace is not None and (not isinstance(scene_namespace, str) or not scene_namespace.strip()):
+        raise ValueError("scene_namespace must be non-empty when hierarchy mode is requested")
+    source_target_ids = tuple(sorted(str(envelope.target["id"]) for envelope in envelopes))
+    target_ids = source_target_ids
     channels = tuple(sorted({output.channel for output in result.outputs}))
+    hierarchy_mode = scene_namespace is not None
+    if hierarchy_mode:
+        target_ids = tuple(sorted(set(source_target_ids) | {str(output.target["identity"]) for output in result.outputs}))
     dependencies = {
         "scene": fingerprint_evidence_dependency(description.get("group_geometry", ())),
         "model": fingerprint_evidence_dependency({"target_kind": "furniture_group", "scope": target_ids}),
-        "source": source_sha256,
+        "source": fingerprint_evidence_dependency(
+            {"ifc_sha256": source_sha256, "source_result_identities": tuple(sorted(envelope.cache_identity["identity"] for envelope in envelopes))}
+        ) if hierarchy_mode else source_sha256,
         "plane": fingerprint_evidence_dependency(plane),
         "query": fingerprint_evidence_dependency(_plain(query)),
-        "recipe": fingerprint_evidence_dependency({"recipe": FIELD_RECIPE_ID, "field_schema": FIELD_OUTPUT_SCHEMA}),
+        "recipe": fingerprint_evidence_dependency(
+            {
+                "recipe": FIELD_RECIPE_ID,
+                "field_schema": FIELD_OUTPUT_SCHEMA,
+                "scene_namespace": scene_namespace,
+                "hierarchy_recipe": "source-axis-circular-arc-lt90-v1",
+                "hierarchy_schema": "group-axis-field-hierarchy-output/v1",
+                "numeric_policy": "fraction-from-float-exact-dyadic-topology-v1",
+            }
+        ) if hierarchy_mode else fingerprint_evidence_dependency({"recipe": FIELD_RECIPE_ID, "field_schema": FIELD_OUTPUT_SCHEMA}),
         "channels": fingerprint_evidence_dependency(channels),
     }
+    artifacts = {
+        "source_manifest": "source_manifest.json",
+        "description": "description.json",
+        "envelopes": "envelopes.json",
+        "axis_potential_output": "axis_potential_output.json",
+        "report": "report.json",
+        "view_manifest": "view_manifest.json",
+        "field_view_manifest": "field_view_manifest.json",
+        "field_matrix": "field_matrix.json",
+        "field_profiles": "field_profiles.json",
+        "field_directions": "field_directions.json",
+        "visualizations": list(artifact_paths),
+    }
+    if hierarchy_mode:
+        artifacts["hierarchy_identity"] = {
+            "scene_namespace": scene_namespace,
+            "recipe": "source-axis-circular-arc-lt90-v1",
+            "source_sha256": source_sha256,
+            "source_result_identities": sorted(envelope.cache_identity["identity"] for envelope in envelopes),
+        }
     return build_evidence_package_contract(
         package_id=PACKAGE_ID,
-        package_schema=FIELD_OUTPUT_SCHEMA,
+        package_schema="group-axis-field-hierarchy-output/v1" if hierarchy_mode else FIELD_OUTPUT_SCHEMA,
         producer=PACKAGE_PRODUCER,
         target_ids=target_ids,
         dependencies=dependencies,
-        algorithm_version=OUTPUT_FUNCTION_VERSION,
-        schema_version=FIELD_OUTPUT_SCHEMA,
-        artifacts={
-            "source_manifest": "source_manifest.json",
-            "description": "description.json",
-            "envelopes": "envelopes.json",
-            "axis_potential_output": "axis_potential_output.json",
-            "report": "report.json",
-            "view_manifest": "view_manifest.json",
-            "field_view_manifest": "field_view_manifest.json",
-            "field_matrix": "field_matrix.json",
-            "field_profiles": "field_profiles.json",
-            "field_directions": "field_directions.json",
-            "visualizations": list(artifact_paths),
-        },
+        algorithm_version=HIERARCHY_OUTPUT_FUNCTION_VERSION if hierarchy_mode else OUTPUT_FUNCTION_VERSION,
+        schema_version="group-axis-field-hierarchy-output/v1" if hierarchy_mode else FIELD_OUTPUT_SCHEMA,
+        artifacts=artifacts,
     )
 
 

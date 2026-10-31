@@ -194,3 +194,28 @@ The fixed producer reads existing source envelopes; `EvidencePackage.evaluate(so
 Self support is computable and flagged, excluded from a non-self known-value mean with expected `N_scope−1`; unknown is not zero, computed zero support still counts toward coverage, singleton mean is unavailable and coverage inapplicable. Source-axis references need no LOO re-estimation; future derived-reference recipes require their own review. Separately, read-only `Q_k=ΣS(g,k)exp(i2theta_g)` describes the full soft view including self, using support once without multiplying clarity again. Report direction/coherence, sum of support, coverage, positive count, self weight/fraction and anchor_only; do not call anchor-only consensus, update the reference, or treat this as support validation. Zero support and cancellation keep explicit statuses. Unlike the existing global helper, this proposed descriptive operator permits a singleton resultant with coherence 1 when correctly flagged.
 
 The scalar `Σc cos²` has only a constant and first doubled-angle harmonic, so crossing directions can flatten that scalar; preserve the full response matrix and do not claim mode discovery. This does not assert Q has the same moment restriction. Planned replay reuses the pinned IFC's retained 37 usable axes/geometry: 1,369 cells, 37 self and 1,332 non-self is a source-inventory expectation, not completed validation. No synthetic scene or new extraction. Full identity, formulas, evidence and the uncompleted review/implementation gates: [`identity/generation protocol`](../superpowers/specs/2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md).
+
+## Distance module as a later potential extension — rough design note (2026-11-02)
+
+The group-distance calculation is a separate reusable module, not an existing
+distance evidence package and not a prerequisite for the axis-only potential.
+The current next work is to finish and review its design against the shared
+analysis plane, physical-occupancy resolution and `FreeSpaceField` interface.
+Independent endpoint, algorithm and state reviews have been processed into the
+owner draft; user review and readiness are still pending.
+There is no confirmed `FreeSpaceField` instance/grid yet for the pinned 10500
+IFC; the distance module must not borrow the separate B3 inspection grid.
+Its reusable computation and the eventual same-IFC grid/input adapter are
+future implementation work, not current code.
+It reports two raw readings independently: fixed-group-centroid Euclidean
+distance and fixed-centroid/free-grid hybrid distance. It does not produce
+support, decay, normalization, membership or a potential result.
+
+Later, the potential package may decide to add a separately named,
+traceable distance-conditioned cohesion reading to express the question “do
+similarly oriented groups still support one another when spatially separated?”
+That would be a package-owned additive calculation: preserve all current pure
+axis, relation, resultant and hierarchy channels; choose which raw distance to
+use and define any monotone transform/combination only in a separate reviewed
+design. This note does not freeze that formula or claim the distance module is
+already implemented.

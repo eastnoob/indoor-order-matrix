@@ -235,8 +235,15 @@ evidence package to be enabled or adding a measurement layer. Reuse the existing
 source-envelope input; retain pure-axis/source channels and append future
 conditioned/joint results without extra votes. Real dependency changes still
 require freshness checks. Distance rules and conditional implementation remain
-pending; hierarchy spec .14 is frozen and plan .15 is written, with .16.1 as the
-next execution gate.
+pending. Group distance is a separate reusable calculation, not a package or
+current potential channel; its `.17` owner draft has processed independent
+endpoint/algorithm/state review findings, while user review, readiness, the
+generic input seam and the pinned-IFC free-space grid remain pending and
+unimplemented. See
+[`distance design draft`](superpowers/specs/2026-11-02-group-distance-module-design.md)
+and the live checklist. Hierarchy spec .14 is frozen and plan .15 is written. `.16.1-.16.3`
+are implemented and retained-replay validated; owner accepted `.16.4` and
+overall `.16` on 2026-11-01 within the frozen axis-only scope.
 See the minimum standard for the bounded decision.
 
 The source-axis `g→k` field view is implemented and replay-validated from
@@ -264,10 +271,12 @@ Unobserved invalid/no-anchor/zero-support states are covered only by focused
 structural or mathematical checks and are not claimed as pinned-IFC facts.
 See [`2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md`](superpowers/specs/2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md).
 Geometry, Frame, Form+Scale, and arrangement work remain deferred. Hierarchy
-spec .14 and plan .15 are complete as documentation gates; .16 execution is
-pending and must finish before any later Frame work is scheduled.
+spec .14 and plan .15 are complete as documentation gates; `.16.1-.16.3` are
+implemented and replay-validated. Owner accepted `.16.4`, all Task 4 subitems
+and parent `.16` after final independent audit, within the frozen axis-only
+scope. Later Frame work still requires owner direction.
 
-### Group-field hierarchy decision — frozen .14 / pending .16 execution
+### Group-field hierarchy decision — .16 complete / retained replay and offline owner accepted
 
 The owner-reviewed frozen spec
 [`2026-11-01-group-axis-field-hierarchy-design.md`](superpowers/specs/2026-11-01-group-axis-field-hierarchy-design.md)
@@ -279,9 +288,51 @@ membership, formal promotion, compression, or parent-as-new-anchor is allowed.
 
 The implementation plan is
 [`2026-11-01-group-axis-field-hierarchy-implementation.md`](superpowers/plans/2026-11-01-group-axis-field-hierarchy-implementation.md).
-The hierarchy builder, namespace factory seam, retained replay, indexed
-same-plane visualization, live/UI integration and .16 execution remain
-unimplemented. The 2026-10-31 decision note is historical and superseded.
+The ordinary helper `features/group_field_hierarchy.py`, namespace-bound
+additive factory mode, retained runner and indexed same-plane output preview
+are implemented. The shared core, evaluate signature and room model are
+unchanged. The runner compares the stored contract as a write-time receipt;
+independent subset/full contract tests cover stale/fresh comparisons, not live
+editing or recomputation.
+
+Current replay `outputs/design/group_axis_field_hierarchy_ifc/replay_v2/` preserves
+37 leaves/1,369 leaf cells/4,112 legacy outputs and records 703 families/26,011
+family cells/1,332 residual edges/668 exact event pairs. The total is 34,268
+outputs and indexed targets. Source SHA-256 is
+`1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`, project
+GlobalId `2uGd6yom9GZe5$z7LfbGW0`, plane `ifc-world-plan`; 51 retained input
+hashes are recorded. Status is `fresh`, `recompute_required=false`. Current
+preview `outputs/design/group_axis_field_hierarchy_preview/run_20261101T101331Z/`
+has 17 matching artifact hashes, 14 matching input hashes and complete indexes;
+107 retained files are unchanged. Independent audit covered 314,167 actual
+source references/1,332 residual summaries; retained `S`/`J`/topology equal v1.
+See the [evidence record](project/evidence/group-axis-field-hierarchy-v1.md) for
+final 8-helper/1-targeted/3-renderer test results and historical 52/4 runs.
+
+V2 repairs no-axis/zero-mass unavailable states, canonical modulo endpoints,
+valid descriptor admission, anchor contribution mass/fraction and positive-
+contributor `anchor_only`, profile leaf-cell coverage/status counts, residual
+known mass/mean, and actual original cell target refs. Browser rational pairs
+are exact decimal strings; original machine integer pairs remain intact. V1
+and its old preview remain historical evidence of the earlier failures.
+
+The owner inspected final report/status/metadata/code/test changes and three
+offline PNGs. H204's two anchors do not remove any of 37 support rows; H159/H174
+are overlapping incomparable tops (27 shared refs; G06 0.227040/0.592176).
+H174's `[89.9999974008°,90°)` lifespan is not robustness. The shared geometry,
+0..1 scale and orange anchors were accepted. Local HTML was blocked by browser
+file-URL policy; no workaround or browser acceptance occurred.
+
+An actual singleton subset was tested, but the original 37-group full scene
+did not observe singleton, missing/invalid axes, zero clarity/mass,
+cancellation, exact event ties or other planes. `<90°` is a direction band; separated parallel
+organizations remain indistinguishable, and `n_eff` is not independent sample
+size. Live UI/browser interaction, metadata counters, real rotation/undo,
+real-world cluster validity and cross-package fusion are outside this verified
+slice. Final independent audit had no blockers; `.16.4` and overall `.16` are
+complete under owner GO, not user-reviewed or real-world validity acceptance.
+Frame/geometry/fusion work is not started. The 2026-10-31 decision note remains
+historical and superseded.
 
 ## BIM Preview And Handoff Rule
 

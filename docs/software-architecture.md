@@ -475,7 +475,12 @@ through the existing evaluate signature. Pure-axis/source channels stay intact;
 future distance-conditioned or joint results are additional named outputs, not
 automatic extra votes. Real source changes still invalidate dependent results.
 Whole-group distance, scale, conditional formulas and their source adapters remain
-undecided and unimplemented; this confirmation does not change the .14/.15 order.
+undecided and unimplemented. The reusable group-distance module is now in the
+`.17` owner-draft stage; independent endpoint/algorithm/state review findings
+have been processed, but user review and readiness are pending
+([draft spec](superpowers/specs/2026-11-02-group-distance-module-design.md)). It
+does not add a potential-package channel or alter the accepted `.16` hierarchy.
+This confirmation does not change the .14/.15 order.
 
 The source-axis `g→k` support mapping is implemented and replay-validated against
 the retained IFC-derived trend envelopes. The owner-reviewed design supersedes the
@@ -518,8 +523,10 @@ This acceptance does not establish reality calibration, hierarchy approval or
 browser interaction acceptance; see the [visual review record](project/evidence/group-axis-source-axis-visual-preview-v1.md). See
 [`2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md`](superpowers/specs/2026-10-30-group-axis-potential-field-identity-and-generation-protocol.md).
 Geometry, Frame, Form+Scale, and arrangement packages remain deferred. Hierarchy
-spec .14 is frozen and plan .15 is written; the next execution gate is .16.1 in
-the hierarchy implementation plan. No hierarchy implementation is claimed.
+spec .14 is frozen and plan .15 is written; `.16.1-.16.3` are implemented and
+retained-replay validated. The owner accepted `.16.4` and parent `.16` on
+2026-11-01 within the frozen axis-only scope; both are complete. See the
+[hierarchy evidence record](project/evidence/group-axis-field-hierarchy-v1.md).
 
 The output-only renderer
 `scripts/design/group_level/render_group_axis_potential_preview.py` reads that
@@ -531,7 +538,7 @@ the preview under `outputs/design/group_axis_potential_visual_preview/`.
 This presentation layer preserves the original matrix/profile/direction values
 and does not change production semantics, membership, or field-family behavior.
 
-### Group-field hierarchy / merge — FROZEN DESIGN, IMPLEMENTATION PENDING
+### Group-field hierarchy / merge — IMPLEMENTED / RETAINED REPLAY AND OFFLINE OWNER ACCEPTED
 
 The owner-reviewed spec
 [`2026-11-01-group-axis-field-hierarchy-design.md`](superpowers/specs/2026-11-01-group-axis-field-hierarchy-design.md)
@@ -543,11 +550,67 @@ no formal promotion, compression, fixed K, winner, hard membership, or
 parent-as-new-anchor.
 
 This layer is downstream of the source-axis `g→k` mapping and reuses the
-existing `EvidencePackage`/`FieldResultEnvelope` contracts. The implementation
-plan [`2026-11-01-group-axis-field-hierarchy-implementation.md`](superpowers/plans/2026-11-01-group-axis-field-hierarchy-implementation.md)
-defines the future helper, explicit factory namespace seam, retained replay and
-complete indexed visualization. No hierarchy builder, live consumer, UI seam,
-or IFC runner is implemented yet; .16 execution remains unchecked.
+existing `EvidencePackage`/`FieldResultEnvelope` contracts. The ordinary helper
+is `features/group_field_hierarchy.py:build_axis_field_hierarchy`; the existing
+`build_group_axis_potential_package(*, scene_namespace=None)` factory preserves
+legacy mode and appends hierarchy outputs when a non-empty namespace is given.
+`evaluate(source_envelopes)` and `features/field_core.py` are unchanged. The
+existing runner's `_package_contract(..., scene_namespace=...)` includes the
+hierarchy identity and target union. Independent subset/full contract tests
+check stale/fresh comparisons; the runner status is a write-time receipt, not
+evidence of live editing or recomputation.
+
+`scripts/design/group_level/run_group_field_hierarchy_ifc.py` replays retained
+envelopes and same-plane geometry without loading IFC. The existing output-only
+renderer adds complete indexed family views and a family matrix when hierarchy
+artifacts are present. No new execution framework, public export or room-model
+field was added. The [implementation plan](superpowers/plans/2026-11-01-group-axis-field-hierarchy-implementation.md)
+retains the historical 52 helper/package/freshness tests and 4 runner/preview
+tests. Final recorded checks are 8 helper tests (42.33s), a post-change targeted
+invariant test (1 passed, 7 deselected, 22.40s), and 3 renderer tests (35.72s).
+Compilation and the exact replay/renderer CLI executions exited 0.
+
+The current replay `outputs/design/group_axis_field_hierarchy_ifc/replay_v2/` preserves
+37 leaves, 1,369 leaf cells and 4,112 legacy outputs, and adds 30,156 hierarchy
+outputs: 703 families, 26,011 family cells, 1,332 residual edges and 668 exact
+event pairs are recorded. There are 34,268 total outputs and index entries.
+The source SHA-256 is
+`1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`, project
+GlobalId is `2uGd6yom9GZe5$z7LfbGW0`, plane is `ifc-world-plan`, and 51 retained
+input hashes are recorded. Status is `fresh` with `recompute_required=false`.
+The current preview `outputs/design/group_axis_field_hierarchy_preview/run_20261101T101331Z/`
+has 17 matching artifact hashes, 14 matching input hashes and complete indexes;
+107 retained files are unchanged. Independent audit covered 314,167 actual
+source references and 1,332 residual summaries, and found retained `S`/`J`/
+topology equal to v1. Detailed manifests and checks are in
+the [hierarchy evidence record](project/evidence/group-axis-field-hierarchy-v1.md).
+
+V2 repairs frozen-contract direction/status/audit omissions: canonical modulo-
+180 endpoints and valid descriptor admission; no-axis/zero-mass unavailable
+states; anchor contribution mass/fraction and positive-contributor `anchor_only`;
+profile leaf-cell coverage/status counts; residual known mass/mean; actual
+original cell target references. Browser-facing rational pairs use exact decimal
+strings while machine integer pairs remain intact. V1 and its old preview are
+retained as historical evidence of the earlier omissions/display failure.
+
+The owner inspected the final report/status/metadata/code/test changes and
+three offline family PNGs: H204 has G10/G12 anchors but 37 support rows; H159 and
+H174 are overlapping incomparable tops with 27 shared references and G06 support
+0.227040/0.592176. The same geometry, 0..1 scale and orange anchor outlines were
+accepted. H174's narrow `[89.9999974008°,90°)` lifespan is a scale fact, not
+robustness. Browser file-URL policy blocked local HTML; no workaround was used.
+
+The actual singleton subset was tested; it was not a singleton observation in
+the original 37-group full scene. Missing/invalid axes, zero clarity/mass,
+cancellation, exact event ties and other planes remain unobserved in that scene.
+`<90°` describes a direction band;
+spatially separated parallel organizations remain indistinguishable, and
+`n_eff` is not an independent sample count. Live UI, browser interaction,
+metadata edit counters, real rotation/undo, real-world cluster validity and
+cross-package fusion are not accepted by this slice. Final independent audit
+had no remaining blockers; the owner authorized completion of `.16.4`, all Task
+4 subitems and parent `.16`. This is owner acceptance, not user review or
+real-world cluster validity. Frame/geometry/fusion work is not started here.
 
 The output-only diagnostic runner
 `scripts/design/group_level/run_group_candidate_recipe_diagnostic.py` compares

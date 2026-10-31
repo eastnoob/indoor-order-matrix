@@ -7,6 +7,14 @@
 
 本文件保留 2026-10-31 的讨论、未冻结候选和 readiness 记录，不再定义当前规则。现行圆周方向族规则、精确输入/输出、状态、namespace、缓存 seam、指定 retained IFC 验收和实现边界以 [`2026-11-01-group-axis-field-hierarchy-design.md`](../superpowers/specs/2026-11-01-group-axis-field-hierarchy-design.md) 为准；执行顺序和命令以 [`2026-11-01-group-axis-field-hierarchy-implementation.md`](../superpowers/plans/2026-11-01-group-axis-field-hierarchy-implementation.md) 为准。本文中的 complete-link、多条件关系门、formal/nonformal promotion、`compressed` 建议和“至少三组”建议仅作历史，不能由实现者继续采用。
 
+**执行状态续记（2026-11-01）：**`.16.1-.16.3` 已实现并完成指定 retained replay 与索引预览，具体来源指纹、输出计数、freshness 和未覆盖范围见 [`group-axis-field-hierarchy-v1.md`](evidence/group-axis-field-hierarchy-v1.md)。当前接受材料为 `outputs/design/group_axis_field_hierarchy_ifc/replay_v2/` 与 `outputs/design/group_axis_field_hierarchy_preview/run_20261101T101331Z/`；v1/旧预览保留为历史。本记录中的历史候选和 checklist 不再表示当前实现状态；owner 于 2026-11-01 最终 GO，`.16.4` 与总体 `.16` 已在 retained-source/offline 范围内完成，不代表用户现实有效性审阅。
+
+**历史问题及当前更正：**旧预览的 HTML `JSON.parse` 曾舍入大 rational numerators；当前预览以十进制字符串显示精确有理数对，原 machine integer pairs 保持完整。v2 已补 frozen-contract 的 anchor contribution mass/fraction、按 positive contributors 判定 `anchor_only`、zero/no-axis unavailable、canonical modulo endpoint、有效 descriptor admission、profile leaf-cell coverage/status counts、residual known mass/mean 与原始 cell target refs。实际 retained IFC 的支持与拓扑不变；当前预览 17 项 artifact hashes 与 14 项 input hashes 均匹配，索引完整。旧失败记录和产物不覆盖、不删除。
+
+**离线视觉解释（2026-11-01 owner handoff）：**owner 已查看 v2 report/status/direction metadata 及三张 PNG，接受 H204 的 G10/G12 是两个 anchor 而非硬成员、全部 37 行仍有支持，以及 H159/H174 是共享 27 个参考轴的重叠且互不包含 top families。H174 的窄 lifespan `[89.9999974008,90)` 只表示尺度区间，不表示稳健性。浏览器 file URL policy 阻止本地 HTML，未绕过，因此 browser/live UI 未接受。实际 singleton 子集已测，但不是原始 37-group fullscene 的观察；missing/invalid/zero/cancellation/ties/其他 planes 仍未在该 fullscene 观察。
+
+**最终 owner 接受（2026-11-01）：**独立 read-only replay audit 已返回，无 blocker：核对 314,167 项实际 source refs、1,332 项 residual summaries，retained S/J/topology 与 v1 相等；107 个 retained 文件未变，17 项 artifact hashes 与 14 项 input hashes 均匹配。owner 最终 GO 接受本次 retained-source/offline 交付，`.16.4` 与总体 `.16` 完成。此前等待 audit/GO 的状态是当时历史，不是当前阻塞；本结论不宣称 browser/live UI、用户审阅或现实 cluster validity 通过。
+
 ## 目标
 
 把一批“以家具组为行、以参考轴为视图”的基础场，自动整理成可重叠的上层
@@ -97,13 +105,13 @@
 “基础场如何自动形成上层场”的设计方向，不修改已经审阅的 axis-only 原始通道、组间
 关系层或 evidence-package 最小标准。
 
-当前建议的未来实现位置（**尚未创建**）：
+当时建议的实现位置（截至 2026-10-31 尚未创建；现已按 frozen spec 实现并验证）：
 
 - `features/group_field_hierarchy.py`
 - `test/test_group_field_hierarchy.py`
 - `scripts/design/group_level/run_group_field_hierarchy_ifc.py`
 
-这些路径只是计划占位，不能当作已有实现或已完成验证。
+当前实现与验证证据见上述 `.16.4` 执行状态续记。
 
 ## 是否已经可以作为计划
 
@@ -123,7 +131,7 @@
 8. 重叠的机器可读表示；单棵 complete-link 树不能自动表达同层的所有重叠候选。
 9. 指定 IFC 的运行入口、完整平面图/manifest 验收和测试边界。
 
-## 下一步 checklist
+## 历史 checklist（截至 2026-10-31；已由 frozen spec 与 implementation plan supersede）
 
 - [ ] 用户审阅本笔记，确认“基础场保留 + 自动多尺度归并 + 小场残差生存”方向。
 - [ ] 冻结核心规模、关系门、residual、persistence、alias 和停止条件，形成独立 spec。
