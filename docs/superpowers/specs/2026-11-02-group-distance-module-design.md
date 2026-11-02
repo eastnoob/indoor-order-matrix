@@ -45,6 +45,10 @@ S4 域接缝必须消费确认结果本身（当前产物为 `s4_confirm_result.
 
 输入 handoff 的 query fingerprint 还必须包含实际 `FieldQuery` 的 `domain_id`、`frame`、`plane`、`height_band`、`demand`、`tolerance`、`revision`，以及 `FreeSpaceField` 的 algorithm/schema version、`query_context`、unresolved source IDs、validated support hashes、occupancy source IDs 和 row/column index convention。距离首版要求 whole-height planar query（`plane=None`、`height_band=None`、`demand=None`），但仍要把这些字段写入 fingerprint 并校验；不能因“当前值为空”而省略它们。
 
+同一次 scene-view 的 `query_context` 必须显式包含 `analysis_plane_fingerprint`，其值严格等于实际 `AnalysisPlane` 内容经 `fingerprint_evidence_dependency` 计算的指纹；同时要求 `query_context.frame == FieldQuery.frame == GridDescriptor.frame`，domain frame 也与之相同。缺失或不匹配一律为 `NOT_AVAILABLE`，不得从 canonical `AnalysisPlane` 补猜 frame 或使用默认 frame。canonical plane 本身可以没有 `frame`/`frame_id` 字段；若提供这些字段，它们必须与 grid frame 一致。真实 IFC runner 与 kernel 使用相同绑定字段，不另造后备规则。
+
+`origin_offset` 是必需的显式二维平移输入，必须是两个有限实数（不接受 bool）；其内容进入 query/handoff 指纹，与 `FieldQuery`、`query_context` 和 row/column convention 一并绑定。offset 改变必须改变身份；畸形 offset 为 `INVALID`，不静默使用 `(0,0)`。物理占用元数据若提供了畸形 records，也必须保留完整 pair scope 并将受影响 hybrid 观察标为 `invalid`，不能让 fingerprint 阶段抛错而丢失 pair observations。上述输入契约不改变欧氏通道只依赖两端有效质心的规则。
+
 当前 `analysis_scene_view` 可提供组投影组件、物理占用及 unresolved source IDs；`FreeSpaceField` 构造方持有网格参数和 domain geometry，但没有公开只读元数据接缝。通用距离输入 adapter 因而尚不存在。指定 IFC 的现有 retained axis/geometry 记录也不是可复用的自由空间网格实例。实现时由调用方在同一解析路径中显式组装 immutable input，或增加仅暴露所需元数据的窄只读接口；网格的 spacing/origin/shape 必须成为明示、可追溯输入，不得读私有字段、借用 B3 网格或静默重采样。该接缝及指定 IFC 网格来源都是实现前置项，不影响计算语义设计。
 
 当前指定 IFC 回放输入仍为：
