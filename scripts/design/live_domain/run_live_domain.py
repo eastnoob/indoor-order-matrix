@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import replace
 from math import isfinite
 from pathlib import Path
 import sys
@@ -15,8 +16,12 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 
 from adapters.blender_geometry import load_blender_neutral_scene
+from adapters.blender_analysis_capture import CanonicalCaptureInput
+from adapters.bonsai_live import StructuralContext, load_bonsai_capture
+from adapters.blender_analysis_session import evaluate_domain_request
 from features._analysis_domain_handoff import domain_handoff
 from features.neutral_scene_views import _analysis_scene_view_with_semantic_enclosure
+from features.scene_contract import AnalysisPlane
 
 
 def tolerance_m2(value: object) -> float:
@@ -28,6 +33,35 @@ def tolerance_m2(value: object) -> float:
 
 def evaluate(payload: dict) -> dict:
     """Evaluate actual captured geometry with the existing private B2 and handoff seams."""
+    if "canonical_capture" in payload:
+        plane_payload = payload.get("analysis_plane")
+        plane = (AnalysisPlane.from_dict(plane_payload)
+                 if plane_payload is not None else AnalysisPlane(
+                     name="world_xy", origin=(0, 0, 0),
+                     basis=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+                 ))
+        live = load_bonsai_capture(
+            CanonicalCaptureInput(**payload["canonical_capture"]),
+            plane=plane,
+        )
+        scene = live.scene
+        identity = dict(scene.context.world_coordinate_system)
+        context = StructuralContext.from_plane(
+            scene.context.analysis_plane,
+            b4_parameters={
+                "tolerance_mm2": payload["tolerance_mm2"],
+                "contact_distance_m": 1e-6,
+                "aperture_area_budget_m2": 1e-6,
+            },
+        )
+        result = evaluate_domain_request(
+            scene,
+            context=context,
+            prior=payload.get("previous"),
+            action=payload.get("action"),
+        ).to_dict()
+        return result | {"source_identity": identity}
+
     snapshot = payload["snapshot"]
     ids = [row["id"] for row in snapshot["objects"]]
     scene = load_blender_neutral_scene(snapshot, selected_ids=ids, roles=snapshot["roles"])

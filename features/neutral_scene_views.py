@@ -1268,6 +1268,7 @@ def _is_physical_mass_record(record: Mapping[str, object]) -> bool:
         "surface",
         "grid_axis",
         "analysis_domain",
+        "drawing_camera",
     }
 
 
@@ -1285,7 +1286,7 @@ def _is_original_physical_source(source: SourceObject) -> bool:
         "analysis_substitute", "path", "authored_path_hint", "region", "authored_region_hint",
         "entry", "opening", "surface", "grid_axis", "column_axis", "column_grid",
         "analysis_domain", "affordance", "affordance_zone", "space", "container",
-        "project", "site", "building", "storey", "level",
+        "project", "site", "building", "storey", "level", "drawing_camera",
     }
 
 

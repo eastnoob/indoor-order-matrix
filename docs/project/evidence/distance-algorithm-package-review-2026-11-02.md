@@ -17,7 +17,7 @@ The required distance semantics remain those in the design draft: 4-neighbor gri
 | Boost.Graph (C++) | Generic Dijkstra; configurable distance comparison/combination and property maps. A custom graph model can generate grid neighbors on demand, avoiding explicit edge materialization; a virtual source can represent different access offsets. | Boost does not provide this project’s grid adapter. The project would implement a custom C++ graph/model and Python binding or C ABI, then own build and ABI maintenance. The current Pixi manifest declares no Boost, binding layer, or C++ toolchain; the current PowerShell session did not resolve `cl`, `clang++`, `g++`, or `cmake`. A custom label and path tie contract still needs careful implementation. | **Technically promising if measured performance justifies native integration; not a drop-in grid package.** |
 | Legacy libtcod Dijkstra C API | Grid-oriented search with caller-defined edge cost callbacks, including floating edge costs. | Its legacy Dijkstra map has one origin per computed map; serving each access seed with a distinct offset would require repeated runs or extra project graph logic. Its callback does not supply this module’s multi-source labels, state lineage or stable tie contract. | **Not a direct fit for the batched weighted-source contract.** |
 | igraph C API | Mature weighted shortest-path routines and path output; floating edge weights and a virtual source can encode access offsets. | Requires an explicit graph; compare graph construction/memory and binding cost with the alternatives. State lineage and deterministic tie recovery remain adapter work. | **Viable explicit-graph candidate; not excluded by source offsets or state metadata alone.** |
-| SciPy sparse graph | Compiled weighted Dijkstra with multiple source indices and predecessor output; CSR plus a virtual source can retain floating offsets. The current Pixi environment imports SciPy 1.17.1; its source uses a C++ priority queue through Cython. | Requires a materialized sparse graph. Its returned predecessor is not a guaranteed project-stable representative; a tie-recovery pass must prove the required ordering without changing lengths. SciPy is installed transitively but not directly declared in Pixi. | **First candidate for contract verification; reuse the native kernel before writing a new search loop.** |
+| SciPy sparse graph | Compiled weighted Dijkstra with multiple source indices and predecessor output; CSR plus a virtual source can retain floating offsets. SciPy's implementation uses a compiled shortest-path kernel. | The current Pixi environment does **not** import SciPy (`ModuleNotFoundError`); adding it would be an explicit dependency decision. It requires a materialized sparse graph, and its returned predecessor is not a guaranteed project-stable representative; a tie-recovery pass must prove the required ordering without changing lengths. | **First candidate for contract verification if the dependency is explicitly admitted; reuse the native kernel before writing a new search loop.** |
 | NetworkX | Already declared in Pixi; weighted Dijkstra and path reconstruction. | Explicit graph and Python object overhead; no direct endpoint-offset, composite-state or stable full-path tie contract. | **Convenient diagnostic oracle on bounded IFC-derived cases, not an implicit-grid engine.** |
 | Project-owned Python `heapq` | Could implement the implicit grid and project comparison/state rules without a new native build boundary. | The search loop, tie rules and numerical behavior would all be project code requiring verification and measurement. | **Provisional fallback, not a proven or selected adapter.** |
 
@@ -25,11 +25,60 @@ The required distance semantics remain those in the design draft: 4-neighbor gri
 
 Do not reject C/C++ on language grounds. Prefer reusing a mature search kernel when the complete adapter is simpler to maintain; neither compilation nor the absence of domain metadata proves suitability by itself. No candidate’s adapter or performance has been verified on the specified IFC workload yet.
 
-**Owner recommendation: first verify SciPy’s native Dijkstra plus a narrow adapter.** This already reuses compiled C++ search through its Python interface; using a Python API does not imply a Python search loop. Keep igraph as a second explicit-graph candidate, `python-tcod` if a fixed-point contract becomes acceptable, Boost.Graph for a justified custom native graph, and `heapq` only as a fallback. This is a candidate order, not a frozen backend choice.
+**Owner recommendation: first verify SciPy’s native Dijkstra plus a narrow adapter, but do not treat SciPy as an installed dependency yet.** The current Pixi environment was rechecked during `.17.4a`: `networkx 3.6.1` and `numpy 2.4.3` are present, while `pixi run python -c "import scipy"` fails with `ModuleNotFoundError`. SciPy therefore remains a candidate requiring an explicit dependency/build decision. If it is admitted, it reuses compiled C++ search through its Python interface; using a Python API does not imply a Python search loop. Keep igraph as a second explicit-graph candidate, `python-tcod` if a fixed-point contract becomes acceptable, Boost.Graph for a justified custom native graph, and `heapq` only as a fallback. This is a candidate order, not a frozen backend choice.
 
 The SciPy adapter must deduplicate virtual-source edges by cell before CSR construction: repeated CSR entries otherwise sum rather than select the smallest access offset. Keep the winning access provenance under the same stable ordering. Run source groups sequentially or in bounded batches rather than storing a full group-by-grid distance matrix. Recover state/lineage from the selected path. Verify conditional-count and complete-path tie ordering using shortest-distance labels instead of trusting the library’s arbitrary tied predecessor; exact floating comparisons and endpoint ordering still need a concrete, reviewed recovery procedure. This procedure is not implemented or proven by this review.
 
 Before choosing or adding a backend, the implementation plan must state whether fixed-point quantization is allowed. If it is not, `python-tcod` cannot be adopted as the semantic backend. If performance is the only reason to add C++, compare the Python baseline and a bounded Boost prototype on the same approved IFC/query; compare exact outputs, runtime, peak memory and build/reproducibility cost. No IFC run or code spike was performed in this design-only stage.
+
+## Minimum-contract verification gate
+
+The next review must start with the candidates already available in the current
+Pixi environment. It must run a bounded contract probe before any broad search:
+
+1. Build a tiny explicit 4-neighbor graph with non-unit physical edge lengths,
+   repeated access cells, distinct floating access offsets, one conditional cell,
+   and two exactly equal-length routes.
+2. Verify that the candidate preserves floating distances, accepts a virtual
+   source or equivalent per-source initial values, and can recover one stable
+   representative path after the library search.
+3. Verify that the adapter can restore access-cell identity, conditional/unknown
+   state, and source lineage from the selected path without trusting an
+   implementation-defined tied predecessor.
+4. Record Windows/Pixi installation and reproducible build cost, peak memory on
+   the bounded graph, and whether the candidate needs quantization or silently
+   changes the comparison rule.
+
+If any one of these checks fails for every currently available candidate, record
+the exact failure and trigger a bounded GitHub/Consensus search for one narrowly
+defined replacement. Search results must return to this same comparison table;
+they do not select a dependency, change the distance semantics, or bypass the
+spec/readiness gates. No implementation or dependency addition is authorized by
+this probe alone.
+
+## Remaining readiness questions beyond backend choice
+
+Even after `.17.4a` selects a backend, readiness still requires explicit answers
+for five independent issues:
+
+- the immutable input/grid adapter: how one confirmed IFC scene-view supplies
+  group projections, S4 domain, grid metadata, occupancy queries, and source
+  fingerprints without private-field access or silent resampling;
+- full unordered-pair cost: source-run count, peak memory, and whether a
+  bounded/batched distance-field strategy is required for the complete group
+  scope;
+- floating comparison and tie recovery: exact accumulated distances, `tau`
+  lower-bound comparison, duplicate-edge handling, and deterministic path/access
+  ordering;
+- status propagation: how observed/optimistic paths carry conditional,
+  unknown, invalid, unavailable, outside, and unreachable evidence without
+  turning unknown into free or zero distance;
+- complete visualization: every pair and selected route must be locatable on
+  the same confirmed IFC analysis-plane drawing, with a manifest that reconciles
+  geometry, status, path, source, and cache identity.
+
+These are separate readiness items; a backend recommendation alone does not
+make the distance module implementation-ready.
 
 ## Primary references
 
@@ -43,4 +92,4 @@ Before choosing or adding a backend, the implementation plan must state whether 
 - SciPy 1.17.1 compiled shortest-path source: https://github.com/scipy/scipy/blob/v1.17.1/scipy/sparse/csgraph/_shortest_path.pyx
 - NetworkX weighted shortest paths: https://networkx.org/documentation/stable/reference/algorithms/shortest_paths/weighted.html
 
-Local verification: `pixi run python -c "import scipy; from scipy.sparse.csgraph import dijkstra; print(scipy.__version__, dijkstra.__module__)"` returned `1.17.1 scipy.sparse.csgraph._shortest_path`. No dependencies were installed or modified.
+Local verification during `.17.4a`: `pixi list` showed `networkx 3.6.1` and `numpy 2.4.3`; `pixi run python -c "import scipy"` failed with `ModuleNotFoundError: No module named 'scipy'`. No dependencies were installed or modified. The earlier SciPy 1.17.1 claim is unverified in the current workspace and must not be used as acceptance evidence.

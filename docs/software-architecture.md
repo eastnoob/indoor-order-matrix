@@ -1,5 +1,11 @@
 # 软件架构
 
+## 当前任务：相机与墙围合分析域前置 — RECOVERY VERIFIED / DOMAIN CONFIRMATION PENDING
+
+2026-11-02 用户确认所有分析范围来自选定墙体围合区域在选定相机分析平面上的投影。任务工作区 `order_analyzer_group_distance` 已恢复并核验 sibling `order_analyzer_spec008` 的有界实现闭包；原主工作区尚未集成。Spec008 有 2026-10-19/20 disposable 验收，但实际实现文件未包含在其当前 jj revision，恢复已按实际磁盘 bytes/hash 记录，不能按 revision 宣称已恢复。
+
+复用链：native drawing camera → `AnalysisPlane`；选墙 → 原 B4 / `domain_handoff` 显式确认 → shell/holes 的 WORLD SI support mesh → `AnalysisRequest` 在选定 camera plane 投影。指定 IFC 的 S4 墙域确认已在隔离任务工作区的 S4 产物中完成。不要将 support vertices 预变换成 camera-local 后再投影。B4 structural frame 与 camera frame 分别保留来源身份；倾斜按既有能力拒绝。无确认域时，不能用楼板、家具 bbox、旧网格或画布顶替。计划与执行证据见[前置计划](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md)。本任务仍未实现距离算法，也未完成原主树生产安装；下列 PENDING 描述继续指原主树部署状态。
+
 ## Spec008 Analyzer workflow completion — DESIGN / IMPLEMENTATION PENDING
 
 [Spec008](../specs/008-analyzer-workflow-completion/spec.md) / [plan](../specs/008-analyzer-workflow-completion/plan.md) record the 2026-10-19 workflow completion design. This is planned behavior, not current-tree implementation or native acceptance. The inspected workflow baseline is sibling `order_analyzer_spec004_delivery` (`spec004-delivery@4b332704`, actual file bytes also require verification); the main workspace still lacks its addon/request/live-session dependencies. `workflow007@1a271593` has an unresolved `features/analysis_requests.py` conflict and is not the integration baseline. Implementation must first recover the bounded dependency closure into an isolated jj workspace and reconcile intended changes without overwriting unrelated dirty work.

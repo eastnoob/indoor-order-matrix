@@ -16,16 +16,29 @@
     # {"n_rows":2, "n_cols":2, "n_cells":4, "deviants":2, "order":0.5}
 """
 
-from .analyzer import OrderAnalyzer
-from .entities import Chair, Entry, Road, Table, TableGrid, TableTemplate
-from .scene_evaluator import (
-    evaluate_scene,
-    export_adapter_payload_json,
-    scene_metric_overlay_svg,
-    validate_adapter_payload_json,
-)
-from .scene_loader import load_structured_svg_scene
-from .room_analysis_model import build_room_analysis_model
+from importlib import import_module
+
+# Native adapter contracts must remain importable without eagerly loading OCTA.
+_EXPORT_MODULES = {
+    "OrderAnalyzer": ".analyzer",
+    "Table": ".entities", "Chair": ".entities", "Entry": ".entities",
+    "Road": ".entities", "TableTemplate": ".entities", "TableGrid": ".entities",
+    "evaluate_scene": ".scene_evaluator",
+    "export_adapter_payload_json": ".scene_evaluator",
+    "scene_metric_overlay_svg": ".scene_evaluator",
+    "validate_adapter_payload_json": ".scene_evaluator",
+    "load_structured_svg_scene": ".scene_loader",
+    "build_room_analysis_model": ".room_analysis_model",
+}
+
+
+def __getattr__(name: str):
+    """Resolve each pre-existing public export only when a caller requests it."""
+    if name not in _EXPORT_MODULES:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(import_module(_EXPORT_MODULES[name], __name__), name)
+    globals()[name] = value
+    return value
 
 __all__ = [
     "OrderAnalyzer",

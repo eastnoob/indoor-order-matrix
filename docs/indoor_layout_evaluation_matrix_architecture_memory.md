@@ -1,5 +1,9 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Camera and selected-wall domain prerequisite — 2026-11-02
+
+All analysis domains use an explicitly selected wall enclosure projected onto the selected native camera AnalysisPlane. The approved 10500 IFC now has a confirmed S4 wall domain in the retained 2026-11-02 run artifacts. The Spec008 camera/capture/session/UI closure is recovered and hash-recorded in the isolated `order_analyzer_group_distance` workspace, preserving newer group/evidence contracts; native source bytes remain authoritative. Existing B4 support is WORLD SI geometry including holes, reprojected by AnalysisRequest onto the camera plane; do not transform twice. No slab/canvas/furniture-bounds fallback, no new enclosure algorithm, no new IfcSpace requirement. Distance implementation remains unimplemented and separate. See the [prerequisite plan](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md).
+
 ## Spec008 workflow completion — planned boundary
 
 The 2026-10-19 [Spec008 design](../specs/008-analyzer-workflow-completion/plan.md) completes the camera → Space → free-space workflow, with implementation and native acceptance still pending. Four user decisions are fixed: explicit traceable authored storey height or manual height, never adjacent elevation subtraction; selected slab's horizontal upper surface; two thin native Plane/Space composition bindings; actual Bonsai drawing-camera creation or existing-camera adoption. Native identity/geometry remain authoritative, unsupported tilt is never flattened, and base elevation/B4 cut/extrusion height are separate. B4 exact shell and holes must reach a native void-capable profile/extrusion after explicit confirmation; seed-only native re-inference and exterior-only polygon helpers do not satisfy the design. Furniture eligibility never deletes physical occupancy.

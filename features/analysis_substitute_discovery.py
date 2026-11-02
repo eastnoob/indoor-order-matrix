@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from typing import Any
+from shapely.errors import GEOSException
 
 from .substitute_contract import load_substitute_registry, resolve_substitute_contract
 from .scene_contract import NeutralSceneV2
@@ -363,7 +364,11 @@ def _geometry_rejection(scene, source, geometry_query, query=None):
                 return "geometry_frame_unqualified"
             # Empty XY projection cannot disqualify a legal above/below-plane result.
             continue
-        projection = plan_projection(mass_patch_from_mesh(mesh), scene.context.analysis_plane)
+        try:
+            projection = plan_projection(mass_patch_from_mesh(mesh), scene.context.analysis_plane)
+        except GEOSException:
+            # A broken source stays unresolved without discarding other valid occupancy facts.
+            return "geometry_projection_failed"
         if not projection.components:
             return "missing_planar_geometry"
     return None

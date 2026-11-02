@@ -24,6 +24,17 @@ def _digest(value: object) -> str:
                              ensure_ascii=False, allow_nan=False).encode("utf-8")).hexdigest()
 
 
+def structural_source_facts(scene: NeutralSceneV2) -> dict[str, object]:
+    """Bind structural source geometry independently of the active query plane."""
+    refs = {ref for source in scene.source_objects for ref in source.geometry_refs}
+    refs.update(ref for opening in scene.openings for ref in opening.geometry_refs)
+    return {"identity": dict(scene.context.world_coordinate_system),
+            "sources": [source.to_dict() for source in sorted(scene.source_objects, key=lambda source: source.id)],
+            "openings": [opening.to_dict() for opening in sorted(scene.openings, key=lambda opening: opening.id)],
+            "geometries": [mesh.to_dict() for mesh in sorted(scene.geometries, key=lambda mesh: mesh.id)
+                           if mesh.id in refs]}
+
+
 def _frame(scene: NeutralSceneV2, request: Mapping[str, object]) -> dict[str, object]:
     """Require one explicit compatible caller frame without requiring floor metadata."""
     plane = request.get("analysis_plane")
@@ -310,7 +321,8 @@ def domain_handoff(scene: NeutralSceneV2, *, candidates: Sequence[Mapping[str, o
                    session_state: Mapping[str, object] | None, action: Mapping[str, object] | None,
                    expected_session_revision: int | None, expected_source_revision: str | None,
                    frame_request: Mapping[str, object], b2: Mapping[str, object] | None = None,
-                   b2_request: Mapping[str, object] | None = None) -> dict[str, object]:
+                   b2_request: Mapping[str, object] | None = None,
+                   source_revision: str | None = None, frame_id: str | None = None) -> dict[str, object]:
     """Apply one bounded action and expose only a qualified current-domain preview."""
     if not isinstance(scene, NeutralSceneV2):
         raise TypeError("domain handoff requires NeutralSceneV2")
@@ -318,11 +330,22 @@ def domain_handoff(scene: NeutralSceneV2, *, candidates: Sequence[Mapping[str, o
     if b2_request is not None and any(frame_request.get(key) != b2_request.get(key)
                                       for key in ("analysis_plane", "units", "datum_m", "cut_height_m")):
         raise ValueError("B2 request must use the same explicit frame")
-    source_revision = _digest(scene.to_dict())
-    frame_id = _digest(frame)
+    # Explicit structural/frame identities separate stable source from camera query identity.
+    source_revision = source_revision if source_revision is not None else _digest(scene.to_dict())
+    frame_id = frame_id if frame_id is not None else _digest(frame)
+    if not all(isinstance(value, str) and value.strip() for value in (source_revision, frame_id)):
+        raise ValueError("source_revision and frame_id must be nonempty identities")
     request_id = _digest({key: (value.to_dict() if isinstance(value, AnalysisPlane) else value)
                           for key, value in b2_request.items()}) if b2_request is not None else frame_id
     catalog = _catalog(scene, candidates, b2, source_revision, frame_id, request_id)
+    qualified = {}
+
+    def qualify(candidate):
+        """Reuse one exact qualification result across consent and preview."""
+        version = candidate["version_id"]
+        if version not in qualified:
+            qualified[version] = _qualified(scene, candidate, source_revision, request_id)
+        return qualified[version]
     try:
         state = _session(session_state)
         attempt = {"status": "none", "reason": None}
@@ -383,7 +406,7 @@ def domain_handoff(scene: NeutralSceneV2, *, candidates: Sequence[Mapping[str, o
                     reason = "replacement_target_unavailable"
                 else:
                     try:
-                        _qualified(scene, candidate, source_revision, request_id)
+                        qualify(candidate)
                     except ValueError as exc:
                         reason = str(exc)
                 if reason is None and kind == "confirm" and candidate is not None:
@@ -440,11 +463,12 @@ def domain_handoff(scene: NeutralSceneV2, *, candidates: Sequence[Mapping[str, o
     current = {"status": "not_available", "candidate_version_id": state["current_version_id"],
                "reason": "no_qualified_current_choice"}
     domain = polygon = preview = None
+    domain_geometries = ()
     if state["conflict"]:
         current.update(status="conflict", reason="unresolved_session_conflict")
     elif active is not None and not state["invalidated"] and state["current_binding"] == binding:
         try:
-            domain, polygon, mesh = _qualified(scene, active, source_revision, request_id)
+            domain, polygon, mesh = qualify(active)
             child_domain = domain
             if domain.source_id is not None:
                 matches = [source for source in scene.source_objects if source.source_id == domain.source_id]
@@ -460,6 +484,9 @@ def domain_handoff(scene: NeutralSceneV2, *, candidates: Sequence[Mapping[str, o
             # authorized exact-domain free-space/topology input.
             from .neutral_scene_views import analysis_scene_view
             view = analysis_scene_view(child)
+            domain_geometries = ((mesh,) if mesh is not None else
+                                 tuple(next(mesh for mesh in scene.geometries if mesh.id == ref)
+                                       for ref in domain.geometry_refs))
             preview = {"label": f"Active: {active['id']} ({active['source']})",
                        "candidate_version_id": active["version_id"],
                        "outline": mapping(polygon), "physical_occupancy": view["physical_occupancy"],
@@ -485,7 +512,8 @@ def domain_handoff(scene: NeutralSceneV2, *, candidates: Sequence[Mapping[str, o
     return {"attempt": attempt, "current": current, "session_revision": state["revision"],
             "session_state": state, "candidates": candidate_previews,
             "selected_candidate_id": active["id"] if current["status"] == "active" else None,
-            "analysis_domain": domain, "scope_polygon": mapping(polygon) if polygon is not None else None,
+            "analysis_domain": domain, "domain_geometries": domain_geometries,
+            "scope_polygon": mapping(polygon) if polygon is not None else None,
             "preview": preview, "provenance": {"source_revision": source_revision,
                                                "frame_id": frame_id, "request_id": request_id},
             "downstream": {"formal_field": "not_available", "topology": "not_available",

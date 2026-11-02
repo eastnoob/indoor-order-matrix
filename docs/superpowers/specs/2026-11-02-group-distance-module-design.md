@@ -35,6 +35,8 @@ Status: **Owner draft; design only; independent review findings processed; not f
 
 ### 3.1 查询范围
 
+**2026-11-02 用户确认的前置规则：**先选定墙体围合区域，其在选定相机 `AnalysisPlane` 上的投影才是分析范围。指定 IFC 无 drawing camera、IfcSpace 或已确认域；先复用 Spec008 的 native drawing/camera 与选墙 B4/显式确认工作流，不以楼板、家具包围盒或画布代替。现有 `_inferred_mesh` 已将完整 shell/holes 还原为 world SI support，request 再投影到选定 plane，不另作重复坐标变换。主树尚缺该依赖闭包，先按[相机与墙围合前置计划](../plans/2026-11-02-wall-domain-camera-prerequisite.md)完成有界恢复与真实输入验收，再推进距离实现；没有域不等于不可达。
+
 一次距离计算绑定同一次 scene-view 解析得到的组整体投影、`AnalysisPlane`、预解析物理占用、自由空间 domain/grid、家具组 scope 和算法版本。显式输入须携带并校验 scene/source identity、plane/frame、linear units、domain identity/content fingerprint、grid origin/spacing/shape、occupancy/source fingerprint 和 group-geometry fingerprints；不可只凭 domain ID 认定几何相同。不得在距离模块内另选平面或静默重采样。网格矩形必须完整覆盖有效分析域；若 domain 缺失/无效、网格未覆盖，或网格/占用输入无法查询，混合距离状态分别为 `INVALID` 或 `NOT_AVAILABLE`，不得据此报告 `unreachable`。覆盖检查以网格外框几何完整 `covers(domain)` 为准。
 
 当前 `analysis_scene_view` 可提供组投影组件、物理占用及 unresolved source IDs；`FreeSpaceField` 构造方持有网格参数和 domain geometry，但没有公开只读元数据接缝。通用距离输入 adapter 因而尚不存在。指定 IFC 的现有 retained axis/geometry 记录也不是可复用的自由空间网格实例。实现时由调用方在同一解析路径中显式组装 immutable input，或增加仅暴露所需元数据的窄只读接口；网格的 spacing/origin/shape 必须成为明示、可追溯输入，不得读私有字段、借用 B3 网格或静默重采样。该接缝及指定 IFC 网格来源都是实现前置项，不影响计算语义设计。

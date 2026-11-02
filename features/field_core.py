@@ -42,6 +42,8 @@ class FieldResultStatus(str, Enum):
 
 def _freeze(value: Any) -> Any:
     """Return a JSON-safe immutable representation of a nested value."""
+    if type(value) is _MetadataOverlay:
+        return value.mapping
     if value is None or isinstance(value, (str, bool, int)):
         return value
     if is_dataclass(value):
@@ -81,6 +83,27 @@ def _freeze(value: Any) -> Any:
     if isinstance(value, (set, frozenset)):
         return tuple(sorted((_freeze(item) for item in value), key=repr))
     raise TypeError(f"value of type {type(value).__name__} is not JSON-safe")
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class _MetadataOverlay:
+    """Reuse privately validated audit values while freezing only local metadata."""
+
+    mapping: Mapping[str, Any]
+
+    def __init__(self, base: Mapping[str, Any] | _MetadataOverlay,
+                 local: Mapping[str, Any] | _MetadataOverlay | None = None) -> None:
+        """Detach caller mappings; only this private exact type may reuse frozen data."""
+        # An exact private overlay already contains deeply frozen values. Reuse
+        # its immutable mapping directly so shared request audit records retain
+        # identity across per-sample overlays instead of being copied per cell.
+        shared = base.mapping if type(base) is _MetadataOverlay else _freeze(base)
+        changes = (local.mapping if type(local) is _MetadataOverlay else
+                   _freeze({} if local is None else local))
+        if not isinstance(shared, Mapping) or not isinstance(changes, Mapping):
+            raise TypeError("metadata must be a mapping")
+        # Sharing the immutable base avoids copying large per-cell audit payloads.
+        object.__setattr__(self, "mapping", MappingProxyType({**shared, **changes}))
 
 
 def _json_value(value: Any) -> Any:
@@ -166,7 +189,8 @@ class FieldSample(Generic[Value]):
         source_ids = tuple(self.source_ids)
         if any(not isinstance(source_id, str) for source_id in source_ids):
             raise TypeError("source_ids must contain strings")
-        provenance = _freeze(self.provenance)
+        provenance = (self.provenance.mapping if type(self.provenance) is _MetadataOverlay
+                      else _freeze(self.provenance))
         if not isinstance(provenance, Mapping):
             raise TypeError("provenance must be a mapping")
         if "algorithm_version" not in provenance or "schema_version" not in provenance:
@@ -921,7 +945,9 @@ class Field(Generic[Target, Value], ABC):
         self.frame = _freeze(frame)
         self.value_schema = _freeze(value_schema)
         self.representation = _freeze(representation)
-        self.provenance = _freeze(provenance or {})
+        # Let __setattr__ distinguish trusted private overlays from ordinary
+        # mappings, freezing the latter while preserving validated shared data.
+        self.provenance = provenance or {}
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Keep declared metadata immutable after its first assignment."""
@@ -930,7 +956,7 @@ class Field(Generic[Target, Value], ABC):
         ):
             raise AttributeError(f"{name} is immutable")
         if name in {"domain", "frame", "value_schema", "representation", "provenance"}:
-            value = _freeze(value)
+            value = value.mapping if type(value) is _MetadataOverlay else _freeze(value)
         object.__setattr__(self, name, value)
 
     @abstractmethod
