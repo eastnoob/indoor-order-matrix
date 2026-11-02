@@ -1,10 +1,10 @@
 # 软件架构
 
-## 当前任务：相机与墙围合分析域前置 — RECOVERY VERIFIED / DOMAIN CONFIRMATION PENDING
+## 当前任务：相机与墙围合分析域前置 — ISOLATED S4 CONFIRMED / MAIN-TREE INSTALLATION PENDING
 
 2026-11-02 用户确认所有分析范围来自选定墙体围合区域在选定相机分析平面上的投影。任务工作区 `order_analyzer_group_distance` 已恢复并核验 sibling `order_analyzer_spec008` 的有界实现闭包；原主工作区尚未集成。Spec008 有 2026-10-19/20 disposable 验收，但实际实现文件未包含在其当前 jj revision，恢复已按实际磁盘 bytes/hash 记录，不能按 revision 宣称已恢复。
 
-复用链：native drawing camera → `AnalysisPlane`；选墙 → 原 B4 / `domain_handoff` 显式确认 → shell/holes 的 WORLD SI support mesh → `AnalysisRequest` 在选定 camera plane 投影。指定 IFC 的 S4 墙域确认已在隔离任务工作区的 S4 产物中完成。不要将 support vertices 预变换成 camera-local 后再投影。B4 structural frame 与 camera frame 分别保留来源身份；倾斜按既有能力拒绝。无确认域时，不能用楼板、家具 bbox、旧网格或画布顶替。计划与执行证据见[前置计划](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md)。本任务仍未实现距离算法，也未完成原主树生产安装；下列 PENDING 描述继续指原主树部署状态。
+复用链：native drawing camera → `AnalysisPlane`；选墙 → 原 B4 / `domain_handoff` 显式确认 → shell/holes 的 WORLD SI support mesh → `AnalysisRequest` 在选定 camera plane 投影。指定 IFC 的 S4 墙域确认已在隔离任务工作区的 S4 产物中完成，manifest/result 绑定和源字节已复核；该确认尚未宣称已安装回主树。不要将 support vertices 预变换成 camera-local 后再投影。B4 structural frame 与 camera frame 分别保留来源身份；倾斜按既有能力拒绝。无确认域时，不能用楼板、家具 bbox、旧网格或画布顶替。计划与执行证据见[前置计划](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md)。距离算法仍未实现；`.17` readiness 已在隔离工作区接受并冻结，生产实现按独立计划进行。下列 PENDING 描述继续指原主树部署状态。
 
 ## Spec008 Analyzer workflow completion — DESIGN / IMPLEMENTATION PENDING
 
@@ -480,12 +480,17 @@ measurement layer or package scheduler. Inputs remain declared source envelopes
 through the existing evaluate signature. Pure-axis/source channels stay intact;
 future distance-conditioned or joint results are additional named outputs, not
 automatic extra votes. Real source changes still invalidate dependent results.
-Whole-group distance, scale, conditional formulas and their source adapters remain
-undecided and unimplemented. The reusable group-distance module is now in the
-`.17` owner-draft stage; independent endpoint/algorithm/state review findings
-have been processed, but user review and readiness are pending
-([draft spec](superpowers/specs/2026-11-02-group-distance-module-design.md)). It
-does not add a potential-package channel or alter the accepted `.16` hierarchy.
+The reusable group-distance module design is frozen after the 2026-11-03 owner
+readiness acceptance. Its first implementation uses installed NetworkX 3.6.1
+scalar labels and deterministic tight-predecessor recovery, with explicit binary64
+component residual diagnostics. The planned placement is `features/group_distance.py`,
+`scripts/design/group_level/run_group_distance_ifc.py` and the output-only
+`render_group_distance_preview.py`. Production code, full-pair measurements and real
+IFC route views remain pending under the
+[frozen spec](superpowers/specs/2026-11-02-group-distance-module-design.md) and
+[implementation plan](superpowers/plans/2026-11-03-group-distance-module-implementation.md).
+Distance-conditioned potential formulas remain undecided; this module does not add
+a potential-package channel or alter the accepted `.16` hierarchy.
 This confirmation does not change the .14/.15 order.
 
 The source-axis `g→k` support mapping is implemented and replay-validated against

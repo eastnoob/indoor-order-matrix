@@ -2,7 +2,7 @@
 
 ## Camera and selected-wall domain prerequisite — 2026-11-02
 
-All analysis domains use an explicitly selected wall enclosure projected onto the selected native camera AnalysisPlane. The approved 10500 IFC now has a confirmed S4 wall domain in the retained 2026-11-02 run artifacts. The Spec008 camera/capture/session/UI closure is recovered and hash-recorded in the isolated `order_analyzer_group_distance` workspace, preserving newer group/evidence contracts; native source bytes remain authoritative. Existing B4 support is WORLD SI geometry including holes, reprojected by AnalysisRequest onto the camera plane; do not transform twice. No slab/canvas/furniture-bounds fallback, no new enclosure algorithm, no new IfcSpace requirement. Distance implementation remains unimplemented and separate. See the [prerequisite plan](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md).
+All analysis domains use an explicitly selected wall enclosure projected onto the selected native camera AnalysisPlane. The approved 10500 IFC now has a confirmed S4 wall domain in the retained 2026-11-02 run artifacts; the confirmed manifest/result binding and pinned source hash were rechecked in the isolated distance workspace. The Spec008 camera/capture/session/UI closure is recovered and hash-recorded in the isolated `order_analyzer_group_distance` workspace, preserving newer group/evidence contracts; native source bytes remain authoritative. Existing B4 support is WORLD SI geometry including holes, reprojected by AnalysisRequest onto the camera plane; do not transform twice. No slab/canvas/furniture-bounds fallback, no new enclosure algorithm, no new IfcSpace requirement. Distance implementation remains unimplemented and separate. See the [prerequisite plan](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md).
 
 ## Spec008 workflow completion — planned boundary
 
@@ -238,13 +238,14 @@ User confirmation (2026-11-01): keep packages cohesive, without requiring anothe
 evidence package to be enabled or adding a measurement layer. Reuse the existing
 source-envelope input; retain pure-axis/source channels and append future
 conditioned/joint results without extra votes. Real dependency changes still
-require freshness checks. Distance rules and conditional implementation remain
-pending. Group distance is a separate reusable calculation, not a package or
-current potential channel; its `.17` owner draft has processed independent
-endpoint/algorithm/state review findings, while user review, readiness, the
-generic input seam and the pinned-IFC free-space grid remain pending and
-unimplemented. See
-[`distance design draft`](superpowers/specs/2026-11-02-group-distance-module-design.md)
+require freshness checks. Potential distance-conditioned formulas remain undecided.
+Group distance is a separate reusable calculation, not a package or current potential
+channel. Its `.17` design/readiness was accepted by the owner on 2026-11-03 after a
+guarded nonspatial NetworkX 3.6.1 tie/lineage probe and confirmed S4/source audit.
+The generic input seam, pinned-IFC occupancy grid, full-pair measurements and route
+visualization are implementation work, not preimplementation readiness evidence.
+See the [frozen spec](superpowers/specs/2026-11-02-group-distance-module-design.md)
+and [implementation plan](superpowers/plans/2026-11-03-group-distance-module-implementation.md)
 and the live checklist. Hierarchy spec .14 is frozen and plan .15 is written. `.16.1-.16.3`
 are implemented and retained-replay validated; owner accepted `.16.4` and
 overall `.16` on 2026-11-01 within the frozen axis-only scope.
