@@ -9,7 +9,7 @@ from html import escape
 import json
 from pathlib import Path
 
-from scripts.design.group_level.run_group_distance_ifc import file_hash, read_json, write_json
+from scripts.design.group_level.run_group_distance_ifc import domain_candidate_id, file_hash, read_json, write_json
 
 
 def polygon_markup(components: list, color: str, opacity: float, stroke: str = "none") -> str:
@@ -23,7 +23,7 @@ def polygon_markup(components: list, color: str, opacity: float, stroke: str = "
 
 
 def view_bounds(geometry: dict) -> list:
-    """Frame all supplied group and domain rings, including groups outside S4."""
+    """Frame all supplied group and confirmed-domain rings."""
     points = [point for record in [geometry["domain"], *geometry["groups"]]
               for component in record.get("components") or () for point in component["exterior"]]
     xmin, xmax = min(p[0] for p in points), max(p[0] for p in points)
@@ -32,13 +32,14 @@ def view_bounds(geometry: dict) -> list:
 
 
 def base_svg(geometry: dict, manifest: dict, aliases: dict) -> str:
-    """Draw same-view occupancy, unknown samples, S4 rings and authored group IDs."""
+    """Draw same-view occupancy, unknown samples, domain rings and authored group IDs."""
+    candidate = escape(domain_candidate_id(geometry["domain"]))
     layers = [polygon_markup(geometry["domain"]["components"], "#eaf6ea", 1, "#238543")]
     for record in geometry["physical_occupancy"]:
         layers.append(polygon_markup(record["geometry_components"], "#475569", .48))
     layers.append(polygon_markup(geometry["domain"]["components"], "none", 1, "#238543"))
     domain_points = [p for component in geometry["domain"]["components"] for p in component["exterior"]]
-    layers.append(f'<text x="{min(p[0] for p in domain_points)+.12}" y="{-max(p[1] for p in domain_points)+.3}" font-size=".22" fill="#166534">S4 confirmed domain</text>')
+    layers.append(f'<text x="{min(p[0] for p in domain_points)+.12}" y="{-max(p[1] for p in domain_points)+.3}" font-size=".22" fill="#166534">{candidate} confirmed domain</text>')
     grid = manifest["grid"]
     spacing = grid["spacing"]
     for sample in manifest["cell_samples"]:
@@ -109,11 +110,12 @@ document.getElementById('summary').textContent=o.group_ids.map(id=>data.aliases[
 document.getElementById('details').textContent=JSON.stringify({pair_id:o.pair_id,euclidean:o.center_to_center_euclidean,hybrid:o.centroid_free_space_hybrid,geometry_audit:o.geometry_audit,route:r?{source_access:r.source_access,target_access:r.target_access,cell_count:r.cell_keys.length,arithmetic:r.arithmetic}:null},null,2);}
 picker.onchange=()=>{location.hash=picker.value;};window.onhashchange=show;document.getElementById('zoom').onchange=show;show();
 """
-    return f'''<!doctype html><html lang="en"><meta charset="utf-8"><title>IFC group distance · S4</title>
+    candidate = escape(domain_candidate_id(geometry["domain"]))
+    return f'''<!doctype html><html lang="en"><meta charset="utf-8"><title>IFC group distance · {candidate}</title>
 <style>body{{font:14px system-ui;margin:20px;color:#172033}}select{{max-width:90%;padding:8px}}svg{{width:100%;height:700px;background:#fff;border:1px solid #bbb}}table{{border-collapse:collapse}}td,th{{padding:5px;border:1px solid #ddd;text-align:right}}.scroll{{overflow:auto}}.matrix{{font-size:10px}}pre{{overflow:auto;max-height:400px;background:#f1f5f9;padding:12px}}#summary{{overflow-wrap:anywhere}}a{{color:#075985}}</style>
-<h1>IFC group distance · confirmed S4 camera plane</h1><p>37 authored groups · 666 unordered pairs · metres · {manifest["grid"]["spacing"]} m cells · four-neighbor discrete approximation. Matrix diagonal: null/not_applicable.</p>
+<h1>IFC group distance · confirmed {candidate} camera plane</h1><p>37 authored groups · 666 unordered pairs · metres · {manifest["grid"]["spacing"]} m cells · four-neighbor discrete approximation. Matrix diagonal: null/not_applicable.</p>
 <p>Observed hybrid states: {state_summary}. Recorded routes: {sum(item["route"] is not None for item in observations)}. Source/domain combinations without a route retain their status and null hybrid distance.</p>
-<p>Green: S4 domain. Gray fill: physical occupancy. Orange: unknown. Purple fill: conditional. Cyan outlines: authored groups. Gray straight line: fixed centroid Euclidean distance. Red: recorded free-cell route. Purple dashed: endpoint offsets; these are distinct from the free-space route. Blue/rose squares: source/target access cells; green shared edges and dot proxies mark their recorded interfaces.</p>
+<p>Green: {candidate} domain. Gray fill: physical occupancy. Orange: unknown. Purple fill: conditional. Cyan outlines: authored groups. Gray straight line: fixed centroid Euclidean distance. Red: recorded free-cell route. Purple dashed: endpoint offsets; these are distinct from the free-space route. Blue/rose squares: source/target access cells; green shared edges and dot proxies mark their recorded interfaces.</p>
 <label>Pair <select id="pair">{"".join(options)}</select></label> <label><input type="checkbox" id="zoom">Fit selected pair</label><p id="summary"></p>
 <svg id="view" xmlns="http://www.w3.org/2000/svg" viewBox="{' '.join(map(str, view_bounds(geometry)))}">{base}<g id="overlay"></g></svg>
 <details><summary>Selected pair audit</summary><pre id="details"></pre></details>
@@ -145,7 +147,8 @@ def representative_png(output: Path, geometry: dict, manifest: dict, observation
         for component in geometry["domain"]["components"]:
             axes.add_patch(Patch(component["exterior"], facecolor="none", edgecolor="#238543", linewidth=2))
         domain_points = [p for component in geometry["domain"]["components"] for p in component["exterior"]]
-        axes.text(min(p[0] for p in domain_points)+.12, max(p[1] for p in domain_points)-.3, "S4 confirmed domain", color="#166534", fontsize=10)
+        axes.text(min(p[0] for p in domain_points)+.12, max(p[1] for p in domain_points)-.3,
+                  domain_candidate_id(geometry["domain"]) + " confirmed domain", color="#166534", fontsize=10)
         spacing = manifest["grid"]["spacing"]
         for sample in manifest["cell_samples"]:
             if sample["status"] in {"unknown", "conditional"}:

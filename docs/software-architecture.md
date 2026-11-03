@@ -1,10 +1,12 @@
 # 软件架构
 
-## 当前任务：相机与墙围合分析域前置 — ISOLATED S4 CONFIRMED / MAIN-TREE INSTALLATION PENDING
+## 当前任务：选区纠正 — PRIOR S4 SUPERSEDED / INTENDED S3 CONFIRMED / CORRECTED UNREACHABLE RUN RETAINED
+
+**2026-11-03 current intent correction:** 用户红线选择右侧家具大厅和左侧连接通道。原窄 S4 及 `group_distance_ifc/run_v1/` 的 666 outside 仅是历史错误选区结果；其确认执行记录保留，但选区身份不再代表当前意图。worker/reviewer 已由实际源识别候选 S3（207.24092382549588 m²，37/37 组相交），`.18.C1` 完成；原请求因 A22 斜墙 residual 3.4968646007715876 mm² refused；owner 已选择既有 per-request `aperture_residual_tolerance_m2=1e-5`（10 mm²）策略，prepare 后的 fresh confirmation 已 accepted/active，面积及零孔 shell 不变。A22 保留 `above_area_budget=true`、`significant_residual=false`、`scenario_closed=false`，独立 opening budget `1e-6 m²`（1 mm²）不变。依据[既有 residual policy](project/evidence/d6-inner-space-residual-tolerance.md)，无 global/default/schema 改动、几何修复或 closure override；新请求的 manifest/result binding 已于 `domain_correction_inspection/confirmed_domain_manifest.json` / `confirmed_domain_result.json` 冻结，session revision 1 的 `user-red-outline-s3-20261103` action 记录用户明确选区，旧 refusal 保留；`.18.C2–.18.C3` 完成；实际 `run_v2_corrected_domain/` 为 37 centroids inside、666 Euclidean computed / 666 hybrid unreachable/null / 0 routes。343 occupancy 保留 slab，21,064 established occupied + 3,378 outside，graph nodes/edges/searches 0。`run_v2_corrected_domain/preview/index.html` 已交付，`.18.C4/.18.10` user review 和 `.18.8` 有用真实路径验证仍 open。S3 inferred floor support 尚不具备 occupancy exclusion 资格，不得排除 slab 或更改高度策略；本轮 whole-height occupancy 实际阻断所有路线。实施延续见 distance plan `.18.C1–.18.C4`，`.18` 仍 open。
 
 2026-11-02 用户确认所有分析范围来自选定墙体围合区域在选定相机分析平面上的投影。任务工作区 `order_analyzer_group_distance` 已恢复并核验 sibling `order_analyzer_spec008` 的有界实现闭包；原主工作区尚未集成。Spec008 有 2026-10-19/20 disposable 验收，但实际实现文件未包含在其当前 jj revision，恢复已按实际磁盘 bytes/hash 记录，不能按 revision 宣称已恢复。
 
-复用链：native drawing camera → `AnalysisPlane`；选墙 → 原 B4 / `domain_handoff` 显式确认 → shell/holes 的 WORLD SI support mesh → `AnalysisRequest` 在选定 camera plane 投影。指定 IFC 的 S4 墙域确认已在隔离任务工作区的 S4 产物中完成，manifest/result 绑定和源字节已复核；该确认尚未宣称已安装回主树。不要将 support vertices 预变换成 camera-local 后再投影。B4 structural frame 与 camera frame 分别保留来源身份；倾斜按既有能力拒绝。无确认域时，不能用楼板、家具 bbox、旧网格或画布顶替。计划与执行证据见[前置计划](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md)。距离 kernel、IFC runner 与 output-only renderer 已在隔离工作区实现；`.17` readiness 已冻结，完整真实结果是 666 Euclidean computed / 666 hybrid outside / 0 routes，`.18` 保留有用真实路径与用户视觉验收。下列 PENDING 描述继续指原主树部署状态。
+复用链：native drawing camera → `AnalysisPlane`；选墙 → 原 B4 / `domain_handoff` 显式确认 → shell/holes 的 WORLD SI support mesh → `AnalysisRequest` 在选定 camera plane 投影。指定 IFC 的 S4 墙域确认已在隔离任务工作区的 S4 产物中完成，manifest/result 绑定和源字节已复核；该确认尚未宣称已安装回主树。不要将 support vertices 预变换成 camera-local 后再投影。B4 structural frame 与 camera frame 分别保留来源身份；倾斜按既有能力拒绝。无确认域时，不能用楼板、家具 bbox、旧网格或画布顶替。计划与执行证据见[前置计划](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md)。距离 kernel、IFC runner 与 output-only renderer 已在隔离工作区实现；`.17` readiness 已冻结，原 S4 的历史完整结果是 666 Euclidean computed / 666 hybrid outside / 0 routes，`.18` 保留有用真实路径与用户视觉验收。下列 PENDING 描述继续指原主树部署状态。
 
 ## Spec008 Analyzer workflow completion — DESIGN / IMPLEMENTATION PENDING
 
@@ -484,7 +486,7 @@ The reusable group-distance module is implemented in `features/group_distance.py
 with the pinned-IFC runner `scripts/design/group_level/run_group_distance_ifc.py`
 and output-only `render_group_distance_preview.py`. Kernel review is owner accepted;
 13 focused nonspatial checks and 4 runner/renderer delivery checks are recorded.
-The isolated full-scope package `outputs/design/group_distance_ifc/run_v1/` has
+The historical superseded-selection package `outputs/design/group_distance_ifc/run_v1/` has
 37 groups, 666 computed Euclidean readings, 666 `outside` hybrid observations and
 666 indexed status views under `preview/`. Every group union lies outside S4;
 all 5651 in-domain grid cells are occupied by the retained IfcSlab source, with
@@ -493,7 +495,7 @@ input/domain and whole-height occupancy limit, not evidence of broken Dijkstra.
 Source/hash/pair reconciliation and separate runtime/memory scopes are in the
 [IFC evidence](project/evidence/group-distance-ifc-v1.md) and
 [implementation checklist](superpowers/plans/2026-11-03-group-distance-module-implementation.md).
-Useful real-route validation and user visual acceptance keep `.18` open. No
+The user has corrected the selection to the right furniture hall plus left passage; matching candidate S3 is now confirmed and active under the explicit existing 10 mm² residual request policy, retaining A22 diagnostics, unchanged geometry and the separate 1 mm² opening budget. Corrected manifest/result bindings are frozen in `domain_correction_inspection/`. The retained corrected `run_v2_corrected_domain/` has all 37 centroids inside, 666 Euclidean computed and 666 hybrid unreachable/null with zero routes. After the existing exact boundary-member exclusion, 343 occupancy records remain; every one of 21,064 occupied samples includes the retained slab, with 3,378 outside samples and zero graph nodes/edges/searches. The current preview is `run_v2_corrected_domain/preview/index.html`; independent review verified 12 runner/preview hashes, 666 locators, SVG viewer and corrected S3 visuals. Combined kernel/delivery checks passed 19 tests in 14.68s before the metadata-only count correction; focused post-correction delivery checks passed 6 tests in 17.71s. Current occupancy is 343 records, with 353 retained as pre-rebind history; metrics and kernel output are unchanged. User review remains pending. The historical outside-only package is not current intended-domain evidence. Useful real-route validation and user visual acceptance keep `.18` open. No
 occupancy exclusion or domain expansion is implied. The frozen numerical contract
 still uses NetworkX 3.6.1 scalar labels, deterministic tight-predecessor recovery
 and explicit binary64 component residual diagnostics.

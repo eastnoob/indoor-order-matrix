@@ -1,8 +1,43 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Current domain intent correction — 2026-11-03
+
+The user corrected the selected analysis domain using the attached red outline:
+**right furniture hall plus left connecting passage**. The prior narrow S4 selection
+and its `group_distance_ifc/run_v1/` 666-hybrid-outside result are historical wrong-
+selection evidence. Preserve the P3 execution/confirmation artifacts, but mark that
+selection superseded; it is no longer the intended current domain. Worker/reviewer audits identify existing source-wall candidate S3 (207.24092382549588 m²;
+37/37 groups intersect), recorded in `domain_correction_inspection/candidate_report.json`
+and `s3_candidate_intent_comparison.png`. The original request refused diagonal-wall
+A22's `3.4968646007715876 mm²` residual. Under the owner's explicit existing
+`aperture_residual_tolerance_m2=1e-5` (10 mm²) request policy, preparation was
+provisional with unchanged area and zero-hole shell; fresh confirmation is now accepted/active. A22 retains
+`above_area_budget=true`, `significant_residual=false`, `scenario_closed=false`;
+the separate 1 mm² opening budget is unchanged. See the
+[existing policy](project/evidence/d6-inner-space-residual-tolerance.md).
+No default/schema/geometry repair or closure override is introduced. The changed
+request has new manifest/result bindings frozen under
+`outputs/design/group_distance_ifc/domain_correction_inspection/confirmed_domain_manifest.json`
+and `confirmed_domain_result.json`; the accepted/active revision 1 records the
+explicit `user-red-outline-s3-20261103` selection action and preserves the old refusal.
+`.18.C2–.18.C3` are complete within confirmation/execution scope. The actual
+`outputs/design/group_distance_ifc/run_v2_corrected_domain/` has 37 centroids
+inside, 666 Euclidean computed and 666 hybrid unreachable/null/zero routes.
+The corrected 343-record occupancy retains the slab; all 21,064 interior samples
+are occupied and 3,378 grid samples are outside, leaving zero graph nodes/edges.
+Combined kernel/delivery checks passed 19 tests before the metadata-only occupancy-count correction; focused post-correction delivery checks passed 6 tests in 17.71s. Independent artifact review verified 12 runner/preview hashes, all 666 locators, the SVG viewer and S3 PNGs. The full preview is `run_v2_corrected_domain/preview/index.html`; user review
+`.18.C4/.18.10`, useful real-route validation `.18.8` and parent `.18` remain open. Inferred S3
+floor support is not qualified for occupancy exclusion; no slab exclusion or
+height-policy change is authorized. The observed unreachable result follows the
+unchanged whole-height occupancy policy.
+Continue distance checklist `.18.C1–.18.C4` for identification,
+freezing, cached rerun and preview/user review. Do not invent a candidate identity
+or fabricate geometry from furniture bounds; occupancy policy is not changed by
+this domain correction.
+
 ## Camera and selected-wall domain prerequisite — 2026-11-02
 
-All analysis domains use an explicitly selected wall enclosure projected onto the selected native camera AnalysisPlane. The approved 10500 IFC now has a confirmed S4 wall domain in the retained 2026-11-02 run artifacts; the confirmed manifest/result binding and pinned source hash were rechecked in the isolated distance workspace. The Spec008 camera/capture/session/UI closure is recovered and hash-recorded in the isolated `order_analyzer_group_distance` workspace, preserving newer group/evidence contracts; native source bytes remain authoritative. Existing B4 support is WORLD SI geometry including holes, reprojected by AnalysisRequest onto the camera plane; do not transform twice. No slab/canvas/furniture-bounds fallback, no new enclosure algorithm, no new IfcSpace requirement. Distance implementation now exists in the isolated workspace, with all 666 real hybrid observations outside S4 and no selected routes; useful route validation and user visual acceptance remain open under `.18`. See the [prerequisite plan](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md).
+All analysis domains use an explicitly selected wall enclosure projected onto the selected native camera AnalysisPlane. The approved 10500 IFC now has a confirmed S4 wall domain in the retained 2026-11-02 run artifacts; the confirmed manifest/result binding and pinned source hash were rechecked in the isolated distance workspace. The Spec008 camera/capture/session/UI closure is recovered and hash-recorded in the isolated `order_analyzer_group_distance` workspace, preserving newer group/evidence contracts; native source bytes remain authoritative. Existing B4 support is WORLD SI geometry including holes, reprojected by AnalysisRequest onto the camera plane; do not transform twice. No slab/canvas/furniture-bounds fallback, no new enclosure algorithm, no new IfcSpace requirement. Distance implementation now exists in the isolated workspace, with historical superseded-S4 output of 666 hybrid outside observations and no selected routes; useful route validation and user visual acceptance remain open under `.18`. See the [prerequisite plan](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md).
 
 ## Spec008 workflow completion — planned boundary
 
@@ -243,7 +278,7 @@ Group distance is a separate reusable calculation, not a package or current pote
 channel. Its `.17` design/readiness was accepted by the owner on 2026-11-03 after a
 guarded nonspatial NetworkX 3.6.1 tie/lineage probe and confirmed S4/source audit.
 The kernel, same-view adapter, full-pair runner and output-only preview now exist
-in the isolated workspace. The retained `group_distance_ifc/run_v1/` records all
+in the isolated workspace. The historical superseded-S4 `group_distance_ifc/run_v1/` records all
 37 groups and 666 pairs: Euclidean computed for every pair, hybrid `outside` for
 every pair. All group unions lie outside S4; 5651 in-domain cells are established
 occupied by IfcSlab `ifc-object:2mbfCNlr9T48ZweNBN3dyn`, 36 cells are outside,

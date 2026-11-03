@@ -1,13 +1,52 @@
 # Group distance module implementation plan
 
 Date: 2026-11-03  
-Status: **Kernel and IFC delivery implemented; complete outside/Euclidean run recorded; useful real-route validation and user visual acceptance open**
+Status: **Implementation retained; prior S4 selection superseded; intended hall + left passage confirmed; corrected unreachable run and preview retained; useful routes and user review open**
 
 ## Goal and boundary
 
 Implement the frozen group distance module against one scene-view handoff. Keep the two raw readings separate: centroid-to-centroid Euclidean distance and centroid/free-space hybrid distance. Preserve pair-local state, route lineage, source identity and the complete unordered scope. Do not add a field package, distance-to-support transform, scheduler, cache service, or generic export layer.
 
-The pinned IFC is `outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc` with SHA-256 `1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`. The confirmed S4 handoff is the manifest/result pair under `outputs/design/wall_domain_camera_prerequisite/run_20261102T210601Z/`; never consume its failed `domain_result.json` as confirmed domain input. The implementation must resolve scene geometry once and keep coordinate translation in that handoff path, with no second projection.
+The pinned IFC is `outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc` with SHA-256 `1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`. The historical, now-superseded S4 handoff is the manifest/result pair under `outputs/design/wall_domain_camera_prerequisite/run_20261102T210601Z/`; never consume its failed `domain_result.json` as confirmed domain input. The implementation must resolve scene geometry once and keep coordinate translation in that handoff path, with no second projection.
+
+## Current user-selected domain correction — 2026-11-03
+
+The user explicitly corrected the earlier S4 selection using a red outline: the
+intended analysis domain is the **right furniture hall plus its left connecting
+passage**. The prior narrow S4 room and `run_v1` outside-only result are historical
+execution evidence for the wrong selected domain, not the user's intended domain
+or accepted result. The prior P3 confirmation execution remains recorded; its
+selection is superseded. Independent worker/reviewer audits identify existing source-wall candidate S3 as
+the matching hall plus passage. Original-request candidate identity is
+`ec4599e3308aea74bc6766185d1fbee6f3b8b127fb0ff1fb6c950e9edb06ebc0`,
+original-request version `inferred:S3:eabc9c10f7dd41da9d136f1dd6672dc459e1e8df84907f56f4c22f6e1fbdf3e4`.
+Its area is `207.24092382549588 m²`; all 37 group projections have positive-area
+intersection. The original request was refused with `unresolved_local_aperture`:
+A22 on the diagonal wall retains a measured residual of `3.4968646007715876 mm²`.
+The owner selected the existing per-request `aperture_residual_tolerance_m2=1e-5`
+(10 mm²) policy, documented in the [residual-tolerance evidence](../../project/evidence/d6-inner-space-residual-tolerance.md).
+Preparation was provisional with unchanged `207.24092382549588 m²`, zero-hole
+geometry. A22 remains `above_area_budget=true`, `significant_residual=false`, and
+`scenario_closed=false`; the separate `aperture_area_budget_m2=1e-6` (1 mm²)
+opening-qualification budget is unchanged. This uses existing request policy,
+with no global/default/schema change, geometry repair, or closure override.
+Changing that policy changes request identity; the original version above is
+identification history. The fresh confirmation is accepted and active at session
+revision 1. The manifest/result agree exactly on domain and confirmation binding:
+
+- Request: `7ef6f9024a63aead017fb1cda20db92c9e2ed261ddc73b899e3c7a9ed67a31c3`.
+- Candidate: `908856c940ec7e0ffa25cb9157b7a8712b8d070edc7eabe3eb92ac4b8cbbf0f6`.
+- Version: `inferred:S3:9e209ac62b6e4748246e2276b67b9756d62fb0f5a0c7cad368ada4f95f3cabaf`.
+- Domain: `selected:86410d576017fa2d62e2cc1e1a5159143e9082e74e09186c36d9e8497e17f87a`.
+
+Evidence: `outputs/design/group_distance_ifc/domain_correction_inspection/confirmed_domain_manifest.json`
+and `confirmed_domain_result.json`. The recorded `user-red-outline-s3-20261103`
+action executes the user's explicit hall/passage selection; the prior A22 refusal
+is retained in the manifest. The result has no session conflict or invalidation.
+
+S3's inferred floor support is not qualified for occupancy exclusion; whole-height occupancy may still prevent routes.
+Do not guess a candidate ID, substitute a furniture bbox, or reuse the superseded
+S4 identity as current. Identification evidence is `outputs/design/group_distance_ifc/domain_correction_inspection/candidate_report.json` and `s3_candidate_intent_comparison.png`; use the fresh confirmed bindings above for the corrected run.
 
 ## Concrete API handoff
 
@@ -70,10 +109,49 @@ Implemented `scripts/design/group_level/render_group_distance_preview.py` as out
 - [x] `.18.4` Generated all 37-group / 666-pair observations, index and manifest. All 666 Euclidean readings are computed; all 666 hybrid observations are `outside`, with null route/value. No expected pair is missing or duplicated.
 - [x] `.18.5` Actual resources recorded: 5687 samples; both graphs have 0 nodes/edges/source searches. Final first kernel: `47.2163139 s`, Python tracemalloc peak `23,744,479 B`. Final same-bundle two-kernel process: `101.6013874 s`, Windows peak working set `205,701,120 B` / peak commit `195,854,336 B`. Earlier full capture/adapter plus two kernel calls: `751.2994114 s`, peak working set `2,825,302,016 B` / peak commit `2,877,648,896 B`. These are separate scopes, not a 37-active-source route benchmark.
 - [x] `.18.6` Pinned IFC hash/bytes match before and after; same-bundle normalized result SHA-256 is `db188cdd9f555041b92ef36a732d6ac70e67c9049a1059dce3bdac25ea093249` on both kernel evaluations. Source/plane/grid/query bindings and the retained-input upgrade are recorded in the evidence.
-- [x] `.18.7` Published full-scope plan, complete matrices/rows and all 666 readable pair/status view locators in `run_v1/preview/index.html`. Both representative PNGs show S4 left of the furniture. No hybrid route is present; route/access-marker rendering is spatially unobserved.
-- [ ] `.18.8` **Partially verified:** actual expected/observation/index/visual sets reconcile at 666 each, with zero missing/duplicate IDs; scoped review verified all 14 recorded hashes and all 666 readable locators. Selected path/node/edge checks execute 0 cases. Useful real-route nodes/edges/lineage/arithmetic validation therefore remains open and cannot be passed by this outside-only run.
-- [x] `.18.9` Actual state coverage recorded: 666 hybrid `outside`, 666 Euclidean `computed`, 5651 established occupied samples and 36 outside samples; 0 free/unknown. Other hybrid/status/access/tie/conditional route branches remain spatially unobserved.
-- [ ] `.18.10` User visual review remains pending. The full-scope IFC/S4 preview is reviewable; owner inspection of PNGs is not user visual acceptance. Master `.18` stays open for useful real-route validation and user acceptance.
+- [x] `.18.7` Published corrected S3 preview at `run_v2_corrected_domain/preview/index.html`, with complete matrices and 666 readable pair/status locators. Independent artifact review verified 12 runner/preview hashes, the locator bijection, SVG viewer, S3 header and both PNGs. No hybrid route is present; this records presentation and artifact integrity, not user visual acceptance.
+- [ ] `.18.8` **Partially verified:** corrected expected/observation/index/visual sets reconcile at 666 each with zero missing/duplicate IDs, and artifact hashes/locators were independently reviewed. Selected path/node/edge checks execute 0 cases because the corrected graph has zero nodes and edges. Useful real-route connectivity, access, lineage and route-arithmetic validation therefore remains open; the all-unreachable result does not pass this item.
+- [x] `.18.9` Corrected S3 state coverage recorded: 666 hybrid `unreachable`, 666 Euclidean `computed`, 21,064 established occupied samples and 3,378 outside samples; 0 free/unknown, graph nodes/edges/searches or routes. Other hybrid status/access/tie/conditional route branches remain spatially unobserved. The slab is retained under unchanged whole-height occupancy.
+- [ ] `.18.10` User visual review remains pending for the corrected full-scope S3 preview. Independent artifact/PNG review is not user acceptance. Master `.18` stays open for useful real-route validation and user acceptance.
+
+### User correction continuation within .18
+
+The `.18.2–.18.6` S4 adapter/run details above remain historical. Corrected S3
+preview/state recording is captured by `.18.7`, `.18.9` and `.18.C1–.18.C4`.
+Parent `.18`, useful-route validation `.18.8`, and user visual acceptance
+`.18.10` remain open.
+
+- [x] `.18.C1` Identified existing candidate S3 as the right furniture hall + left passage in independent worker/reviewer audits. Area `207.24092382549588 m²`, all 37 groups intersect; original candidate identity/version and retained A22 diagnostics are recorded above. Evidence: `outputs/design/group_distance_ifc/domain_correction_inspection/candidate_report.json` and `s3_candidate_intent_comparison.png`. This checks identification only, not confirmation or acceptance.
+- [x] `.18.C2` **Corrected S3 confirmation frozen (2026-11-03):** `confirmed_domain_manifest.json` and `confirmed_domain_result.json` under `domain_correction_inspection/` agree on the accepted/active session revision 1, exact domain, current binding and candidate version recorded above. The explicit `user-red-outline-s3-20261103` action represents the user-selected hall/passage. Area is unchanged at `207.24092382549588 m²`, holes 0; original A22 refusal and superseded S4 history remain retained. The existing explicit 10 mm² residual request policy retains A22 diagnostics and the separate 1 mm² opening budget. No geometry repair, slab exclusion, or height-policy change is authorized.
+- [x] `.18.C3` **Corrected cached run retained (2026-11-03):** `outputs/design/group_distance_ifc/run_v2_corrected_domain/` contains the actual run manifest, coverage report and spatial-scope audit. The independently audited rebind supplies 37 groups and 343 occupancy records after 10 exact boundary-member exclusions through the existing resolver; the pre-rebind 353-record count is retained as history only, and the slab remains preserved. The 121 × 202 grid at 0.1 m has all 37 centroids inside; source/hash bindings agree, and common-translation polygon symmetric difference is at most `2.57e-16 m²`. All 666 Euclidean values are computed; all 666 hybrid observations are `unreachable`, with null values/routes. Expected/observation/index/visual locator sets reconcile at 666 with no missing/duplicate IDs. Combined kernel/delivery checks passed 19 tests in 14.68s before a metadata-only occupancy-count correction; post-correction focused delivery checks passed 6 tests in 17.71s. The correction changed current count/hash metadata only, not metrics or kernel output. This completes corrected execution and actual-state recording, not useful-route validation.
+- [ ] `.18.C4` **Preview delivered; user review pending:** `run_v2_corrected_domain/preview/index.html` contains all 666 pair locators and two representative PNGs of the corrected green S3 hall/passage and furniture. The final independent artifact review verified 12 runner/preview hashes, the 666-pair locator bijection, SVG viewer, S3 header and PNGs. The preview records no S4 label and does not recompute distance. No hybrid route is present. Obtain user review before closing this item or `.18.10`; `.18.8` useful-route validation remains open.
+
+### Corrected S3 run and retained limits
+
+The current intended-domain output is `outputs/design/group_distance_ifc/run_v2_corrected_domain/`;
+`run_v1/` remains superseded-S4 history. Evidence is `run_manifest.json`,
+`coverage_report.json`, `spatial_scope_audit.json` and the [IFC delivery record](../../project/evidence/group-distance-ifc-v1.md).
+The common view offset is `[-5.150000095367432, -0.30000001192092896]`;
+the unchanged S3 area is `207.24092382549588 m²` and view bounds are
+`(0, 0)..(20.149999141693115, 12.000000178813934)`. Domain/grid/query/occupancy
+fingerprints are fresh for this binding, rather than copied from S4.
+
+Of 24,442 samples, 21,064 are established occupied and 3,378 outside; none are
+free or unknown. Every occupied sample includes retained IfcSlab
+`ifc-object:2mbfCNlr9T48ZweNBN3dyn` among its source refs. Both graphs have
+zero nodes, edges and source runs. This run demonstrates `unreachable` under the
+existing whole-height occupancy policy; it does not establish spatial routes,
+access selection, ties or conditional/unknown paths. Inferred floor support does
+not authorize slab exclusion, and no height-policy change was made.
+
+One corrected kernel call took `334.9034131 s` with tracemalloc peak
+`48,687,026 B`. The retained-input process took `352.656185 s`, with Windows
+peak working set `336,601,088 B` and peak commit `329,084,928 B`. These are
+cached-rebind/one-kernel measurements, not full IFC parse cost or an active-route
+benchmark. No corrected same-bundle replay was performed; normalized result
+SHA-256 is `db9cae4be1b8d7628a5a64ffe92ed9ee5efe963a4bfeff53ae3d379780891b93`.
+Source bytes/hash remain unchanged before/after. Parent `.18`, useful-route
+validation `.18.8`, user visual acceptance `.18.10` and `.18.C4` remain open.
 
 ## Observation and artifact schema
 
@@ -135,9 +213,11 @@ failure or later shared-boundary edit.
 
 Keep this entire checklist current while executing: mark a task in progress in its
 line, attach the actual code/artifact/check evidence before checking it, and retain
-failed or unobserved items accurately. Text readiness is complete. The actual outside-only 666-pair execution, peak resources
-and artifact reconciliation are recorded; useful real-route validation and user visual
-review remain open acceptance gates. Finish the implementation only when real generated artifacts are
+failed or unobserved items accurately. Text readiness and the corrected S3
+666-pair execution, peak resources, source/hash reconciliation and full-scope
+preview are recorded. All hybrid pairs are unreachable under unchanged whole-height
+occupancy, so useful real-route validation and user visual review remain open
+acceptance gates. Finish the implementation only when real generated artifacts are
 reviewable; user visual acceptance must never be inferred from test success.
 
 ## Evidence and current implementation record
@@ -173,25 +253,30 @@ The latest focused result supersedes the earlier `11 passed in 0.31s` implementa
 - `docs/project/evidence/distance-spec-grill-review-2026-11-02.md`
 - confirmed S4 manifest/result under `outputs/design/wall_domain_camera_prerequisite/run_20261102T210601Z/`
 
-## Actual input limitation and remaining acceptance
+## Historical superseded-S4 run and remaining acceptance
 
-The final package is `outputs/design/group_distance_ifc/run_v1/`; its preview is
+The historical wrong-selection package is `outputs/design/group_distance_ifc/run_v1/`; its preview is
 `preview/index.html`, with `source_plan.svg` and two representative PNGs. All 37
 actual group unions are outside confirmed S4: the smallest group X bound is about
 10.45 m in the common translated view, beyond S4's 4.7 m right bound. All 666
-Euclidean readings are computed, while all 666 hybrid results are `outside`.
+Euclidean readings are computed, while all 666 hybrid results are `outside` for that superseded selection; none of these results establish the corrected hall/passage outcome.
 
 The 121 × 47 grid at explicit 0.1 m spacing has 5651 established occupied cells
 and 36 outside cells. The sole source covering every occupied cell is IfcSlab
 `ifc-object:2mbfCNlr9T48ZweNBN3dyn`; there are no free/unknown cells, graph
 nodes/edges/source searches or selected routes. This records the consequence of
 the confirmed input selection and whole-height occupancy semantics, not a failed
-Dijkstra run. The current run does not establish useful-route correctness, active
-37-source route performance, access/tie/unknown/conditional route behavior,
-continuous shortest paths or user visual acceptance. No slab exclusion or domain
-expansion is permitted without a new design decision.
+Dijkstra run. This historical S4 run does not establish useful-route correctness,
+active 37-source route performance, access/tie/unknown/conditional route behavior,
+continuous shortest paths or user visual acceptance. The corrected S3 run also
+has no routes because unchanged whole-height occupancy leaves no free graph cells;
+it does not validate route behavior. The user has now corrected the selected wall domain; use the matching real wall
+candidate and explicit confirmation, not an arbitrary geometric expansion. Occupancy
+policy changes such as slab exclusion still require a separate design decision.
 
 Complete artifact reconciliation and output-only full-scope visualization are
 recorded in [IFC execution evidence](../../project/evidence/group-distance-ifc-v1.md).
-`.18.8` and `.18.10` remain open. The owner may show the actual full IFC/S4 preview
-for user review, but willingness to review or owner PNG inspection is not acceptance.
+`.18.8` and `.18.10` remain open. The corrected S3 preview is available at
+`outputs/design/group_distance_ifc/run_v2_corrected_domain/preview/index.html`;
+user visual acceptance requires the user's review and cannot be inferred from the
+independent artifact review.

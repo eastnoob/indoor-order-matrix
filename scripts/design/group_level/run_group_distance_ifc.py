@@ -20,13 +20,14 @@ from adapters.bonsai_live import load_bonsai_capture
 from features._analysis_domain_handoff import structural_source_facts
 from features._authored_group_inventory import _build_authored_group_inventory
 from features.field_core import FieldQuery, _json_value
-from features.geometry_views import component_shape
+from features.geometry_views import component_shape, plan_projection
+from features.geometry_substitutes import mass_patch_from_mesh
 from features.group_distance import (
     GridDescriptor, GroupDistanceInput, GroupProjection,
     calculate_group_pair_distances, group_distance_input_fingerprints,
     serialize_group_distance_result,
 )
-from features.neutral_scene_views import analysis_scene_view
+from features.neutral_scene_views import _resolve_boundary_member_ids, analysis_scene_view
 from features.scene_contract import AnalysisDomain, AnalysisPlane, MeshGeometry3D
 
 PINNED_SOURCE = Path("D:/PROJECTS/understandOtherPackage/order_analyzer/outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc")
@@ -83,20 +84,22 @@ def process_memory() -> dict:
             "scope": "current Python process lifetime; includes native allocations"}
 
 
-def confirmed_s4(s4_dir: Path, source: dict) -> tuple[dict, dict]:
+def confirmed_domain(s4_dir: Path, source: dict, *, expected_candidate: str | None = None) -> tuple[dict, dict]:
     """Cross-check the active confirmation, candidate, source, request and mesh binding."""
-    manifest = read_json(s4_dir / "s4_confirmed_manifest.json")
-    result = read_json(s4_dir / "s4_confirm_result.json")
+    names = confirmation_names(s4_dir)
+    manifest = read_json(s4_dir / names[0])
+    result = read_json(s4_dir / names[1])
     binding, domain = result["confirmation_binding"], result["analysis_domain"]
     if not (manifest["status"] == "confirmed" and result["status"] == "active"
-            and result["handoff_executed"] is True and manifest["selected_candidate_id"] == result["selected_candidate_id"] == "S4"
+            and result["handoff_executed"] is True and manifest["selected_candidate_id"] == result["selected_candidate_id"]
+            and (expected_candidate is None or result["selected_candidate_id"] == expected_candidate)
             and manifest["confirmed_domain"] == domain and manifest["confirmation_binding"] == binding
             and result["domain_request_identity"] == binding["request_id"]
             and result["session_state"]["current_binding"] == binding
             and result["current"]["status"] == "active"):
-        raise ValueError("S4 confirmation is not the active bound handoff")
+        raise ValueError("domain confirmation is not the active bound handoff")
     if manifest["source"]["sha256"] != source["sha256"] or manifest["source"]["bytes"] != source["bytes"] or Path(manifest["source"]["path"]).resolve() != Path(source["path"]).resolve():
-        raise ValueError("confirmed S4 belongs to another IFC source")
+        raise ValueError("confirmed domain belongs to another IFC source")
     provenance = domain["provenance"]
     if (provenance["candidate_version_id"] != manifest["selected_candidate_version_id"]
             or result["current"]["candidate_version_id"] != manifest["selected_candidate_version_id"]
@@ -104,7 +107,7 @@ def confirmed_s4(s4_dir: Path, source: dict) -> tuple[dict, dict]:
             or provenance["request_id"] != binding["request_id"]
             or domain["geometry_refs"] != [record["id"] for record in result["domain_geometries"]]
             or any(result["provenance"][key] != binding[key] for key in ("source_revision", "frame_id", "request_id"))):
-        raise ValueError("S4 candidate/domain/request/source revision binding differs")
+        raise ValueError("candidate/domain/request/source revision binding differs")
     plane = AnalysisPlane.from_dict(manifest["analysis_plane"])
     if tuple(manifest["camera"]["origin"]) != plane.origin or tuple(map(tuple, manifest["camera"]["basis"])) != plane.basis:
         raise ValueError("confirmed camera and analysis plane differ")
@@ -112,7 +115,36 @@ def confirmed_s4(s4_dir: Path, source: dict) -> tuple[dict, dict]:
         audit = mesh["local_to_world_provenance"]
         if audit.get("source_revision") != binding["source_revision"] or audit.get("request_id") != binding["request_id"]:
             raise ValueError("confirmed domain mesh has another source/request")
+    candidates = [item for item in result["candidates"] if item["version_id"] == manifest["selected_candidate_version_id"]]
+    scope = shape(result["scope_polygon"])
+    if (len(candidates) != 1 or candidates[0]["id"] != result["selected_candidate_id"]
+            or candidates[0]["status"] != "confirmed" or candidates[0]["identity"] != binding["candidate_identity"]
+            or not shape(candidates[0]["outline"]).equals(scope)):
+        raise ValueError("confirmed candidate identity or exact scope differs")
+    # Reproject only the small confirmed support mesh, never the captured furniture.
+    from shapely.ops import unary_union
+    projected = unary_union([component_shape(plan_projection(mass_patch_from_mesh(
+        MeshGeometry3D.from_dict(mesh)), plane).components) for mesh in result["domain_geometries"]])
+    if projected.symmetric_difference(scope).area > 1e-8:
+        raise ValueError("confirmed support mesh differs from the selected scope")
     return manifest, result
+
+
+def confirmation_names(directory: Path) -> tuple[str, str]:
+    """Prefer generic corrected-domain artifacts while retaining the published S4 contract."""
+    return (("confirmed_domain_manifest.json", "confirmed_domain_result.json")
+            if (directory / "confirmed_domain_manifest.json").exists()
+            else ("s4_confirmed_manifest.json", "s4_confirm_result.json"))
+
+
+def confirmed_s4(s4_dir: Path, source: dict) -> tuple[dict, dict]:
+    """Validate the historical explicit S4 package through the generic binding guard."""
+    return confirmed_domain(s4_dir, source, expected_candidate="S4")
+
+
+def domain_candidate_id(domain: dict) -> str:
+    """Read a recorded candidate identity, including historical inferred provenance."""
+    return domain.get("selected_candidate_id") or domain["provenance"]["candidate_version_id"].split(":", 2)[1]
 
 
 def shift_components(components: object, offset: tuple) -> list:
@@ -124,10 +156,11 @@ def shift_components(components: object, offset: tuple) -> list:
 
 def build_input(s4_dir: Path, source: dict, spacing: float) -> tuple[GroupDistanceInput, dict]:
     """Resolve one capture scene and one planar view for every distance dependency."""
-    manifest, confirmed = confirmed_s4(s4_dir, source)
+    manifest, confirmed = confirmed_domain(s4_dir, source)
     plane = AnalysisPlane.from_dict(manifest["analysis_plane"])
     print("Loading retained canonical capture", flush=True)
-    retained = read_json(s4_dir / "canonical_capture.json")
+    capture_path = Path(manifest.get("retained_capture_path", s4_dir / "canonical_capture.json"))
+    retained = read_json(capture_path)
     if retained["analysis_plane"] != manifest["analysis_plane"] or retained["source_fingerprint"] != manifest["source"]:
         raise ValueError("retained capture wrapper has another camera plane or IFC source")
     capture = CanonicalCaptureInput(**retained["capture"])
@@ -137,7 +170,7 @@ def build_input(s4_dir: Path, source: dict, spacing: float) -> tuple[GroupDistan
     live = load_bonsai_capture(capture, plane=plane)
     binding = confirmed["confirmation_binding"]
     if digest(structural_source_facts(live.structural_scene)) != binding["source_revision"]:
-        raise ValueError("capture structural source revision differs from confirmed S4")
+        raise ValueError("capture structural source revision differs from the confirmed domain")
     scene = replace(live.scene, analysis_domain=AnalysisDomain.from_dict(confirmed["analysis_domain"]),
                     geometries=live.scene.geometries + tuple(MeshGeometry3D.from_dict(row) for row in confirmed["domain_geometries"]))
     print("Projecting the confirmed scene once", flush=True)
@@ -150,7 +183,7 @@ def build_input(s4_dir: Path, source: dict, spacing: float) -> tuple[GroupDistan
     original = shape(confirmed["scope_polygon"])
     from shapely.affinity import translate
     if not geometry.equals_exact(translate(original, *offset), 1e-8) and geometry.symmetric_difference(translate(original, *offset)).area > 1e-8:
-        raise ValueError("same-view domain geometry differs from the confirmed S4 scope")
+        raise ValueError("same-view domain geometry differs from the confirmed scope")
     inventory = _build_authored_group_inventory(scene)
     sources = {item.id: item for item in scene.source_objects}
     groups, projection_audit = [], []
@@ -171,11 +204,12 @@ def build_input(s4_dir: Path, source: dict, spacing: float) -> tuple[GroupDistan
     occupancy = tuple({key: record[key] for key in occupancy_keys if key in record} for record in view["physical_occupancy"])
     frame = binding["frame_id"]
     domain = {"id": scene.analysis_domain.id, "frame": frame, "components": components,
-              "confirmation_binding": binding, "provenance": plain(scene.analysis_domain.provenance)}
+              "confirmation_binding": binding, "provenance": plain(scene.analysis_domain.provenance),
+              "selected_candidate_id": manifest["selected_candidate_id"]}
     x0, y0, x1, y1 = geometry.bounds
     origin = (math.floor(x0 / spacing) * spacing, math.floor(y0 / spacing) * spacing)
     query = FieldQuery(domain_id=domain["id"], frame=frame, revision=binding["source_revision"])
-    grid = GridDescriptor("s4-distance:" + digest({"domain": domain["id"], "spacing": spacing})[:20], frame, origin,
+    grid = GridDescriptor("domain-distance:" + digest({"domain": domain["id"], "spacing": spacing})[:20], frame, origin,
                           spacing, math.ceil((y1 - origin[1]) / spacing), math.ceil((x1 - origin[0]) / spacing))
     bundle = GroupDistanceInput(source, {**plane.to_dict(), "frame_id": frame, "units": "m"}, domain, grid, tuple(groups),
         occupancy, tuple(meta["physical_occupancy_unresolved_source_ids"]), {}, query,
@@ -184,13 +218,13 @@ def build_input(s4_dir: Path, source: dict, spacing: float) -> tuple[GroupDistan
     bundle = replace(bundle, query_context={**dict(bundle.query_context), "analysis_plane_fingerprint": fingerprints["analysis_plane"]})
     bundle = replace(bundle, grid=replace(grid, domain_fingerprint=fingerprints["domain"], occupancy_fingerprint=fingerprints["occupancy"]))
     bundle = replace(bundle, dependency_fingerprints=group_distance_input_fingerprints(bundle))
-    audit = {"capture_sha256": file_hash(s4_dir / "canonical_capture.json"), "single_analysis_scene_view": True,
+    audit = {"capture_sha256": file_hash(capture_path), "single_analysis_scene_view": True,
              "capture_records": len(capture.records), "source_objects": len(scene.source_objects),
              "physical_occupancy_records": len(occupancy), "unresolved_source_ids": list(bundle.unresolved_source_ids),
              "group_inventory": plain(inventory), "group_projection_completeness": projection_audit, "domain_area_m2": geometry.area,
              "domain_bounds_in_view_m": geometry.bounds, "origin_offset": offset,
              "spacing_provenance": "explicit --spacing-m; diagnostic resolution, not body-width calibration",
-             "s4_input_hashes": {name: file_hash(s4_dir / name) for name in ("s4_confirmed_manifest.json", "s4_confirm_result.json")}}
+             "confirmation_input_hashes": {name: file_hash(s4_dir / name) for name in confirmation_names(s4_dir)}}
     del view, scene, live, capture
     gc.collect()
     return bundle, audit
@@ -272,8 +306,126 @@ def retained_input(path: Path) -> GroupDistanceInput:
     return bundle
 
 
-def run(source: Path, s4_dir: Path, spacing: float, output: Path, *, parsed_input: Path | None = None) -> dict:
-    """Retain one complete real-source run and an equivalent same-bundle replay."""
+def validate_retained_binding(bundle: GroupDistanceInput, audit: dict, directory: Path,
+                              source: dict, spacing: float) -> tuple[dict, dict]:
+    """Authenticate the saved source, confirmation and common translation before reuse."""
+    manifest, confirmed = confirmed_domain(directory, source)
+    binding = confirmed["confirmation_binding"]
+    capture_path = Path(manifest.get("retained_capture_path", directory / "canonical_capture.json"))
+    hashes = audit.get("confirmation_input_hashes", audit.get("s4_input_hashes", {}))
+    stored_plane = bundle.query_context.get("analysis_plane_fingerprint")
+    if (dict(bundle.source_identity) != source or bundle.grid.spacing != spacing
+            or _json_value(bundle.domain["confirmation_binding"]) != binding
+            or {key: _json_value(bundle.analysis_plane[key]) for key in manifest["analysis_plane"]} != manifest["analysis_plane"]
+            or bundle.analysis_plane.get("frame_id") != binding["frame_id"] or bundle.analysis_plane.get("units") != "m"
+            or any(frame != binding["frame_id"] for frame in (bundle.grid.frame, bundle.query.frame, bundle.domain["frame"], bundle.query_context["frame"]))
+            or bundle.domain["id"] != confirmed["analysis_domain"]["id"] or bundle.query.domain_id != bundle.domain["id"]
+            or bundle.query_context["domain_id"] != bundle.domain["id"] or bundle.query.revision != binding["source_revision"]
+            or any(_json_value(bundle.query_context.get(key)) != _json_value(value) for key, value in asdict(bundle.query).items())
+            or stored_plane is not None and stored_plane != group_distance_input_fingerprints(bundle)["analysis_plane"]
+            or list(bundle.origin_offset) != audit["origin_offset"]
+            or audit["capture_sha256"] != file_hash(capture_path)
+            or set(hashes) != set(confirmation_names(directory))
+            or any(hashes[name] != file_hash(directory / name) for name in hashes)):
+        raise ValueError("retained parsed handoff does not match its pinned source/domain/spacing")
+    from shapely.affinity import translate
+    original = shape(confirmed["scope_polygon"])
+    expected_offset = (-original.bounds[0], -original.bounds[1])
+    if (tuple(bundle.origin_offset) != expected_offset
+            or component_shape(bundle.domain["components"]).symmetric_difference(translate(original, *expected_offset)).area > 1e-8):
+        raise ValueError("retained domain translation differs from the confirmed analysis-view offset")
+    return manifest, confirmed
+
+
+def rebind_retained_input(bundle: GroupDistanceInput, audit: dict, *, old_directory: Path,
+                          new_directory: Path, source: dict, spacing: float) -> tuple[GroupDistanceInput, dict]:
+    """Rebase authenticated cached projections onto a fresh exact wall-domain confirmation."""
+    old_manifest, old_result = validate_retained_binding(bundle, audit, old_directory, source, spacing)
+    manifest, confirmed = confirmed_domain(new_directory, source)
+    binding = confirmed["confirmation_binding"]
+    # A common translation is valid only for unchanged factual capture and camera projection.
+    if (manifest["analysis_plane"] != old_manifest["analysis_plane"]
+            or binding["source_revision"] != old_result["confirmation_binding"]["source_revision"]
+            or manifest["capture_sha256"] != audit["capture_sha256"] or bundle.unresolved_supports
+            or any(item["analysis_domain"]["source_id"] is not None for item in (old_result, confirmed))):
+        raise ValueError("cached rebind requires identical source/camera and explicitly translatable supports")
+    polygon = shape(confirmed["scope_polygon"])
+    offset = (-polygon.bounds[0], -polygon.bounds[1])
+    delta = tuple(new - old for new, old in zip(offset, bundle.origin_offset, strict=True))
+    components = shift_components([{"exterior": list(polygon.exterior.coords),
+        "holes": [list(ring.coords) for ring in polygon.interiors]}], offset)
+    domain = {"id": confirmed["analysis_domain"]["id"], "frame": binding["frame_id"], "components": components,
+        "confirmation_binding": binding, "provenance": confirmed["analysis_domain"]["provenance"],
+        "selected_candidate_id": manifest["selected_candidate_id"]}
+    groups = tuple(replace(group, components=shift_components(group.components, delta)
+                           if group.components else None) for group in bundle.groups)
+    occupancy = tuple({**dict(record), "geometry_components": shift_components(record["geometry_components"], delta)}
+                      if record.get("geometry_components") else dict(record) for record in bundle.physical_occupancy)
+    # The new domain changes exact boundary membership independently of its coordinate translation.
+    source_rows = confirmed["b4_diagnostics"]["sources"]
+    source_identities = [(row["source"]["id"], row["source"]["source_id"]) for row in source_rows]
+    projected_ids = {row["source_ref"] for row in source_rows if row.get("extent", {}).get("polygon_components", 0)}
+    old_members, old_membership = _resolve_boundary_member_ids(
+        old_result["analysis_domain"]["provenance"].get("boundary_member_source_ids", ()), source_identities, projected_ids)
+    new_members, new_membership = _resolve_boundary_member_ids(
+        confirmed["analysis_domain"]["provenance"].get("boundary_member_source_ids", ()), source_identities, projected_ids)
+    if any(item["status"] != "resolved" for item in old_membership + new_membership):
+        raise ValueError("cached rebind requires exact currently projected boundary membership")
+    if old_members - new_members:
+        raise ValueError("cached rebind would require restoring formerly scoped boundary geometry")
+    added_members = new_members - old_members
+    removed = [record for record in occupancy if added_members.intersection(record.get("represented_source_ids", ()))]
+    removed_owners = {owner for record in removed for owner in record.get("represented_source_ids", ())}
+    if (removed_owners != added_members
+            or any(not set(record.get("represented_source_ids", ())).issubset(added_members) for record in removed)
+            or any(old_members.intersection(record.get("represented_source_ids", ())) for record in occupancy)):
+        raise ValueError("cached boundary scope delta contains mixed, missing or historically scoped owners")
+    occupancy = tuple(record for record in occupancy if not added_members.intersection(record.get("represented_source_ids", ())))
+    plane = {**dict(bundle.analysis_plane), "frame_id": binding["frame_id"]}
+    query = replace(bundle.query, domain_id=domain["id"], frame=binding["frame_id"], revision=binding["source_revision"])
+    geometry = component_shape(components)
+    x0, y0, x1, y1 = geometry.bounds
+    origin = (math.floor(x0 / spacing) * spacing, math.floor(y0 / spacing) * spacing)
+    grid = GridDescriptor("domain-distance:" + digest({"domain": domain["id"], "spacing": spacing})[:20],
+        binding["frame_id"], origin, spacing, math.ceil((y1 - origin[1]) / spacing), math.ceil((x1 - origin[0]) / spacing))
+    rebound = replace(bundle, analysis_plane=plane, domain=domain, grid=grid, groups=groups,
+        physical_occupancy=occupancy, query=query, query_context={**dict(bundle.query_context), **asdict(query)},
+        origin_offset=offset, dependency_fingerprints={})
+    fingerprints = group_distance_input_fingerprints(rebound)
+    rebound = replace(rebound, query_context={**dict(rebound.query_context), "analysis_plane_fingerprint": fingerprints["analysis_plane"]},
+        grid=replace(grid, domain_fingerprint=fingerprints["domain"], occupancy_fingerprint=fingerprints["occupancy"]))
+    rebound = replace(rebound, dependency_fingerprints=group_distance_input_fingerprints(rebound))
+    inventory_before = [{key: _json_value(value) for key, value in record.items() if key != "geometry_components"}
+                        for record in bundle.physical_occupancy]
+    inventory_after = [{key: _json_value(value) for key, value in record.items() if key != "geometry_components"}
+                       for record in rebound.physical_occupancy]
+    expected_inventory = [record for record in inventory_before if not added_members.intersection(record.get("represented_source_ids", ()))]
+    if expected_inventory != inventory_after:
+        raise ValueError("rebase changed physical occupancy beyond the exact current boundary scope")
+    audit = {**audit, "origin_offset": offset, "domain_area_m2": geometry.area, "domain_bounds_in_view_m": geometry.bounds,
+        "physical_occupancy_records": len(rebound.physical_occupancy),
+        "confirmation_input_hashes": {name: file_hash(new_directory / name) for name in confirmation_names(new_directory)},
+        "cache_rebind": {"old_confirmed_directory": str(old_directory.resolve()), "new_confirmed_directory": str(new_directory.resolve()),
+            "old_physical_occupancy_records": len(bundle.physical_occupancy),
+            "new_physical_occupancy_records": len(rebound.physical_occupancy),
+            "old_binding": old_result["confirmation_binding"], "new_binding": binding, "delta_translation_m": delta,
+            "old_physical_occupancy_inventory_sha256": digest(inventory_before),
+            "physical_occupancy_inventory_sha256": digest(inventory_after),
+            "retained_nonboundary_inventory_unchanged": True,
+            "boundary_scope_reconciliation": {"policy": "neutral_scene_views._resolve_boundary_member_ids; exact declared selected-domain membership",
+                "old_members": sorted(old_members), "new_members": sorted(new_members), "restored_source_ids": [],
+                "newly_scoped_out_source_ids": sorted(added_members),
+                "removed_records": [{"id": record["id"], "represented_source_ids": _json_value(record["represented_source_ids"]),
+                    "reason": "selected_analysis_domain_member"} for record in removed],
+                "old_resolver_diagnostics": old_membership, "new_resolver_diagnostics": new_membership},
+            "old_saved_claims_validated_before_rebind": True, "capture_reparsed": False, "geometry_reprojected": False}}
+    audit.pop("s4_input_hashes", None)
+    return rebound, audit
+
+
+def run(source: Path, s4_dir: Path, spacing: float, output: Path, *, parsed_input: Path | None = None,
+        previous_domain_dir: Path | None = None, replay: bool = True) -> dict:
+    """Retain a complete real-source run, optionally replaying the immutable bundle."""
     if not math.isfinite(spacing) or spacing <= 0:
         raise ValueError("--spacing-m must be positive and finite")
     output.mkdir(parents=True, exist_ok=False)
@@ -283,25 +435,12 @@ def run(source: Path, s4_dir: Path, spacing: float, output: Path, *, parsed_inpu
         if parsed_input is None:
             bundle, audit = build_input(s4_dir, before, spacing)
         else:
-            manifest, confirmed = confirmed_s4(s4_dir, before)
             bundle, audit = retained_input(parsed_input), read_json(parsed_input.parent / "adapter_audit.json")
-            binding = confirmed["confirmation_binding"]
-            if (dict(bundle.source_identity) != before or bundle.grid.spacing != spacing
-                    or _json_value(bundle.domain["confirmation_binding"]) != confirmed["confirmation_binding"]
-                    or {key: _json_value(bundle.analysis_plane[key]) for key in manifest["analysis_plane"]} != manifest["analysis_plane"]
-                    or bundle.analysis_plane.get("frame_id") != binding["frame_id"] or bundle.analysis_plane.get("units") != "m"
-                    or any(frame != binding["frame_id"] for frame in (bundle.grid.frame, bundle.query.frame, bundle.domain["frame"], bundle.query_context["frame"]))
-                    or bundle.domain["id"] != confirmed["analysis_domain"]["id"] or bundle.query.domain_id != bundle.domain["id"]
-                    or bundle.query_context["domain_id"] != bundle.domain["id"] or bundle.query.revision != binding["source_revision"]
-                    or list(bundle.origin_offset) != audit["origin_offset"]
-                    or audit["capture_sha256"] != file_hash(s4_dir / "canonical_capture.json")
-                    or any(audit["s4_input_hashes"][name] != file_hash(s4_dir / name) for name in audit["s4_input_hashes"])):
-                raise ValueError("retained parsed handoff does not match the same pinned source/S4/spacing")
-            from shapely.affinity import translate
-            original = shape(confirmed["scope_polygon"])
-            expected_offset = (-original.bounds[0], -original.bounds[1])
-            if bundle.origin_offset != expected_offset or component_shape(bundle.domain["components"]).symmetric_difference(translate(original, *expected_offset)).area > 1e-8:
-                raise ValueError("retained domain translation differs from the one confirmed analysis-view offset")
+            if previous_domain_dir is not None:
+                bundle, audit = rebind_retained_input(bundle, audit, old_directory=previous_domain_dir,
+                    new_directory=s4_dir, source=before, spacing=spacing)
+            else:
+                validate_retained_binding(bundle, audit, s4_dir, before, spacing)
             # Only the implementation-era missing plane binding is upgraded after all saved claims match.
             plane_fingerprint = group_distance_input_fingerprints(bundle)["analysis_plane"]
             stored_binding = bundle.query_context.get("analysis_plane_fingerprint")
@@ -327,11 +466,13 @@ def run(source: Path, s4_dir: Path, spacing: float, output: Path, *, parsed_inpu
             raise ValueError("kernel rejected the complete adapter handoff: " + first["diagnostics"]["global_explanation"])
         coverage = validate_result(first, bundle)
         first_hash = normalized_hash(first)
-        print("Replaying the same immutable bundle for determinism", flush=True)
-        repeated = serialize_group_distance_result(calculate_group_pair_distances(bundle))
-        second_hash = normalized_hash(repeated)
-        if first_hash != second_hash:
-            raise ValueError("same-bundle replay normalized result differs")
+        second_hash = None
+        if replay:
+            print("Replaying the same immutable bundle for determinism", flush=True)
+            repeated = serialize_group_distance_result(calculate_group_pair_distances(bundle))
+            second_hash = normalized_hash(repeated)
+            if first_hash != second_hash:
+                raise ValueError("same-bundle replay normalized result differs")
         memory_after = process_memory()
         for item in first["pair_index"]:
             item["observation_locator"] = f"observations.json#/{item['observation_index']}"
@@ -340,14 +481,16 @@ def run(source: Path, s4_dir: Path, spacing: float, output: Path, *, parsed_inpu
         write_json(output / "pair_index.json", first["pair_index"])
         write_json(output / "run_manifest.json", {**first["manifest"], "adapter_audit": audit, "source_before": before,
             "source_after": source_identity(source), "kernel_diagnostics": first["diagnostics"],
-            "same_bundle_replay": {"normalized_sha256": first_hash, "repeated_normalized_sha256": second_hash, "equal": True,
-                                   "scope": "same immutable parsed input; runtime/allocation diagnostics excluded"},
-            "resources": {"runner_runtime_s_through_second_kernel": time.perf_counter() - started,
+            "same_bundle_replay": {"normalized_sha256": first_hash, "repeated_normalized_sha256": second_hash,
+                                   "performed": replay, "equal": first_hash == second_hash if replay else None,
+                                   "scope": "same immutable parsed input; runtime/allocation diagnostics excluded" if replay else "explicitly skipped for corrected domain; prior unchanged-kernel replay retained"},
+            "selected_candidate_id": domain_candidate_id(bundle.domain),
+            "resources": {"runner_runtime_s": time.perf_counter() - started,
                           "before_kernel": memory_before, "after_second_kernel": memory_after,
-                          "kernel_memory_scope": "kernel tracemalloc only; current process includes both kernels",
+                          "kernel_memory_scope": "kernel tracemalloc only; process records include performed kernel runs",
                           "adapter_memory_scope": "same current process" if parsed_input is None else "retained prior process resource record in adapter_audit",
                           "parsed_input_reused": parsed_input is not None}})
-        coverage.update(same_bundle_replay_equal=True, normalized_result_sha256=first_hash,
+        coverage.update(same_bundle_replay_equal=first_hash == second_hash if replay else None, normalized_result_sha256=first_hash,
                         source_unchanged=True, output_hashes={name: file_hash(output / name) for name in
                             ("observations.json", "pair_index.json", "run_manifest.json", "scene_geometry.json", "input_bundle.json", "adapter_audit.json")})
         write_json(output / "coverage_report.json", coverage)
@@ -359,14 +502,18 @@ def run(source: Path, s4_dir: Path, spacing: float, output: Path, *, parsed_inpu
 
 
 def main() -> None:
-    """Require explicit source, confirmed S4, resolution and fresh output directory."""
+    """Require explicit source, confirmed domain, resolution and fresh output directory."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-ifc", type=Path, required=True)
-    parser.add_argument("--s4-dir", type=Path, required=True)
+    parser.add_argument("--domain-dir", "--s4-dir", dest="domain_dir", type=Path, required=True)
+    parser.add_argument("--parsed-input", type=Path)
+    parser.add_argument("--previous-domain-dir", type=Path)
+    parser.add_argument("--skip-replay", action="store_true")
     parser.add_argument("--spacing-m", type=float, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
-    print(json.dumps(run(args.source_ifc, args.s4_dir, args.spacing_m, args.output_dir), indent=2))
+    print(json.dumps(run(args.source_ifc, args.domain_dir, args.spacing_m, args.output_dir,
+        parsed_input=args.parsed_input, previous_domain_dir=args.previous_domain_dir, replay=not args.skip_replay), indent=2))
 
 
 if __name__ == "__main__":
