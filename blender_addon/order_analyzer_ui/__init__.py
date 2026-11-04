@@ -25,6 +25,7 @@ _REGISTERED_CLASSES: tuple[type, ...] = ()
 _TIMER = None
 _HANDLERS: list[tuple[object, object]] = []
 _RUNTIME_MODULE = None
+_BOARD_RESULT_ENUM_ITEMS: list[tuple[str, str, str]] = []
 
 
 def _bpy():
@@ -778,16 +779,50 @@ def _request_binding_payload(domain):
             "legacy_bindings": domain.get("legacy_bindings", ())}
 
 
-def _overlay_updates_only(runtime, depsgraph):
-    """Recognize only depsgraph updates for the current tagged overlay object or mesh."""
+def _board_result_items(scene, _context):
+    """Expose only exact result ids registered on the selected saved board."""
+    from . import board
+    _BOARD_RESULT_ENUM_ITEMS.clear()
     try:
-        overlay_object = runtime.STATE.overlay_object
+        selected = next((item for item in board.scene_boards(bpy_module=_bpy())
+                         if item.get("om_analysis_board_id") == getattr(scene, "om_analysis_board_id", "")), None)
+        if selected is not None:
+            for entry in board.board_record(selected)["results"]:
+                result_id = entry["ref"]["result_id"]
+                _BOARD_RESULT_ENUM_ITEMS.append((result_id, result_id[:16], entry["path"]))
+    except (ValueError, TypeError, RuntimeError, OSError):
+        pass
+    return _BOARD_RESULT_ENUM_ITEMS
+
+
+def _observe_scale_and_restore(runtime, bpy):
+    """Invalidate consent and refresh historical display after a missed scale change."""
+    observe_scale = getattr(runtime, "observe_native_scale", None)
+    if not callable(observe_scale) or not observe_scale(bpy_module=bpy):
+        return False
+    invalidate_domain = getattr(runtime, "invalidate_domain_session", None)
+    if callable(invalidate_domain):
+        invalidate_domain("scene scale changed")
+    try:
+        _restore_boards_if_scene(bpy)
+    except (ValueError, TypeError, OSError) as error:
+        scene = getattr(getattr(bpy, "context", None), "scene", None)
+        if scene is not None:
+            scene.om_analysis_board_message = str(error)[:240]
+    return True
+
+
+def _overlay_updates_only(runtime, depsgraph):
+    """Recognize only depsgraph updates for owned overlay/board presentation data."""
+    state = runtime.STATE
+    try:
+        overlay_object = state.overlay_object or state.board_object
     except ReferenceError:
         overlay_object = None
-    result = runtime.STATE.current_result
     updates = tuple(getattr(depsgraph, "updates", ()))
-    if overlay_object is None or result is None or not updates:
+    if not updates:
         return False
+    result = getattr(state, "current_result", None)
     document = getattr(result, "document", {})
     result_id = document.get("result_id") if isinstance(document, Mapping) else None
     try:
@@ -797,24 +832,25 @@ def _overlay_updates_only(runtime, depsgraph):
     except ReferenceError:
         object_name = mesh_name = None
     overlay_seen = False
+    board_roles = {"board", "board_source", "board_display", "board_mesh", "board_material", "board_nodes"}
     for update in updates:
         item = getattr(update, "id", None)
         try:
             name = getattr(item, "name", None)
             get = getattr(item, "get", None)
-            owned = callable(get) and get("om_analysis_owner") == "order_analyzer" \
-                and get("om_analysis_role") == "overlay" \
+            owned = callable(get) and get("om_analysis_owner") == "order_analyzer"
+            role = get("om_analysis_role") if owned else None
+            owned_board = owned and role in board_roles
+            owned_overlay = owned and role == "overlay" and result_id is not None \
                 and get("om_analysis_result_id") == result_id
         except ReferenceError:
             return False
-        if owned or name in {object_name, mesh_name}:
+        if owned_board or owned_overlay or (overlay_object is not None and name in {object_name, mesh_name}):
             overlay_seen = True
-        elif name != mesh_name:
+        else:
             identifier = getattr(getattr(item, "bl_rna", None), "identifier", type(item).__name__)
             if identifier not in {"Scene", "Collection"}:
                 return False
-        else:
-            overlay_seen = True
     return overlay_seen
 
 
@@ -1069,11 +1105,76 @@ def _draw_free_space(layout, scene, runtime):
 
 def _draw_results(layout, scene, runtime):
     """Render terminal diagnostics and read-only result actions."""
+    _draw_board_controls(layout, scene, runtime)
     if getattr(runtime.STATE, "current_result", None) is not None:
         layout.operator("om_analysis.inspect", icon="VIEWZOOM")
         if runtime.STATE.inspection is not None:
             layout.label(text=str(runtime.STATE.inspection))
         layout.operator("om_analysis.save_copy", icon="FILE_TICK")
+
+
+def _board_style_update(scene, context):
+    """Apply board presentation settings without invalidating analysis inputs."""
+    try:
+        from . import board
+        boards = board.scene_boards(bpy_module=_bpy())
+        selected = next((item for item in boards if item.get("om_analysis_board_id") == getattr(scene, "om_analysis_board_id", "")), None)
+        if selected is None:
+            return
+        board.update_style(selected, palette=scene.om_analysis_palette, reverse=scene.om_analysis_reverse,
+                           opacity=scene.om_analysis_opacity, range_mode=scene.om_analysis_range_mode,
+                           range_min=scene.om_analysis_range_min, range_max=scene.om_analysis_range_max,
+                           display_elevation_m=scene.om_analysis_display_elevation_m, bpy_module=_bpy())
+        scene.om_analysis_board_message = "Display updated; analysis state unchanged."
+    except (ValueError, TypeError, RuntimeError) as error:
+        scene.om_analysis_board_message = str(error)[:240]
+
+
+def _draw_board_controls(layout, scene, runtime):
+    """Draw saved board/result and categorical display controls in Analysis Results."""
+    try:
+        from . import board, palettes
+        boards = board.scene_boards(bpy_module=_bpy())
+    except (ValueError, RuntimeError, ImportError):
+        boards = ()
+        palettes = None
+    if not boards:
+        message = getattr(scene, "om_analysis_board_message", "")
+        if message:
+            layout.label(text=message, icon="INFO")
+        return
+    layout.label(text="Saved analysis board")
+    layout.prop(scene, "om_analysis_board_id", text="Board")
+    selected = next((item for item in boards if item.get("om_analysis_board_id") == scene.om_analysis_board_id), boards[0])
+    if scene.om_analysis_board_id != selected.get("om_analysis_board_id"):
+        scene.om_analysis_board_id = selected.get("om_analysis_board_id", "")
+    try:
+        record = board.board_record(selected)
+    except ValueError as error:
+        layout.label(text=str(error), icon="ERROR")
+        return
+    layout.prop(scene, "om_analysis_result_id", text="Attached result")
+    if getattr(scene, "om_analysis_result_id", ""):
+        layout.operator("om_analysis.board_select_result", text="Show saved result")
+    for name, label in (("om_analysis_palette", "Palette"), ("om_analysis_reverse", "Reverse"),
+                        ("om_analysis_opacity", "Opacity"),
+                        ("om_analysis_display_elevation_m", "Height above slab (m)")):
+        layout.prop(scene, name, text=label)
+    layout.label(text="Numeric range is unavailable for Boolean free-space results", icon="INFO")
+    layout.label(text=f"Status: {record['status']}")
+    if record.get("message"):
+        layout.label(text=record["message"][:240], icon="INFO")
+    if palettes is not None:
+        layout.label(text="Legend: " + " · ".join(label for _name, label in palettes.LEGEND))
+
+
+def _restore_boards_if_scene(bpy):
+    """Restore persistent boards only when Blender exposes a complete scene context."""
+    scene = getattr(getattr(bpy, "context", None), "scene", None)
+    if scene is None or not hasattr(scene, "objects"):
+        return ()
+    from . import board
+    return board.restore_boards(bpy_module=bpy)
 
 
 def _draw_regions(layout, scene, runtime, context=None):
@@ -1872,6 +1973,29 @@ def _operator_classes(bpy):
                 return {"CANCELLED"}
             return {"FINISHED"}
 
+    class BoardSelectResult(bpy.types.Operator):
+        """Select one explicitly saved board result through a historical read."""
+        bl_idname = "om_analysis.board_select_result"
+        bl_label = "Show saved result"
+
+        def execute(self, context):
+            """Switch only the board display and preserve runtime currentness."""
+            try:
+                from . import board
+                selected = next((item for item in board.scene_boards(bpy_module=bpy)
+                                 if item.get("om_analysis_board_id") == context.scene.om_analysis_board_id), None)
+                if selected is None:
+                    raise ValueError("select an analysis board first")
+                result_id = str(context.scene.om_analysis_result_id).strip()
+                if not result_id:
+                    raise ValueError("select an attached result first")
+                board.select_result(selected, result_id, bpy_module=bpy)
+                context.scene.om_analysis_board_message = "Historical board display selected; runtime currentness unchanged."
+            except Exception as exc:
+                self.report({"ERROR"}, str(exc)[:240])
+                return {"CANCELLED"}
+            return {"FINISHED"}
+
     class SaveCopy(bpy.types.Operator):
         """Save a validated result into a new native blend copy."""
         bl_idname = "om_analysis.save_copy"
@@ -1900,7 +2024,7 @@ def _operator_classes(bpy):
             return {"FINISHED"}
 
     return (Refresh, AnalyzeSpaces, AnalyzeSelectedWalls, Select, CandidateEye, Confirm, UseSelectedIfcSpace, CreateSpace, CreateSpaceFromCandidate, SelectDatumSlab, SelectStorey, SelectSupport, SetupPlane, AdoptCamera, RefreshCamera, CaptureRegion, RegionSelect,
-            RegionRecheck, RegionRemove, Start, ReassignPlane, Cancel, Inspect, SaveCopy)
+            RegionRecheck, RegionRemove, Start, ReassignPlane, Cancel, Inspect, BoardSelectResult, SaveCopy)
 
 
 def _preferences_class(bpy):
@@ -1967,10 +2091,22 @@ def register() -> None:
     bpy.types.Scene.om_analysis_inspect_row = bpy.props.IntProperty(default=0, min=0)
     bpy.types.Scene.om_analysis_inspect_column = bpy.props.IntProperty(default=0, min=0)
     bpy.types.Scene.om_analysis_inspection = bpy.props.StringProperty(default="")
+    bpy.types.Scene.om_analysis_board_id = bpy.props.StringProperty(default="")
+    bpy.types.Scene.om_analysis_result_id = bpy.props.EnumProperty(items=_board_result_items)
+    bpy.types.Scene.om_analysis_palette = bpy.props.EnumProperty(items=[("cividis", "Cividis", ""), ("viridis", "Viridis", ""), ("magma", "Magma", "")], default="cividis", update=_board_style_update)
+    bpy.types.Scene.om_analysis_reverse = bpy.props.BoolProperty(default=False, update=_board_style_update)
+    bpy.types.Scene.om_analysis_opacity = bpy.props.FloatProperty(default=.5, min=0., max=1., update=_board_style_update)
+    bpy.types.Scene.om_analysis_range_mode = bpy.props.EnumProperty(items=[("auto", "Automatic", ""), ("manual", "Manual", "")], default="auto", update=_board_style_update)
+    bpy.types.Scene.om_analysis_range_min = bpy.props.FloatProperty(default=0., update=_board_style_update)
+    bpy.types.Scene.om_analysis_range_max = bpy.props.FloatProperty(default=1., update=_board_style_update)
+    bpy.types.Scene.om_analysis_display_elevation_m = bpy.props.FloatProperty(default=.02, min=0., update=_board_style_update)
+    bpy.types.Scene.om_analysis_board_message = bpy.props.StringProperty(default="")
     def timer():
         """Pump one bounded runtime callback."""
         try:
-            _runtime().poll_job()
+            runtime = _runtime()
+            _observe_scale_and_restore(runtime, bpy)
+            runtime.poll_job()
             screen = getattr(getattr(bpy, "context", None), "screen", None)
             for area in getattr(screen, "areas", ()):
                 if callable(getattr(area, "tag_redraw", None)):
@@ -1994,6 +2130,7 @@ def register() -> None:
             bpy.context.scene.om_analysis_plane_reviewed = False
             _clear_space_selection(bpy.context.scene, clear_storey=True)
             _restore_region_overlay(runtime, bpy)
+            _restore_boards_if_scene(bpy)
         except ValueError:
             pass
 
@@ -2045,6 +2182,9 @@ def register() -> None:
         _HANDLERS.append((collection, handler))
     try:
         _restore_region_overlay(_runtime(), bpy)
+        runtime = _runtime()
+        if not _observe_scale_and_restore(runtime, bpy):
+            _restore_boards_if_scene(bpy)
     except ValueError:
         # Preferences may be configured after addon registration.
         pass
@@ -2084,7 +2224,9 @@ def unregister() -> None:
                  "om_analysis_datum_mode", "om_analysis_datum_slab_ref", "om_analysis_b4_cut_offset",
                  "om_analysis_height_mode", "om_analysis_manual_height", "om_analysis_height_unit",
                  "om_analysis_active_region_id", "om_analysis_inspect_row",
-                 "om_analysis_inspect_column", "om_analysis_inspection"):
+                 "om_analysis_inspect_column", "om_analysis_inspection", "om_analysis_board_id", "om_analysis_result_id",
+                 "om_analysis_palette", "om_analysis_reverse", "om_analysis_opacity", "om_analysis_range_mode",
+                 "om_analysis_range_min", "om_analysis_range_max", "om_analysis_display_elevation_m", "om_analysis_board_message"):
         if hasattr(bpy.types.Scene, name):
             delattr(bpy.types.Scene, name)
     for cls in reversed(_REGISTERED_CLASSES):

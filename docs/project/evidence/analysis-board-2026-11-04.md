@@ -27,9 +27,47 @@ Use Superpowers writing-plans/subagent-driven-development/requesting-code-review
 
 - [x] Initial remote checkpoint.
 - [x] Task 1 board data/style/native presentation; independently accepted after fix round 1.
-- [ ] Task 2 runtime/UI/capture integration; depends on Task 1.
-- [ ] Task 3 native acceptance/visual/save-reopen and whole-scope review; depends on Task 2.
-- Human visual review: pending future native evidence; no acceptance inferred.
+- [x] Task 2 runtime/UI/capture integration; independently rerun after bounded review fixes.
+- [x] Task 3 native acceptance/visual/save-reopen and whole-scope review; production fixes are covered by the focused suite and the portable Blender run below.
+- Human visual review: the required native views are generated and shown in this task; no visual approval is inferred from silence.
+
+## Task 2 independent review and bounded fixes
+
+The independent verifier reran the focused board/runtime/UI/capture suite in the
+existing workspace: **267 passed** before the review fixes. The review identified
+three bounded issues: restored board resources were not classified as display-only
+when runtime references had been cleared; addon re-registration discarded a missed
+scene-scale change; and Boolean free-space exposed inert numeric range controls.
+The accepted fixes add ownership-tag classification without broadly exempting
+source materials, route startup scale changes through the existing invalidation and
+historical restore path, expose only explicitly registered result IDs in the saved
+result selector, and explain that numeric range is unavailable for Boolean results.
+The expanded affected suite then passed **410 tests** with the OCTA source path
+configured from the adjacent project checkout. The three earlier session import
+errors were environment path failures, not product failures.
+
+## Native Blender acceptance
+
+The required portable executable was verified as Blender **5.2.0 LTS** at
+`D:/Blender/BlenderPortableLTS5.2/App/Blender64/blender.exe`. The actual stored
+S3 free-space result `fe3243c13b3f45daac8744efc46f3962` was attached in a
+disposable native scene. Assertions passed for one stable board Empty, one hidden
+result source, one visible display child sharing the source mesh, unchanged result
+digest, explicit slab datum, and the visible child at slab top plus the 0.02 m
+display lift while the calculation plane remains at 1.6 m. The saved file was
+reopened in a separate Blender process; the board ID, active result, historical
+status and hidden-source/visible-display roles were restored without currentness
+or consent recovery.
+
+Evidence generated under `outputs/design/analysis_board/native/`:
+
+- `analysis_board_s3.blend` — disposable native save/reopen fixture.
+- `analysis_board_s3.png` — actual S3 board plan/context view.
+- `analysis_board_palette_opacity.png` — cividis, viridis, magma and magma at
+  full opacity comparison.
+
+The fixture uses a neutral slab datum plane as visual context; it does not modify
+the original IFC. The authoritative result remains the external JSON sidecar.
 
 ## Task 1 candidate and first independent review
 

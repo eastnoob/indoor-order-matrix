@@ -15,16 +15,27 @@ also requires the stored native scale. `palettes.py` provides sampled cividis,
 viridis and magma plus finite numeric display mapping; its source license is
 retained in `PALETTE_LICENSE.txt`. Shader colors convert sRGB at the native handoff;
 the addon imports no Matplotlib. Overlay retains its API with finite lift and SI
-unit conversion corrected. Independent acceptance passed 39 checks; a separate
-malformed-sidecar probe passes after fix round 1. Runtime/UI integration and real
-Blender acceptance are still pending. Their bounded seams are addon overlay/board,
-runtime publication, existing Analysis Results panel/load/update handlers,
-central capture ownership and the strict external ResultRef reader. Keep
-calculation plane, source/cache truth and historical display state separate.
-Board placement must account for world SI fragments, existing display lift and
-scene scale. New owned materials/nodes require narrow display-only handling;
-ordinary source materials remain factual updates. A frame-conversion audit of
-display fragment clipping precedes native acceptance.
+unit conversion corrected. Task 2 connects runtime publication to
+`board.attach_result`, historical load and explicit saved-result selection to
+`restore_boards`/`select_result`, and the existing Analysis Results panel to
+display-only style controls. Board/source, mesh, material and node ownership roles
+are excluded from physical capture; the depsgraph guard recognizes those roles
+while ordinary source-material edits remain factual updates. Runtime observes
+actual scene scale changes before the neutral Scene-update path, invalidates
+Domain currentness and restores board presentation historically at the new scale.
+Datum-free legacy results retain a hidden result-only display with an explicit
+unavailable-board message. `build_display_fragments` projects meshes through
+`geometry_views._project_to_plane` in the selected plane-local frame, clips there
+and transforms fragments back to world SI, preserving polygon holes and area.
+Focused integration acceptance passes 410 affected tests after independent review
+fixes. The restored-board depsgraph path recognizes owned presentation resources
+without runtime handles, addon re-registration handles missed scale changes, and
+the Boolean free-space panel no longer presents inert numeric range controls;
+saved-result selection is limited to explicit board entries. Portable Blender 5.2
+native acceptance has also passed for actual S3 attachment, hidden-source/shared
+mesh placement, palette/opacity changes, save/reopen restoration and historical
+status. Keep calculation plane, source/cache truth and historical display state
+separate; ordinary source materials remain factual updates.
 
 ## Free-space prerequisite workline — 2026-11-04 / independently verified
 

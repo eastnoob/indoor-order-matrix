@@ -29,6 +29,17 @@ def runtime():
     module.invalidate_runtime("test cleanup", new_session=True)
 
 
+def test_native_scale_observation_detects_unit_round_trip(runtime):
+    """Scale observation reports both unit changes and restoration without stale state."""
+    bpy = SimpleNamespace(context=SimpleNamespace(scene=SimpleNamespace(
+        unit_settings=SimpleNamespace(scale_length=1.0))))
+    assert runtime.observe_native_scale(bpy_module=bpy) is False
+    bpy.context.scene.unit_settings.scale_length = .001
+    assert runtime.observe_native_scale(bpy_module=bpy) is True
+    bpy.context.scene.unit_settings.scale_length = 1.0
+    assert runtime.observe_native_scale(bpy_module=bpy) is True
+
+
 def test_aba_during_capture_never_publishes_current(runtime):
     """Observed edit and reversal invalidate a frozen job permanently."""
     runtime.STATE.freshness = "current"

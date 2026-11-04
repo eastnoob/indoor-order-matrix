@@ -29,6 +29,8 @@ LOG_LIMIT = 1024 * 1024
 CANCEL_GRACE_SECONDS = 2.0
 RESOURCE_PATHS = ("pixi.toml", "pixi.lock", "adapters/blender_analysis_session.py",
     "blender_addon/order_analyzer_ui/runtime.py", "blender_addon/order_analyzer_ui/__init__.py",
+    "blender_addon/order_analyzer_ui/board.py", "blender_addon/order_analyzer_ui/palettes.py",
+    "blender_addon/order_analyzer_ui/overlay.py",
     "adapters/bonsai_analysis_plane.py", "adapters/bonsai_space_authoring.py", "adapters/ifc_bonsai.py",
     "adapters/blender_analysis_result_wire.py", "adapters/blender_analysis_capture.py", "adapters/bonsai_live.py",
     "features/analysis_requests.py", "features/field_core.py", "features/free_space_field.py",
@@ -92,10 +94,25 @@ class RuntimeState:
     observation_hooks_active: bool = False
     current_observation: object = None
     overlay_object: object = None
+    board_object: object = None
     inspection: object = None
+    native_scale: float | None = None
 
 
 STATE = RuntimeState()
+
+
+def observe_native_scale(*, bpy_module=None):
+    """Return whether the current scene scale changed since the last observation."""
+    _main_thread()
+    bpy_module = bpy_module or importlib.import_module("bpy")
+    scene = getattr(getattr(bpy_module, "context", None), "scene", None)
+    scale = getattr(getattr(scene, "unit_settings", None), "scale_length", None)
+    if isinstance(scale, bool) or not isinstance(scale, (int, float)) or not math.isfinite(scale) or scale <= 0:
+        raise ValueError("scene scale_length must be a finite positive number")
+    previous = STATE.native_scale
+    STATE.native_scale = float(scale)
+    return previous is not None and previous != STATE.native_scale
 
 
 def reassign_duplicate_plane_uuid(*, plane_uuid: str, new_uuid: str,
@@ -784,6 +801,30 @@ def _replace_native_overlay(candidate: wire.ValidatedAnalysisResult, *, bpy_modu
     return replacement
 
 
+def _replace_native_board(candidate: wire.ValidatedAnalysisResult, *, result_path, bpy_module=None):
+    """Attach a slab-bound result to its persistent board and return its hidden source."""
+    if candidate.document["kind"] != "free_space_run":
+        return None, None
+    from . import board
+    bpy_module = bpy_module or importlib.import_module("bpy")
+    attached = board.attach_result(candidate, result_path=result_path, bpy_module=bpy_module)
+    scene = getattr(getattr(bpy_module, "context", None), "scene", None)
+    if scene is not None:
+        for obj in tuple(getattr(scene, "objects", ())):
+            get = getattr(obj, "get", None)
+            if callable(get) and get("om_analysis_owner") == "order_analyzer" and get("om_analysis_role") == "overlay":
+                obj.hide_viewport = obj.hide_render = True
+    ref_json = wire.canonical_json(dict(kind=candidate.kind, result_id=candidate.result_id, digest=candidate.digest))
+    scale = board.overlay.native_unit_scale(bpy_module)
+    source = next((obj for obj in getattr(scene, "objects", ())
+                   if callable(getattr(obj, "get", None))
+                   and obj.get("om_analysis_owner") == "order_analyzer"
+                   and obj.get("om_analysis_role") == "board_source"
+                   and obj.get("om_analysis_result_ref") == ref_json
+                   and obj.get("om_analysis_native_scale") == scale), None) if scene is not None else None
+    return attached, source
+
+
 def _flush_native_view_layer(*, bpy_module=None):
     """Flush queued Blender view-layer updates before publishing currentness."""
     bpy_module = bpy_module or importlib.import_module("bpy")
@@ -817,7 +858,21 @@ def commit_publication(candidate: wire.ValidatedAnalysisResult, *, native_artifa
         "created_at", "runtime_session", "scene_file_token", "observation_epoch", "backend_versions"))
     if candidate.document["kind"] == "free_space_run":
         verified = verified and bool(binding.get("confirmation_binding"))
-    overlay_object = _replace_native_overlay(candidate)
+    overlay_object = None
+    board_object = None
+    if candidate.document["kind"] == "free_space_run":
+        try:
+            board_object, overlay_object = _replace_native_board(
+                candidate, result_path=job.directory / "result.json")
+        except ValueError as error:
+            if "explicit selected slab datum" not in str(error):
+                raise
+            overlay_object = _replace_native_overlay(candidate)
+            if overlay_object is not None:
+                overlay_object.hide_viewport = overlay_object.hide_render = True
+                scene = getattr(getattr(importlib.import_module("bpy"), "context", None), "scene", None)
+                if scene is not None and hasattr(scene, "__setitem__"):
+                    scene["om_analysis_board_message"] = "Board unavailable: result has no explicit selected slab datum."
     if candidate.document["kind"] == "free_space_run":
         _flush_native_view_layer()
     STATE.documents.append(candidate.document)
@@ -826,6 +881,7 @@ def commit_publication(candidate: wire.ValidatedAnalysisResult, *, native_artifa
         STATE.current_result = candidate
     if candidate.document["kind"] == "free_space_run":
         STATE.overlay_object = overlay_object
+        STATE.board_object = board_object
         STATE.inspection = None
     if candidate.document["kind"] == "domain_session":
         STATE.domain_session = candidate.document["payload"]

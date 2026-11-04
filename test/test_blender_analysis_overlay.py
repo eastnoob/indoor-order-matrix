@@ -130,3 +130,22 @@ def test_fragments_clip_exact_domain_and_holes():
             area += triangle.area
     assert area == pytest.approx(4.0 - hole.area)
 
+
+def test_fragments_project_local_lattice_back_to_translated_rotated_world_plane():
+    """Translated and XY-rotated planes keep local cell coverage and world placement."""
+    plane = SimpleNamespace(origin=(10.0, 20.0, 5.0),
+                            basis=((0.0, 1.0, 0.0), (-1.0, 0.0, 0.0), (0.0, 0.0, 1.0)))
+    local = [(0., 0.), (1., 0.), (1., 1.), (0., 1.)]
+    vertices = tuple((10.0 - y, 20.0 + x, 5.0) for x, y in local)
+    mesh = SimpleNamespace(vertices=vertices, triangle_indices=((0, 1, 2), (0, 2, 3)))
+    request = SimpleNamespace(sampling=SimpleNamespace(origin=(0.0, 0.0), spacing=.5, n_rows=2, n_cols=2),
+                             plane=plane)
+    fragments = build_display_fragments(SimpleNamespace(snapshot=SimpleNamespace(request=request)), (mesh,))
+    assert fragments
+    points = [point for fragment in fragments for point in fragment["vertices"]]
+    assert all(point[2] == pytest.approx(5.0) for point in points)
+    assert min(point[0] for point in points) == pytest.approx(9.0)
+    assert max(point[0] for point in points) == pytest.approx(10.0)
+    assert min(point[1] for point in points) == pytest.approx(20.0)
+    assert max(point[1] for point in points) == pytest.approx(21.0)
+

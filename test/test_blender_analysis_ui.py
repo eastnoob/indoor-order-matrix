@@ -782,8 +782,110 @@ def test_overlay_update_classification_uses_stable_native_markers(monkeypatch):
     assert addon._overlay_updates_only(runtime, depsgraph)
     depsgraph.updates = (SimpleNamespace(id=depsgraph.updates[-1].id),)
     assert not addon._overlay_updates_only(runtime, depsgraph)
-    depsgraph.updates = (SimpleNamespace(id=Wrapper("source-object")),)
+
+
+def test_board_material_update_is_display_only_without_current_result():
+    """Historical board style edits remain neutral even when runtime currentness is absent."""
+    class Wrapper:
+        """Expose only the native marker lookup needed by the classifier."""
+        def __init__(self, values=None):
+            self._values = values or {}
+            self.name = "board"
+        def get(self, key, default=None):
+            """Read an ownership marker."""
+            return self._values.get(key, default)
+    board_object = Wrapper({"om_analysis_owner": "order_analyzer", "om_analysis_role": "board"})
+    material = Wrapper({"om_analysis_owner": "order_analyzer", "om_analysis_role": "board_material"})
+    board_object.data = material
+    runtime = SimpleNamespace(STATE=SimpleNamespace(board_object=board_object, overlay_object=None, current_result=None))
+    depsgraph = SimpleNamespace(updates=(SimpleNamespace(id=material),))
+    assert addon._overlay_updates_only(runtime, depsgraph)
+    source = Wrapper()
+    source.name = "source-object"
+    depsgraph.updates = (SimpleNamespace(id=source),)
     assert not addon._overlay_updates_only(runtime, depsgraph)
+
+
+def test_restored_board_updates_are_display_only_without_runtime_handles():
+    """Persistently tagged board resources stay neutral after load clears runtime references."""
+    class Wrapper:
+        """Expose Blender-style ownership properties for an unloaded board."""
+        def __init__(self, role, board_id="board-1"):
+            self._values = {"om_analysis_owner": "order_analyzer", "om_analysis_role": role,
+                           "om_analysis_board_id": board_id}
+        def get(self, key, default=None):
+            """Read a saved native ownership marker."""
+            return self._values.get(key, default)
+    runtime = SimpleNamespace(STATE=SimpleNamespace(overlay_object=None, board_object=None, current_result=None))
+    for role in ("board", "board_source", "board_display", "board_mesh", "board_material", "board_nodes"):
+        depsgraph = SimpleNamespace(updates=(SimpleNamespace(id=Wrapper(role)),))
+        assert addon._overlay_updates_only(runtime, depsgraph)
+    source_material = Wrapper("source_material")
+    source_material._values = {}
+    assert not addon._overlay_updates_only(runtime, SimpleNamespace(updates=(SimpleNamespace(id=source_material),)))
+
+
+def test_board_result_items_are_limited_to_explicitly_registered_results(monkeypatch):
+    """The result selector lists only ids saved on the explicitly selected board."""
+    from blender_addon.order_analyzer_ui import board
+    class Board:
+        """Provide the native board identity expected by the dynamic enum callback."""
+        def get(self, key, default=None):
+            """Return only this board's stable id."""
+            return "board-1" if key == "om_analysis_board_id" else default
+    selected = Board()
+    monkeypatch.setattr(board, "scene_boards", lambda **kwargs: (selected,))
+    monkeypatch.setattr(addon, "_bpy", lambda: SimpleNamespace())
+    monkeypatch.setattr(board, "board_record", lambda item: {
+        "results": [{"ref": {"result_id": "result-a"}, "path": "a.json"},
+                    {"ref": {"result_id": "result-b"}, "path": "b.json"}]})
+    scene = SimpleNamespace(om_analysis_board_id="board-1")
+    assert [item[0] for item in addon._board_result_items(scene, None)] == ["result-a", "result-b"]
+
+
+def test_board_controls_hide_numeric_ranges_for_boolean_free_space(monkeypatch):
+    """Boolean occupancy exposes categorical style controls without inert numeric ranges."""
+    from blender_addon.order_analyzer_ui import board
+    class Board:
+        """Provide saved board identity for the panel helper."""
+        def get(self, key, default=None):
+            """Return this board's stable id."""
+            return "board-1" if key == "om_analysis_board_id" else default
+    selected = Board()
+    monkeypatch.setattr(board, "scene_boards", lambda **kwargs: (selected,))
+    monkeypatch.setattr(board, "board_record", lambda item: {"board_id": "board-1", "status": "historical", "message": ""})
+    monkeypatch.setattr(addon, "_bpy", lambda: SimpleNamespace())
+    class Layout:
+        """Collect controls emitted by the Analysis Results panel."""
+        def __init__(self):
+            self.properties = []
+        def label(self, **kwargs):
+            """Accept a displayed label."""
+        def prop(self, _scene, name, **kwargs):
+            """Collect one displayed scene property."""
+            self.properties.append(name)
+        def operator(self, *args, **kwargs):
+            """Accept an operator button."""
+    scene = SimpleNamespace(om_analysis_board_id="board-1", om_analysis_result_id="result-a",
+        om_analysis_palette="cividis", om_analysis_reverse=False, om_analysis_opacity=.5,
+        om_analysis_range_mode="auto", om_analysis_range_min=0., om_analysis_range_max=1.,
+        om_analysis_display_elevation_m=.02, om_analysis_board_message="")
+    layout = Layout()
+    addon._draw_board_controls(layout, scene, SimpleNamespace())
+    assert {"om_analysis_palette", "om_analysis_reverse", "om_analysis_opacity",
+            "om_analysis_display_elevation_m"} <= set(layout.properties)
+    assert not {"om_analysis_range_mode", "om_analysis_range_min", "om_analysis_range_max"} & set(layout.properties)
+
+
+def test_startup_scale_change_invalidates_and_restores_board(monkeypatch):
+    """Re-enabling the addon observes scale changes missed while it was disabled."""
+    calls = []
+    runtime = SimpleNamespace(observe_native_scale=lambda **kwargs: True,
+        invalidate_domain_session=lambda reason: calls.append(("invalidate", reason)))
+    bpy = SimpleNamespace(context=SimpleNamespace(scene=SimpleNamespace(om_analysis_board_message="")))
+    monkeypatch.setattr(addon, "_restore_boards_if_scene", lambda native: calls.append(("restore", native)))
+    assert addon._observe_scale_and_restore(runtime, bpy)
+    assert calls == [("invalidate", "scene scale changed"), ("restore", bpy)]
 
 
 def test_analysis_input_callback_invalidates_but_scene_metadata_does_not(monkeypatch):

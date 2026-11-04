@@ -128,7 +128,7 @@ def test_native_triangle_order_is_preserved_without_retessellation():
     assert result["triangles"] == [[2, 0, 1], [1, 0, 2]]
 
 
-@pytest.mark.parametrize("role", ["display_camera", "plane"])
+@pytest.mark.parametrize("role", ["display_camera", "plane", "board", "board_source", "board_display", "board_mesh", "board_material", "board_nodes"])
 def test_native_capture_skips_owned_display_geometry(monkeypatch, role):
     """Linked display cameras/previews cannot add occupancy or change source digests."""
     context, _, evaluated = runtime(monkeypatch)

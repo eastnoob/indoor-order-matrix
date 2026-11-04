@@ -165,7 +165,10 @@ def is_owned_display(tags):
     """Recognize explicit analyzer ownership, never names or an IFC annotation category."""
     return (tags.get("om_analysis_preview") is True or tags.get("OM_B4_Diagnostic") is True
             or tags.get("om_analysis_owner") == "order_analyzer"
-            and tags.get("om_analysis_role") in {"plane", "overlay", "display_camera"})
+            and tags.get("om_analysis_role") in {
+                "plane", "overlay", "display_camera", "board", "board_source", "board_display",
+                "board_mesh", "board_material", "board_nodes",
+            })
 
 
 @lru_cache(maxsize=None)

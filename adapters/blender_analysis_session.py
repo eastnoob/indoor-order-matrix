@@ -846,10 +846,15 @@ def build_display_fragments(run, domain_geometries):
     from shapely.ops import triangulate, unary_union
 
     request = run.snapshot.request
+    plane = request.plane
+    if plane is not None and not hasattr(plane, "basis"):
+        # Legacy fixtures carried only a world-Z origin; retain identity XY semantics.
+        plane = type("_LegacyPlane", (), {"origin": plane.origin,
+                                          "basis": ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))})()
     triangles = []
     for mesh in domain_geometries:
         for face in mesh.triangle_indices:
-            points = [mesh.vertices[index] for index in face]
+            points = [_project_to_plane(mesh.vertices[index], plane) for index in face]
             polygon = Polygon([(point[0], point[1]) for point in points])
             if polygon.is_valid and polygon.area > 0:
                 triangles.append(polygon)
@@ -876,8 +881,10 @@ def build_display_fragments(run, domain_geometries):
                         continue
                     coords = list(triangle.exterior.coords)[:3]
                     start = len(vertices)
-                    z = request.plane.origin[2]
-                    vertices.extend([[float(px), float(py), float(z)] for px, py in coords])
+                    origin = plane.origin
+                    first, second, _normal = plane.basis
+                    vertices.extend([[float(origin[index] + px * first[index] + py * second[index])
+                                      for index in range(3)] for px, py in coords])
                     faces.append([start, start + 1, start + 2])
                     area += triangle.area
             if vertices and abs(area - clipped.area) > 1e-8 * max(1.0, clipped.area):
