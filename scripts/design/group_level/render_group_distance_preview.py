@@ -73,7 +73,9 @@ def preview_observations(observations: list) -> list:
     fields = ("pair_id", "group_ids", "center_to_center_euclidean", "centroid_free_space_hybrid", "geometry_audit")
     route_fields = ("points", "source_centroid", "target_centroid", "source_access", "target_access", "cell_keys", "arithmetic")
     return [{**{key: observation[key] for key in fields},
-             "route": {key: observation["route"][key] for key in route_fields} if observation["route"] else None}
+             "route": ({**{key: observation["route"][key] for key in route_fields},
+                         **({"clearance": observation["route"]["clearance"]} if "clearance" in observation["route"] else {})}
+                        if observation["route"] else None)}
             for observation in observations]
 
 

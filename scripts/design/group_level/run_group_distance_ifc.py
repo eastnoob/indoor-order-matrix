@@ -243,6 +243,8 @@ def distance_topology(manifest: dict) -> int:
         return 4
     if identity == ("group-distance/2", "group-distance/v2") and manifest.get("edge_support_version") == "eight-neighbor-two-flank-occurrences/1":
         return 8
+    if identity == ("group-distance/3", "group-distance/v3") and manifest.get("edge_support_version") == "eight-neighbor-two-flank-occurrences-directional-clearance/1":
+        return 8
     raise ValueError("unsupported or inconsistent distance model identity")
 
 
@@ -250,6 +252,7 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
     """Check real selected paths, full pair coverage and numerical lineage in one pass."""
     observations, index, manifest = result["observations"], result["pair_index"], result["manifest"]
     topology = distance_topology(manifest)
+    constrained = manifest["algorithm_version"] == "group-distance/3"
     expected = manifest["expected_pair_ids"]
     expected_count = len(bundle.groups) * (len(bundle.groups) - 1) // 2
     observed = [row["pair_id"] for row in observations]
@@ -271,12 +274,15 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
             if sample != audit or point != sample["center"] or not eligible or not domain.covers(Point(point)):
                 raise ValueError("selected route includes an ineligible or outside cell")
         guard_occurrences, diagonal_count = [], 0
-        for a, b, edge in zip(cells[:-1], cells[1:], route["edges"], strict=True):
+        state_keys = route.get("state_keys", cells)
+        for a, b, edge, state_a, state_b in zip(cells[:-1], cells[1:], route["edges"], state_keys[:-1], state_keys[1:], strict=True):
             delta = tuple(abs(x - y) for x, y in zip(a, b))
             adjacent = sum(delta) == 1 if topology == 4 else max(delta) == 1
             if not adjacent or not domain.covers(LineString((samples[tuple(a)]["center"], samples[tuple(b)]["center"]))):
                 raise ValueError("selected edge violates model adjacency/domain coverage")
-            if edge["from"] != a or edge["to"] != b or edge["weight"] != math.dist(samples[tuple(a)]["center"], samples[tuple(b)]["center"]):
+            expected_from = state_a if constrained else a
+            expected_to = state_b if constrained else b
+            if edge["from"] != expected_from or edge["to"] != expected_to or edge["weight"] != math.dist(samples[tuple(a)]["center"], samples[tuple(b)]["center"]):
                 raise ValueError("selected edge endpoints or length differ from the recorded path")
             endpoint_refs = [samples[tuple(a)]["query_ref"], samples[tuple(b)]["query_ref"]]
             if (edge["domain_fingerprint"] != bundle.grid.domain_fingerprint or edge["domain_covered"] is not True
@@ -327,6 +333,22 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
                         or route[status + "_guard_occurrence_count"] != guard_count
                         or route[status + "_support_occurrence_count"] != path_count + guard_count):
                     raise ValueError("selected route support occurrence counts differ from its edge sequence")
+        if constrained:
+            clearance = route.get("clearance")
+            policy = manifest.get("clearance_policy", {})
+            if not isinstance(clearance, dict) or any(clearance.get(key) is None for key in ("min_left_m", "min_right_m", "min_total_m")):
+                raise ValueError("constrained route lacks clearance witness")
+            if (clearance["min_left_m"] < policy.get("min_left_m", 0)
+                    or clearance["min_right_m"] < policy.get("min_right_m", 0)
+                    or clearance["min_total_m"] < policy.get("min_total_m", 0)
+                    or not clearance.get("edge_witnesses")
+                    or any("physical_witness_refs" not in witness or "domain_witness_ref" not in witness
+                           or not witness.get("side_sample_cell_keys")
+                           or any(tuple(cell) not in samples for cell in witness["side_sample_cell_keys"])
+                           for witness in clearance["edge_witnesses"])
+                    or any("physical_witness_refs" not in witness or "domain_witness_ref" not in witness
+                           for witness in clearance.get("turn_witnesses", ()) )):
+                raise ValueError("constrained route clearance witness violates its policy or lineage")
         return len(cells), len(route["edges"]), diagonal_count, len(guard_occurrences)
     for item in index:
         observation = observations[item["observation_index"]]

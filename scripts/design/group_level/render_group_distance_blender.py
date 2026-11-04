@@ -68,12 +68,16 @@ def prepare_route(manifest, observation, document, requested_ref):
             or wire.plain(manifest["query_context"].get("geometry_query")) != wire.plain(request["geometry_query"])):
         raise ValueError("distance lattice or geometry query differs from the free-space result")
     model = manifest.get("algorithm_version"), manifest.get("schema_version")
-    if model not in {("group-distance/1", "group-distance/v1"), ("group-distance/2", "group-distance/v2")}:
+    if model not in {("group-distance/1", "group-distance/v1"), ("group-distance/2", "group-distance/v2"),
+                     ("group-distance/3", "group-distance/v3")}:
         raise ValueError("unsupported distance algorithm/schema identity")
     eight_neighbor = model[0] == "group-distance/2"
     support_version = "eight-neighbor-two-flank-occurrences/1"
-    if eight_neighbor and manifest.get("edge_support_version") != support_version:
+    if model[0] == "group-distance/3":
+        support_version = "eight-neighbor-two-flank-occurrences-directional-clearance/1"
+    if model[0] in {"group-distance/2", "group-distance/3"} and manifest.get("edge_support_version") != support_version:
         raise ValueError("unsupported eight-neighbor edge support identity")
+    eight_neighbor = model[0] in {"group-distance/2", "group-distance/3"}
     channel, route = observation["centroid_free_space_hybrid"], observation["route"]
     layer = dict(pair_id=observation["pair_id"], status=channel["status"], main=[], offsets=[])
     if route is None:
@@ -112,12 +116,21 @@ def prepare_route(manifest, observation, document, requested_ref):
         edges = route["edges"]
         if len(edges) != len(path_keys) - 1:
             raise ValueError("route edge coverage differs from its path cells")
+        state_keys = route.get("state_keys", path_keys)
         guard_keys = set()
-        for edge, first, second in zip(edges, path_keys, path_keys[1:]):
+        for edge_index, (edge, first, second) in enumerate(zip(edges, path_keys, path_keys[1:])):
             endpoints = sorted((first, second))
             guards = sorted(((first[0], second[1]), (second[0], first[1]))) if (
                 first[0] != second[0] and first[1] != second[1]) else []
-            if (tuple(edge["from"]) != first or tuple(edge["to"]) != second
+            expected_from = first
+            edge_from = tuple(edge["from"])
+            edge_to = tuple(edge["to"])
+            if model[0] == "group-distance/3":
+                expected_from = tuple(state_keys[edge_index])
+                expected_to = tuple(state_keys[edge_index + 1])
+            else:
+                expected_from, expected_to = first, second
+            if (edge_from != expected_from or edge_to != expected_to
                     or [tuple(key) for key in edge["edge_key"]] != endpoints
                     or edge["occupancy_query_refs"] != [query_ref(key) for key in endpoints]
                     or [tuple(key) for key in edge["guard_cell_keys"]] != guards

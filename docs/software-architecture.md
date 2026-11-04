@@ -767,6 +767,23 @@ still uses NetworkX 3.6.1 scalar labels, deterministic tight-predecessor recover
 and explicit binary64 component residual diagnostics.
 Distance-conditioned potential formulas remain undecided; this module does not add
 a potential-package channel or alter the accepted `.16` hierarchy.
+
+The 2026-11-04 continuation adds an opt-in directional-clearance route model in
+the same kernel. `clearance_policy=None` preserves the accepted v4
+`group-distance/2` behavior and historical readers. When enabled, the kernel
+uses `group-distance/3` / `group-distance/v3` with
+`eight-neighbor-two-flank-occurrences-directional-clearance/1`; states are
+`(cell,incoming_heading)`, access candidates retain direction, and every
+positive-length segment plus continuous heading turn is checked against the
+authenticated retained projected physical polygons and exact domain boundary.
+The policy is `L>=0.225 m`, `R>=0.225 m`, `L+R>=0.55 m` at the same route
+position. Cached lattice samples still own walkability and status support; they
+do not become a subcell route or an isotropic erosion. Endpoint centroid/proxy
+offsets remain metric-only. Constrained route witnesses carry side/turn sample
+refs, physical/domain limiting witnesses, and uncertainty statuses. The design,
+focused checklist, and pending same-S3 old/new visual gate are recorded in
+`superpowers/specs/2026-11-04-group-distance-clearance-design.md` and
+`superpowers/plans/2026-11-04-group-distance-clearance-implementation.md`.
 This confirmation does not change the .14/.15 order.
 
 The source-axis `g→k` support mapping is implemented and replay-validated against

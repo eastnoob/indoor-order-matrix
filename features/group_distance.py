@@ -21,6 +21,10 @@ from .free_space_field import FreeSpaceField
 ALGORITHM_VERSION = "group-distance/2"
 SCHEMA_VERSION = "group-distance/v2"
 EDGE_SUPPORT_VERSION = "eight-neighbor-two-flank-occurrences/1"
+CLEARANCE_ALGORITHM_VERSION = "group-distance/3"
+CLEARANCE_SCHEMA_VERSION = "group-distance/v3"
+CLEARANCE_EDGE_SUPPORT_VERSION = "eight-neighbor-two-flank-occurrences-directional-clearance/1"
+CLEARANCE_POLICY_VERSION = "directional-clearance/1"
 ARITHMETIC_VERSION = "networkx-binary64-left-add/1"
 _ROOT = "virtual-source"
 
@@ -79,6 +83,7 @@ class GroupDistanceInput(_FrozenRecord):
     origin_offset: tuple[float, float]
     dependency_fingerprints: Any
     free_space_samples: Any = None
+    clearance_policy: Any = None
 
 
 @dataclass(frozen=True)
@@ -147,11 +152,25 @@ def group_distance_input_fingerprints(bundle: GroupDistanceInput) -> dict[str, s
                  unresolved_supports=bundle.unresolved_supports,
                  occupancy_source_ids=sorted({owner for record in bundle.physical_occupancy or () for owner in record.get("represented_source_ids", ())}))
     query["index_convention"] = (bundle.grid.row_axis, bundle.grid.column_axis, bundle.grid.cell_rule)
+    if bundle.clearance_policy is not None:
+        query["clearance_policy"] = bundle.clearance_policy
     return {name: fingerprint_evidence_dependency(value) for name, value in {
         "source": bundle.source_identity, "analysis_plane": bundle.analysis_plane,
         "domain": bundle.domain, "occupancy": occupancy, "groups": groups,
         "query": query, "grid": bundle.grid,
     }.items()}
+
+
+def _clearance_thresholds(policy: Any) -> tuple[float, float, float] | None:
+    """Read the opt-in directional thresholds while leaving legacy input untouched."""
+    if policy is None:
+        return None
+    if not isinstance(policy, Mapping):
+        raise ValueError("clearance_policy must be a mapping or None")
+    values = tuple(policy.get(name) for name in ("min_left_m", "min_right_m", "min_total_m"))
+    if any(isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0 for value in values):
+        raise ValueError("clearance_policy thresholds must be finite nonnegative numbers")
+    return tuple(float(value) for value in values)
 
 
 def _pair_id(group_ids: tuple[str, str], source_identity: Any) -> str:
@@ -395,10 +414,11 @@ def _graphs(bundle: GroupDistanceInput, domain: Any) -> tuple:
                 optimistic.add_edge(cell, neighbor, **data)
             if cell in observed and neighbor in observed and all(guard in observed for guard in guards):
                 observed.add_edge(cell, neighbor, **data)
-    return samples, observed, optimistic, frontier
+    return samples, *_constrained_graphs(bundle, domain, samples, (observed, optimistic, frontier))
 
 
-def _accesses(group: GroupProjection, geometry: dict, domain: Any, grid: GridDescriptor, samples: dict, frontier: nx.Graph) -> dict:
+def _accesses(group: GroupProjection, geometry: dict, domain: Any, grid: GridDescriptor, samples: dict, frontier: nx.Graph,
+              constrained: bool = False) -> dict:
     """Keep every footprint/interface candidate and audit duplicate free-cell reduction."""
     clipped = geometry["shape"].intersection(domain)
     if clipped.area <= 0:
@@ -415,24 +435,245 @@ def _accesses(group: GroupProjection, geometry: dict, domain: Any, grid: GridDes
             endpoints = tuple(sorted(tuple(point) for point in shared.coords))
             midpoint = tuple(shared.interpolate(0.5, normalized=True).coords[0])
             free_center = _center(neighbor, grid)
-            candidates.append({"access_key": (group.group_id, cell, neighbor, endpoints), "group_id": group.group_id, "footprint_cell": cell,
-                               "free_cell": neighbor, "shared_edge": endpoints, "proxy_point": midpoint,
-                               "cell_center": free_center, "offset": math.dist(centroid, midpoint) + math.dist(midpoint, free_center),
-                               "query_ref": samples[neighbor]["query_ref"], "status": samples[neighbor]["status"]})
+            candidate = {"access_key": (group.group_id, cell, neighbor, endpoints), "group_id": group.group_id,
+                         "footprint_cell": cell, "free_cell": neighbor, "shared_edge": endpoints,
+                         "proxy_point": midpoint, "cell_center": free_center,
+                         "offset": math.dist(centroid, midpoint) + math.dist(midpoint, free_center),
+                         "query_ref": samples[neighbor]["query_ref"], "status": samples[neighbor]["status"]}
+            if constrained:
+                candidate.update(heading=_heading(_center(cell, grid), free_center),
+                                 target_heading=_heading(free_center, _center(cell, grid)))
+            candidates.append(candidate)
     selected, discarded = {}, []
     for candidate in sorted(candidates, key=lambda item: (item["offset"], item["access_key"])):
         cell = candidate["free_cell"]
-        if cell in selected:
+        if cell in selected and not constrained:
             discarded.append(candidate)
         else:
+            if constrained:
+                selected[candidate["access_key"]] = candidate
+                continue
             selected[cell] = candidate
     return {"outside": False, "footprint_cells": footprint, "selected": selected,
             "candidates": tuple(sorted(candidates, key=lambda item: item["access_key"])), "discarded": tuple(discarded),
             "query_cells": tuple(sorted(query_cells))}
 
 
+def _heading(first: tuple[float, float], second: tuple[float, float]) -> tuple[float, float]:
+    """Return a stable unit heading for a positive-length route segment."""
+    dx, dy = second[0] - first[0], second[1] - first[1]
+    length = math.hypot(dx, dy)
+    if length <= 0 or not math.isfinite(length):
+        raise ValueError("route heading requires two distinct points")
+    return dx / length, dy / length
+
+
+def _ray_distance(point: tuple[float, float], direction: tuple[float, float], blockers: Any, boundary: Any) -> float:
+    """Measure the first positive hit on a normal ray against mass or domain boundary."""
+    extent = max(boundary.bounds[2] - boundary.bounds[0], boundary.bounds[3] - boundary.bounds[1], 1.0) * 4.0
+    end = (point[0] + direction[0] * extent, point[1] + direction[1] * extent)
+    ray = LineString((point, end))
+    hits = []
+    for geometry in (blockers, boundary.boundary):
+        intersection = ray.intersection(geometry)
+        if intersection.is_empty:
+            continue
+        for candidate in getattr(intersection, "geoms", (intersection,)):
+            if not hasattr(candidate, "coords"):
+                continue
+            for coordinate in candidate.coords:
+                distance = math.hypot(coordinate[0] - point[0], coordinate[1] - point[1])
+                if distance > 1e-9:
+                    hits.append(distance)
+    return min(hits, default=float("inf"))
+
+
+def _clearance_at(point: tuple[float, float], tangent: tuple[float, float], blockers: Any, domain: Any) -> tuple[float, float, float]:
+    """Return left, right and total cross-section clearance at one route position."""
+    left = (-tangent[1], tangent[0])
+    right = (tangent[1], -tangent[0])
+    left_distance = _ray_distance(point, left, blockers, domain)
+    right_distance = _ray_distance(point, right, blockers, domain)
+    return left_distance, right_distance, left_distance + right_distance
+
+
+def _segment_positions(segment: LineString, blockers: Any, domain: Any) -> tuple[float, ...]:
+    """Split a segment at projected polygon vertices so narrow interior bands are checked."""
+    start = segment.coords[0]
+    dx, dy = segment.coords[-1][0] - start[0], segment.coords[-1][1] - start[1]
+    length_sq = dx * dx + dy * dy
+    positions = {0.0, 1.0, 0.5}
+    def rings(geometry):
+        """Yield exterior and interior rings for polygon or multipolygon witnesses."""
+        for polygon in getattr(geometry, "geoms", (geometry,)):
+            if hasattr(polygon, "exterior"):
+                yield polygon.exterior
+                yield from polygon.interiors
+    for geometry in (blockers, domain):
+        for ring in rings(geometry):
+            for coordinate in ring.coords:
+                t = ((coordinate[0] - start[0]) * dx + (coordinate[1] - start[1]) * dy) / length_sq
+                if 0.0 < t < 1.0:
+                    positions.add(float(t))
+    events = sorted(positions)
+    positions.update((first + (second - first) / 2 for first, second in zip(events, events[1:])))
+    return tuple(sorted(positions))
+
+
+def _edge_clearance(first: tuple[int, int], second: tuple[int, int], grid: GridDescriptor,
+                    blockers: Any, domain: Any, thresholds: tuple[float, float, float]) -> dict | None:
+    """Evaluate continuous directional clearance over one positive-length grid edge."""
+    start, end = _center(first, grid), _center(second, grid)
+    segment = LineString((start, end))
+    if segment.crosses(blockers) or segment.within(blockers) or segment.touches(blockers):
+        return None
+    tangent = _heading(start, end)
+    values = []
+    for position in _segment_positions(segment, blockers, domain):
+        point = tuple(segment.interpolate(position, normalized=True).coords[0])
+        left, right, total = _clearance_at(point, tangent, blockers, domain)
+        values.append((left, right, total, position * segment.length))
+    limiting = min(values, key=lambda value: (value[2], value[0], value[1], value[3]))
+    minimum_left = min(value[0] for value in values)
+    minimum_right = min(value[1] for value in values)
+    minimum_total = min(value[2] for value in values)
+    epsilon = 1e-12
+    if minimum_left + epsilon < thresholds[0] or minimum_right + epsilon < thresholds[1] or minimum_total + epsilon < thresholds[2]:
+        return None
+    return {"min_left_m": minimum_left, "min_right_m": minimum_right, "min_total_m": minimum_total,
+            "limiting_position_m": limiting[3], "limiting_left_m": limiting[0],
+            "limiting_right_m": limiting[1], "limiting_total_m": limiting[2]}
+
+
+def _turn_clearance(point: tuple[float, float], incoming: tuple[float, float], outgoing: tuple[float, float],
+                    blockers: Any, domain: Any, thresholds: tuple[float, float, float]) -> dict | None:
+    """Check the cross-section while the heading rotates through a grid vertex."""
+    a = math.atan2(incoming[1], incoming[0])
+    b = math.atan2(outgoing[1], outgoing[0])
+    delta = (b - a + math.pi) % (2 * math.pi) - math.pi
+    # Vertex and segment-direction events partition the ray-intersection
+    # functions into intervals where endpoint/midpoint checks are sufficient.
+    fractions = {0.0, 1.0}
+    if abs(delta) > 1e-12:
+        def add_angle(angle: float) -> None:
+            """Add an angular event when it lies on the chosen shortest arc."""
+            raw = angle - a
+            while raw - delta > math.pi:
+                raw -= 2 * math.pi
+            while raw - delta < -math.pi:
+                raw += 2 * math.pi
+            if delta < 0 and raw > 0:
+                raw -= 2 * math.pi
+            if delta > 0 and raw < 0:
+                raw += 2 * math.pi
+            fraction = raw / delta
+            if 0.0 < fraction < 1.0:
+                fractions.add(float(fraction))
+
+        def rings(geometry):
+            """Yield polygon boundary rings for all geometry components."""
+            for polygon in getattr(geometry, "geoms", (geometry,)):
+                if hasattr(polygon, "exterior"):
+                    yield polygon.exterior
+                    yield from polygon.interiors
+
+        for geometry in (blockers, domain):
+            for ring in rings(geometry):
+                coordinates = tuple(ring.coords)
+                for vertex in coordinates[:-1]:
+                    vertex_angle = math.atan2(vertex[1] - point[1], vertex[0] - point[0])
+                    # The clearance rays are the tangent's left/right normals.
+                    add_angle(vertex_angle - math.pi / 2)
+                    add_angle(vertex_angle + math.pi / 2)
+                for first, second in zip(coordinates, coordinates[1:]):
+                    angle = math.atan2(second[1] - first[1], second[0] - first[0])
+                    add_angle(angle)
+                    add_angle(angle + math.pi)
+                    add_angle(angle - math.pi / 2)
+                    add_angle(angle + math.pi / 2)
+    ordered = sorted(fractions)
+    fractions.update(first + (second - first) / 2 for first, second in zip(ordered, ordered[1:]))
+    samples = tuple(sorted(fractions))
+    values = []
+    for fraction in samples:
+        angle = a + delta * fraction
+        left, right, total = _clearance_at(point, (math.cos(angle), math.sin(angle)), blockers, domain)
+        values.append((left, right, total, fraction))
+    minimum_left, minimum_right, minimum_total = (min(item[index] for item in values) for index in range(3))
+    epsilon = 1e-12
+    if minimum_left + epsilon < thresholds[0] or minimum_right + epsilon < thresholds[1] or minimum_total + epsilon < thresholds[2]:
+        return None
+    limiting = min(values, key=lambda item: (item[2], item[0], item[1], item[3]))
+    return {"min_left_m": minimum_left, "min_right_m": minimum_right, "min_total_m": minimum_total,
+            "limiting_left_m": limiting[0], "limiting_right_m": limiting[1], "limiting_total_m": limiting[2],
+            "limiting_angle_fraction": limiting[3]}
+
+
+def _constrained_graphs(bundle: GroupDistanceInput, domain: Any, samples: Mapping, base_graphs: tuple) -> tuple:
+    """Expand the retained graph into heading states when directional policy is enabled."""
+    thresholds = _clearance_thresholds(bundle.clearance_policy)
+    if thresholds is None:
+        return base_graphs
+    blockers = unary_union([_shape(record.get("geometry_components")) for record in bundle.physical_occupancy
+                            if record.get("geometry_components")])
+    observed_base, optimistic_base, frontier = base_graphs
+    observed, optimistic = nx.DiGraph(), nx.DiGraph()
+    for base in (observed_base, optimistic_base):
+        target = observed if base is observed_base else optimistic
+        directed = []
+        for first, second, data in base.edges(data=True):
+            for start, end in ((first, second), (second, first)):
+                clearance = _edge_clearance(start, end, bundle.grid, blockers, domain, thresholds)
+                if clearance is None:
+                    continue
+                
+                heading = _heading(_center(start, bundle.grid), _center(end, bundle.grid))
+                clearance = {**clearance, "physical_witness_refs": tuple(record.get("id") for record in bundle.physical_occupancy if record.get("id")),
+                             "domain_witness_ref": bundle.grid.domain_fingerprint or "analysis-domain",
+                             "side_sample_cell_keys": tuple(sorted({start, end, *data.get("guard_cell_keys", ())}))}
+                directed.append((start, end, heading, {**data, "clearance": clearance, "heading": heading,
+                                                       "edge_support_version": CLEARANCE_EDGE_SUPPORT_VERSION,
+                                                       "from_cell": start, "to_cell": end}))
+        headings_by_cell = {}
+        for start, end, heading, data in directed:
+            headings_by_cell.setdefault(start, set()).add(heading)
+            headings_by_cell.setdefault(end, set()).add(heading)
+            target.add_node((start, heading))
+        for start, end, heading, data in directed:
+            # A source access seeds the outgoing heading; later states pay for every turn.
+            for incoming in sorted(headings_by_cell.get(start, ()), key=repr):
+                turn = _turn_clearance(_center(start, bundle.grid), incoming, heading, blockers, domain, thresholds)
+                if turn is None:
+                    continue
+                turn = {**turn,
+                        "physical_witness_refs": tuple(record.get("id") for record in bundle.physical_occupancy if record.get("id")),
+                        "domain_witness_ref": bundle.grid.domain_fingerprint or "analysis-domain"}
+                target.add_edge((start, incoming), (end, heading), **{**data, "turn": turn})
+    return (observed, optimistic, frontier)
+
+
+def _state_accesses(accesses: Mapping, target: bool = False) -> dict:
+    """Lift cell access records into heading states for constrained searches."""
+    result = {}
+    for key, access in accesses.items():
+        cell = access.get("free_cell", key)
+        heading = access.get("target_heading" if target else "heading")
+        if heading is not None:
+            result[(cell, tuple(heading))] = access
+    return result
+
+
+def _state_cell(node: Any) -> tuple[int, int]:
+    """Read the lattice cell from either a legacy cell node or constrained state."""
+    return node[0] if isinstance(node, tuple) and len(node) == 2 and isinstance(node[0], tuple) else node
+
+
 def _recover_source(graph: nx.Graph, accesses: Mapping, samples: Mapping, optimistic: bool) -> tuple:
     """Recover deterministic representatives from exact NetworkX predecessor labels."""
+    # A constrained source and target can share one free cell; retain its
+    # heading state even when that cell has no positive-length graph edge.
+    if graph.is_directed():
+        graph.add_nodes_from(cell for cell in accesses if cell not in graph)
     seeds = {cell: access for cell, access in accesses.items() if cell in graph}
     if not seeds:
         return {}, {}, {}
@@ -461,16 +702,16 @@ def _recover_source(graph: nx.Graph, accesses: Mapping, samples: Mapping, optimi
                         raise ArithmeticError("tight physical predecessor is not an increasing DAG")
                     previous = best[parent]
                     guards = graph[parent][cell].get("guard_cell_keys", ())
-                    unknown_alternatives.append(any_unknown[parent] or any(samples[guard]["status"] == "unknown" for guard in guards))
+                    unknown_alternatives.append(any_unknown[parent] or any(samples[_state_cell(guard)]["status"] == "unknown" for guard in guards))
                 unknown, conditional, source, path = previous
                 # Additive occurrences preserve optimal substructure when a flank repeats.
-                support = (cell, *guards)
+                support = (_state_cell(cell), *guards)
                 choices.append((unknown + sum(samples[node]["status"] == "unknown" for node in support),
                                 conditional + sum(samples[node]["status"] == "conditional" for node in support), source, path + (cell,)))
             if not choices:
                 raise ArithmeticError("backend label has no exactly replayable predecessor")
             best[cell] = min(choices, key=lambda label: label if optimistic else label[1:])
-            any_unknown[cell] = samples[cell]["status"] == "unknown" or any(unknown_alternatives)
+            any_unknown[cell] = samples[_state_cell(cell)]["status"] == "unknown" or any(unknown_alternatives)
         return distances, best, any_unknown
     finally:
         graph.remove_node(_ROOT)
@@ -517,12 +758,30 @@ def _target_route(graph: nx.Graph, target_accesses: Mapping, source_accesses: Ma
     edges = tuple({**graph[a][b], "from": a, "to": b} for a, b in pairwise(path))
     guard_occurrences = tuple(guard for edge in edges for guard in edge.get("guard_cell_keys", ()))
     guards = tuple(sorted(set(guard_occurrences)))
-    support = tuple(sorted(set(path) | set(guards)))
+    cell_path = tuple(_state_cell(node) for node in path)
+    support = tuple(sorted(set(cell_path) | set(guards)))
     arithmetic = _arithmetic(source["offset"], tuple(edge["weight"] for edge in edges), target["offset"], key[0])
-    return {"value": key[0], "cell_keys": path, "points": tuple(samples[node]["center"] for node in path),
+    clearance_records = tuple(edge["clearance"] for edge in edges if edge.get("clearance") is not None)
+    clearance = None
+    if clearance_records:
+        limiting = min(clearance_records, key=lambda record: (record["min_total_m"], record["min_left_m"], record["min_right_m"]))
+        clearance = {"min_left_m": min(record["min_left_m"] for record in clearance_records),
+                     "min_right_m": min(record["min_right_m"] for record in clearance_records),
+                     "min_total_m": min(record["min_total_m"] for record in clearance_records),
+                     "limiting_segment_index": clearance_records.index(limiting),
+                     "limiting_position_m": limiting["limiting_position_m"],
+                     "limiting_left_m": limiting["limiting_left_m"],
+                     "limiting_right_m": limiting["limiting_right_m"],
+                     "limiting_total_m": limiting["limiting_total_m"],
+                     "edge_witnesses": clearance_records,
+                     "turn_witnesses": tuple(edge["turn"] for edge in edges if edge.get("turn") is not None),
+                     "support_cell_keys": tuple(sorted(set(cell_path))),
+                     "support_query_refs": tuple(samples[node]["query_ref"] for node in sorted(set(cell_path))),
+                     "support_statuses": tuple(samples[node]["status"] for node in sorted(set(cell_path)))}
+    route = {"value": key[0], "cell_keys": cell_path, "points": tuple(samples[_state_cell(node)]["center"] for node in path),
             "edges": edges, "source_access": source, "target_access": target,
-            "conditional_cell_count": sum(samples[node]["status"] == "conditional" for node in path),
-            "unknown_cell_count": sum(samples[node]["status"] == "unknown" for node in path),
+            "conditional_cell_count": sum(samples[_state_cell(node)]["status"] == "conditional" for node in path),
+            "unknown_cell_count": sum(samples[_state_cell(node)]["status"] == "unknown" for node in path),
             "conditional_support_occurrence_count": conditional, "unknown_support_occurrence_count": unknown,
             "conditional_guard_occurrence_count": sum(samples[node]["status"] == "conditional" for node in guard_occurrences),
             "unknown_guard_occurrence_count": sum(samples[node]["status"] == "unknown" for node in guard_occurrences),
@@ -531,16 +790,22 @@ def _target_route(graph: nx.Graph, target_accesses: Mapping, source_accesses: Ma
             "support_cell_keys": support, "support_query_refs": tuple(samples[node]["query_ref"] for node in support),
             "conditional_support_cell_count": sum(samples[node]["status"] == "conditional" for node in support),
             "unknown_support_cells": tuple(node for node in support if samples[node]["status"] == "unknown"),
-            "cells": tuple(samples[node] for node in path), "arithmetic": arithmetic,
-            "unknown_cells": tuple(node for node in path if samples[node]["status"] == "unknown"),
-            "has_unknown_tie": any(any_unknown[end] for candidate, end, _ in candidates if candidate[0] == key[0])}
+            "cells": tuple(samples[_state_cell(node)] for node in path), "arithmetic": arithmetic,
+            "unknown_cells": tuple(_state_cell(node) for node in path if samples[_state_cell(node)]["status"] == "unknown"),
+            "has_unknown_tie": any(any_unknown[end] for candidate, end, _ in candidates if candidate[0] == key[0]),
+            }
+    if graph.is_directed():
+        route["state_keys"] = path
+        route["clearance"] = clearance
+    return route
 
 
 def _failure_cells(first: dict, second: dict, component_failures: Mapping, samples: Mapping) -> tuple:
     """Limit failed queries to endpoint queries and their connected search frontier."""
     relevant = set(first["query_cells"]) | set(second["query_cells"])
     for access in (first, second):
-        for cell in access["selected"]:
+        for key, candidate in access["selected"].items():
+            cell = candidate.get("free_cell", key)
             relevant.update(component_failures.get(cell, ()))
     return tuple(samples[cell] for cell in sorted(relevant) if samples[cell]["status"] in {"invalid", "not_available"})
 
@@ -599,20 +864,26 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
             component_failures = _component_failure_cells(frontier, samples)
             for group in groups:
                 if geometry[group.group_id]["status"] == "computed":
-                    access[group.group_id] = _accesses(group, geometry[group.group_id], domain, bundle.grid, samples, frontier)
+                    access[group.group_id] = _accesses(group, geometry[group.group_id], domain, bundle.grid, samples, frontier,
+                                                        bundle.clearance_policy is not None)
             for mode, graph in (("observed", observed), ("optimistic", optimistic)):
                 runs = 0
+                constrained = bundle.clearance_policy is not None
                 for index, source in enumerate(groups[:-1]):
                     if source.group_id not in access or access[source.group_id]["outside"]:
                         continue
                     try:
-                        if any(cell in graph for cell in access[source.group_id]["selected"]):
+                        source_selected = (_state_accesses(access[source.group_id]["selected"]) if constrained
+                                           else access[source.group_id]["selected"])
+                        if any(cell in graph for cell in source_selected):
                             runs += 1
-                        distances, best, unknown = _recover_source(graph, access[source.group_id]["selected"], samples, mode == "optimistic")
+                        distances, best, unknown = _recover_source(graph, source_selected, samples, mode == "optimistic")
                         for target in groups[index + 1:]:
                             if target.group_id in access and not access[target.group_id]["outside"]:
+                                target_selected = (_state_accesses(access[target.group_id]["selected"], target=True)
+                                                   if constrained else access[target.group_id]["selected"])
                                 routes.setdefault((source.group_id, target.group_id), {})[mode] = _target_route(
-                                    graph, access[target.group_id]["selected"], access[source.group_id]["selected"],
+                                    graph, target_selected, source_selected,
                                     distances, best, unknown, samples, mode == "optimistic")
                         del distances, best, unknown
                     except ArithmeticError as exc:
@@ -661,6 +932,9 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
                   "unknown_support_cell_count": len(lower["unknown_support_cells"]) if lower else None,
                   "arithmetic": selected["arithmetic"] if selected else None,
                   "tie_uncertainty": bool(selected and lower and lower["has_unknown_tie"] and abs(selected["value"] - lower["value"]) <= max(math.ulp(selected["value"]), math.ulp(lower["value"]), math.ulp(bundle.grid.spacing)))}
+        if bundle.clearance_policy is not None:
+            hybrid["clearance_policy"] = bundle.clearance_policy
+            hybrid["clearance"] = selected.get("clearance") if selected else None
         if selected:
             hybrid.update(source_centroid_to_access_offset=selected["arithmetic"]["source_offset"],
                           free_space_route_distance=selected["arithmetic"]["route_edge_sum"], target_access_to_centroid_offset=selected["arithmetic"]["target_offset"])
@@ -674,14 +948,19 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
         observations.append(GroupPairDistanceObservation(pair_id, ids, euclidean, hybrid, audits, selected, lineage, fingerprints))
         pair_index.append({"pair_id": pair_id, "group_ids": ids, "observation_index": len(observations) - 1})
     _, peak = tracemalloc.get_traced_memory()
-    manifest = {"algorithm_version": ALGORITHM_VERSION, "schema_version": SCHEMA_VERSION,
-                "edge_support_version": EDGE_SUPPORT_VERSION,
+    constrained = bundle.clearance_policy is not None
+    manifest = {"algorithm_version": CLEARANCE_ALGORITHM_VERSION if constrained else ALGORITHM_VERSION,
+                "schema_version": CLEARANCE_SCHEMA_VERSION if constrained else SCHEMA_VERSION,
+                "edge_support_version": CLEARANCE_EDGE_SUPPORT_VERSION if constrained else EDGE_SUPPORT_VERSION,
                 "arithmetic_version": ARITHMETIC_VERSION, "source_identity": bundle.source_identity,
                 "analysis_plane": bundle.analysis_plane, "domain": bundle.domain, "grid": bundle.grid,
                 "query": bundle.query, "query_context": bundle.query_context, "origin_offset": bundle.origin_offset, "units": "m", "group_ids": tuple(group.group_id for group in groups),
                 "expected_pair_ids": tuple(item["pair_id"] for item in pair_index), "expected_pair_count": len(pairs),
                 "dependency_fingerprints": fingerprints, "cell_samples": tuple(samples[cell] for cell in sorted(samples)),
                 "python_version": platform.python_version(), "networkx_version": nx.__version__}
+    if constrained:
+        manifest["clearance_policy_version"] = CLEARANCE_POLICY_VERSION
+        manifest["clearance_policy"] = bundle.clearance_policy
     if bundle.free_space_samples is not None:
         manifest["free_space_result"] = {key: bundle.free_space_samples[key] for key in
             ("result_ref", "freshness", "identity", "backend_versions", "content_cache", "calculation_provenance",

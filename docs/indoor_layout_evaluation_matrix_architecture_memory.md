@@ -28,6 +28,24 @@ Technical `.18.8b` is complete; root records the accepted local commit separatel
 User visual gates `.18.10` and `.18.C4` remain open.
 Continue the existing plan and evidence ledger.
 
+## Directional clearance continuation — 2026-11-04
+
+The bridge workline now carries an owner-approved opt-in design for shortest
+routes under directional clearances `L>=0.225 m`, `R>=0.225 m`, and same-position
+`L+R>=0.55 m`. It retains the accepted v4 lattice and exact domain coverage,
+uses authenticated retained projected physical polygons plus the domain boundary
+for first-hit side distances, and expands only the constrained branch to
+`(cell,incoming_heading)` states. Segment checks cover the full positive-length
+edge; turn checks bind the continuous normal rotation to the next positive move;
+there is no zero-cost turn or isotropic erosion. Directional access candidates,
+side/turn support refs, uncertainty statuses and limiting L/R/total witnesses
+remain in the new versioned output. `clearance_policy=None` keeps v4 behavior
+and v1/v2 readers unchanged. The design and execution checklist are in
+`superpowers/specs/2026-11-04-group-distance-clearance-design.md` and
+`superpowers/plans/2026-11-04-group-distance-clearance-implementation.md`.
+Technical verification and same-S3 visual review remain pending until the
+implementation candidate is independently checked.
+
 ## Accepted four-neighbor finite-band baseline — 2026-11-04
 
 The `.18.8a` continuation lives in jj workspace `free-space-distance-bridge`
