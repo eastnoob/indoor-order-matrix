@@ -971,6 +971,28 @@ def test_readonly_snapshot_cannot_mutate_authority():
             service.read_analysis_sample(snapshot, row=row, column=column)
 
 
+def test_bulk_samples_equal_public_decode_and_share_only_immutable_data():
+    """Bulk consumers retain every sample field without duplicating shared authority."""
+    from ..adapters import blender_analysis_session as service, blender_analysis_result_wire as wire
+    _, document = _compact_document()
+    snapshot = service.open_analysis_result([document], result_ref=service.list_analysis_results([document])[0].ref,
+                                           context=_read_context(document))
+    samples = tuple(wire.iter_analysis_samples(snapshot))
+    assert len(samples) == document["tables"]["lattice"]["n_rows"] * document["tables"]["lattice"]["n_cols"]
+    for index, sample in enumerate(samples):
+        row, column = divmod(index, document["tables"]["lattice"]["n_cols"])
+        assert wire.plain(sample) == wire.decode_cell(document, row=row, column=column)
+        with pytest.raises(TypeError):
+            sample["value"] = True
+        with pytest.raises(TypeError):
+            sample["query"]["frame"] = "changed"
+        with pytest.raises(TypeError):
+            sample["provenance"]["changed"] = True
+        if isinstance(sample["support"], dict) or hasattr(sample["support"], "keys"):
+            with pytest.raises(TypeError):
+                sample["support"]["changed"] = True
+
+
 def test_consumer_never_captures_computes_or_spawns(monkeypatch):
     """Reading a document has no route back to analysis or native process authority."""
     import subprocess

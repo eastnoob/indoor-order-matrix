@@ -130,3 +130,202 @@ The one corrected kernel call took `334.9034131` s and `48687026` B tracemalloc 
 Corrected normalized result SHA-256: `db9cae4be1b8d7628a5a64ffe92ed9ee5efe963a4bfeff53ae3d379780891b93`. Source IFC bytes and SHA-256 match before and after. Generic `--domain-dir` retains legacy `--s4-dir` compatibility; `--parsed-input`, `--previous-domain-dir` and `--skip-replay` make the authenticated corrected cache run explicit.
 
 Combined kernel/delivery checks passed **19 tests in 14.68s**. The final independent artifact review verified hashes, 666 locator bijection, S3 labels and the real hall/passage PNG. A metadata-only correction then made the current adapter count explicitly 343 and retained the old count 353 in `cache_rebind`; prior metadata bytes are preserved in `domain_correction_inspection/metadata_count_correction/`. No metric or kernel output changed, and coverage hashes were updated.
+
+## Exact free-space result continuation — 2026-11-04
+
+Workline: jj workspace `free-space-distance-bridge`, absolute path
+`D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge`,
+base `bb46ac5d` (accepted-board ancestor `975f472f`), change `mlkkrmsp`,
+read-only inspected working revision `f3ecafc5`. Root remains the sole version
+writer; the implementer does not commit, push, merge or edit the conflicted
+distance workspace.
+
+The exact accepted source is `free_space_run:fe3243c13b3f45daac8744efc46f3962`,
+digest `a22de58adc39c241ccb514afd52f2c1b7bbf4819f7ffb93d6a125aac92f4c120`,
+from the sibling `order_analyzer_free_space_cache` workspace. Consumer expectations
+come from its producing `request.json` and external
+`outputs/design/free_space_prerequisite/verification/native-free-codec-restored-publication.json`.
+The retained read is explicitly historical and makes no live-currentness claim.
+The authenticated domain mesh matches producer source revision
+`4d9273b2231462a9e0429bd349199754f4ff3b3589f61fada0da940863133e1b`.
+The adapter projects only the same-capture authored group and domain geometry,
+uses zero XY offset, and never regenerates occupancy. Board geometry/materials
+are not calculation inputs.
+
+The first implementation attempt was cancelled before a completed kernel result:
+`outputs/design/group_distance_ifc/run_v3_attempt01_expanded_metadata/` preserves
+its input, audit and interruption record. Flat source IDs occupied
+`178,583,285 B` of compact JSON and flat support `18,698,660 B`; pretty
+`input_bundle.json` was `302,980,274 B`. There are only 205 unique source lists,
+while a known-empty cell references all 343 source IDs. The final adapter keeps
+those lists once in `free_space_result.source_ids`, with integer references from
+each cell. It stores common support context once, local cell support geometry
+inline, and the exact ResultRef/row/column locator for complete original support
+and provenance. The whole-height constructor route and its fingerprints remain
+unchanged. The final real run is retained under
+`outputs/design/group_distance_ifc/run_v3_finite_band_result/`.
+
+Implementer focused checks, cwd above, locked Pixi interpreter:
+
+```powershell
+$env:PYTHONPATH='.;D:\PROJECTS\understandOtherPackage\order_analyzer\OCTA_toolbox-master'
+$env:PYTHONNOUSERSITE='1'
+pixi run pytest test/test_group_distance.py test/test_blender_analysis_session.py test/test_free_space_distance.py -q
+# 154 passed, 5 skipped in 35.54s; exit 0
+```
+
+One skip is the absent optional historical S4 plane artifact; four depend on the
+not-yet-complete real distance run. The first focused attempt exposed that missing
+historical fixture; the existing test now follows the same missing-artifact policy
+as retained delivery tests. These skips are not positive route evidence.
+
+Initial frozen implementation candidate (physical bytes; final acceptance follows below):
+
+| File | SHA-256 |
+| --- | --- |
+| `features/group_distance.py` | `2df84a88cd7769418048bb4631b3d2f7c8a0d05a841887621cf2df1f604e0bd0` |
+| `adapters/blender_analysis_result_wire.py` | `53712abcfeb6f77a5c1bb0e4317b05d063fbebdb30aa8395f4f52ffa5af06197` |
+| `adapters/free_space_distance.py` | `3b1d22b03e04a78b4caaa85ca84c69693f8c57a5f16ffd63d133cce6451ad065` |
+| `scripts/design/group_level/run_group_distance_free_space.py` | `1f2fc6f1afd9509e09e4fb75833ac3ada22a6f62d7c8b6e15cc7a0d634b8a95f` |
+| `scripts/design/group_level/run_group_distance_ifc.py` | `3d886fdb8b19dcd9fbe40cbf4e1e227b9e5d4684a994be9df2ed9ad585f10005` |
+| `test/test_group_distance.py` | `8ad4581b8a0933480617ddb745e94dbfcca63233ae15d6da7af9c2d206a7cbc4` |
+| `test/test_blender_analysis_session.py` | `2c7dcc56d2b953cfcbbf0ae695abf595264e29adca8d0d6151466aaa003f58da` |
+| `test/test_free_space_distance.py` | `2585d447bf9849198a4e4a1a8546550fb13b5cae911c73162ba724866056d82a` |
+
+Visual decision: reuse the accepted S3/plane/board alignment; require a route
+overlay from the new actual distance output to inspect source-to-result placement.
+Independent visual rendering is a separate owned file pair. User visual acceptance
+`.18.10`/`.18.C4` remains open, regardless of automated or agent review.
+
+### Stable v3 run and current preview
+
+The final historical exact-result runner exited **0**. It preserved all 24,442
+saved cells: 14,047 established `False`, 7,023 established `True`, 3,372 outside
+`None`. It retained all 343 physical records and the complete 37-group scope.
+The exact-domain center rule admits 13,800 graph nodes from the known-empty cells;
+both graphs contain 26,301 edges and execute 36 source-batched searches. All
+**666 Euclidean and 666 hybrid distances are computed**, with 666 recorded routes.
+The runner validates 48,734 selected nodes and 48,068 selected edges, exact cell
+lineage, four-neighbor/domain coverage, endpoint offsets, finite metrics and
+binary64 arithmetic. No numerical-contract failure or tie uncertainty was observed.
+Unknown/conditional/unreachable route branches are not claimed from this scene.
+
+Immutable-bundle replay is equal, normalized SHA-256
+`2a09ed17756b9472f31373df686d7c0abec3455901de58bdcc7139f0000a11b7` on both
+executions. The original producing request, exact published result and external
+receipt byte hashes match before and after. These are retained historical inputs,
+not a current native IFC observation:
+
+| Input | Bytes | SHA-256 |
+| --- | ---: | --- |
+| producing `request.json` | 165881200 | `926db96864622024356df1aea715bce22b934af824ebcef44ef0aba0e7de3a90` |
+| published `result.json` | 23560328 | `9bd16d2c007313dbdcafd101c4f1061c3d8ab892d7c1f261de2cb84f718d660a` |
+| external native receipt | 54795 | `28eab9c49d9e65fba0add929c5422083f7f50753db31c89d63925cca371f33c2` |
+
+The final shared-reference `input_bundle.json` is `46,572,507 B`, reduced from
+the observed expanded attempt's `302,980,274 B`. The reported first-kernel runtime
+is `131.4923575 s`, with kernel Python tracemalloc peak `369,269,693 B`. Full
+runner time is `526.3187724 s`, including request/result decoding, group/domain
+projection, both kernel calls, validation and output publication. Its process peak
+working set is `3,692,367,872 B`, peak commit `3,718,479,872 B`; process counters
+include native allocations and are distinct from kernel tracemalloc.
+
+```powershell
+pixi run python -m scripts.design.group_level.run_group_distance_free_space --free-space-result ../order_analyzer_free_space_cache/outputs/blender_analysis/jobs/fe3243c13b3f45daac8744efc46f3962/result.json --native-request ../order_analyzer_free_space_cache/outputs/blender_analysis/jobs/fe3243c13b3f45daac8744efc46f3962/request.json --publication-receipt ../order_analyzer_free_space_cache/outputs/design/free_space_prerequisite/verification/native-free-codec-restored-publication.json --allow-historical --output-dir outputs/design/group_distance_ifc/run_v3_finite_band_result
+pixi run python -m scripts.design.group_level.render_group_distance_preview --run-dir outputs/design/group_distance_ifc/run_v3_finite_band_result --output-dir outputs/design/group_distance_ifc/run_v3_finite_band_result/preview
+pixi run pytest test/test_free_space_distance.py -q
+# 6 passed in 66.02s; exit 0
+pixi run pytest test/test_group_distance_preview_payload.py -q
+# 1 passed in 3.50s; exit 0
+```
+
+The preview command exits 0 with 666 selectable pair/route locators, complete
+matrices, `distance_rows.csv` and two representative PNGs. An observed initial
+HTML of `216,158,261 B` is preserved as `preview_attempt01_full_audit_payload/`.
+Its compact observation payload included `134,065,752 B` of lineage and
+`78,057,865 B` of routes, including `45,969,589 B` of cells and `28,481,404 B` of
+edges unused by the viewer. The final HTML projects only fields consumed by its
+existing JavaScript and is **7,171,746 B**. Complete `observations.json`
+(`401,104,240 B`) and every numerical artifact remain unchanged. The actual payload
+test proves the exact rendered metrics, audit, route points, access geometry and
+arithmetic match the full observations, with no embedded unused lineage/cell/edge
+audit arrays. The source label correctly identifies the native capture digest
+rather than presenting it as an IFC byte hash.
+
+| Stable v3 artifact | SHA-256 |
+| --- | --- |
+| `observations.json` | `8676973e7c63e84d21f3163b44731623b73d9119210cb2407d449b69e06062fc` |
+| `pair_index.json` | `2b06694da532c22c9ed86a9a044b882845929bda823e56cdd8fd4a3199691ae6` |
+| `run_manifest.json` | `8faaaf09e4920da3d9064f24239ad5cbd616111bb73096ab78f0f3d02fd6ef53` |
+| `scene_geometry.json` | `ffb039ace9243a6e5695df5290a5942828a96874958abc74dc4f06ee40a28019` |
+| `input_bundle.json` | `28e5304317ef52519d4c6d8c37ff17495032ec331f63e8333d7f15df72a1f93d` |
+| `adapter_audit.json` | `839e54d91125ba2d04194a6918574c946b225687b4d76c7a24d8a5ff3518afe7` |
+| `preview/index.html` | `afe4e146b73ad3fdcf3dbd534f55803275f70c65fb025c028a8a3260533144d9` |
+| `preview/distance_rows.csv` | `a391d8c622e2656a6fa3637addb9ab17604eebb04247d4bdb4b6ec753426f0e0` |
+| `preview/representative_01.png` | `0d19d1331718575e61dae5e72efbee12a2360d55018c597644c168d21146c364` |
+| `preview/representative_02.png` | `aa7944691ee58a1465c02870d7f80d51f4bddacf6aa69dff74167fd9a6cfe24c` |
+
+The original eight frozen core hashes above still match. Additional frozen caller
+files are `scripts/design/group_level/render_group_distance_preview.py`
+`83b4696b88855f582d4544f667e56949a8c5e66ed440fb799e803fb168cecccb` and
+`test/test_group_distance_preview_payload.py`
+`5ad6edb551c2fb13878414a4f19ac72b4ba9abfe38ecd6dece689ae8b8aa64cd`.
+The new reader also accepts every saved fingerprint in the real historical
+`../order_analyzer_group_distance/outputs/design/group_distance_ifc/run_v2_corrected_domain/input_bundle.json`
+with `free_space_samples=None` and `height_band=None`; this direct compatibility
+check exits 0 without recalculating a field. The local six historical delivery
+tests skip because those historical outputs are not installed in this workspace;
+they are not reported as passing renderer evidence.
+
+The implementer inspected the first recorded-route PNG; it shows the expected
+free-cell route and separate centroid offsets. Independent specification/quality,
+actual artifact/viewer checks and the native recorded-route overlay remain owned
+by separate agents. At the implementer freeze, `.18.8`/`.18.8a` awaited independent
+acceptance; the final verdict follows below. User visual acceptance
+`.18.10`/`.18.C4` remains pending. The older v1/v2 sections are preserved history;
+v3 is the current numerical input and preview.
+
+Independent interim evidence supplied by root before final verdict: the verifier
+ran the six actual bridge tests, **6 passed in 66.68 s**, exit 0. Its direct reading
+of the authoritative free-space cells independently checked all 666 routes,
+48,734 selected nodes and 48,068 four-neighbor edges. `math.fsum` distance
+reconciliation has maximum residual `3.552713678800501e-15 m`, within every
+recorded rounding bound; graph and 36-source-search counts agree. These are actual
+independent results, but do not alone close specification/quality acceptance.
+
+The separate native renderer retained `native_route_board_v2/route-board.blend`,
+`route-board.png`, `execution_receipt.json` and `preview_report.json` under this
+v3 run. Root reports the frozen PNG SHA-256
+`9141cd5fdaf525ba1cdb3f51de37db7f5388ba9afd05aec838d03b4c0dd21cb9`, native
+renderer script SHA-256
+`e1e3329f8caf52ad7e895514aa4f5b249501caee064b25b082c95baa661c73a2`, and native
+preview test SHA-256
+`69611c55271f548e8b486f6dbd5cd82f17be17484d79634ace66481ad66e8052`.
+Final independent HTML/camera/native-artifact checks are pending at this freeze.
+No user acceptance or local commit is inferred from producing these artifacts.
+
+### Final independent technical acceptance
+
+Root supplied the verifier's final verdict: **specification PASS; code quality
+Approved**. All 12 frozen code/test hashes match the reviewed bytes. The six
+actual bridge checks pass independently, and the final renderer/camera affected
+suite passes **16 tests**, exit 0. All **666 pair selections × 2 zoom states =
+1,332 actual HTML selections** match the recorded numerical output. Native report,
+execution receipt and source input hashes also match.
+
+The independent verifier used only the designated portable Blender executable to
+read the final retained blend. It found three recorded-route objects and matched
+all 207 red-line segment centers to the HTML route, with maximum world-coordinate
+error `9.054596823286574e-7 m`. Board Z is approximately `0.02 m` and the route is
+raised another `0.008 m`; all board vertices lie inside the retained camera
+frustum. This native check exits 0, and the final PNG passes technical visual
+review. These checks establish recorded-data alignment, not a new distance
+calculation or user acceptance.
+
+Technical checklist items `.18.8` and `.18.8a` are complete for accepted jj change
+`mlkkrmsp`. Parent `.18` remains
+open only for user visual gates `.18.10`/`.18.C4`, which remain unchecked. Root is
+still the sole version writer and reports the accepted local commit identity in
+the delivery message; the
+implementer has performed no commit, push or merge. Large output artifacts remain
+external execution evidence rather than project source changes.

@@ -1,5 +1,37 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Current distance input is the accepted finite-band result — 2026-11-04
+
+The `.18.8a` continuation lives in jj workspace `free-space-distance-bridge`
+(`D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge`),
+base `bb46ac5d`, change `mlkkrmsp`; root is the sole version writer. The current
+numeric distance package is `outputs/design/group_distance_ifc/run_v3_finite_band_result/`.
+It consumes exact free-space ResultRef `fe3243c13b3f45daac8744efc46f3962`, digest
+`a22de58adc39c241ccb514afd52f2c1b7bbf4819f7ffb93d6a125aac92f4c120`, using the
+accepted 1.6 m plane and selected slab datum. Its saved read is explicitly
+historical; no new occupancy calculation or live-currentness claim is made.
+All 24,442 saved sample values/statuses remain exact. Both graphs have 13,800 nodes,
+26,301 edges and 36 source-batched searches. All 37 groups and 666 pairs are
+retained; all 666 hybrid distances and routes are computed. The implementer
+checked 48,734 selected nodes, 48,068 edges, endpoint offsets, lineage and arithmetic;
+same-bundle replay matches normalized digest
+`2a09ed17756b9472f31373df686d7c0abec3455901de58bdcc7139f0000a11b7`.
+Independent final specification review is PASS and code quality is Approved;
+all 12 frozen code/test hashes match. Actual numerical, HTML and portable-Blender
+checks pass. Technical `.18.8`/`.18.8a` acceptance is complete for jj change
+`mlkkrmsp`; root reports the accepted local commit identity in the delivery message.
+
+The current complete HTML/CSV preview is `run_v3_finite_band_result/preview/`.
+Known-empty source lists and support context are shared; full sample authority
+remains accessible through exact result/cell locators. HTML includes only the
+recorded fields its viewer uses, while complete numerical evidence stays intact.
+The older v1 S4 outside-only and v2 whole-height all-unreachable packages below
+are historical evidence. They are not current distance inputs. User visual gates
+`.18.10` and `.18.C4` remain pending and are the remaining parent `.18` gates.
+Continue the existing distance checklist and
+[execution ledger](project/evidence/group-distance-ifc-v1.md), without starting a
+new metric, potential formula or workflow feature.
+
 ## Verified free-space prerequisite execution — 2026-11-04
 
 The user authorized continued development in the existing `free-space-cache` jj

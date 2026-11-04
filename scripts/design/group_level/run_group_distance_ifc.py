@@ -239,10 +239,11 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
     """Check real selected paths, full pair coverage and numerical lineage in one pass."""
     observations, index, manifest = result["observations"], result["pair_index"], result["manifest"]
     expected = manifest["expected_pair_ids"]
+    expected_count = len(bundle.groups) * (len(bundle.groups) - 1) // 2
     observed = [row["pair_id"] for row in observations]
     indexed = [row["pair_id"] for row in index]
-    if len(expected) != 666 or len(set(expected)) != 666 or set(expected) != set(observed) or set(expected) != set(indexed) or len(observed) != 666 or len(indexed) != 666:
-        raise ValueError("observations, manifest and pair index are not a 666-pair bijection")
+    if len(expected) != expected_count or len(set(expected)) != expected_count or set(expected) != set(observed) or set(expected) != set(indexed) or len(observed) != expected_count or len(indexed) != expected_count:
+        raise ValueError("observations, manifest and pair index are not a complete pair bijection")
     domain = component_shape(bundle.domain["components"])
     samples = {tuple(item["cell_key"]): item for item in manifest["cell_samples"]}
     paths, nodes, edges = 0, 0, 0
@@ -284,7 +285,7 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
             if arithmetic[component] != math.dist(centroid, access["proxy_point"]) + math.dist(access["proxy_point"], access["cell_center"]):
                 raise ValueError("endpoint offset arithmetic differs from its recorded segments")
     counts = Counter(row["centroid_free_space_hybrid"]["status"] for row in observations)
-    return {"expected_pair_count": 666, "observation_count": len(observations), "index_count": len(index),
+    return {"expected_pair_count": expected_count, "observation_count": len(observations), "index_count": len(index),
             "pair_set_bijection": True, "duplicate_pair_ids": [], "missing_pair_ids": [],
             "actual_hybrid_status_counts": dict(counts), "unobserved_hybrid_statuses": sorted(STATES - set(counts)),
             "selected_paths_checked": paths, "selected_nodes_checked": nodes, "selected_edges_checked": edges,

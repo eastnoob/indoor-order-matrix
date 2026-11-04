@@ -71,6 +71,13 @@ status names.
 Object boundary contact is a participation-audit relation, not another field
 status and not automatic positive-area cell occupancy.
 
+For a complete-lattice consumer, `iter_analysis_samples(snapshot)` in
+`adapters.blender_analysis_result_wire` yields the same seven public sample fields
+in row-major order as immutable mappings. It shares already authenticated frozen
+metadata instead of copying complete calculation provenance for every cell. The
+iterator does not capture, project, calculate fields or spawn processes. Convert
+an individual sample with `plain` only when a detached JSON copy is needed.
+
 ## Receiving the native observation
 
 After successful verified publication, the existing native runtime exposes the

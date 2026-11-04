@@ -77,6 +77,7 @@ class GroupDistanceInput(_FrozenRecord):
     query_context: Any
     origin_offset: tuple[float, float]
     dependency_fingerprints: Any
+    free_space_samples: Any = None
 
 
 @dataclass(frozen=True)
@@ -130,6 +131,10 @@ def group_distance_input_fingerprints(bundle: GroupDistanceInput) -> dict[str, s
         "unresolved_source_ids": sorted(bundle.unresolved_source_ids),
         "unresolved_supports": bundle.unresolved_supports,
     }
+    # Legacy constructor bundles retain their saved fingerprint. Exact-result
+    # consumers additionally bind every immutable sample and its publication ref.
+    if bundle.free_space_samples is not None:
+        occupancy["free_space_samples"] = bundle.free_space_samples
     groups = tuple({"group_id": group.group_id, "components": _ordered(group.components),
                     "source_refs": _ordered(group.source_refs), "status": group.status,
                     "explanation": group.explanation} for group in sorted(bundle.groups, key=lambda item: item.group_id))
@@ -244,7 +249,11 @@ def _validate_handoff(bundle: GroupDistanceInput, fingerprints: Mapping) -> tupl
     if (not grid.grid_id or not grid.frame or query.frame != grid.frame
             or bundle.domain.get("frame") != grid.frame or bundle.domain.get("id") != query.domain_id):
         return "not_available", "plane, domain, frame or linear-unit handoff does not match", domain
-    if any(value is not None for value in (query.plane, query.height_band, query.demand)):
+    if bundle.free_space_samples is not None:
+        sample_error = _saved_samples_error(bundle)
+        if sample_error:
+            return "not_available", sample_error, domain
+    elif any(value is not None for value in (query.plane, query.height_band, query.demand)):
         return "not_available", "only an explicit whole-height planar occupancy query is supported", domain
     if (grid.domain_fingerprint != fingerprints["domain"] or grid.occupancy_fingerprint != fingerprints["occupancy"]
             or not isinstance(bundle.dependency_fingerprints, Mapping)
@@ -253,6 +262,51 @@ def _validate_handoff(bundle: GroupDistanceInput, fingerprints: Mapping) -> tupl
     if not isinstance(bundle.query_context, Mapping) or bundle.query_context.get("domain_id") != query.domain_id or bundle.query_context.get("frame") != query.frame:
         return "not_available", "field constructor query context does not match the actual query", domain
     return None, "", domain
+
+
+def _saved_samples_error(bundle: GroupDistanceInput) -> str | None:
+    """Require the exact lattice/query/source binding of a saved bool field."""
+    saved, grid = bundle.free_space_samples, bundle.grid
+    if not isinstance(saved, Mapping) or saved.get("kind") != "exact_free_space_samples/1":
+        return "saved free-space sample handoff is malformed"
+    expected_grid = {"origin": grid.origin, "spacing": grid.spacing,
+                     "n_rows": grid.n_rows, "n_cols": grid.n_cols}
+    if (saved.get("lattice") != expected_grid or saved.get("query") != _freeze(_json_value(bundle.query))
+            or saved.get("source_identity") != bundle.source_identity
+            or saved.get("analysis_plane") != bundle.analysis_plane
+            or saved.get("domain") != bundle.domain
+            or bundle.origin_offset != (0, 0)):
+        return "saved free-space lattice, query, plane, domain or source binding differs"
+    reference = saved.get("result_ref", {})
+    if (reference.get("kind") != "free_space_run" or not reference.get("result_id")
+            or not isinstance(reference.get("digest"), str) or len(reference["digest"]) != 64
+            or saved.get("freshness") not in {"current", "historical"}):
+        return "saved free-space publication identity is incomplete"
+    cells = saved.get("cells")
+    if not isinstance(cells, (tuple, list)) or len(cells) != grid.n_rows * grid.n_cols:
+        return "saved free-space sample coverage is incomplete"
+    source_ids = saved.get("source_ids")
+    if (not isinstance(source_ids, (tuple, list))
+            or any(not isinstance(refs, (tuple, list)) or any(not isinstance(ref, str) for ref in refs)
+                   for refs in source_ids) or not isinstance(saved.get("support_context"), Mapping)):
+        return "saved free-space shared sample metadata is malformed"
+    for index, cell in enumerate(cells):
+        if not isinstance(cell, Mapping) or cell.get("cell_key") != divmod(index, grid.n_cols):
+            return "saved free-space samples are not in exact lattice order"
+        status, value = cell.get("status"), cell.get("value")
+        source_ref = cell.get("source_refs")
+        if (not isinstance(source_ref, Mapping) or set(source_ref) != {"table", "index"}
+                or source_ref["table"] != "free_space_result.source_ids"
+                or type(source_ref["index"]) is not int or not 0 <= source_ref["index"] < len(source_ids)):
+            return "saved free-space source reference does not resolve"
+        if (status not in {item.value for item in FieldStatus}
+                or (value is not None and type(value) is not bool)
+                or (status in {"established", "conditional"}) != (value is not None)
+                or not cell.get("query_ref") or "support" not in cell
+                or not isinstance(cell.get("explanation"), str)
+                or status == "conditional" and not cell["explanation"].strip()):
+            return "saved free-space value/status/sample metadata is invalid"
+    return None
 
 
 def _neighbors(cell: tuple[int, int], grid: GridDescriptor) -> tuple:
@@ -277,7 +331,7 @@ def _cell_polygon(cell: tuple[int, int], grid: GridDescriptor):
 def _graphs(bundle: GroupDistanceInput, domain: Any) -> tuple:
     """Query cells once, then build observed, optimistic and failure-frontier graphs."""
     grid, query = bundle.grid, bundle.query
-    field = FreeSpaceField(domain=bundle.domain, origin=grid.origin, spacing=grid.spacing,
+    field = None if bundle.free_space_samples is not None else FreeSpaceField(domain=bundle.domain, origin=grid.origin, spacing=grid.spacing,
                            n_rows=grid.n_rows, n_cols=grid.n_cols, physical_occupancy=sorted(bundle.physical_occupancy, key=lambda item: item["id"]),
                            unresolved_source_ids=bundle.unresolved_source_ids, unresolved_supports=bundle.unresolved_supports,
                            query_context=bundle.query_context, frame=grid.frame, origin_offset=bundle.origin_offset,
@@ -288,20 +342,25 @@ def _graphs(bundle: GroupDistanceInput, domain: Any) -> tuple:
     for row in range(grid.n_rows):
         for col in range(grid.n_cols):
             cell = row, col
-            sample = field.evaluate(cell, request)
-            samples[cell] = {"cell_key": cell, "query_ref": f"{grid.grid_id}:cell:{row}:{col}",
-                             "status": sample.status.value, "value": sample.value, "source_refs": sample.source_ids,
-                             "support": sample.support, "explanation": sample.explanation, "center": _center(cell, grid)}
+            if bundle.free_space_samples is not None:
+                samples[cell] = {**bundle.free_space_samples["cells"][row * grid.n_cols + col],
+                                 "center": _center(cell, grid)}
+            else:
+                sample = field.evaluate(cell, request)
+                samples[cell] = {"cell_key": cell, "query_ref": f"{grid.grid_id}:cell:{row}:{col}",
+                                 "status": sample.status.value, "value": sample.value, "source_refs": sample.source_ids,
+                                 "support": sample.support, "explanation": sample.explanation, "center": _center(cell, grid)}
+            sample = samples[cell]
             if not domain.covers(Point(_center(cell, grid))):
                 continue
-            if sample.value is False and sample.status in {FieldStatus.ESTABLISHED, FieldStatus.CONDITIONAL}:
+            if sample["value"] is False and sample["status"] in {"established", "conditional"}:
                 observed.add_node(cell)
                 optimistic.add_node(cell)
                 frontier.add_node(cell)
-            elif sample.status == FieldStatus.UNKNOWN:
+            elif sample["status"] == "unknown":
                 optimistic.add_node(cell)
                 frontier.add_node(cell)
-            elif sample.status in {FieldStatus.INVALID, FieldStatus.NOT_AVAILABLE}:
+            elif sample["status"] in {"invalid", "not_available"}:
                 # Failed queries remain failures; this graph identifies their relevant frontier only.
                 frontier.add_node(cell)
     for cell in sorted(frontier):
@@ -578,6 +637,10 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
                 "expected_pair_ids": tuple(item["pair_id"] for item in pair_index), "expected_pair_count": len(pairs),
                 "dependency_fingerprints": fingerprints, "cell_samples": tuple(samples[cell] for cell in sorted(samples)),
                 "python_version": platform.python_version(), "networkx_version": nx.__version__}
+    if bundle.free_space_samples is not None:
+        manifest["free_space_result"] = {key: bundle.free_space_samples[key] for key in
+            ("result_ref", "freshness", "identity", "backend_versions", "content_cache", "calculation_provenance",
+             "source_ids", "support_context")}
     diagnostics = {"global_status": global_status, "global_explanation": global_explanation,
                    "graphs": graph_stats, "source_batched": True, "second_dijkstra": False,
                    "runtime_s": time.perf_counter() - started, "tracemalloc_peak_bytes": peak,

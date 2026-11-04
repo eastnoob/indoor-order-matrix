@@ -703,6 +703,31 @@ The reusable group-distance module is implemented in `features/group_distance.py
 with the pinned-IFC runner `scripts/design/group_level/run_group_distance_ifc.py`
 and output-only `render_group_distance_preview.py`. Kernel review is owner accepted;
 13 focused nonspatial checks and 4 runner/renderer delivery checks are recorded.
+The `.18.8a` continuation adds an explicit exact-result sample handoff in
+`adapters/free_space_distance.py`. It opens the existing immutable ResultRef using
+consumer expectations, authenticates its retained native request/capture, projects
+only group/domain geometry in the original plane coordinates, and carries the
+original lattice, bool values, six statuses, query and result lineage into
+`GroupDistanceInput`. The kernel consumes those saved samples without invoking
+`FreeSpaceField`; the existing whole-height constructor route remains unchanged.
+`scripts/design/group_level/run_group_distance_free_space.py` supplies the reusable
+historical-publication CLI. Known-empty samples retain the full source inventory
+through integer references into `free_space_result.source_ids`; shared support
+context is stored once and each cell keeps its local geometry plus an exact
+ResultRef/row/column locator for complete original support and provenance.
+Blender board meshes/materials are display-only. A saved read remains historical
+unless the caller supplies the independently verified native observation.
+The current numeric package is `outputs/design/group_distance_ifc/run_v3_finite_band_result/`,
+using the accepted 1.6 m finite-band result `fe3243c13b3f45daac8744efc46f3962`.
+It preserves all 24,442 saved samples and projects 37 groups from the authenticated
+producing capture. Both graphs have 13,800 nodes, 26,301 edges and 36 batched source
+searches; all 666 hybrid distances/routes are computed. Implementer checks cover
+48,734 selected nodes, 48,068 edges, access/lineage/arithmetic and equal immutable-
+bundle replay. Independent final specification review is PASS and code quality
+is Approved. Its current complete
+preview is `run_v3_finite_band_result/preview/index.html`; the HTML payload retains
+only fields consumed by its viewer, with full numerical evidence in the run.
+User visual acceptance `.18.10`/`.18.C4` remains pending.
 The historical superseded-selection package `outputs/design/group_distance_ifc/run_v1/` has
 37 groups, 666 computed Euclidean readings, 666 `outside` hybrid observations and
 666 indexed status views under `preview/`. Every group union lies outside S4;
@@ -712,7 +737,7 @@ input/domain and whole-height occupancy limit, not evidence of broken Dijkstra.
 Source/hash/pair reconciliation and separate runtime/memory scopes are in the
 [IFC evidence](project/evidence/group-distance-ifc-v1.md) and
 [implementation checklist](superpowers/plans/2026-11-03-group-distance-module-implementation.md).
-The user has corrected the selection to the right furniture hall plus left passage; matching candidate S3 is now confirmed and active under the explicit existing 10 mm² residual request policy, retaining A22 diagnostics, unchanged geometry and the separate 1 mm² opening budget. Corrected manifest/result bindings are frozen in `domain_correction_inspection/`. The retained corrected `run_v2_corrected_domain/` has all 37 centroids inside, 666 Euclidean computed and 666 hybrid unreachable/null with zero routes. After the existing exact boundary-member exclusion, 343 occupancy records remain; every one of 21,064 occupied samples includes the retained slab, with 3,378 outside samples and zero graph nodes/edges/searches. The current preview is `run_v2_corrected_domain/preview/index.html`; independent review verified 12 runner/preview hashes, 666 locators, SVG viewer and corrected S3 visuals. Combined kernel/delivery checks passed 19 tests in 14.68s before the metadata-only count correction; focused post-correction delivery checks passed 6 tests in 17.71s. Current occupancy is 343 records, with 353 retained as pre-rebind history; metrics and kernel output are unchanged. User review remains pending. The historical outside-only package is not current intended-domain evidence. Useful real-route validation and user visual acceptance keep `.18` open. No
+The user has corrected the selection to the right furniture hall plus left passage; matching candidate S3 is confirmed and active under the explicit existing 10 mm² residual request policy, retaining A22 diagnostics, unchanged geometry and the separate 1 mm² opening budget. Corrected manifest/result bindings are frozen in `domain_correction_inspection/`. The historical whole-height `run_v2_corrected_domain/` has all 37 centroids inside, 666 Euclidean computed and 666 hybrid unreachable/null with zero routes. After the existing exact boundary-member exclusion, 343 occupancy records remain; every one of 21,064 occupied samples includes the retained slab, with 3,378 outside samples and zero graph nodes/edges/searches. Its historical preview is `run_v2_corrected_domain/preview/index.html`; independent review verified 12 runner/preview hashes, 666 locators, SVG viewer and corrected S3 visuals. Combined kernel/delivery checks passed 19 tests in 14.68s before the metadata-only count correction; focused post-correction delivery checks passed 6 tests in 17.71s. Its occupancy is 343 records, with 353 retained as pre-rebind history; metrics and kernel output are unchanged. The historical outside-only and all-unreachable packages are not current distance inputs. Current v3 technical acceptance is complete; user visual acceptance keeps `.18` open. No
 occupancy exclusion or domain expansion is implied. The frozen numerical contract
 still uses NetworkX 3.6.1 scalar labels, deterministic tight-predecessor recovery
 and explicit binary64 component residual diagnostics.

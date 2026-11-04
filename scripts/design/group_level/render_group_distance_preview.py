@@ -63,6 +63,20 @@ def display_value(reading: dict) -> str:
     return "—" if reading["value"] is None else f'{reading["value"]:.5f}'
 
 
+def preview_observations(observations: list) -> list:
+    """Project recorded data to exactly the fields consumed by the HTML viewer.
+
+    Complete path-cell, edge and access-candidate lineage stays authoritative in
+    observations.json. The browser only needs the selected route geometry and
+    the audit fields its existing controls display.
+    """
+    fields = ("pair_id", "group_ids", "center_to_center_euclidean", "centroid_free_space_hybrid", "geometry_audit")
+    route_fields = ("points", "source_centroid", "target_centroid", "source_access", "target_access", "cell_keys", "arithmetic")
+    return [{**{key: observation[key] for key in fields},
+             "route": {key: observation["route"][key] for key in route_fields} if observation["route"] else None}
+            for observation in observations]
+
+
 def html_document(manifest: dict, observations: list, geometry: dict, aliases: dict, base: str) -> str:
     """Create one indexed route locator per pair and complete metric tables."""
     rows = []
@@ -90,7 +104,7 @@ def html_document(manifest: dict, observations: list, geometry: dict, aliases: d
     mapping = "".join(f'<tr><th>{alias}</th><td>{escape(identity)}</td></tr>' for identity, alias in aliases.items())
     states = Counter(item["centroid_free_space_hybrid"]["status"] for item in observations)
     state_summary = ", ".join(f"{status}={count}" for status, count in sorted(states.items()))
-    data = json.dumps({"observations": observations, "bounds": view_bounds(geometry), "aliases": aliases, "spacing": manifest["grid"]["spacing"]}, allow_nan=False, separators=(",", ":")).replace("</", "<\\/")
+    data = json.dumps({"observations": preview_observations(observations), "bounds": view_bounds(geometry), "aliases": aliases, "spacing": manifest["grid"]["spacing"]}, allow_nan=False, separators=(",", ":")).replace("</", "<\\/")
     script = r"""
 const data=JSON.parse(document.getElementById('data').textContent);
 const byId=new Map(data.observations.map(o=>[o.pair_id,o]));
@@ -111,6 +125,12 @@ document.getElementById('details').textContent=JSON.stringify({pair_id:o.pair_id
 picker.onchange=()=>{location.hash=picker.value;};window.onhashchange=show;document.getElementById('zoom').onchange=show;show();
 """
     candidate = escape(domain_candidate_id(geometry["domain"]))
+    source = manifest["source_identity"]
+    source_label = "Source IFC SHA-256" if source.get("sha256") else "Source native capture SHA-256"
+    source_digest = escape(source.get("sha256") or source["capture_digest"])
+    free_space = manifest.get("free_space_result")
+    result_trace = ("<p>Exact free-space result: " + escape(json.dumps(free_space["result_ref"], sort_keys=True))
+                    + ". Freshness: " + escape(free_space["freshness"]) + ".</p>") if free_space else ""
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><title>IFC group distance · {candidate}</title>
 <style>body{{font:14px system-ui;margin:20px;color:#172033}}select{{max-width:90%;padding:8px}}svg{{width:100%;height:700px;background:#fff;border:1px solid #bbb}}table{{border-collapse:collapse}}td,th{{padding:5px;border:1px solid #ddd;text-align:right}}.scroll{{overflow:auto}}.matrix{{font-size:10px}}pre{{overflow:auto;max-height:400px;background:#f1f5f9;padding:12px}}#summary{{overflow-wrap:anywhere}}a{{color:#075985}}</style>
 <h1>IFC group distance · confirmed {candidate} camera plane</h1><p>37 authored groups · 666 unordered pairs · metres · {manifest["grid"]["spacing"]} m cells · four-neighbor discrete approximation. Matrix diagonal: null/not_applicable.</p>
@@ -121,7 +141,7 @@ picker.onchange=()=>{location.hash=picker.value;};window.onhashchange=show;docum
 <details><summary>Selected pair audit</summary><pre id="details"></pre></details>
 <h2>Complete unordered pair list</h2><table><tr><th>Pair / route locator</th><th>Euclidean (m)</th><th>Hybrid (m)</th><th>Hybrid status</th></tr>{"".join(rows)}</table>
 {"".join(matrices)}<h2>Group identifiers</h2><table>{mapping}</table>
-<p>Source SHA-256: {manifest["source_identity"]["sha256"]}. User visual review pending. No-route pairs remain selectable and have no invented route.</p>
+<p>{source_label}: {source_digest}. User visual review pending. No-route pairs remain selectable and have no invented route.</p>{result_trace}
 <script type="application/json" id="data">{data}</script><script>{script}</script></html>'''
 
 

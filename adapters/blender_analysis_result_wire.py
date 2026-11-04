@@ -277,6 +277,27 @@ def decode_cell(document, *, row, column):
     return plain(_decode_cell_view(document, row=row, column=column))
 
 
+def iter_analysis_samples(snapshot):
+    """Yield complete immutable samples while sharing validated result metadata.
+
+    The exact opener has already detached and authenticated the document. Bulk
+    consumers therefore reuse its frozen table values instead of copying the
+    entire calculation provenance for every lattice cell.
+    """
+    if not isinstance(snapshot, ReadOnlyResultSnapshot) or snapshot.ref.kind != "free_space_run":
+        raise TypeError("an opened free-space result snapshot is required")
+    document = snapshot.payload
+    provenance = {key: resolve_value(document, ref)
+                  for key, ref in document["tables"]["sample_provenance"].items()}
+    for cell in document["cells"]:
+        sample = _decode_cell_view(document, row=cell["row"], column=cell["column"],
+                                   base_provenance=provenance)
+        for key in ("support", "provenance"):
+            if isinstance(sample[key], dict):
+                sample[key] = MappingProxyType(sample[key])
+        yield MappingProxyType(sample)
+
+
 def _decode_cell_view(document, *, row, column, base_provenance=None):
     """Read private references without detaching shared, already checked metadata."""
     if document.get("kind") != "free_space_run":
