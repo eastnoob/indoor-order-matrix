@@ -1,5 +1,44 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Verified free-space prerequisite execution — 2026-11-04
+
+The user authorized continued development in the existing `free-space-cache` jj
+workspace. Apply [verified-agent-workflow](../skills/verified-agent-workflow/SKILL.md)
+and its [checklist](superpowers/plans/2026-11-04-free-space-prerequisite-checklist.md).
+Independent verification and explicit specification/quality verdicts precede each
+accepted local jj commit; root is the sole version writer. Generate visuals only
+for unresolved spatial correctness questions and reuse unchanged verified views.
+Do not require a picture or human approval at every task transition. Preserve
+the main and distance workspaces and the original IFC. Current evidence belongs
+in [the delivery ledger](project/evidence/free-space-prerequisite-2026-11-04.md).
+
+In this isolated workspace, recovered camera/request/session/UI files exist.
+Historical main-tree absence statements below do not describe this checkout.
+
+## Free-space height and scope clarification — 2026-11-03
+
+The user defines the current planar free-space query as projection of physical
+mass above the floor surface and below the selected analysis-plane height.
+The plane supplies the upper bound as well as projection coordinates; a section
+at that exact height is a separate retained interface, unused for this task.
+Projected analysis-domain intersection defines participating objects, including
+boundary-touching objects. Object participation and positive-area cell occupancy
+are distinct; merely touching an edge does not itself occupy a whole cell.
+Floor material remains physical mass: lack of positive overlap above its upper
+surface, rather than a class-wide exemption, explains absence from this query.
+
+The recovered workflow already exposes `ground_to_analysis_plane_band`, mapped
+by `_make_analysis_request` to `GeometryQuery("finite_height_band")`, but its
+lower bound is hard-coded world Z=0 rather than the selected slab surface.
+`plan_projection` clips height bands, `execute_analysis_request` carries their
+qualified geometry into `FreeSpaceField`, and `resolve_slab_datum` separately
+reads a verified horizontal upper surface. A unified inclusive domain/object
+selection handoff is not implemented. The corrected S3 distance run still uses
+`whole_height_planar_mass_patch` with no height band and does not implement the
+user's clarified query. Earlier support-binding investigation describes existing
+behavior only, not the required fix. Eleven existing focused checks passed under
+Pixi in 5.55s; no new IFC map, code change, or user visual acceptance is claimed.
+
 ## Current domain intent correction — 2026-11-03
 
 The user corrected the selected analysis domain using the attached red outline:

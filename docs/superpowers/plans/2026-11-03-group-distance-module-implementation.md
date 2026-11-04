@@ -114,6 +114,34 @@ Implemented `scripts/design/group_level/render_group_distance_preview.py` as out
 - [x] `.18.9` Corrected S3 state coverage recorded: 666 hybrid `unreachable`, 666 Euclidean `computed`, 21,064 established occupied samples and 3,378 outside samples; 0 free/unknown, graph nodes/edges/searches or routes. Other hybrid status/access/tie/conditional route branches remain spatially unobserved. The slab is retained under unchanged whole-height occupancy.
 - [ ] `.18.10` User visual review remains pending for the corrected full-scope S3 preview. Independent artifact/PNG review is not user acceptance. Master `.18` stays open for useful real-route validation and user acceptance.
 
+**Delegated prerequisite for `.18.8` — 2026-11-03:** At the user's request, chat **自由空间生成与缓存对接** (`01a1a257-c569-7161-b8b7-b583372d4c6f`) owns free-space generation/cache investigation and direct user discussion, with completion handoff to distance owner `01a17389-9f50-7700-a8d7-c2e0ad7b3d09`. Its isolated jj workspace is `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`, change `vvnuuksk`, parent `9c0b024b`; the six-file path-band draft is excluded and the owner's files are untouched.
+
+Investigation found the existing answer to support handling: the historical whole-height inspection preserves the upstream `excluded_support_slab` declaration; the general live seam validates a specific `SupportBinding` and changes only request-local interior occupancy. Missing or stale binding retains the slab. Current inferred-wall-domain `evaluate_domain_request` returns `support_status=not_applicable`, while authored IfcSpace exposes the support binding. The historical excluded slab has the current slab GUID but another IFC hash/domain, so it is not a current validated declaration. Existing full free-space serialization, atomic result writing and exact ResultRef/sample reading can be reused; cache-key selection and distance consumption remain unconnected, and plane revision still affects the request semantic key. No new query policy or height band was selected.
+
+Verification on the pre-draft baseline used the existing Pixi environment with the main checkout's embedded OCTA source on `PYTHONPATH`: `test_unbound_floor_remains_occupancy`, `test_live_execution_uses_exact_mesh_and_request_scoped_support`, `test_analysis_domain_support_mass_is_not_a_walking_blocker_when_overlapping_body_band`, `test_unidentified_analysis_domain_keeps_shared_wall_and_column_occupancy`, `test_key_excludes_request_ids_and_display_but_tracks_semantics`, and `test_live_and_embedded_results_use_same_reader_without_sidecar` — **6 passed in 3.58s**. The first collection lacked the untracked embedded OCTA tree; supplying its existing path resolved collection without installing dependencies or changing source. No new scene, IFC extraction, free-space map or route was generated. `.18.8`, `.18.10`, `.18.C4` and parent `.18` remain open; no completion handoff has been sent.
+
+**User free-space clarification and implementation audit — 2026-11-03:** The
+user specified floor-surface-to-analysis-plane height projection, with projected
+domain intersection including boundary-touching objects. The exact plane cut
+remains a separate interface. The recovered UI already has
+`ground_to_analysis_plane_band`; `_make_analysis_request` maps it to local-Z
+`finite_height_band`, and the request executor uses existing clipped projection
+geometry. This entry hard-codes world Z=0 instead of consuming the separately
+available selected-slab upper-surface datum. Exact domain cell clipping exists;
+a unified inclusive object-scope handoff does not. Keep object participation
+separate from positive-area occupancy. Current corrected S3 retained input is
+explicitly whole-height with no band; the earlier support-exclusion investigation
+does not prescribe the fix or satisfy the clarified rule. No algorithm changes
+were made in this audit.
+
+Eight existing test selections (11 parametrized cases) passed in **5.55s** under
+the same Pixi environment and OCTA path setup above: ground-band UI conversion,
+request local-Z occupancy, rotated-plane band projection, local high-part
+projection, slab/storey upper-surface resolution, unsupported slab surface
+rejection, partial-domain/hole clipping, and independent absolute-world-Z section.
+These checks verify existing capabilities, not a fresh S3 result. Cache completion,
+useful routes and user visual acceptance remain open.
+
 ### User correction continuation within .18
 
 The `.18.2–.18.6` S4 adapter/run details above remain historical. Corrected S3

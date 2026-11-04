@@ -1,8 +1,52 @@
 # 软件架构
 
+## Free-space prerequisite workline — 2026-11-04 / implementation started
+
+This map's current checkout is the isolated `free-space-cache` jj workspace at
+`D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`. It contains
+the recovered camera/capture/request/session/addon dependency closure, unlike the
+main-tree absence statements retained below as historical context. Actual files
+and this workline's tests, rather than those historical status labels, establish
+availability. The independent Task 0 baseline is 507 passed (33.84 s), with one
+installed-dependency warning; it is not new-feature acceptance.
+
+Use [verified-agent-workflow](../skills/verified-agent-workflow/SKILL.md) and the
+[current checklist](superpowers/plans/2026-11-04-free-space-prerequisite-checklist.md).
+Reuse `bonsai_analysis_plane` for native drawing identity, `bonsai_space_authoring`
+for slab datum, `analysis_requests`/`geometry_views` for finite-band projection,
+and the existing result wire/session for persistence and current reads. Missing
+lifecycle, datum wiring, inclusive participation audit and content lookup are
+implementation targets; the distance kernel is outside this workline.
+
+## Free-space query clarified by the user — 2026-11-03 / existing capabilities audited
+
+Current task semantics are floor-upper-surface → analysis-plane-height physical
+mass projection, restricted to the projected confirmed domain. Object scope
+includes boundary contact; known occupied cells still require positive-area
+intersection. The exact plane section is a separate retained query interface.
+The recovered UI already offers `ground_to_analysis_plane_band`
+(`blender_addon/order_analyzer_ui/__init__.py:_make_analysis_request`), and
+`features/analysis_requests.py:_occupancy` uses the existing
+`geometry_views.plan_projection(..., height_band=...)` before constructing
+`FreeSpaceField`. This UI currently assumes world ground Z=0. The selected slab's
+actual top is separately available from
+`adapters/bonsai_space_authoring.py:resolve_slab_datum`; it is not connected as
+that free-space lower bound. FreeSpaceField clips cell support to the exact
+domain, but there is no unified object-scope selection using inclusive projected
+intersection. Existing exact boundary-member exclusions also remain in force;
+retained boundary evidence is not a complete inclusive object-scope handoff.
+Current S3 retained input explicitly declares `whole_height_planar_mass_patch`,
+`height_band=null`; that run is not evidence for the clarified query. The earlier
+support-binding diagnosis below is an audit of another supported scope mechanism,
+not the prescribed solution. Eleven existing UI/request/projection/slab/domain/
+section checks passed in Pixi in 5.55s. Implementation and fresh S3 visual
+validation remain open; see the existing distance checklist.
+
 ## 当前任务：选区纠正 — PRIOR S4 SUPERSEDED / INTENDED S3 CONFIRMED / CORRECTED UNREACHABLE RUN RETAINED
 
 **2026-11-03 current intent correction:** 用户红线选择右侧家具大厅和左侧连接通道。原窄 S4 及 `group_distance_ifc/run_v1/` 的 666 outside 仅是历史错误选区结果；其确认执行记录保留，但选区身份不再代表当前意图。worker/reviewer 已由实际源识别候选 S3（207.24092382549588 m²，37/37 组相交），`.18.C1` 完成；原请求因 A22 斜墙 residual 3.4968646007715876 mm² refused；owner 已选择既有 per-request `aperture_residual_tolerance_m2=1e-5`（10 mm²）策略，prepare 后的 fresh confirmation 已 accepted/active，面积及零孔 shell 不变。A22 保留 `above_area_budget=true`、`significant_residual=false`、`scenario_closed=false`，独立 opening budget `1e-6 m²`（1 mm²）不变。依据[既有 residual policy](project/evidence/d6-inner-space-residual-tolerance.md)，无 global/default/schema 改动、几何修复或 closure override；新请求的 manifest/result binding 已于 `domain_correction_inspection/confirmed_domain_manifest.json` / `confirmed_domain_result.json` 冻结，session revision 1 的 `user-red-outline-s3-20261103` action 记录用户明确选区，旧 refusal 保留；`.18.C2–.18.C3` 完成；实际 `run_v2_corrected_domain/` 为 37 centroids inside、666 Euclidean computed / 666 hybrid unreachable/null / 0 routes。343 occupancy 保留 slab，21,064 established occupied + 3,378 outside，graph nodes/edges/searches 0。`run_v2_corrected_domain/preview/index.html` 已交付，`.18.C4/.18.10` user review 和 `.18.8` 有用真实路径验证仍 open。S3 inferred floor support 尚不具备 occupancy exclusion 资格，不得排除 slab 或更改高度策略；本轮 whole-height occupancy 实际阻断所有路线。实施延续见 distance plan `.18.C1–.18.C4`，`.18` 仍 open。
+
+**2026-11-03 free-space investigation (no calculation-policy change):** Existing whole-height inspection explicitly carries the historical `excluded_support_slab` scope into `run_free_space_field_inspection.py`; it does not obtain free cells by choosing a height band. The general current seam is `bonsai_live.validate_support_binding` → `blender_analysis_session.execute_live_analysis` → the exact domain-support/member exclusion in `analysis_requests` and `neutral_scene_views`. A validated specific support changes request-local interior occupancy while retaining factual sources and geometry; an absent or stale binding excludes nothing. `evaluate_domain_request` currently exposes support candidates/binding only for authored IfcSpace, returning `support_status=not_applicable` for inferred wall domains such as current S3. Historical B3 identifies the same slab GUID, but its IFC hash and domain differ and cannot supply a current binding. Full result serialization, atomic writing and exact ResultRef/sample reading already exist; content-key cache selection and downstream reuse are not connected. Request semantic identity still includes plane revision, so geometric undo alone does not guarantee a cache hit. The isolated `free-space-cache` workspace uses parent `9c0b024b`, before the six-file path-band draft. Six existing support/identity/result-reader checks passed under Pixi (3.58s); this is not a new S3 run or user acceptance. Follow-up remains in the [distance implementation checklist](superpowers/plans/2026-11-03-group-distance-module-implementation.md).
 
 2026-11-02 用户确认所有分析范围来自选定墙体围合区域在选定相机分析平面上的投影。任务工作区 `order_analyzer_group_distance` 已恢复并核验 sibling `order_analyzer_spec008` 的有界实现闭包；原主工作区尚未集成。Spec008 有 2026-10-19/20 disposable 验收，但实际实现文件未包含在其当前 jj revision，恢复已按实际磁盘 bytes/hash 记录，不能按 revision 宣称已恢复。
 
