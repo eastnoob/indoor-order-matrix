@@ -549,8 +549,26 @@ def create_native_drawing(*, storey_ref: str | None = None, elevation_m: float |
 
 
 def _invoke_plane_operation(operator, context):
-    """Execute a managed placement update through the installed Bonsai transaction wrapper."""
+    """Execute managed camera restoration or placement through the native transaction wrapper."""
     return importlib.import_module("bonsai.bim.ifc").IfcStore.execute_ifc_operator(operator, context)
+
+
+def _managed_camera_object(entity, bpy, tool, store):
+    """Distinguish an absent saved camera from inconsistent maps or an extant native binding."""
+    if not entity.is_a("IfcAnnotation") or entity.ObjectType != "DRAWING" or not entity.GlobalId:
+        raise ValueError("managed analysis plane requires a native drawing annotation")
+    camera = tool.Ifc.get_object(entity)
+    id_camera = store.id_map.get(entity.id())
+    guid_camera = store.guid_map.get(entity.GlobalId)
+    if camera is None:
+        # An importer must not duplicate an extant object merely because a reverse map was lost.
+        if (id_camera is not None or guid_camera is not None
+                or any((linked := tool.Ifc.get_entity(obj)) is not None and linked.id() == entity.id()
+                       for obj in bpy.data.objects)):
+            raise ValueError("managed drawing entity/object relationship is inconsistent")
+    elif id_camera is not camera or guid_camera is not camera:
+        raise ValueError("managed drawing entity/object relationship is inconsistent")
+    return camera
 
 
 def _managed_camera_binding(camera, entity) -> CameraBinding:
@@ -566,7 +584,7 @@ def _managed_camera_binding(camera, entity) -> CameraBinding:
 def ensure_native_analysis_plane(*, elevation_m: float, project_global_id: str | None = None,
                                  camera_guid: str | None = None, storey_ref: str | None = None,
                                  query_kind: str = "whole_height_projection"):
-    """Find or create the uniquely owned native plane and synchronize its world elevation in metres."""
+    """Find, restore or create the uniquely owned native plane at an explicit world-metre elevation."""
     from types import SimpleNamespace
 
     bpy = importlib.import_module("bpy")
@@ -576,6 +594,7 @@ def ensure_native_analysis_plane(*, elevation_m: float, project_global_id: str |
     get_pset = importlib.import_module("ifcopenshell.util.element").get_pset
     model = tool.Ifc.get()
     native_z = _native_elevation(elevation_m, bpy)
+    unit_scale = float(bpy.context.scene.unit_settings.scale_length)
     projects = model.by_type("IfcProject") if model is not None else ()
     if len(projects) != 1 or not getattr(projects[0], "GlobalId", None):
         raise ValueError("managed analysis plane requires exactly one native IFC project")
@@ -597,16 +616,18 @@ def ensure_native_analysis_plane(*, elevation_m: float, project_global_id: str |
         raise ValueError("native drawing identity is not the managed analysis plane")
     if not candidates:
         return create_native_drawing(storey_ref=storey_ref, elevation_m=elevation_m, managed=True, query_kind=query_kind)
-    camera = tool.Ifc.get_object(candidates[0])
-    binding = _managed_camera_binding(camera, candidates[0])
-    plane_from_camera(binding, name="Analysis plane", query_kind=query_kind)
+    drawing = candidates[0]
+    camera = _managed_camera_object(drawing, bpy, tool, store)
+    binding = _managed_camera_binding(camera, drawing) if camera is not None else None
+    if binding is not None:
+        plane_from_camera(binding, name="Analysis plane", query_kind=query_kind)
     if bpy.context.scene.get("om_analysis_authoring_recovery_error"):
         raise ValueError("native authoring is blocked after failed recovery; reopen a verified saved file")
     if store.current_transaction or store.modal_in_progress or model.transaction is not None:
         raise ValueError("finish the unrelated native transaction before updating an analysis plane")
     if model.history_size <= 0 or bpy.context.mode != "OBJECT":
         raise ValueError("analysis plane update requires Object mode and native IFC history")
-    if math.isclose(binding.origin[2], float(elevation_m), rel_tol=0, abs_tol=FRAME_TOLERANCE):
+    if binding is not None and math.isclose(binding.origin[2], float(elevation_m), rel_tol=0, abs_tol=FRAME_TOLERANCE):
         return camera
     before = _drawing_snapshot(bpy, tool, store, brick)
     transaction_key = None
@@ -622,12 +643,30 @@ def ensure_native_analysis_plane(*, elevation_m: float, project_global_id: str |
         transaction_key = operator.transaction_key
 
     def execute(_context):
-        """Synchronize Blender and native IFC placement inside one recoverable operation."""
+        """Restore a saved camera and synchronize any requested elevation in one owned operation."""
+        nonlocal camera
+        if camera is None:
+            # import_drawing appends link undo to history[-1], which must be this operation's event.
+            if (not transaction_key or store.current_transaction != transaction_key or model.transaction is None
+                    or not store.history or store.history[-1]["key"] != transaction_key):
+                raise RuntimeError("native plane restoration requires its owned native transaction and history event")
+            camera = tool.Drawing.import_drawing(drawing)
+            if camera is None or _managed_camera_object(drawing, bpy, tool, store) is not camera:
+                raise ValueError("native drawing import did not return its managed camera")
+            if unit_scale != 1.0:
+                # Native shape import returns SI translation; retain the analyzer's explicit scene-unit contract.
+                _set_matrix_world(camera, tuple(tuple(value / unit_scale if col == 3 and row < 3 else value
+                    for col, value in enumerate(values)) for row, values in enumerate(camera.matrix_world)))
+                tool.Geometry.record_object_position(camera)
+            restored = _managed_camera_binding(camera, drawing)
+            plane_from_camera(restored, name="Analysis plane", query_kind=query_kind)
+            if math.isclose(restored.origin[2], float(elevation_m), rel_tol=0, abs_tol=FRAME_TOLERANCE):
+                return {"FINISHED"}
         _set_camera_elevation(camera, native_z)
         bpy.context.view_layer.update()
         with _camera_placement_units((camera,), bpy, tool):
             entity = tool.Drawing.sync_object_placement(camera)
-        if entity is None or entity.id() != candidates[0].id():
+        if entity is None or entity.id() != drawing.id():
             raise ValueError("native analysis plane placement did not synchronize its drawing")
         return {"FINISHED"}
 
@@ -635,8 +674,10 @@ def ensure_native_analysis_plane(*, elevation_m: float, project_global_id: str |
     try:
         status = _invoke_plane_operation(SimpleNamespace(bl_idname="om_analysis.ensure_plane", _execute=execute), bpy.context)
         if status != {"FINISHED"} or store.current_transaction or model.transaction is not None:
-            raise ValueError("native analysis plane update cancelled or left an incomplete transaction")
-        updated = _managed_camera_binding(camera, candidates[0])
+            raise ValueError("native analysis plane operation cancelled or left an incomplete transaction")
+        if _managed_camera_object(drawing, bpy, tool, store) is not camera:
+            raise ValueError("managed drawing entity/object relationship is inconsistent")
+        updated = _managed_camera_binding(camera, drawing)
         plane_from_camera(updated, name="Analysis plane", query_kind=query_kind)
         if not math.isclose(updated.origin[2], float(elevation_m), rel_tol=0, abs_tol=FRAME_TOLERANCE):
             raise ValueError(f"native analysis plane did not retain the requested world elevation: desired {float(elevation_m)} m, observed {updated.origin[2]} m")

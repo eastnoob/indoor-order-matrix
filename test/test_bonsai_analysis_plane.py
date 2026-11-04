@@ -280,7 +280,7 @@ def test_full_workflow_rejects_tilt_and_exact_section_rejects_rotated_basis(monk
     assert plane_from_camera(binding, name="whole").origin[2] == 1.6
 
 
-def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
+def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0, model=None):
     """Use real IFC transactions with synthetic Blender resources at the native authoring seam."""
     import ifcopenshell
     import ifcopenshell.api
@@ -330,8 +330,10 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
     class Scene(dict):
         """Keep native custom properties separate from scene RNA-like fields."""
 
-    model = ifcopenshell.file(schema="IFC4")
-    project = ifcopenshell.api.run("root.create_entity", model, ifc_class="IfcProject")
+    if model is None:
+        model = ifcopenshell.file(schema="IFC4")
+        ifcopenshell.api.run("root.create_entity", model, ifc_class="IfcProject")
+    project = model.by_type("IfcProject")[0]
     model.history_size = 64
     data = Resource(**{kind: Resources() for kind in
                       ("objects", "cameras", "meshes", "curves", "collections", "materials")})
@@ -375,12 +377,15 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
             key = operator.transaction_key
             bim_props.is_dirty = True
             model.begin_transaction()
+            # Native link_element writes to the current event before the wrapper finalizes IFC undo.
+            event = {"key": key, "operations": []}
+            Store.history.append(event)
+            Store.future = []
             try:
                 return operator._execute(native_context)
             finally:
                 model.end_transaction()
-                Store.history.append({"key": key, "operations": [{"rollback": lambda data: model.undo(), "data": None}]})
-                Store.future = []
+                event["operations"].append({"rollback": lambda data: model.undo(), "data": None})
                 Store.last_transaction = bim_props.last_transaction = key
                 Store.current_transaction = ""
 
@@ -404,6 +409,22 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
             """Read the pose without silently adding the scene scale missing from the installed API."""
             import numpy as np
             return np.array(camera.matrix_world, dtype=float)
+
+    def allocate_camera():
+        """Allocate only Blender datablocks, shared by the distinct native create and import seams."""
+        camera_data = Resource(type="ORTHO", ortho_scale=8., clip_start=.1, clip_end=100.)
+        camera = Resource(type="CAMERA", name_full="Synthetic camera", library=None,
+            matrix_world=Matrix(_matrix(origin=(11., 12., 4.2))), color=(1, 1, 1, 1), data=camera_data,
+            users_collection=[], bim=Resource(ifc_definition_id=0, location_checksum="before",
+                rotation_checksum="before", blender_offset_type="NONE"))
+        data.objects.append(camera)
+        data.cameras.append(camera_data)
+        view_objects.append(camera)
+        return camera
+
+    def record_object_position(camera):
+        """Cache the raw pose after official import or an explicit scene-unit conversion."""
+        camera.bim.location_checksum = repr(tuple(camera.matrix_world[row][3] for row in range(3)))
 
     class Drawing:
         """Implement the installed creation, assignment and placement method contracts."""
@@ -432,15 +453,42 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
         @classmethod
         def create_camera(cls, *arguments, **keywords):
             """Allocate a camera with an intentionally different native default elevation."""
-            camera_data = Resource(type="ORTHO", ortho_scale=8., clip_start=.1, clip_end=100.)
-            camera = Resource(type="CAMERA", name_full="Synthetic camera", library=None,
-                matrix_world=Matrix(_matrix(origin=(11., 12., 4.2))), color=(1, 1, 1, 1), data=camera_data,
-                users_collection=[], bim=Resource(ifc_definition_id=0, location_checksum="before",
-                    rotation_checksum="before", blender_offset_type="NONE"))
-            data.objects.append(camera)
-            data.cameras.append(camera_data)
-            view_objects.append(camera)
             state.calls.append("create")
+            return allocate_camera()
+
+        @classmethod
+        def import_drawing(cls, drawing):
+            """Restore one camera with the installed importer's SI pose and link-history side effects."""
+            from ifcopenshell.util.placement import get_local_placement
+            assert model.transaction is not None and Store.current_transaction
+            assert Store.history[-1]["key"] == Store.current_transaction
+            state.calls.append(("import", drawing.id()))
+            camera = allocate_camera()
+            if state.failure == "import_allocation":
+                raise RuntimeError("injected import allocation failure")
+            camera.bim.ifc_definition_id = drawing.id()
+            Store.id_map[drawing.id()] = Store.guid_map[drawing.GlobalId] = camera
+
+            def rollback_link(_data):
+                """Mirror native link rollback before recovery restores the retained maps."""
+                del Store.id_map[drawing.id()]
+                del Store.guid_map[drawing.GlobalId]
+
+            Store.history[-1]["operations"].append({"rollback": rollback_link, "data": None})
+            if state.failure == "import_link":
+                raise RuntimeError("injected import link failure")
+            camera.matrix_world = Matrix(get_local_placement(drawing.ObjectPlacement))
+            record_object_position(camera)
+            if state.failure == "import_tilt":
+                camera.matrix_world = Matrix(((1, 0, 0, 11), (0, 0, -1, 12), (0, 1, 0, 1.6), (0, 0, 0, 1)))
+            elif state.failure == "import_rotated":
+                camera.matrix_world = Matrix(((0, -1, 0, 11), (1, 0, 0, 12), (0, 0, 1, 1.6), (0, 0, 0, 1)))
+            elif state.failure == "import_perspective":
+                camera.data.type = "PERSP"
+            elif state.failure == "import_guid_map":
+                Store.guid_map[drawing.GlobalId] = Resource()
+            elif state.failure == "import_duplicate":
+                allocate_camera().bim.ifc_definition_id = drawing.id()
             return camera
 
         @classmethod
@@ -472,6 +520,7 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
     tool = Resource(Drawing=Drawing, Surveyor=Surveyor, Ifc=Resource(get=lambda: model, get_entity=get_entity,
         get_object=lambda entity: Store.id_map.get(entity.id()), run=native_run, resolve_uri=lambda uri: uri),
         Blender=Resource(get_bim_props=lambda: bim_props, get_object_bim_props=lambda obj: obj.bim),
+        Geometry=Resource(record_object_position=record_object_position),
         Spatial=Resource(get_spatial_props=lambda: spatial_props))
     brick = Resource(history=[], future=[], current_changesets=0, graph=None)
 
@@ -576,6 +625,131 @@ def test_managed_marker_resolves_after_ifc_only_serialization_without_scene_bind
     runtime.tool.Ifc.get_object = lambda entity: camera
     assert not runtime.bpy.context.scene
     assert runtime.adapter.ensure_native_analysis_plane(elevation_m=1.6) is camera
+
+
+def _reopened_authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.):
+    """Reopen genuine managed IFC bytes into a fresh Blender state with no imported drawing camera."""
+    import ifcopenshell
+    source = _authoring_runtime(monkeypatch, tmp_path, unit_scale=unit_scale)
+    camera = source.adapter.ensure_native_analysis_plane(elevation_m=1.6)
+    guid = source.tool.Ifc.get_entity(camera).GlobalId
+    reopened = ifcopenshell.file.from_string(source.model.to_string())
+    runtime = _authoring_runtime(monkeypatch, tmp_path, unit_scale=unit_scale, model=reopened)
+    return runtime, guid
+
+
+@pytest.mark.parametrize("unit_scale", [1., .001, 2.])
+@pytest.mark.parametrize("elevation_m", [1.6, 2.3])
+def test_managed_plane_restores_missing_saved_camera_with_same_ifc_identity(monkeypatch, tmp_path, unit_scale, elevation_m):
+    """Ensure restores one saved drawing in its own event and reuses it without creating another annotation."""
+    from ifcopenshell.util.element import get_pset
+    from ifcopenshell.util.placement import get_local_placement
+    runtime, guid = _reopened_authoring_runtime(monkeypatch, tmp_path, unit_scale=unit_scale)
+    adapter = runtime.adapter
+    entity = runtime.model.by_guid(guid)
+    step_id = entity.id()
+    before_ifc = runtime.model.to_string()
+    prior_event = {"key": "unrelated-event", "operations": []}
+    runtime.store.history.append(prior_event)
+    assert not runtime.bpy.data.objects and not runtime.store.id_map and not runtime.store.guid_map
+    camera = adapter.ensure_native_analysis_plane(elevation_m=elevation_m,
+        project_global_id=runtime.project.GlobalId, camera_guid=guid)
+    assert runtime.tool.Ifc.get_entity(camera).id() == step_id
+    assert runtime.tool.Ifc.get_entity(camera).GlobalId == guid
+    assert len(runtime.model.by_type("IfcAnnotation")) == 1
+    assert get_pset(entity, adapter.MANAGED_PLANE_PSET)["ProjectGlobalId"] == runtime.project.GlobalId
+    assert tuple(camera.matrix_world[row][3] for row in range(3)) == pytest.approx((11, 12, elevation_m / unit_scale))
+    assert adapter.read_camera_binding(camera, role="geometry_author").origin == pytest.approx((11 * unit_scale, 12 * unit_scale, elevation_m))
+    assert get_local_placement(entity.ObjectPlacement)[:3, 3] == pytest.approx((11 * unit_scale, 12 * unit_scale, elevation_m))
+    if elevation_m == 1.6:
+        assert runtime.model.to_string() == before_ifc
+    assert len(runtime.store.history) == 2 and prior_event["operations"] == []
+    assert runtime.state.calls.count(("import", step_id)) == 1 and "create" not in runtime.state.calls
+    assert adapter.ensure_native_analysis_plane(elevation_m=elevation_m) is camera
+    assert len(runtime.bpy.data.objects) == 1 and len(runtime.bpy.data.cameras) == 1
+    assert len(runtime.store.history) == 2
+
+
+@pytest.mark.parametrize("corruption", ["missing_id", "missing_both", "missing_guid", "wrong_guid", "wrong_id"])
+def test_managed_plane_refuses_import_over_inconsistent_existing_camera_maps(monkeypatch, tmp_path, corruption):
+    """Missing reverse maps cannot authorize another camera while the original native binding survives."""
+    runtime = _authoring_runtime(monkeypatch, tmp_path)
+    adapter = runtime.adapter
+    camera = adapter.ensure_native_analysis_plane(elevation_m=1.6)
+    entity = runtime.tool.Ifc.get_entity(camera)
+    if corruption in {"missing_id", "missing_both"}:
+        del runtime.store.id_map[entity.id()]
+    if corruption in {"missing_guid", "missing_both"}:
+        del runtime.store.guid_map[entity.GlobalId]
+    if corruption in {"wrong_guid", "wrong_id"}:
+        unrelated = adapter.create_native_drawing(elevation_m=1.6)
+        if corruption == "wrong_guid":
+            runtime.store.guid_map[entity.GlobalId] = unrelated
+        else:
+            runtime.store.id_map[entity.id()] = unrelated
+    before = adapter._drawing_snapshot(runtime.bpy, runtime.tool, runtime.store, runtime.brick)
+    calls = list(runtime.state.calls)
+    with pytest.raises(ValueError, match="relationship"):
+        adapter.ensure_native_analysis_plane(elevation_m=2.3)
+    assert adapter._drawing_snapshot(runtime.bpy, runtime.tool, runtime.store, runtime.brick) == before
+    assert runtime.state.calls == calls
+
+
+@pytest.mark.parametrize("guard", ["recovery", "native_transaction", "ifc_transaction", "modal", "history", "mode", "not_drawing"])
+def test_managed_missing_camera_keeps_native_authoring_guards_before_import(monkeypatch, tmp_path, guard):
+    """Restoring a saved camera cannot bypass native operation or drawing-type qualification."""
+    runtime, guid = _reopened_authoring_runtime(monkeypatch, tmp_path)
+    if guard == "recovery":
+        runtime.bpy.context.scene["om_analysis_authoring_recovery_error"] = "retained failure"
+    elif guard == "native_transaction":
+        runtime.store.current_transaction = "unrelated"
+    elif guard == "ifc_transaction":
+        runtime.model.begin_transaction()
+    elif guard == "modal":
+        runtime.store.modal_in_progress = True
+    elif guard == "history":
+        runtime.model.history_size = 0
+    elif guard == "mode":
+        runtime.bpy.context.mode = "EDIT"
+    else:
+        runtime.model.by_guid(guid).ObjectType = "LABEL"
+    with pytest.raises(ValueError):
+        runtime.adapter.ensure_native_analysis_plane(elevation_m=1.6)
+    assert not runtime.state.calls and not runtime.bpy.data.objects and not runtime.store.history
+
+
+@pytest.mark.parametrize("failure,error_type", [("import_allocation", RuntimeError), ("import_link", RuntimeError),
+    ("import_tilt", ValueError), ("import_rotated", ValueError), ("import_perspective", ValueError),
+    ("import_guid_map", ValueError), ("import_duplicate", ValueError), ("update", RuntimeError),
+    ("post_import", ValueError)])
+def test_managed_plane_failed_import_recovers_resources_maps_ifc_and_history(monkeypatch, tmp_path, failure, error_type):
+    """Partial or unqualified restoration restores the saved state and permits a later valid ensure."""
+    runtime, guid = _reopened_authoring_runtime(monkeypatch, tmp_path, unit_scale=.001)
+    adapter = runtime.adapter
+    prior_event = {"key": "retained-unrelated-event", "operations": []}
+    runtime.store.history.append(prior_event)
+    before = adapter._drawing_snapshot(runtime.bpy, runtime.tool, runtime.store, runtime.brick)
+    runtime.state.failure = failure
+    native_invoke = adapter._invoke_plane_operation
+
+    def invalidate_after_import(operator, context):
+        """Inject a qualification failure after the owned import event has finalized."""
+        status = native_invoke(operator, context)
+        if runtime.state.failure == "post_import":
+            runtime.tool.Ifc.get_object(runtime.model.by_guid(guid)).data.type = "PERSP"
+        return status
+
+    monkeypatch.setattr(adapter, "_invoke_plane_operation", invalidate_after_import)
+    with pytest.raises(error_type):
+        adapter.ensure_native_analysis_plane(elevation_m=2.3,
+            query_kind="exact_world_xy_section" if failure == "import_rotated" else "whole_height_projection")
+    assert adapter._drawing_snapshot(runtime.bpy, runtime.tool, runtime.store, runtime.brick) == before
+    assert prior_event["operations"] == []
+    assert not runtime.bpy.context.scene.get("om_analysis_authoring_recovery_error")
+    runtime.state.failure = None
+    restored = adapter.ensure_native_analysis_plane(elevation_m=2.3)
+    assert runtime.tool.Ifc.get_entity(restored).GlobalId == guid
+    assert len(runtime.bpy.data.objects) == 1 and len(runtime.model.by_type("IfcAnnotation")) == 1
 
 
 @pytest.mark.parametrize("change", ["duplicate_plane", "duplicate_link", "wrong_project", "explicit_other",
