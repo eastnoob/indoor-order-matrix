@@ -57,6 +57,27 @@ def test_build_overlay_mesh_keeps_multiple_faces_and_frozen_world_pose():
     assert all(vertex[2] == pytest.approx(0.02) for vertex in record.vertices)
 
 
+@pytest.mark.parametrize("lift", [float("nan"), float("inf"), -1, True])
+def test_overlay_rejects_nonfinite_or_invalid_lift(lift):
+    """Invalid display offsets must fail before generating native geometry."""
+    with pytest.raises(ValueError, match="finite"):
+        overlay.build_overlay_mesh(wire.ValidatedAnalysisResult(_document()), display_lift_m=lift)
+
+
+def test_native_overlay_converts_world_metres_to_scene_units():
+    """A centimetre-scale scene receives coordinates in centimetres, not metres."""
+    vertices = []
+    mesh = SimpleNamespace(from_pydata=lambda points, edges, faces: vertices.extend(points), update=lambda: None)
+    class NativeObject(dict):
+        """Support native custom properties without importing Blender."""
+    bpy = SimpleNamespace(data=SimpleNamespace(meshes=SimpleNamespace(new=lambda name: mesh),
+        objects=SimpleNamespace(new=lambda name, data: NativeObject())),
+        context=SimpleNamespace(scene=SimpleNamespace(unit_settings=SimpleNamespace(scale_length=.01),
+        collection=SimpleNamespace(objects=SimpleNamespace(link=lambda obj: None)))))
+    overlay.build_native_mesh(wire.ValidatedAnalysisResult(_document()), bpy_module=bpy)
+    assert vertices[1] == pytest.approx((100, 0, 2))
+
+
 def test_inspect_cell_reads_authoritative_wire_record():
     """Inspection returns the complete authoritative cell rather than mesh color."""
     result = wire.ValidatedAnalysisResult(_document())

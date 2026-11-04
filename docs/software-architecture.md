@@ -1,5 +1,31 @@
 # 软件架构
 
+## Analysis board workline — 2026-11-04 / core independently accepted
+
+The free-space baseline is now backed up at `codex/free-space-cache@origin`
+(`d08cd0eb`). The approved next increment is the [persistent board design](superpowers/specs/2026-11-04-analysis-board-design.md),
+[implementation checklist](superpowers/plans/2026-11-04-analysis-board.md) and
+[delivery ledger](project/evidence/analysis-board-2026-11-04.md). Task 1 implements
+`blender_addon/order_analyzer_ui/board.py`: a strict saved descriptor on a stable
+Empty, explicit external ResultRefs with independently retained identity/backend
+expectations, historical restoration and unavailable/hidden failure behavior.
+The shared hidden result mesh is built in scene units; a child applies a
+slab-relative Z offset and per-object categorical materials. Exact source reuse
+also requires the stored native scale. `palettes.py` provides sampled cividis,
+viridis and magma plus finite numeric display mapping; its source license is
+retained in `PALETTE_LICENSE.txt`. Shader colors convert sRGB at the native handoff;
+the addon imports no Matplotlib. Overlay retains its API with finite lift and SI
+unit conversion corrected. Independent acceptance passed 39 checks; a separate
+malformed-sidecar probe passes after fix round 1. Runtime/UI integration and real
+Blender acceptance are still pending. Their bounded seams are addon overlay/board,
+runtime publication, existing Analysis Results panel/load/update handlers,
+central capture ownership and the strict external ResultRef reader. Keep
+calculation plane, source/cache truth and historical display state separate.
+Board placement must account for world SI fragments, existing display lift and
+scene scale. New owned materials/nodes require narrow display-only handling;
+ordinary source materials remain factual updates. A frame-conversion audit of
+display fragment clipping precedes native acceptance.
+
 ## Free-space prerequisite workline — 2026-11-04 / independently verified
 
 This map's current checkout is the isolated `free-space-cache` jj workspace at

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 from typing import Mapping
 
 try:
@@ -30,7 +31,7 @@ def build_overlay_mesh(result: wire.ValidatedAnalysisResult, *, display_lift_m: 
     """Flatten validated world-metre fragments and apply only a display Z lift."""
     if not isinstance(result, wire.ValidatedAnalysisResult):
         raise TypeError("result must be a ValidatedAnalysisResult")
-    if type(display_lift_m) not in (int, float) or display_lift_m < 0:
+    if type(display_lift_m) not in (int, float) or not math.isfinite(display_lift_m) or display_lift_m < 0:
         raise ValueError("display lift must be finite and nonnegative")
     document = result.document
     lattice = document["tables"]["lattice"]
@@ -75,8 +76,10 @@ def build_native_mesh(result: wire.ValidatedAnalysisResult, *, bpy_module=None,
     record = build_overlay_mesh(result, display_lift_m=display_lift_m)
     if bpy_module is None:
         import bpy as bpy_module
+    scale = native_unit_scale(bpy_module)
     mesh = bpy_module.data.meshes.new(name)
-    mesh.from_pydata(record.vertices, [], record.faces)
+    # Fragments are world SI; Blender coordinates use the active scene's length scale.
+    mesh.from_pydata([tuple(value / scale for value in point) for point in record.vertices], [], record.faces)
     mesh.update()
     obj = bpy_module.data.objects.new(name, mesh)
     obj.parent = None
@@ -99,4 +102,13 @@ def build_native_mesh(result: wire.ValidatedAnalysisResult, *, bpy_module=None,
     # Datablocks alone are invisible; publication must attach this display object to the scene.
     bpy_module.context.scene.collection.objects.link(obj)
     return obj
+
+
+def native_unit_scale(bpy_module):
+    """Read a positive finite native length scale, preserving old minimal test seams."""
+    settings = getattr(bpy_module.context.scene, "unit_settings", None)
+    scale = settings.scale_length if settings is not None else 1.
+    if type(scale) not in (int, float) or not math.isfinite(scale) or scale <= 0:
+        raise ValueError("scene unit scale must be finite and positive")
+    return float(scale)
 
