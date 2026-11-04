@@ -83,8 +83,11 @@ all seven sample fields and seven identity/currentness refusals. Conditional,
 unknown, invalid and not-available samples are unobserved in this actual run
 and remain covered by synthetic tests. See the current acceptance summary in
 [the evidence ledger](project/evidence/free-space-prerequisite-2026-11-04.md).
-Actual four-run specification and quality verdicts are PASS. Final whole-scope
-document convergence and local acceptance are separate from these native checks.
+Actual four-run and final whole-scope specification/quality verdicts are PASS,
+with no product gaps. Local acceptance is `9ff90182` (change `qurnkros`, parent
+`a19bfc85`); Tasks 0–6 are complete in this isolated workline. Current acceptance
+bookkeeping is change `qpslwnyq`. The main and distance workspaces are not
+integrated by this delivery; no push, merge or distance execution is implied.
 
 Task 1's native lifecycle and matrix correction are independently accepted
 (`a951c761`). Native creation/reuse/update, non-unit scenes, recovery and save

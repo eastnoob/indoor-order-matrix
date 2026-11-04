@@ -21,8 +21,11 @@ cache hit, independent fresh-process generation sentinel, necessary alignment
 view and Task 6 exact-result consumer have passed in their recorded scope.
 Changed-grid miss and restored-grid hit now independently pass: exactly two
 content keys, restored first lattice/origin and all cell values/statuses equal.
-Final whole-scope convergence and documentation commit remain pending; the
-original long job was cancelled and is historical evidence only.
+Final whole-scope specification/quality review is PASS with no product gaps;
+accepted local delivery commit is `9ff90182` (change `qurnkros`, parent
+`a19bfc85`). Tasks 0–6 are complete in this isolated workspace. The original
+long job was cancelled and is historical evidence only. The next change only
+records acceptance and checklist completion; no push, merge or distance run.
 Use [the exact-result reading guide](free_space_result_reading.md) for downstream
 identity, native observation, cache-origin and complete sample handling.
 

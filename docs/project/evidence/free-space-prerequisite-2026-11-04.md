@@ -14,7 +14,9 @@ alignment image and actual Task 6 reader acceptance have independently passed.
 The 0.2 m request variation and restored 0.1 m ordinary Start have completed,
 and final independent four-run reconciliation passes: miss/hit/miss/hit, two
 keys and exact restored first-result origin and cell values/statuses. Final
-whole-scope convergence and documentation commit remain pending. Chronological
+whole-scope specification/quality verdicts are PASS with zero product gaps;
+accepted local delivery is `9ff90182` (change `qurnkros`, parent `a19bfc85`).
+Tasks 0–6 are complete in this isolated workline. Chronological
 pending/fixing statements below describe their recorded earlier stage.
 
 ## Task 0 baseline
@@ -510,3 +512,32 @@ change justifies another regression run.
 manifests and confirms the unchanged reader guide. The corrected verifier-only
 formula and original failure evidence remain explicitly traceable. Final
 whole-scope document review and local acceptance are still separate gates.
+
+## Final whole-scope acceptance and local delivery
+
+Independent [whole-scope convergence review](../../../outputs/design/free_space_prerequisite/verification/task6-whole-scope-convergence-review.json)
+records specification PASS, quality PASS and zero product gaps. It verifies
+all five frozen documents, all 34 accepted source/test/config bytes and all
+63 relative Markdown links. It combines the actual native publications,
+independent cache/reader checks and already delivered technical alignment view.
+This is the equivalent gap assessment for the existing checklist, not a claim
+that a formal Spec Kit command ran without its feature artifacts.
+Review SHA-256:
+`6878c8dc71d4c6ac7fe8d1db61e065115c722b3bcacc7cb637540a390a414db2`.
+
+Root checked the exact frozen bytes and created local jj commit **`9ff90182`**
+(change `qurnkros`, parent `a19bfc85`):
+`docs: accept verified native free-space cache and reader delivery`.
+It contains the five independently reviewed delivery documents. Subsequent
+change `qpslwnyq` only records this accepted commit, current status and checked
+master requirements; production/guide/evidence artifacts remain unchanged.
+Root remains the sole version writer. No push, merge, workspace deletion or
+distance calculation was performed, and the main/distance dirty work remains
+outside this accepted delivery.
+
+Actual conditional/unknown/invalid/not-available states were unobserved;
+synthetic round trips cover them. The existing unavailable-IFC smoke skip and
+unrun full EXPRESS validation are not claimed passed. Cache eviction remains
+unimplemented. Native observations establish their recorded instants, and
+known-empty occupancy does not establish clearance or walkability. User visual
+acceptance is distinct from technical image verification and delivery.

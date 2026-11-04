@@ -10,12 +10,12 @@
 
 **Spec:** 本文件的“任务语义”记录本轮用户要求；已有架构依据为 `docs/indoor_layout_evaluation_matrix_architecture_memory.md`、`docs/software-architecture.md` 和 `specs/008-analyzer-workflow-completion/`。旧文档与本轮用户要求冲突时，保留历史记录并更新当前任务说明。
 
-**Date / status:** 2026-11-04；Tasks 0–4 及 codec 修正已独立验收并本地提交。Task 5 的四次真实运行、独立进程生成哨兵与必要视图，以及 Task 6 的实际读取验收均已通过；最终全范围收敛审查和本地提交仍在进行。Task 5/6 的 checkbox 在接受提交后更新，本文件不是已提交完成声明。
+**Date / status:** 2026-11-04；Tasks 0–6 完成。最终全范围规格/质量审查 PASS、无产品缺口；本地接受提交 `9ff90182`（change `qurnkros`，parent `a19bfc85`）保存已独立验收的最终交付，后续仅记录本次接受与清单状态。四次真实运行、独立进程生成哨兵、必要视图和实际读取均通过；用户视觉接受单独记录，不据沉默推断。
 
 ## Workspace and scope
 
 - 清单最初存放在 `D:/PROJECTS/understandOtherPackage/order_analyzer`；本轮执行副本与配套 skill/记忆在下述实施工作区维护。
-- 实施工作区是 `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`，jj workspace 为 `free-space-cache`。起始 change `vvnuuksk` / revision `e77e4b99` 是历史基线；当前 change `qurnkros`，parent `a19bfc85` 为独立验收后的 codec 修正。只读 revision 不证明全部磁盘字节，实际候选以冻结 hash 为准。
+- 实施工作区是 `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`，jj workspace 为 `free-space-cache`。起始 change `vvnuuksk` / revision `e77e4b99` 是历史基线；最终交付 change `qurnkros` / commit `9ff90182`，parent `a19bfc85` 为独立验收后的 codec 修正。接受记账 change 为 `qpslwnyq`。只读 revision 不证明全部磁盘字节，实际候选以冻结 hash 为准。
 - 主工作区尚未集成 sibling 的全部 addon/request/session 功能。下列实现位置与测试路径均以 freespace 工作区为根，不得把它们写成主树现成能力。
 - 保留 `D:/PROJECTS/understandOtherPackage/order_analyzer_group_distance` 的独立修改；不以其六文件 path-band 草稿作为本任务基线。
 - 自由空间交付包含可读取的结果与输入校验；距离算法、路线接入、666 对距离重算和距离预览验收属于后续距离任务。
@@ -101,7 +101,7 @@
 
 涉及：`features/analysis_requests.py`、`features/neutral_scene_views.py`、`features/free_space_field.py` 及既有域 handoff；对应 `test/test_analysis_requests.py`、`test/test_free_space_field.py`。
 
-- [ ] 使用 S3 的实际确认绑定与精确投影域，不能使用旧 S4 或家具 bbox 代替。
+- [x] 使用 S3 的实际确认绑定与精确投影域，不能使用旧 S4 或家具 bbox 代替。
 - [x] 通过 inclusive intersection 记录域内、跨边界、仅边界接触和排除原因；保留原始 source ID 与 substitute 来源。
 - [x] 保留正面积 cell/domain/occupancy 交叠规则；边界点/线接触进入审计，但不独自把整格变为 occupied。
 - [x] 验收孔洞、跨边界物体、仅接触域边界、失败几何和未知来源；保持原有精确 boundary-member 排除规则。
@@ -134,15 +134,17 @@ Task 4 独立规格/质量验收 PASS：416 passed；额外独立进程验证了
 
 先决条件：Tasks 1–4 已验收；读取项目 `skills/ifc-bim-conversion-workflow/SKILL.md`，并核验实际加载代码与目标 IFC 项目身份。
 
-- [ ] 通过 MCP 检查当前 Blender/Bonsai 中的源项目、单位、坐标、S3 和目标 slab；处理与指定输入不一致的实际状态。
-- [ ] 调用已实现的通用功能创建或复用世界 Z=1.6 m 平面，检查原生映射和自身占用排除；再次调用仍复用同一对象。
-- [ ] 计算正确 S3 的有限高度带自由空间，保存完整结果、参与审计、counts、身份/参数 manifest，并判断哪些真实空间关系仍需视图验证。
-- [ ] 独立验收 agent 核对真实源、标高、datum、域确认、样本和输出；选取实际可解释的 free/occupied/boundary 样本，未出现的状态单独记为未观测。
-- [ ] 按剩余正确性问题生成最少必要视图并交给用户查看：首次真实平面/源域/新自由空间对齐需要核实时，用俯视叠加图；datum/标高映射有疑点时加侧视图；边界有疑点才加局部图。一张图可覆盖多个问题，已有依赖一致的已验证视图可复用。
-- [ ] 分开记录技术验收、图片交付和用户反馈；仅当用户明确要求批准或尚有必须由用户裁定的空间意图时，保留对应待确认门槛。已确认的 S3 不重复审批，用户未回复不能当作接受；发现实际错误则修复并重新验证受影响结果。
-- [ ] 二次执行证明缓存命中并跳过生成；改变一个实际输入证明失效。所有临时变更都记录并恢复；保存副本与重新打开验证不得覆盖用户未保存工作。
-- [ ] 修正真实 24,442-cell 验收暴露的共享来源记录重复遍历：独立规模检查覆盖首次序列化、缓存重绑与文档验证，保留完整样本和所有拒绝规则；独立审查后集成，再更新原生加载 hash 与实际验收。
-- [ ] 记录原始 IFC 和带平面对象的新保存文件的身份关系、恢复验证，以及按上述判定生成的必要视图或复用引用；通过后提交任务自有代码/文档与验收清单。
+- [x] 通过 MCP 检查当前 Blender/Bonsai 中的源项目、单位、坐标、S3 和目标 slab；处理与指定输入不一致的实际状态。
+- [x] 调用已实现的通用功能创建或复用世界 Z=1.6 m 平面，检查原生映射和自身占用排除；再次调用仍复用同一对象。
+- [x] 计算正确 S3 的有限高度带自由空间，保存完整结果、参与审计、counts、身份/参数 manifest，并判断哪些真实空间关系仍需视图验证。
+- [x] 独立验收 agent 核对真实源、标高、datum、域确认、样本和输出；选取实际可解释的 free/occupied/boundary 样本，未出现的状态单独记为未观测。
+- [x] 按剩余正确性问题生成最少必要视图并交给用户查看：首次真实平面/源域/新自由空间对齐需要核实时，用俯视叠加图；datum/标高映射有疑点时加侧视图；边界有疑点才加局部图。一张图可覆盖多个问题，已有依赖一致的已验证视图可复用。
+- [x] 分开记录技术验收、图片交付和用户反馈；仅当用户明确要求批准或尚有必须由用户裁定的空间意图时，保留对应待确认门槛。已确认的 S3 不重复审批，用户未回复不能当作接受；发现实际错误则修复并重新验证受影响结果。
+- [x] 二次执行证明缓存命中并跳过生成；改变一个实际输入证明失效。所有临时变更都记录并恢复；保存副本与重新打开验证不得覆盖用户未保存工作。
+- [x] 修正真实 24,442-cell 验收暴露的共享来源记录重复遍历：独立规模检查覆盖首次序列化、缓存重绑与文档验证，保留完整样本和所有拒绝规则；独立审查后集成，再更新原生加载 hash 与实际验收。
+- [x] 记录原始 IFC 和带平面对象的新保存文件的身份关系、恢复验证，以及按上述判定生成的必要视图或复用引用；通过后提交任务自有代码/文档与验收清单。
+
+Task 5 独立规格/质量验收 PASS：四次真实运行按 miss/hit/miss/hit 完成，恢复后全部 24,442 个格子的值/状态与首次一致；独立进程六处生成禁用仍命中，必要实际对齐图已交付。最终接受提交 `9ff90182`，详细输入/ref/hash/限制见证据账本。
 
 验收：实际场景的正确查询与缓存行为成立；必要视图已交付并与来源/数值一致，任何影响正确性的用户意图分歧已解决。图片交付不自动阻塞其余独立开发，也不替代实际测试；用户视觉接受单独如实记录。
 
@@ -150,11 +152,13 @@ Task 4 独立规格/质量验收 PASS：416 passed；额外独立进程验证了
 
 涉及：现有 result wire / session reader 和对应 headless consumer tests；以现成接口为先，不修改距离 kernel。
 
-- [ ] 提供可重复调用的读取入口或现有调用示例，按当前输入检查身份/新鲜度并读取 exact result/sample；调用方不依赖私有字段或预览 mesh。
-- [ ] 独立 agent 验收缓存恢复、域/plane/query 不匹配拒绝、旧结果不能冒充 current，以及 unknown/conditional 状态往返。
-- [ ] 运行受影响回归，进行一次全范围独立审查，核对 master checklist 与真实产物一致。
-- [ ] 主控确认最终文件 hash 与测试/审查所验代码一致，完成最终本地 jj 提交；保存提交 ID、测试记录、结果路径和下游读取说明。
-- [ ] 更新实施工作区架构与状态，列出真实场景未观测分支。距离模块得到输入后另行继续，不能据此勾选距离任务的路线/用户视觉验收项。
+- [x] 提供可重复调用的读取入口或现有调用示例，按当前输入检查身份/新鲜度并读取 exact result/sample；调用方不依赖私有字段或预览 mesh。
+- [x] 独立 agent 验收缓存恢复、域/plane/query 不匹配拒绝、旧结果不能冒充 current，以及 unknown/conditional 状态往返。
+- [x] 运行受影响回归，进行一次全范围独立审查，核对 master checklist 与真实产物一致。
+- [x] 主控确认最终文件 hash 与测试/审查所验代码一致，完成最终本地 jj 提交；保存提交 ID、测试记录、结果路径和下游读取说明。
+- [x] 更新实施工作区架构与状态，列出真实场景未观测分支。距离模块得到输入后另行继续，不能据此勾选距离任务的路线/用户视觉验收项。
+
+Task 6 独立实际 reader 验收与全范围规格/质量审查 PASS、无产品缺口。复用最后受影响回归 866 passed / 1 existing skip；34 个源码/测试/配置文件 hash 稳定。读取指南、实际 current/historical 示例、7 类拒绝及未观测分支均已记录，最终接受提交 `9ff90182`。
 
 验收：一个独立 headless consumer 能验证并读出结果；交付包无需依赖本聊天的记忆。
 
