@@ -248,10 +248,15 @@ def resolve_value(document, reference):
 
 def _delta(document, base, delta):
     """Apply exact replacements/removals; absent keys are distinct from None."""
+    return plain(_delta_view(document, base, delta))
+
+
+def _delta_view(document, base, delta):
+    """Resolve a private shallow delta after the document's finite-data check."""
     if not isinstance(delta, Mapping):
         raise ValueError("invalid cell delta")
     if set(delta) == {"ref"}:
-        return plain(resolve_value(document, delta["ref"]))
+        return resolve_value(document, delta["ref"])
     if set(delta) != {"changes", "removed"} or not isinstance(base, Mapping) or not isinstance(delta["changes"], Mapping):
         raise ValueError("invalid mapping delta")
     removed = delta["removed"]
@@ -259,16 +264,21 @@ def _delta(document, base, delta):
         raise ValueError("invalid removed keys")
     if set(removed) & delta["changes"].keys() or any(key not in base for key in removed):
         raise ValueError("conflicting cell delta")
-    result = plain(base)
+    result = dict(base)
     for key in removed:
         del result[key]
     for key, ref in delta["changes"].items():
-        result[key] = plain(resolve_value(document, ref))
+        result[key] = resolve_value(document, ref)
     return result
 
 
 def decode_cell(document, *, row, column):
     """Read exact public sample data without geometry, processes or Field imports."""
+    return plain(_decode_cell_view(document, row=row, column=column))
+
+
+def _decode_cell_view(document, *, row, column, base_provenance=None):
+    """Read private references without detaching shared, already checked metadata."""
     if document.get("kind") != "free_space_run":
         raise ValueError("domain diagnostics have no field samples")
     lattice = document["tables"]["lattice"]
@@ -280,14 +290,18 @@ def decode_cell(document, *, row, column):
     if (cell["row"], cell["column"]) != (row, column):
         raise ValueError("cell index does not match lattice")
     tables = document["tables"]
-    base_provenance = {key: resolve_value(document, ref) for key, ref in tables["sample_provenance"].items()}
-    support = _delta(document, tables["sample_support"], cell["support_delta"])
-    provenance = _delta(document, base_provenance, cell["provenance_delta"])
+    if base_provenance is None:
+        base_provenance = {key: resolve_value(document, ref) for key, ref in tables["sample_provenance"].items()}
+    support = _delta_view(document, tables["sample_support"], cell["support_delta"])
+    provenance = _delta_view(document, base_provenance, cell["provenance_delta"])
     if cell["provenance_support"]:
+        if not isinstance(provenance, Mapping):
+            raise ValueError("sample provenance must be a mapping")
+        provenance = dict(provenance)
         provenance["support"] = support
     return {"value": cell["value"], "status": cell["status"],
-            "query": plain(resolve_value(document, cell["query_ref"])), "support": support,
-            "source_ids": plain(resolve_value(document, cell["source_ids_ref"])),
+            "query": resolve_value(document, cell["query_ref"]), "support": support,
+            "source_ids": resolve_value(document, cell["source_ids_ref"]),
             "provenance": provenance, "explanation": resolve_value(document, cell["explanation_ref"])}
 
 
@@ -315,8 +329,11 @@ def _validate_sample(sample):
 
 def validate_document(document):
     """Authenticate fixed versions, digest, identity, tables and every cell reference."""
+    original_document = document
     try:
-        plain(document)
+        # Validate the same detached data that public reads expose, so custom
+        # container methods cannot disguise stored values in private cell views.
+        document = plain(document)
         if document["schema_version"] != SCHEMA_VERSION or document["algorithm_version"] != ALGORITHM_VERSION:
             raise ValueError("unsupported result schema/algorithm")
         ResultRef(document["kind"], document["result_id"], document["digest"])
@@ -360,12 +377,16 @@ def validate_document(document):
                     or identity["query_key"] != request["geometry_query"]
                     or identity["request_identity"] != request["request_id"]):
                 raise ValueError("snapshot/token/version mismatch")
+            # The complete finite-data and digest passes above cover shared values;
+            # each cell still validates its own references, deltas and sample shape.
+            base_provenance = {key: resolve_value(document, ref) for key, ref in tables["sample_provenance"].items()}
             for index, cell in enumerate(document["cells"]):
                 _integer(cell["row"], "cell row")
                 _integer(cell["column"], "cell column")
                 if (cell["row"], cell["column"]) != divmod(index, lattice["n_cols"]) or type(cell["provenance_support"]) is not bool:
                     raise ValueError("duplicate/out-of-order/invalid cell")
-                _validate_sample(decode_cell(document, row=cell["row"], column=cell["column"]))
+                _validate_sample(_decode_cell_view(document, row=cell["row"], column=cell["column"],
+                                                  base_provenance=base_provenance))
             _validate_fragments(document)
         else:
             payload = document["payload"]
@@ -402,7 +423,7 @@ def validate_document(document):
                 raise ValueError("binding token conflicts with document: " + key)
             if key in identity and identity[key] != value:
                 raise ValueError("binding token conflicts with metadata: " + key)
-        return document
+        return original_document
     except (KeyError, TypeError, IndexError, AttributeError, OverflowError) as exc:
         raise ValueError("malformed analysis document") from exc
 

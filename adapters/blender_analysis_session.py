@@ -648,12 +648,12 @@ def _load_cached_result(path, *, content_key, versions):
 
 def _refresh_shared_metadata(actual, before, after):
     """Refresh only declared shared fields while retaining cell overrides and deletions."""
-    result = wire.plain(actual)
-    if not isinstance(result, Mapping):
-        return result
+    if not isinstance(actual, Mapping):
+        return actual
+    result = dict(actual)
     for key, value in before.items():
-        if key in result and result[key] == wire.plain(value):
-            result[key] = wire.plain(after[key])
+        if key in result and (result[key] is value or result[key] == value):
+            result[key] = after[key]
     return result
 
 
@@ -662,22 +662,48 @@ class _CachedSamples:
 
     def __init__(self, document, snapshot, query):
         """Keep original calculation evidence separate from current publication fields."""
-        self.document, self.snapshot, self.query = document, snapshot, query
-        original = document["tables"]["snapshot"]
+        # Own the cache document once; a MappingProxy supplied by a caller alone
+        # does not prove that its nested values or backing dictionary are frozen.
+        self.document, self.snapshot, self.query = wire.freeze(document), snapshot, query
+        original = self.document["tables"]["snapshot"]
+        self.metadata_entries, self.queries = {}, {}
+        self.empty_metadata = requests._MetadataOverlay({})
+        self.base_provenance = {key: wire.resolve_value(self.document, ref)
+                               for key, ref in self.document["tables"]["sample_provenance"].items()}
         self.before_query = requests._request_query(_request_from_wire(original["request"]), original["semantic_key"])
         self.before_provenance = {**original["provenance"], "frame": self.before_query.frame,
             "query_revision": self.before_query.revision,
             "input_query_context": {"domain_id": self.before_query.domain_id, "frame": self.before_query.frame}}
-        self.after_provenance = {**wire.plain(snapshot.provenance), "frame": query.frame,
+        self.after_provenance = {**snapshot.provenance, "frame": query.frame,
             "query_revision": query.revision,
             "input_query_context": {"domain_id": query.domain_id, "frame": query.frame}}
+        self.before_query_values = wire.freeze({item.name: getattr(self.before_query, item.name)
+                                               for item in fields(self.before_query)})
+        self.after_query_values = {item.name: getattr(query, item.name) for item in fields(query)}
+
+    def _metadata(self, value):
+        """Freeze each owned metadata value once and compose trusted core overlays."""
+        if not isinstance(value, Mapping):
+            return value
+        result = self.empty_metadata
+        for key, item in value.items():
+            token = (key, id(item))
+            if token not in self.metadata_entries:
+                # Retain the source identity alongside its frozen overlay so IDs
+                # cannot be recycled while another cell still uses the cache.
+                self.metadata_entries[token] = (item, requests._MetadataOverlay({key: item}))
+            result = requests._MetadataOverlay(result, self.metadata_entries[token][1])
+        return result
 
     def evaluate(self, target, query):
         """Rebind shared identity only; preserve all actual per-cell calculation deltas."""
-        sample = wire.decode_cell(self.document, row=target[0], column=target[1])
-        before = {item.name: getattr(self.before_query, item.name) for item in fields(self.before_query)}
-        after = {item.name: getattr(self.query, item.name) for item in fields(self.query)}
-        sample["query"] = _refresh_shared_metadata(sample["query"], before, after)
+        sample = wire._decode_cell_view(self.document, row=target[0], column=target[1],
+                                        base_provenance=self.base_provenance)
+        query_token = id(sample["query"])
+        if query_token not in self.queries:
+            updated = _refresh_shared_metadata(sample["query"], self.before_query_values, self.after_query_values)
+            self.queries[query_token] = requests.FieldQuery(**updated)
+        sample["query"] = self.queries[query_token]
         old_support = sample["support"]
         sample["support"] = _refresh_shared_metadata(old_support,
             {"frame": self.before_query.frame, "plane": self.before_query.plane},
@@ -686,9 +712,11 @@ class _CachedSamples:
         provenance_support = sample["provenance"].get("support")
         sample["provenance"] = _refresh_shared_metadata(sample["provenance"],
             self.before_provenance, self.after_provenance)
+        sample["support"] = self._metadata(sample["support"])
         if provenance_support == old_support and "support" in sample["provenance"]:
             sample["provenance"]["support"] = sample["support"]
-        return _sample_from_wire(sample)
+        sample["provenance"] = self._metadata(sample["provenance"])
+        return requests.FieldSample(**sample)
 
 
 def _cached_run(document, request, versions):
@@ -715,11 +743,33 @@ def serialize_analysis_result(run, *, job_id, plane_uuid, plane_revision, domain
     wire._text(domain_request_id, "domain request id")
     snapshot = wire.plain(run.snapshot.to_dict())
     values, value_indices = [], {}
-    shared = {wire.canonical_json(value): {"snapshot": key} for key, value in snapshot["provenance"].items()}
+    detached, encodings, queries = {}, {}, {}
+    def data(value, *, owned=False):
+        """Detach duck samples per evaluation; reuse only actual frozen Field data."""
+        if not isinstance(value, (Mapping, tuple, list)):
+            return wire.plain(value)
+        token = id(value)
+        if owned and token in detached:
+            return detached[token][1]
+        if isinstance(value, Mapping):
+            if any(not isinstance(key, str) for key in value):
+                raise ValueError("JSON object keys must be strings")
+            result = {key: data(item, owned=owned) for key, item in value.items()}
+        else:
+            result = [data(item, owned=owned) for item in value]
+        if owned:
+            detached[token] = (value, result)
+        return result
+    def encoding(value):
+        """Encode each codec-owned value once while retaining its identity."""
+        token = id(value)
+        if token not in encodings:
+            encodings[token] = (value, wire.canonical_json(value))
+        return encodings[token][1]
+    shared = {encoding(value): {"snapshot": key} for key, value in snapshot["provenance"].items()}
     def intern(value):
         """Deduplicate equal values, never merely equal metadata key names."""
-        value = wire.plain(value)
-        encoded = wire.canonical_json(value)
+        encoded = encoding(value)
         if encoded in shared:
             return shared[encoded]
         if encoded not in value_indices:
@@ -728,15 +778,15 @@ def serialize_analysis_result(run, *, job_id, plane_uuid, plane_revision, domain
         return value_indices[encoded]
     def delta(base, actual):
         """Preserve changed values and key deletion under an otherwise shared mapping."""
-        actual = wire.plain(actual)
         if not isinstance(base, Mapping) or not isinstance(actual, Mapping):
             return {"ref": intern(actual)}
         return {"changes": {key: intern(value) for key, value in actual.items()
-                            if key not in base or wire.canonical_json(base[key]) != wire.canonical_json(value)},
+                            if key not in base or (base[key] is not value and encoding(base[key]) != encoding(value))},
                 "removed": sorted(base.keys() - actual.keys())}
     first = run.field.evaluate((0, 0), run.query)
-    base_support = wire.plain(first.support)
-    base_provenance = wire.plain(first.provenance)
+    first_owned = type(first) is requests.FieldSample
+    base_support = data(first.support, owned=first_owned)
+    base_provenance = dict(data(first.provenance, owned=first_owned))
     # Support commonly occurs in provenance too; preserve that equality as an explicit cell reference.
     if base_provenance.get("support", object()) == base_support:
         base_provenance.pop("support", None)
@@ -744,15 +794,26 @@ def serialize_analysis_result(run, *, job_id, plane_uuid, plane_revision, domain
     for row in range(request.sampling.n_rows):
         for column in range(request.sampling.n_cols):
             sample = first if (row, column) == (0, 0) else run.field.evaluate((row, column), run.query)
-            provenance = wire.plain(sample.provenance)
-            provenance_support = "support" in provenance and provenance["support"] == wire.plain(sample.support)
+            owned = type(sample) is requests.FieldSample
+            support = data(sample.support, owned=owned)
+            provenance = dict(data(sample.provenance, owned=owned))
+            provenance_support = "support" in provenance and provenance["support"] == support
             if provenance_support:
                 del provenance["support"]
-            query = {item.name: wire.plain(getattr(sample.query, item.name)) for item in fields(sample.query)}
+            query_owned = owned and type(sample.query) is requests.FieldQuery
+            query_token = id(sample.query)
+            if not query_owned or query_token not in queries:
+                query = {item.name: data(getattr(sample.query, item.name), owned=query_owned)
+                         for item in fields(sample.query)}
+                if query_owned:
+                    queries[query_token] = (sample.query, query)
+            else:
+                query = queries[query_token][1]
             cells.append({"row": row, "column": column, "value": sample.value, "status": sample.status.value,
-                "query_ref": intern(query), "support_delta": delta(base_support, sample.support),
-                "source_ids_ref": intern(sample.source_ids), "provenance_delta": delta(base_provenance, provenance),
-                "provenance_support": provenance_support, "explanation_ref": intern(sample.explanation)})
+                "query_ref": intern(query), "support_delta": delta(base_support, support),
+                "source_ids_ref": intern(data(sample.source_ids, owned=owned)),
+                "provenance_delta": delta(base_provenance, provenance),
+                "provenance_support": provenance_support, "explanation_ref": intern(data(sample.explanation))})
     project_source_identity = snapshot["provenance"].get("project_source_identity",
         {"request_source_fingerprint": run.snapshot.source_fingerprint})
     identity = {"project_source_identity": project_source_identity,

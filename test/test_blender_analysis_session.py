@@ -712,6 +712,136 @@ def test_dedupe_preserves_same_key_different_cell_values():
             assert service.reconstruct_field_sample(document, row=row, column=column) == modified.field.evaluate((row, column), run.query)
 
 
+def _shared_metadata_run(cell_count):
+    """Supply complete synthetic cells over a real request with one frozen large audit."""
+    from ..features.field_core import FieldSample, _MetadataOverlay
+    run = _compact_run()
+    request = replace(run.snapshot.request, sampling=replace(run.snapshot.request.sampling,
+                                                           n_rows=1, n_cols=cell_count))
+    snapshot = replace(run.snapshot, request=request, provenance={**run.snapshot.provenance,
+        "selected_records": {"visit_marker": "shared-scale-audit",
+                             "vertices": [[float(index), 0.0, 0.0] for index in range(128)]}})
+    shared = _MetadataOverlay(snapshot.provenance)
+    class Samples:
+        """Share only actual core-frozen metadata while retaining distinct cell history."""
+        def evaluate(self, target, query):
+            """Vary every sample field, including deletion and independent support evidence."""
+            index = target[1]
+            status, value = (("established", True), ("conditional", False), ("unknown", None),
+                ("outside", None), ("invalid", None), ("not_available", None))[index % 6]
+            support = {"frame": query.frame, "plane": query.plane, "cell": [0, index, None]}
+            local = {"same_key": index, "support": {"independent": True} if index == 1 else support}
+            if index == 0:
+                local["first_only"] = None
+            return FieldSample(value, status, replace(query, demand={"cell": index}, tolerance=index / 100),
+                support=support, source_ids=("owner", str(index)), provenance=_MetadataOverlay(shared, local),
+                explanation="cell scope " + str(index))
+    return replace(run, field=Samples(), snapshot=snapshot)
+
+
+def test_shared_metadata_work_is_bounded_for_generation_cache_and_validation(monkeypatch):
+    """Shared audit traversal and Field freezing stay constant as cell count increases."""
+    from collections import Counter
+    from collections.abc import Mapping
+    from ..adapters import blender_analysis_session as service
+    from ..features import field_core
+    runs = [_shared_metadata_run(count) for count in (6, 24)]
+    visits, phase = {}, ""
+    def observed(module, name):
+        """Count real recursive visits without replacing conversion or validation behavior."""
+        original = getattr(module, name)
+        def counted(value):
+            """Mark only the large shared audit's root, independent of its leaf count."""
+            if isinstance(value, Mapping) and value.get("visit_marker") == "shared-scale-audit":
+                visits[phase][name] += 1
+            return original(value)
+        monkeypatch.setattr(module, name, counted)
+    for module, name in ((service.wire, "plain"), (service.wire, "freeze"), (field_core, "_freeze")):
+        observed(module, name)
+    results = []
+    for run in runs:
+        counts = {}
+        for phase in ("generate", "validate", "cache"):
+            visits[phase] = Counter()
+            if phase == "generate":
+                document = service.serialize_analysis_result(run, job_id="scale", plane_uuid="plane:plan",
+                    plane_revision=1, domain_request_id="domain", domain_session_revision=1)
+            elif phase == "validate":
+                service.validate_analysis_result(document, expected_job_id="scale", expected_plane_uuid="plane:plan",
+                    expected_plane_revision=1, expected_semantic_key=document["semantic_key"])
+            else:
+                request = replace(run.snapshot.request, plane=replace(run.snapshot.request.plane, revision=7))
+                cached = service._cached_run(document, request, document["backend_versions"])
+                first = cached.field.evaluate((0, 0), cached.query)
+                last = cached.field.evaluate((0, request.sampling.n_cols - 1), cached.query)
+                assert first.provenance["selected_records"] is last.provenance["selected_records"]
+                current = service.serialize_analysis_result(cached, job_id="scale-hit", plane_uuid="plane:plan",
+                    plane_revision=7, domain_request_id="current-domain", domain_session_revision=2)
+            counts[phase] = dict(visits[phase])
+        results.append(counts)
+        for column in range(run.snapshot.request.sampling.n_cols):
+            sample = run.field.evaluate((0, column), run.query)
+            assert service.reconstruct_field_sample(document, row=0, column=column) == sample
+            before = service.wire.decode_cell(document, row=0, column=column)
+            after = service.wire.decode_cell(current, row=0, column=column)
+            for key in ("value", "status", "source_ids", "explanation"):
+                assert after[key] == before[key]
+            assert after["query"]["demand"] == before["query"]["demand"]
+            assert after["query"]["plane"]["revision"] == 7
+            assert after["provenance"]["selected_records"] == before["provenance"]["selected_records"]
+            assert after["provenance"]["same_key"] == column
+            assert ("first_only" in after["provenance"]) == (column == 0)
+            assert (after["provenance"]["support"] == after["support"]) == (column != 1)
+        # Public decodes must own their returned containers despite private shared views.
+        exposed = service.wire.decode_cell(document, row=0, column=0)
+        exposed["provenance"]["selected_records"]["vertices"][0][0] = -99
+        exposed["support"]["cell"].append("external")
+        assert service.wire.decode_cell(document, row=0, column=0) != exposed
+    assert results[0] == results[1], results
+    assert all(sum(counts.values()) > 0 for counts in results[0].values())
+
+
+@pytest.mark.parametrize("shallow_proxy", [False, True])
+def test_duck_samples_snapshot_mutable_history_before_next_evaluation(shallow_proxy):
+    """Neither a duck sample nor its shallow proxy proves deeply frozen ownership."""
+    from dataclasses import fields
+    from types import MappingProxyType, SimpleNamespace
+    from ..adapters import blender_analysis_session as service
+    from ..features.field_core import FieldStatus
+    run, expected = _compact_run(), []
+    class Samples:
+        """Reuse caller-owned containers that change between sample evaluations."""
+        def __init__(self):
+            """Keep one external backing mapping behind optional shallow proxies."""
+            self.audit = {"algorithm_version": service.wire.REQUEST_VERSION,
+                          "schema_version": service.wire.REQUEST_VERSION, "history": [], "first_only": None}
+            self.support = {"history": []}
+        def evaluate(self, target, query):
+            """Change same-key values, deletions and nested aliases before returning each cell."""
+            index = target[0] * 4 + target[1]
+            self.audit["history"].append(index)
+            self.audit["same_key"] = index
+            self.support["history"].append(index)
+            self.audit["support"] = self.support if index != 1 else {"independent": True}
+            if index:
+                self.audit.pop("first_only", None)
+            sample = SimpleNamespace(value=True, status=FieldStatus.ESTABLISHED, query=query,
+                support=self.support, source_ids=["duck", str(index)],
+                provenance=MappingProxyType(self.audit) if shallow_proxy else self.audit, explanation="duck history")
+            expected.append({"value": sample.value, "status": sample.status.value,
+                "query": {item.name: service.wire.plain(getattr(query, item.name)) for item in fields(query)},
+                "support": service.wire.plain(sample.support), "source_ids": service.wire.plain(sample.source_ids),
+                "provenance": service.wire.plain(sample.provenance), "explanation": sample.explanation})
+            return sample
+    samples = Samples()
+    document = service.serialize_analysis_result(replace(run, field=samples), job_id="duck", plane_uuid="plane:plan",
+        plane_revision=1, domain_request_id="domain", domain_session_revision=1)
+    samples.audit["history"].append("later")
+    samples.support["history"].append("later")
+    assert [service.wire.decode_cell(document, row=row, column=column)
+            for row in range(4) for column in range(4)] == expected
+
+
 def test_atomic_write_failure_retains_old_result(tmp_path, monkeypatch):
     """An atomic replacement failure retains old bytes and removes only its partial."""
     from ..adapters import blender_analysis_session as service
@@ -910,7 +1040,8 @@ def test_compact_preserves_all_six_states_and_complete_query(status, value):
     assert actual.query.demand == {"width": (1, 2)}
 
 
-@pytest.mark.parametrize("mutation", ["ref", "cell", "sample_schema", "binding", "fragments"])
+@pytest.mark.parametrize("mutation", ["ref", "cell", "sample_schema", "binding", "fragments",
+                                     "pairlist_linked", "pairlist_unlinked"])
 def test_rehashed_malformed_result_is_rejected(mutation):
     """A valid SHA alone cannot make invalid references, versions or geometry consumable."""
     from ..adapters import blender_analysis_session as service
@@ -925,6 +1056,12 @@ def test_rehashed_malformed_result_is_rejected(mutation):
         document["tables"]["values"].append("future/9")
     elif mutation == "binding":
         document["binding"]["domain_request_id"] = "another-domain-request"
+    elif mutation in {"pairlist_linked", "pairlist_unlinked"}:
+        reference = len(document["tables"]["values"])
+        document["tables"]["values"].append([["algorithm_version", wire.REQUEST_VERSION],
+                                             ["schema_version", wire.REQUEST_VERSION]])
+        document["cells"][0].update(provenance_delta={"ref": reference},
+                                    provenance_support=mutation == "pairlist_linked")
     else:
         document["display_fragments"] = [{"cell_index": 0, "vertices": [[0, 0, 0]], "faces": [[0, 1, 2]]}]
     document["digest"] = wire.document_digest(document)
@@ -939,6 +1076,45 @@ def test_wire_json_rejects_duplicate_keys_and_nonfinite():
     for raw in ('{"x":1,"x":2}', '{"x":NaN}', '{"x":Infinity}'):
         with pytest.raises(ValueError):
             wire.load_json(raw)
+
+
+@pytest.mark.parametrize("provenance_support", [False, True])
+def test_validator_checks_stored_data_without_changing_return_ownership(provenance_support):
+    """Mapping hooks cannot hide wrong versions; successful reads retain caller ownership."""
+    from ..adapters import blender_analysis_result_wire as wire
+    _, document = _compact_document()
+    assert wire.validate_document(document) is document
+    frozen = wire.freeze(document)
+    assert wire.validate_document(frozen) is frozen
+    class VersionHook(dict):
+        """Store invalid data while presenting compatible versions through a custom getter."""
+        def get(self, key, default=None):
+            """Spoof only the validation read that previously retained mapping hooks."""
+            return wire.REQUEST_VERSION if key in {"algorithm_version", "schema_version"} else super().get(key, default)
+    reference = len(document["tables"]["values"])
+    document["tables"]["values"].append(VersionHook(algorithm_version="wrong", schema_version="wrong"))
+    document["cells"][0].update(provenance_delta={"ref": reference}, provenance_support=provenance_support)
+    document["digest"] = wire.document_digest(document)
+    with pytest.raises(ValueError, match="provenance"):
+        wire.validate_document(document)
+
+
+def test_validator_checks_stored_query_identity_without_mapping_hooks():
+    """A custom query getter cannot disguise a non-string stored domain identity."""
+    from ..adapters import blender_analysis_result_wire as wire
+    _, document = _compact_document()
+    class QueryHook(dict):
+        """Keep invalid stored identity while returning a valid string through indexing."""
+        def __getitem__(self, key):
+            """Mask the identity only when validation reads the caller's custom object."""
+            return "masked-domain" if key == "domain_id" else super().__getitem__(key)
+    query = QueryHook(wire.resolve_value(document, document["cells"][0]["query_ref"]))
+    query["domain_id"] = 17
+    document["cells"][0]["query_ref"] = len(document["tables"]["values"])
+    document["tables"]["values"].append(query)
+    document["digest"] = wire.document_digest(document)
+    with pytest.raises(ValueError, match="query"):
+        wire.validate_document(document)
 
 
 def test_fixed_module_cli_round_trip_and_data_binding(tmp_path):

@@ -32,7 +32,34 @@ revision-sensitive semantic identity through a shared pure identity recipe.
 Hits reconstruct current request/query/support/binding metadata through the
 existing sample serializer, preserving calculation provenance and its origin
 ResultRef. Current reads still require independent native observation of the
-new publication. Cache acceptance is pending Task 4 verification.
+new publication. Task 4 is independently accepted at `ea4fe375`: 416 checks
+passed, with additional fresh-process generation-boundary and failure probes.
+Actual native S3 cache reuse remains a Task 5 acceptance gate.
+
+Task 5's 24,442-cell native run exposed a separate codec scaling defect:
+serialization and validation repeatedly traverse large shared provenance for
+each cell. An independent bounded 1,024-point probe counts `4*N+7` shared
+payload visits in serialization and `N+2` per validator. The isolated
+`free-space-wire-scale` workspace (base `ea4fe375`, change `kopsuxvo`, frozen
+revision `662f8814`) supplied the independently accepted session/wire correction,
+now integrated into this checkout. Exact core Field-owned metadata is detached
+once; generic mutable samples retain per-evaluation detachment. Cache rebinding
+owns its document once and reuses core metadata overlays. Strict validation
+uses one normalized document and private shallow sample views while retaining
+every cell/ref/delta/identity/fragment check, defensive public decoding and the
+original successful validator return identity. Wire versions and exports stay
+unchanged. Independent affected regression passed 866 tests with one existing
+skip; separate scale, seven-field/six-state parity, alias and malformed-input
+probes passed, with specification and quality verdicts PASS. Refreshed native
+resource evidence and actual field/cache acceptance remain pending. The original
+native job was cancelled normally after about 41 minutes without a result;
+its request and logs remain historical evidence. No worker stack was sampled,
+so this finding does not identify its active instruction or sole bottleneck.
+Independent correction review reproduced and then verified rejection of
+pair-list provenance coercion and Mapping-subclass provenance/query lookup
+hooks. Their regression coverage is part of the accepted normalized-validation
+correction. Evidence: `task5-wire-scale-scope-probe.json` and the independent
+wire-scale final review under `outputs/design/free_space_prerequisite/verification`.
 
 Task 1's native lifecycle and matrix correction are independently accepted
 (`a951c761`). Native creation/reuse/update, non-unit scenes, recovery and save
@@ -41,7 +68,9 @@ height; ordinary native import omitted the camera object and initially ensure
 rejected that missing link. The bounded managed-restore correction now restores
 the camera through the official importer inside one owned recovery event,
 retaining the same annotation/GUID and creating no duplicate drawing. Independent
-restore acceptance is in progress; restoration is separate from cache behavior.
+restore acceptance passed at `ca47cb83` (306 passed, one existing skip), including
+audited native same-GUID restoration and partial-import rollback. Restoration is
+separate from cache behavior.
 `adapters/bonsai_analysis_plane.py:ensure_native_analysis_plane(*, elevation_m,
 project_global_id=None, camera_guid=None, storey_ref=None,
 query_kind="whole_height_projection")` finds exactly one native
@@ -66,7 +95,8 @@ inventory paths exclude them, while ordinary annotations and name lookalikes
 retain their existing roles. Live native-camera and owned-helper exclusions stay
 in use. Unit tests cover real IFC transaction/property-set/serialization behavior
 behind synthetic Blender seams. The combined current S3 datum/domain/field view,
-loaded-byte proof and managed native reopening remain Task 5 checks.
+loaded-byte proof and actual field/cache acceptance remain Task 5 checks. Managed
+native reopening and restoration have already passed the recorded lifecycle gate.
 
 ## Free-space query clarified by the user — 2026-11-03 / existing capabilities audited
 
@@ -107,7 +137,7 @@ the existing trusted-support checks remain in force. No buffer or tolerance-base
 area inflation is applied; FreeSpaceField retains its positive-area cell rule.
 The executor's existing backend file hashes now include `analysis_requests.py`,
 so these semantics change the content identity without changing the result wire.
-Current S3 retained input explicitly declares `whole_height_planar_mass_patch`,
+The historical distance-run S3 input explicitly declares `whole_height_planar_mass_patch`,
 `height_band=null`; that run is not evidence for the clarified query. The earlier
 support-binding diagnosis below is an audit of another supported scope mechanism,
 not the prescribed solution. Eleven existing UI/request/projection/slab/domain/
@@ -119,7 +149,7 @@ existing distance checklist.
 
 **2026-11-03 current intent correction:** 用户红线选择右侧家具大厅和左侧连接通道。原窄 S4 及 `group_distance_ifc/run_v1/` 的 666 outside 仅是历史错误选区结果；其确认执行记录保留，但选区身份不再代表当前意图。worker/reviewer 已由实际源识别候选 S3（207.24092382549588 m²，37/37 组相交），`.18.C1` 完成；原请求因 A22 斜墙 residual 3.4968646007715876 mm² refused；owner 已选择既有 per-request `aperture_residual_tolerance_m2=1e-5`（10 mm²）策略，prepare 后的 fresh confirmation 已 accepted/active，面积及零孔 shell 不变。A22 保留 `above_area_budget=true`、`significant_residual=false`、`scenario_closed=false`，独立 opening budget `1e-6 m²`（1 mm²）不变。依据[既有 residual policy](project/evidence/d6-inner-space-residual-tolerance.md)，无 global/default/schema 改动、几何修复或 closure override；新请求的 manifest/result binding 已于 `domain_correction_inspection/confirmed_domain_manifest.json` / `confirmed_domain_result.json` 冻结，session revision 1 的 `user-red-outline-s3-20261103` action 记录用户明确选区，旧 refusal 保留；`.18.C2–.18.C3` 完成；实际 `run_v2_corrected_domain/` 为 37 centroids inside、666 Euclidean computed / 666 hybrid unreachable/null / 0 routes。343 occupancy 保留 slab，21,064 established occupied + 3,378 outside，graph nodes/edges/searches 0。`run_v2_corrected_domain/preview/index.html` 已交付，`.18.C4/.18.10` user review 和 `.18.8` 有用真实路径验证仍 open。S3 inferred floor support 尚不具备 occupancy exclusion 资格，不得排除 slab 或更改高度策略；本轮 whole-height occupancy 实际阻断所有路线。实施延续见 distance plan `.18.C1–.18.C4`，`.18` 仍 open。
 
-**2026-11-03 free-space investigation (no calculation-policy change):** Existing whole-height inspection explicitly carries the historical `excluded_support_slab` scope into `run_free_space_field_inspection.py`; it does not obtain free cells by choosing a height band. The general current seam is `bonsai_live.validate_support_binding` → `blender_analysis_session.execute_live_analysis` → the exact domain-support/member exclusion in `analysis_requests` and `neutral_scene_views`. A validated specific support changes request-local interior occupancy while retaining factual sources and geometry; an absent or stale binding excludes nothing. `evaluate_domain_request` currently exposes support candidates/binding only for authored IfcSpace, returning `support_status=not_applicable` for inferred wall domains such as current S3. Historical B3 identifies the same slab GUID, but its IFC hash and domain differ and cannot supply a current binding. Full result serialization, atomic writing and exact ResultRef/sample reading already exist; content-key cache selection and downstream reuse are not connected. Request semantic identity still includes plane revision, so geometric undo alone does not guarantee a cache hit. The isolated `free-space-cache` workspace uses parent `9c0b024b`, before the six-file path-band draft. Six existing support/identity/result-reader checks passed under Pixi (3.58s); this is not a new S3 run or user acceptance. Follow-up remains in the [distance implementation checklist](superpowers/plans/2026-11-03-group-distance-module-implementation.md).
+**2026-11-03 historical free-space investigation (before Tasks 1–4):** Existing whole-height inspection explicitly carried the historical `excluded_support_slab` scope into `run_free_space_field_inspection.py`; it did not obtain free cells by choosing a height band. The general seam was `bonsai_live.validate_support_binding` → `blender_analysis_session.execute_live_analysis` → the exact domain-support/member exclusion in `analysis_requests` and `neutral_scene_views`. A validated specific support changed request-local interior occupancy while retaining factual sources and geometry; an absent or stale binding excluded nothing. `evaluate_domain_request` exposed support candidates/binding only for authored IfcSpace, returning `support_status=not_applicable` for inferred wall domains such as S3. Historical B3 identified the same slab GUID, but its IFC hash and domain differed and could not supply a current binding. Full result serialization, atomic writing and exact ResultRef/sample reading existed; content-key cache selection and downstream reuse were not yet connected. Request semantic identity included plane revision. The isolated `free-space-cache` workspace then used parent `9c0b024b`, before the six-file path-band draft. Six existing support/identity/result-reader checks passed under Pixi (3.58s); this was not a new S3 run or user acceptance. Current accepted cache behavior is described above under Task 4; the [distance implementation checklist](superpowers/plans/2026-11-03-group-distance-module-implementation.md) remains a separate workline.
 
 2026-11-02 用户确认所有分析范围来自选定墙体围合区域在选定相机分析平面上的投影。任务工作区 `order_analyzer_group_distance` 已恢复并核验 sibling `order_analyzer_spec008` 的有界实现闭包；原主工作区尚未集成。Spec008 有 2026-10-19/20 disposable 验收，但实际实现文件未包含在其当前 jj revision，恢复已按实际磁盘 bytes/hash 记录，不能按 revision 宣称已恢复。
 
