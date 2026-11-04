@@ -24,13 +24,20 @@ def _camera_ui_fixture(monkeypatch, *, elevation=2.5):
     current = {"observation": observation}
     camera = SimpleNamespace(type="CAMERA")
     scene = SimpleNamespace(om_analysis_plane_binding_json="", om_analysis_plane_reviewed=False,
-        om_analysis_plane_uuid="", om_analysis_plane_revision=1, om_analysis_plane_origin_z=0.0,
+        om_analysis_plane_uuid="", om_analysis_plane_revision=1, om_analysis_plane_origin_z=1.6,
         om_analysis_query_kind="whole_height_projection", om_analysis_storey_ref="",
         om_analysis_selected_version_id="old-selection", om_analysis_grid_spacing=0.25)
     context = SimpleNamespace(scene=scene, active_object=camera)
     monkeypatch.setattr(cameras, "read_camera_binding", lambda obj, **kwargs: current["observation"])
     monkeypatch.setattr(cameras, "resolve_camera_binding", lambda **kwargs: current["observation"])
-    monkeypatch.setattr(cameras, "create_native_drawing", lambda **kwargs: camera)
+    def ensure(**kwargs):
+        """Model the managed New action while keeping adoption and refresh observational."""
+        from dataclasses import replace
+        current["ensure_arguments"] = kwargs
+        current["observation"] = replace(current["observation"],
+            origin=(*current["observation"].origin[:2], kwargs["elevation_m"]))
+        return camera
+    monkeypatch.setattr(cameras, "ensure_native_analysis_plane", ensure)
     monkeypatch.setattr(runtime, "STATE", runtime.RuntimeState(current_result=object(),
         documents=[{"history": True}], domain_session={"confirmation_binding": {"action_id": "old"}}))
     monkeypatch.setattr(addon, "_action_runtime", lambda context: runtime)
@@ -44,12 +51,30 @@ def test_native_camera_actions_adopt_exact_pose_and_revoke_consent(monkeypatch, 
     history = runtime.STATE.current_result
     addon._set_camera_plane(context, action)
     plane = addon._analysis_plane(context.scene)
-    assert plane.origin == (4, 6, 2.5) and plane.revision == 1
+    assert plane.origin == (4, 6, 1.6 if action == "new" else 2.5) and plane.revision == 1
     assert context.scene.om_analysis_plane_reviewed is True
     assert runtime.STATE.domain_session is None
     assert runtime.STATE.current_result is history and runtime.STATE.documents == [{"history": True}]
     assert context.scene.om_analysis_selected_version_id == ""
     assert current["observation"].origin == plane.origin
+    if action == "new":
+        assert current["ensure_arguments"] == {"elevation_m": 1.6, "storey_ref": None,
+                                                "query_kind": "whole_height_projection"}
+
+
+def test_repeated_new_preserves_native_identity_and_revisions_only_changed_pose(monkeypatch):
+    """The managed entrance uses the entered elevation and retains its previous composition revision."""
+    context, _current, _runtime = _camera_ui_fixture(monkeypatch)
+    context.scene.om_analysis_storey_ref = "ifc-object:storey-A"
+    addon._set_camera_plane(context, "new")
+    first = addon._analysis_plane(context.scene)
+    addon._set_camera_plane(context, "new")
+    assert addon._analysis_plane(context.scene) == first
+    context.scene.om_analysis_plane_origin_z = 2.1
+    addon._set_camera_plane(context, "new")
+    updated = addon._analysis_plane(context.scene)
+    assert updated.identity == first.identity and updated.revision == first.revision + 1
+    assert updated.origin[2] == 2.1
 
 
 def test_native_camera_refresh_detects_motion_and_keeps_identity(monkeypatch):

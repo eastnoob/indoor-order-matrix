@@ -128,19 +128,56 @@ def test_native_triangle_order_is_preserved_without_retessellation():
     assert result["triangles"] == [[2, 0, 1], [1, 0, 2]]
 
 
-def test_native_capture_skips_owned_display_geometry(monkeypatch):
+@pytest.mark.parametrize("role", ["display_camera", "plane"])
+def test_native_capture_skips_owned_display_geometry(monkeypatch, role):
     """Linked display cameras/previews cannot add occupancy or change source digests."""
     context, _, evaluated = runtime(monkeypatch)
     obj = context.scene.objects[0]
-    tags = {"om_analysis_owner": "order_analyzer", "om_analysis_role": "display_camera"}
+    tags = {"om_analysis_owner": "order_analyzer", "om_analysis_role": role}
     obj.get = tags.get
     job = capture.begin_analysis_capture(bpy_context=context, scene_token="scene", batch_size=5)
     capture.capture_next_batch(job)
     result = capture.finalize_capture(job)
     row = next(row for row in result.records if row["global_id"] == "wall-guid")
     assert row["status"] == "display_only"
-    assert row["display_ownership"]["om_analysis_role"] == "display_camera"
+    assert row["display_ownership"]["om_analysis_role"] == role
     assert evaluated.cleared == 0 and row["mesh"] is None
+
+
+@pytest.mark.parametrize("kind", ["native_camera", "annotation", "name_lookalike"])
+def test_live_capture_excludes_only_qualified_camera_from_physical_inventory(monkeypatch, kind):
+    """Native camera capture remains observational; ordinary annotations and helper-like names stay physical."""
+    from ..adapters import bonsai_analysis_plane as cameras
+    from ..adapters.bonsai_live import load_bonsai_capture
+    from ..features.neutral_scene_views import analysis_scene_view
+    from .test_analysis_requests import _plane
+
+    context, entities, evaluated = runtime(monkeypatch)
+    obj = context.scene.objects[0]
+    obj.name = "OM_AnalysisPlane DRAWING"
+    if kind != "name_lookalike":
+        entities[0].cls = "IfcAnnotation"
+    if kind == "native_camera":
+        obj.type = "CAMERA"
+        binding = cameras.CameraBinding(camera_id="ifc:wall-guid", role="geometry_author",
+            origin=(0., 0., 1.6), basis=((1, 0, 0), (0, 1, 0), (0, 0, 1)), display={},
+            provenance={"project_global_id": "project-guid", "source_ifc_global_id": "wall-guid",
+                        "geometry_author_qualified": True})
+        monkeypatch.setattr(cameras, "read_camera_binding", lambda *args, **kwargs: binding)
+    job = capture.begin_analysis_capture(bpy_context=context, scene_token="scene", batch_size=5)
+    capture.capture_next_batch(job)
+    captured = capture.finalize_capture(job)
+    source = next(row for row in captured.records if row["global_id"] == "wall-guid")
+    live = load_bonsai_capture(captured, plane=_plane())
+    view = analysis_scene_view(live.scene)
+    inventory = {row["source_object_id"] for row in view["_analysis_view"]["physical_occupancy_sources"]}
+    occupied = {row["id"] for row in view["physical_occupancy"]}
+    if kind == "native_camera":
+        assert source["status"] == "native_drawing_camera" and source["mesh"] is None
+        assert "ifc-object:wall-guid" not in inventory | occupied and evaluated.cleared == 0
+    else:
+        assert source["status"] == "extracted" and source["mesh"] is not None
+        assert "ifc-object:wall-guid" in inventory and evaluated.cleared == 1
 
 
 @pytest.mark.parametrize("direction", ["object_to_entity", "entity_to_object"])

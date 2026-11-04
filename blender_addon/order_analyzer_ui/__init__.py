@@ -713,7 +713,7 @@ def _analysis_plane(scene):
 
 def _set_camera_plane(context, action):
     """Handle explicit native creation, adoption or refresh while preserving result history."""
-    from adapters.bonsai_analysis_plane import (camera_composition, create_native_drawing, plane_from_camera,
+    from adapters.bonsai_analysis_plane import (camera_composition, ensure_native_analysis_plane, plane_from_camera,
                                               read_camera_binding, refresh_camera_plane, resolve_camera_binding)
     scene = context.scene
     runtime = _action_runtime(context)
@@ -725,7 +725,9 @@ def _set_camera_plane(context, action):
         plane = refresh_camera_plane(plane, binding, query_kind=scene.om_analysis_query_kind,
                                      project_global_id=record["project_global_id"])
     elif action in {"adopt", "new"}:
-        camera = (create_native_drawing(storey_ref=getattr(scene, "om_analysis_storey_ref", "") or None)
+        camera = (ensure_native_analysis_plane(elevation_m=scene.om_analysis_plane_origin_z,
+                    storey_ref=getattr(scene, "om_analysis_storey_ref", "") or None,
+                    query_kind=scene.om_analysis_query_kind)
                   if action == "new" else context.active_object)
         binding = read_camera_binding(camera, role="geometry_author")
         previous = _stored_camera_plane(scene) if getattr(scene, "om_analysis_plane_binding_json", "") else None
@@ -1938,7 +1940,7 @@ def register() -> None:
         ("exact_world_xy_section", "Exact world XY section", ""),
         ("ground_to_analysis_plane_band", "Ground to analysis plane", "Finite band from world ground to the analysis plane")],
         default="whole_height_projection", update=_analysis_input_update)
-    bpy.types.Scene.om_analysis_plane_origin_z = bpy.props.FloatProperty(default=0.0, update=_analysis_input_update)
+    bpy.types.Scene.om_analysis_plane_origin_z = bpy.props.FloatProperty(default=1.6, update=_analysis_input_update)
     bpy.types.Scene.om_analysis_plane_revision = bpy.props.IntProperty(default=1, min=1, update=_analysis_input_update)
     bpy.types.Scene.om_analysis_plane_uuids = bpy.props.StringProperty(default="")
     bpy.types.Scene.om_analysis_grid_spacing = bpy.props.FloatProperty(default=0.25, min=0.0, update=_analysis_input_update)

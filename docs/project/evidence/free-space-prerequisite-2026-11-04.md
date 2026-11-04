@@ -24,6 +24,8 @@ classification currently misses DRAWING. Live Blender was unavailable because
 no Blender process was running; no live placement or save/reopen is claimed.
 
 Task 0 visual: omitted; file identities, tests and interface assessment suffice.
+Accepted local jj commit: `d591c91d`, change `vvnuuksk`; subsequent implementation
+continues in the same workspace as separate changes.
 Independent preflight review: specification PASS, quality PASS; preceding 78
 documentation lines preserved. Original IFC hash matches the checklist. S3
 manifest/result SHA256 are respectively
@@ -41,4 +43,31 @@ new disposable session. MCP verifies project `2uGd6yom9GZe5$z7LfbGW0`, 37 groups
 `outputs/design/free_space_prerequisite/verification/native-preflight.json`.
 This is runtime preparation, not new lifecycle or free-space acceptance.
 
-Implementation and real-scene acceptance remain in progress.
+## Task 1 native plane lifecycle
+
+The frozen fix-round-1 candidate passed independent specification and quality
+review. The verifier reran the four-file acceptance: **270 passed, 1 skipped in
+5.57 s; exit 0**. The skip is an unavailable pre-existing real-IFC smoke fixture.
+All eight candidate hashes stayed unchanged through tests and independent probes.
+Source SHA256 is `dafb607a05969fee5fa68dc5057aff24e55ae5398f9f0f0388d75b51807095a9`;
+its lifecycle test SHA256 is
+`23febffffd19ddb7a1ddfc7305a82efccc7b0e929f60cc99d72f446516733814`.
+
+The original review found a valid unrelated drawing could be returned through
+an inconsistent native reverse map. It was corrected before acceptance. Four
+independent discovered/explicit identity and same/changed elevation probes now
+refuse before mutation; post-sync identity substitution recovers the owned
+snapshot and a subsequent valid update succeeds. Native camera ownership is
+persistent `OM_AnalysisPlane` on the native DRAWING annotation, and live/static
+physical inventories exclude drawing cameras without a slab-class exemption.
+
+Evidence under `outputs/design/free_space_prerequisite/verification/`:
+`task1-fix-round1-acceptance.json`, `task1-fix-round1-acceptance.log`,
+`task1-fix-round1-hashes-final.json`, and `task1-fix-round1-probes.log`.
+Detailed original failure and scoped passing rereview remain in this plan's
+`task-1-verification.md`. Visual omitted: exact identity/pose/role assertions
+suffice here. Actual portable Blender creation, native save/reopen, loaded-byte
+proof and visible alignment remain Task 5 pending. The unit seams use genuine
+IFC transactions and serialization, not a completed real runtime acceptance.
+
+Datum wiring, scope audit, content caching and real-scene acceptance remain open.

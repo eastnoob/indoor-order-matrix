@@ -15,8 +15,35 @@ Use [verified-agent-workflow](../skills/verified-agent-workflow/SKILL.md) and th
 Reuse `bonsai_analysis_plane` for native drawing identity, `bonsai_space_authoring`
 for slab datum, `analysis_requests`/`geometry_views` for finite-band projection,
 and the existing result wire/session for persistence and current reads. Missing
-lifecycle, datum wiring, inclusive participation audit and content lookup are
-implementation targets; the distance kernel is outside this workline.
+datum wiring, inclusive participation audit and content lookup are implementation
+targets; the distance kernel is outside this workline.
+
+Task 1's native lifecycle is implemented and awaiting independent acceptance.
+`adapters/bonsai_analysis_plane.py:ensure_native_analysis_plane(*, elevation_m,
+project_global_id=None, camera_guid=None, storey_ref=None,
+query_kind="whole_height_projection")` finds exactly one native
+`IfcAnnotation(ObjectType="DRAWING")` through `OM_AnalysisPlane` ownership
+(`Owner="order_analyzer"`, `Role="analysis_plane"`, `Version="1"`, matching
+`ProjectGlobalId`), or creates it. Explicit existing GUID/project identity must
+match that owned drawing. The public elevation is world metres; native creation
+places the exact camera before class assignment, and updates retain GUID/object
+identity through `Drawing.sync_object_placement`. Non-unit Blender scenes use a
+camera-scoped SI handoff to the installed metre-based Surveyor before its native
+georeference conversion. Ownership writes and updates use owned native
+transactions and the existing snapshot/recovery boundary, now retaining camera
+pose and Bonsai placement checksums. Duplicate ownership/native links, wrong
+project, invalid/tilted pose and unsupported exact-section orientation reject.
+`create_native_drawing` retains its ordinary defaults, adding optional
+`elevation_m=None`, `managed=False`, and
+`query_kind="whole_height_projection"`. The addon's explicit New action calls
+ensure with its existing elevation property (initial default 1.6 m); adoption
+and refresh keep their observed pose and GUID-based revision behavior. Static
+IFC DRAWING annotations gain the existing `drawing_camera` role so both physical
+inventory paths exclude them, while ordinary annotations and name lookalikes
+retain their existing roles. Live native-camera and owned-helper exclusions stay
+in use. Unit tests cover real IFC transaction/property-set/serialization behavior
+behind synthetic Blender seams; actual native save/reopen, loaded-byte proof and
+visible plane/source alignment remain Task 5 checks.
 
 ## Free-space query clarified by the user — 2026-11-03 / existing capabilities audited
 
