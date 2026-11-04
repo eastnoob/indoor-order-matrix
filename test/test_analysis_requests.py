@@ -496,6 +496,74 @@ def test_finite_height_band_uses_analysis_plane_local_z_for_occupancy():
     assert run.field.evaluate((0, 1), run.query).value is True
 
 
+def test_slab_datum_is_immutable_and_changes_request_identity():
+    """Full native receipt bytes participate in identity and remain detached from caller edits."""
+    from ..adapters.blender_analysis_capture import digest
+    from .test_bonsai_space_authoring import captured_slab_scene
+    scene, datum = captured_slab_scene()
+    datum["audit"] = {"note": "楼板", "observations": ["native"]}
+    datum["observation_digest"] = digest({key: value for key, value in datum.items() if key != "observation_digest"})
+    request = _request(scene, plane=_plane(origin=(4, 6, 2)), height_band_datum=datum,
+                       geometry_query=GeometryQuery("finite_height_band", height_band=(-1.8, 0)))
+    original = request.to_dict()["height_band_datum"]
+    datum["audit"]["observations"].append("changed")
+    assert request.to_dict()["height_band_datum"] == original
+    with pytest.raises(TypeError):
+        request.height_band_datum["audit"]["note"] = "changed"
+    changed = replace(request, height_band_datum=datum)
+    assert semantic_cache_key(scene, changed) != semantic_cache_key(scene, request)
+    # Moving the slab top and matching the local band must also change semantic identity.
+    raised = replace(request, height_band_datum={**original, "datum_z_m": .4},
+                     geometry_query=GeometryQuery("finite_height_band", height_band=(-1.6, 0)))
+    assert semantic_cache_key(scene, raised) != semantic_cache_key(scene, request)
+
+
+@pytest.mark.parametrize("degrees", [10, 43])
+@pytest.mark.parametrize("top,plane_z", [(.2, 2.0), (-3.0, -1.2)])
+def test_native_noncardinal_rotation_accepts_slab_band(monkeypatch, degrees, top, plane_z):
+    """Native XY camera rotations retain their validated floating frame and translated SI band."""
+    import math
+    from ..adapters.bonsai_analysis_plane import read_camera_binding, plane_from_camera
+    from .test_bonsai_analysis_plane import _camera, _runtime
+    from .test_bonsai_space_authoring import captured_slab_scene
+    cosine, sine = math.cos(math.radians(degrees)), math.sin(math.radians(degrees))
+    matrix = [[cosine, -sine, 0, 4], [sine, cosine, 0, 6],
+              [0, 0, 1, plane_z], [0, 0, 0, 1]]
+    _runtime(monkeypatch, resolved=matrix)
+    binding = read_camera_binding(_camera(matrix), role="geometry_author")
+    plane = plane_from_camera(binding, name="rotated native plane",
+                              query_kind="ground_to_analysis_plane_band")
+    scene, datum = captured_slab_scene(top=top)
+    request = _request(scene, plane=plane, height_band_datum=datum,
+        geometry_query=GeometryQuery("finite_height_band", height_band=(top - plane_z, 0)))
+    assert request.plane.origin == (4, 6, plane_z)
+    assert request.plane.basis == binding.basis
+    assert request.geometry_query.height_band == (top - plane_z, 0)
+
+
+@pytest.mark.parametrize("failure", ["whole", "section", "tilt", "downward", "bounds", "nonfinite"])
+def test_native_slab_band_rejects_contradictory_request(failure):
+    """Native datum metadata is valid only for its matching horizontal upward slab-to-plane band."""
+    from .test_bonsai_space_authoring import captured_slab_scene
+    scene, datum = captured_slab_scene()
+    changes = {"height_band_datum": datum, "plane": _plane(origin=(0, 0, 2)),
+               "geometry_query": GeometryQuery("finite_height_band", height_band=(-1.8, 0))}
+    if failure == "whole":
+        changes["geometry_query"] = GeometryQuery()
+    elif failure == "section":
+        changes["geometry_query"] = GeometryQuery("exact_world_xy_section", world_z_m=1)
+    elif failure == "tilt":
+        changes["plane"] = _plane(basis=((1, 0, 0), (0, 0, 1), (0, -1, 0)))
+    elif failure == "downward":
+        changes["plane"] = _plane(basis=((1, 0, 0), (0, -1, 0), (0, 0, -1)))
+    elif failure == "bounds":
+        changes["geometry_query"] = GeometryQuery("finite_height_band", height_band=(-2, 0))
+    else:
+        changes["height_band_datum"] = {**datum, "datum_z_m": float("inf")}
+    with pytest.raises(ValueError):
+        _request(scene, **changes)
+
+
 @pytest.mark.parametrize("changes", [
     {"geometry_query": GeometryQuery("tilted_section", world_z_m=1)},
     {"geometry_query": GeometryQuery("volume_3d")}, {"operation": "future_operation"},

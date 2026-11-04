@@ -749,24 +749,27 @@ def _set_camera_plane(context, action):
 
 
 def _make_analysis_request(scene, domain, domain_geometries=()):
-    """Build the existing request using plane origin Z and confirmed XY coverage."""
+    """Build a confirmed-domain request with the selected native slab floor datum."""
     from features.analysis_requests import AnalysisRequest, GeometryQuery, GridSampling
     from features.scene_contract import AnalysisDomain
     plane = _analysis_plane(scene)
     kind = scene.om_analysis_query_kind
+    datum = None
     if kind == "ground_to_analysis_plane_band":
-        # GeometryQuery height bands use analysis-plane local Z, so world ground
-        # is below the horizontal plane by exactly the plane elevation.
-        if plane.origin[2] <= 0.0:
-            raise ValueError("ground-to-analysis-plane band requires a positive analysis plane elevation")
-        query = GeometryQuery(kind="finite_height_band", height_band=(-plane.origin[2], 0.0))
+        datum = _space_datum(scene)
+        if datum.get("mode") != "slab":
+            raise ValueError("ground-to-analysis-plane band requires a selected slab datum")
+        from features.scene_contract import _number
+        # Native slab and plane are already world SI; XY translation/rotation adds no height offset.
+        lower = _number(datum.get("datum_z_m"), "datum_z_m") - plane.origin[2]
+        query = GeometryQuery(kind="finite_height_band", height_band=(lower, 0.0))
     else:
         query = GeometryQuery(kind=kind, world_z_m=plane.origin[2] if kind == "exact_world_xy_section" else None)
     origin, n_rows, n_cols = _grid_coverage(scene, domain, domain_geometries, plane=plane)
     return AnalysisRequest(request_id=str(uuid.uuid4()), plane=plane, domain=AnalysisDomain.from_dict(domain),
                            sampling=GridSampling(origin=origin, spacing=float(scene.om_analysis_grid_spacing),
                                                   n_rows=n_rows, n_cols=n_cols),
-                           geometry_query=query, operation="free_space")
+                           geometry_query=query, height_band_datum=datum, operation="free_space")
 
 
 def _request_binding_payload(domain):
@@ -1938,7 +1941,7 @@ def register() -> None:
     bpy.types.Scene.om_analysis_query_kind = bpy.props.EnumProperty(items=[
         ("whole_height_projection", "Whole height", ""),
         ("exact_world_xy_section", "Exact world XY section", ""),
-        ("ground_to_analysis_plane_band", "Ground to analysis plane", "Finite band from world ground to the analysis plane")],
+        ("ground_to_analysis_plane_band", "Slab top to analysis plane", "Finite band above the selected slab's upper surface")],
         default="whole_height_projection", update=_analysis_input_update)
     bpy.types.Scene.om_analysis_plane_origin_z = bpy.props.FloatProperty(default=1.6, update=_analysis_input_update)
     bpy.types.Scene.om_analysis_plane_revision = bpy.props.IntProperty(default=1, min=1, update=_analysis_input_update)

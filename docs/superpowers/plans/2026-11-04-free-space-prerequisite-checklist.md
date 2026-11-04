@@ -73,11 +73,11 @@
 
 涉及：`adapters/bonsai_analysis_plane.py`、addon 调用方、capture/IFC source-role 识别；对应 `test/test_bonsai_analysis_plane.py`、`test/test_blender_analysis_capture.py`、`test/test_ifc_bonsai_adapter.py`。
 
-- [ ] 先核验现有 native drawing-camera 是否可承载需求，确定可见平面物体与原生绑定的最小组合；`IfcBuildingElementProxy + OM_AnalysisPlane` 不是已经决定的实现。
-- [ ] 实现创建/查找复用/更新：稳定身份、世界高度、位置与来源一致；重复调用不增加重复对象，冲突或多个候选给出明确诊断。
-- [ ] 证明平面对象在 live capture 与 IFC 重新读取两条路径均不进入 occupancy，普通物体不受错误的名称匹配影响。
-- [ ] 检查对象、绑定与存储恢复的一致性；中途失败不能留下被误认为成功的对象或绑定。
-- [ ] 独立验收通过，完成规格/质量审查，再由主控执行该项本地 jj 提交并附证据。
+- [x] 先核验现有 native drawing-camera 是否可承载需求，确定可见平面物体与原生绑定的最小组合；`IfcBuildingElementProxy + OM_AnalysisPlane` 不是已经决定的实现。
+- [x] 实现创建/查找复用/更新：稳定身份、世界高度、位置与来源一致；重复调用不增加重复对象，冲突或多个候选给出明确诊断。
+- [x] 证明平面对象在 live capture 与 IFC 重新读取两条路径均不进入 occupancy，普通物体不受错误的名称匹配影响。
+- [x] 检查对象、绑定与存储恢复的一致性；中途失败不能留下被误认为成功的对象或绑定。
+- [x] 独立验收通过，完成规格/质量审查，再由主控执行该项本地 jj 提交并附证据。
 
 可视化判定：对象身份、标高、复用次数和占用排除通过数值/行为断言检查，不为创建和复用分别出图。若原生变换与真实可见位置尚有不确定性，在 Task 5 合并生成必要场景视图；已验证同一几何可复用。
 

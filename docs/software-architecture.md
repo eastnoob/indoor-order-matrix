@@ -47,6 +47,17 @@ visible plane/source alignment remain Task 5 checks.
 
 ## Free-space query clarified by the user — 2026-11-03 / existing capabilities audited
 
+Task 2 implementation in this checkout wires `ground_to_analysis_plane_band` to
+the selected slab's verified horizontal upper surface, using plane-local bounds
+`(datum_z_m - plane.origin[2], 0)`. `AnalysisRequest.height_band_datum` retains the
+full immutable receipt in request identity and result serialization. The live
+session checks that receipt against the frozen captured project, exact slab and
+storey identities, containment, five-field SI mesh digest and recomputed top
+before any occupancy execution. Generic direct finite bands remain datum-free;
+whole-height and absolute-world-Z section queries remain independent. Numerical
+regressions establish this wiring; actual native datum/plane alignment remains
+Task 5 evidence.
+
 Current task semantics are floor-upper-surface → analysis-plane-height physical
 mass projection, restricted to the projected confirmed domain. Object scope
 includes boundary contact; known occupied cells still require positive-area
@@ -55,10 +66,9 @@ The recovered UI already offers `ground_to_analysis_plane_band`
 (`blender_addon/order_analyzer_ui/__init__.py:_make_analysis_request`), and
 `features/analysis_requests.py:_occupancy` uses the existing
 `geometry_views.plan_projection(..., height_band=...)` before constructing
-`FreeSpaceField`. This UI currently assumes world ground Z=0. The selected slab's
-actual top is separately available from
-`adapters/bonsai_space_authoring.py:resolve_slab_datum`; it is not connected as
-that free-space lower bound. FreeSpaceField clips cell support to the exact
+`FreeSpaceField`. At that audit the UI assumed world ground Z=0; Task 2 now uses
+`adapters/bonsai_space_authoring.py:resolve_slab_datum` as its selected floor
+lower bound. FreeSpaceField clips cell support to the exact
 domain, but there is no unified object-scope selection using inclusive projected
 intersection. Existing exact boundary-member exclusions also remain in force;
 retained boundary evidence is not a complete inclusive object-scope handoff.

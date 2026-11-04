@@ -536,6 +536,10 @@ def _activate_legacy_proxies(scene, request):
 
 def execute_live_analysis(scene, *, request, domain_geometries, support_binding=None):
     """Compose only the confirmed exact meshes and use the existing request executor."""
+    if request.height_band_datum is not None:
+        from .bonsai_space_authoring import validate_captured_slab_datum
+        # Native form observation precedes frozen capture; refuse a raced floor before calculation.
+        validate_captured_slab_datum(scene, request.height_band_datum)
     if "." in (__package__ or ""):
         from ..features.analysis_requests import execute_analysis_request
     else:

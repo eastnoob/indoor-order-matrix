@@ -114,6 +114,7 @@ class AnalysisRequest(_Record):
     demand: Mapping[str, object] | None = None
     geometry_tolerance: float = 0.001
     topology_tolerance: float = 0.001
+    height_band_datum: Mapping[str, object] | None = None
 
     def __post_init__(self) -> None:
         """Validate the profile and detach all nested caller-owned parameters."""
@@ -127,6 +128,20 @@ class AnalysisRequest(_Record):
             raise TypeError("sampling must be GridSampling for this planar profile")
         if not isinstance(self.geometry_query, GeometryQuery):
             raise TypeError("geometry_query must be GeometryQuery")
+        if self.height_band_datum is not None:
+            datum = _json_object(self.height_band_datum, "height_band_datum")
+            if self.geometry_query.kind != "finite_height_band" or datum.get("mode") != "slab":
+                raise ValueError("height_band_datum requires a finite band and selected slab datum")
+            # Use AnalysisPlane's frame precision: native XY rotations can round unit Z below one.
+            if (any(abs(actual - expected) > 1e-9
+                    for actual, expected in zip(self.plane.basis[2], (0.0, 0.0, 1.0)))
+                    or any(abs(axis[2]) > 1e-9 for axis in self.plane.basis[:2])):
+                raise ValueError("slab height band requires a horizontal upward analysis plane")
+            # Captured geometry is already world metres; only the height origin changes.
+            lower = _number(datum.get("datum_z_m"), "datum_z_m") - self.plane.origin[2]
+            if lower >= 0 or self.geometry_query.height_band != (lower, 0.0):
+                raise ValueError("slab datum must be below the plane and match the height band")
+            object.__setattr__(self, "height_band_datum", datum)
         object.__setattr__(self, "source_rules", _json_object(self.source_rules, "source_rules"))
         if self.demand is not None:
             object.__setattr__(self, "demand", _json_object(self.demand, "demand"))
@@ -611,6 +626,7 @@ def execute_analysis_request(scene: NeutralSceneV2, request: AnalysisRequest) ->
                   "semantic_key": key, "source_fingerprint": fingerprint,
                   "project_source_identity": scene.context.world_coordinate_system,
                   "geometry_query": request.geometry_query.to_dict(), "backend_versions": versions,
+                  "height_band_datum": request.height_band_datum,
                   "geometry_tolerance": request.geometry_tolerance,
                   "topology_tolerance": request.topology_tolerance,
                   "section_thickness_m": 0.0 if request.geometry_query.kind == "exact_world_xy_section" else None}

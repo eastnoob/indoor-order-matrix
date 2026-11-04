@@ -147,19 +147,38 @@ def test_plane_never_falls_back_to_manual_world_z():
         addon._analysis_plane(scene)
 
 
-def test_make_analysis_request_ground_band_uses_plane_local_bounds(monkeypatch):
-    """The ground-to-plane option maps world ground into local plane Z."""
+@pytest.mark.parametrize("elevation,slab_z", [(2.5, .2), (-1.5, -3.0)])
+def test_make_analysis_request_ground_band_uses_plane_local_bounds(monkeypatch, elevation, slab_z):
+    """Selected slab tops map to local Z even below world zero and in rotated XY frames."""
+    from dataclasses import replace
     from features.scene_contract import AnalysisDomain
-    context, _current, _runtime = _camera_ui_fixture(monkeypatch)
+    context, current, _runtime = _camera_ui_fixture(monkeypatch, elevation=elevation)
+    current["observation"] = replace(current["observation"], basis=((0, 1, 0), (-1, 0, 0), (0, 0, 1)))
     addon._set_camera_plane(context, "adopt")
     scene = context.scene
     scene.om_analysis_query_kind = "ground_to_analysis_plane_band"
     domain = AnalysisDomain.from_dict({"id": "domain", "geometry_refs": (), "source_id": None,
                                       "selection_method": "test", "provenance": {}, "uncertainties": ()})
     monkeypatch.setattr(addon, "_grid_coverage", lambda *_args, **_kwargs: ((0.0, 0.0), 1, 1))
+    datum = {"mode": "slab", "datum_z_m": slab_z, "slab_ref": "ifc-object:selected"}
+    monkeypatch.setattr(addon, "_space_datum", lambda _scene: datum)
     request = addon._make_analysis_request(scene, domain)
     assert request.geometry_query.kind == "finite_height_band"
-    assert request.geometry_query.height_band == (-2.5, 0.0)
+    assert request.geometry_query.height_band == (slab_z - elevation, 0.0)
+    assert request.height_band_datum == datum
+
+
+@pytest.mark.parametrize("datum", [{}, {"mode": "storey", "datum_z_m": .2},
+    {"mode": "slab", "datum_z_m": float("nan")}, {"mode": "slab", "datum_z_m": float("inf")},
+    {"mode": "slab", "datum_z_m": 2.5}, {"mode": "slab", "datum_z_m": 3}])
+def test_floor_band_refuses_missing_wrong_or_invalid_datum(monkeypatch, datum):
+    """The native floor option never silently falls back to world ground or storey elevation."""
+    context, _current, _runtime = _camera_ui_fixture(monkeypatch)
+    addon._set_camera_plane(context, "adopt")
+    context.scene.om_analysis_query_kind = "ground_to_analysis_plane_band"
+    monkeypatch.setattr(addon, "_space_datum", lambda _scene: datum)
+    with pytest.raises(ValueError):
+        addon._make_analysis_request(context.scene, {})
 
 
 def test_camera_grid_coverage_uses_translated_rotated_plane_coordinates(monkeypatch):

@@ -39,6 +39,95 @@ def slab_mesh():
             "is_closed": True, "is_manifold": True, "units": "m"}
 
 
+def captured_slab_scene(*, top=.2):
+    """Pair a real native datum receipt with independently captured canonical slab/storey facts."""
+    from dataclasses import replace
+    from ..features.scene_contract import MeshGeometry3D
+    from .test_analysis_requests import _missing, _scene
+    model, storey, _ref = native_model()
+    slab = ifcopenshell.api.root.create_entity(model, ifc_class="IfcSlab")
+    ifcopenshell.api.aggregate.assign_object(model, products=[slab], relating_object=storey)
+    mesh = slab_mesh()
+    mesh["vertices"] = tuple((x + 4, y + 6, z + top - .2) for x, y, z in mesh["vertices"])
+    datum = authoring.resolve_slab_datum(model, "ifc-object:" + slab.GlobalId, mesh=mesh)
+    geometry = MeshGeometry3D(id="selected-slab", vertices=mesh["vertices"],
+        triangle_indices=mesh["triangles"], units="m", is_closed=True, is_manifold=True,
+        normals=(), source_representation_id=None, tessellation_settings={},
+        local_to_world_provenance={"world_transform_applied": True})
+    sources = []
+    for entity, role in ((slab, "slab"), (storey, "storey")):
+        source = replace(_missing()[0], id="ifc-object:" + entity.GlobalId,
+            source_id=entity.GlobalId, source_class=entity.is_a(), source_role=role,
+            provenance={"project_global_id": datum["project_global_id"], "step_id": entity.id()})
+        if entity == slab:
+            source = replace(source, level_ref=datum["storey_ref"], container_refs=(datum["storey_ref"],),
+                             geometry_refs=(geometry.id,), uncertainties=())
+        sources.append(source)
+    scene = _scene((sources[0], geometry), (sources[1], None), origin=(4, 6))
+    return replace(scene, context=replace(scene.context,
+        world_coordinate_system={"project_global_id": datum["project_global_id"]})), datum
+
+
+def test_slab_receipt_normalizes_integer_and_float_geometry():
+    """Synthetic integer coordinates and captured SI floats describe the same receipt geometry."""
+    mesh = slab_mesh()
+    floating = {**mesh, "vertices": [[float(value) for value in point] for point in mesh["vertices"]]}
+    assert authoring.slab_geometry_digest(mesh) == authoring.slab_geometry_digest(floating)
+    scene, datum = captured_slab_scene()
+    authoring.validate_captured_slab_datum(scene, datum)
+
+
+@pytest.mark.parametrize("failure", ["receipt", "project", "slab_step", "storey_step", "source_guid",
+    "missing_storey", "containment", "ambiguous_containment", "geometry", "ambiguous_geometry", "top", "slope", "step"])
+def test_captured_slab_rejects_changed_identity_geometry_and_top(failure):
+    """A frozen slab must still be the selected native solid, even when its top is unchanged."""
+    from dataclasses import replace
+    scene, datum = captured_slab_scene()
+    slab, storey = scene.source_objects
+    geometry = scene.geometries[1]
+    if failure == "receipt":
+        datum["slab_id"] += 1
+    elif failure == "project":
+        scene = replace(scene, context=replace(scene.context, world_coordinate_system={"project_global_id": "other"}))
+    elif failure in {"slab_step", "storey_step", "source_guid", "containment", "ambiguous_containment"}:
+        if failure == "slab_step":
+            slab = replace(slab, provenance={**slab.provenance, "step_id": datum["slab_id"] + 1})
+        elif failure == "storey_step":
+            storey = replace(storey, provenance={**storey.provenance, "step_id": datum["storey_id"] + 1})
+        elif failure == "source_guid":
+            slab = replace(slab, source_id="other")
+        else:
+            slab = replace(slab, container_refs=("ifc-object:other",) if failure == "containment"
+                           else (datum["storey_ref"], "ifc-object:other"))
+        scene = replace(scene, source_objects=(slab, storey))
+    elif failure == "missing_storey":
+        scene = replace(scene, source_objects=(slab,))
+    elif failure == "ambiguous_geometry":
+        scene = replace(scene, geometries=scene.geometries + (geometry,))
+    else:
+        vertices = list(geometry.vertices)
+        if failure == "geometry":
+            vertices = [(x + .1, y, z) for x, y, z in vertices]
+        elif failure == "top":
+            vertices = [(x, y, z + .1) for x, y, z in vertices]
+        elif failure == "slope":
+            vertices[6] = (*vertices[6][:2], vertices[6][2] + .1)
+        else:
+            vertices += [(x + 3, y, z + .3) for x, y, z in geometry.vertices]
+            geometry = replace(geometry, vertices=vertices, triangle_indices=geometry.triangle_indices
+                + tuple(tuple(index + 8 for index in face) for face in geometry.triangle_indices))
+        geometry = replace(geometry, vertices=vertices)
+        scene = replace(scene, geometries=(scene.geometries[0], geometry))
+        if failure in {"top", "slope", "step"}:
+            # A self-consistent receipt digest still cannot hide an invalid or changed top.
+            view = {**slab_mesh(), "vertices": vertices, "triangles": geometry.triangle_indices}
+            datum["geometry_digest"] = authoring.slab_geometry_digest(view)
+            datum["observation_digest"] = authoring.digest({key: value for key, value in datum.items()
+                                                          if key != "observation_digest"})
+    with pytest.raises(ValueError):
+        authoring.validate_captured_slab_datum(scene, datum)
+
+
 def test_storey_zero_and_transformed_placement_are_real_datums():
     """Zero is valid and nested native placement must be converted exactly once."""
     model, storey, ref = native_model("MILLI")

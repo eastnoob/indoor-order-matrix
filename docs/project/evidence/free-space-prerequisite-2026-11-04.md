@@ -71,3 +71,42 @@ proof and visible alignment remain Task 5 pending. The unit seams use genuine
 IFC transactions and serialization, not a completed real runtime acceptance.
 
 Datum wiring, scope audit, content caching and real-scene acceptance remain open.
+
+Accepted Task 1 local jj commit: `ccae2b27`, change `wlkuvxrk`;
+Task 2 continues as change `tnozwwmy` in the same workspace.
+
+## Task 2 selected slab datum and finite height band
+
+Independent specification PASS / quality PASS after fix round 1. Required
+five-file acceptance: **342 passed in 11.18 s, exit 0**. All nine actual hashes
+matched the frozen manifest before and after acceptance and supplemental probes.
+The optional immutable `AnalysisRequest.height_band_datum` retains the complete
+verified slab receipt; the UI queries its upper surface to the selected plane.
+Frozen execution validates the receipt's self/project/slab/storey/containment,
+exact five-key geometry digest and recomputed top before occupancy. Generic
+datum-free finite bands, whole-height and exact-section queries remain usable.
+
+Independent review caught exact normal equality rejecting valid noncardinal
+native camera rotations. The corrected feature-side frame check uses the
+existing 1e-9 plane precision; the original ten-case native-reader probe now
+passes, malformed inputs and actual orthonormal tilt/downward frames still
+refuse. Source SHA256:
+`a2cdc5806876f22c414558aac04f6b60dfdd99427cec749bcae89ddab85c3198`.
+Evidence: `outputs/design/free_space_prerequisite/verification/task2-round1-*`
+and this plan's `task-2-verification.md`, preserving the original failed review.
+Visual omitted for the wiring; real datum/plane mapping stays Task 5.
+
+## Early Task 5 native lifecycle finding — correction in progress
+
+Accepted Task 1 bytes were loaded from this workspace in the specified portable
+Blender (PID 23544), replacing the old spec004 adapter imports in this disposable
+session. The actual creation check failed: requested 1.6 m became 0 m, and owned
+recovery reported mismatched object poses. No plane success or new IFC save is
+claimed. Reopening the unchanged original source resets the failed scene safely.
+The independent native RNA probe proves row tuples assigned to `matrix_world`
+are transposed; `mathutils.Matrix(rows)` preserves the intended translation.
+The same assignment pattern affected create, scoped unit conversion and restore.
+Task 1 native correction is in progress and must pass a fresh native test before
+the actual free-space run. Evidence: `native-plane-create-reuse.json`,
+`native-plane-diagnostic.json`, `native-matrix-assignment-probe.json`, and
+`native-source-reload-after-failure.json` under the verification directory.

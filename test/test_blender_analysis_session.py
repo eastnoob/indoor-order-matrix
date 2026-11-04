@@ -33,6 +33,63 @@ def _compact_document(**changes):
     return run, document
 
 
+@pytest.mark.parametrize("top,plane_z", [(.2, 2.0), (-3.0, -1.2)])
+def test_native_slab_band_contact_mass_and_full_receipt_round_trip(top, plane_z):
+    """The live seam keeps slab contact empty, partial mass occupied and the full receipt readable."""
+    from ..adapters import blender_analysis_session as service
+    from ..adapters.blender_analysis_capture import digest
+    from ..features.analysis_requests import GeometryQuery, GridSampling
+    from .test_analysis_requests import _object, _request
+    from .test_bonsai_space_authoring import captured_slab_scene
+    scene, datum = captured_slab_scene(top=top)
+    datum["audit"] = {"note": "楼板", "observed": ["selected native slab"]}
+    datum["observation_digest"] = digest({key: value for key, value in datum.items() if key != "observation_digest"})
+    partial, mesh = _object("partial-slab", (6, 6, top - .1, 7, 7, top + .3), role="slab")
+    above, high_mesh = _object("above", (7, 6, plane_z, 8, 7, plane_z + .3))
+    scene = replace(scene, source_objects=scene.source_objects + (partial, above),
+                    geometries=scene.geometries + (mesh, high_mesh))
+    request = _request(scene, plane=_plane(origin=(4, 6, plane_z),
+        basis=((0, 1, 0), (-1, 0, 0), (0, 0, 1))),
+        sampling=GridSampling((0, -4), 1, 4, 4),
+        geometry_query=GeometryQuery("finite_height_band", height_band=(top - plane_z, 0)),
+        height_band_datum=datum)
+    run = service.execute_live_analysis(scene, request=request, domain_geometries=(scene.geometries[0],))
+    assert run.field.evaluate((3, 0), run.query).value is False
+    assert run.field.evaluate((1, 0), run.query).value is True
+    assert run.field.evaluate((0, 0), run.query).value is False
+    assert run.snapshot.provenance["height_band_datum"] == request.height_band_datum
+    document = service.serialize_analysis_result(run, job_id="slab-band", plane_uuid=request.plane.identity,
+        plane_revision=request.plane.revision, domain_request_id="domain", domain_session_revision=1)
+    restored = service.wire.load_json(service.wire.canonical_json(document))
+    decoded = service._request_from_wire(restored["tables"]["snapshot"]["request"])
+    assert decoded.to_dict() == request.to_dict()
+    snapshot = service.open_analysis_result([restored], result_ref=service.list_analysis_results([restored])[0].ref,
+        context=_read_context(restored))
+    assert service.wire.plain(snapshot.payload["tables"]["snapshot"]["request"]["height_band_datum"]) == datum
+    assert service.read_analysis_sample(snapshot, row=1, column=0).value is True
+
+
+def test_live_slab_band_refuses_geometry_race_before_executor(monkeypatch):
+    """An unchanged slab top cannot authorize moved captured geometry or execute any occupancy."""
+    from ..adapters import blender_analysis_session as service
+    from ..features import analysis_requests
+    from ..features.analysis_requests import GeometryQuery
+    from .test_analysis_requests import _request
+    from .test_bonsai_space_authoring import captured_slab_scene
+    scene, datum = captured_slab_scene()
+    request = _request(scene, plane=_plane(origin=(4, 6, 2)), height_band_datum=datum,
+        geometry_query=GeometryQuery("finite_height_band", height_band=(-1.8, 0)))
+    geometry = scene.geometries[1]
+    moved = replace(geometry, vertices=tuple((x + .1, y, z) for x, y, z in geometry.vertices))
+    scene = replace(scene, geometries=(scene.geometries[0], moved))
+    def unexpected(*_args):
+        """Fail if stale observation reaches the expensive occupancy executor."""
+        pytest.fail("stale datum reached occupancy execution")
+    monkeypatch.setattr(analysis_requests, "execute_analysis_request", unexpected)
+    with pytest.raises(ValueError, match="geometry changed"):
+        service.execute_live_analysis(scene, request=request, domain_geometries=(scene.geometries[0],))
+
+
 def _read_context(document, **changes):
     """Supply explicit frozen expected metadata for a historical diagnostic read."""
     from ..adapters import blender_analysis_session as service

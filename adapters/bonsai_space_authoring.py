@@ -9,7 +9,7 @@ import numpy as np
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
-from .blender_analysis_capture import digest, freeze, plain
+from .blender_analysis_capture import digest, freeze, plain, ifc_ancestry
 
 
 LENGTH_TOLERANCE = 1e-6
@@ -128,6 +128,54 @@ def horizontal_upper_surface(mesh):
     return elevation
 
 
+def slab_geometry_digest(mesh):
+    """Hash the native receipt's exact five SI mesh facts with stable numeric types."""
+    # Synthetic meshes may use integers where evaluated capture always supplies floats.
+    return digest({"vertices": [[float(value) for value in point] for point in mesh["vertices"]],
+                   "triangles": mesh["triangles"], "units": mesh["units"],
+                   "is_closed": mesh["is_closed"], "is_manifold": mesh["is_manifold"]})
+
+
+def validate_captured_slab_datum(scene, datum):
+    """Reject a native slab observation that no longer matches the frozen SI capture."""
+    required = {"project_global_id", "storey_ref", "storey_id", "mode", "slab_ref", "slab_id",
+                "datum_z_m", "geometry_digest", "observation_digest"}
+    if (not isinstance(datum, Mapping) or not required <= datum.keys() or datum["mode"] != "slab"
+            or datum["observation_digest"] != digest({key: value for key, value in datum.items()
+                                                     if key != "observation_digest"})):
+        raise ValueError("invalid slab datum observation receipt")
+    project = scene.context.world_coordinate_system.get("project_global_id")
+    if not project or datum["project_global_id"] != project:
+        raise ValueError("slab datum project differs from captured project")
+    selected = {}
+    for kind, ifc_class in (("slab", "IfcSlab"), ("storey", "IfcBuildingStorey")):
+        ref, step = datum[kind + "_ref"], datum[kind + "_id"]
+        sources = [source for source in scene.source_objects if source.id == ref]
+        if (not isinstance(ref, str) or not ref.startswith("ifc-object:")
+                or type(step) is not int or step <= 0 or len(sources) != 1):
+            raise ValueError("slab datum requires exact captured " + kind + " identity")
+        source = sources[0]
+        if (source.source_id != ref.removeprefix("ifc-object:")
+                or ifc_class not in ifc_ancestry(scene.context.source_schema, source.source_class)
+                or source.provenance.get("step_id") != step
+                or source.provenance.get("project_global_id") != project):
+            raise ValueError("slab datum differs from captured " + kind + " identity")
+        selected[kind] = source
+    slab = selected["slab"]
+    if slab.level_ref != datum["storey_ref"] or slab.container_refs != (datum["storey_ref"],):
+        raise ValueError("slab datum requires one matching captured storey relation")
+    meshes = [mesh for mesh in scene.geometries if mesh.id in slab.geometry_refs]
+    if len(slab.geometry_refs) != 1 or len(meshes) != 1:
+        raise ValueError("slab datum requires one unique captured geometry")
+    mesh = meshes[0]
+    # Reconstruct the native receipt view, not bonsai_live's different whole-mesh-list digest.
+    view = {"vertices": mesh.vertices, "triangles": mesh.triangle_indices, "units": mesh.units,
+            "is_closed": mesh.is_closed, "is_manifold": mesh.is_manifold}
+    if (slab_geometry_digest(view) != datum["geometry_digest"]
+            or horizontal_upper_surface(view) != datum["datum_z_m"]):
+        raise ValueError("slab datum geometry changed since observation; rebuild the request")
+
+
 def resolve_slab_datum(model, slab_ref, *, mesh=None):
     """Use one selected slab's actual evaluated top and unique native storey relation."""
     slab = _native_entity(model, slab_ref, "IfcSlab")
@@ -147,8 +195,7 @@ def resolve_slab_datum(model, slab_ref, *, mesh=None):
         mesh = extract_evaluated_mesh(obj, bpy.context.evaluated_depsgraph_get(), bpy.context.scene.unit_settings.scale_length)
     return _receipt(model, containers[0], {"mode": "slab", "slab_ref": slab_ref,
                     "slab_id": slab.id(), "datum_z_m": horizontal_upper_surface(mesh),
-                    "geometry_digest": digest({key: mesh[key] for key in
-                        ("vertices", "triangles", "units", "is_closed", "is_manifold")})})
+                    "geometry_digest": slab_geometry_digest(mesh)})
 
 
 def resolve_height(model, storey_ref, *, mode, manual_value=None, manual_unit="m"):
