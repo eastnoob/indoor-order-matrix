@@ -329,3 +329,149 @@ still the sole version writer and reports the accepted local commit identity in
 the delivery message; the
 implementer has performed no commit, push or merge. Large output artifacts remain
 external execution evidence rather than project source changes.
+
+## Eight-neighbor successor `.18.8b` — 2026-11-04
+
+Authorized workline: jj workspace `free-space-distance-bridge`,
+`D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge`,
+base `86be9692`, change `ssttwnxz`, initial revision `9a2c4d90`; root is the
+sole version writer. The implementer checked installed jj/Pixi and used only
+`jj --ignore-working-copy` for version inspection. V3 remains immutable.
+
+Owner ruling: v2 route edges include diagonals only with both orthogonal flank
+cells traversable in that graph mode and exact domain-covered center segments.
+Footprint access remains cardinal. Tie ranking counts the seed once, then each
+destination and guard occurrence; distinct support determines route state.
+Existing path-cell counts retain their meaning. New identities are
+`group-distance/2`, `group-distance/v2` and
+`eight-neighbor-two-flank-occurrences/1`. Guard keys/query refs resolve complete
+sample/source/support authority through the shared manifest and exact ResultRef.
+Failed guards join component dependencies even without their own cardinal edge.
+
+Focused TDD failures were observed before implementation: route-index helper
+absent; two guard-occurrence cases ranked zero instead of one; guard-only unknown
+tie selected the wrong representative; disconnected failed-guard dependency
+helper absent; retained reuse helper absent; model-identity reader absent. A
+test initially used a malformed replacement digest and was corrected to a valid
+swapped SHA-256. The real comparison check was initially red because v4 output
+had not yet been generated. Its final artifact test follows the established skip
+convention when actual artifacts are absent, and executes on this actual v4 run.
+These initial attempts are recorded, not passing evidence.
+
+The retained-input seam authenticates original producer file path/size/hash,
+saved output hashes, immutable handoff fingerprints and source/plane/query/ref
+bindings before copying the original bundle/scene bytes. It avoids decoding the
+165 MB native capture or reprojecting geometry. Comparison reads accepted v3
+compact HTML numbers after checking its preview hash and the original complete
+observations hash, rather than reloading 401 MB of duplicate lineage.
+
+Visual decision: required for the visible same-pair v3→v4 topology effect and
+group highlighting, owned by the separate native visual worker. Numerical,
+uncertainty, identity and deterministic checks do not require new pictures.
+Technical verification and user acceptance remain separate.
+
+### Actual execution, unchanged inputs and complete comparison
+
+The required full run and twin-kernel replay **exit 0** in fresh
+`outputs/design/group_distance_ifc/run_v4_eight_neighbor/`. All 24,442 original
+sample bool/status values and lattice/query bindings remain exact (14,047 free,
+7,023 occupied, 3,372 outside); the free-space ResultRef is unchanged. Both graphs
+have 13,800 nodes, 51,293 edges and 36 source-batched searches. All **666** hybrid
+distances/routes are `computed`, with no numerical-contract failures or tie
+uncertainty. Validation checks 34,714 selected nodes, 34,048 selected edges,
+14,983 diagonals and 29,966 diagonal guard occurrences, plus all 666 optimistic
+witnesses. Other actual status branches remain unobserved in this scene.
+
+Replay normalized SHA-256 is
+`7c22b7bdde46ee9b01a16fb9e32adbc910cb268f8b400ec9f5fc592a75ed60c9`
+on both executions. First-kernel runtime is `165.22563210000226 s`, with Python
+tracemalloc peak `394,169,538 B`; complete runner time is `480.2987355000005 s`,
+including both kernels, validation/comparison and publication. Process lifetime
+peak working set is `2,106,302,464 B`, peak commit `2,142,339,072 B`. The v3 runner
+included native-capture projection/decoding; this retained-input runner avoids
+that work, so these are measured scopes, not a like-for-like speedup claim.
+
+`source_integrity.json` confirms every original v3 numeric artifact hash is
+unchanged, the 46,572,507 B input bundle and 8,231,570 B scene geometry are
+byte-identical copies, and producer/result/receipt bytes match before/after.
+The pinned original IFC remains 408,618,044 B with SHA-256
+`1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`.
+No new occupancy calculation, mesh projection or source mutation occurred.
+
+The complete `comparison_rows.csv` has all 666 pair IDs and the summary preserves
+each group identity, raw Euclidean reading, centroid audit and exact ResultRef.
+It checks full v3 `observations.json` SHA-256
+`8676973e7c63e84d21f3163b44731623b73d9119210cb2407d449b69e06062fc`
+and accepted compact preview SHA-256
+`afe4e146b73ad3fdcf3dbd534f55803275f70c65fb025c028a8a3260533144d9`
+before comparing unrounded JSON numbers. There are **587 shorter, 79 equal, zero
+worsened** hybrid readings; mean reduction over all pairs is
+`1.2215930904981538 m`. Fixed pair and maximum improvement are the same actual
+pair, `group-pair:52765f18681bb1a4c9e67bac`:
+`22.235303085205956 → 16.981729510513542 m`, reduction
+`5.253573574692414 m` (`23.62717321441788%`); unchanged Euclidean distance is
+`16.23278261190861 m`. Its two group identities and a single visual pair selector
+are retained in `comparison_summary.json`, avoiding duplicate fixed/max views.
+
+The output-only preview command **exits 0** in 8.92 s, generating all **666**
+selectable route locators, complete matrices/CSV and two representative PNGs.
+HTML is `6,613,081 B`; full numerical observations are `390,141,023 B` and remain
+authoritative. Native same-pair comparison/group highlighting are owned by the
+visual worker; final native and technical acceptance are recorded below.
+
+Commands use cwd `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge`,
+`PYTHONNOUSERSITE=1` and
+`PYTHONPATH=.;D:/PROJECTS/understandOtherPackage/order_analyzer/OCTA_toolbox-master`:
+
+```powershell
+pixi run python -m scripts.design.group_level.run_group_distance_free_space --free-space-result ../order_analyzer_free_space_cache/outputs/blender_analysis/jobs/fe3243c13b3f45daac8744efc46f3962/result.json --native-request ../order_analyzer_free_space_cache/outputs/blender_analysis/jobs/fe3243c13b3f45daac8744efc46f3962/request.json --publication-receipt ../order_analyzer_free_space_cache/outputs/design/free_space_prerequisite/verification/native-free-codec-restored-publication.json --allow-historical --retained-run-dir outputs/design/group_distance_ifc/run_v3_finite_band_result --output-dir outputs/design/group_distance_ifc/run_v4_eight_neighbor
+pixi run python -m scripts.design.group_level.render_group_distance_preview --run-dir outputs/design/group_distance_ifc/run_v4_eight_neighbor --output-dir outputs/design/group_distance_ifc/run_v4_eight_neighbor/preview
+pixi run python -m pytest test/test_group_distance.py test/test_free_space_distance.py -k 'not actual_publication and not exact_adapter and not receipt_expectations and not saved_lattice and not actual_topology_comparison' -q
+# Preflight: 21 passed, 2 skipped, 5 deselected in 18.46 s; exit 0.
+```
+
+Execution logs are `run_v4_eight_neighbor.execution.log` and
+`run_v4_eight_neighbor.preview.log`. The implementer began the complete affected
+self-suite after publication, then root reserved the heavy-load window for the
+independent verifier. Only the implementer's identified pytest process was
+stopped; its partial `verification/eight_neighbor_self_test.log` remains and
+session exit was `-1`, with no claimed completed test result. It is not rerun
+merely to duplicate the independent evidence.
+
+Root reports **independent numerical probe PASS, exit 0**, covering all 666
+identities, source/input/sample/Euclidean/centroid equality, every diagonal guard
+and exact-domain segment, all comparison CSV rows and replay digest. The actual
+artifact suite has **6 passed, 6 deselected in 24.60 s**, plus earlier **42 passed
+and one historical metadata skip**. This is independent numerical acceptance;
+native visual comparison and final specification/quality status follow separately.
+
+Frozen physical source/test hashes are in
+`verification/eight_neighbor_candidate_hashes.json`; the only superseding test
+correction is `verification/eight_neighbor_test_hash_correction.json`, SHA-256
+`8c43adba721ac514b7a2923471c614697d5dc6d74523aed4be74348599a77449`
+for `test/test_free_space_distance.py`. The eight runtime/test files otherwise
+remain frozen. `verification/eight_neighbor_artifact_hashes.json` records all
+15 numeric/preview output hashes and byte counts. Principal v4 hashes:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| observations | `057f5e3889b8b20313373bbd781d2015fc3cb14d981b783112db16410ca70a8f` |
+| manifest | `b35e4b6e41d462b10dda8c8142000f6b20cfdd97f245b17ede52498afb3bc278` |
+| pair index (same as v3) | `2b06694da532c22c9ed86a9a044b882845929bda823e56cdd8fd4a3199691ae6` |
+| comparison summary | `37f620ce756b9503de277838bee2fae1f35c1a524dcab12c922a60d99efba934` |
+| comparison CSV | `24bfcde19a60e84fe19f623137b148b937932a766e6a54a77c00d157593a2c89` |
+| current HTML | `7ee622506da8a776ede392a84ca873dbed873f18f13e694cf0e9ff18b808933d` |
+
+Final independent verdict supplied by root: **specification PASS; quality
+Approved; no findings**. The read-only portable-Blender reopen exits 0 and verifies
+37 meshes (6 route/offset meshes and 31 rings), 2 labels, 1,222 faces, 208 old and
+119 new route points, and both complete endpoint groups (2 members/2 components
+each). Camera, pair, exact ResultRef, slab parent transform and Z lifts match.
+Maximum vertex error is `9.53e-7 m`, below the `2e-6 m` float32 bound. Evidence:
+`outputs/design/group_distance_ifc/verification_v4/independent_native_report.json`
+and `outputs/design/group_distance_ifc/verification_v4/independent-native.log`.
+All 10 reviewed source hashes match. Technical `.18.8b`, including `.18.8b.4`,
+is complete; root records the accepted local commit separately.
+
+No implementer snapshot, commit, push or merge occurred. Root is the version
+writer. `.18.10` and `.18.C4` remain pending user visual acceptance.

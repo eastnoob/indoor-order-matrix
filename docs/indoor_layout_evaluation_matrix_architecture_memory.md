@@ -1,11 +1,39 @@
 # Indoor Layout Matrix Architecture Memory
 
-## Current distance input is the accepted finite-band result — 2026-11-04
+## Eight-neighbor distance technically accepted — 2026-11-04
+
+The user authorized `.18.8b` in the same `free-space-distance-bridge` workspace,
+base `86be9692`, change `ssttwnxz`, initial revision `9a2c4d90`; root remains
+sole version writer. V2 adds corner-safe eight-neighbor route edges while
+retaining four-neighbor shared-edge accesses, group-union centroids and offsets.
+Both orthogonal guard cells are required support and exact domain coverage
+remains mandatory. Explicit support-occurrence ranking preserves compositional
+predecessor recovery; distinct support determines status. Model/schema are
+`group-distance/2` / `group-distance/v2`, with edge support
+`eight-neighbor-two-flank-occurrences/1`; historical v1 remains readable.
+The actual twin-kernel run completed in fresh `run_v4_eight_neighbor/`, reusing
+authenticated v3 input bytes and the same exact free-space ResultRef without
+geometry projection or occupancy regeneration. Both graphs have 13,800 nodes,
+51,293 edges and 36 source runs; all 666 routes are computed. Selected routes
+contain 34,714 nodes/34,048 edges, including 14,983 diagonals and 29,966 guard
+occurrences. Replay matches normalized SHA-256
+`7c22b7bdde46ee9b01a16fb9e32adbc910cb268f8b400ec9f5fc592a75ed60c9`.
+All pair identities, Euclidean readings and centroid audits match v3; 587 hybrid
+readings improve and 79 equal. The fixed/max pair falls from 22.235303085205956 m
+to 16.981729510513542 m. The complete current candidate preview is v4's
+`preview/index.html`, with 666 locators and CSV; v3 remains unchanged and accepted
+historical baseline. Independent numerical and native reopen verification pass;
+final specification review is PASS and quality is Approved, with no findings.
+Technical `.18.8b` is complete; root records the accepted local commit separately.
+User visual gates `.18.10` and `.18.C4` remain open.
+Continue the existing plan and evidence ledger.
+
+## Accepted four-neighbor finite-band baseline — 2026-11-04
 
 The `.18.8a` continuation lives in jj workspace `free-space-distance-bridge`
 (`D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge`),
 base `bb46ac5d`, change `mlkkrmsp`; root is the sole version writer. The current
-numeric distance package is `outputs/design/group_distance_ifc/run_v3_finite_band_result/`.
+baseline numeric package is `outputs/design/group_distance_ifc/run_v3_finite_band_result/`.
 It consumes exact free-space ResultRef `fe3243c13b3f45daac8744efc46f3962`, digest
 `a22de58adc39c241ccb514afd52f2c1b7bbf4819f7ffb93d6a125aac92f4c120`, using the
 accepted 1.6 m plane and selected slab datum. Its saved read is explicitly
@@ -21,7 +49,7 @@ all 12 frozen code/test hashes match. Actual numerical, HTML and portable-Blende
 checks pass. Technical `.18.8`/`.18.8a` acceptance is complete for jj change
 `mlkkrmsp`; root reports the accepted local commit identity in the delivery message.
 
-The current complete HTML/CSV preview is `run_v3_finite_band_result/preview/`.
+The accepted baseline HTML/CSV preview is `run_v3_finite_band_result/preview/`.
 Known-empty source lists and support context are shared; full sample authority
 remains accessible through exact result/cell locators. HTML includes only the
 recorded fields its viewer uses, while complete numerical evidence stays intact.

@@ -1,7 +1,7 @@
 # Group distance module implementation plan
 
 Date: 2026-11-03  
-Status: **Implementation retained; prior S4 selection superseded; intended hall + left passage confirmed; corrected unreachable run and preview retained; useful routes and user review open**
+Status: **V1 finite-band delivery accepted; corner-safe v2 technical specification PASS and quality Approved, with independent numerical/native verification complete; root local commit and user visual review pending**
 
 ## Goal and boundary
 
@@ -153,7 +153,7 @@ Parent `.18`, useful-route validation `.18.8`, and user visual acceptance
 - [x] `.18.C1` Identified existing candidate S3 as the right furniture hall + left passage in independent worker/reviewer audits. Area `207.24092382549588 m²`, all 37 groups intersect; original candidate identity/version and retained A22 diagnostics are recorded above. Evidence: `outputs/design/group_distance_ifc/domain_correction_inspection/candidate_report.json` and `s3_candidate_intent_comparison.png`. This checks identification only, not confirmation or acceptance.
 - [x] `.18.C2` **Corrected S3 confirmation frozen (2026-11-03):** `confirmed_domain_manifest.json` and `confirmed_domain_result.json` under `domain_correction_inspection/` agree on the accepted/active session revision 1, exact domain, current binding and candidate version recorded above. The explicit `user-red-outline-s3-20261103` action represents the user-selected hall/passage. Area is unchanged at `207.24092382549588 m²`, holes 0; original A22 refusal and superseded S4 history remain retained. The existing explicit 10 mm² residual request policy retains A22 diagnostics and the separate 1 mm² opening budget. No geometry repair, slab exclusion, or height-policy change is authorized.
 - [x] `.18.C3` **Corrected cached run retained (2026-11-03):** `outputs/design/group_distance_ifc/run_v2_corrected_domain/` contains the actual run manifest, coverage report and spatial-scope audit. The independently audited rebind supplies 37 groups and 343 occupancy records after 10 exact boundary-member exclusions through the existing resolver; the pre-rebind 353-record count is retained as history only, and the slab remains preserved. The 121 × 202 grid at 0.1 m has all 37 centroids inside; source/hash bindings agree, and common-translation polygon symmetric difference is at most `2.57e-16 m²`. All 666 Euclidean values are computed; all 666 hybrid observations are `unreachable`, with null values/routes. Expected/observation/index/visual locator sets reconcile at 666 with no missing/duplicate IDs. Combined kernel/delivery checks passed 19 tests in 14.68s before a metadata-only occupancy-count correction; post-correction focused delivery checks passed 6 tests in 17.71s. The correction changed current count/hash metadata only, not metrics or kernel output. This completes corrected execution and actual-state recording, not useful-route validation.
-- [ ] `.18.C4` **Current v3 preview delivered; user review pending:** `run_v3_finite_band_result/preview/index.html` contains all 666 recorded routes/pair locators, complete matrices/CSV and two representative PNGs. The earlier v2 no-route preview and its independent review remain historical. The current viewer consumes recorded geometry only; its actual payload test and all 1,332 independently exercised pair/zoom selections pass. Native `native_route_board_v2/` also passes independent route/camera/PNG checks. Obtain user review before closing this item or `.18.10`; technical acceptance is complete at `.18.8`/`.18.8a`.
+- [ ] `.18.C4` **Current v4 preview delivered; user review pending:** `run_v4_eight_neighbor/preview/index.html` contains all 666 recorded routes/pair locators, complete matrices/CSV and two representative PNGs. The accepted v3 four-neighbor preview/native board and prior no-route previews remain history. V4 execution/replay, HTML publication and independent numerical/native verification pass; final specification is PASS and quality Approved in completed technical `.18.8b`. Obtain user review before closing this item or `.18.10`; root records the accepted local commit separately.
 
 ### Corrected S3 run and retained limits
 
@@ -181,6 +181,62 @@ benchmark. No corrected same-bundle replay was performed; normalized result
 SHA-256 is `db9cae4be1b8d7628a5a64ffe92ed9ee5efe963a4bfeff53ae3d379780891b93`.
 Source bytes/hash remain unchanged before/after. Parent `.18`, useful-route
 validation `.18.8`, user visual acceptance `.18.10` and `.18.C4` remain open.
+
+## Authorized eight-neighbor continuation `.18.8b` — 2026-11-04
+
+Workline: jj workspace `free-space-distance-bridge`,
+`D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge`;
+base `86be9692`, change `ssttwnxz`, initial revision `9a2c4d90`. Root is the
+only version writer. Installed `jj`/`pixi` and read-only jj history were checked.
+This appends the authorized successor to the accepted four-neighbor baseline;
+it preserves the existing v3 artifacts and exact saved free-space ResultRef.
+
+- [x] `.18.8b.1` Amend the frozen spec with the explicit v2 successor and guard
+  uncertainty ruling. Keep four-neighbor footprint access, union centroids,
+  offsets, binary64 label/replay rules and pair identity unchanged. Update the
+  architecture before code. Nonspatial checks cover adjacency indexes and
+  compositional guard-state recovery; actual geometry acceptance uses real S3.
+- [x] `.18.8b.2` Add failing focused checks, then implement route-only eight-neighbor
+  edges with two traversable orthogonal flank cells, actual `math.dist` weights,
+  exact domain segment coverage and complete guard/query/source evidence.
+  Extend validator/preview and retained-input runner callers for v1/v2 identity.
+- [x] `.18.8b.3` **Executed, exit 0:** Reuse the authenticated `run_v3_finite_band_result/input_bundle.json`
+  into fresh `run_v4_eight_neighbor/`, run all 37 groups/666 pairs and deterministic
+  replay, validate every selected path/guard/offset/lineage, record resources and
+  prove original input and source bytes unchanged. Compare pair identities,
+  Euclidean readings, centroids, ResultRef and hybrid distance effects with v3.
+  Actual: 666 computed routes, 34,714 selected nodes/34,048 edges, 14,983 diagonal
+  edges/29,966 guard occurrences; same-bundle normalized SHA-256
+  `7c22b7bdde46ee9b01a16fb9e32adbc910cb268f8b400ec9f5fc592a75ed60c9`.
+  Both graphs: 13,800 nodes/51,293 edges/36 batched source runs. First kernel
+  165.2256321 s, Python peak 394,169,538 B; runner 480.2987355 s, process peak
+  working set 2,106,302,464 B / commit 2,142,339,072 B. Complete comparison gives
+  587 improved/79 equal, mean reduction 1.2215930904981538 m; the fixed/max pair
+  decreases 22.235303085205956→16.981729510513542 m. Original v3 artifact hashes
+  and pinned IFC bytes remain unchanged; bundle and scene bytes are identical.
+  Independent actual full-pair probe PASS plus 6 actual-artifact tests (24.60 s)
+  and earlier 42 affected checks pass; one historical metadata check skips.
+- [x] `.18.8b.4` Render the complete current HTML/CSV/locators; the separate visual
+  worker owns native group highlighting and same-pair v3→v4 comparison. Visual:
+  required for the visible topology effect; numerical/state/identity checks omit
+  new visuals. Freeze physical candidate hashes after self-tests and actual run,
+  then independent specification/quality and execution verification precede the
+  root-only local commit. `.18.10`/`.18.C4` remain user-review gates.
+  HTML/CSV/666 locators published, exit 0 (8.92 s), HTML 6,613,081 B.
+  Runtime source files are frozen; stopped duplicate self-test attempt is
+  recorded in the ledger. Independent native reopen verification passes: 37 meshes,
+  2 labels, 1,222 faces, 208 old/119 new route points, full endpoint groups and
+  camera/source/transform checks; maximum vertex error is 9.53e-7 m, below the
+  2e-6 m float32 bound. Final specification is PASS and quality Approved, with no
+  findings. Technical `.18.8b` is complete; root local commit remains pending.
+
+Affected interfaces: `features/group_distance.py`; exact-result runner and
+historical validator in `scripts/design/group_level/`; output-only HTML preview;
+focused tests in `test/test_group_distance.py`, `test/test_free_space_distance.py`
+and `test/test_group_distance_preview_payload.py`; this plan, original spec,
+architecture/memory, exact-result reading guide and existing evidence ledger.
+No new dependency, continuous shortest-path algorithm, smoothing, UI or cache
+framework is included.
 
 ## Observation and artifact schema
 

@@ -4,6 +4,8 @@ from collections import Counter
 from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
+import math
+import csv
 
 import pytest
 
@@ -13,12 +15,27 @@ from adapters.free_space_distance import _domain_meshes, distance_input_from_fre
 from features import group_distance as kernel
 from features.geometry_views import component_shape
 from scripts.design.group_level.run_group_distance_free_space import load_json, retained_read_context
+from scripts.design.group_level import run_group_distance_free_space as runner
 from scripts.design.group_level.run_group_distance_ifc import read_json, retained_input, validate_result
+from scripts.design.group_level import run_group_distance_ifc as ifc_runner
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT.parent / "order_analyzer_free_space_cache/outputs/blender_analysis/jobs/fe3243c13b3f45daac8744efc46f3962"
 RECEIPT = ROOT.parent / "order_analyzer_free_space_cache/outputs/design/free_space_prerequisite/verification/native-free-codec-restored-publication.json"
 RUN = ROOT / "outputs/design/group_distance_ifc/run_v3_finite_band_result"
+
+
+def test_result_identity_distinguishes_historical_and_eight_neighbor_semantics():
+    """Readers accept both explicit models and reject an unsupported mixed identity."""
+    historical = {"algorithm_version": "group-distance/1", "schema_version": "group-distance/v1"}
+    current = {"algorithm_version": "group-distance/2", "schema_version": "group-distance/v2",
+               "edge_support_version": "eight-neighbor-two-flank-occurrences/1"}
+    assert ifc_runner.distance_topology(historical) == 4
+    assert ifc_runner.distance_topology(current) == 8
+    for changed in ({**current, "schema_version": historical["schema_version"]},
+                    {**current, "edge_support_version": "unsupported"}):
+        with pytest.raises(ValueError, match="distance model identity"):
+            ifc_runner.distance_topology(changed)
 
 
 @pytest.fixture(scope="module")
@@ -132,6 +149,23 @@ def test_saved_graph_bypasses_generation_and_keeps_exact_bindings(actual_bundle,
     assert set(observed) == set(optimistic) == set(frontier)
     for cell in observed:
         assert samples[cell]["value"] is False and samples[cell]["status"] == "established"
+    diagonal_count, blocked_corners = 0, 0
+    for a, b, edge in observed.edges(data=True):
+        assert edge["weight"] == math.dist(samples[a]["center"], samples[b]["center"])
+        diagonal = a[0] != b[0] and a[1] != b[1]
+        guards = tuple(sorted(((a[0], b[1]), (b[0], a[1])))) if diagonal else ()
+        assert edge["guard_cell_keys"] == guards
+        assert edge["guard_query_refs"] == tuple(samples[cell]["query_ref"] for cell in guards)
+        assert all(cell in observed for cell in guards)
+        diagonal_count += diagonal
+    for a in observed:
+        for b in kernel._route_neighbors(a, actual_bundle.grid):
+            if b in observed and a[0] != b[0] and a[1] != b[1]:
+                guards = ((a[0], b[1]), (b[0], a[1]))
+                if any(cell not in observed for cell in guards):
+                    assert not observed.has_edge(a, b)
+                    blocked_corners += 1
+    assert diagonal_count > 0 and blocked_corners > 0
     saved = actual_bundle.free_space_samples
     changed = {**saved, "query": {**saved["query"], "height_band": None}}
     assert "binding differs" in kernel._saved_samples_error(replace(actual_bundle, free_space_samples=changed))
@@ -139,9 +173,13 @@ def test_saved_graph_bypasses_generation_and_keeps_exact_bindings(actual_bundle,
     assert "coverage is incomplete" in kernel._saved_samples_error(replace(actual_bundle, free_space_samples=changed))
 
 
-def test_actual_complete_routes_have_positive_access_path_lineage_and_replay(actual_bundle):
+@pytest.mark.parametrize("name", ["run_v3_finite_band_result", "run_v4_eight_neighbor"])
+def test_actual_complete_routes_have_positive_access_path_lineage_and_replay(actual_bundle, name):
     """Run all numerical path assertions against the real 37-group result package."""
-    manifest, observations, index = (read_json(RUN / name) for name in (
+    run = RUN.parent / name
+    if not (run / "coverage_report.json").exists():
+        pytest.skip("complete the actual topology run before spatial acceptance")
+    manifest, observations, index = (read_json(run / name) for name in (
         "run_manifest.json", "observations.json", "pair_index.json"))
     report = validate_result({"manifest": manifest, "observations": observations, "pair_index": index}, actual_bundle)
     assert report["expected_pair_count"] == report["observation_count"] == report["index_count"] == 666
@@ -150,3 +188,41 @@ def test_actual_complete_routes_have_positive_access_path_lineage_and_replay(act
     assert manifest["same_bundle_replay"]["normalized_sha256"] == manifest["same_bundle_replay"]["repeated_normalized_sha256"]
     assert manifest["free_space_result"]["freshness"] == "historical"
     assert manifest["free_space_result"]["result_ref"] == manifest["query_context"]["result_ref"]
+    assert report["route_neighbor_count"] == (4 if run == RUN else 8)
+    if run != RUN:
+        assert report["selected_diagonal_edges_checked"] > 0
+        assert report["selected_guard_occurrences_checked"] == 2 * report["selected_diagonal_edges_checked"]
+
+
+def test_retained_distance_input_authenticates_original_bytes_and_reference(actual_bundle):
+    """Reuse real v3 input only when its original producer hashes and exact ref match."""
+    audit = read_json(RUN / "adapter_audit.json")
+    reference = wire.ResultRef(**audit["result_ref"])
+    bundle, reused = runner.retained_distance_input(RUN, audit["input_files"], reference)
+    assert bundle == actual_bundle
+    assert reused["retained_input"]["input_bundle_sha256"] == runner.file_hash(RUN / "input_bundle.json")
+    changed = {**audit["input_files"], "native_request": {
+        **audit["input_files"]["native_request"], "sha256": "different-producing-bytes"}}
+    with pytest.raises(ValueError, match="original producing inputs"):
+        runner.retained_distance_input(RUN, changed, reference)
+    changed_ref = wire.ResultRef(reference.kind, reference.result_id, "0" * 64)
+    with pytest.raises(ValueError, match="exact result reference"):
+        runner.retained_distance_input(RUN, audit["input_files"], changed_ref)
+
+
+def test_actual_topology_comparison_preserves_every_pair_and_raw_geometry():
+    """The real v4 delivery compares all accepted v3 identities and unrounded values."""
+    current = RUN.parent / "run_v4_eight_neighbor"
+    if not (current / "comparison_summary.json").exists():
+        pytest.skip("generate the authorized actual v4 comparison first")
+    summary = read_json(current / "comparison_summary.json")
+    with (current / "comparison_rows.csv").open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    assert summary["pair_count"] == len(rows) == len({row["pair_id"] for row in rows}) == 666
+    assert summary["pair_ids_groups_euclidean_centroids_unchanged"] is True
+    assert summary["input_bundle_and_scene_geometry_byte_identical"] is True
+    assert summary["counts"].get("worsened", 0) == 0
+    maximum = max(rows, key=lambda row: (float(row["improvement_m"]), row["pair_id"]))
+    assert summary["max_absolute_improvement"]["pair_id"] == maximum["pair_id"]
+    assert summary["max_absolute_improvement"]["improvement_m"] == float(maximum["improvement_m"])
+    assert set(summary["visual_pair_ids"]) <= {row["pair_id"] for row in rows}

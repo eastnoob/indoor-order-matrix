@@ -145,3 +145,30 @@ Existing consumer, cache and complete-sample contracts are in
 in `test/test_blender_analysis_runtime.py`. Actual-scene acceptance and its
 unobserved branches are recorded separately in the free-space prerequisite
 evidence ledger; this guide does not certify a particular result.
+
+## Group-distance historical replay and topology identity
+
+The distance consumer can reuse a completed authenticated run with
+`run_group_distance_free_space --retained-run-dir RUN --allow-historical`.
+It checks the original producer/result/receipt file hashes and sizes, retained
+artifact hashes, handoff fingerprints and exact source/plane/query/ResultRef
+bindings. The original `input_bundle.json` and `scene_geometry.json` are copied
+byte-for-byte into a fresh output directory. This is historical replay without
+capture projection or free-space generation; it does not observe native currentness.
+
+Historical distance results use `group-distance/1` with `group-distance/v1`
+and four-neighbor routes. The successor uses `group-distance/2`,
+`group-distance/v2` and edge support `eight-neighbor-two-flank-occurrences/1`.
+Its eight-neighbor route edges retain both orthogonal flank cell/query refs;
+both flanks must be traversable in that graph mode. The shared-edge footprint
+access rule remains cardinal. Distinct route support keys resolve original
+statuses, source references, support and explanations through manifest samples
+and exact free-space locators. Conditional/unknown guard support affects route
+state and witnesses even when the path never visits that guard.
+
+Path `conditional_cell_count` / `unknown_cell_count` keep their v1 meaning.
+V2 deterministic ranking uses explicitly named additive support-occurrence
+counts, including repeated guards; full distinct support controls state.
+Readers must use the explicit model/schema identity and reject mixed versions.
+The existing numerical validator and output-only HTML renderer accept both v1
+and v2. These model identities do not change the underlying free-space ResultRef.

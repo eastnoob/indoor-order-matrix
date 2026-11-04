@@ -2,6 +2,8 @@
 
 import importlib
 import json
+import math
+from copy import deepcopy
 
 import pytest
 
@@ -44,6 +46,7 @@ def _recorded():
     reference = {"kind": result.kind, "result_id": result.result_id, "digest": result.digest}
     request = document["tables"]["snapshot"]["request"]
     manifest = {"query_context": {"result_ref": reference, "geometry_query": request["geometry_query"]},
+                "algorithm_version": "group-distance/1", "schema_version": "group-distance/v1",
                 "analysis_plane": dict(request["plane"]), "domain": dict(document["identity"]["domain_identity"]),
                 "grid": {"origin": [0, 0], "spacing": 1, "n_rows": 1, "n_cols": 1},
                 "origin_offset": [0, 0], "source_identity": dict(document["identity"]["project_source_identity"])}
@@ -55,6 +58,112 @@ def _recorded():
     # This fixture's minimal wire omits optional lattice facts; supply the actual frozen grid in both views.
     document["tables"]["lattice"] = manifest["grid"]
     return manifest, observation, document, reference
+
+
+def _diagonal_recorded():
+    """Use abstract cell coordinates to check topology, without representing a scene."""
+    manifest, observation, document, reference = _recorded()
+    manifest.update(algorithm_version="group-distance/2", schema_version="group-distance/v2",
+                    edge_support_version="eight-neighbor-two-flank-occurrences/1")
+    manifest["grid"].update(n_rows=2, n_cols=2)
+    document["cells"] = [deepcopy(document["cells"][0]) for _ in range(4)]
+    route = observation["route"]
+    route.update(cell_keys=[[0, 0], [1, 1]], points=[[.5, .5], [1.5, 1.5]],
+                 guard_cell_keys=[[0, 1], [1, 0]], support_cell_keys=[[0, 0], [0, 1], [1, 0], [1, 1]])
+
+    def reference_for(row, column):
+        """Form exact publication addresses independently of the renderer helper."""
+        return f"free-space:{reference['result_id']}:{reference['digest']}:cell:{row}:{column}"
+
+    route["guard_query_refs"] = [reference_for(0, 1), reference_for(1, 0)]
+    route["support_query_refs"] = [reference_for(*key) for key in route["support_cell_keys"]]
+    route["source_access"]["query_ref"] = reference_for(0, 0)
+    route["target_access"].update(cell_center=[1.5, 1.5], query_ref=reference_for(1, 1))
+    route["edges"] = [{"from": [0, 0], "to": [1, 1], "edge_key": [[0, 0], [1, 1]],
+                       "occupancy_query_refs": [reference_for(0, 0), reference_for(1, 1)],
+                       "guard_cell_keys": [[0, 1], [1, 0]], "guard_query_refs": route["guard_query_refs"],
+                       "edge_support_version": manifest["edge_support_version"], "weight": math.sqrt(2)}]
+    return manifest, observation, document, reference
+
+
+def test_v2_diagonal_requires_both_exact_known_empty_flanks():
+    """The new native consumer accepts only the recorded no-corner-cut diagonal."""
+    manifest, observation, document, reference = _diagonal_recorded()
+    assert _renderer().prepare_route(manifest, observation, document, reference)["main"] == [[.5, .5], [1.5, 1.5]]
+    document["cells"][1]["value"] = True
+    with pytest.raises(ValueError, match="flank"):
+        _renderer().prepare_route(manifest, observation, document, reference)
+
+
+@pytest.mark.parametrize("change", ["guard", "guard_ref", "endpoint_ref", "access_ref", "coverage", "model"])
+def test_v2_diagonal_rejects_stale_or_incomplete_support(change):
+    """Saved support cannot be retargeted, omitted, or relabeled without rejection."""
+    manifest, observation, document, reference = _diagonal_recorded()
+    route = observation["route"]
+    if change == "guard":
+        route["edges"][0]["guard_cell_keys"] = [[0, 1]]
+    elif change == "guard_ref":
+        route["edges"][0]["guard_query_refs"] = ["stale", "stale"]
+    elif change == "endpoint_ref":
+        route["edges"][0]["occupancy_query_refs"] = ["stale", "stale"]
+    elif change == "access_ref":
+        route["source_access"]["query_ref"] = "stale"
+    elif change == "coverage":
+        route["support_cell_keys"] = [[0, 0], [1, 1]]
+    else:
+        manifest["edge_support_version"] = "unrestricted-diagonal"
+    with pytest.raises(ValueError):
+        _renderer().prepare_route(manifest, observation, document, reference)
+
+
+def test_historical_v1_does_not_silently_accept_diagonals():
+    """Reading a historical schema must retain that schema's original neighbor rule."""
+    manifest, observation, document, reference = _diagonal_recorded()
+    manifest.update(algorithm_version="group-distance/1", schema_version="group-distance/v1")
+    with pytest.raises(ValueError, match="neighbor model"):
+        _renderer().prepare_route(manifest, observation, document, reference)
+
+
+def _group_projection_recorded():
+    """Build abstract component records solely to check complete group display binding."""
+    from ..features.field_core import fingerprint_evidence_dependency as fingerprint
+
+    groups = [{"group_id": "a", "components": [{"exterior": [[0, 0], [1, 0], [0, 1]], "holes": []},
+                                               {"exterior": [[1, 1], [2, 1], [1, 2]], "holes": []}],
+               "source_refs": ["member:1", "member:2"], "status": "available", "explanation": ""},
+              {"group_id": "b", "components": [{"exterior": [[3, 0], [4, 0], [3, 1]], "holes": []}],
+               "source_refs": ["member:3"], "status": "available", "explanation": ""}]
+    records = [{**group, "components": sorted(group["components"], key=fingerprint),
+                "source_refs": sorted(group["source_refs"], key=fingerprint)} for group in groups]
+    geometry = {"analysis_plane": {}, "origin_offset": [0, 0], "domain": {}, "groups": groups}
+    manifest = {**{key: geometry[key] for key in ("analysis_plane", "origin_offset", "domain")},
+                "group_ids": ["a", "b"], "dependency_fingerprints": {"groups": fingerprint(records)}}
+    observation = {"group_ids": ["a", "b"], "lineage": {"group_source_refs": {g["group_id"]: g["source_refs"] for g in groups}},
+                   "geometry_audit": {g["group_id"]: {"source_refs": g["source_refs"]} for g in groups}}
+    return geometry, manifest, observation
+
+
+def test_group_highlights_retain_all_members_and_components():
+    """A highlighted endpoint is its complete group projection, including disjoint members."""
+    geometry, manifest, observation = _group_projection_recorded()
+    groups = _renderer().prepare_groups(geometry, manifest, observation)
+    assert len(groups[0]["components"]) == 2
+    assert groups[0]["source_refs"] == ["member:1", "member:2"]
+    geometry["groups"][0]["components"].pop()
+    with pytest.raises(ValueError, match="fingerprint"):
+        _renderer().prepare_groups(geometry, manifest, observation)
+
+
+def test_comparison_rejects_another_source_or_pair():
+    """Old and new routes must refer to identical physical inputs and endpoint groups."""
+    manifest = {key: {} for key in ("source_identity", "analysis_plane", "domain", "grid", "query_context", "dependency_fingerprints")}
+    manifest.update(origin_offset=[0, 0], group_ids=["a", "b"])
+    observation = {"pair_id": "pair", "group_ids": ["a", "b"], "center_to_center_euclidean": {"value": 3}}
+    _renderer().prepare_comparison(manifest, observation, manifest, observation)
+    changed = deepcopy(manifest)
+    changed["source_identity"] = {"id": "other"}
+    with pytest.raises(ValueError, match="same recorded input"):
+        _renderer().prepare_comparison(manifest, observation, changed, observation)
 
 
 def test_recorded_route_keeps_endpoint_offsets_separate():

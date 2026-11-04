@@ -190,6 +190,53 @@ pair 的状态只由其**依赖闭包**决定。闭包至少包括两端组 unio
 
 .17.4a/.17.8/.17.9 的实现前可行性已完成并获 owner acceptance。完整的 37 组/666 pair 运行、生产 S4/grid/occupancy adapter 和资源测量是实现验收，不倒置为 readiness 前必须存在的结果。以上不是实现已完成的声明。独立实施计划是 `2026-11-03-group-distance-module-implementation.md`；按该计划持续维护全流程 checklist。真实 IFC 运行生成 S4 camera-plane 图面后，再请用户做视觉审阅；视觉审阅用于现实结果验收，不替代 `.17.9` 的实现前 readiness，也不能把旧平面或模拟数据当作通过证据。
 
+## 8a. Authorized v2 successor — 2026-11-04
+
+The user authorized replacing route topology with corner-safe eight-neighbor
+weighted routing while reusing the same immutable S3 free-space publication and
+group projections. Sections above remain the historical v1 contract. V2 keeps
+the group-union centroids, four-neighbor footprint/shared-edge accesses, endpoint
+offsets, stable pair identities and exact NetworkX binary64 arithmetic contract.
+It does not claim a continuous shortest path.
+
+Each diagonal requires both orthogonal flank cells to be traversable in the
+respective graph mode, in addition to its endpoint cells. Every center-to-center
+segment must still be covered by the exact analysis domain, and its edge weight
+is the actual Euclidean distance between those centers. Guard cells are evidence
+dependencies even when they are absent from the selected path. Unknown,
+conditional and failed guard queries must remain explicit in state and lineage;
+the owner-approved compositional rule counts the seed once, then each destination
+and both diagonal guards per step. Deterministic secondary keys use additive
+`unknown_support_occurrence_count` / `conditional_support_occurrence_count`;
+repeated guards count on each supporting edge. Existing `unknown_cell_count` /
+`conditional_cell_count` retain path-node semantics. Distinct support/guard cell
+keys and query refs resolve to authoritative manifest samples, and full distinct
+support determines the chosen route state. Unknown guard alternatives remain in
+the tie witness. Failed diagonal guards join the dependency frontier even when
+their own cardinal domain connections are absent. No set-valued label search is
+introduced. Algorithm/schema identities are `group-distance/2` and
+`group-distance/v2`, with edge support `eight-neighbor-two-flank-occurrences/1`.
+No occupancy regeneration, geometry change, smoothing or new
+dependency is authorized. The successor receives new algorithm/schema identities
+so historical v1 output cannot be interpreted as eight-neighbor results.
+
+Acceptance reruns the same 37 groups/666 pairs into fresh
+`run_v4_eight_neighbor/`, preserves v3, compares all raw Euclidean readings and
+centroids, checks all selected routes/guards and exact ResultRef, measures real
+resources and deterministic replay, and supplies same-pair v3→v4 visual evidence.
+User visual acceptance remains distinct from technical acceptance.
+
+The successor is implemented in the existing kernel, validator, retained-input
+runner and output-only HTML reader. The real v4 run and immutable replay exit 0:
+all 666 routes are computed, with 14,983 selected diagonals/29,966 guards checked.
+Independent numeric acceptance verifies the complete pair scope, all guard/domain
+constraints, source/input/sample equality, Euclidean/centroid identity and replay
+hash. Comparison reports 587 shorter and 79 equal hybrid readings. Independent
+native reopen verification passes; final specification review is PASS and quality
+is Approved, with no findings. Technical `.18.8b` is complete; user visual review
+remains open and root records the accepted local commit separately. Exact
+commands, resources, candidate hashes and outcomes live in the existing ledger.
+
 ## 9. 代码与文档锚点
 
 - 当前自由空间：[`features/free_space_field.py`](../../../features/free_space_field.py)；[`features/geometry_views.py`](../../../features/geometry_views.py)；[`features/neutral_scene_views.py`](../../../features/neutral_scene_views.py)

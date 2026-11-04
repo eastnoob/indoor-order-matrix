@@ -8,6 +8,7 @@ from pathlib import Path
 import networkx as nx
 import pytest
 
+from features import group_distance as kernel
 from features.field_core import FieldQuery
 from features.group_distance import (
     GridDescriptor, GroupDistanceInput, GroupProjection, _analysis_plane_binding_error, _arithmetic,
@@ -50,6 +51,15 @@ def test_frozen_records_detach_nested_inputs():
         group.source_refs[0]["source_id"] = "changed"
     with pytest.raises(FrozenInstanceError):
         group.group_id = "changed"
+
+
+def test_route_indexes_include_diagonals_but_access_indexes_keep_shared_edges():
+    """Index-only adjacency distinguishes routing from footprint edge interfaces."""
+    grid = GridDescriptor("index-contract", "index-frame", (0, 0), 1, 3, 3)
+    assert kernel._neighbors((1, 1), grid) == ((0, 1), (1, 0), (1, 2), (2, 1))
+    assert kernel._route_neighbors((1, 1), grid) == (
+        (0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1), (2, 2))
+    assert kernel._route_neighbors((0, 0), grid) == ((0, 1), (1, 0), (1, 1))
 
 
 def test_missing_input_preserves_complete_pair_scope_and_null_values():
@@ -168,6 +178,59 @@ def test_unknown_tie_witness_survives_known_representative_selection():
     assert route["unknown_cell_count"] == 0
     assert route["has_unknown_tie"] is True
     assert route["cell_keys"] == (a, c, d)
+
+
+@pytest.mark.parametrize("state,mode,position", [("conditional", False, 1), ("unknown", True, 0)])
+def test_guard_occurrences_rank_compositionally_and_keep_distinct_support(state, mode, position):
+    """Symbolic guard support ranks per edge occurrence while evidence remains distinct."""
+    a, b, c, target, guard = (0, 0), (0, 1), (1, 0), (1, 1), (2, 0)
+    graph, samples, accesses = _abstract_graph(((a, b), (b, target), (a, c), (c, target)), {})
+    samples[guard] = {"status": state, "center": None}
+    graph[a][b]["guard_cell_keys"] = (guard,)
+    graph[b][target]["guard_cell_keys"] = (guard,)
+    graph[a][c]["guard_cell_keys"] = (guard,)
+    for node, sample in samples.items():
+        sample.update(query_ref=str(node), source_refs=())
+    distances, best, unknown = _recover_source(graph, accesses, samples, mode)
+    assert best[target][position] == 1
+    assert best[target][-1] == (a, c, target)
+    route = _target_route(graph, {target: {"offset": .125, "access_key": ("target", target)}},
+                          accesses, distances, best, unknown, samples, mode)
+    assert route[state + "_cell_count"] == 0
+    assert route[state + "_support_occurrence_count"] == 1
+    assert route["guard_cell_keys"] == (guard,)
+    assert route["guard_query_refs"] == (samples[guard]["query_ref"],)
+    assert route["support_cell_keys"] == tuple(sorted((a, c, target, guard)))
+    assert route["has_unknown_tie"] is (state == "unknown")
+
+
+def test_unknown_guard_tie_remains_visible_when_known_route_is_selected():
+    """A guard-only unknown alternative cannot vanish behind a known representative."""
+    a, b, c, end, guard = (0, 0), (0, 1), (1, 0), (1, 1), (2, 0)
+    graph, samples, accesses = _abstract_graph(((a, b), (b, end), (a, c), (c, end)), {})
+    samples[guard] = {"status": "unknown", "center": None, "query_ref": "guard"}
+    graph[a][b]["guard_cell_keys"] = (guard,)
+    for node, sample in samples.items():
+        sample.update(query_ref=str(node), source_refs=())
+    distances, best, unknown = _recover_source(graph, accesses, samples, True)
+    route = _target_route(graph, {end: {"offset": .125, "access_key": ("target", end)}},
+                          accesses, distances, best, unknown, samples, True)
+    assert route["cell_keys"] == (a, c, end)
+    assert route["unknown_support_occurrence_count"] == 0
+    assert route["has_unknown_tie"] is True
+
+
+def test_frontier_includes_failed_edge_guard_without_its_cardinal_connection():
+    """A symbolic edge dependency survives even when its guard is another component."""
+    a, b, guard, unrelated = (0, 0), (1, 1), (0, 1), (9, 9)
+    graph = nx.Graph()
+    graph.add_edge(a, b, guard_cell_keys=(guard,))
+    graph.add_nodes_from((guard, unrelated))
+    samples = {a: {"status": "established"}, b: {"status": "established"},
+               guard: {"status": "invalid"}, unrelated: {"status": "not_available"}}
+    failures = kernel._component_failure_cells(graph, samples)
+    assert failures[a] == failures[b] == (guard,)
+    assert failures[unrelated] == (unrelated,)
 
 
 def test_non_increasing_binary64_physical_edge_fails_search():

@@ -8,9 +8,10 @@ import pytest
 from scripts.design.group_level.render_group_distance_preview import preview_observations
 
 
-def test_actual_preview_payload_preserves_visual_data_and_omits_unused_audits():
+@pytest.mark.parametrize("name", ["run_v3_finite_band_result", "run_v4_eight_neighbor"])
+def test_actual_preview_payload_preserves_visual_data_and_omits_unused_audits(name):
     """The real 666-pair HTML uses exact routes without embedding full numerical lineage."""
-    run = Path(__file__).resolve().parents[1] / "outputs/design/group_distance_ifc/run_v3_finite_band_result"
+    run = Path(__file__).resolve().parents[1] / "outputs/design/group_distance_ifc" / name
     if not (run / "preview/index.html").exists():
         pytest.skip("generate the actual finite-band distance preview first")
     observations = json.loads((run / "observations.json").read_text(encoding="utf-8"))

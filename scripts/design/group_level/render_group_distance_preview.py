@@ -9,7 +9,7 @@ from html import escape
 import json
 from pathlib import Path
 
-from scripts.design.group_level.run_group_distance_ifc import domain_candidate_id, file_hash, read_json, write_json
+from scripts.design.group_level.run_group_distance_ifc import distance_topology, domain_candidate_id, file_hash, read_json, write_json
 
 
 def polygon_markup(components: list, color: str, opacity: float, stroke: str = "none") -> str:
@@ -79,6 +79,7 @@ def preview_observations(observations: list) -> list:
 
 def html_document(manifest: dict, observations: list, geometry: dict, aliases: dict, base: str) -> str:
     """Create one indexed route locator per pair and complete metric tables."""
+    topology = "corner-safe eight-neighbor" if distance_topology(manifest) == 8 else "four-neighbor"
     rows = []
     options = []
     for observation in observations:
@@ -133,7 +134,7 @@ picker.onchange=()=>{location.hash=picker.value;};window.onhashchange=show;docum
                     + ". Freshness: " + escape(free_space["freshness"]) + ".</p>") if free_space else ""
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><title>IFC group distance · {candidate}</title>
 <style>body{{font:14px system-ui;margin:20px;color:#172033}}select{{max-width:90%;padding:8px}}svg{{width:100%;height:700px;background:#fff;border:1px solid #bbb}}table{{border-collapse:collapse}}td,th{{padding:5px;border:1px solid #ddd;text-align:right}}.scroll{{overflow:auto}}.matrix{{font-size:10px}}pre{{overflow:auto;max-height:400px;background:#f1f5f9;padding:12px}}#summary{{overflow-wrap:anywhere}}a{{color:#075985}}</style>
-<h1>IFC group distance · confirmed {candidate} camera plane</h1><p>37 authored groups · 666 unordered pairs · metres · {manifest["grid"]["spacing"]} m cells · four-neighbor discrete approximation. Matrix diagonal: null/not_applicable.</p>
+<h1>IFC group distance · confirmed {candidate} camera plane</h1><p>37 authored groups · 666 unordered pairs · metres · {manifest["grid"]["spacing"]} m cells · {topology} discrete approximation. Matrix diagonal: null/not_applicable.</p>
 <p>Observed hybrid states: {state_summary}. Recorded routes: {sum(item["route"] is not None for item in observations)}. Source/domain combinations without a route retain their status and null hybrid distance.</p>
 <p>Green: {candidate} domain. Gray fill: physical occupancy. Orange: unknown. Purple fill: conditional. Cyan outlines: authored groups. Gray straight line: fixed centroid Euclidean distance. Red: recorded free-cell route. Purple dashed: endpoint offsets; these are distinct from the free-space route. Blue/rose squares: source/target access cells; green shared edges and dot proxies mark their recorded interfaces.</p>
 <label>Pair <select id="pair">{"".join(options)}</select></label> <label><input type="checkbox" id="zoom">Fit selected pair</label><p id="summary"></p>

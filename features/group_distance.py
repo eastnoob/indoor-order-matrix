@@ -18,8 +18,9 @@ from shapely.ops import unary_union
 from .field_core import FieldQuery, FieldStatus, _freeze, _json_value, fingerprint_evidence_dependency
 from .free_space_field import FreeSpaceField
 
-ALGORITHM_VERSION = "group-distance/1"
-SCHEMA_VERSION = "group-distance/v1"
+ALGORITHM_VERSION = "group-distance/2"
+SCHEMA_VERSION = "group-distance/v2"
+EDGE_SUPPORT_VERSION = "eight-neighbor-two-flank-occurrences/1"
 ARITHMETIC_VERSION = "networkx-binary64-left-add/1"
 _ROOT = "virtual-source"
 
@@ -316,6 +317,13 @@ def _neighbors(cell: tuple[int, int], grid: GridDescriptor) -> tuple:
                         if 0 <= r < grid.n_rows and 0 <= c < grid.n_cols))
 
 
+def _route_neighbors(cell: tuple[int, int], grid: GridDescriptor) -> tuple:
+    """Return canonical eight-neighbor route indexes without changing access edges."""
+    row, col = cell
+    return tuple((r, c) for r in range(max(0, row - 1), min(grid.n_rows, row + 2))
+                 for c in range(max(0, col - 1), min(grid.n_cols, col + 2)) if (r, c) != cell)
+
+
 def _center(cell: tuple[int, int], grid: GridDescriptor) -> tuple[float, float]:
     """Read a cell center from the explicit lattice, without resampling geometry."""
     return grid.origin[0] + (cell[1] + 0.5) * grid.spacing, grid.origin[1] + (cell[0] + 0.5) * grid.spacing
@@ -364,8 +372,13 @@ def _graphs(bundle: GroupDistanceInput, domain: Any) -> tuple:
                 # Failed queries remain failures; this graph identifies their relevant frontier only.
                 frontier.add_node(cell)
     for cell in sorted(frontier):
-        for neighbor in _neighbors(cell, grid):
+        for neighbor in _route_neighbors(cell, grid):
             if neighbor <= cell or neighbor not in frontier:
+                continue
+            guards = tuple(sorted(((cell[0], neighbor[1]), (neighbor[0], cell[1])))) if (
+                cell[0] != neighbor[0] and cell[1] != neighbor[1]) else ()
+            # A diagonal depends on both flanks even though its centerline visits neither.
+            if any(guard not in frontier for guard in guards):
                 continue
             segment = LineString((_center(cell, grid), _center(neighbor, grid)))
             if not domain.covers(segment):
@@ -373,11 +386,14 @@ def _graphs(bundle: GroupDistanceInput, domain: Any) -> tuple:
             weight = math.dist(_center(cell, grid), _center(neighbor, grid))
             data = {"weight": weight, "edge_key": (cell, neighbor), "domain_covered": True,
                     "domain_fingerprint": grid.domain_fingerprint, "grid_id": grid.grid_id,
-                    "occupancy_query_refs": (samples[cell]["query_ref"], samples[neighbor]["query_ref"])}
+                    "occupancy_query_refs": (samples[cell]["query_ref"], samples[neighbor]["query_ref"]),
+                    "guard_cell_keys": guards,
+                    "guard_query_refs": tuple(samples[guard]["query_ref"] for guard in guards),
+                    "edge_support_version": EDGE_SUPPORT_VERSION}
             frontier.add_edge(cell, neighbor, **data)
-            if cell in optimistic and neighbor in optimistic:
+            if cell in optimistic and neighbor in optimistic and all(guard in optimistic for guard in guards):
                 optimistic.add_edge(cell, neighbor, **data)
-            if cell in observed and neighbor in observed:
+            if cell in observed and neighbor in observed and all(guard in observed for guard in guards):
                 observed.add_edge(cell, neighbor, **data)
     return samples, observed, optimistic, frontier
 
@@ -439,14 +455,18 @@ def _recover_source(graph: nx.Graph, accesses: Mapping, samples: Mapping, optimi
                 if parent == _ROOT:
                     previous = (0, 0, seeds[cell]["access_key"], ())
                     unknown_alternatives.append(False)
+                    guards = ()
                 else:
                     if distances[parent] >= distances[cell] or parent not in best:
                         raise ArithmeticError("tight physical predecessor is not an increasing DAG")
                     previous = best[parent]
-                    unknown_alternatives.append(any_unknown[parent])
+                    guards = graph[parent][cell].get("guard_cell_keys", ())
+                    unknown_alternatives.append(any_unknown[parent] or any(samples[guard]["status"] == "unknown" for guard in guards))
                 unknown, conditional, source, path = previous
-                choices.append((unknown + (samples[cell]["status"] == "unknown"),
-                                conditional + (samples[cell]["status"] == "conditional"), source, path + (cell,)))
+                # Additive occurrences preserve optimal substructure when a flank repeats.
+                support = (cell, *guards)
+                choices.append((unknown + sum(samples[node]["status"] == "unknown" for node in support),
+                                conditional + sum(samples[node]["status"] == "conditional" for node in support), source, path + (cell,)))
             if not choices:
                 raise ArithmeticError("backend label has no exactly replayable predecessor")
             best[cell] = min(choices, key=lambda label: label if optimistic else label[1:])
@@ -495,10 +515,22 @@ def _target_route(graph: nx.Graph, target_accesses: Mapping, source_accesses: Ma
     unknown, conditional, source_key, path = best[cell]
     source = source_accesses[path[0]]
     edges = tuple({**graph[a][b], "from": a, "to": b} for a, b in pairwise(path))
+    guard_occurrences = tuple(guard for edge in edges for guard in edge.get("guard_cell_keys", ()))
+    guards = tuple(sorted(set(guard_occurrences)))
+    support = tuple(sorted(set(path) | set(guards)))
     arithmetic = _arithmetic(source["offset"], tuple(edge["weight"] for edge in edges), target["offset"], key[0])
     return {"value": key[0], "cell_keys": path, "points": tuple(samples[node]["center"] for node in path),
             "edges": edges, "source_access": source, "target_access": target,
-            "conditional_cell_count": conditional, "unknown_cell_count": unknown,
+            "conditional_cell_count": sum(samples[node]["status"] == "conditional" for node in path),
+            "unknown_cell_count": sum(samples[node]["status"] == "unknown" for node in path),
+            "conditional_support_occurrence_count": conditional, "unknown_support_occurrence_count": unknown,
+            "conditional_guard_occurrence_count": sum(samples[node]["status"] == "conditional" for node in guard_occurrences),
+            "unknown_guard_occurrence_count": sum(samples[node]["status"] == "unknown" for node in guard_occurrences),
+            "guard_cell_keys": guards,
+            "guard_query_refs": tuple(samples[node]["query_ref"] for node in guards),
+            "support_cell_keys": support, "support_query_refs": tuple(samples[node]["query_ref"] for node in support),
+            "conditional_support_cell_count": sum(samples[node]["status"] == "conditional" for node in support),
+            "unknown_support_cells": tuple(node for node in support if samples[node]["status"] == "unknown"),
             "cells": tuple(samples[node] for node in path), "arithmetic": arithmetic,
             "unknown_cells": tuple(node for node in path if samples[node]["status"] == "unknown"),
             "has_unknown_tie": any(any_unknown[end] for candidate, end, _ in candidates if candidate[0] == key[0])}
@@ -511,6 +543,17 @@ def _failure_cells(first: dict, second: dict, component_failures: Mapping, sampl
         for cell in access["selected"]:
             relevant.update(component_failures.get(cell, ()))
     return tuple(samples[cell] for cell in sorted(relevant) if samples[cell]["status"] in {"invalid", "not_available"})
+
+
+def _component_failure_cells(frontier: nx.Graph, samples: Mapping) -> dict:
+    """Include edge guards even when exact geometry disconnects their own node."""
+    failures = {}
+    for component in nx.connected_components(frontier):
+        support = set(component)
+        support.update(guard for cell in component for edge in frontier[cell].values() for guard in edge["guard_cell_keys"])
+        failed = tuple(sorted(cell for cell in support if samples[cell]["status"] in {"invalid", "not_available"}))
+        failures.update((cell, failed) for cell in component)
+    return failures
 
 
 def calculate_group_pair_distances(input_bundle: GroupDistanceInput) -> GroupDistanceResult:
@@ -553,10 +596,7 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
             if samples and all(sample["status"] == "invalid" for sample in samples.values()):
                 global_status, global_explanation = "invalid", "the frozen occupancy field rejects every query"
             # Component failure membership is shared across pairs; it never turns failures into route nodes.
-            for component in nx.connected_components(frontier):
-                failed = tuple(sorted(cell for cell in component if samples[cell]["status"] in {"invalid", "not_available"}))
-                for cell in component:
-                    component_failures[cell] = failed
+            component_failures = _component_failure_cells(frontier, samples)
             for group in groups:
                 if geometry[group.group_id]["status"] == "computed":
                     access[group.group_id] = _accesses(group, geometry[group.group_id], domain, bundle.grid, samples, frontier)
@@ -608,13 +648,17 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
                 lower = routes.get(ids, {}).get("optimistic")
                 if selected is not None:
                     tau = max(math.ulp(selected["value"]), math.ulp(lower["value"]) if lower else 0, math.ulp(bundle.grid.spacing))
-                    status = "partial" if selected["conditional_cell_count"] or lower and selected["value"] - lower["value"] > tau else "computed"
+                    status = "partial" if selected["conditional_support_cell_count"] or lower and selected["value"] - lower["value"] > tau else "computed"
                 else:
                     status = "unknown" if lower is not None else "unreachable"
         hybrid = {"status": status, "value": selected["value"] if selected else None, "units": "m", "reason": explanation,
                   "optimistic_lower_bound": lower["value"] if lower else None, "discrete_approximation": True,
                   "conditional_cell_count": selected["conditional_cell_count"] if selected else None,
                   "unknown_cell_count": lower["unknown_cell_count"] if lower else None,
+                  "conditional_support_occurrence_count": selected["conditional_support_occurrence_count"] if selected else None,
+                  "unknown_support_occurrence_count": lower["unknown_support_occurrence_count"] if lower else None,
+                  "conditional_support_cell_count": selected["conditional_support_cell_count"] if selected else None,
+                  "unknown_support_cell_count": len(lower["unknown_support_cells"]) if lower else None,
                   "arithmetic": selected["arithmetic"] if selected else None,
                   "tie_uncertainty": bool(selected and lower and lower["has_unknown_tie"] and abs(selected["value"] - lower["value"]) <= max(math.ulp(selected["value"]), math.ulp(lower["value"]), math.ulp(bundle.grid.spacing)))}
         if selected:
@@ -624,13 +668,14 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
         pair_id = _pair_id(ids, bundle.source_identity)
         lineage = {"group_source_refs": {group.group_id: group.source_refs for group in groups if group.group_id in ids},
                    "failed_queries": failures,
-                   "observed_query_refs": tuple(cell["query_ref"] for cell in selected["cells"]) if selected else (),
+                   "observed_query_refs": selected["support_query_refs"] if selected else (),
                    "optimistic_lower_bound": lower,
                    "access_audit": {identity: {name: access[identity][name] for name in ("footprint_cells", "candidates", "discarded")} for identity in ids if identity in access}}
         observations.append(GroupPairDistanceObservation(pair_id, ids, euclidean, hybrid, audits, selected, lineage, fingerprints))
         pair_index.append({"pair_id": pair_id, "group_ids": ids, "observation_index": len(observations) - 1})
     _, peak = tracemalloc.get_traced_memory()
     manifest = {"algorithm_version": ALGORITHM_VERSION, "schema_version": SCHEMA_VERSION,
+                "edge_support_version": EDGE_SUPPORT_VERSION,
                 "arithmetic_version": ARITHMETIC_VERSION, "source_identity": bundle.source_identity,
                 "analysis_plane": bundle.analysis_plane, "domain": bundle.domain, "grid": bundle.grid,
                 "query": bundle.query, "query_context": bundle.query_context, "origin_offset": bundle.origin_offset, "units": "m", "group_ids": tuple(group.group_id for group in groups),

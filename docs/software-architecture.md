@@ -703,6 +703,30 @@ The reusable group-distance module is implemented in `features/group_distance.py
 with the pinned-IFC runner `scripts/design/group_level/run_group_distance_ifc.py`
 and output-only `render_group_distance_preview.py`. Kernel review is owner accepted;
 13 focused nonspatial checks and 4 runner/renderer delivery checks are recorded.
+The authorized `.18.8b` continuation upgrades route adjacency to corner-safe
+eight-neighbor weighted edges under a
+new v2 algorithm/schema identity; footprint accesses remain four-neighbor shared
+edges. Both orthogonal flank queries are required diagonal support, and exact
+domain coverage still constrains every center segment. Historical v1 readers
+remain supported. The runner reuses authenticated retained v3 input bytes
+without reprojecting geometry or regenerating free-space; v4 outputs are fresh.
+V2 is `group-distance/2` / `group-distance/v2`, with edge support
+`eight-neighbor-two-flank-occurrences/1`. Additive uncertainty occurrence counts
+keep deterministic predecessor recovery compositional; existing path-cell counts
+retain their meaning and distinct support controls state. Guard keys/query refs
+resolve full sample authority through the manifest and exact ResultRef. Failure
+components include edge guard dependencies even without a cardinal connection.
+The actual candidate `run_v4_eight_neighbor/` has all 666 computed routes, equal
+immutable replay, 13,800 nodes/51,293 edges/36 source runs in each graph, and
+14,983 selected diagonals with 29,966 checked guard occurrences. Full pair
+comparison preserves identities/Euclidean/centroids and reports 587 shorter plus
+79 equal hybrid readings; largest reduction is 5.253573574692414 m. The complete
+HTML/CSV preview has all 666 locators. Independent numerical verification passes
+the actual full-scope source/sample/topology/guard/domain/CSV/replay probe and
+affected checks. Independent native reopen verification passes; final specification
+review is PASS and quality is Approved, with no findings. Technical `.18.8b` is
+complete; user visual gates `.18.10`/`.18.C4` remain open. The existing plan/ledger
+holds the evidence; root records the accepted local commit separately.
 The `.18.8a` continuation adds an explicit exact-result sample handoff in
 `adapters/free_space_distance.py`. It opens the existing immutable ResultRef using
 consumer expectations, authenticates its retained native request/capture, projects
@@ -717,14 +741,14 @@ context is stored once and each cell keeps its local geometry plus an exact
 ResultRef/row/column locator for complete original support and provenance.
 Blender board meshes/materials are display-only. A saved read remains historical
 unless the caller supplies the independently verified native observation.
-The current numeric package is `outputs/design/group_distance_ifc/run_v3_finite_band_result/`,
+The accepted four-neighbor baseline is `outputs/design/group_distance_ifc/run_v3_finite_band_result/`,
 using the accepted 1.6 m finite-band result `fe3243c13b3f45daac8744efc46f3962`.
 It preserves all 24,442 saved samples and projects 37 groups from the authenticated
 producing capture. Both graphs have 13,800 nodes, 26,301 edges and 36 batched source
 searches; all 666 hybrid distances/routes are computed. Implementer checks cover
 48,734 selected nodes, 48,068 edges, access/lineage/arithmetic and equal immutable-
 bundle replay. Independent final specification review is PASS and code quality
-is Approved. Its current complete
+is Approved. Its baseline complete
 preview is `run_v3_finite_band_result/preview/index.html`; the HTML payload retains
 only fields consumed by its viewer, with full numerical evidence in the run.
 User visual acceptance `.18.10`/`.18.C4` remains pending.

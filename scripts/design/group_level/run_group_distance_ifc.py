@@ -24,6 +24,7 @@ from features.geometry_views import component_shape, plan_projection
 from features.geometry_substitutes import mass_patch_from_mesh
 from features.group_distance import (
     GridDescriptor, GroupDistanceInput, GroupProjection,
+    _arithmetic,
     calculate_group_pair_distances, group_distance_input_fingerprints,
     serialize_group_distance_result,
 )
@@ -235,9 +236,20 @@ def normalized_hash(result: dict) -> str:
     return digest({key: value for key, value in result.items() if key != "diagnostics"})
 
 
+def distance_topology(manifest: dict) -> int:
+    """Read historical and current model identities without silently mixing semantics."""
+    identity = manifest.get("algorithm_version"), manifest.get("schema_version")
+    if identity == ("group-distance/1", "group-distance/v1") and "edge_support_version" not in manifest:
+        return 4
+    if identity == ("group-distance/2", "group-distance/v2") and manifest.get("edge_support_version") == "eight-neighbor-two-flank-occurrences/1":
+        return 8
+    raise ValueError("unsupported or inconsistent distance model identity")
+
+
 def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
     """Check real selected paths, full pair coverage and numerical lineage in one pass."""
     observations, index, manifest = result["observations"], result["pair_index"], result["manifest"]
+    topology = distance_topology(manifest)
     expected = manifest["expected_pair_ids"]
     expected_count = len(bundle.groups) * (len(bundle.groups) - 1) // 2
     observed = [row["pair_id"] for row in observations]
@@ -246,7 +258,76 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
         raise ValueError("observations, manifest and pair index are not a complete pair bijection")
     domain = component_shape(bundle.domain["components"])
     samples = {tuple(item["cell_key"]): item for item in manifest["cell_samples"]}
-    paths, nodes, edges = 0, 0, 0
+    paths, nodes, edges, diagonals, guards_checked, optimistic_paths = 0, 0, 0, 0, 0, 0
+
+    def validate_route(route: dict, observation: dict, optimistic: bool) -> tuple:
+        """Check path and off-path guard authority for either observed or lower-bound routes."""
+        cells = route["cell_keys"]
+        for cell, point, audit in zip(cells, route["points"], route["cells"], strict=True):
+            sample = samples[tuple(cell)]
+            eligible = sample["status"] in {"established", "conditional"} and sample["value"] is False
+            if optimistic and sample["status"] == "unknown" and sample["value"] is None:
+                eligible = True
+            if sample != audit or point != sample["center"] or not eligible or not domain.covers(Point(point)):
+                raise ValueError("selected route includes an ineligible or outside cell")
+        guard_occurrences, diagonal_count = [], 0
+        for a, b, edge in zip(cells[:-1], cells[1:], route["edges"], strict=True):
+            delta = tuple(abs(x - y) for x, y in zip(a, b))
+            adjacent = sum(delta) == 1 if topology == 4 else max(delta) == 1
+            if not adjacent or not domain.covers(LineString((samples[tuple(a)]["center"], samples[tuple(b)]["center"]))):
+                raise ValueError("selected edge violates model adjacency/domain coverage")
+            if edge["from"] != a or edge["to"] != b or edge["weight"] != math.dist(samples[tuple(a)]["center"], samples[tuple(b)]["center"]):
+                raise ValueError("selected edge endpoints or length differ from the recorded path")
+            endpoint_refs = [samples[tuple(a)]["query_ref"], samples[tuple(b)]["query_ref"]]
+            if (edge["domain_fingerprint"] != bundle.grid.domain_fingerprint or edge["domain_covered"] is not True
+                    or edge["grid_id"] != bundle.grid.grid_id or sorted(edge["occupancy_query_refs"]) != sorted(endpoint_refs)):
+                raise ValueError("selected edge lineage does not match cell queries")
+            if topology == 8:
+                guards = sorted(((a[0], b[1]), (b[0], a[1]))) if delta == (1, 1) else []
+                if (edge["guard_cell_keys"] != [list(cell) for cell in guards]
+                        or edge["guard_query_refs"] != [samples[cell]["query_ref"] for cell in guards]
+                        or edge["edge_support_version"] != manifest["edge_support_version"]):
+                    raise ValueError("selected edge guard lineage does not match its orthogonal flanks")
+                diagonal_count += bool(guards)
+                for guard in guards:
+                    sample = samples[guard]
+                    eligible = sample["status"] in {"established", "conditional"} and sample["value"] is False
+                    if optimistic and sample["status"] == "unknown" and sample["value"] is None:
+                        eligible = True
+                    if not eligible or not domain.covers(Point(sample["center"])):
+                        raise ValueError("selected diagonal cuts an ineligible or outside flank")
+                guard_occurrences.extend(guards)
+        arithmetic = route["arithmetic"]
+        replay = _arithmetic(route["source_access"]["offset"], tuple(edge["weight"] for edge in route["edges"]),
+                             route["target_access"]["offset"], route["value"])
+        if arithmetic != replay:
+            raise ValueError("selected route arithmetic is invalid")
+        euclidean = observation["center_to_center_euclidean"]["value"]
+        if route["value"] + arithmetic["rounding_bound"] < euclidean:
+            raise ValueError("hybrid polygonal route is shorter than its fixed-endpoint Euclidean distance")
+        for identity, access, component in zip(observation["group_ids"], (route["source_access"], route["target_access"]), ("source_offset", "target_offset"), strict=True):
+            centroid = observation["geometry_audit"][identity]["centroid"]
+            if (sum(abs(x - y) for x, y in zip(access["footprint_cell"], access["free_cell"])) != 1
+                    or arithmetic[component] != math.dist(centroid, access["proxy_point"]) + math.dist(access["proxy_point"], access["cell_center"])):
+                raise ValueError("endpoint access adjacency or offset differs from its recorded segments")
+        if topology == 8:
+            guard_keys = sorted(set(guard_occurrences))
+            support = sorted(set(map(tuple, cells)) | set(guard_keys))
+            if (route["guard_cell_keys"] != [list(cell) for cell in guard_keys]
+                    or route["guard_query_refs"] != [samples[cell]["query_ref"] for cell in guard_keys]
+                    or route["support_cell_keys"] != [list(cell) for cell in support]
+                    or route["support_query_refs"] != [samples[cell]["query_ref"] for cell in support]
+                    or route["unknown_support_cells"] != [list(cell) for cell in support if samples[cell]["status"] == "unknown"]
+                    or route["conditional_support_cell_count"] != sum(samples[cell]["status"] == "conditional" for cell in support)):
+                raise ValueError("selected route distinct support lineage differs from its dependencies")
+            for status in ("unknown", "conditional"):
+                path_count = sum(samples[tuple(cell)]["status"] == status for cell in cells)
+                guard_count = sum(samples[cell]["status"] == status for cell in guard_occurrences)
+                if (route[status + "_cell_count"] != path_count
+                        or route[status + "_guard_occurrence_count"] != guard_count
+                        or route[status + "_support_occurrence_count"] != path_count + guard_count):
+                    raise ValueError("selected route support occurrence counts differ from its edge sequence")
+        return len(cells), len(route["edges"]), diagonal_count, len(guard_occurrences)
     for item in index:
         observation = observations[item["observation_index"]]
         if item["pair_id"] != observation["pair_id"] or item["group_ids"] != observation["group_ids"]:
@@ -257,38 +338,27 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
             if value is not None and (not math.isfinite(value) or value < 0):
                 raise ValueError("reported distance is not finite and nonnegative")
         route = observation["route"]
+        lower = observation["lineage"]["optimistic_lower_bound"]
+        if lower is not None:
+            validate_route(lower, observation, True)
+            optimistic_paths += 1
         if route is None:
             continue
         paths += 1
-        cells = route["cell_keys"]
-        for cell, point, audit in zip(cells, route["points"], route["cells"], strict=True):
-            sample = samples[tuple(cell)]
-            if sample != audit or sample["status"] not in {"established", "conditional"} or sample["value"] is not False or not domain.covers(Point(point)):
-                raise ValueError("selected route includes a non-free or outside cell")
-            nodes += 1
-        for a, b, edge in zip(cells[:-1], cells[1:], route["edges"], strict=True):
-            if sum(abs(x - y) for x, y in zip(a, b)) != 1 or not domain.covers(LineString((samples[tuple(a)]["center"], samples[tuple(b)]["center"]))):
-                raise ValueError("selected edge violates four-neighbor/domain coverage")
-            if edge["from"] != a or edge["to"] != b or edge["weight"] != math.dist(samples[tuple(a)]["center"], samples[tuple(b)]["center"]):
-                raise ValueError("selected edge endpoints or length differ from the recorded path")
-            if edge["domain_fingerprint"] != bundle.grid.domain_fingerprint or edge["occupancy_query_refs"] != [samples[tuple(a)]["query_ref"], samples[tuple(b)]["query_ref"]] and edge["occupancy_query_refs"] != [samples[tuple(b)]["query_ref"], samples[tuple(a)]["query_ref"]]:
-                raise ValueError("selected edge lineage does not match cell queries")
-            edges += 1
-        arithmetic = route["arithmetic"]
-        if arithmetic["backend_replay"] != arithmetic["backend_hybrid_label"] or abs(arithmetic["residual"]) > arithmetic["rounding_bound"]:
-            raise ValueError("selected route arithmetic is invalid")
-        euclidean = observation["center_to_center_euclidean"]["value"]
-        if observation["centroid_free_space_hybrid"]["value"] + arithmetic["rounding_bound"] < euclidean:
-            raise ValueError("hybrid polygonal route is shorter than its fixed-endpoint Euclidean distance")
-        for identity, access, component in zip(observation["group_ids"], (route["source_access"], route["target_access"]), ("source_offset", "target_offset"), strict=True):
-            centroid = observation["geometry_audit"][identity]["centroid"]
-            if arithmetic[component] != math.dist(centroid, access["proxy_point"]) + math.dist(access["proxy_point"], access["cell_center"]):
-                raise ValueError("endpoint offset arithmetic differs from its recorded segments")
+        node_count, edge_count, diagonal_count, guard_count = validate_route(route, observation, False)
+        nodes, edges = nodes + node_count, edges + edge_count
+        diagonals, guards_checked = diagonals + diagonal_count, guards_checked + guard_count
+        if topology == 8 and observation["lineage"]["observed_query_refs"] != route["support_query_refs"]:
+            raise ValueError("observed lineage omits route or diagonal support queries")
+        if observation["centroid_free_space_hybrid"]["value"] != route["value"]:
+            raise ValueError("hybrid value differs from its selected route")
     counts = Counter(row["centroid_free_space_hybrid"]["status"] for row in observations)
     return {"expected_pair_count": expected_count, "observation_count": len(observations), "index_count": len(index),
             "pair_set_bijection": True, "duplicate_pair_ids": [], "missing_pair_ids": [],
             "actual_hybrid_status_counts": dict(counts), "unobserved_hybrid_statuses": sorted(STATES - set(counts)),
             "selected_paths_checked": paths, "selected_nodes_checked": nodes, "selected_edges_checked": edges,
+            "selected_diagonal_edges_checked": diagonals, "selected_guard_occurrences_checked": guards_checked,
+            "optimistic_paths_checked": optimistic_paths, "route_neighbor_count": topology,
             "tie_uncertainty_pairs": sum(bool(row["centroid_free_space_hybrid"]["tie_uncertainty"]) for row in observations),
             "optimistic_witness_pairs": sum(row["lineage"]["optimistic_lower_bound"] is not None for row in observations),
             "finite_metric_values": True, "matrix_diagonal": "null/not_applicable",
