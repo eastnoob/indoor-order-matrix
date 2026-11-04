@@ -66,7 +66,8 @@ def test_adapter_import_does_not_load_blender_or_bonsai():
     """Pure core imports remain usable without native Blender modules."""
     result = subprocess.run([sys.executable, "-c",
                              "import sys; import adapters.bonsai_analysis_plane; "
-                             "assert 'bpy' not in sys.modules; assert 'bonsai' not in sys.modules"],
+                             "assert 'bpy' not in sys.modules; assert 'bonsai' not in sys.modules; "
+                             "assert 'mathutils' not in sys.modules"],
                             capture_output=True, text=True, check=False)
     assert result.returncode == 0, result.stderr
 
@@ -285,6 +286,13 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
     import ifcopenshell.api
     from ..adapters import bonsai_analysis_plane as adapter
 
+    class Matrix(list):
+        """Mark row-oriented native matrix data, distinct from RNA's generic column-oriented sequences."""
+
+        def __init__(self, rows):
+            """Copy matrix rows without depending on a headless mathutils installation."""
+            super().__init__([list(row) for row in rows])
+
     class Resource:
         """Supply identity-hashable Blender-like datablocks and properties."""
 
@@ -295,6 +303,13 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
         def select_set(self, selected):
             """Record explicit native selection restoration."""
             self.selected = selected
+
+        def __setattr__(self, name, value):
+            """Mirror Blender RNA's transposition of generic sequences assigned to matrix_world."""
+            if name == "matrix_world":
+                value = Matrix(value if isinstance(value, Matrix) else zip(*value))
+                self.__dict__["matrix_writes"] = self.__dict__.get("matrix_writes", 0) + 1
+            object.__setattr__(self, name, value)
 
     class Resources(list):
         """Expose Blender's exact resource removal signature."""
@@ -419,7 +434,7 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
             """Allocate a camera with an intentionally different native default elevation."""
             camera_data = Resource(type="ORTHO", ortho_scale=8., clip_start=.1, clip_end=100.)
             camera = Resource(type="CAMERA", name_full="Synthetic camera", library=None,
-                matrix_world=_matrix(origin=(11., 12., 4.2)), color=(1, 1, 1, 1), data=camera_data,
+                matrix_world=Matrix(_matrix(origin=(11., 12., 4.2))), color=(1, 1, 1, 1), data=camera_data,
                 users_collection=[], bim=Resource(ifc_definition_id=0, location_checksum="before",
                     rotation_checksum="before", blender_offset_type="NONE"))
             data.objects.append(camera)
@@ -475,9 +490,23 @@ def _authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.0):
     monkeypatch.setitem(sys.modules, "bonsai.tool", tool)
     monkeypatch.setitem(sys.modules, "bonsai.bim.ifc", Resource(IfcStore=Store))
     monkeypatch.setitem(sys.modules, "bonsai.tool.brick", Resource(BrickStore=brick))
+    monkeypatch.setitem(sys.modules, "mathutils", Resource(Matrix=Matrix))
     monkeypatch.setattr(adapter, "_invoke_add_drawing", add_drawing)
     return Resource(adapter=adapter, model=model, project=project, bpy=bpy, tool=tool, store=Store,
-                    brick=brick, state=state, Resource=Resource)
+                    brick=brick, state=state, Resource=Resource, Matrix=Matrix)
+
+
+def test_native_matrix_rows_require_mathutils_assignment(monkeypatch, tmp_path):
+    """Reproduce Blender's generic-sequence transpose and preserve the intended native pose."""
+    runtime = _authoring_runtime(monkeypatch, tmp_path)
+    camera = runtime.tool.Drawing.create_camera()
+    rows = tuple(tuple(row) for row in _matrix())
+    camera.matrix_world = rows
+    assert tuple(camera.matrix_world[row][3] for row in range(3)) == (0, 0, 0)
+    assert tuple(camera.matrix_world[3]) == (2, 3, 1.6, 1)
+    runtime.adapter._set_matrix_world(camera, rows)
+    runtime.adapter._set_camera_elevation(camera, 2.3)
+    assert camera.matrix_world == _matrix(origin=(2, 3, 2.3))
 
 
 @pytest.mark.parametrize("unit_scale", [1., .001, 2.])
@@ -491,7 +520,9 @@ def test_managed_plane_ensure_is_idempotent_and_native_placement_uses_world_metr
     plane = adapter.plane_from_camera(binding, name="test")
     entity = runtime.tool.Ifc.get_entity(camera)
     assert camera.matrix_world[2][3] == pytest.approx(1.6 / unit_scale)
+    assert binding.origin == pytest.approx((11 * unit_scale, 12 * unit_scale, 1.6))
     assert runtime.state.calls[1] == ("assign_z", 1.6 / unit_scale)
+    assert get_local_placement(entity.ObjectPlacement)[:2, 3] == pytest.approx((11 * unit_scale, 12 * unit_scale))
     assert get_local_placement(entity.ObjectPlacement)[2, 3] == pytest.approx(1.6)
     assert adapter.ensure_native_analysis_plane(elevation_m=1.6) is camera
     assert len(runtime.store.history) == 1 and runtime.state.calls.count("create") == 1
@@ -574,9 +605,9 @@ def test_managed_plane_rejects_ambiguous_or_unqualified_identity_before_mutation
         pset = runtime.model.by_id(get_pset(entity, adapter.MANAGED_PLANE_PSET)["id"])
         ifcopenshell.api.run("pset.edit_pset", runtime.model, pset=pset, properties={"ProjectGlobalId": "other"})
     elif change == "nonfinite_pose":
-        camera.matrix_world = _matrix(origin=(0, 0, float("nan")))
+        camera.matrix_world = runtime.Matrix(_matrix(origin=(0, 0, float("nan"))))
     else:
-        camera.matrix_world = ((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 1.6), (0, 0, 0, 1))
+        camera.matrix_world = runtime.Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 1.6), (0, 0, 0, 1)))
     calls, history = list(runtime.state.calls), list(runtime.store.history)
     with pytest.raises(ValueError):
         adapter.ensure_native_analysis_plane(elevation_m=2., **arguments)
@@ -654,7 +685,7 @@ def test_managed_exact_section_rejects_rotated_author_before_elevation_update(mo
     """Existing exact-section capability validation runs before any native update."""
     runtime = _authoring_runtime(monkeypatch, tmp_path)
     camera = runtime.adapter.ensure_native_analysis_plane(elevation_m=1.6)
-    camera.matrix_world = ((0, -1, 0, 11), (1, 0, 0, 12), (0, 0, 1, 1.6), (0, 0, 0, 1))
+    camera.matrix_world = runtime.Matrix(((0, -1, 0, 11), (1, 0, 0, 12), (0, 0, 1, 1.6), (0, 0, 0, 1)))
     calls, history = list(runtime.state.calls), list(runtime.store.history)
     with pytest.raises(ValueError, match="canonical"):
         runtime.adapter.ensure_native_analysis_plane(elevation_m=2.3, query_kind="exact_world_xy_section")
@@ -679,6 +710,32 @@ def test_managed_plane_owned_failure_restores_ifc_blender_and_history(monkeypatc
     assert not runtime.bpy.context.scene.get("om_analysis_authoring_recovery_error")
     runtime.state.failure = None
     assert adapter.ensure_native_analysis_plane(elevation_m=2.3) is not None
+
+
+def test_failed_creation_restores_changed_pose_without_rewriting_unchanged_objects(monkeypatch, tmp_path):
+    """Recovery retains translated existing objects and avoids touching matrices that already match."""
+    runtime = _authoring_runtime(monkeypatch, tmp_path)
+    adapter = runtime.adapter
+    changed = runtime.tool.Drawing.create_camera()
+    unchanged = runtime.tool.Drawing.create_camera()
+    before = adapter._drawing_snapshot(runtime.bpy, runtime.tool, runtime.store, runtime.brick)
+    changed_writes = getattr(changed, "matrix_writes", 0)
+    unchanged_writes = getattr(unchanged, "matrix_writes", 0)
+    native_add = adapter._invoke_add_drawing
+
+    def change_existing_then_fail():
+        """Model a native operation changing existing scene state before its owned transaction fails."""
+        changed.matrix_world = runtime.Matrix(_matrix(origin=(31, 42, 5.7)))
+        return native_add()
+
+    monkeypatch.setattr(adapter, "_invoke_add_drawing", change_existing_then_fail)
+    runtime.state.failure = "creation"
+    with pytest.raises(RuntimeError, match="injected creation failure"):
+        adapter.ensure_native_analysis_plane(elevation_m=2.3)
+    assert adapter._drawing_snapshot(runtime.bpy, runtime.tool, runtime.store, runtime.brick) == before
+    assert changed.matrix_writes == changed_writes + 2
+    assert getattr(unchanged, "matrix_writes", 0) == unchanged_writes
+    assert not runtime.bpy.context.scene.get("om_analysis_authoring_recovery_error")
 
 
 def test_managed_plane_failed_recovery_blocks_future_authoring(monkeypatch, tmp_path):

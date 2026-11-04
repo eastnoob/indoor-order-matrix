@@ -313,10 +313,14 @@ def _recover_drawing(before: dict, transaction_key: str | None, bpy, tool, store
 
     # Placement synchronization also changes Bonsai's cached pose, so recover both observations together.
     for obj, (data, matrix, properties) in before["object_facts"].items():
-        obj.data = data
-        obj.matrix_world = matrix
+        if obj.data is not data:
+            obj.data = data
+        if tuple(tuple(row) for row in obj.matrix_world) != matrix:
+            _set_matrix_world(obj, matrix)
         for name, value in properties.items():
-            setattr(tool.Blender.get_object_bim_props(obj), name, value)
+            props = tool.Blender.get_object_bim_props(obj)
+            if getattr(props, name) != value:
+                setattr(props, name, value)
     bpy.context.view_layer.update()
 
     # Remove exact newly allocated datablocks; existing names are never deletion keys.
@@ -373,8 +377,9 @@ def _recover_drawing(before: dict, transaction_key: str | None, bpy, tool, store
             if directory.exists():
                 directory.rmdir()
     after = _drawing_snapshot(bpy, tool, store, brick)
-    if any(after[key] != value for key, value in before.items()):
-        raise RuntimeError("native drawing recovery could not verify all retained state")
+    differences = [key for key, value in before.items() if after[key] != value]
+    if differences:
+        raise RuntimeError("native drawing recovery could not verify retained state: " + ", ".join(differences))
 
 
 def _invoke_add_drawing():
@@ -394,11 +399,16 @@ def _native_elevation(elevation_m, bpy) -> float:
     return native_z
 
 
+def _set_matrix_world(obj, rows) -> None:
+    """Assign row-oriented matrix data through mathutils rather than RNA's transposing sequence conversion."""
+    obj.matrix_world = importlib.import_module("mathutils").Matrix(rows)
+
+
 def _set_camera_elevation(camera, native_z: float) -> None:
     """Change only world translation Z, preserving the authored camera frame and XY origin."""
-    camera.matrix_world = tuple(tuple(native_z if row == 2 and col == 3 else value
-                                     for col, value in enumerate(values))
-                                for row, values in enumerate(camera.matrix_world))
+    _set_matrix_world(camera, tuple(tuple(native_z if row == 2 and col == 3 else value
+                                         for col, value in enumerate(values))
+                                    for row, values in enumerate(camera.matrix_world)))
 
 
 @contextmanager
@@ -418,11 +428,11 @@ def _camera_placement_units(cameras, bpy, tool):
         before = tuple(tuple(row) for row in obj.matrix_world)
         try:
             # Bonsai assumes Blender translations are metres; our explicit scene-unit contract does not.
-            obj.matrix_world = tuple(tuple(value * scale if col == 3 and row < 3 else value
-                                          for col, value in enumerate(values)) for row, values in enumerate(before))
+            _set_matrix_world(obj, tuple(tuple(value * scale if col == 3 and row < 3 else value
+                                              for col, value in enumerate(values)) for row, values in enumerate(before)))
             return native_reader(obj)
         finally:
-            obj.matrix_world = before
+            _set_matrix_world(obj, before)
 
     tool.Surveyor.get_absolute_matrix = classmethod(placement)
     try:
@@ -521,7 +531,7 @@ def create_native_drawing(*, storey_ref: str | None = None, elevation_m: float |
         binding = read_camera_binding(created[0], role="geometry_author")
         plane_from_camera(binding, name="Analysis plane", query_kind=query_kind)
         if elevation_m is not None and not math.isclose(binding.origin[2], float(elevation_m), rel_tol=0, abs_tol=FRAME_TOLERANCE):
-            raise ValueError("native drawing did not retain the requested world elevation")
+            raise ValueError(f"native drawing did not retain the requested world elevation: desired {float(elevation_m)} m, observed {binding.origin[2]} m")
         props.active_drawing_id = before["drawing_fields"]["active_drawing_id"]
         return created[0]
     except Exception as error:
@@ -629,7 +639,7 @@ def ensure_native_analysis_plane(*, elevation_m: float, project_global_id: str |
         updated = _managed_camera_binding(camera, candidates[0])
         plane_from_camera(updated, name="Analysis plane", query_kind=query_kind)
         if not math.isclose(updated.origin[2], float(elevation_m), rel_tol=0, abs_tol=FRAME_TOLERANCE):
-            raise ValueError("native analysis plane did not retain the requested world elevation")
+            raise ValueError(f"native analysis plane did not retain the requested world elevation: desired {float(elevation_m)} m, observed {updated.origin[2]} m")
         return camera
     except Exception as error:
         try:
