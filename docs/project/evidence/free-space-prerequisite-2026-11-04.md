@@ -110,3 +110,43 @@ Task 1 native correction is in progress and must pass a fresh native test before
 the actual free-space run. Evidence: `native-plane-create-reuse.json`,
 `native-plane-diagnostic.json`, `native-matrix-assignment-probe.json`, and
 `native-source-reload-after-failure.json` under the verification directory.
+
+Accepted Task 2 local jj commit: `e02d899b`, change `tnozwwmy`;
+Task 3 continues as change `uvwnnrun`.
+
+## Native matrix correction accepted
+
+The corrected matrix assignment and bounded recovery passed independent
+specification and quality review: **279 passed, 1 existing skip**, exit 0;
+the two frozen file hashes remained unchanged. Accepted local jj commit
+`a951c761` (change `uvwnnrun`). The earlier failure evidence remains historical.
+Actual portable Blender checks now establish one stable managed drawing GUID
+`2JRtSsvK9DueUJ6efD5Ihg`, repeated reuse, world Z 1.600000023841858 m,
+native IFC SI agreement, non-unit handoff, injected post-sync rollback and
+subsequent valid updates. No unrelated poses changed in the corrected update.
+The verifier independently audited these root-executed native records; this
+does not claim that the verifier executed the native mutations.
+
+Native serialization saved a new derived file at
+`outputs/design/free_space_prerequisite/native/analysis-plane-1p6-rna-fixed.ifc`:
+408620997 bytes, SHA256
+`06400121d7a60dc5a45e64b90c5c9310900103946b2f2fff6cae477c1f935f99`.
+It retains the original project, 95 furniture objects and adds one drawing group
+(38 total groups). The original IFC was not overwritten. Evidence:
+`native-plane-rna-fix-create-reuse.json`, `native-plane-update-restore.json`,
+`native-plane-nonunit-handoff.json`, `native-plane-fault-recovery.json` and
+`native-derived-save.json` in the verification directory. IFC-only reopen and
+the final native result/visual acceptance remain Task 5.
+
+## Task 3 projected-domain participation accepted
+
+Independent specification PASS / quality PASS; **314 passed in 11.64 s**,
+exit 0. An additional independent analytic run passed 54 geometry/query/frame
+cases, three audit/status invariants and six hole-point serialization roundtrips.
+All three frozen candidate hashes remained unchanged. Exact domain shell/holes,
+inclusive contact participation, positive-area occupancy, original/substitute
+ownership, exclusions and conservative unknown states are retained. Evidence:
+`task-3-verification.md`, `task3-independent-tests.log`,
+`task3-independent-analytic-results.json` and before/after hash manifests.
+Visual omitted for analytic cases. Fresh actual S3 binding/alignment and new
+free-space values remain Task 5; no new real-scene result is claimed here.

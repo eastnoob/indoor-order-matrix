@@ -87,11 +87,11 @@
 
 涉及：`adapters/bonsai_space_authoring.py`、`features/analysis_requests.py`、addon `_make_analysis_request`；对应 `test/test_bonsai_space_authoring.py`、`test/test_geometry_views.py`、`test/test_analysis_requests.py`、`test/test_blender_analysis_ui.py`。
 
-- [ ] 将被验证的选定 slab 上表面接入请求下界；上界读取受管理的 1.6 m 世界标高平面。
-- [ ] 使用现有 plane-local 变换与三角面裁剪，移除这条查询路径中的世界 Z=0 硬编码。
-- [ ] 验收非零楼板标高、仅接触下界、部分进入高度带、完全在上界以上、缺失/歧义 datum 和下界不低于上界的处理。
-- [ ] 确认 exact-section 接口与原有 whole-height 调用保持其原有语义。
-- [ ] 独立测试与审查通过后提交。
+- [x] 将被验证的选定 slab 上表面接入请求下界；上界读取受管理的 1.6 m 世界标高平面。
+- [x] 使用现有 plane-local 变换与三角面裁剪，移除这条查询路径中的世界 Z=0 硬编码。
+- [x] 验收非零楼板标高、仅接触下界、部分进入高度带、完全在上界以上、缺失/歧义 datum 和下界不低于上界的处理。
+- [x] 确认 exact-section 接口与原有 whole-height 调用保持其原有语义。
+- [x] 独立测试与审查通过后提交。
 
 可视化判定：datum、局部变换、垂直交叠和截断规则优先用独立数值预期与测试确认。只有真实楼板/平面映射仍不确定时，在 Task 5 增加侧视图；不为填满图例制造真实场景未出现的实体或状态。
 
@@ -102,10 +102,12 @@
 涉及：`features/analysis_requests.py`、`features/neutral_scene_views.py`、`features/free_space_field.py` 及既有域 handoff；对应 `test/test_analysis_requests.py`、`test/test_free_space_field.py`。
 
 - [ ] 使用 S3 的实际确认绑定与精确投影域，不能使用旧 S4 或家具 bbox 代替。
-- [ ] 通过 inclusive intersection 记录域内、跨边界、仅边界接触和排除原因；保留原始 source ID 与 substitute 来源。
-- [ ] 保留正面积 cell/domain/occupancy 交叠规则；边界点/线接触进入审计，但不独自把整格变为 occupied。
-- [ ] 验收孔洞、跨边界物体、仅接触域边界、失败几何和未知来源；保持原有精确 boundary-member 排除规则。
-- [ ] 独立测试与审查通过后提交。
+- [x] 通过 inclusive intersection 记录域内、跨边界、仅边界接触和排除原因；保留原始 source ID 与 substitute 来源。
+- [x] 保留正面积 cell/domain/occupancy 交叠规则；边界点/线接触进入审计，但不独自把整格变为 occupied。
+- [x] 验收孔洞、跨边界物体、仅接触域边界、失败几何和未知来源；保持原有精确 boundary-member 排除规则。
+- [x] 独立测试与审查通过后提交。
+
+Task 3 实现独立验收：314 passed；另有 54 个独立几何案例、3 项审计不变量和 6 项孔洞序列化往返通过。首项真实 S3 的新绑定由 Task 5 完成，当前不声称已有新的真实自由空间结果。
 
 可视化判定：相交、正面积和 unknown 规则由独立测试确认；新真实结果与已确认 S3 的投影对齐若无法仅靠绑定/数值确认，在 Task 5 用同一张俯视叠加图检查。局部图只针对实际疑点生成，不强制每种状态一张图。
 

@@ -14,9 +14,10 @@ Use [verified-agent-workflow](../skills/verified-agent-workflow/SKILL.md) and th
 [current checklist](superpowers/plans/2026-11-04-free-space-prerequisite-checklist.md).
 Reuse `bonsai_analysis_plane` for native drawing identity, `bonsai_space_authoring`
 for slab datum, `analysis_requests`/`geometry_views` for finite-band projection,
-and the existing result wire/session for persistence and current reads. Missing
-datum wiring, inclusive participation audit and content lookup are implementation
-targets; the distance kernel is outside this workline.
+and the existing result wire/session for persistence and current reads. Slab datum
+wiring is independently accepted; inclusive participation audit is implemented
+and awaiting independent acceptance. Content lookup remains an implementation
+target; the distance kernel is outside this workline.
 
 Task 1's native lifecycle is implemented and awaiting independent acceptance.
 `adapters/bonsai_analysis_plane.py:ensure_native_analysis_plane(*, elevation_m,
@@ -47,7 +48,7 @@ visible plane/source alignment remain Task 5 checks.
 
 ## Free-space query clarified by the user — 2026-11-03 / existing capabilities audited
 
-Task 2 implementation in this checkout wires `ground_to_analysis_plane_band` to
+Task 2 is independently accepted and committed (`e02d899b`). It wires `ground_to_analysis_plane_band` to
 the selected slab's verified horizontal upper surface, using plane-local bounds
 `(datum_z_m - plane.origin[2], 0)`. `AnalysisRequest.height_band_datum` retains the
 full immutable receipt in request identity and result serialization. The live
@@ -68,16 +69,29 @@ The recovered UI already offers `ground_to_analysis_plane_band`
 `geometry_views.plan_projection(..., height_band=...)` before constructing
 `FreeSpaceField`. At that audit the UI assumed world ground Z=0; Task 2 now uses
 `adapters/bonsai_space_authoring.py:resolve_slab_datum` as its selected floor
-lower bound. FreeSpaceField clips cell support to the exact
-domain, but there is no unified object-scope selection using inclusive projected
-intersection. Existing exact boundary-member exclusions also remain in force;
-retained boundary evidence is not a complete inclusive object-scope handoff.
+lower bound. Task 3 now passes the existing qualified plane-local domain polygon
+to `_occupancy`, which intersects each selected physical footprint with the exact
+shell and holes. Immutable `projected_domain_participation` provenance classifies
+`inside`, `crossing`, `boundary_contact` and `disjoint`, with exact intersection
+area, selected geometry refs and original-owner/substitute coverage. Each selected
+proxy is audited once for its full represented owner set. Contact participates in
+the source audit with zero occupied area; disjoint and contact-only geometry are
+omitted from the field inputs. Factual `selected_records` and physical source
+inventory remain intact, including accepted-substitute conditionality. Exact
+boundary/support exclusions, nonphysical sources, legal-empty height/section
+queries and unresolved geometry carry explicit reasons with an unevaluated domain
+relation when no qualified footprint exists. Failed geometry remains unknown and
+the existing trusted-support checks remain in force. No buffer or tolerance-based
+area inflation is applied; FreeSpaceField retains its positive-area cell rule.
+The executor's existing backend file hashes now include `analysis_requests.py`,
+so these semantics change the content identity without changing the result wire.
 Current S3 retained input explicitly declares `whole_height_planar_mass_patch`,
 `height_band=null`; that run is not evidence for the clarified query. The earlier
 support-binding diagnosis below is an audit of another supported scope mechanism,
 not the prescribed solution. Eleven existing UI/request/projection/slab/domain/
-section checks passed in Pixi in 5.55s. Implementation and fresh S3 visual
-validation remain open; see the existing distance checklist.
+section checks passed in Pixi in 5.55s at the original audit. Task 3 independent
+acceptance and fresh S3 visual validation remain open; see the existing distance
+checklist.
 
 ## 当前任务：选区纠正 — PRIOR S4 SUPERSEDED / INTENDED S3 CONFIRMED / CORRECTED UNREACHABLE RUN RETAINED
 

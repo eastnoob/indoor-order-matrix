@@ -143,7 +143,8 @@ def test_occupancy_constructs_only_selected_interior_geometry(monkeypatch, kind,
     request = _request(scene, geometry_query=GeometryQuery(
         kind, world_z_m=1.6 if kind == "exact_world_xy_section" else None,
         height_band=(1.0, 2.0) if kind == "finite_height_band" else None))
-    records, unknown, audit = requests._occupancy(scene, request, excluded)
+    records, unknown, audit = requests._occupancy(
+        scene, request, excluded, Polygon(((0, 0), (4, 0), (4, 4), (0, 4))))
     assert built == (["mesh:proxy"] if case == "shared" else [])
     assert [record["id"] for record in records] == (["proxy"] if case == "shared" else [])
     assert unknown == (["A", "B"] if case == "refused" else [])
@@ -188,7 +189,8 @@ def test_malformed_registry_keeps_resolver_rejection_auditable(monkeypatch, muta
 
     monkeypatch.setattr(geometry_substitutes, "mass_patch_from_mesh", track)
     scene = _scene(_object("chair"))
-    records, unknown, audit = requests._occupancy(scene, _request(scene), set())
+    records, unknown, audit = requests._occupancy(
+        scene, _request(scene), set(), Polygon(((0, 0), (4, 0), (4, 4), (0, 4))))
 
     assert records == []
     assert unknown == ["chair"]
@@ -319,6 +321,15 @@ def test_proxy_covers_two_missing_owners_once(kind):
     assert sample.value is True and sample.status is FieldStatus.CONDITIONAL
     assert sample.source_ids == ("A", "B")
     assert run.support_status is FieldStatus.CONDITIONAL
+    participation = run.snapshot.provenance["projected_domain_participation"]
+    assert len(participation) == 1
+    assert participation[0]["selected_source_id"] == "proxy"
+    assert participation[0]["selected_geometry_refs"] == ("mesh:proxy",)
+    assert participation[0]["represented_source_ids"] == ("A", "B")
+    assert tuple(item["source_object_id"] for item in participation[0]["original_sources"]) == ("A", "B")
+    assert all(item["geometry_refs"] == () for item in participation[0]["original_sources"])
+    assert participation[0]["relation"] == "inside"
+    assert participation[0]["intersection_area_m2"] == 1.0
 
 
 def test_missing_source_is_unknown_while_known_positive_survives():
@@ -330,6 +341,10 @@ def test_missing_source_is_unknown_while_known_positive_survives():
     empty = run.field.evaluate((2, 2), run.query)
     assert empty.status is FieldStatus.UNKNOWN and empty.value is None
     assert run.snapshot.provenance["unknown_source_ids"] == ("missing",)
+    audit = next(item for item in run.snapshot.provenance["projected_domain_participation"]
+                 if item.get("source_object_id") == "missing")
+    assert audit["relation"] == "unevaluated" and audit["intersection_area_m2"] is None
+    assert audit["participates"] is None and audit["reason"] == "unresolved_query_geometry"
 
 
 def test_failed_projection_is_unknown_while_known_positive_survives(monkeypatch):
@@ -356,6 +371,11 @@ def test_failed_projection_is_unknown_while_known_positive_survives(monkeypatch)
     assert empty.status is FieldStatus.UNKNOWN and empty.value is None
     assert run.snapshot.provenance["unknown_source_ids"] == ("broken",)
     assert run.snapshot.provenance["geometry_failures"][0]["reason"] == "broken mass projection"
+    audit = next(item for item in run.snapshot.provenance["projected_domain_participation"]
+                 if item.get("source_object_id") == "broken")
+    assert audit["relation"] == "unevaluated" and audit["intersection_area_m2"] is None
+    assert audit["participates"] is None and audit["reason"] == "unresolved_query_geometry"
+    assert audit["geometry_failure_reason"] == "broken mass projection"
     assert scene.to_dict() == before
 
 
@@ -455,17 +475,24 @@ def test_translated_unknown_line_and_point_touch_preserves_dimension(monkeypatch
 
 
 @pytest.mark.parametrize("proxy", [False, True])
-def test_qualified_empty_section_proves_empty_and_preserves_acceptance(proxy):
+@pytest.mark.parametrize("kind", ["exact_world_xy_section", "finite_height_band"])
+def test_qualified_empty_query_proves_empty_and_preserves_acceptance(proxy, kind):
     """Legal empty originals are established; accepted proxy empties remain conditional."""
     scene = _proxy_scene(top=1) if proxy else _scene(_object("low", (0, 0, 0, 1, 1, 1)))
-    run = execute_analysis_request(scene, _request(scene,
-        geometry_query=GeometryQuery("exact_world_xy_section", world_z_m=1.6)))
+    run = execute_analysis_request(scene, _request(scene, geometry_query=GeometryQuery(kind,
+        world_z_m=1.6 if kind == "exact_world_xy_section" else None,
+        height_band=(1, 2) if kind == "finite_height_band" else None)))
     sample = run.field.evaluate((1, 1), run.query)
     assert sample.value is False
     assert sample.status is (FieldStatus.CONDITIONAL if proxy else FieldStatus.ESTABLISHED)
     assert sample.source_ids == (("A", "B") if proxy else ("low",))
     assert len(run.snapshot.provenance["legal_empty_sections"]) == 1
     assert run.snapshot.provenance["unknown_source_ids"] == ()
+    audit = run.snapshot.provenance["projected_domain_participation"][0]
+    assert audit["relation"] == "unevaluated" and audit["intersection_area_m2"] is None
+    assert audit["reason"] == ("qualified_empty_section" if kind == "exact_world_xy_section" else
+                               "no_positive_vertical_overlap_with_height_band")
+    assert audit["participates"] is False
 
 
 def test_exact_section_uses_absolute_world_z_with_translated_xy_and_origin_z():
@@ -494,6 +521,176 @@ def test_finite_height_band_uses_analysis_plane_local_z_for_occupancy():
     assert run.support_status is FieldStatus.ESTABLISHED
     assert run.field.evaluate((0, 0), run.query).value is False
     assert run.field.evaluate((0, 1), run.query).value is True
+    audit = {item["selected_source_id"]: item
+             for item in run.snapshot.provenance["projected_domain_participation"]}
+    assert audit["low"]["relation"] == "unevaluated"
+    assert audit["low"]["intersection_area_m2"] is None
+    assert audit["low"]["reason"] == "no_positive_vertical_overlap_with_height_band"
+    assert audit["low"]["participates"] is False
+    assert run.snapshot.provenance["unknown_source_ids"] == ()
+
+
+@pytest.mark.parametrize("kind", ["whole_height_projection", "finite_height_band", "exact_world_xy_section"])
+@pytest.mark.parametrize("origin", [(0, 0), (100, 200)])
+@pytest.mark.parametrize("bounds,relation,area,target,occupied", [
+    ((.25, .25, .75, .75), "inside", .25, (0, 0), True),
+    ((0, 2, 1, 3), "inside", 1.0, (2, 0), True),
+    ((3.5, 2.5, 4.5, 3.5), "crossing", .5, (2, 3), True),
+    ((4, 2, 5, 3), "boundary_contact", 0.0, (2, 3), False),
+    ((4, 4, 5, 5), "boundary_contact", 0.0, (3, 3), False),
+    ((5, 2, 6, 3), "disjoint", 0.0, (2, 3), False),
+    ((1.25, 1.25, 1.75, 1.75), "disjoint", 0.0, (1, 0), False),
+    ((1, 1.25, 1.5, 1.75), "boundary_contact", 0.0, (1, 0), False),
+    ((.75, 1.25, 1.25, 1.75), "crossing", .125, (1, 0), True),
+    ((.5, .5, 2.5, 2.5), "crossing", 3.0, (0, 0), True),
+    ((4.000001, 2, 5, 3), "disjoint", 0.0, (2, 3), False),
+    ((3.999999, 2, 5, 3), "crossing", .000001, (2, 3), True),
+])
+def test_exact_projected_domain_participation_preserves_holes_and_contacts(
+        kind, origin, bounds, relation, area, target, occupied):
+    """Rectangle areas against a four-metre square and one-metre hole are analytic."""
+    x, y = origin
+    xmin, ymin, xmax, ymax = bounds
+    scene = _scene(_object("mass", (x + xmin, y + ymin, 0, x + xmax, y + ymax, 3)),
+                   origin=origin, holes=[[(x + 1, y + 1), (x + 2, y + 1),
+                                          (x + 2, y + 2), (x + 1, y + 2)]])
+    query = GeometryQuery(kind, world_z_m=1.6 if kind == "exact_world_xy_section" else None,
+                          height_band=(1, 2) if kind == "finite_height_band" else None)
+    # A deliberately large length tolerance must neither bridge the gap nor
+    # discard the narrow positive-area strip at the outer boundary.
+    request = _request(scene, plane=_plane(origin=(x, y, 0)), geometry_query=query,
+                       geometry_tolerance=.1, topology_tolerance=.1)
+    run = execute_analysis_request(scene, request)
+    audit = run.snapshot.provenance["projected_domain_participation"]
+    assert len(audit) == 1
+    item = audit[0]
+    assert item["relation"] == relation
+    assert item["intersection_area_m2"] == pytest.approx(area, abs=1e-12)
+    assert item["participates"] is (relation != "disjoint")
+    assert item["field_input"] is (area > 0)
+    assert item["selected_source_id"] == "mass"
+    assert item["selected_geometry_refs"] == ("mesh:mass",)
+    assert item["represented_source_ids"] == ("mass",)
+    assert item["original_sources"] == ({"source_object_id": "mass", "source_id": "ifc:mass",
+                                          "geometry_refs": ("mesh:mass",)},)
+    expected_reason = ("disjoint_from_qualified_domain" if relation == "disjoint" else
+                       "boundary_only_domain_contact" if relation == "boundary_contact" else
+                       "positive_area_domain_intersection")
+    assert item["reason"] == expected_reason
+    assert run.snapshot.provenance["physical_source_inventory"][0]["status"] == "original"
+    assert len(run.snapshot.provenance["selected_records"]) == 1
+    assert len(run.field._delegate.physical_occupancy) == int(area > 0)
+    assert run.field.evaluate(target, run.query).value is occupied
+    assert run.field.evaluate((1, 1), run.query).status is FieldStatus.OUTSIDE
+
+
+@pytest.mark.parametrize("bounds,relation", [((4, 1, 0, 5, 2, 3), "boundary_contact"),
+                                           ((5, 1, 0, 6, 2, 3), "disjoint")])
+def test_omitted_proxy_retains_exact_once_owner_audit_and_conditional_evidence(bounds, relation):
+    """A shared substitute outside occupied area remains one traceable bounded result."""
+    scene = _proxy_scene()
+    _, proxy_mesh = _object("proxy", bounds)
+    scene = replace(scene, geometries=tuple(proxy_mesh if mesh.id == "mesh:proxy" else mesh
+                                           for mesh in scene.geometries))
+    run = execute_analysis_request(scene, _request(scene))
+    audit = run.snapshot.provenance["projected_domain_participation"]
+    assert len(audit) == 1
+    assert audit[0]["selected_source_id"] == "proxy"
+    assert audit[0]["represented_source_ids"] == ("A", "B")
+    assert audit[0]["relation"] == relation and audit[0]["intersection_area_m2"] == 0.0
+    assert audit[0]["participates"] is (relation == "boundary_contact")
+    assert audit[0]["field_input"] is False
+    assert run.field._delegate.physical_occupancy == ()
+    sample = run.field.evaluate((1, 3), run.query)
+    assert sample.value is False and sample.status is FieldStatus.CONDITIONAL
+    assert sample.source_ids == ("A", "B")
+    assert run.support_status is FieldStatus.CONDITIONAL
+
+
+@pytest.mark.parametrize("role", ["drawing_camera", "opening", "analysis_substitute"])
+def test_nonphysical_sources_are_explicitly_audited_without_domain_claims(role):
+    """Excluded reference geometry remains factual and does not become occupied mass."""
+    scene = _scene(_object("reference", role=role))
+    run = execute_analysis_request(scene, _request(scene))
+    audit = run.snapshot.provenance["projected_domain_participation"]
+    assert len(audit) == 1 and audit[0]["source_object_id"] == "reference"
+    assert audit[0]["source_role"] == role
+    assert audit[0]["original_geometry_refs"] == ("mesh:reference",)
+    assert audit[0]["reason"] == "nonphysical_source"
+    assert audit[0]["relation"] == "unevaluated" and audit[0]["intersection_area_m2"] is None
+    assert audit[0]["participates"] is False
+    assert run.snapshot.provenance["physical_source_inventory"] == ()
+    assert run.field.evaluate((0, 0), run.query).value is False
+
+
+@pytest.mark.parametrize("reason", ["selected_analysis_domain_member", "verified_support_binding"])
+def test_exact_source_exclusions_remain_audited_before_domain_intersection(reason):
+    """Exact boundary or support exclusion explains missing geometry without guessing location."""
+    source = _missing("excluded")[0]
+    if reason == "verified_support_binding":
+        source = replace(source, factual_properties={"analysis_scope_exclusion": {"reason": reason}})
+    scene = _scene((source, None))
+    domain = (replace(scene.analysis_domain, provenance={"boundary_member_source_ids": ["excluded"]})
+              if reason == "selected_analysis_domain_member" else scene.analysis_domain)
+    run = execute_analysis_request(scene, _request(scene, domain=domain))
+    audit = run.snapshot.provenance["projected_domain_participation"][0]
+    assert audit["source_object_id"] == "excluded" and audit["reason"] == reason
+    assert audit["status"] == "scoped_out"
+    assert audit["relation"] == "unevaluated" and audit["intersection_area_m2"] is None
+    assert audit["participates"] is False
+    assert run.snapshot.provenance["unknown_source_ids"] == ()
+    assert run.field.evaluate((0, 0), run.query).value is False
+
+
+@pytest.mark.parametrize("empty_projection", [False, True])
+def test_failed_outside_projection_cannot_invent_disjoint_domain_relation(monkeypatch, empty_projection):
+    """A failure at an apparently distant mass leaves unsupported free cells unknown."""
+    from shapely.errors import GEOSException
+    from ..features import geometry_views
+    scene = _scene(_object("distant", (50, 50, 0, 51, 51, 3)))
+
+    def fail(patch, plane):
+        """Refuse the query footprint before an exact intersection can establish scope."""
+        if empty_projection:
+            return geometry_views.PlanProjection("query-projection", (), uncertainty="projection unavailable")
+        raise GEOSException("query projection unavailable")
+
+    monkeypatch.setattr(geometry_views, "plan_projection", fail)
+    run = execute_analysis_request(scene, _request(scene))
+    audit = run.snapshot.provenance["projected_domain_participation"][0]
+    assert audit["relation"] == "unevaluated" and audit["intersection_area_m2"] is None
+    if empty_projection:
+        assert audit["reason"] == "no_qualified_query_footprint"
+        assert audit["selected_source_id"] == "distant"
+    else:
+        assert audit["geometry_failure_reason"] == "query projection unavailable"
+    assert audit["participates"] is None and audit["field_input"] is False
+    assert run.snapshot.provenance["unknown_source_ids"] == ("distant",)
+    assert run.field.evaluate((0, 0), run.query).status is FieldStatus.UNKNOWN
+
+
+def test_projected_domain_audit_survives_complete_serializer_and_nested_freeze():
+    """The existing wire carries source scope verbatim without mutable authority."""
+    from ..adapters import blender_analysis_session as service, blender_analysis_result_wire as wire
+    scene = _scene(_object("inside"), _object("outside", (5, 1, 0, 6, 2, 3)),
+                   _object("contact", (4, 2, 0, 5, 3, 3)), _missing(),
+                   _object("camera", role="drawing_camera"))
+    run = execute_analysis_request(scene, _request(scene))
+    audit = run.snapshot.provenance["projected_domain_participation"]
+    with pytest.raises(TypeError):
+        audit[0]["reason"] = "changed"
+    with pytest.raises(TypeError):
+        audit[0]["original_sources"][0]["geometry_refs"][0] = "changed"
+    document = service.serialize_analysis_result(run, job_id="scope-roundtrip", plane_uuid="plane:plan",
+        plane_revision=1, domain_request_id="confirmed-room", domain_session_revision=1)
+    restored = wire.load_json(wire.canonical_json(document))
+    wire.validate_document(restored)
+    assert restored["tables"]["snapshot"]["provenance"]["projected_domain_participation"] == wire.plain(audit)
+    for row in range(4):
+        for column in range(4):
+            sample = service.reconstruct_field_sample(restored, row=row, column=column)
+            assert sample == run.field.evaluate((row, column), run.query)
+            assert sample.provenance["projected_domain_participation"] == audit
 
 
 def test_slab_datum_is_immutable_and_changes_request_identity():

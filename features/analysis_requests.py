@@ -210,7 +210,7 @@ def _backend_versions() -> dict[str, object]:
             packages[name] = "unavailable"
     # Shared helpers lack a uniform version constant. File digests prevent stale
     # reuse after a resolver/geometry repair without importing optional backends.
-    modules = ("_analysis_domain_handoff", "analysis_substitute_discovery", "scene_contract",
+    modules = ("analysis_requests", "_analysis_domain_handoff", "analysis_substitute_discovery", "scene_contract",
                "neutral_scene_views", "geometry_substitutes", "geometry_views", "field_core",
                "free_space_field", "section_views", "substitute_contract")
     implementations = {name: sha256(Path(__file__).with_name(name + ".py").read_bytes()).hexdigest()
@@ -390,13 +390,14 @@ def _operation_descriptor_is_usable(descriptor: object) -> bool:
     )
 
 
-def _occupancy(scene: NeutralSceneV2, request: AnalysisRequest, excluded: set[str]) -> tuple[list, list, dict]:
-    """Generate factual query geometry, then use shared exact-once owner accounting."""
+def _occupancy(scene: NeutralSceneV2, request: AnalysisRequest, excluded: set[str],
+               domain_geometry) -> tuple[list, list, dict]:
+    """Resolve physical owners once and audit their exact plane-local domain relation."""
     from shapely.errors import GEOSException
     from shapely.geometry import shape
     from .analysis_substitute_discovery import resolve_source_representation
     from .geometry_substitutes import mass_patch_from_mesh
-    from .geometry_views import plan_projection
+    from .geometry_views import component_shape, plan_projection
     from .neutral_scene_views import _is_original_physical_source, _resolved_physical_occupancy
     from .section_views import (QUALIFIED_SECTION_STATUSES, SECTION_ALGORITHM,
                                 exact_plane_section, section_record_rejection)
@@ -526,26 +527,90 @@ def _occupancy(scene: NeutralSceneV2, request: AnalysisRequest, excluded: set[st
                 "state": "validated_empty" if support.is_empty else "valid_nonempty",
                 "geometry": raw_support, "reason": entry["reason"],
             }
-    legal_empty, geometry_records = [], []
+    legal_empty, geometry_records, participation = [], [], []
+    represented = set()
     for record in selected:
+        owners = record["represented_source_ids"]
+        represented.update(owners)
+        audit = {"selected_source_id": record["id"], "represented_source_ids": owners,
+                 "original_sources": [{"source_object_id": owner,
+                    "source_id": sources[owner].source_id,
+                    "geometry_refs": list(sources[owner].geometry_refs)} for owner in owners],
+                 "selected_geometry_refs": record["_source_geometry_refs"],
+                 "representation_status": record["representation_status"],
+                 "relation": "unevaluated", "intersection_area_m2": None,
+                 "participates": False, "field_input": False}
+        participation.append(audit)
         if section_mode:
             geometry = shape(record["section"]["occupied_geometry"])
             if geometry.is_empty:
                 # Legal empty is qualified evidence, not missing components. Keep
                 # it audited outside FreeSpaceField's missing-geometry contract.
                 legal_empty.append(record)
+                audit["reason"] = "qualified_empty_section"
                 continue
             record = {**record, "geometry_components": _components(geometry, request.plane.origin[:2])}
         elif record.get("_legal_empty_height_band"):
             # A valid source wholly outside the requested band is known empty;
             # keep it in the audit trail without handing an empty shape to the field.
             legal_empty.append(record)
+            audit["reason"] = "no_positive_vertical_overlap_with_height_band"
             continue
-        geometry_records.append(record)
+        try:
+            footprint = component_shape(record.get("geometry_components", ()))
+            if footprint is None:
+                audit.update(reason="no_qualified_query_footprint", participates=None)
+                unresolved = sorted(set(unresolved) | set(owners))
+                continue
+            # Contact is inclusive source evidence, but only positive area can
+            # occupy a cell. Preserve exact holes and never inflate by tolerance.
+            intersection = domain_geometry.intersection(footprint)
+            area = float(intersection.area)
+            relation = ("disjoint" if intersection.is_empty else
+                        "boundary_contact" if area == 0.0 else
+                        "inside" if domain_geometry.covers(footprint) else "crossing")
+            audit.update(relation=relation, intersection_area_m2=area,
+                         participates=relation != "disjoint", field_input=area > 0.0,
+                         reason={"disjoint": "disjoint_from_qualified_domain",
+                                 "boundary_contact": "boundary_only_domain_contact",
+                                 "inside": "positive_area_domain_intersection",
+                                 "crossing": "positive_area_domain_intersection"}[relation])
+            if area > 0.0:
+                geometry_records.append(record)
+        except GEOSException as error:
+            # A failed relation cannot prove that an owner is outside the domain.
+            failures.append({"source_id": record["id"], "reason": str(error)})
+            unresolved = sorted(set(unresolved) | set(owners))
+            audit.update(reason="domain_intersection_failed", participates=None,
+                         geometry_failure_reason=str(error))
+    inventory_by_id = {entry["source_object_id"]: entry for entry in inventory}
+    failures_by_id = {entry["source_id"]: entry["reason"] for entry in failures}
+    selected_ids = {record["id"] for record in selected}
+    for source in scene.source_objects:
+        if source.id in represented:
+            continue
+        entry = inventory_by_id.get(source.id)
+        if entry is None and source.id in selected_ids:
+            # Substitute geometry is already accounted for by its original owners.
+            continue
+        audit = {**(entry or {"source_object_id": source.id, "source_id": source.source_id,
+                             "original_geometry_refs": list(source.geometry_refs)}),
+                 "source_role": source.source_role, "relation": "unevaluated",
+                 "intersection_area_m2": None, "participates": False, "field_input": False}
+        if entry is None:
+            audit["reason"] = "nonphysical_source"
+        elif entry["status"] == "unknown":
+            audit.update(reason="unresolved_query_geometry", participates=None,
+                         source_accounting_reason=entry["reason"])
+            target_id = entry.get("resolution", {}).get("selected_source") or source.id
+            if target_id in failures_by_id:
+                audit["geometry_failure_reason"] = failures_by_id[target_id]
+        participation.append(audit)
     return geometry_records, unresolved, {"selected_records": selected,
         "legal_empty_sections": legal_empty, "physical_source_inventory": inventory,
         "unknown_source_ids": unresolved, "geometry_failures": failures,
-        "trusted_unknown_supports": trusted_supports}
+        "trusted_unknown_supports": trusted_supports,
+        "projected_domain_participation": participation}
 
 
 class _RequestField(Field[tuple[int, int], bool]):
@@ -599,14 +664,14 @@ class _RequestField(Field[tuple[int, int], bool]):
         support = {**sample.support, "plane": query.plane, "height_band": query.height_band,
                    "geometry_query": self._request.geometry_query.to_dict()}
         status, explanation = sample.status, sample.explanation
-        empty_records = self.provenance.get("legal_empty_sections", ())
+        selected_records = self.provenance.get("selected_records", ())
         if status is FieldStatus.ESTABLISHED and any(
-                record["representation_status"] == "accepted" for record in empty_records):
+                record["representation_status"] == "accepted" for record in selected_records):
             status = FieldStatus.CONDITIONAL
-            explanation = "physical occupancy under accepted substitute section evidence; exact original envelope is not inferred"
+            explanation = "physical occupancy under accepted substitute query evidence; exact original envelope is not inferred"
         source_ids = sample.source_ids
         if sample.value is False:
-            source_ids = tuple(sorted(set(source_ids) | {owner for record in empty_records
+            source_ids = tuple(sorted(set(source_ids) | {owner for record in selected_records
                                                        for owner in record["represented_source_ids"]}))
         provenance["support"] = support
         return FieldSample(sample.value, status, query, support=support, source_ids=source_ids,
@@ -648,7 +713,8 @@ def execute_analysis_request(scene: NeutralSceneV2, request: AnalysisRequest) ->
                 from .free_space_field import FreeSpaceField
 
                 excluded, scope_audit = _scope_exclusions(child)
-                records, unresolved, occupancy_audit = _occupancy(child, request, excluded)
+                domain_polygon = shape(domain_geometry)
+                records, unresolved, occupancy_audit = _occupancy(child, request, excluded, domain_polygon)
                 provenance.update(scope_audit)
                 provenance.update(occupancy_audit)
                 lattice = request.sampling
@@ -658,7 +724,7 @@ def execute_analysis_request(scene: NeutralSceneV2, request: AnalysisRequest) ->
                     if local_geometry is not None:
                         local_supports[owner] = {**evidence, "geometry": local_geometry}
                 delegate = FreeSpaceField(domain={"id": request.domain.id, "frame": frame,
-                                         "components": _components(shape(domain_geometry))},
+                                         "components": _components(domain_polygon)},
                     origin=lattice.origin, spacing=lattice.spacing, n_rows=lattice.n_rows, n_cols=lattice.n_cols,
                     physical_occupancy=records, unresolved_source_ids=unresolved,
                     unresolved_supports=local_supports,
