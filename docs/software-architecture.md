@@ -1,6 +1,6 @@
 # 软件架构
 
-## Free-space prerequisite workline — 2026-11-04 / implementation started
+## Free-space prerequisite workline — 2026-11-04 / independently verified
 
 This map's current checkout is the isolated `free-space-cache` jj workspace at
 `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`. It contains
@@ -34,7 +34,16 @@ existing sample serializer, preserving calculation provenance and its origin
 ResultRef. Current reads still require independent native observation of the
 new publication. Task 4 is independently accepted at `ea4fe375`: 416 checks
 passed, with additional fresh-process generation-boundary and failure probes.
-Actual native S3 cache reuse remains a Task 5 acceptance gate.
+Actual native S3 first/repeat publications now independently pass. The repeat
+reuses the exact first content key and calculation origin, and all 24,442 cell
+values/statuses match. A separate fresh-process replay forbids all six generation
+boundaries and produces the same repeat result bytes without changing its cache
+file. This replay proves reuse, not native currentness. The actual 0.2 m variant
+misses a distinct key, and restored ordinary Start at 0.1 m hits the original
+key and first calculation origin. Independent four-run reconciliation preserves
+every stored first/repeat/restored cell value/status. The scene sampling property
+was never changed; the variant uses the supported runtime request API, without
+accepting the separate broad UI sampling callback.
 
 Task 5's 24,442-cell native run exposed a separate codec scaling defect:
 serialization and validation repeatedly traverse large shared provenance for
@@ -42,7 +51,7 @@ each cell. An independent bounded 1,024-point probe counts `4*N+7` shared
 payload visits in serialization and `N+2` per validator. The isolated
 `free-space-wire-scale` workspace (base `ea4fe375`, change `kopsuxvo`, frozen
 revision `662f8814`) supplied the independently accepted session/wire correction,
-now integrated into this checkout. Exact core Field-owned metadata is detached
+now integrated into this checkout at `a19bfc85`. Exact core Field-owned metadata is detached
 once; generic mutable samples retain per-evaluation detachment. Cache rebinding
 owns its document once and reuses core metadata overlays. Strict validation
 uses one normalized document and private shallow sample views while retaining
@@ -51,7 +60,9 @@ original successful validator return identity. Wire versions and exports stay
 unchanged. Independent affected regression passed 866 tests with one existing
 skip; separate scale, seven-field/six-state parity, alias and malformed-input
 probes passed, with specification and quality verdicts PASS. Refreshed native
-resource evidence and actual field/cache acceptance remain pending. The original
+23-resource evidence passed in `native-codec-scale-preflight.json` and
+`task5-independent-codec-scale-preflight.json`. Actual field and identical-input
+cache acceptance now pass at the retained native publication instants. The original
 native job was cancelled normally after about 41 minutes without a result;
 its request and logs remain historical evidence. No worker stack was sampled,
 so this finding does not identify its active instruction or sole bottleneck.
@@ -60,6 +71,20 @@ pair-list provenance coercion and Mapping-subclass provenance/query lookup
 hooks. Their regression coverage is part of the accepted normalized-validation
 correction. Evidence: `task5-wire-scale-scope-probe.json` and the independent
 wire-scale final review under `outputs/design/free_space_prerequisite/verification`.
+
+The actual 0.1 m S3 field has 14,047 established known-empty samples, 7,023
+established occupied samples and 3,372 outside/null samples. Unknown sources and
+geometry failures are empty. The necessary actual source/domain/result plan
+alignment view independently passes and was delivered inline. Thin source
+outlines include above-band context; they do not define occupancy. Known empty
+does not establish walkability or clearance. The exact-result reading guide's
+current and historical blocks pass on the actual repeat publication, including
+all seven sample fields and seven identity/currentness refusals. Conditional,
+unknown, invalid and not-available samples are unobserved in this actual run
+and remain covered by synthetic tests. See the current acceptance summary in
+[the evidence ledger](project/evidence/free-space-prerequisite-2026-11-04.md).
+Actual four-run specification and quality verdicts are PASS. Final whole-scope
+document convergence and local acceptance are separate from these native checks.
 
 Task 1's native lifecycle and matrix correction are independently accepted
 (`a951c761`). Native creation/reuse/update, non-unit scenes, recovery and save
@@ -94,9 +119,14 @@ IFC DRAWING annotations gain the existing `drawing_camera` role so both physical
 inventory paths exclude them, while ordinary annotations and name lookalikes
 retain their existing roles. Live native-camera and owned-helper exclusions stay
 in use. Unit tests cover real IFC transaction/property-set/serialization behavior
-behind synthetic Blender seams. The combined current S3 datum/domain/field view,
-loaded-byte proof and actual field/cache acceptance remain Task 5 checks. Managed
+behind synthetic Blender seams. Loaded-byte/resource preflight has passed; the
+combined current S3 datum/domain/field view and actual field/cache acceptance
+remain Task 5 checks. Managed
 native reopening and restoration have already passed the recorded lifecycle gate.
+
+The existing exact result/sample interfaces and current-versus-historical
+observation requirements are documented in
+[Reading an exact free-space result](free_space_result_reading.md).
 
 ## Free-space query clarified by the user — 2026-11-03 / existing capabilities audited
 

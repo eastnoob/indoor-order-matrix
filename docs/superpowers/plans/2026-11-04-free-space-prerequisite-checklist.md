@@ -10,12 +10,12 @@
 
 **Spec:** 本文件的“任务语义”记录本轮用户要求；已有架构依据为 `docs/indoor_layout_evaluation_matrix_architecture_memory.md`、`docs/software-architecture.md` 和 `specs/008-analyzer-workflow-completion/`。旧文档与本轮用户要求冲突时，保留历史记录并更新当前任务说明。
 
-**Date / status:** 2026-11-04；Task 0 基线与独立评估已通过，实施进行中；后续任务按实际证据勾选。本文件不是整体验收完成声明。每项实施前生成该项的具体代码计划，避免在未核定原生对象表示前编造接口。
+**Date / status:** 2026-11-04；Tasks 0–4 及 codec 修正已独立验收并本地提交。Task 5 的四次真实运行、独立进程生成哨兵与必要视图，以及 Task 6 的实际读取验收均已通过；最终全范围收敛审查和本地提交仍在进行。Task 5/6 的 checkbox 在接受提交后更新，本文件不是已提交完成声明。
 
 ## Workspace and scope
 
-- 清单当前存放在 `D:/PROJECTS/understandOtherPackage/order_analyzer`，配套工作流 skill 与项目记忆入口一同维护。
-- 既有实施工作区是 `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`，jj workspace 为 `free-space-cache`，change 为 `vvnuuksk`。2026-11-04 只读 workspace list 所见 revision 为 `e77e4b99`；这不是磁盘上全部未提交字节的证明。
+- 清单最初存放在 `D:/PROJECTS/understandOtherPackage/order_analyzer`；本轮执行副本与配套 skill/记忆在下述实施工作区维护。
+- 实施工作区是 `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`，jj workspace 为 `free-space-cache`。起始 change `vvnuuksk` / revision `e77e4b99` 是历史基线；当前 change `qurnkros`，parent `a19bfc85` 为独立验收后的 codec 修正。只读 revision 不证明全部磁盘字节，实际候选以冻结 hash 为准。
 - 主工作区尚未集成 sibling 的全部 addon/request/session 功能。下列实现位置与测试路径均以 freespace 工作区为根，不得把它们写成主树现成能力。
 - 保留 `D:/PROJECTS/understandOtherPackage/order_analyzer_group_distance` 的独立修改；不以其六文件 path-band 草稿作为本任务基线。
 - 自由空间交付包含可读取的结果与输入校验；距离算法、路线接入、666 对距离重算和距离预览验收属于后续距离任务。
@@ -107,7 +107,7 @@
 - [x] 验收孔洞、跨边界物体、仅接触域边界、失败几何和未知来源；保持原有精确 boundary-member 排除规则。
 - [x] 独立测试与审查通过后提交。
 
-Task 3 实现独立验收：314 passed；另有 54 个独立几何案例、3 项审计不变量和 6 项孔洞序列化往返通过。首项真实 S3 的新绑定由 Task 5 完成，当前不声称已有新的真实自由空间结果。
+Task 3 实现独立验收：314 passed；另有 54 个独立几何案例、3 项审计不变量和 6 项孔洞序列化往返通过。真实 S3 新绑定及有限高度带结果已在 Task 5 独立核验：同一精确 S3、原 11 面墙、零几何差异；首次/重复/恢复均为 14,047 known-empty、7,023 occupied、3,372 outside。
 
 可视化判定：相交、正面积和 unknown 规则由独立测试确认；新真实结果与已确认 S3 的投影对齐若无法仅靠绑定/数值确认，在 Task 5 用同一张俯视叠加图检查。局部图只针对实际疑点生成，不强制每种状态一张图。
 
@@ -141,6 +141,7 @@ Task 4 独立规格/质量验收 PASS：416 passed；额外独立进程验证了
 - [ ] 按剩余正确性问题生成最少必要视图并交给用户查看：首次真实平面/源域/新自由空间对齐需要核实时，用俯视叠加图；datum/标高映射有疑点时加侧视图；边界有疑点才加局部图。一张图可覆盖多个问题，已有依赖一致的已验证视图可复用。
 - [ ] 分开记录技术验收、图片交付和用户反馈；仅当用户明确要求批准或尚有必须由用户裁定的空间意图时，保留对应待确认门槛。已确认的 S3 不重复审批，用户未回复不能当作接受；发现实际错误则修复并重新验证受影响结果。
 - [ ] 二次执行证明缓存命中并跳过生成；改变一个实际输入证明失效。所有临时变更都记录并恢复；保存副本与重新打开验证不得覆盖用户未保存工作。
+- [ ] 修正真实 24,442-cell 验收暴露的共享来源记录重复遍历：独立规模检查覆盖首次序列化、缓存重绑与文档验证，保留完整样本和所有拒绝规则；独立审查后集成，再更新原生加载 hash 与实际验收。
 - [ ] 记录原始 IFC 和带平面对象的新保存文件的身份关系、恢复验证，以及按上述判定生成的必要视图或复用引用；通过后提交任务自有代码/文档与验收清单。
 
 验收：实际场景的正确查询与缓存行为成立；必要视图已交付并与来源/数值一致，任何影响正确性的用户意图分歧已解决。图片交付不自动阻塞其余独立开发，也不替代实际测试；用户视觉接受单独如实记录。

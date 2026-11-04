@@ -12,6 +12,20 @@ Do not require a picture or human approval at every task transition. Preserve
 the main and distance workspaces and the original IFC. Current evidence belongs
 in [the delivery ledger](project/evidence/free-space-prerequisite-2026-11-04.md).
 
+Tasks 1–4 are locally accepted in this workline. Native Task 5 exposed repeated
+shared-metadata traversal; accepted correction `a19bfc85` preserves complete
+wire/sample semantics and strict normalized-data validation. Independent final
+affected regression passed 866 tests with one existing skip. New native resource
+preflight is accepted. The first actual finite-band result, identical-input
+cache hit, independent fresh-process generation sentinel, necessary alignment
+view and Task 6 exact-result consumer have passed in their recorded scope.
+Changed-grid miss and restored-grid hit now independently pass: exactly two
+content keys, restored first lattice/origin and all cell values/statuses equal.
+Final whole-scope convergence and documentation commit remain pending; the
+original long job was cancelled and is historical evidence only.
+Use [the exact-result reading guide](free_space_result_reading.md) for downstream
+identity, native observation, cache-origin and complete sample handling.
+
 In this isolated workspace, recovered camera/request/session/UI files exist.
 Historical main-tree absence statements below do not describe this checkout.
 
@@ -27,13 +41,16 @@ are distinct; merely touching an edge does not itself occupy a whole cell.
 Floor material remains physical mass: lack of positive overlap above its upper
 surface, rather than a class-wide exemption, explains absence from this query.
 
-The recovered workflow already exposes `ground_to_analysis_plane_band`, mapped
+At the 2026-11-03 audit, the recovered workflow already exposed `ground_to_analysis_plane_band`, mapped
 by `_make_analysis_request` to `GeometryQuery("finite_height_band")`, but its
-lower bound is hard-coded world Z=0 rather than the selected slab surface.
+lower bound was hard-coded world Z=0 rather than the selected slab surface.
 `plan_projection` clips height bands, `execute_analysis_request` carries their
 qualified geometry into `FreeSpaceField`, and `resolve_slab_datum` separately
 reads a verified horizontal upper surface. A unified inclusive domain/object
-selection handoff is not implemented. The corrected S3 distance run still uses
+selection handoff was not implemented. Tasks 2 and 3 now independently accept
+the verified slab-datum wiring and inclusive participation audit in this
+workspace (`e02d899b`, `3faec84f`); the following distance-run comparison remains
+historical. The corrected S3 distance run still uses
 `whole_height_planar_mass_patch` with no height band and does not implement the
 user's clarified query. Earlier support-binding investigation describes existing
 behavior only, not the required fix. Eleven existing focused checks passed under
