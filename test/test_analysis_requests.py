@@ -852,6 +852,21 @@ def test_key_excludes_request_ids_and_display_but_tracks_semantics(monkeypatch):
     assert semantic_cache_key(scene, request) != key
 
 
+def test_fingerprint_recipe_preserves_strict_identity_and_query():
+    """Cache publication shares the live recipe without relaxing plane revision checks."""
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    run = execute_analysis_request(scene, request)
+    fingerprint, key, versions = requests._run_identity(scene, request)
+    assert requests._request_key(fingerprint, request, versions) == key == run.snapshot.semantic_key
+    assert requests._request_query(request, key) == run.query
+    current = replace(request, request_id="new-job", plane=replace(request.plane, revision=4))
+    current_key = requests._request_key(fingerprint, current, versions)
+    assert current_key != key and is_stale(run.snapshot, scene, current)
+    assert current_key == semantic_cache_key(scene, current)
+    assert requests._request_query(current, current_key).frame.endswith(":4")
+
+
 def test_native_core_imports_avoid_legacy_heavy_modules():
     """A fresh standalone interpreter can import requests without OCTA or numerical backends."""
     root = Path(__file__).resolve().parents[1]

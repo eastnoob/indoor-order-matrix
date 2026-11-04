@@ -33,6 +33,502 @@ def _compact_document(**changes):
     return run, document
 
 
+def _cache_payload():
+    """Build a real data-only free-space envelope with exact test-domain geometry."""
+    from .test_analysis_requests import _request
+    scene = _scene()
+    return {"kind": "free_space_run", "job_binding": {"job_id": "cache-first",
+        "domain_request_id": "domain-first", "domain_session_revision": 1},
+        "canonical_capture": capture("wall").to_dict(), "request": _request(scene).to_dict(),
+        "domain_geometries": [scene.geometries[0].to_dict()], "support_binding": None, "legacy_bindings": []}
+
+
+def test_disk_cache_hit_skips_all_generators_and_republishes_current_revision(tmp_path, monkeypatch):
+    """A fresh call restores disk content before projection and refreshes current identity."""
+    from ..adapters import blender_analysis_session as service
+    from ..features import analysis_requests, geometry_views, free_space_field
+    payload = _cache_payload()
+    counters = {}
+    targets = ((service, "_project_authored"), (geometry_views, "plan_projection"),
+        (analysis_requests, "execute_analysis_request"), (free_space_field, "FreeSpaceField"),
+        (service, "build_display_fragments"))
+    def counted(name, function):
+        """Record actual first-miss generation rather than simulating a hit flag."""
+        def wrapper(*args, **kwargs):
+            """Delegate unchanged arguments and count this actual generator call."""
+            counters[name] = counters.get(name, 0) + 1
+            return function(*args, **kwargs)
+        return wrapper
+    for module, name in targets:
+        monkeypatch.setattr(module, name, counted(name, getattr(module, name)))
+    first = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert all(counters.get(name, 0) > 0 for _, name in targets)
+    cache_path, = tmp_path.glob("*.json")
+    original_bytes = cache_path.read_bytes()
+    def forbidden(*_args, **_kwargs):
+        """A cache hit must never activate, project, calculate or rebuild display geometry."""
+        pytest.fail("cache hit reached a generator")
+    for module, name in targets:
+        monkeypatch.setattr(module, name, forbidden)
+    payload["job_binding"].update(job_id="cache-current", domain_request_id="domain-current", domain_session_revision=7)
+    payload["request"]["request_id"] = "request-current"
+    payload["request"]["plane"].update(revision=9, name="renamed display plane")
+    current = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert current["content_cache"]["hit"] is True and first["content_cache"]["hit"] is False
+    assert cache_path.read_bytes() == original_bytes
+    first_ref = service.list_analysis_results([first])[0].ref
+    current_ref = service.list_analysis_results([current])[0].ref
+    assert current_ref != first_ref
+    assert current["content_cache"]["origin_result_ref"] == {"kind": first_ref.kind,
+        "result_id": first_ref.result_id, "digest": first_ref.digest}
+    assert current["plane_revision"] == 9 and current["identity"]["domain_request_id"] == "domain-current"
+    assert current["identity"]["domain_session_revision"] == 7
+    assert current["tables"]["snapshot"]["request"] == payload["request"]
+    assert current["semantic_key"] != first["semantic_key"]
+    for row in range(4):
+        for column in range(4):
+            old = service.reconstruct_field_sample(first, row=row, column=column)
+            new = service.reconstruct_field_sample(current, row=row, column=column)
+            assert (new.value, new.status, new.source_ids, new.explanation) == (
+                old.value, old.status, old.source_ids, old.explanation)
+            assert new.query.plane["revision"] == 9 and new.query.frame.endswith(":9")
+            assert new.query.revision == current["semantic_key"]
+            assert new.support["plane"] == new.query.plane and new.support["frame"] == new.query.frame
+            assert new.provenance["query_revision"] == current["semantic_key"]
+            assert new.provenance["projected_domain_participation"] == old.provenance["projected_domain_participation"]
+    observation = {"digest": current["digest"], "binding": current["binding"], "verified": True}
+    assert service.open_analysis_result([current], result_ref=current_ref,
+        context=_read_context(current, require_current=True, current_observation=observation)).freshness == "current"
+    with pytest.raises(ValueError, match="independently verified"):
+        service.open_analysis_result([first], result_ref=first_ref,
+            context=_read_context(first, require_current=True, current_observation=observation))
+
+
+def test_disk_cache_restored_plane_pose_hits_after_an_intermediate_miss(tmp_path):
+    """A geometric undo can reuse original content despite a higher audit revision."""
+    from ..adapters import blender_analysis_session as service
+    payload = _cache_payload()
+    first = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    payload["request"]["plane"].update(origin=[0, 0, 1], revision=2)
+    payload["job_binding"]["job_id"] = "changed-pose"
+    moved = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert moved["content_cache"]["hit"] is False
+    payload["request"]["plane"].update(origin=[0, 0, 0], revision=3)
+    payload["job_binding"]["job_id"] = "restored-pose"
+    restored = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert restored["content_cache"]["hit"] is True
+    assert restored["content_cache"]["content_key"] == first["content_cache"]["content_key"]
+    assert len(list(tmp_path.glob("*.json"))) == 2
+
+
+@pytest.mark.parametrize("damage", ["missing", "json", "digest", "version", "content", "backend"])
+def test_disk_cache_invalid_entry_recomputes(tmp_path, damage):
+    """A content path alone never authenticates damaged or incompatible cached data."""
+    from ..adapters import blender_analysis_session as service
+    payload = _cache_payload()
+    service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    path, = tmp_path.glob("*.json")
+    if damage == "missing":
+        path.unlink()
+    elif damage == "json":
+        path.write_text('{"ambiguous":1,"ambiguous":2}', encoding="utf-8")
+    else:
+        data = service.wire.load_json(path.read_text(encoding="utf-8"))
+        if damage == "digest":
+            data["digest"] = "0" * 64
+        elif damage == "version":
+            data["cache_entry"]["version"] = 999
+        elif damage == "content":
+            data["cache_entry"]["content_key"] = "another-content"
+        else:
+            data["backend_versions"]["packages"]["numpy"] = "old-version"
+        if damage != "digest":
+            data["digest"] = service.wire.document_digest(data)
+        path.write_text(service.wire.canonical_json(data), encoding="utf-8")
+    payload["job_binding"]["job_id"] = "recomputed"
+    result = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert result["content_cache"]["hit"] is False
+    service.wire.validate_document(service.wire.load_json(path.read_text(encoding="utf-8")))
+
+
+@pytest.mark.parametrize("change", ["source", "source_mesh", "domain_mesh", "domain_hole", "members",
+    "plane", "basis", "band", "grid", "rules", "tolerance", "containment", "legacy", "scope",
+    "confirmation", "support", "schema", "algorithm", "backend", "implementation", "cache_version"])
+def test_disk_cache_content_changes_miss(tmp_path, monkeypatch, change):
+    """Physical, scope, selection, request and implementation inputs all invalidate reuse."""
+    from ..adapters import blender_analysis_session as service
+    from ..features import analysis_requests
+    payload = _cache_payload()
+    first = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    row = payload["canonical_capture"]["records"][0]
+    if change == "source":
+        row["ifc_class"] = "IfcFurniture"
+    elif change == "source_mesh":
+        row["mesh"]["vertices"][0][0] += .01
+    elif change == "domain_mesh":
+        payload["domain_geometries"][0]["vertices"][0][0] += .01
+    elif change == "domain_hole":
+        scene = _scene(holes=(((1, 1), (2, 1), (2, 2), (1, 2)),))
+        payload["request"]["domain"] = scene.analysis_domain.to_dict()
+        payload["domain_geometries"] = [scene.geometries[0].to_dict()]
+    elif change == "members":
+        payload["request"]["domain"]["provenance"]["boundary_member_source_ids"] = ["ifc-object:g1"]
+    elif change == "plane":
+        payload["request"]["plane"]["origin"][2] = .1
+    elif change == "basis":
+        payload["request"]["plane"]["basis"] = [[0, 1, 0], [-1, 0, 0], [0, 0, 1]]
+    elif change == "band":
+        payload["request"]["geometry_query"] = {"kind": "finite_height_band", "height_band": [0, 1], "world_z_m": None}
+    elif change == "grid":
+        payload["request"]["sampling"]["spacing"] = .5
+    elif change == "rules":
+        payload["request"]["source_rules"]["custom"] = True
+    elif change == "tolerance":
+        payload["request"]["topology_tolerance"] *= 2
+    elif change == "containment":
+        row.update(level_ref="storey-other", container_refs=["storey-other"])
+    elif change == "legacy":
+        row["properties"]["pending_legacy_occupancy"] = {"scope": {"operation": "changed"}}
+    elif change == "scope":
+        row["properties"]["analysis_scope_exclusion"] = {"reason": "changed", "domain_source_id": "other"}
+    elif change == "confirmation":
+        from ..adapters.blender_analysis_capture import CanonicalCaptureInput
+        live = load_bonsai_capture(CanonicalCaptureInput(**payload["canonical_capture"]), plane=_plane())
+        context = StructuralContext.from_plane(_plane())
+        payload["job_binding"]["confirmation_binding"] = {"candidate_identity": "another-selection",
+            "source_revision": service.digest(service.structural_source_facts(service.structural_b4_view(live.scene, context=context))),
+            "frame_id": context.structural_frame_key}
+    elif change == "support":
+        from ..adapters.bonsai_live import SupportBinding
+        from dataclasses import fields
+        payload["support_binding"] = {item.name: "stale" for item in fields(SupportBinding)}
+        payload["support_binding"]["geometry_refs"] = ["stale-geometry"]
+    elif change == "schema":
+        monkeypatch.setattr(service.wire, "SCHEMA_VERSION", "analysis-result/cache-test")
+    elif change == "algorithm":
+        monkeypatch.setattr(service.wire, "ALGORITHM_VERSION", "result-algorithm/cache-test")
+    elif change == "cache_version":
+        monkeypatch.setattr(service, "CONTENT_CACHE_VERSION", 2)
+    elif change == "implementation":
+        original_read = service.Path.read_bytes
+        def changed_implementation(path):
+            """Simulate different wire implementation bytes without editing shared source."""
+            data = original_read(path)
+            return data + b"\n# changed wire implementation\n" if path.name == "blender_analysis_result_wire.py" else data
+        monkeypatch.setattr(service.Path, "read_bytes", changed_implementation)
+    else:
+        versions = analysis_requests._backend_versions()
+        versions["packages"]["numpy"] = "changed"
+        monkeypatch.setattr(analysis_requests, "_backend_versions", lambda: versions)
+    payload["job_binding"]["job_id"] = "changed-content"
+    result = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert result["content_cache"]["hit"] is False
+    assert result["content_cache"]["content_key"] != first["content_cache"]["content_key"]
+    assert len(list(tmp_path.glob("*.json"))) == 2
+
+
+def test_disk_cache_display_and_publication_metadata_reuse(tmp_path):
+    """Declared display facts and observation tokens do not force recalculation."""
+    from ..adapters import blender_analysis_session as service
+    payload = _cache_payload()
+    first = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    payload["canonical_capture"]["records"][0]["properties"].update(display_name="new label", color="red")
+    payload["canonical_capture"]["observation"]["scene_token"] = "new-observation"
+    payload["job_binding"].update(job_id="new-job", created_at="now", runtime_session="fresh-session")
+    payload["request"]["request_id"] = "new-request"
+    result = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert result["content_cache"]["hit"] is True
+    assert result["binding"]["canonical_full_fingerprint"] != first["binding"]["canonical_full_fingerprint"]
+    assert result["binding"]["capture_digest"] != first["binding"]["capture_digest"]
+    assert result["binding"]["created_at"] == "now"
+
+
+def test_fixed_cli_uses_persistent_cache_in_a_fresh_process(tmp_path):
+    """Separate interpreter jobs use the fixed module's stable cache, outside job paths."""
+    import subprocess
+    import sys
+    from pathlib import Path
+    from ..adapters import blender_analysis_session as service
+    payload = _cache_payload()
+    from hashlib import sha256
+    payload["request"]["domain"]["id"] = "cache-cli-" + sha256(str(tmp_path).encode()).hexdigest()
+    request_path, first_path, current_path = (tmp_path / name for name in ("request.json", "first.json", "current.json"))
+    request_path.write_text(service.wire.canonical_json(payload), encoding="utf-8")
+    root = Path(__file__).resolve().parents[1]
+    first_child = subprocess.run([sys.executable, "-m", "adapters.blender_analysis_session", str(request_path), str(first_path)],
+                                cwd=root, capture_output=True, text=True)
+    assert first_child.returncode == 0, first_child.stderr
+    first = service.wire.load_json(first_path.read_text(encoding="utf-8"))
+    cache_path = service.CONTENT_CACHE_DIRECTORY / (first["content_cache"]["content_key"] + ".json")
+    try:
+        assert cache_path.is_file() and cache_path.parent != first_path.parent
+        payload["job_binding"]["job_id"] = "fresh-process-hit"
+        payload["request"]["plane"]["revision"] = 5
+        request_path.write_text(service.wire.canonical_json(payload), encoding="utf-8")
+        code = '''
+import sys
+from adapters import blender_analysis_session as session
+from features import analysis_requests, geometry_views, free_space_field
+def forbidden(*args, **kwargs):
+    """Fail if a fresh-process cache hit attempts geometry or field generation."""
+    raise AssertionError("cached CLI repeated generation")
+session._project_authored = session.build_display_fragments = forbidden
+analysis_requests.execute_analysis_request = geometry_views.plan_projection = forbidden
+free_space_field.FreeSpaceField = forbidden
+session.main(sys.argv[1:])
+'''
+        child = subprocess.run([sys.executable, "-c", code, str(request_path), str(current_path)],
+                               cwd=root, capture_output=True, text=True)
+        assert child.returncode == 0, child.stderr
+        result = service.wire.load_json(current_path.read_text(encoding="utf-8"))
+        assert result["content_cache"]["hit"] is True and result["plane_revision"] == 5
+        assert result["content_cache"]["origin_result_ref"]["digest"] == first["digest"]
+    finally:
+        cache_path.unlink(missing_ok=True)
+
+
+def test_disk_cache_preserves_all_states_and_distinct_cell_deltas(tmp_path, monkeypatch):
+    """Fresh publication cannot flatten custom cell queries, support or provenance differences."""
+    from ..adapters import blender_analysis_session as service
+    from ..features import analysis_requests
+    from ..features.field_core import FieldSample
+    execute = analysis_requests.execute_analysis_request
+    def distinct_run(scene, request):
+        """Use the actual executor snapshot with intentionally distinct complete samples."""
+        run = execute(scene, request)
+        class Samples:
+            """Supply independent sample deltas which sharing must preserve exactly."""
+            def evaluate(self, target, query):
+                """Vary states, metadata and deletions across the same immutable lattice."""
+                row, column = target
+                index = row * 4 + column
+                status, value = (("established", True), ("conditional", False), ("unknown", None),
+                    ("outside", None), ("invalid", None), ("not_available", None))[index % 6]
+                actual_query = replace(query, demand={"cell": [row, column]},
+                                       revision="cell-query" if column == 1 else query.revision)
+                support = None if index == 5 else {"frame": query.frame, "plane": query.plane,
+                                                  "nested": [row, column, None]}
+                provenance = {**run.snapshot.provenance, "source_fingerprint": "cell-source-" + str(index),
+                    "query_revision": actual_query.revision, "support": support,
+                    "cell_delta": {"query_revision": query.revision, "nested": [row, column]}}
+                provenance.pop("support_status", None)
+                return FieldSample(value, status, actual_query, support=support, source_ids=("owner", str(index)),
+                                   provenance=provenance, explanation="cell explanation " + str(index))
+        return replace(run, field=Samples())
+    monkeypatch.setattr(analysis_requests, "execute_analysis_request", distinct_run)
+    payload = _cache_payload()
+    first = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    def forbidden(*_args, **_kwargs):
+        """Force this comparison through disk reconstruction, never generation."""
+        pytest.fail("distinct cached samples were regenerated")
+    monkeypatch.setattr(analysis_requests, "execute_analysis_request", forbidden)
+    payload["job_binding"]["job_id"] = "distinct-hit"
+    payload["request"]["plane"]["revision"] = 8
+    result = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert result["content_cache"]["hit"] is True
+    statuses = set()
+    for row in range(4):
+        for column in range(4):
+            before = service.wire.decode_cell(first, row=row, column=column)
+            after = service.wire.decode_cell(result, row=row, column=column)
+            statuses.add(after["status"])
+            for key in ("value", "status", "source_ids", "explanation"):
+                assert after[key] == before[key]
+            assert after["query"]["demand"] == before["query"]["demand"]
+            assert after["query"]["plane"]["revision"] == 8
+            assert after["query"]["revision"] == ("cell-query" if column == 1 else result["semantic_key"])
+            assert after["provenance"]["query_revision"] == after["query"]["revision"]
+            assert after["provenance"]["source_fingerprint"] == before["provenance"]["source_fingerprint"]
+            assert after["provenance"]["cell_delta"] == before["provenance"]["cell_delta"]
+            assert "support_status" not in after["provenance"]
+            if before["support"] is None:
+                assert after["support"] is None and after["provenance"]["support"] is None
+            else:
+                assert after["support"]["nested"] == before["support"]["nested"]
+                assert after["support"]["frame"].endswith(":8") and after["support"]["plane"]["revision"] == 8
+                assert after["provenance"]["support"] == after["support"]
+    assert statuses == set(service.wire.STATUSES)
+
+
+@pytest.mark.parametrize("failure", ["capture", "frozen_binding", "confirmation"])
+def test_disk_cache_lookup_follows_canonical_and_consent_validation(tmp_path, monkeypatch, failure):
+    """Warm content never bypasses invalid capture, frozen binding or stale domain consent."""
+    from ..adapters import blender_analysis_session as service
+    payload = _cache_payload()
+    first = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    def forbidden(*_args, **_kwargs):
+        """Refuse any lookup attempted before mandatory current-input validation."""
+        pytest.fail("invalid current input reached cache lookup")
+    monkeypatch.setattr(service, "_load_cached_result", forbidden)
+    if failure == "capture":
+        payload["canonical_capture"]["capture_complete"] = False
+    elif failure == "frozen_binding":
+        payload["job_binding"]["canonical_full_fingerprint"] = first["binding"]["canonical_full_fingerprint"] + "changed"
+    else:
+        payload["job_binding"]["confirmation_binding"] = {"source_revision": "stale", "frame_id": "wrong"}
+    with pytest.raises(ValueError):
+        service._execute_workflow_payload(payload, cache_directory=tmp_path)
+
+
+@pytest.mark.parametrize("failure", ["generation", "cache_write", "public_write"])
+def test_cache_and_cli_failures_preserve_previous_valid_files(tmp_path, monkeypatch, failure):
+    """Generation and either atomic publication failure preserve prior complete truth."""
+    from ..adapters import blender_analysis_session as service
+    from ..features import analysis_requests
+    cache_directory = tmp_path / "cache"
+    monkeypatch.setattr(service, "CONTENT_CACHE_DIRECTORY", cache_directory)
+    payload = _cache_payload()
+    request_path, public_path = tmp_path / "request.json", tmp_path / "result.json"
+    request_path.write_text(service.wire.canonical_json(payload), encoding="utf-8")
+    service.main([str(request_path), str(public_path)])
+    cache_path, = cache_directory.glob("*.json")
+    cache_before, public_before = cache_path.read_bytes(), public_path.read_bytes()
+    payload["job_binding"]["job_id"] = "failed-job"
+    if failure == "generation":
+        payload["request"]["sampling"]["spacing"] = .5
+        def fail_generation(*_args, **_kwargs):
+            """Inject a real miss failure before any validated candidate is published."""
+            raise RuntimeError("generation failed")
+        monkeypatch.setattr(analysis_requests, "execute_analysis_request", fail_generation)
+    else:
+        original_replace = service.wire.os.replace
+        if failure == "cache_write":
+            monkeypatch.setattr(service, "_load_cached_result", lambda *_args, **_kwargs: None)
+        def fail_replace(source, destination):
+            """Fail only the selected final atomic replacement, preserving its prior file."""
+            if destination == (cache_path if failure == "cache_write" else public_path):
+                raise OSError("atomic replacement failed")
+            return original_replace(source, destination)
+        monkeypatch.setattr(service.wire.os, "replace", fail_replace)
+    request_path.write_text(service.wire.canonical_json(payload), encoding="utf-8")
+    with pytest.raises((RuntimeError, OSError), match="failed"):
+        service.main([str(request_path), str(public_path)])
+    assert cache_path.read_bytes() == cache_before and public_path.read_bytes() == public_before
+    assert not list(cache_directory.glob("*.partial")) and not list(tmp_path.glob("*.partial"))
+
+
+def _slab_cache_payload():
+    """Translate the real native slab receipt fixture into the canonical workflow wire."""
+    from .test_bonsai_space_authoring import captured_slab_scene
+    from .test_analysis_requests import _request
+    from ..features.analysis_requests import GeometryQuery
+    scene, datum = captured_slab_scene()
+    records = []
+    for source in scene.source_objects:
+        mesh = next((mesh for mesh in scene.geometries if mesh.id in source.geometry_refs), None)
+        records.append({"id": source.id, "global_id": source.source_id,
+            "step_id": source.provenance["step_id"], "project_global_id": datum["project_global_id"],
+            "ifc_class": source.source_class, "level_ref": source.level_ref,
+            "container_refs": list(source.container_refs), "properties": {}, "binding_verified": True,
+            "status": "extracted" if mesh is not None else "failed", "mesh": None if mesh is None else mesh.to_dict()})
+    request = _request(scene, plane=_plane(origin=(4, 6, 2)), height_band_datum=datum,
+                       geometry_query=GeometryQuery("finite_height_band", height_band=(-1.8, 0)))
+    payload = _cache_payload()
+    payload.update(request=request.to_dict(), domain_geometries=[scene.geometries[0].to_dict()],
+        canonical_capture={"identity": {"project_global_id": datum["project_global_id"],
+            "ifc_source_identity": "slab-cache-source", "schema": "IFC4"}, "records": records,
+            "diagnostics": [], "observation": {}, "capture_complete": True})
+    return payload
+
+
+def test_disk_cache_datum_roundtrip_and_changed_receipt_miss(tmp_path):
+    """A full validated selected-slab receipt survives a hit and its change invalidates content."""
+    from ..adapters import blender_analysis_session as service
+    payload = _slab_cache_payload()
+    first = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    payload["job_binding"]["job_id"] = "slab-hit"
+    hit = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert hit["content_cache"]["hit"] is True
+    assert hit["tables"]["snapshot"]["request"]["height_band_datum"] == payload["request"]["height_band_datum"]
+    assert hit["tables"]["snapshot"]["provenance"]["height_band_datum"] == first["tables"]["snapshot"]["provenance"]["height_band_datum"]
+    datum = payload["request"]["height_band_datum"]
+    datum["audit"] = {"selection": "re-observed exact source"}
+    datum["observation_digest"] = service.digest({key: value for key, value in datum.items() if key != "observation_digest"})
+    changed = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert changed["content_cache"]["hit"] is False
+
+
+@pytest.mark.parametrize("change", ["receipt", "geometry", "containment"])
+def test_disk_cache_revalidates_slab_before_lookup(tmp_path, monkeypatch, change):
+    """A warm cache cannot hide raced geometry or a forged selected-slab receipt."""
+    from ..adapters import blender_analysis_session as service
+    payload = _slab_cache_payload()
+    service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    if change == "receipt":
+        payload["request"]["height_band_datum"]["geometry_digest"] = "forged"
+    elif change == "geometry":
+        for vertex in payload["canonical_capture"]["records"][0]["mesh"]["vertices"]:
+            vertex[0] += .1
+    else:
+        payload["canonical_capture"]["records"][0]["container_refs"] = ["another-storey"]
+    def forbidden(*_args, **_kwargs):
+        """Fail if stale native slab validation is deferred until after cache lookup."""
+        pytest.fail("stale selected slab reached lookup")
+    monkeypatch.setattr(service, "_load_cached_result", forbidden)
+    with pytest.raises(ValueError):
+        service._execute_workflow_payload(payload, cache_directory=tmp_path)
+
+
+def test_disk_cache_legacy_proxy_preserves_coverage_and_invalidates_applicability(tmp_path, monkeypatch):
+    """A reused activated result preserves owners while changed pending applicability stays unknown."""
+    from ..adapters import blender_analysis_session as service
+    from .test_bonsai_live import legacy_bindings
+    raw = capture("furniture", "furniture")
+    live = load_bonsai_capture(raw, plane=_plane())
+    payload = _cache_payload()
+    payload.update(canonical_capture=raw.to_dict(),
+                   legacy_bindings=[service.wire.plain(binding.__dict__) for binding in legacy_bindings(tmp_path, live)])
+    cache_directory = tmp_path / "cache"
+    first = service._execute_workflow_payload(payload, cache_directory=cache_directory)
+    sample = service.reconstruct_field_sample(first, row=1, column=1)
+    assert sample.value is True and sample.status.value == "conditional"
+    assert sample.source_ids == ("ifc-object:g1", "ifc-object:g2")
+    original_activation = service._activate_legacy_proxies
+    def forbidden(*_args, **_kwargs):
+        """Actual legacy activation, including its unconditional domain projection, must be skipped."""
+        pytest.fail("legacy hit activated again")
+    monkeypatch.setattr(service, "_activate_legacy_proxies", forbidden)
+    payload["job_binding"]["job_id"] = "legacy-hit"
+    hit = service._execute_workflow_payload(payload, cache_directory=cache_directory)
+    assert hit["content_cache"]["hit"] is True
+    assert service.reconstruct_field_sample(hit, row=1, column=1) == sample
+    monkeypatch.setattr(service, "_activate_legacy_proxies", original_activation)
+    for binding in payload["legacy_bindings"]:
+        binding["scope"]["applicability"]["operation"] = "physical_occupancy"
+    changed = service._execute_workflow_payload(payload, cache_directory=cache_directory)
+    assert changed["content_cache"]["hit"] is False
+    assert service.reconstruct_field_sample(changed, row=1, column=1).value is None
+    assert set(changed["tables"]["snapshot"]["provenance"]["unknown_source_ids"]) == {"ifc-object:g1", "ifc-object:g2"}
+
+
+def test_disk_cache_support_selection_is_validated_and_never_class_wide(tmp_path):
+    """Only a current exact floor binding changes occupancy, including across disk hits."""
+    from ..adapters import blender_analysis_session as service
+    from ..adapters.bonsai_live import SupportBinding, geometry_digest
+    payload = _cache_payload()
+    raw = capture("slab")
+    payload["canonical_capture"] = raw.to_dict()
+    unbound = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert service.reconstruct_field_sample(unbound, row=0, column=0).value is True
+    live = load_bonsai_capture(raw, plane=_plane())
+    slab = live.scene.source_objects[0]
+    binding = SupportBinding(slab.id, "project", "IfcSlab", slab.geometry_refs,
+        geometry_digest(live.scene, slab), live.capture_fingerprint, "exact-floor-consent")
+    payload["support_binding"] = service.wire.plain(binding.__dict__)
+    payload["job_binding"]["job_id"] = "supported-miss"
+    supported = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert supported["content_cache"]["hit"] is False
+    assert service.reconstruct_field_sample(supported, row=0, column=0).value is False
+    payload["job_binding"]["job_id"] = "supported-hit"
+    hit = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert hit["content_cache"]["hit"] is True
+    assert service.reconstruct_field_sample(hit, row=0, column=0).value is False
+    payload["support_binding"]["geometry_digest"] = "stale-floor"
+    refused = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    assert refused["content_cache"]["hit"] is False
+    assert service.reconstruct_field_sample(refused, row=0, column=0).value is True
+
+
 @pytest.mark.parametrize("top,plane_z", [(.2, 2.0), (-3.0, -1.2)])
 def test_native_slab_band_contact_mass_and_full_receipt_round_trip(top, plane_z):
     """The live seam keeps slab contact empty, partial mass occupied and the full receipt readable."""

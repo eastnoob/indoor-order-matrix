@@ -250,6 +250,12 @@ def _run_identity(scene: NeutralSceneV2, request: AnalysisRequest) -> tuple[str,
                     for source in scene.source_objects],
     }
     fingerprint = _digest(facts)
+    versions = _backend_versions()
+    return fingerprint, _request_key(fingerprint, request, versions), versions
+
+
+def _request_key(fingerprint: str, request: AnalysisRequest, versions: Mapping) -> str:
+    """Bind a proven factual fingerprint to current strict request/publication semantics."""
     params = request.to_dict()
     del params["request_id"]
     del params["plane"]["name"]
@@ -260,10 +266,8 @@ def _run_identity(scene: NeutralSceneV2, request: AnalysisRequest) -> tuple[str,
                             if key in {"free_space", "physical_occupancy", "physical_occupancy_section"}},
              "contracts": {key: value for key, value in registry["contracts"].items()
                            if value.get("consumer") == "physical_occupancy"}}
-    versions = _backend_versions()
-    key = _digest({"source_fingerprint": fingerprint, "request": params,
-                   "shared_rules": _semantic_json(rules), "backend_versions": versions})
-    return fingerprint, key, versions
+    return _digest({"source_fingerprint": fingerprint, "request": params,
+                    "shared_rules": _semantic_json(rules), "backend_versions": versions})
 
 
 def semantic_cache_key(scene: NeutralSceneV2, request: AnalysisRequest) -> str:
@@ -678,14 +682,20 @@ class _RequestField(Field[tuple[int, int], bool]):
                            provenance=_MetadataOverlay(self._sample_metadata, provenance), explanation=explanation)
 
 
-def execute_analysis_request(scene: NeutralSceneV2, request: AnalysisRequest) -> AnalysisRun:
-    """Execute one planar request without mutating facts, bindings, IFC or other runs."""
-    fingerprint, key, versions = _run_identity(scene, request)
+def _request_query(request: AnalysisRequest, key: str) -> FieldQuery:
+    """Construct the exact current query for both computation and cache publication."""
     frame = f"analysis-plane:{request.plane.identity}:{request.plane.revision}"
-    query = FieldQuery(domain_id=request.domain.id if request.domain else None, frame=frame,
+    return FieldQuery(domain_id=request.domain.id if request.domain else None, frame=frame,
                        plane={**request.plane.to_dict(), "normal": request.plane.basis[2], "units": "m"},
                        height_band=request.geometry_query.height_band, demand=request.demand,
                        tolerance=request.geometry_tolerance, revision=key)
+
+
+def execute_analysis_request(scene: NeutralSceneV2, request: AnalysisRequest) -> AnalysisRun:
+    """Execute one planar request without mutating facts, bindings, IFC or other runs."""
+    fingerprint, key, versions = _run_identity(scene, request)
+    query = _request_query(request, key)
+    frame = query.frame
     reason = _unsupported_reason(scene, request)
     provenance = {"algorithm_version": REQUEST_VERSION, "schema_version": REQUEST_VERSION,
                   "semantic_key": key, "source_fingerprint": fingerprint,

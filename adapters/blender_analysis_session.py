@@ -24,6 +24,7 @@ from .bonsai_live import (authored_space_domain, structural_b4_view, validate_su
                           source_capture_fingerprint, validate_legacy_applicability, geometry_digest)
 
 if "." in (__package__ or ""):
+    from ..features import analysis_requests as requests
     from ..features._analysis_domain_handoff import domain_handoff, structural_source_facts, _project_authored
     from ..features.affordance.models import Polygon as AffordancePolygon, Rect as AffordanceRect
     from ..features.analysis_requests import WORLD_XY_BASIS
@@ -31,6 +32,7 @@ if "." in (__package__ or ""):
     from ..features.scene_contract import AnalysisDomain, AnalysisPlane, MeshGeometry3D
     from ..features.neutral_scene_views import _analysis_scene_view_with_semantic_enclosure
 else:
+    from features import analysis_requests as requests
     from features._analysis_domain_handoff import domain_handoff, structural_source_facts, _project_authored
     from features.affordance.models import Polygon as AffordancePolygon, Rect as AffordanceRect
     from features.analysis_requests import WORLD_XY_BASIS
@@ -534,16 +536,12 @@ def _activate_legacy_proxies(scene, request):
     return replace(scene, source_objects=tuple(activated.get(source.id, source) for source in scene.source_objects))
 
 
-def execute_live_analysis(scene, *, request, domain_geometries, support_binding=None):
-    """Compose only the confirmed exact meshes and use the existing request executor."""
+def _prepare_live_analysis(scene, *, request, domain_geometries, support_binding=None):
+    """Validate frozen inputs and compose scope without projection or field generation."""
     if request.height_band_datum is not None:
         from .bonsai_space_authoring import validate_captured_slab_datum
         # Native form observation precedes frozen capture; refuse a raced floor before calculation.
         validate_captured_slab_datum(scene, request.height_band_datum)
-    if "." in (__package__ or ""):
-        from ..features.analysis_requests import execute_analysis_request
-    else:
-        from features.analysis_requests import execute_analysis_request
     meshes = tuple(domain_geometries)
     domain = request.domain
     refs = tuple(mesh.id for mesh in meshes)
@@ -574,8 +572,137 @@ def execute_live_analysis(scene, *, request, domain_geometries, support_binding=
                     geometries=tuple(mesh for mesh in scene.geometries if mesh.id not in refs) + meshes)
     child = _authored_space_request_child(child, domain)
     scoped_request = replace(request, domain=domain)
+    return child, scoped_request
+
+
+def execute_live_analysis(scene, *, request, domain_geometries, support_binding=None):
+    """Compose only the confirmed exact meshes and use the existing request executor."""
+    child, scoped_request = _prepare_live_analysis(scene, request=request,
+        domain_geometries=domain_geometries, support_binding=support_binding)
     child = _activate_legacy_proxies(child, scoped_request)
-    return execute_analysis_request(child, scoped_request)
+    return requests.execute_analysis_request(child, scoped_request)
+
+
+CONTENT_CACHE_VERSION = 1
+CONTENT_CACHE_DIRECTORY = Path(__file__).resolve().parents[1] / "outputs/blender_analysis/content_cache/v1"
+
+
+def _content_cache_key(scene, request, binding, support_binding):
+    """Hash complete preactivation facts separately from current publication tokens."""
+    # The old executor fingerprint omits pending legacy and containment/scope facts.
+    # Use the full capture recipe before activation can hide any of those inputs.
+    facts = {"identity": scene.context.to_dict(),
+        "sources": [source.to_dict() for source in scene.source_objects],
+        "geometries": [mesh.to_dict() for mesh in scene.geometries],
+        "openings": [opening.to_dict() for opening in scene.openings],
+        "authored_groups": [group.to_dict() for group in scene.authored_groups],
+        "domain": None if request.domain is None else request.domain.to_dict(),
+        "support_binding": None if support_binding is None else support_binding.__dict__,
+        "confirmation_selection": {key: value for key, value in (binding.get("confirmation_binding") or {}).items()
+                                   if key != "request_id"},
+        "domain_source_id": binding.get("domain_source_id"), "storey_ref": binding.get("storey_ref")}
+    del facts["identity"]["analysis_plane"]
+    pending = [source.factual_properties["pending_legacy_occupancy"] for source in scene.source_objects
+               if isinstance(source.factual_properties.get("pending_legacy_occupancy"), Mapping)]
+    if pending:
+        # These exact digest/equality receipts affect activation even when nested keys look presentational.
+        facts["legacy_validation_digest"] = digest({"pending": pending,
+            "identity": scene.context.world_coordinate_system, "meshes": facts["geometries"]})
+    versions = requests._backend_versions()
+    root = Path(__file__).resolve().parents[1]
+    implementations = ("adapters/blender_analysis_session.py", "adapters/blender_analysis_result_wire.py",
+        "adapters/blender_analysis_capture.py", "adapters/bonsai_live.py", "adapters/ifc_bonsai.py",
+        "adapters/bonsai_space_authoring.py", "adapters/bonsai_analysis_plane.py",
+        "blender_addon/order_analyzer_ui/runtime.py", "blender_addon/order_analyzer_ui/__init__.py",
+        "pixi.toml", "pixi.lock")
+    backend = {"schema": wire.SCHEMA_VERSION, "algorithm": wire.ALGORITHM_VERSION,
+        "cache": CONTENT_CACHE_VERSION,
+        "implementations": {path: sha256((root / path).read_bytes()).hexdigest() for path in implementations}}
+    normalized = replace(request, plane=replace(request.plane, revision=1))
+    fingerprint = digest(requests._semantic_json({"facts": facts, "backend": backend}))
+    return requests._request_key(fingerprint, normalized, versions), versions
+
+
+def _load_cached_result(path, *, content_key, versions):
+    """Treat absent, damaged or incompatible cache bytes as a safe computation miss."""
+    try:
+        document = wire.validate_document(wire.load_json(path.read_text(encoding="utf-8")))
+        receipt = document["cache_entry"]
+        if (type(receipt["version"]) is not int or receipt["version"] != CONTENT_CACHE_VERSION
+                or receipt["content_key"] != content_key
+                or document["kind"] != "free_space_run" or document["backend_versions"] != versions):
+            return None
+        ResultRef(**receipt["origin_result_ref"])
+        original_ref = {"kind": document["kind"], "result_id": document["result_id"],
+            "digest": wire.document_digest({key: value for key, value in document.items() if key != "cache_entry"})}
+        if receipt["origin_result_ref"] != original_ref:
+            return None
+        snapshot = document["tables"]["snapshot"]
+        original_request = _request_from_wire(snapshot["request"])
+        if requests._request_key(snapshot["source_fingerprint"], original_request, versions) != snapshot["semantic_key"]:
+            return None
+        return document
+    except (OSError, UnicodeError, ValueError, KeyError, TypeError):
+        return None
+
+
+def _refresh_shared_metadata(actual, before, after):
+    """Refresh only declared shared fields while retaining cell overrides and deletions."""
+    result = wire.plain(actual)
+    if not isinstance(result, Mapping):
+        return result
+    for key, value in before.items():
+        if key in result and result[key] == wire.plain(value):
+            result[key] = wire.plain(after[key])
+    return result
+
+
+class _CachedSamples:
+    """Expose validated cached samples to the ordinary lossless result serializer."""
+
+    def __init__(self, document, snapshot, query):
+        """Keep original calculation evidence separate from current publication fields."""
+        self.document, self.snapshot, self.query = document, snapshot, query
+        original = document["tables"]["snapshot"]
+        self.before_query = requests._request_query(_request_from_wire(original["request"]), original["semantic_key"])
+        self.before_provenance = {**original["provenance"], "frame": self.before_query.frame,
+            "query_revision": self.before_query.revision,
+            "input_query_context": {"domain_id": self.before_query.domain_id, "frame": self.before_query.frame}}
+        self.after_provenance = {**wire.plain(snapshot.provenance), "frame": query.frame,
+            "query_revision": query.revision,
+            "input_query_context": {"domain_id": query.domain_id, "frame": query.frame}}
+
+    def evaluate(self, target, query):
+        """Rebind shared identity only; preserve all actual per-cell calculation deltas."""
+        sample = wire.decode_cell(self.document, row=target[0], column=target[1])
+        before = {item.name: getattr(self.before_query, item.name) for item in fields(self.before_query)}
+        after = {item.name: getattr(self.query, item.name) for item in fields(self.query)}
+        sample["query"] = _refresh_shared_metadata(sample["query"], before, after)
+        old_support = sample["support"]
+        sample["support"] = _refresh_shared_metadata(old_support,
+            {"frame": self.before_query.frame, "plane": self.before_query.plane},
+            {"frame": self.query.frame, "plane": self.query.plane})
+        # Support may be a shared link or an independent cell-specific observation.
+        provenance_support = sample["provenance"].get("support")
+        sample["provenance"] = _refresh_shared_metadata(sample["provenance"],
+            self.before_provenance, self.after_provenance)
+        if provenance_support == old_support and "support" in sample["provenance"]:
+            sample["provenance"]["support"] = sample["support"]
+        return _sample_from_wire(sample)
+
+
+def _cached_run(document, request, versions):
+    """Rebuild current strict run identity without repeating cached geometry work."""
+    original = document["tables"]["snapshot"]
+    fingerprint = original["source_fingerprint"]
+    key = requests._request_key(fingerprint, request, versions)
+    provenance = {**original["provenance"], "semantic_key": key,
+        "geometry_query": request.geometry_query.to_dict(), "height_band_datum": request.height_band_datum,
+        "backend_versions": versions}
+    snapshot = requests.AnalysisSnapshot(key, fingerprint, request, versions, provenance)
+    query = requests._request_query(request, key)
+    return requests.AnalysisRun(_CachedSamples(document, snapshot, query), query, snapshot,
+                               requests.FieldStatus(document["support_status"]), document["explanation"])
 
 
 def serialize_analysis_result(run, *, job_id, plane_uuid, plane_revision, domain_request_id, domain_session_revision,
@@ -761,7 +888,7 @@ def _request_from_wire(data):
         "sampling": GridSampling(**data["sampling"]), "geometry_query": GeometryQuery(**data["geometry_query"])})
 
 
-def _execute_workflow_payload(payload):
+def _execute_workflow_payload(payload, *, cache_directory=None):
     """Execute the two fixed workflows from data-only frozen envelopes."""
     from .blender_analysis_capture import CanonicalCaptureInput
     from .bonsai_live import load_bonsai_capture, StructuralContext, SupportBinding, LegacySourceBinding
@@ -772,6 +899,7 @@ def _execute_workflow_payload(payload):
     if not isinstance(payload, Mapping) or payload.get("kind") not in wire.KINDS:
         raise ValueError("unsupported workflow kind")
     kind = payload["kind"]
+    cache_path, cached = None, None
     allowed = {"kind", "job_binding", "canonical_capture"} | ({"context", "prior", "action", "entrypoint", "domain_source_id", "storey_ref", "support_source_id"} if kind == "domain_session"
         else {"request", "domain_geometries", "support_binding", "legacy_bindings"})
     if set(payload) - allowed or not {"kind", "job_binding", "canonical_capture"} <= set(payload):
@@ -825,11 +953,25 @@ def _execute_workflow_payload(payload):
         if consent and (consent.get("source_revision") != expected_revision
                         or consent.get("frame_id") != context.structural_frame_key):
             raise ValueError("structural confirmation is stale")
-        run = execute_live_analysis(live.scene, request=request, domain_geometries=meshes, support_binding=support)
+        child, scoped_request = _prepare_live_analysis(live.scene, request=request,
+            domain_geometries=meshes, support_binding=support)
+        if cache_directory is not None:
+            content_key, versions = _content_cache_key(child, scoped_request, binding, support)
+            cache_path = Path(cache_directory) / (content_key + ".json")
+            cached = _load_cached_result(cache_path, content_key=content_key, versions=versions)
+        # Lookup must precede activation: even an empty legacy set projects its domain.
+        run = (_cached_run(cached, scoped_request, versions) if cached is not None else
+               requests.execute_analysis_request(_activate_legacy_proxies(child, scoped_request), scoped_request))
         document = serialize_analysis_result(run, job_id=job_id, plane_uuid=request.plane.identity,
             plane_revision=request.plane.revision, domain_request_id=binding["domain_request_id"],
             domain_session_revision=binding["domain_session_revision"])
-        document["display_fragments"] = build_display_fragments(run, meshes)
+        document["display_fragments"] = (cached["display_fragments"] if cached is not None else
+                                         build_display_fragments(run, meshes))
+        if cache_path is not None:
+            document["content_cache"] = {"version": CONTENT_CACHE_VERSION, "content_key": content_key,
+                                         "hit": cached is not None}
+            if cached is not None:
+                document["content_cache"]["origin_result_ref"] = cached["cache_entry"]["origin_result_ref"]
         for key, value in {"semantic_key": run.snapshot.semantic_key, "operation": request.operation,
                            "query_key": request.geometry_query.to_dict()}.items():
             if key in binding and binding[key] is not None and binding[key] != value:
@@ -846,6 +988,14 @@ def _execute_workflow_payload(payload):
     document["binding"] = binding
     document["digest"] = wire.document_digest(document)
     wire.validate_document(document)
+    if cache_path is not None and cached is None:
+        # Keep the first public ResultRef as lineage; the cache has its own validated digest.
+        entry = wire.plain(document)
+        entry["cache_entry"] = {"version": CONTENT_CACHE_VERSION, "content_key": content_key,
+            "origin_result_ref": {"kind": document["kind"], "result_id": document["result_id"],
+                                  "digest": document["digest"]}}
+        entry["digest"] = wire.document_digest(entry)
+        write_result_atomic(entry, path=cache_path)
     return document
 
 
@@ -855,7 +1005,8 @@ def main(argv=None):
     parser.add_argument("request", type=Path)
     parser.add_argument("result", type=Path)
     args = parser.parse_args(argv)
-    document = _execute_workflow_payload(wire.load_json(args.request.read_text(encoding="utf-8")))
+    document = _execute_workflow_payload(wire.load_json(args.request.read_text(encoding="utf-8")),
+                                         cache_directory=CONTENT_CACHE_DIRECTORY)
     write_result_atomic(document, path=args.result)
     print(wire.canonical_json({"result_id": document["result_id"], "kind": document["kind"], "digest": document["digest"]}))
 

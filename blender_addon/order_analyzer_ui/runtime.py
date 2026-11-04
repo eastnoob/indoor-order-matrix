@@ -28,6 +28,7 @@ BUDGET_SECONDS = .050
 LOG_LIMIT = 1024 * 1024
 CANCEL_GRACE_SECONDS = 2.0
 RESOURCE_PATHS = ("pixi.toml", "pixi.lock", "adapters/blender_analysis_session.py",
+    "blender_addon/order_analyzer_ui/runtime.py", "blender_addon/order_analyzer_ui/__init__.py",
     "adapters/bonsai_analysis_plane.py", "adapters/bonsai_space_authoring.py", "adapters/ifc_bonsai.py",
     "adapters/blender_analysis_result_wire.py", "adapters/blender_analysis_capture.py", "adapters/bonsai_live.py",
     "features/analysis_requests.py", "features/field_core.py", "features/free_space_field.py",

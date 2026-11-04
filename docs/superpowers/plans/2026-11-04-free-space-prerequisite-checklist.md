@@ -117,12 +117,14 @@ Task 3 实现独立验收：314 passed；另有 54 个独立几何案例、3 项
 
 涉及：`features/analysis_requests.py`、`adapters/blender_analysis_session.py`、`adapters/blender_analysis_result_wire.py`；对应 `test/test_analysis_requests.py`、`test/test_blender_analysis_session.py`、`test/test_blender_analysis_runtime.py`。
 
-- [ ] 复用现有完整序列化、精确 ResultRef、恢复逻辑与原子写；不创建平行结果框架。
-- [ ] 内容身份覆盖 source、domain/confirmation、plane 几何语义、slab datum、query、高度带、grid、schema/algorithm；区分内容身份和单调审计 revision。
-- [ ] 按当前内容 key 查找合法结果；命中直接读取，证明没有调用投影/自由空间生成函数。
-- [ ] 验收首次生成、二次命中、进程/文件恢复后命中、关键输入变更失效、内容恢复后的复用，以及损坏/缺失/旧版本缓存的拒绝与恢复行为。
-- [ ] 确认生成或写入失败不破坏上一份有效结果；unknown/conditional/provenance 完整往返。
-- [ ] 独立测试与审查通过后提交。
+- [x] 复用现有完整序列化、精确 ResultRef、恢复逻辑与原子写；不创建平行结果框架。
+- [x] 内容身份覆盖 source、domain/confirmation、plane 几何语义、slab datum、query、高度带、grid、schema/algorithm；区分内容身份和单调审计 revision。
+- [x] 按当前内容 key 查找合法结果；命中直接读取，证明没有调用投影/自由空间生成函数。
+- [x] 验收首次生成、二次命中、进程/文件恢复后命中、关键输入变更失效、内容恢复后的复用，以及损坏/缺失/旧版本缓存的拒绝与恢复行为。
+- [x] 确认生成或写入失败不破坏上一份有效结果；unknown/conditional/provenance 完整往返。
+- [x] 独立测试与审查通过后提交。
+
+Task 4 独立规格/质量验收 PASS：416 passed；额外独立进程验证了六处生成调用禁用、revision 恢复、完整样本状态/差异与失败保护。真实 Blender/S3 缓存验收仍在 Task 5。
 
 可视化判定：`omitted`。缓存正确性由实际 result key/hash、恢复结果、生成函数调用次数及失效断言确认；不生成缓存命中/失效状态图，也不因重复读取相同几何而重复渲染。
 

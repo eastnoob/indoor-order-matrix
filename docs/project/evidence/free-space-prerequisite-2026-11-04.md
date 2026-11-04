@@ -150,3 +150,60 @@ ownership, exclusions and conservative unknown states are retained. Evidence:
 `task3-independent-analytic-results.json` and before/after hash manifests.
 Visual omitted for analytic cases. Fresh actual S3 binding/alignment and new
 free-space values remain Task 5; no new real-scene result is claimed here.
+
+## Saved native camera restoration accepted
+
+The ordinary Bonsai IFC importer retains the managed drawing annotation but
+omits its Blender camera. The observed original ensure failure is retained in
+`native-ensure-missing-camera.json`; it is not treated as a successful reopen.
+The bounded correction imports that same drawing through Bonsai inside the
+existing owned transaction and recovery boundary. Corrupt native maps or extant
+BIM bindings reject before import, rather than authorize a duplicate object.
+Independent specification PASS / quality PASS: **306 passed, 1 existing skip
+in 6.57 s**, exit 0, with both frozen hashes unchanged. Accepted local jj commit
+`ca47cb83` (change `opyzytwx`); the separate cache candidate remains uncommitted.
+
+Actual portable Blender restoration retained GUID `2JRtSsvK9DueUJ6efD5Ihg`,
+STEP 3597397, one managed annotation and SI/world Z 1.600000023841858 m.
+Repeated ensure reused the same camera; no unrelated object pose changed.
+After reopening again, an injected failure after the real native importer had
+allocated and linked its camera recovered the entire retained snapshot:
+`snapshot_differences=[]`, 372 objects, no camera and no recovery block. A later
+valid ensure restored/reused the same drawing successfully (373 objects).
+Native evidence: `native-managed-camera-restored.json`,
+`native-managed-import-fault-recovery.json`,
+`native-managed-restore-after-fault.json`; independent scoped review:
+`task-1-native-restore-verification.md`. Root executed the native mutations;
+the independent verifier ran regressions and audited the receipts separately.
+
+An additional independent bounded IFC audit verified both original/derived
+hashes, all 95 furniture GUIDs, every original 37 group identity/membership and
+the extra drawing-only group. Static source classification excludes the drawing
+while retaining the slab's physical facts. Historical S3 support independently
+equals its saved complete polygon: one component, no holes, 207.24092382549588 m²,
+11 wall/member refs, zero symmetric difference and boundary distance. See
+`task5-independent-lineage.json` and `task5-independent-s3-baseline.json`.
+Fresh S3 confirmation, finite-band result, cache/native and visual acceptance
+remain pending; this is not whole Task 5 completion.
+
+## Task 4 persistent content cache accepted
+
+Independent specification PASS / quality PASS. Exact acceptance: **416 passed
+in 38.12 s**, exit 0; all 16 frozen candidate/dependency hashes stayed unchanged.
+Independent artifact-only probes additionally counted the actual generation
+boundaries and forbade all six, including legacy activation, on a fresh-process
+disk hit. Pose restoration at audit revision 13 reused the original cache bytes
+while publishing a new exact ResultRef with current query/support/binding.
+Six Field states, deliberate per-cell metadata overrides/deletions and nested
+calculation strings survived. Old/unverified/mismatched observations rejected;
+fact/geometry/receipt changes, malformed entries and write/generation failures
+received the expected miss/refusal/preservation behavior.
+
+Production uses `outputs/blender_analysis/content_cache/v1/<content-key>.json`
+through the existing fixed CLI and result wire. Validation precedes lookup;
+cache hits skip projection, Field and display generation. Native recapture and
+publication freshness checks remain mandatory. Cache retention has no eviction
+policy; distinct content adds local files. Actual native S3 miss/hit/invalidation
+and the source/result alignment view remain Task 5, not this code acceptance.
+Evidence: `task-4-report.md`, `task-4-verification.md`, candidate hash manifests,
+`task4-independent-*` executable probes/logs and the recorded exact suite log.

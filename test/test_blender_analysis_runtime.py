@@ -70,6 +70,32 @@ def test_display_change_keeps_semantic_key(runtime):
     assert runtime.STATE.observation_epoch == epoch
 
 
+def test_cache_request_and_publication_resources_remain_observed(runtime, monkeypatch, tmp_path):
+    """Cache/request implementation drift remains a native runtime freshness failure."""
+    required = {"adapters/blender_analysis_session.py", "adapters/blender_analysis_result_wire.py",
+        "features/analysis_requests.py", "blender_addon/order_analyzer_ui/runtime.py",
+        "blender_addon/order_analyzer_ui/__init__.py"}
+    assert required <= set(runtime.RESOURCE_PATHS)
+    for relative in required:
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("original implementation", encoding="utf-8")
+    monkeypatch.setattr(runtime, "RESOURCE_PATHS", tuple(required))
+    before = runtime._file_stats(tmp_path)
+    monkeypatch.setattr(runtime, "_scene_file_token", lambda _context: "scene")
+    from types import SimpleNamespace
+    job = SimpleNamespace(root=tmp_path, epoch=runtime.STATE.observation_epoch,
+        runtime_session=runtime.STATE.runtime_session, context=object(), scene_file_token="scene",
+        observation_before={"file_stats": before, "native_guard": {}})
+    runtime.STATE.job = job
+    monkeypatch.setattr(runtime, "_native_guard", lambda _job: {})
+    runtime._check_job(job)
+    (tmp_path / "blender_addon/order_analyzer_ui/runtime.py").write_text("changed implementation bytes", encoding="utf-8")
+    with pytest.raises(ValueError, match="implementation/config resources changed"):
+        runtime._check_job(job)
+    runtime.STATE.job = None
+
+
 def test_native_observation_tracks_grid_axis_without_global_id(runtime, monkeypatch, tmp_path):
     """Non-root IFC objects stay observable without inventing a product GlobalId."""
     axis = SimpleNamespace(id=lambda: 42)

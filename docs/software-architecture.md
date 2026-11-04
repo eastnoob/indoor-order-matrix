@@ -15,11 +15,33 @@ Use [verified-agent-workflow](../skills/verified-agent-workflow/SKILL.md) and th
 Reuse `bonsai_analysis_plane` for native drawing identity, `bonsai_space_authoring`
 for slab datum, `analysis_requests`/`geometry_views` for finite-band projection,
 and the existing result wire/session for persistence and current reads. Slab datum
-wiring is independently accepted; inclusive participation audit is implemented
-and awaiting independent acceptance. Content lookup remains an implementation
-target; the distance kernel is outside this workline.
+wiring and inclusive participation audit are independently accepted (Task 3:
+`3faec84f`). Task 4 adds content lookup in the session after canonical capture,
+binding, datum, domain and support validation but before legacy proxy activation
+or projection. It reuses the complete result wire and serializer for a fresh
+current-job publication; the distance kernel is outside this workline.
 
-Task 1's native lifecycle is implemented and awaiting independent acceptance.
+Task 4's implementation boundary is `blender_analysis_session`: pure validated
+scene preparation precedes a content-addressed disk lookup, and misses retain
+the existing activation/request/display generation. The fixed CLI supplies a
+persistent workline cache under `outputs/blender_analysis/content_cache/v1`.
+Content excludes job/request IDs, declared display metadata and plane audit
+revision while including physical facts, exact domain/selection, query/datum,
+rules and implementation versions. `analysis_requests` retains its strict
+revision-sensitive semantic identity through a shared pure identity recipe.
+Hits reconstruct current request/query/support/binding metadata through the
+existing sample serializer, preserving calculation provenance and its origin
+ResultRef. Current reads still require independent native observation of the
+new publication. Cache acceptance is pending Task 4 verification.
+
+Task 1's native lifecycle and matrix correction are independently accepted
+(`a951c761`). Native creation/reuse/update, non-unit scenes, recovery and save
+have been observed. Save/reopen retained the managed IFC marker, GUID and SI
+height; ordinary native import omitted the camera object and initially ensure
+rejected that missing link. The bounded managed-restore correction now restores
+the camera through the official importer inside one owned recovery event,
+retaining the same annotation/GUID and creating no duplicate drawing. Independent
+restore acceptance is in progress; restoration is separate from cache behavior.
 `adapters/bonsai_analysis_plane.py:ensure_native_analysis_plane(*, elevation_m,
 project_global_id=None, camera_guid=None, storey_ref=None,
 query_kind="whole_height_projection")` finds exactly one native
@@ -43,8 +65,8 @@ IFC DRAWING annotations gain the existing `drawing_camera` role so both physical
 inventory paths exclude them, while ordinary annotations and name lookalikes
 retain their existing roles. Live native-camera and owned-helper exclusions stay
 in use. Unit tests cover real IFC transaction/property-set/serialization behavior
-behind synthetic Blender seams; actual native save/reopen, loaded-byte proof and
-visible plane/source alignment remain Task 5 checks.
+behind synthetic Blender seams. The combined current S3 datum/domain/field view,
+loaded-byte proof and managed native reopening remain Task 5 checks.
 
 ## Free-space query clarified by the user — 2026-11-03 / existing capabilities audited
 
@@ -90,8 +112,8 @@ Current S3 retained input explicitly declares `whole_height_planar_mass_patch`,
 support-binding diagnosis below is an audit of another supported scope mechanism,
 not the prescribed solution. Eleven existing UI/request/projection/slab/domain/
 section checks passed in Pixi in 5.55s at the original audit. Task 3 independent
-acceptance and fresh S3 visual validation remain open; see the existing distance
-checklist.
+analytic acceptance passed; fresh S3 visual validation remains open; see the
+existing distance checklist.
 
 ## 当前任务：选区纠正 — PRIOR S4 SUPERSEDED / INTENDED S3 CONFIRMED / CORRECTED UNREACHABLE RUN RETAINED
 
