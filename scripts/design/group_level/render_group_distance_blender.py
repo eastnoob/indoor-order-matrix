@@ -23,6 +23,77 @@ def _vector(value, size):
     return tuple(float(item) for item in value)
 
 
+def clearance_cross_section(route):
+    """Convert the narrowest saved edge or turn witness into display coordinates."""
+    if route is None or not route.get("clearance"):
+        return None
+    clearance, points = route["clearance"], route["points"]
+    candidates = []
+    for index, witness in enumerate(clearance.get("edge_witnesses", ())):
+        total, = _vector([witness["limiting_total_m"]], 1)
+        candidates.append((total, 0, index, witness))
+    for index, witness in enumerate(clearance.get("turn_witnesses", ())):
+        total, = _vector([witness["limiting_total_m"]], 1)
+        candidates.append((total, 1, index, witness))
+    if not candidates:
+        raise ValueError("clearance display requires a saved edge or turn witness")
+    _, kind, index, witness = min(candidates, key=lambda item: item[:3])
+    if index >= len(points) - 1:
+        raise ValueError("clearance witness does not address a route segment")
+    start, end = _vector(points[index], 2), _vector(points[index + 1], 2)
+    length = math.dist(start, end)
+    if length <= 0:
+        raise ValueError("clearance witness requires a positive-length segment")
+    tangent = tuple((b - a) / length for a, b in zip(start, end))
+    if kind == 0:
+        position, = _vector([witness["limiting_position_m"]], 1)
+        if not 0 <= position <= length + 1e-12:
+            raise ValueError("clearance position lies outside its recorded segment")
+        center = tuple(a + position * direction for a, direction in zip(start, tangent))
+    else:
+        # A turn's witness is at its source vertex, with the saved shortest-arc heading fraction.
+        incoming = _vector(route["state_keys"][index][1], 2)
+        if not math.isclose(math.hypot(*incoming), 1, abs_tol=1e-12):
+            raise ValueError("clearance turn heading must be a unit vector")
+        fraction, = _vector([witness["limiting_angle_fraction"]], 1)
+        if not 0 <= fraction <= 1:
+            raise ValueError("clearance turn fraction lies outside its saved arc")
+        first, last = math.atan2(incoming[1], incoming[0]), math.atan2(tangent[1], tangent[0])
+        angle = first + ((last - first + math.pi) % (2 * math.pi) - math.pi) * fraction
+        tangent, center = (math.cos(angle), math.sin(angle)), start
+    left, right, total = _vector([witness[key] for key in
+                                 ("limiting_left_m", "limiting_right_m", "limiting_total_m")], 3)
+    if min(left, right, total) < 0 or not math.isclose(left + right, total, rel_tol=1e-10, abs_tol=1e-10):
+        raise ValueError("clearance section must retain same-position left/right/total values")
+    normal = -tangent[1], tangent[0]
+    return dict(kind="turn" if kind else "edge", segment_index=index, center=list(center),
+                left=[center[i] + left * normal[i] for i in range(2)],
+                right=[center[i] - right * normal[i] for i in range(2)],
+                left_m=left, right_m=right, total_m=total)
+
+
+def clearance_bands(route):
+    """Display each edge's guaranteed side minima without combining total-width minima."""
+    if route is None or not route.get("clearance"):
+        return []
+    points, witnesses = route["points"], route["clearance"].get("edge_witnesses", ())
+    if len(witnesses) != len(points) - 1:
+        raise ValueError("clearance bands require one saved witness per route edge")
+    bands = []
+    for index, (start, end, witness) in enumerate(zip(points, points[1:], witnesses)):
+        start, end = _vector(start, 2), _vector(end, 2)
+        length = math.dist(start, end)
+        left, right = _vector([witness["min_left_m"], witness["min_right_m"]], 2)
+        if length <= 0 or min(left, right) < 0:
+            raise ValueError("clearance band requires a positive edge and nonnegative side minima")
+        normal = (-(end[1] - start[1]) / length, (end[0] - start[0]) / length)
+        # Independent side minima guarantee this rectangle along the edge, not its minimum total.
+        corners = [[point[axis] + side * normal[axis] for axis in range(2)]
+                   for point, side in ((start, left), (end, left), (end, -right), (start, -right))]
+        bands.append(dict(segment_index=index, points=corners, left_m=left, right_m=right))
+    return bands
+
+
 def native_route_points(points, plane, origin_offset, native_scale, display_z_m):
     """Undo the view offset, restore world SI through the plane, then convert units."""
     origin = _vector(plane["origin"], 3)
@@ -117,7 +188,7 @@ def prepare_route(manifest, observation, document, requested_ref):
         if len(edges) != len(path_keys) - 1:
             raise ValueError("route edge coverage differs from its path cells")
         state_keys = route.get("state_keys", path_keys)
-        guard_keys = set()
+        guard_keys, side_keys = set(), set()
         for edge_index, (edge, first, second) in enumerate(zip(edges, path_keys, path_keys[1:])):
             endpoints = sorted((first, second))
             guards = sorted(((first[0], second[1]), (second[0], first[1]))) if (
@@ -142,7 +213,25 @@ def prepare_route(manifest, observation, document, requested_ref):
                 if cell["value"] is not False or cell["status"] not in {"established", "conditional"}:
                     raise ValueError("diagonal flank is not an authoritative known-empty cell")
             guard_keys.update(guards)
-        guards, support = sorted(guard_keys), sorted(set(path_keys) | guard_keys)
+            if model[0] == "group-distance/3":
+                for witness in (edge["clearance"], edge["turn"]):
+                    keys = witness["side_sample_cell_keys"]
+                    statuses = []
+                    for key in keys:
+                        if (not isinstance(key, (list, tuple)) or len(key) != 2
+                                or any(type(i) is not int for i in key)
+                                or not 0 <= key[0] < lattice["n_rows"] or not 0 <= key[1] < lattice["n_cols"]):
+                            raise ValueError("clearance support references an invalid cell")
+                        status = document["cells"][key[0] * lattice["n_cols"] + key[1]]["status"]
+                        # Occupied coarse cells can contain an empty normal-ray portion.
+                        if status not in {"established", "conditional"}:
+                            raise ValueError("clearance side support is not authoritative")
+                        statuses.append(status)
+                    if (witness["side_sample_query_refs"] != [query_ref(key) for key in keys]
+                            or witness["side_sample_statuses"] != statuses):
+                        raise ValueError("clearance side support differs from its exact cell references")
+                    side_keys.update(map(tuple, keys))
+        guards, support = sorted(guard_keys), sorted(set(path_keys) | guard_keys | side_keys)
         if ([tuple(key) for key in route["guard_cell_keys"]] != guards
                 or route["guard_query_refs"] != [query_ref(key) for key in guards]
                 or [tuple(key) for key in route["support_cell_keys"]] != support
@@ -158,6 +247,10 @@ def prepare_route(manifest, observation, document, requested_ref):
         offsets.append([list(_vector(route[side + "_centroid"], 2)),
                         list(_vector(access["proxy_point"], 2)), list(_vector(endpoint, 2))])
     layer.update(main=wire.plain(route["points"]), offsets=offsets)
+    if route.get("clearance") is not None:
+        layer.update(clearance=wire.plain(route["clearance"]),
+                     clearance_cross_section=clearance_cross_section(route),
+                     clearance_bands=clearance_bands(route))
     return layer
 
 
@@ -223,15 +316,81 @@ def prepare_groups(geometry, manifest, observation):
     return selected
 
 
-def prepare_comparison(manifest, observation, baseline_manifest, baseline_observation):
+def _comparison_input(directory, manifest):
+    """Authenticate saved producer bytes and the query fingerprint without spatial imports."""
+    from dataclasses import fields
+    from features.field_core import FieldQuery, fingerprint_evidence_dependency
+    from adapters import blender_analysis_result_wire as wire
+
+    directory = Path(directory)
+    coverage = wire.load_json((directory / "coverage_report.json").read_text(encoding="utf-8"))
+    for name in ("input_bundle.json", "run_manifest.json", "scene_geometry.json", "observations.json", "pair_index.json"):
+        if _file_hash(directory / name) != coverage["output_hashes"].get(name):
+            raise ValueError("comparison producer bytes differ from their recorded coverage")
+    saved_manifest = wire.load_json((directory / "run_manifest.json").read_text(encoding="utf-8"))
+    if saved_manifest != manifest:
+        raise ValueError("comparison manifest differs from its authenticated saved file")
+    bundle = wire.load_json((directory / "input_bundle.json").read_text(encoding="utf-8"))
+    keys = ("source_identity", "analysis_plane", "domain", "grid", "query", "query_context",
+            "origin_offset", "dependency_fingerprints")
+    if (any(bundle[key] != manifest[key] for key in keys)
+            or sorted(group["group_id"] for group in bundle["groups"]) != sorted(manifest["group_ids"])
+            or bundle.get("clearance_policy") != manifest.get("clearance_policy")):
+        raise ValueError("comparison manifest differs from its saved input bundle")
+    query = FieldQuery(**bundle["query"])
+    query_record = {field.name: getattr(query, field.name) for field in fields(query)}
+    context = bundle["query_context"]
+    query_record.update(query_context=context, origin_offset=bundle["origin_offset"],
+        algorithm_version=context.get("algorithm_version", "free-space-field/2"),
+        schema_version=context.get("schema_version", "free-space-field/1"),
+        unresolved_source_ids=sorted(bundle["unresolved_source_ids"]), unresolved_supports=bundle["unresolved_supports"],
+        occupancy_source_ids=sorted({owner for record in bundle["physical_occupancy"] or ()
+                                    for owner in record.get("represented_source_ids", ())}),
+        index_convention=tuple(bundle["grid"][key] for key in ("row_axis", "column_axis", "cell_rule")))
+    if bundle.get("clearance_policy") is not None:
+        query_record["clearance_policy"] = bundle["clearance_policy"]
+    if fingerprint_evidence_dependency(query_record) != bundle["dependency_fingerprints"]["query"]:
+        raise ValueError("comparison query fingerprint differs from its saved content")
+    return bundle
+
+
+def prepare_comparison(manifest, observation, baseline_manifest, baseline_observation,
+                       run_dir=None, baseline_run_dir=None):
     """Require the same physical input and pair before overlaying historical algorithms."""
     keys = ("source_identity", "analysis_plane", "domain", "grid", "origin_offset", "query_context",
             "dependency_fingerprints", "group_ids")
+    policy = manifest.get("clearance_policy")
+    if policy is not None:
+        if not isinstance(policy, Mapping) or min(_vector([policy[key] for key in
+                ("min_left_m", "min_right_m", "min_total_m")], 3)) < 0:
+            raise ValueError("comparison clearance policy requires finite nonnegative thresholds")
+        if (run_dir is None or baseline_run_dir is None or baseline_manifest.get("clearance_policy") is not None
+                or manifest.get("algorithm_version") != "group-distance/3"):
+            raise ValueError("clearance comparison requires authenticated baseline and constrained run directories")
+        current = _comparison_input(run_dir, manifest)
+        baseline = _comparison_input(baseline_run_dir, baseline_manifest)
+        # Compare the complete retained bundle; the one permitted change is the producer's policy binding.
+        expected = {**baseline, "clearance_policy": policy,
+                    "query_context": {**baseline["query_context"], "clearance_policy": policy},
+                    "dependency_fingerprints": {**baseline["dependency_fingerprints"],
+                                                "query": current["dependency_fingerprints"]["query"]}}
+        if (current != expected
+                or _file_hash(Path(run_dir) / "scene_geometry.json") != _file_hash(Path(baseline_run_dir) / "scene_geometry.json")
+                or manifest["cell_samples"] != baseline_manifest["cell_samples"]):
+            raise ValueError("comparison input differs beyond clearance policy and query identity")
+        keys = tuple(key for key in keys if key not in {"query_context", "dependency_fingerprints"})
     if (any(manifest[key] != baseline_manifest[key] for key in keys)
             or observation["pair_id"] != baseline_observation["pair_id"]
             or observation["group_ids"] != baseline_observation["group_ids"]
             or observation["center_to_center_euclidean"] != baseline_observation["center_to_center_euclidean"]):
         raise ValueError("comparison must use the same recorded input and group pair")
+
+
+def distance_model_label(manifest):
+    """Name the saved model without relabeling an eight-neighbor baseline as four-neighbor."""
+    if manifest.get("clearance_policy") is not None:
+        return "8-neighbor + directional clearance"
+    return "4-neighbor" if manifest["algorithm_version"] == "group-distance/1" else "8-neighbor, no corner cut"
 
 
 def _mesh_line(name, points, width, dashed, parent, material, metadata, bpy):
@@ -312,7 +471,7 @@ def render_plan_comparison(run_dir, baseline_run_dir, pair_id, free_space_result
     run_dir, baseline_run_dir, output_path = Path(run_dir), Path(baseline_run_dir), Path(output_path)
     manifest, observation = load_run(run_dir, pair_id)
     baseline_manifest, baseline = load_run(baseline_run_dir, pair_id)
-    prepare_comparison(manifest, observation, baseline_manifest, baseline)
+    prepare_comparison(manifest, observation, baseline_manifest, baseline, run_dir, baseline_run_dir)
     geometry = wire.load_json((run_dir / "scene_geometry.json").read_text(encoding="utf-8"))
     groups = prepare_groups(geometry, manifest, observation)
     document = wire.load_json(Path(free_space_result).read_text(encoding="utf-8"))
@@ -350,12 +509,24 @@ def render_plan_comparison(run_dir, baseline_run_dir, pair_id, free_space_result
         for route_index in ((0, 1) if index == 0 else (index - 1,)):
             layer = layers[route_index]
             color = "#526f84" if route_index == 0 else "#e52b24"
+            for band_index, band in enumerate(layer.get("clearance_bands", ())):
+                axis.add_patch(Polygon(band["points"], facecolor="#0f766e", edgecolor="none", alpha=.10,
+                                       label="guaranteed edge side bands" if band_index == 0 else None))
             if layer["main"]:
                 axis.plot(*zip(*layer["main"]), color=color, linewidth=1.6,
-                          label="4-neighbor path" if route_index == 0 else "8-neighbor path")
+                          label=distance_model_label((baseline_manifest, manifest)[route_index]) + " path")
             for offset_index, offset in enumerate(layer["offsets"]):
                 axis.plot(*zip(*offset), color="#8054ba", linestyle="--", linewidth=1.2,
                           label="endpoint offsets" if offset_index == 0 else None)
+            section = layer.get("clearance_cross_section")
+            if section:
+                axis.plot(*zip(section["left"], section["right"]), color="#0f766e", linewidth=2,
+                          marker="|", label="saved clearance bottleneck")
+                axis.plot(*section["center"], marker="x", color="#0f766e")
+                axis.annotate(f"L {section['left_m']:.3f} / R {section['right_m']:.3f}\n"
+                              f"total {section['total_m']:.3f} m ({section['kind']})", section["center"],
+                              xytext=(7, 7), textcoords="offset points", fontsize=8,
+                              bbox=dict(facecolor="white", alpha=.9, edgecolor="#0f766e", pad=2))
         points = domain_points if index == 0 else pair_points
         axis.set_xlim(min(p[0] for p in points)-.5, max(p[0] for p in points)+.5)
         axis.set_ylim(min(p[1] for p in points)-.5, max(p[1] for p in points)+.5)
@@ -365,15 +536,22 @@ def render_plan_comparison(run_dir, baseline_run_dir, pair_id, free_space_result
         axis.legend(loc="upper right", fontsize=8)
     old, new = (item["centroid_free_space_hybrid"]["value"] for item in (baseline, observation))
     axes[0].set_title("Same S3 / exact free-space grid")
-    for axis, name, item in zip(axes[1:], ("Before: 4-neighbor", "After: 8-neighbor, no corner cut"), (baseline, observation)):
+    names = ("Before: " + distance_model_label(baseline_manifest), "After: " + distance_model_label(manifest))
+    for axis, name, item in zip(axes[1:], names, (baseline, observation)):
         reading = item["centroid_free_space_hybrid"]
         value = "null" if reading["value"] is None else f"{reading['value']:.5f}"
         route_value = reading.get("free_space_route_distance")
         route_text = "null" if route_value is None else f"{route_value:.5f}"
         axis.set_title(f"{name}\nHybrid {value} m | free-cell path {route_text} m")
-    delta = f" | reduction {old-new:.5f} m ({(old-new)/old:.2%})" if old is not None and new is not None and old > 0 else ""
+    constrained = manifest.get("clearance_policy") is not None
+    delta = ((f" | increase {new-old:.5f} m ({(new-old)/old:.2%})" if constrained else
+              f" | reduction {old-new:.5f} m ({(old-new)/old:.2%})")
+             if old is not None and new is not None and old > 0 else "")
+    policy = manifest.get("clearance_policy")
+    policy_text = (f" Policy: L >= {policy['min_left_m']:g}, R >= {policy['min_right_m']:g}, "
+                   f"same-position total >= {policy['min_total_m']:g} m. Green bands: independent per-edge side guarantees." if policy else "")
     figure.suptitle(f"STATIC HISTORICAL | {pair_id}{delta}\n"
-                   "Orange/cyan: complete endpoint groups. Purple dashed: centroid/proxy/access offsets.", fontsize=11)
+                   "Orange/cyan: complete endpoint groups. Purple dashed: centroid/proxy/access offsets." + policy_text, fontsize=11)
     figure.text(.01, .01, f"Exact free-space {reference['result_id']} | SHA256 {reference['digest']}\n"
                 + " | ".join(f"Group {'AB'[i]}: {group['group_id']}" for i, group in enumerate(groups)), fontsize=8)
     figure.tight_layout(rect=(0, .07, 1, .91))
@@ -397,18 +575,21 @@ def render(args):
         raise ValueError("use the configured portable Blender in background mode")
     source_board = args.board_blend.resolve()
     run_names = ("run_manifest.json", "observations.json", "pair_index.json", "scene_geometry.json")
+    manifest, observation = load_run(args.run_dir, args.pair_id)
+    if manifest.get("clearance_policy") is not None:
+        run_names += ("input_bundle.json", "coverage_report.json")
     input_paths = [source_board, args.free_space_result.resolve(), Path(__file__).resolve(),
                    *(args.run_dir.resolve() / name for name in run_names)]
     if args.baseline_run_dir:
         input_paths.extend(args.baseline_run_dir.resolve() / name for name in run_names)
     hashes = {str(path): _file_hash(path) for path in input_paths}
-    manifest, observation = load_run(args.run_dir, args.pair_id)
     geometry = wire.load_json((args.run_dir / "scene_geometry.json").read_text(encoding="utf-8"))
     groups = prepare_groups(geometry, manifest, observation)
     baseline_manifest = baseline_observation = None
     if args.baseline_run_dir:
         baseline_manifest, baseline_observation = load_run(args.baseline_run_dir, observation["pair_id"])
-        prepare_comparison(manifest, observation, baseline_manifest, baseline_observation)
+        prepare_comparison(manifest, observation, baseline_manifest, baseline_observation,
+                           args.run_dir, args.baseline_run_dir)
     reference = dict(kind="free_space_run", result_id=args.result_id, digest=args.digest)
     bpy.ops.wm.open_mainfile(filepath=str(source_board))
     candidates = [(obj, board.board_record(obj)) for obj in board.scene_boards(bpy_module=bpy)]
@@ -431,13 +612,40 @@ def render(args):
     metadata = {"om_route_pair_id": layer["pair_id"], "om_route_result_ref": wire.canonical_json(reference),
                 "om_route_status": "static_historical", "om_route_run_dir": str(args.run_dir.resolve())}
     native = []
+    bands = layer.get("clearance_bands", ())
+    if bands:
+        # One transparent display mesh carries only the four corners of each saved edge band.
+        vertices = [point for band in bands for point in native_route_points(
+            band["points"], plane, manifest["origin_offset"], scale, z - .001)]
+        mesh = bpy.data.meshes.new("Recorded guaranteed edge side bands")
+        mesh.from_pydata(vertices, [], [tuple(range(i, i + 4)) for i in range(0, len(vertices), 4)])
+        mesh.update()
+        band_object = bpy.data.objects.new("Recorded guaranteed edge side bands", mesh)
+        bpy.context.scene.collection.objects.link(band_object)
+        band_object.parent = display
+        mesh.materials.append(board._material(record["board_id"], "Guaranteed edge side bands", (.02, .4, .33, .12), bpy))
+        for block, role in ((band_object, "overlay"), (mesh, "board_mesh")):
+            block["om_analysis_owner"], block["om_analysis_role"] = "order_analyzer", role
+        band_object["om_analysis_preview"] = True
+        for key, value in metadata.items():
+            band_object[key] = value
+        native.append(band_object)
     layers = [
             ("Recorded free-cell route", [layer["main"]] if layer["main"] else [], (1., .05, .04, 1.), .075, False),
             ("Endpoint offset", layer["offsets"], (.62, .04, .9, 1.), .045, True)]
     if baseline_layer:
-        layers.insert(0, ("Baseline four-neighbor route", [baseline_layer["main"]] if baseline_layer["main"] else [],
+        layers.insert(0, ("Baseline " + distance_model_label(baseline_manifest) + " route", [baseline_layer["main"]] if baseline_layer["main"] else [],
                           (.21, .35, .48, 1.), .12, False))
         layers.insert(1, ("Baseline endpoint offset", baseline_layer["offsets"], (.39, .48, .56, 1.), .055, True))
+    section = layer.get("clearance_cross_section")
+    if section:
+        layers.append(("Recorded clearance bottleneck", [[section["left"], section["right"]]],
+                       (.02, .4, .33, 1.), .04, False))
+        text = f"L {section['left_m']:.3f} / R {section['right_m']:.3f} / total {section['total_m']:.3f} m"
+        point = native_route_points([[section["center"][0] + .12, section["center"][1] + .12]],
+                                    plane, manifest["origin_offset"], scale, z + .003)[0]
+        material = board._material(record["board_id"], "Clearance bottleneck label", (.02, .3, .25, 1.), bpy)
+        _group_label("Recorded clearance bottleneck label", text, point, scale, display, material, metadata, bpy)
     group_reports = []
     for index, (group, color) in enumerate(zip(groups, ((1., .36, .015, 1.), (.01, .62, .73, 1.)))):
         name = "Group " + "AB"[index]
@@ -495,11 +703,16 @@ def render(args):
     scene.render.stamp_background = (.95, .95, .95, .95)
     total = observation["centroid_free_space_hybrid"]["value"]
     baseline_total = baseline_observation["centroid_free_space_hybrid"]["value"] if baseline_observation else None
-    comparison_text = (f"4-neighbor {baseline_total:.5f} m -> 8-neighbor {total:.5f} m | "
+    comparison_text = (f"{distance_model_label(baseline_manifest)} {baseline_total:.5f} m -> "
+                       f"{distance_model_label(manifest)} {total:.5f} m | "
                        if baseline_total is not None and total is not None else "")
+    policy = manifest.get("clearance_policy")
+    clearance_text = (f"Policy L >= {policy['min_left_m']:g}, R >= {policy['min_right_m']:g}, "
+                      f"total >= {policy['min_total_m']:g} m. Dark green: saved bottleneck cross-section.\n"
+                      "Translucent green bands: per-edge independent side guarantees; their sum is not minimum total.\n" if policy else "")
     scene.render.stamp_note_text = (f"STATIC HISTORICAL | pair {layer['pair_id']} | {layer['status']} | metres\n"
         f"{comparison_text}Red: recorded route. Blue-gray: baseline. Purple dashed: endpoint offsets.\n"
-        f"Orange: whole Group A. Cyan: whole Group B. Labels show all member counts.\n"
+        f"Orange: whole Group A. Cyan: whole Group B. Labels show all member counts.\n{clearance_text}"
         f"Free-space {reference['result_id']} | SHA256 {reference['digest']}")
     if scene.world is None:
         scene.world = bpy.data.worlds.new("Static preview world")
@@ -530,13 +743,19 @@ def render(args):
                   input_sha256=hashes, output_sha256={str(path.resolve()): _file_hash(path) for path in (blend, png)},
                   analysis_plane=plane, origin_offset=manifest["origin_offset"], native_scale=scale,
                   display_only_lift_above_board_m=.009,
-                  display_only_layer_lifts_m={"baseline": .008, "current_route": .009, "group_outlines": .010},
+                  display_only_layer_lifts_m={"baseline": .008, "current_route": .009, "group_outlines": .010,
+                                              **({"clearance_bands": .007} if bands else {})},
                   blender_version=bpy.app.version_string,
                   source_context="Existing board scene only; no full IFC source geometry imported.",
-                  legend={"red": "recorded current-model free-cell path", "blue_gray": "recorded four-neighbor baseline path",
+                  legend={"red": "recorded current-model free-cell path", "blue_gray": "recorded " + distance_model_label(baseline_manifest) + " baseline path" if baseline_manifest else "no baseline",
                           "purple_dashed": "centroid/proxy/access offsets; not free-space path",
                           "orange": "complete Group A projection", "cyan": "complete Group B projection"},
                   limitation="Static historical preview; selecting another result does not make this route current.")
+    if policy:
+        report.update(clearance_policy=policy, clearance=layer.get("clearance"), clearance_cross_section=section,
+                      clearance_bands=bands)
+        report["legend"]["dark_green"] = "saved narrowest edge/turn clearance cross-section"
+        report["legend"]["translucent_green"] = "per-edge guaranteed independent left/right side bands; not the minimum total"
     (args.output_dir / "preview_report.json").write_text(json.dumps(report, indent=2, allow_nan=False), encoding="utf-8")
     print(json.dumps(report, indent=2, allow_nan=False))
     return report

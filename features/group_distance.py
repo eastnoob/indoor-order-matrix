@@ -12,8 +12,11 @@ import tracemalloc
 from typing import Any
 
 import networkx as nx
+import numpy as np
+import shapely
 from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
+from shapely.strtree import STRtree
 
 from .field_core import FieldQuery, FieldStatus, _freeze, _json_value, fingerprint_evidence_dependency
 from .free_space_field import FreeSpaceField
@@ -108,6 +111,110 @@ class GroupDistanceResult(_FrozenRecord):
     pair_index: Any
     manifest: Any
     diagnostics: Any
+
+
+@dataclass(frozen=True)
+class _ClearanceIndex:
+    """Spatial index over exact physical and domain boundary segments."""
+
+    segments: tuple[Any, ...]
+    tree: Any
+    coordinates: Any
+
+
+def _boundary_segments(geometry: Any) -> tuple[LineString, ...]:
+    """Flatten polygon and line rings into closed geometry boundary segments."""
+    segments = []
+    for ring in _clearance_rings(geometry):
+        coordinates = tuple(ring.coords)
+        segments.extend(LineString((first, second)) for first, second in pairwise(coordinates) if first != second)
+    return tuple(segments)
+
+
+def _build_clearance_index(blockers: Any, domain: Any) -> _ClearanceIndex:
+    """Build one immutable boundary index shared by all constrained graph checks."""
+    domain_boundary = domain.boundary if domain.geom_type in {"Polygon", "MultiPolygon"} else domain
+    # Node crossings so the nearest segment stays fixed between angular vertex events.
+    boundaries = [domain_boundary]
+    if not blockers.is_empty:
+        boundaries.append(blockers.boundary)
+    return _segment_index(_boundary_segments(unary_union(boundaries)))
+
+
+def _segment_index(segments: tuple) -> _ClearanceIndex:
+    """Retain numeric endpoints beside the exact Shapely segment authority."""
+    coordinates = np.asarray([tuple(segment.coords) for segment in segments], dtype=float).reshape((-1, 2, 2))
+    return _ClearanceIndex(segments, STRtree(segments), coordinates)
+
+
+def _local_clearance_index(index: _ClearanceIndex, bounds: tuple, radius: float) -> _ClearanceIndex:
+    """Keep complete segments that could improve a finite true-distance upper bound."""
+    if not math.isfinite(radius) or radius <= 0:
+        return index
+    area = box(bounds[0] - radius, bounds[1] - radius, bounds[2] + radius, bounds[3] + radius)
+    return _segment_index(tuple(index.segments[int(i)] for i in sorted(index.tree.query(area))))
+
+
+def _batch_clearance(points: Any, tangents: Any, index: _ClearanceIndex, extent: float) -> tuple:
+    """Intersect normal rays in numeric batches and retain the nearest segment identity."""
+    points, tangents = np.asarray(points, dtype=float), np.asarray(tangents, dtype=float)
+    normals = np.column_stack((-tangents[:, 1], tangents[:, 0]))
+    origins = np.repeat(points, 2, axis=0)
+    directions = np.stack((normals, -normals), axis=1).reshape((-1, 2))
+    values, nearest = _indexed_ray_hits(origins, directions, index, extent)
+    return values.reshape((-1, 2)), nearest.reshape((-1, 2))
+
+
+def _indexed_ray_hits(origins: Any, directions: Any, index: _ClearanceIndex, extent: float) -> tuple:
+    """Intersect ordinary rays without widening parallel or near-parallel geometry."""
+    if len(origins) > 64:
+        # Bound temporary candidate pairs when a wide ray crosses a detailed scene.
+        batches = [_indexed_ray_hits(origins[start:start + 64], directions[start:start + 64], index, extent)
+                   for start in range(0, len(origins), 64)]
+        return tuple(np.concatenate([batch[part] for batch in batches]) for part in (0, 1))
+    values, nearest = np.full(len(origins), np.inf), np.full(len(origins), -1, dtype=int)
+    if index.segments:
+        ends = origins + directions * extent
+        scale = np.maximum(1., np.maximum(np.max(np.abs(origins), axis=1), np.max(np.abs(ends), axis=1)))
+        tolerance = 64 * np.finfo(float).eps * scale
+        low, high = np.minimum(origins, ends) - tolerance[:, None], np.maximum(origins, ends) + tolerance[:, None]
+        ray_ids, segment_ids = index.tree.query(shapely.box(low[:, 0], low[:, 1], high[:, 0], high[:, 1]))
+        vectors = index.coordinates[segment_ids, 1] - index.coordinates[segment_ids, 0]
+        offsets = index.coordinates[segment_ids, 0] - origins[ray_ids]
+        rays = directions[ray_ids]
+        denominator = rays[:, 0] * vectors[:, 1] - rays[:, 1] * vectors[:, 0]
+        cross_offset = offsets[:, 0] * rays[:, 1] - offsets[:, 1] * rays[:, 0]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            along = (offsets[:, 0] * vectors[:, 1] - offsets[:, 1] * vectors[:, 0]) / denominator
+            fraction = cross_offset / denominator
+        valid = ((denominator != 0) & (along >= 0) & (along <= extent)
+                 & (fraction >= 0) & (fraction <= 1))
+        collinear = (denominator == 0) & (cross_offset == 0)
+        if np.any(collinear):
+            first = np.sum(offsets * rays, axis=1) / np.sum(rays * rays, axis=1)
+            second = first + np.sum(vectors * rays, axis=1) / np.sum(rays * rays, axis=1)
+            near, far = np.minimum(first, second), np.maximum(first, second)
+            collinear &= (far >= 0) & (near <= extent)
+            along = np.where(collinear, np.maximum(near, 0.), along)
+            valid |= collinear
+        distances = np.maximum(along, 0.) * np.linalg.norm(rays, axis=1)
+        np.minimum.at(values, ray_ids[valid], distances[valid])
+        winners = valid & (distances == values[ray_ids])
+        nearest[ray_ids[winners]] = segment_ids[winners]
+    return values, nearest
+
+
+def _vertex_event_values(points: Any, tangents: Any, vertices: Any, sides: Any, positions: Any,
+                         index: _ClearanceIndex, extent: float) -> list:
+    """Bind known boundary vertices to their own events without buffering ordinary rays."""
+    if not len(points):
+        return []
+    distances, _ = _batch_clearance(points, tangents, index, extent)
+    vertex_distances = np.linalg.norm(vertices - points, axis=1)
+    distances[np.arange(len(points)), sides] = np.minimum(distances[np.arange(len(points)), sides], vertex_distances)
+    return [(left, right, left + right, float(position), tuple(tangent), (int(side), float(distance)), tuple(point))
+            for (left, right), position, tangent, side, distance, point
+            in zip(distances, positions, tangents, sides, vertex_distances, points)]
 
 
 def serialize_group_distance_result(result: GroupDistanceResult) -> dict[str, Any]:
@@ -468,13 +575,28 @@ def _heading(first: tuple[float, float], second: tuple[float, float]) -> tuple[f
     return dx / length, dy / length
 
 
-def _ray_distance(point: tuple[float, float], direction: tuple[float, float], blockers: Any, boundary: Any) -> float:
+def _ray_distance(point: tuple[float, float], direction: tuple[float, float], blockers: Any, boundary: Any,
+                  max_distance: float | None = None, index: _ClearanceIndex | None = None) -> float:
     """Measure the first positive hit on a normal ray against mass or domain boundary."""
-    extent = max(boundary.bounds[2] - boundary.bounds[0], boundary.bounds[3] - boundary.bounds[1], 1.0) * 4.0
+    if index is not None and max_distance is not None:
+        values, _ = _indexed_ray_hits(np.asarray([point]), np.asarray([direction]), index, max_distance)
+        return min(float(values[0]), max_distance)
+    if index is not None and max_distance is None:
+        extent = max(boundary.bounds[2] - boundary.bounds[0], boundary.bounds[3] - boundary.bounds[1], 1.) * 4
+        radius = min(.55, extent)
+        # An exact first hit inside this radius cannot be superseded by any farther segment.
+        while True:
+            value = _ray_distance(point, direction, blockers, boundary, radius, index)
+            if value < radius or radius >= extent:
+                return value if value < radius else float("inf")
+            radius = min(radius * 2, extent)
+    extent = max_distance or max(boundary.bounds[2] - boundary.bounds[0], boundary.bounds[3] - boundary.bounds[1], 1.0) * 4.0
     end = (point[0] + direction[0] * extent, point[1] + direction[1] * extent)
     ray = LineString((point, end))
     hits = []
-    for geometry in (blockers, boundary.boundary):
+    domain_boundary = boundary.boundary if boundary.geom_type in {"Polygon", "MultiPolygon"} else boundary
+    geometries = (index.segments[index_value] for index_value in index.tree.query(ray, predicate="intersects")) if index is not None else (blockers, domain_boundary)
+    for geometry in geometries:
         intersection = ray.intersection(geometry)
         if intersection.is_empty:
             continue
@@ -483,17 +605,30 @@ def _ray_distance(point: tuple[float, float], direction: tuple[float, float], bl
                 continue
             for coordinate in candidate.coords:
                 distance = math.hypot(coordinate[0] - point[0], coordinate[1] - point[1])
-                if distance > 1e-9:
-                    hits.append(distance)
-    return min(hits, default=float("inf"))
+                hits.append(distance)
+    return min(hits, default=max_distance if max_distance is not None else float("inf"))
 
 
-def _clearance_at(point: tuple[float, float], tangent: tuple[float, float], blockers: Any, domain: Any) -> tuple[float, float, float]:
+def _clearance_rings(geometry: Any):
+    """Yield polygon rings or indexed boundary segments for event partitioning."""
+    for item in getattr(geometry, "geoms", (geometry,)):
+        if hasattr(item, "exterior"):
+            yield item.exterior
+            yield from item.interiors
+        elif item.geom_type in {"LineString", "LinearRing"}:
+            yield item
+
+
+def _clearance_at(point: tuple[float, float], tangent: tuple[float, float], blockers: Any, domain: Any,
+                  max_distance: float | None = None, index: _ClearanceIndex | None = None) -> tuple[float, float, float]:
     """Return left, right and total cross-section clearance at one route position."""
+    origin = Point(point)
+    if blockers.covers(origin) or not domain.contains(origin):
+        return 0.0, 0.0, 0.0
     left = (-tangent[1], tangent[0])
     right = (tangent[1], -tangent[0])
-    left_distance = _ray_distance(point, left, blockers, domain)
-    right_distance = _ray_distance(point, right, blockers, domain)
+    left_distance = _ray_distance(point, left, blockers, domain, max_distance, index)
+    right_distance = _ray_distance(point, right, blockers, domain, max_distance, index)
     return left_distance, right_distance, left_distance + right_distance
 
 
@@ -503,14 +638,8 @@ def _segment_positions(segment: LineString, blockers: Any, domain: Any) -> tuple
     dx, dy = segment.coords[-1][0] - start[0], segment.coords[-1][1] - start[1]
     length_sq = dx * dx + dy * dy
     positions = {0.0, 1.0, 0.5}
-    def rings(geometry):
-        """Yield exterior and interior rings for polygon or multipolygon witnesses."""
-        for polygon in getattr(geometry, "geoms", (geometry,)):
-            if hasattr(polygon, "exterior"):
-                yield polygon.exterior
-                yield from polygon.interiors
     for geometry in (blockers, domain):
-        for ring in rings(geometry):
+        for ring in _clearance_rings(geometry):
             for coordinate in ring.coords:
                 t = ((coordinate[0] - start[0]) * dx + (coordinate[1] - start[1]) * dy) / length_sq
                 if 0.0 < t < 1.0:
@@ -521,18 +650,57 @@ def _segment_positions(segment: LineString, blockers: Any, domain: Any) -> tuple
 
 
 def _edge_clearance(first: tuple[int, int], second: tuple[int, int], grid: GridDescriptor,
-                    blockers: Any, domain: Any, thresholds: tuple[float, float, float]) -> dict | None:
-    """Evaluate continuous directional clearance over one positive-length grid edge."""
+                    blockers: Any, domain: Any, thresholds: tuple[float, float, float],
+                    max_distance: float | None = None, index: _ClearanceIndex | None = None,
+                    screen_only: bool = False) -> dict | None:
+    """Evaluate piecewise-affine directional clearance over a complete grid edge."""
     start, end = _center(first, grid), _center(second, grid)
     segment = LineString((start, end))
     if segment.crosses(blockers) or segment.within(blockers) or segment.touches(blockers):
         return None
     tangent = _heading(start, end)
-    values = []
-    for position in _segment_positions(segment, blockers, domain):
-        point = tuple(segment.interpolate(position, normalized=True).coords[0])
-        left, right, total = _clearance_at(point, tangent, blockers, domain)
-        values.append((left, right, total, position * segment.length))
+    index = index or _build_clearance_index(blockers, domain)
+    safe_radius = max(thresholds[0], thresholds[1], thresholds[2] / 2)
+    if (screen_only and domain.contains(segment)
+            and segment.distance(index.segments[int(index.tree.nearest(segment))]) >= safe_radius):
+        return {}
+    values = [(*_clearance_at(point, tangent, blockers, domain, max_distance, index), fraction * segment.length,
+               tangent, None, tuple(point))
+              for point, fraction in ((start, 0.0), (end, 1.0), (tuple(segment.interpolate(.5, normalized=True).coords[0]), .5))]
+    seeds = tuple(values)
+    if any(any(value[i] + 1e-12 < thresholds[i] for i in range(3)) for value in values):
+        return None
+    radius = max_distance if screen_only else max(min(value[i] for value in values) for i in range(3))
+    local = _local_clearance_index(index, segment.bounds, radius)
+    coordinates = local.coordinates.reshape((-1, 2))
+    direction = np.asarray(end) - start
+    projected = (coordinates - start) @ direction / float(direction @ direction)
+    events = np.unique(np.r_[0., .5, 1., projected[(projected > 0) & (projected < 1)]])
+    positions = np.unique(np.r_[events, (events[:-1] + events[1:]) / 2])
+    points = np.asarray(start) + positions[:, None] * direction
+    extent = max(domain.bounds[2] - domain.bounds[0], domain.bounds[3] - domain.bounds[1], 1.0) * 4
+    distances, _ = _batch_clearance(points, np.tile(tangent, (len(points), 1)), local, extent)
+    values.extend((left, right, left + right, float(position * segment.length), tangent, None, tuple(point))
+                  for (left, right), position, point in zip(distances, positions, points))
+    mask = (projected >= 0) & (projected <= 1)
+    event_points = np.asarray(start) + projected[mask, None] * direction
+    event_vertices = coordinates[mask]
+    side = np.where((event_vertices - event_points) @ np.asarray((-tangent[1], tangent[0])) >= 0, 0, 1)
+    values.extend(_vertex_event_values(event_points, np.tile(tangent, (len(event_points), 1)), event_vertices, side,
+                                      projected[mask] * segment.length, local, extent))
+    if not screen_only:
+        chosen = [min(values, key=lambda value: value[i]) for i in range(3)]
+        # Serialized minima are remeasured against the complete physical polygons.
+        values = list(seeds)
+        for record in chosen:
+            position = record[3]
+            # Reconstructing a diagonal event from its scalar distance can move
+            # the origin by one ulp and lose the silhouette that generated it.
+            left, right, _ = _clearance_at(record[6], tangent, blockers, domain, index=index)
+            if record[5] is not None:
+                side, distance = record[5]
+                left, right = (min(left, distance), right) if side == 0 else (left, min(right, distance))
+            values.append((left, right, left + right, position))
     limiting = min(values, key=lambda value: (value[2], value[0], value[1], value[3]))
     minimum_left = min(value[0] for value in values)
     minimum_right = min(value[1] for value in values)
@@ -540,73 +708,318 @@ def _edge_clearance(first: tuple[int, int], second: tuple[int, int], grid: GridD
     epsilon = 1e-12
     if minimum_left + epsilon < thresholds[0] or minimum_right + epsilon < thresholds[1] or minimum_total + epsilon < thresholds[2]:
         return None
+    if screen_only:
+        return {}
     return {"min_left_m": minimum_left, "min_right_m": minimum_right, "min_total_m": minimum_total,
             "limiting_position_m": limiting[3], "limiting_left_m": limiting[0],
             "limiting_right_m": limiting[1], "limiting_total_m": limiting[2]}
 
 
 def _turn_clearance(point: tuple[float, float], incoming: tuple[float, float], outgoing: tuple[float, float],
-                    blockers: Any, domain: Any, thresholds: tuple[float, float, float]) -> dict | None:
-    """Check the cross-section while the heading rotates through a grid vertex."""
+                    blockers: Any, domain: Any, thresholds: tuple[float, float, float],
+                    max_distance: float | None = None, index: _ClearanceIndex | None = None,
+                    screen_only: bool = False) -> dict | None:
+    """Check each visibility interval, including its continuous total-width minimum."""
     a = math.atan2(incoming[1], incoming[0])
     b = math.atan2(outgoing[1], outgoing[0])
     delta = (b - a + math.pi) % (2 * math.pi) - math.pi
-    # Vertex and segment-direction events partition the ray-intersection
-    # functions into intervals where endpoint/midpoint checks are sufficient.
-    fractions = {0.0, 1.0}
+    index = index or _build_clearance_index(blockers, domain)
+    safe_radius = max(thresholds[0], thresholds[1], thresholds[2] / 2)
+    origin = Point(point)
+    if (screen_only and domain.contains(origin) and not blockers.covers(origin)
+            and origin.distance(index.segments[int(index.tree.nearest(origin))]) >= safe_radius):
+        return {}
+    values = [(*_clearance_at(point, (math.cos(a + delta * fraction), math.sin(a + delta * fraction)),
+                             blockers, domain, max_distance, index), fraction,
+               (math.cos(a + delta * fraction), math.sin(a + delta * fraction)))
+              for fraction in (0.0, .5, 1.0)]
+    seeds = tuple(values)
+    if any(any(value[i] + 1e-12 < thresholds[i] for i in range(3)) for value in values):
+        return None
+    radius = max_distance if screen_only else max(min(value[i] for value in values) for i in range(3))
+    local = _local_clearance_index(index, (*point, *point), radius)
+    fractions = np.array([0., 1.])
+    visible_ids = np.array([], dtype=int)
+    if abs(delta) > 1e-12 and local.segments:
+        # Only first-hit boundary changes can affect a minimum; occluded vertices
+        # do not split visibility and otherwise create quadratic ray-query work.
+        visibility = _turn_visibility_intervals(point, incoming, outgoing, local)
+        all_angles = np.arctan2(local.coordinates[:, :, 1] - point[1], local.coordinates[:, :, 0] - point[0])
+        spans = np.abs((all_angles[:, 1] - all_angles[:, 0] + math.pi) % (2 * math.pi) - math.pi)
+        # Sub-ulp silhouettes have no representable open interval; their real
+        # vertices still provide exact event candidates without widening a ray.
+        collapsed = np.flatnonzero(spans <= 64 * np.finfo(float).eps)
+        visible_ids = np.asarray(sorted({item[3] for item in visibility} | set(map(int, collapsed))), dtype=int)
+        local = _segment_index(tuple(local.segments[item] for item in visible_ids))
+        relative = local.coordinates.reshape((-1, 2)) - point
+        vertex_angles = np.arctan2(relative[:, 1], relative[:, 0])
+        directions = local.coordinates[:, 1] - local.coordinates[:, 0]
+        segment_angles = np.arctan2(directions[:, 1], directions[:, 0])
+        limits = [angle - side * math.pi / 2 for side, first, second, _ in visibility for angle in (first, second)]
+        angles = np.r_[vertex_angles - math.pi / 2, vertex_angles + math.pi / 2,
+                       segment_angles, segment_angles + math.pi, segment_angles - math.pi / 2, segment_angles + math.pi / 2, limits]
+        raw = (angles - a) % (2 * math.pi) if delta > 0 else -((a - angles) % (2 * math.pi))
+        events = raw / delta
+        fractions = np.unique(np.r_[fractions, events[(events > 0) & (events < 1)]])
+    midpoints = (fractions[:-1] + fractions[1:]) / 2
+    samples = np.r_[fractions, midpoints]
+    angles = a + delta * samples
+    extent = max(domain.bounds[2] - domain.bounds[0], domain.bounds[3] - domain.bounds[1], 1.0) * 4
+    tangents = np.column_stack((np.cos(angles), np.sin(angles)))
+    distances, nearest = _batch_clearance(np.tile(point, (len(angles), 1)), tangents, local, extent)
+    values.extend((left, right, left + right, float(fraction), tuple(tangent))
+                  for (left, right), fraction, tangent in zip(distances, samples, tangents))
+    if abs(delta) > 1e-12 and local.segments:
+        vertex_fractions = ((vertex_angles - math.pi / 2 - a) % (2 * math.pi) / delta if delta > 0 else
+                            -((a - vertex_angles + math.pi / 2) % (2 * math.pi)) / delta)
+        right_fractions = ((vertex_angles + math.pi / 2 - a) % (2 * math.pi) / delta if delta > 0 else
+                           -((a - vertex_angles - math.pi / 2) % (2 * math.pi)) / delta)
+        vertex_fractions = np.r_[vertex_fractions, right_fractions]
+        sides = np.r_[np.zeros(len(vertex_angles), dtype=int), np.ones(len(vertex_angles), dtype=int)]
+        vertices = np.tile(local.coordinates.reshape((-1, 2)), (2, 1))
+        mask = (vertex_fractions >= 0) & (vertex_fractions <= 1)
+        vertices, sides, vertex_fractions = vertices[mask], sides[mask], vertex_fractions[mask]
+        rays = vertices - point
+        lengths = np.linalg.norm(rays, axis=1)
+        nonzero = lengths > 0
+        vertices, sides, vertex_fractions, rays, lengths = (item[nonzero] for item in (vertices, sides, vertex_fractions, rays, lengths))
+        rays = rays / lengths[:, None]
+        event_tangents = np.column_stack((rays[:, 1], -rays[:, 0])) * np.where(sides == 0, 1., -1.)[:, None]
+        values.extend(_vertex_event_values(np.tile(point, (len(vertices), 1)), event_tangents, vertices, sides,
+                                          vertex_fractions, local, extent))
     if abs(delta) > 1e-12:
-        def add_angle(angle: float) -> None:
-            """Add an angular event when it lies on the chosen shortest arc."""
-            raw = angle - a
-            while raw - delta > math.pi:
-                raw -= 2 * math.pi
-            while raw - delta < -math.pi:
-                raw += 2 * math.pi
-            if delta < 0 and raw > 0:
-                raw -= 2 * math.pi
-            if delta > 0 and raw < 0:
-                raw += 2 * math.pi
-            fraction = raw / delta
-            if 0.0 < fraction < 1.0:
-                fractions.add(float(fraction))
+        # Positive ray distances are secants on a fixed visibility interval; their sum is strictly convex.
+        ids = nearest[len(fractions):]
+        valid = np.all(ids >= 0, axis=1)
+        if np.any(valid):
+            segments = local.coordinates[ids[valid]]
+            vectors = segments[:, :, 1] - segments[:, :, 0]
+            normals = np.stack((-vectors[:, :, 1], vectors[:, :, 0]), axis=-1)
+            constants = np.sum(normals * (segments[:, :, 0] - point), axis=-1)
+            cosine = normals[:, :, 1] * (1., -1.)
+            sine = -normals[:, :, 0] * (1., -1.)
+            endpoints = a + delta * np.column_stack((fractions[:-1], fractions[1:]))[valid]
+            low, high = np.min(endpoints, axis=1), np.max(endpoints, axis=1)
 
-        def rings(geometry):
-            """Yield polygon boundary rings for all geometry components."""
-            for polygon in getattr(geometry, "geoms", (geometry,)):
-                if hasattr(polygon, "exterior"):
-                    yield polygon.exterior
-                    yield from polygon.interiors
+            def derivative(theta: Any) -> Any:
+                """Differentiate the fixed two-segment total using one-sided interval limits."""
+                denominator = cosine * np.cos(theta[:, None]) + sine * np.sin(theta[:, None])
+                numerator = -cosine * np.sin(theta[:, None]) + sine * np.cos(theta[:, None])
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    return np.sum(-constants * numerator / denominator ** 2, axis=1)
 
-        for geometry in (blockers, domain):
-            for ring in rings(geometry):
-                coordinates = tuple(ring.coords)
-                for vertex in coordinates[:-1]:
-                    vertex_angle = math.atan2(vertex[1] - point[1], vertex[0] - point[0])
-                    # The clearance rays are the tangent's left/right normals.
-                    add_angle(vertex_angle - math.pi / 2)
-                    add_angle(vertex_angle + math.pi / 2)
-                for first, second in zip(coordinates, coordinates[1:]):
-                    angle = math.atan2(second[1] - first[1], second[0] - first[0])
-                    add_angle(angle)
-                    add_angle(angle + math.pi)
-                    add_angle(angle - math.pi / 2)
-                    add_angle(angle + math.pi / 2)
-    ordered = sorted(fractions)
-    fractions.update(first + (second - first) / 2 for first, second in zip(ordered, ordered[1:]))
-    samples = tuple(sorted(fractions))
-    values = []
-    for fraction in samples:
-        angle = a + delta * fraction
-        left, right, total = _clearance_at(point, (math.cos(angle), math.sin(angle)), blockers, domain)
-        values.append((left, right, total, fraction))
+            bracket = (derivative(low) < 0) & (derivative(high) > 0)
+            for _ in range(56):
+                middle = (low + high) / 2
+                negative = derivative(middle) < 0
+                low = np.where(negative, middle, low)
+                high = np.where(negative, high, middle)
+            roots = ((low + high) / 2)[bracket]
+            if len(roots):
+                root_tangents = np.column_stack((np.cos(roots), np.sin(roots)))
+                root_distances, _ = _batch_clearance(np.tile(point, (len(roots), 1)), root_tangents, local, extent)
+                values.extend((left, right, left + right, float((angle - a) / delta), tuple(tangent))
+                              for (left, right), angle, tangent in zip(root_distances, roots, root_tangents))
+    if not screen_only:
+        chosen = [min(values, key=lambda value: value[i]) for i in range(3)]
+        values = list(seeds)
+        for record in chosen:
+            fraction = record[3]
+            tangent = record[4] if len(record) > 4 else (math.cos(a + delta * fraction), math.sin(a + delta * fraction))
+            left, right, _ = _clearance_at(point, tangent, blockers, domain, index=index)
+            if len(record) > 5:
+                side, distance = record[5]
+                left, right = (min(left, distance), right) if side == 0 else (left, min(right, distance))
+            values.append((left, right, left + right, fraction))
     minimum_left, minimum_right, minimum_total = (min(item[index] for item in values) for index in range(3))
     epsilon = 1e-12
     if minimum_left + epsilon < thresholds[0] or minimum_right + epsilon < thresholds[1] or minimum_total + epsilon < thresholds[2]:
         return None
+    if screen_only:
+        return {}
     limiting = min(values, key=lambda item: (item[2], item[0], item[1], item[3]))
     return {"min_left_m": minimum_left, "min_right_m": minimum_right, "min_total_m": minimum_total,
             "limiting_left_m": limiting[0], "limiting_right_m": limiting[1], "limiting_total_m": limiting[2],
             "limiting_angle_fraction": limiting[3]}
+
+
+def _support_envelope(intervals: list, coordinate: Any) -> tuple:
+    """Recover the first noded boundary on each open event interval."""
+    events = {}
+    for first, second, segment in intervals:
+        if first < second:
+            events.setdefault(first, [[], []])[0].append(segment)
+            events.setdefault(second, [[], []])[1].append(segment)
+    positions, active, envelope = sorted(events), [], []
+    for first, second in pairwise(positions):
+        additions, removals = events[first]
+        for segment in removals:
+            active.remove(segment)
+        middle = first + (second - first) / 2
+        # Noding makes the radial order invariant between vertex events. New
+        # segments are inserted at an interior position, away from shared ends.
+        for segment in additions:
+            distance = coordinate(segment, middle)
+            low, high = 0, len(active)
+            while low < high:
+                split = (low + high) // 2
+                if (coordinate(active[split], middle), active[split]) < (distance, segment):
+                    low = split + 1
+                else:
+                    high = split
+            active.insert(low, segment)
+        if not active:
+            continue
+        segment = active[0]
+        if envelope and envelope[-1][2] == segment and envelope[-1][1] == first:
+            envelope[-1] = envelope[-1][0], second, segment
+        else:
+            envelope.append((first, second, segment))
+    return tuple(envelope)
+
+
+def _side_sweep_cells(geometry: Any, grid: GridDescriptor) -> tuple:
+    """Map positive swept area, or a degenerate ray's length, to retained cells."""
+    if geometry.is_empty:
+        return ()
+    minimum_x, minimum_y, maximum_x, maximum_y = geometry.bounds
+    first_row = max(0, math.floor((minimum_y - grid.origin[1]) / grid.spacing) - 1)
+    last_row = min(grid.n_rows - 1, math.floor((maximum_y - grid.origin[1]) / grid.spacing))
+    first_col = max(0, math.floor((minimum_x - grid.origin[0]) / grid.spacing) - 1)
+    last_col = min(grid.n_cols - 1, math.floor((maximum_x - grid.origin[0]) / grid.spacing))
+    cells = tuple((row, col) for row in range(first_row, last_row + 1)
+                  for col in range(first_col, last_col + 1))
+    if not cells:
+        return ()
+    polygons = np.asarray([_cell_polygon(cell, grid) for cell in cells], dtype=object)
+    # A terminal point contributes neither area nor length. For a ray exactly
+    # on a lattice boundary, both adjoining cells provide positive-length support.
+    # Interior intersection dimension two tests positive area without constructing
+    # thousands of overlays or discarding tiny parts through overlay cancellation.
+    positive = (shapely.relate_pattern(geometry, polygons, "2********") if geometry.area > 0
+                else shapely.length(shapely.intersection(polygons, geometry)) > 0)
+    return tuple(cell for cell, included in zip(cells, positive) if included)
+
+
+def _edge_side_sweep(first: tuple, second: tuple, context: Mapping) -> Any:
+    """Build the full normal sweep from affine first-hit interval limits."""
+    grid, index = context["grid"], context["index"]
+    start, end = np.asarray(_center(first, grid)), np.asarray(_center(second, grid))
+    tangent = (end - start) / np.linalg.norm(end - start)
+    normal = np.asarray((-tangent[1], tangent[0]))
+    relative = index.coordinates - start
+    longitudinal, lateral = relative @ tangent, relative @ normal
+    length = float(np.linalg.norm(end - start))
+    pieces = []
+    for side in (1., -1.):
+        intervals = []
+        for segment in np.flatnonzero(np.max(longitudinal, axis=1) > 0):
+            low, high = sorted(longitudinal[segment])
+            low, high = max(0., float(low)), min(length, float(high))
+            if low >= high:
+                continue
+            middle = low + (high - low) / 2
+            delta = longitudinal[segment, 1] - longitudinal[segment, 0]
+            distance = lateral[segment, 0] + (middle - longitudinal[segment, 0]) / delta * (
+                lateral[segment, 1] - lateral[segment, 0])
+            if side * distance > 0:
+                intervals.append((low, high, int(segment)))
+
+        def distance_at(segment: int, position: float) -> float:
+            """Interpolate the signed normal hit on one fixed boundary segment."""
+            fraction = (position - longitudinal[segment, 0]) / (longitudinal[segment, 1] - longitudinal[segment, 0])
+            return side * float(lateral[segment, 0] + fraction * (lateral[segment, 1] - lateral[segment, 0]))
+
+        for low, high, segment in _support_envelope(intervals, distance_at):
+            a, b = start + low * tangent, start + high * tangent
+            pieces.append(Polygon((a, b, b + side * distance_at(segment, high) * normal,
+                                   a + side * distance_at(segment, low) * normal)))
+    return unary_union(pieces)
+
+
+def _turn_visibility_intervals(point: tuple, incoming: tuple, outgoing: tuple, index: _ClearanceIndex) -> tuple:
+    """Return (side, normal-angle start, end, first-hit segment ID) intervals.
+
+    Angles always increase and use the complete noded boundary index. A zero
+    turn has no positive angular interval and returns an empty tuple.
+    """
+    a, b = math.atan2(incoming[1], incoming[0]), math.atan2(outgoing[1], outgoing[0])
+    delta = (b - a + math.pi) % (2 * math.pi) - math.pi
+    if delta == 0:
+        return ()
+    relative = index.coordinates - point
+    vectors = relative[:, 1] - relative[:, 0]
+    constants = relative[:, 0, 0] * vectors[:, 1] - relative[:, 0, 1] * vectors[:, 0]
+    angles = np.arctan2(relative[:, :, 1], relative[:, :, 0])
+    span = (angles[:, 1] - angles[:, 0]) % (2 * math.pi)
+    starts = np.where(span <= math.pi, angles[:, 0], angles[:, 1])
+    spans = np.minimum(span, 2 * math.pi - span)
+    result = []
+    for side in (1., -1.):
+        low, high = sorted((a + side * math.pi / 2, a + delta + side * math.pi / 2))
+        first = (starts - low) % (2 * math.pi) + low
+        intervals = []
+        for shift in (0., -2 * math.pi):
+            begin = np.maximum(low, first + shift)
+            end = np.minimum(high, first + spans + shift)
+            intervals.extend((float(begin[segment]), float(end[segment]), int(segment))
+                             for segment in np.flatnonzero(begin < end))
+
+        def distance_at(segment: int, angle: float) -> float:
+            """Order active noded segments by their positive radial intersection."""
+            direction = math.cos(angle), math.sin(angle)
+            denominator = direction[0] * vectors[segment, 1] - direction[1] * vectors[segment, 0]
+            return float(constants[segment] / denominator)
+
+        result.extend((int(side), begin, end, segment)
+                      for begin, end, segment in _support_envelope(intervals, distance_at))
+    return tuple(result)
+
+
+def _turn_side_sweep(cell: tuple, incoming: tuple, outgoing: tuple, context: Mapping) -> Any:
+    """Build each rotating-normal visibility fan to the full first physical hit."""
+    point = np.asarray(_center(cell, context["grid"]))
+    index, domain = context["index"], context["domain"]
+    a, b = math.atan2(incoming[1], incoming[0]), math.atan2(outgoing[1], outgoing[0])
+    delta = (b - a + math.pi) % (2 * math.pi) - math.pi
+    if delta == 0:
+        normal = np.asarray((-incoming[1], incoming[0]))
+        extent = max(domain.bounds[2] - domain.bounds[0], domain.bounds[3] - domain.bounds[1], 1.) * 4
+        endpoints = []
+        for side in (1., -1.):
+            ray = LineString((point, point + side * normal * extent))
+            candidates = index.tree.query(ray, predicate="intersects")
+            hits = shapely.intersection(ray, np.asarray(index.segments, dtype=object)[candidates])
+            distance = float(np.min(shapely.distance(Point(point), hits)))
+            endpoints.append(point + side * normal * distance)
+        return LineString(endpoints)
+    relative = index.coordinates - point
+    vectors = relative[:, 1] - relative[:, 0]
+    constants = relative[:, 0, 0] * vectors[:, 1] - relative[:, 0, 1] * vectors[:, 0]
+    pieces = []
+    for _, begin, end, segment in _turn_visibility_intervals(point, incoming, outgoing, index):
+        directions = np.asarray(((math.cos(begin), math.sin(begin)), (math.cos(end), math.sin(end))))
+        denominator = directions[:, 0] * vectors[segment, 1] - directions[:, 1] * vectors[segment, 0]
+        distances = constants[segment] / denominator
+        hits = point + distances[:, None] * directions
+        pieces.append(Polygon((point, hits[0], hits[1])))
+    return unary_union(pieces)
+
+
+def _clearance_side_support(context: dict, first: tuple, second: tuple, incoming: tuple | None = None) -> tuple:
+    """Cache complete side dependencies separately from capped feasibility screens."""
+    if incoming is None:
+        key = tuple(sorted((first, second)))
+        cache = context["edge_side_support"]
+        if key not in cache:
+            cache[key] = _side_sweep_cells(_edge_side_sweep(first, second, context), context["grid"])
+    else:
+        heading = _heading(_center(first, context["grid"]), _center(second, context["grid"]))
+        key = first, tuple(sorted((incoming, heading)))
+        cache = context["turn_side_support"]
+        if key not in cache:
+            cache[key] = _side_sweep_cells(_turn_side_sweep(first, incoming, heading, context), context["grid"])
+    return cache[key]
 
 
 def _constrained_graphs(bundle: GroupDistanceInput, domain: Any, samples: Mapping, base_graphs: tuple) -> tuple:
@@ -616,40 +1029,110 @@ def _constrained_graphs(bundle: GroupDistanceInput, domain: Any, samples: Mappin
         return base_graphs
     blockers = unary_union([_shape(record.get("geometry_components")) for record in bundle.physical_occupancy
                             if record.get("geometry_components")])
+    clearance_index = _build_clearance_index(blockers, domain)
+    screening_distance = max(thresholds)
     observed_base, optimistic_base, frontier = base_graphs
     observed, optimistic = nx.DiGraph(), nx.DiGraph()
+    # Geometry and policy are fixed for this calculation. Reuse exact witnesses
+    # across the two support graphs, including failed geometric checks.
+    edge_clearances, turn_clearances = {}, {}
+    # Outside cells cannot support a positive interior sweep. Only genuinely
+    # established interior samples permit deferring side enumeration to output.
+    defer_side_support = all(sample["status"] == "established" or (
+        sample["status"] == "outside" and _cell_polygon(cell, bundle.grid).intersection(domain).area == 0)
+        for cell, sample in samples.items())
+    witness_context = {"grid": bundle.grid, "blockers": blockers, "domain": domain, "thresholds": thresholds, "index": clearance_index,
+                       "edge_witnesses": {}, "turn_witnesses": {}, "samples": samples,
+                       "edge_side_support": {}, "turn_side_support": {}}
     for base in (observed_base, optimistic_base):
         target = observed if base is observed_base else optimistic
+        target.graph["_clearance_context"] = witness_context
         directed = []
         for first, second, data in base.edges(data=True):
             for start, end in ((first, second), (second, first)):
-                clearance = _edge_clearance(start, end, bundle.grid, blockers, domain, thresholds)
+                edge_key = start, end
+                if edge_key not in edge_clearances:
+                    edge_clearances[edge_key] = _edge_clearance(start, end, bundle.grid, blockers, domain, thresholds,
+                                                               screening_distance, clearance_index, True)
+                clearance = edge_clearances[edge_key]
                 if clearance is None:
                     continue
                 
                 heading = _heading(_center(start, bundle.grid), _center(end, bundle.grid))
+                sides = () if defer_side_support else _clearance_side_support(witness_context, start, end)
+                if sides and frontier.has_edge(start, end):
+                    metadata = frontier[start][end]
+                    metadata["clearance_side_cell_keys"] = tuple(sorted(set(metadata.get("clearance_side_cell_keys", ())) | set(sides)))
+                allowed = {"established", "conditional"} | ({"unknown"} if target is optimistic else set())
+                if any(samples[cell]["status"] not in allowed for cell in sides):
+                    continue
                 clearance = {**clearance, "physical_witness_refs": tuple(record.get("id") for record in bundle.physical_occupancy if record.get("id")),
                              "domain_witness_ref": bundle.grid.domain_fingerprint or "analysis-domain",
-                             "side_sample_cell_keys": tuple(sorted({start, end, *data.get("guard_cell_keys", ())}))}
+                             "side_sample_cell_keys": sides}
                 directed.append((start, end, heading, {**data, "clearance": clearance, "heading": heading,
                                                        "edge_support_version": CLEARANCE_EDGE_SUPPORT_VERSION,
                                                        "from_cell": start, "to_cell": end}))
-        headings_by_cell = {}
+        # Shared-edge accesses can supply a heading absent from every viable move.
+        headings_by_cell = {cell: {(1., 0.), (-1., 0.), (0., 1.), (0., -1.)} for cell in base}
         for start, end, heading, data in directed:
             headings_by_cell.setdefault(start, set()).add(heading)
             headings_by_cell.setdefault(end, set()).add(heading)
-            target.add_node((start, heading))
+        for cell, headings in headings_by_cell.items():
+            target.add_nodes_from((cell, heading) for heading in headings)
         for start, end, heading, data in directed:
             # A source access seeds the outgoing heading; later states pay for every turn.
             for incoming in sorted(headings_by_cell.get(start, ()), key=repr):
-                turn = _turn_clearance(_center(start, bundle.grid), incoming, heading, blockers, domain, thresholds)
+                turn_key = start, incoming, heading
+                if turn_key not in turn_clearances:
+                    turn_clearances[turn_key] = _turn_clearance(_center(start, bundle.grid), incoming, heading, blockers, domain, thresholds,
+                                                               screening_distance, clearance_index, True)
+                turn = turn_clearances[turn_key]
                 if turn is None:
+                    continue
+                sides = () if defer_side_support else _clearance_side_support(witness_context, start, end, incoming)
+                if sides and start in frontier:
+                    metadata = frontier.nodes[start]
+                    metadata["clearance_side_cell_keys"] = tuple(sorted(set(metadata.get("clearance_side_cell_keys", ())) | set(sides)))
+                if any(samples[cell]["status"] not in allowed for cell in sides):
                     continue
                 turn = {**turn,
                         "physical_witness_refs": tuple(record.get("id") for record in bundle.physical_occupancy if record.get("id")),
-                        "domain_witness_ref": bundle.grid.domain_fingerprint or "analysis-domain"}
+                        "domain_witness_ref": bundle.grid.domain_fingerprint or "analysis-domain",
+                        "side_sample_cell_keys": sides}
                 target.add_edge((start, incoming), (end, heading), **{**data, "turn": turn})
     return (observed, optimistic, frontier)
+
+
+def _materialize_clearance(graph: nx.Graph, first: Any, second: Any) -> dict:
+    """Resolve exact uncapped witnesses only for selected route geometry."""
+    data = graph[first][second]
+    context = graph.graph.get("_clearance_context")
+    if context is None:
+        return {**data, "from": first, "to": second}
+    edge_key = data["from_cell"], data["to_cell"]
+    edges, turns = context["edge_witnesses"], context["turn_witnesses"]
+    if edge_key not in edges:
+        edges[edge_key] = _edge_clearance(*edge_key, context["grid"], context["blockers"], context["domain"], context["thresholds"], index=context["index"])
+    turn_key = data["from_cell"], first[1], data["heading"]
+    if turn_key not in turns:
+        turns[turn_key] = _turn_clearance(_center(data["from_cell"], context["grid"]), first[1], data["heading"],
+                                          context["blockers"], context["domain"], context["thresholds"], index=context["index"])
+    if edges[edge_key] is None or turns[turn_key] is None:
+        raise ArithmeticError("selected constrained route failed its exact clearance recheck")
+    samples = context["samples"]
+    edge_sides = _clearance_side_support(context, *edge_key)
+    turn_sides = _clearance_side_support(context, *edge_key, first[1])
+
+    def support_record(keys: tuple) -> dict:
+        """Bind exact side geometry to the immutable query records it depends on."""
+        return {"side_sample_cell_keys": keys,
+                "side_sample_query_refs": tuple(samples[key]["query_ref"] for key in keys if key in samples),
+                "side_sample_statuses": tuple(samples[key]["status"] for key in keys if key in samples)}
+
+    # Capped feasibility values are private and never enter retained witnesses.
+    return {**data, "from": first, "to": second,
+            "clearance": {**data["clearance"], **edges[edge_key], **support_record(edge_sides)},
+            "turn": {**data["turn"], **turns[turn_key], **support_record(turn_sides)}}
 
 
 def _state_accesses(accesses: Mapping, target: bool = False) -> dict:
@@ -673,6 +1156,11 @@ def _recover_source(graph: nx.Graph, accesses: Mapping, samples: Mapping, optimi
     # A constrained source and target can share one free cell; retain its
     # heading state even when that cell has no positive-length graph edge.
     if graph.is_directed():
+        # Access-only states obey the same occupancy gate as ordinary route centers.
+        accesses = {state: access for state, access in accesses.items()
+                    if (samples[_state_cell(state)]["status"] in {"established", "conditional"}
+                        and samples[_state_cell(state)]["value"] is False)
+                    or optimistic and samples[_state_cell(state)]["status"] == "unknown"}
         graph.add_nodes_from(cell for cell in accesses if cell not in graph)
     seeds = {cell: access for cell, access in accesses.items() if cell in graph}
     if not seeds:
@@ -697,15 +1185,20 @@ def _recover_source(graph: nx.Graph, accesses: Mapping, samples: Mapping, optimi
                     previous = (0, 0, seeds[cell]["access_key"], ())
                     unknown_alternatives.append(False)
                     guards = ()
+                    sides = ()
                 else:
                     if distances[parent] >= distances[cell] or parent not in best:
                         raise ArithmeticError("tight physical predecessor is not an increasing DAG")
                     previous = best[parent]
-                    guards = graph[parent][cell].get("guard_cell_keys", ())
-                    unknown_alternatives.append(any_unknown[parent] or any(samples[_state_cell(guard)]["status"] == "unknown" for guard in guards))
+                    transition = graph[parent][cell]
+                    guards = transition.get("guard_cell_keys", ())
+                    sides = tuple(sorted(set(transition.get("clearance", {}).get("side_sample_cell_keys", ())) |
+                                         set(transition.get("turn", {}).get("side_sample_cell_keys", ()))))
+                    unknown_alternatives.append(any_unknown[parent] or any(samples[node]["status"] == "unknown" for node in (*guards, *sides)))
                 unknown, conditional, source, path = previous
                 # Additive occurrences preserve optimal substructure when a flank repeats.
-                support = (_state_cell(cell), *guards)
+                support = (_state_cell(cell), *guards,
+                           *tuple(node for node in sides if node not in {_state_cell(cell), *guards}))
                 choices.append((unknown + sum(samples[node]["status"] == "unknown" for node in support),
                                 conditional + sum(samples[node]["status"] == "conditional" for node in support), source, path + (cell,)))
             if not choices:
@@ -755,29 +1248,38 @@ def _target_route(graph: nx.Graph, target_accesses: Mapping, source_accesses: Ma
     key, cell, target = min(candidates, key=lambda item: item[0])
     unknown, conditional, source_key, path = best[cell]
     source = source_accesses[path[0]]
-    edges = tuple({**graph[a][b], "from": a, "to": b} for a, b in pairwise(path))
+    edges = tuple(_materialize_clearance(graph, a, b) for a, b in pairwise(path))
     guard_occurrences = tuple(guard for edge in edges for guard in edge.get("guard_cell_keys", ()))
     guards = tuple(sorted(set(guard_occurrences)))
     cell_path = tuple(_state_cell(node) for node in path)
-    support = tuple(sorted(set(cell_path) | set(guards)))
+    side_cells = {cell for edge in edges for record in (edge.get("clearance", {}), edge.get("turn", {}))
+                  for cell in record.get("side_sample_cell_keys", ())}
+    support = tuple(sorted(set(cell_path) | set(guards) | side_cells))
     arithmetic = _arithmetic(source["offset"], tuple(edge["weight"] for edge in edges), target["offset"], key[0])
     clearance_records = tuple(edge["clearance"] for edge in edges if edge.get("clearance") is not None)
     clearance = None
     if clearance_records:
-        limiting = min(clearance_records, key=lambda record: (record["min_total_m"], record["min_left_m"], record["min_right_m"]))
-        clearance = {"min_left_m": min(record["min_left_m"] for record in clearance_records),
-                     "min_right_m": min(record["min_right_m"] for record in clearance_records),
-                     "min_total_m": min(record["min_total_m"] for record in clearance_records),
-                     "limiting_segment_index": clearance_records.index(limiting),
-                     "limiting_position_m": limiting["limiting_position_m"],
+        turn_records = tuple(edge["turn"] for edge in edges if edge.get("turn") is not None)
+        # Turns are part of the same route constraint and may be narrower than either adjacent edge.
+        clearance_candidates = [(record, i, "edge") for i, record in enumerate(clearance_records)]
+        clearance_candidates.extend((edge["turn"], i, "turn") for i, edge in enumerate(edges) if edge.get("turn") is not None)
+        limiting, limiting_index, limiting_kind = min(clearance_candidates, key=lambda item: (
+            item[0]["min_total_m"], item[0]["min_left_m"], item[0]["min_right_m"], item[1], item[2]))
+        records = clearance_records + turn_records
+        clearance = {"min_left_m": min(record["min_left_m"] for record in records),
+                     "min_right_m": min(record["min_right_m"] for record in records),
+                     "min_total_m": min(record["min_total_m"] for record in records),
+                     "limiting_segment_index": limiting_index, "limiting_kind": limiting_kind,
+                     "limiting_position_m": limiting.get("limiting_position_m", 0.0),
+                     "limiting_angle_fraction": limiting.get("limiting_angle_fraction"),
                      "limiting_left_m": limiting["limiting_left_m"],
                      "limiting_right_m": limiting["limiting_right_m"],
                      "limiting_total_m": limiting["limiting_total_m"],
                      "edge_witnesses": clearance_records,
-                     "turn_witnesses": tuple(edge["turn"] for edge in edges if edge.get("turn") is not None),
-                     "support_cell_keys": tuple(sorted(set(cell_path))),
-                     "support_query_refs": tuple(samples[node]["query_ref"] for node in sorted(set(cell_path))),
-                     "support_statuses": tuple(samples[node]["status"] for node in sorted(set(cell_path)))}
+                     "turn_witnesses": turn_records,
+                     "support_cell_keys": support,
+                     "support_query_refs": tuple(samples[node]["query_ref"] for node in support),
+                     "support_statuses": tuple(samples[node]["status"] for node in support)}
     route = {"value": key[0], "cell_keys": cell_path, "points": tuple(samples[_state_cell(node)]["center"] for node in path),
             "edges": edges, "source_access": source, "target_access": target,
             "conditional_cell_count": sum(samples[_state_cell(node)]["status"] == "conditional" for node in path),
@@ -811,11 +1313,13 @@ def _failure_cells(first: dict, second: dict, component_failures: Mapping, sampl
 
 
 def _component_failure_cells(frontier: nx.Graph, samples: Mapping) -> dict:
-    """Include edge guards even when exact geometry disconnects their own node."""
+    """Include flank and side failures without connecting their cells as routes."""
     failures = {}
     for component in nx.connected_components(frontier):
         support = set(component)
-        support.update(guard for cell in component for edge in frontier[cell].values() for guard in edge["guard_cell_keys"])
+        support.update(guard for cell in component for edge in frontier[cell].values() for guard in edge.get("guard_cell_keys", ()))
+        support.update(side for cell in component for side in frontier.nodes[cell].get("clearance_side_cell_keys", ()))
+        support.update(side for cell in component for edge in frontier[cell].values() for side in edge.get("clearance_side_cell_keys", ()))
         failed = tuple(sorted(cell for cell in support if samples[cell]["status"] in {"invalid", "not_available"}))
         failures.update((cell, failed) for cell in component)
     return failures
@@ -922,6 +1426,8 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
                     status = "partial" if selected["conditional_support_cell_count"] or lower and selected["value"] - lower["value"] > tau else "computed"
                 else:
                     status = "unknown" if lower is not None else "unreachable"
+                    if status == "unreachable" and bundle.clearance_policy is not None:
+                        explanation = "no route in the retained grid satisfies the directional-clearance model"
         hybrid = {"status": status, "value": selected["value"] if selected else None, "units": "m", "reason": explanation,
                   "optimistic_lower_bound": lower["value"] if lower else None, "discrete_approximation": True,
                   "conditional_cell_count": selected["conditional_cell_count"] if selected else None,

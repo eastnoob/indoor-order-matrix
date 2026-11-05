@@ -25,6 +25,7 @@ from features.geometry_substitutes import mass_patch_from_mesh
 from features.group_distance import (
     GridDescriptor, GroupDistanceInput, GroupProjection,
     _arithmetic,
+    _clearance_thresholds,
     calculate_group_pair_distances, group_distance_input_fingerprints,
     serialize_group_distance_result,
 )
@@ -318,7 +319,10 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
                 raise ValueError("endpoint access adjacency or offset differs from its recorded segments")
         if topology == 8:
             guard_keys = sorted(set(guard_occurrences))
-            support = sorted(set(map(tuple, cells)) | set(guard_keys))
+            side_keys = {tuple(cell) for edge in route["edges"]
+                         for record in (edge.get("clearance", {}), edge.get("turn", {}))
+                         for cell in record.get("side_sample_cell_keys", ())} if constrained else set()
+            support = sorted(set(map(tuple, cells)) | set(guard_keys) | side_keys)
             if (route["guard_cell_keys"] != [list(cell) for cell in guard_keys]
                     or route["guard_query_refs"] != [samples[cell]["query_ref"] for cell in guard_keys]
                     or route["support_cell_keys"] != [list(cell) for cell in support]
@@ -329,25 +333,47 @@ def validate_result(result: dict, bundle: GroupDistanceInput) -> dict:
             for status in ("unknown", "conditional"):
                 path_count = sum(samples[tuple(cell)]["status"] == status for cell in cells)
                 guard_count = sum(samples[cell]["status"] == status for cell in guard_occurrences)
+                # Each transition counts additional side support once, matching the search tie key.
+                side_count = sum(samples[cell]["status"] == status for edge, target in zip(route["edges"], cells[1:], strict=True)
+                                 for cell in ({tuple(cell) for record in (edge.get("clearance", {}), edge.get("turn", {}))
+                                               for cell in record.get("side_sample_cell_keys", ())}
+                                              - {tuple(target), *map(tuple, edge.get("guard_cell_keys", ()))}) ) if constrained else 0
                 if (route[status + "_cell_count"] != path_count
                         or route[status + "_guard_occurrence_count"] != guard_count
-                        or route[status + "_support_occurrence_count"] != path_count + guard_count):
+                        or route[status + "_support_occurrence_count"] != path_count + guard_count + side_count):
                     raise ValueError("selected route support occurrence counts differ from its edge sequence")
         if constrained:
             clearance = route.get("clearance")
             policy = manifest.get("clearance_policy", {})
-            if not isinstance(clearance, dict) or any(clearance.get(key) is None for key in ("min_left_m", "min_right_m", "min_total_m")):
+            if not route["edges"]:
+                # Endpoint offsets are metric proxies, so they do not invent a walkable corridor.
+                if len(cells) != 1 or len(state_keys) != 1 or clearance is not None:
+                    raise ValueError("endpoint-only constrained route has invalid state or clearance")
+                return len(cells), 0, 0, 0
+            minima = ("min_left_m", "min_right_m", "min_total_m")
+            if not isinstance(clearance, dict) or any(not isinstance(clearance.get(key), (int, float))
+                    or not math.isfinite(clearance[key]) for key in minima):
                 raise ValueError("constrained route lacks clearance witness")
-            if (clearance["min_left_m"] < policy.get("min_left_m", 0)
-                    or clearance["min_right_m"] < policy.get("min_right_m", 0)
-                    or clearance["min_total_m"] < policy.get("min_total_m", 0)
-                    or not clearance.get("edge_witnesses")
+            witnesses = [*clearance.get("edge_witnesses", ()), *clearance.get("turn_witnesses", ())]
+            if (len(clearance.get("edge_witnesses", ())) != len(route["edges"])
+                    or len(clearance.get("turn_witnesses", ())) != len(route["edges"])
+                    or clearance.get("edge_witnesses") != [edge.get("clearance") for edge in route["edges"]]
+                    or clearance.get("turn_witnesses") != [edge.get("turn") for edge in route["edges"]]
+                    or any(clearance[key] != min(witness[key] for witness in witnesses) for key in minima)
+                    or any(not math.isfinite(witness[key]) or witness[key] + 1e-12 < policy.get(key, 0)
+                           for witness in witnesses for key in minima)
                     or any("physical_witness_refs" not in witness or "domain_witness_ref" not in witness
                            or not witness.get("side_sample_cell_keys")
                            or any(tuple(cell) not in samples for cell in witness["side_sample_cell_keys"])
-                           for witness in clearance["edge_witnesses"])
-                    or any("physical_witness_refs" not in witness or "domain_witness_ref" not in witness
-                           for witness in clearance.get("turn_witnesses", ()) )):
+                           or witness.get("side_sample_query_refs") != [samples[tuple(cell)]["query_ref"] for cell in witness["side_sample_cell_keys"]]
+                           or witness.get("side_sample_statuses") != [samples[tuple(cell)]["status"] for cell in witness["side_sample_cell_keys"]]
+                           or any(samples[tuple(cell)]["status"] not in ({"established", "conditional", "unknown"} if optimistic
+                                                                      else {"established", "conditional"})
+                                  for cell in witness["side_sample_cell_keys"])
+                           for witness in witnesses)
+                    or clearance.get("support_cell_keys") != route["support_cell_keys"]
+                    or clearance.get("support_query_refs") != route["support_query_refs"]
+                    or clearance.get("support_statuses") != [samples[tuple(cell)]["status"] for cell in route["support_cell_keys"]]):
                 raise ValueError("constrained route clearance witness violates its policy or lineage")
         return len(cells), len(route["edges"]), diagonal_count, len(guard_occurrences)
     for item in index:
@@ -397,6 +423,17 @@ def retained_input(path: Path) -> GroupDistanceInput:
             or bundle.grid.occupancy_fingerprint != fingerprints["occupancy"]):
         raise ValueError("retained input content differs from its saved dependency fingerprints")
     return bundle
+
+
+def bind_clearance_policy(bundle: GroupDistanceInput, policy: dict | None) -> GroupDistanceInput:
+    """Add an explicit constrained policy to retained query and dependency identity."""
+    if policy is None:
+        return bundle
+    _clearance_thresholds(policy)
+    bound = replace(bundle, clearance_policy=policy,
+                    query_context={**dict(bundle.query_context), "clearance_policy": policy},
+                    dependency_fingerprints={})
+    return replace(bound, dependency_fingerprints=group_distance_input_fingerprints(bound))
 
 
 def validate_retained_binding(bundle: GroupDistanceInput, audit: dict, directory: Path,
@@ -517,7 +554,8 @@ def rebind_retained_input(bundle: GroupDistanceInput, audit: dict, *, old_direct
 
 
 def run(source: Path, s4_dir: Path, spacing: float, output: Path, *, parsed_input: Path | None = None,
-        previous_domain_dir: Path | None = None, replay: bool = True) -> dict:
+        previous_domain_dir: Path | None = None, replay: bool = True,
+        clearance_policy: dict | None = None) -> dict:
     """Retain a complete real-source run, optionally replaying the immutable bundle."""
     if not math.isfinite(spacing) or spacing <= 0:
         raise ValueError("--spacing-m must be positive and finite")
@@ -547,6 +585,7 @@ def run(source: Path, s4_dir: Path, spacing: float, output: Path, *, parsed_inpu
             audit = {**audit, "retained_adapter_input": str(parsed_input.resolve()), "retained_adapter_input_sha256": file_hash(parsed_input),
                      "prior_process_resources": previous.get("resources", previous.get("memory")),
                      "prior_kernel_version_attempt": str(parsed_input.parent.resolve())}
+        bundle = bind_clearance_policy(bundle, clearance_policy)
         write_json(output / "input_bundle.json", _json_value(bundle))
         write_json(output / "scene_geometry.json", {"analysis_plane": _json_value(bundle.analysis_plane), "origin_offset": bundle.origin_offset,
             "domain": _json_value(bundle.domain), "groups": _json_value(bundle.groups), "physical_occupancy": _json_value(bundle.physical_occupancy),
@@ -602,11 +641,19 @@ def main() -> None:
     parser.add_argument("--parsed-input", type=Path)
     parser.add_argument("--previous-domain-dir", type=Path)
     parser.add_argument("--skip-replay", action="store_true")
+    parser.add_argument("--min-left-m", type=float)
+    parser.add_argument("--min-right-m", type=float)
+    parser.add_argument("--min-total-m", type=float)
     parser.add_argument("--spacing-m", type=float, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
+    thresholds = (args.min_left_m, args.min_right_m, args.min_total_m)
+    if any(value is not None for value in thresholds) and any(value is None for value in thresholds):
+        parser.error("all three clearance thresholds must be provided together")
+    policy = dict(zip(("min_left_m", "min_right_m", "min_total_m"), thresholds)) if thresholds[0] is not None else None
     print(json.dumps(run(args.source_ifc, args.domain_dir, args.spacing_m, args.output_dir,
-        parsed_input=args.parsed_input, previous_domain_dir=args.previous_domain_dir, replay=not args.skip_replay), indent=2))
+        parsed_input=args.parsed_input, previous_domain_dir=args.previous_domain_dir, replay=not args.skip_replay,
+        clearance_policy=policy), indent=2))
 
 
 if __name__ == "__main__":

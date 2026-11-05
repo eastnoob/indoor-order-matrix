@@ -475,3 +475,146 @@ is complete; root records the accepted local commit separately.
 
 No implementer snapshot, commit, push or merge occurred. Root is the version
 writer. `.18.10` and `.18.C4` remain pending user visual acceptance.
+
+## Directional-clearance continuation — 2026-11-05
+
+Workline remains `free-space-distance-bridge` at
+`D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge`,
+parent accepted commit `2d6d7f3f`, jj change `zrsxvwpt`; root is the sole version
+writer. The owner authorized continued calculation and visualization. This
+section records the in-progress candidate, not accepted real-scene completion.
+
+The retained v4 eight-neighbor input is authenticated before the opt-in policy
+`L>=0.225 m`, `R>=0.225 m`, same-position `L+R>=0.55 m` is bound. Exact ResultRef
+is `fe3243c13b3f45daac8744efc46f3962` /
+`a22de58adc39c241ccb514afd52f2c1b7bbf4819f7ffb93d6a125aac92f4c120`;
+camera is `bonsai-camera:ifc:2JRtSsvK9DueUJ6efD5Ihg`, plane Z is
+`1.600000023841858 m`, selected S3 area is `207.24092382549588 m²`.
+Scope is 37 groups, 666 pairs, 343 physical records and 24,442 retained samples
+on a 121 by 202 grid. The saved result is explicitly historical. No free-space
+regeneration or live Blender currentness claim is made.
+
+Independent probes exposed and corrected continuous-turn total minima,
+silhouette-vertex rounding, collapsed angular events and diagonal event-origin
+reconstruction. Ordinary rays remain unbuffered. Geometry rechecks retain their
+original origin/direction and complete-index seeds. Side dependencies cover the
+full first-hit edge/turn sweep, including off-path query status, additive
+occurrences, uncertainty ties and failure frontiers. An endpoint-only one-state
+route has no corridor witness. The validator binds both witness copies and
+checks finite minima, policy, side refs/status and route summary lineage.
+
+The candidate is frozen in
+`outputs/design/group_distance_ifc/verification_clearance_20261105/candidate_frozen.json`.
+Root's isolated-runtime affected suite passes **117 tests, 7 existing fixture
+skips**, exit 0. Independent verification passes 6 historical geometric
+counterexamples, near-parallel ordinary/event checks, 100 random turns,
+200 screen/exact comparisons, 18 extremely thin wedges, 70 side sweeps,
+32 displayed bands over 8 directions and 18 validator tampering checks.
+Independent verdict is **SPEC PASS / QUALITY Approved** for this candidate;
+the full real run and final visual inspection are still required.
+
+Performance probes retain complete geometry and identify first-hit visibility
+intervals rather than querying every occluded angular event. The widest tested
+real S3 turn takes `1.08289 s` in the isolated locked environment. Positive-area
+side membership uses DE-9IM `2********`, avoiding thousands of constructive
+overlays. The widest side predicate takes about `0.177 s`; the old whole-geometry
+constructive method took about `100.85 s` in an earlier probe. Direct topology
+and independent per-polygon constructive checks include 15 additional boundary
+cells with total sliver area `3.763981948213155e-15 m²`; the old whole-overlay
+rounded those parts to zero. No area cutoff is introduced and no original cell
+is lost. Reports retain both readings and their scope.
+
+Commands use `pixi run python -s` to disable user site-packages. Without `-s`,
+the host's unrelated NetworkX 3.7 shadows the locked 3.6.1 and the kernel rejects
+the handoff. The isolated runtime is Python 3.12.13, NetworkX 3.6.1,
+Shapely 2.1.2 / GEOS 3.14.1. Earlier pure-geometry probes used the same locked
+Shapely but did not isolate user site-packages; their environment annotation is
+retained separately.
+
+The full twin-kernel job starts at `2026-11-05T13:02:04Z` in
+`run_clearance_constrained_s3/`, with PID and executable hashes in `run_start.json`
+and observational phase/call counters in `formal_execution.log`. The launch is
+`pixi run python -s -m outputs.design.group_distance_ifc.verification_clearance_20261105.execute_clearance_run`.
+The initial direct-script invocation failed before importing the project; the
+module invocation supplies the workspace import path and is the actual run.
+
+Visual decision: required for the requested same-S3 route and clearance reading.
+The frozen renderers authenticate policy-only input differences, show per-edge
+independent side guarantees as conservative bands and display the separate
+narrowest same-position edge/turn cross-section. The HTML retains scalar
+summaries and display coordinates; complete evidence remains in numerical
+output. New PNG/HTML/native artifacts and user visual acceptance remain pending.
+
+### No-policy compatibility verified
+
+Independent isolated-runtime replay completes once, without rerunning its own
+replay. The new calculation, historical receipt and baseline reconstructed
+before producer-only fields/locators all match normalized SHA-256
+`7c22b7bdde46ee9b01a16fb9e32adbc910cb268f8b400ec9f5fc592a75ed60c9`.
+All 666 complete observations, paths, identities, centroid audits, Euclidean and
+hybrid values, lineage and dependencies are exactly equal; manifest/index/group
+IDs also match. Independent validation checks 666 routes, 34,714 nodes,
+34,048 edges, 14,983 diagonals and 29,966 guards. Graphs retain 13,800 nodes,
+51,293 edges and 36 source runs each. Source and input bytes remain unchanged;
+no numerical failures are recorded. Calculate plus serialization takes
+`295.412 s` under concurrent load; total verification takes `324.621 s`.
+Evidence: `verification_clearance_20261105/no_policy_v4_replay.json`.
+
+### Final-review rejection of the first formal candidate
+
+The initial formal process was deliberately stopped at `2026-11-05T13:27:11Z`,
+after 370,000 turn checks, with no accepted final distance output or visual.
+This was a correctness rejection, not a detected hang. Independent actual-access
+and public-API probes found two defects: a legal source heading absent from
+neighboring feasible moves lacked outgoing transitions, and an unknown shared
+access cell could become an observed endpoint-only route. The S3 base-graph audit
+finds 322 actual access headings absent from the ordinary edge-derived heading
+sets across 32 of 37 groups; this is a lower bound on omitted directions, not a
+claim that all pass clearance or change a final pair distance.
+
+Evidence is retained in `run_stopped_candidate.json`, `final_code_review.json`,
+`final_access_heading_probe.py/.json`, and `final_s3_base_access_audit.py/.json`
+under `verification_clearance_20261105/`. Earlier SPEC/QUALITY approval and
+frozen-byte checks describe their earlier review scope; they do not override
+this final-review rejection. The minimal correction retains all four cardinal
+access states at each eligible center and the existing full turn check for
+every positive move. Source admission follows the normal center value/status
+gate, preserving unknown support only in the optimistic graph. Fresh verification,
+refreezing, the complete real run and visual delivery are required before acceptance.
+
+### Corrected candidate frozen and restarted
+
+The independent after-fix review records **SPEC PASS (code/specification scope)**
+and **QUALITY Approved**, with both P1 findings resolved and the original
+rejection preserved. The actual-access probe now reaches the east state through
+the north-to-east turn; the public unknown endpoint case has no observed route
+and retains its 2 m optimistic lower bound. Its isolated known-empty counterpart
+remains computed, with source-search counts recorded correctly. Seventeen new
+regression cases are added. Root independently reruns the affected suite:
+**134 passed, 7 existing fixture skips in 7.53 s**, exit 0.
+
+`candidate_frozen_access_fix.json` freezes all ten code/test files. Kernel SHA-256
+is `5288bb146a725edf93e0158d10b975936b29be0d548978ed6dd40e1ac540e2bf`;
+clearance-test SHA-256 is
+`5af10c8436699cddf57ba7ffb420ca0fecf4ddb245096a46fb21b023bcfbd4ac`.
+The eight other executable/test hashes are unchanged. The rejected directory
+is preserved as `run_clearance_constrained_s3_rejected_access_heading_20261105/`.
+The corrected formal twin run begins at `2026-11-05T13:35:43Z`, PID 67728, with
+`run_start_access_fix.json` and `formal_execution_access_fix.log`. A fresh
+no-policy compatibility replay also runs against these corrected bytes and writes
+separate `no_policy_v4_replay_access_fix` evidence. Neither run is accepted as
+complete at this entry; final numerical output and visuals remain pending.
+
+The fresh corrected-byte no-policy replay subsequently completes with exit 0 in
+`396.078 s`: all eight complete-record equality checks pass for 666/666 pairs,
+and normalized SHA-256 remains
+`7c22b7bdde46ee9b01a16fb9e32adbc910cb268f8b400ec9f5fc592a75ed60c9`.
+Kernel source, loaded bytecode and input bytes remain unchanged. Evidence:
+`no_policy_v4_replay_access_fix.json` and
+`no_policy_v4_replay_access_fix_without_timed_dump.log`.
+Two earlier observer attempts ended at the first timed faulthandler diagnostic;
+the second records Windows access violation `0xC0000005`. Their logs and failure
+notes are preserved, without claiming completed replay. Removing timed stack
+dumping from the observer leaves all product bytes and replay arithmetic unchanged;
+the successful attempt supplies compatibility evidence. Formal constrained execution
+does not use that timed diagnostic and continues independently.

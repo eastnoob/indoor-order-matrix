@@ -776,6 +776,10 @@ uses `group-distance/3` / `group-distance/v3` with
 `(cell,incoming_heading)`, access candidates retain direction, and every
 positive-length segment plus continuous heading turn is checked against the
 authenticated retained projected physical polygons and exact domain boundary.
+Every eligible center also retains the four shared-edge access headings, even
+when neither adjacent route edge supplies that direction; any outgoing move
+still pays its complete turn check. Access-only seed states obey the same
+center value/status gate as ordinary graph nodes, including endpoint-only routes.
 The policy is `L>=0.225 m`, `R>=0.225 m`, `L+R>=0.55 m` at the same route
 position. Cached lattice samples still own walkability and status support; they
 do not become a subcell route or an isotropic erosion. Endpoint centroid/proxy
@@ -784,6 +788,29 @@ refs, physical/domain limiting witnesses, and uncertainty statuses. The design,
 focused checklist, and pending same-S3 old/new visual gate are recorded in
 `superpowers/specs/2026-11-04-group-distance-clearance-design.md` and
 `superpowers/plans/2026-11-04-group-distance-clearance-implementation.md`.
+The 2026-11-05 continuation authenticates the retained 1.6 m S3/v4 bundle before
+binding an explicit clearance policy in both runners. Geometry, saved samples
+and the exact free-space ResultRef remain unchanged. The constrained kernel
+nodes combined physical/domain boundaries once and indexes complete segments.
+Conservative local bounds limit minimum queries; batched ray intersections and
+calculation-local feasibility caches avoid repeated full-scene work. Turn totals
+include the interior stationary minimum of each fixed-segment visibility interval;
+endpoint/midpoint checks alone are insufficient. Vertex events retain their actual
+boundary point as a candidate, avoiding a trigonometric rounding miss without
+buffering ordinary rays. Visibility envelopes exclude occluded turn events while
+retaining collapsed-angle vertex candidates. Rechecks retain the original ray
+origin/direction and complete-index seeds, avoiding diagonal reconstruction drift.
+Full edge/turn first-hit sweeps supply side-cell status dependencies; positive
+area uses the DE-9IM interior dimension-two predicate, while degenerate rays
+retain positive-length support on both adjoining cells. Uncapped witnesses are materialized for selected routes
+and rechecked against the complete boundary index. Route summaries include edges
+and turns. The preview and native comparison readers authenticate policy-only
+input changes and display the saved narrowest cross-section with left/right values.
+Per-edge independent side minima form conservative display bands; their sum is
+never labeled as the same-position minimum total. Constrained HTML retains only
+the summary and display coordinates; full witnesses remain in numerical output.
+Real constrained execution and independent acceptance remain pending in the
+existing distance ledger; historical v4 artifacts remain the accepted baseline.
 This confirmation does not change the .14/.15 order.
 
 The source-axis `g→k` support mapping is implemented and replay-validated against

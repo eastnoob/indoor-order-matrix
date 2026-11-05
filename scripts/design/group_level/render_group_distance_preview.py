@@ -9,6 +9,7 @@ from html import escape
 import json
 from pathlib import Path
 
+from scripts.design.group_level.render_group_distance_blender import clearance_bands, clearance_cross_section
 from scripts.design.group_level.run_group_distance_ifc import distance_topology, domain_candidate_id, file_hash, read_json, write_json
 
 
@@ -72,11 +73,23 @@ def preview_observations(observations: list) -> list:
     """
     fields = ("pair_id", "group_ids", "center_to_center_euclidean", "centroid_free_space_hybrid", "geometry_audit")
     route_fields = ("points", "source_centroid", "target_centroid", "source_access", "target_access", "cell_keys", "arithmetic")
-    return [{**{key: observation[key] for key in fields},
-             "route": ({**{key: observation["route"][key] for key in route_fields},
-                         **({"clearance": observation["route"]["clearance"]} if "clearance" in observation["route"] else {})}
-                        if observation["route"] else None)}
-            for observation in observations]
+    summary_fields = ("min_left_m", "min_right_m", "min_total_m", "limiting_segment_index", "limiting_kind",
+                      "limiting_position_m", "limiting_angle_fraction", "limiting_left_m", "limiting_right_m", "limiting_total_m")
+    projected = []
+    for observation in observations:
+        item = {key: observation[key] for key in fields}
+        route = observation["route"]
+        clearance = (route or {}).get("clearance")
+        summary = {key: clearance[key] for key in summary_fields if key in clearance} if clearance else None
+        if "clearance" in item["centroid_free_space_hybrid"]:
+            # Full side-query evidence is retained once in the numeric package, not duplicated in the viewer.
+            item["centroid_free_space_hybrid"] = {**item["centroid_free_space_hybrid"], "clearance": summary}
+        item["route"] = {key: route[key] for key in route_fields} if route else None
+        if route and "clearance" in route:
+            item["route"].update(clearance=summary, clearance_cross_section=clearance_cross_section(route),
+                                 clearance_bands=clearance_bands(route))
+        projected.append(item)
+    return projected
 
 
 def html_document(manifest: dict, observations: list, geometry: dict, aliases: dict, base: str) -> str:
@@ -115,16 +128,20 @@ const picker=document.getElementById('pair'); const overlay=document.getElementB
 const viewer=document.getElementById('view'); const ns='http://www.w3.org/2000/svg';
 /** Draw only a recorded point sequence; no distance or route inference. */
 function line(points,color,width,dash){const e=document.createElementNS(ns,'polyline');e.setAttribute('points',points.map(p=>p[0]+','+(-p[1])).join(' '));e.setAttribute('fill','none');e.setAttribute('stroke',color);e.setAttribute('stroke-width',width);if(dash)e.setAttribute('stroke-dasharray',dash);overlay.append(e);}
+/** Draw a guaranteed per-edge side band from the saved independent side minima. */
+function band(points){const e=document.createElementNS(ns,'polygon');e.setAttribute('points',points.map(p=>p[0]+','+(-p[1])).join(' '));e.setAttribute('fill','#0f766e');e.setAttribute('fill-opacity','.10');overlay.append(e);}
 /** Show the recorded free access cell, shared edge and midpoint proxy. */
 function accessMarker(access,color){const [x,y]=access.cell_center,s=data.spacing;let square=document.createElementNS(ns,'rect');for(const [key,value] of Object.entries({x:x-s/2,y:-y-s/2,width:s,height:s,fill:'none',stroke:color,'stroke-width':.045}))square.setAttribute(key,value);overlay.append(square);line(access.shared_edge,'#16a34a',.065);let proxy=document.createElementNS(ns,'circle');for(const [key,value] of Object.entries({cx:access.proxy_point[0],cy:-access.proxy_point[1],r:.055,fill:color}))proxy.setAttribute(key,value);overlay.append(proxy);}
 /** Display one stored observation and its fixed endpoints. */
 function show(){const o=byId.get(location.hash.slice(1))||data.observations.find(o=>o.route)||data.observations[0];picker.value=o.pair_id;overlay.replaceChildren();
 const audits=o.group_ids.map(id=>o.geometry_audit[id]);let points=audits.filter(a=>a.centroid).map(a=>a.centroid);
 if(points.length===2){line(points,'#737373',.035);points.forEach((p,i)=>{let e=document.createElementNS(ns,'circle');e.setAttribute('cx',p[0]);e.setAttribute('cy',-p[1]);e.setAttribute('r',.065);e.setAttribute('fill',i?'#be123c':'#1d4ed8');overlay.append(e);});}
-const r=o.route;if(r){line(r.points,'#dc2626',.065);for(const [centroid,access,color] of [[r.source_centroid,r.source_access,'#1d4ed8'],[r.target_centroid,r.target_access,'#be123c']]){line([centroid,access.proxy_point,access.cell_center],'#7c3aed',.045,'.1 .07');accessMarker(access,color);}points.push(...r.points);}
+const r=o.route;if(r){for(const span of r.clearance_bands||[])band(span.points);line(r.points,'#dc2626',.065);for(const [centroid,access,color] of [[r.source_centroid,r.source_access,'#1d4ed8'],[r.target_centroid,r.target_access,'#be123c']]){line([centroid,access.proxy_point,access.cell_center],'#7c3aed',.045,'.1 .07');accessMarker(access,color);}points.push(...r.points);}
+const section=r?.clearance_cross_section;if(section){line([section.left,section.right],'#0f766e',.055,'.05 .025');points.push(section.left,section.right);const mark=document.createElementNS(ns,'circle');for(const [key,value] of Object.entries({cx:section.center[0],cy:-section.center[1],r:.07,fill:'#0f766e'}))mark.setAttribute(key,value);overlay.append(mark);const label=document.createElementNS(ns,'text');label.setAttribute('x',section.center[0]+.12);label.setAttribute('y',-section.center[1]-.12);label.setAttribute('font-size',.17);label.setAttribute('fill','#115e59');label.textContent='L '+section.left_m.toFixed(3)+' / R '+section.right_m.toFixed(3)+' / total '+section.total_m.toFixed(3)+' m';overlay.append(label);}
+const clearance=r?.clearance;document.getElementById('clearance').textContent=clearance?'Saved route clearance summary: L '+clearance.min_left_m.toFixed(3)+' m; R '+clearance.min_right_m.toFixed(3)+' m; same-position total '+clearance.min_total_m.toFixed(3)+' m. Narrowest saved '+section.kind+' section: L '+section.left_m.toFixed(3)+' + R '+section.right_m.toFixed(3)+' = '+section.total_m.toFixed(3)+' m.':'No recorded clearance witness for this pair.';
 let bounds=data.bounds;if(document.getElementById('zoom').checked&&points.length){let xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);let x=Math.min(...xs)-.8,y=Math.min(...ys)-.8,w=Math.max(...xs)-x+.8,h=Math.max(...ys)-y+.8;bounds=[x,-y-h,Math.max(w,1.6),Math.max(h,1.6)];}viewer.setAttribute('viewBox',bounds.join(' '));
 document.getElementById('summary').textContent=o.group_ids.map(id=>data.aliases[id]+' '+id).join(' ↔ ')+' | Euclidean '+(o.center_to_center_euclidean.value??'null')+' m | Hybrid '+(o.centroid_free_space_hybrid.value??'null')+' m | '+o.centroid_free_space_hybrid.status+' | '+(o.centroid_free_space_hybrid.reason||'');
-document.getElementById('details').textContent=JSON.stringify({pair_id:o.pair_id,euclidean:o.center_to_center_euclidean,hybrid:o.centroid_free_space_hybrid,geometry_audit:o.geometry_audit,route:r?{source_access:r.source_access,target_access:r.target_access,cell_count:r.cell_keys.length,arithmetic:r.arithmetic}:null},null,2);}
+document.getElementById('details').textContent=JSON.stringify({pair_id:o.pair_id,euclidean:o.center_to_center_euclidean,hybrid:o.centroid_free_space_hybrid,geometry_audit:o.geometry_audit,route:r?{source_access:r.source_access,target_access:r.target_access,cell_count:r.cell_keys.length,arithmetic:r.arithmetic,...(clearance?{clearance,clearance_cross_section:section}:{})}:null},null,2);}
 picker.onchange=()=>{location.hash=picker.value;};window.onhashchange=show;document.getElementById('zoom').onchange=show;show();
 """
     candidate = escape(domain_candidate_id(geometry["domain"]))
@@ -134,12 +151,18 @@ picker.onchange=()=>{location.hash=picker.value;};window.onhashchange=show;docum
     free_space = manifest.get("free_space_result")
     result_trace = ("<p>Exact free-space result: " + escape(json.dumps(free_space["result_ref"], sort_keys=True))
                     + ". Freshness: " + escape(free_space["freshness"]) + ".</p>") if free_space else ""
+    policy = manifest.get("clearance_policy")
+    policy_trace = (f"<p>Directional clearance policy: L ≥ {policy['min_left_m']:g} m; R ≥ {policy['min_right_m']:g} m; "
+                    f"same-position total ≥ {policy['min_total_m']:g} m. Dark green dashed cross-section and dot: "
+                    "narrowest saved edge/turn witness. Translucent green rectangles: guaranteed per-edge left/right side bands; "
+                    "independent side minima may occur at different positions and their sum is not the minimum total.</p>"
+                    if policy else "")
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><title>IFC group distance · {candidate}</title>
 <style>body{{font:14px system-ui;margin:20px;color:#172033}}select{{max-width:90%;padding:8px}}svg{{width:100%;height:700px;background:#fff;border:1px solid #bbb}}table{{border-collapse:collapse}}td,th{{padding:5px;border:1px solid #ddd;text-align:right}}.scroll{{overflow:auto}}.matrix{{font-size:10px}}pre{{overflow:auto;max-height:400px;background:#f1f5f9;padding:12px}}#summary{{overflow-wrap:anywhere}}a{{color:#075985}}</style>
 <h1>IFC group distance · confirmed {candidate} camera plane</h1><p>37 authored groups · 666 unordered pairs · metres · {manifest["grid"]["spacing"]} m cells · {topology} discrete approximation. Matrix diagonal: null/not_applicable.</p>
 <p>Observed hybrid states: {state_summary}. Recorded routes: {sum(item["route"] is not None for item in observations)}. Source/domain combinations without a route retain their status and null hybrid distance.</p>
 <p>Green: {candidate} domain. Gray fill: physical occupancy. Orange: unknown. Purple fill: conditional. Cyan outlines: authored groups. Gray straight line: fixed centroid Euclidean distance. Red: recorded free-cell route. Purple dashed: endpoint offsets; these are distinct from the free-space route. Blue/rose squares: source/target access cells; green shared edges and dot proxies mark their recorded interfaces.</p>
-<label>Pair <select id="pair">{"".join(options)}</select></label> <label><input type="checkbox" id="zoom">Fit selected pair</label><p id="summary"></p>
+{policy_trace}<label>Pair <select id="pair">{"".join(options)}</select></label> <label><input type="checkbox" id="zoom">Fit selected pair</label><p id="summary"></p><p id="clearance"{' hidden' if policy is None else ''}></p>
 <svg id="view" xmlns="http://www.w3.org/2000/svg" viewBox="{' '.join(map(str, view_bounds(geometry)))}">{base}<g id="overlay"></g></svg>
 <details><summary>Selected pair audit</summary><pre id="details"></pre></details>
 <h2>Complete unordered pair list</h2><table><tr><th>Pair / route locator</th><th>Euclidean (m)</th><th>Hybrid (m)</th><th>Hybrid status</th></tr>{"".join(rows)}</table>
@@ -187,6 +210,9 @@ def representative_png(output: Path, geometry: dict, manifest: dict, observation
                 axes.annotate(aliases[identity], point, xytext=(5,5), textcoords="offset points")
         route = observation["route"]
         if route:
+            for band_index, band in enumerate(clearance_bands(route)):
+                axes.add_patch(Patch(band["points"], facecolor="#0f766e", edgecolor="none", alpha=.10,
+                                     label="guaranteed edge side band" if band_index == 0 else None))
             axes.plot(*zip(*route["points"]), color="#dc2626", linewidth=2, label="free-cell route")
             for centroid, access, color in ((route["source_centroid"], route["source_access"], "#1d4ed8"), (route["target_centroid"], route["target_access"], "#be123c")):
                 axes.plot(*zip(centroid, access["proxy_point"], access["cell_center"]), color="#7c3aed", linestyle="--", label="endpoint offset")
@@ -195,6 +221,15 @@ def representative_png(output: Path, geometry: dict, manifest: dict, observation
                 axes.plot(*zip(*access["shared_edge"]), color="#16a34a", linewidth=3, label="shared edge")
                 axes.scatter(*access["proxy_point"], color=color, marker="o", s=30, label="proxy")
             points.extend(route["points"])
+            section = clearance_cross_section(route)
+            if section:
+                axes.plot(*zip(section["left"], section["right"]), color="#0f766e", linestyle="--",
+                          linewidth=2, marker="|", label="saved clearance bottleneck")
+                axes.plot(*section["center"], marker="x", color="#0f766e")
+                axes.annotate(f"L {section['left_m']:.3f} / R {section['right_m']:.3f} / total {section['total_m']:.3f} m",
+                              section["center"], xytext=(7, 7), textcoords="offset points", fontsize=8,
+                              bbox=dict(facecolor="white", edgecolor="#0f766e", alpha=.9))
+                points.extend((section["left"], section["right"]))
         if route and points:
             axes.set_xlim(min(p[0] for p in points)-.8,max(p[0] for p in points)+.8)
             axes.set_ylim(min(p[1] for p in points)-.8,max(p[1] for p in points)+.8)

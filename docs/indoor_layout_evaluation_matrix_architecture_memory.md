@@ -46,6 +46,16 @@ and v1/v2 readers unchanged. The design and execution checklist are in
 Technical verification and same-S3 visual review remain pending until the
 implementation candidate is independently checked.
 
+Final review on 2026-11-05 rejected the initial real-run candidate after finding
+missing source-access headings and unknown endpoint-only seeds admitted as
+observed. The corrected kernel retains all four cardinal access states at every
+eligible center, applies the ordinary center value/status gate to source seeds,
+and retains the complete turn check for every positive move. Independent fixed
+probes and affected tests pass; the corrected real twin run and visual acceptance
+remain pending. Preserve the stopped candidate and both review verdicts in
+`outputs/design/group_distance_ifc/verification_clearance_20261105/`; the new
+freeze is `candidate_frozen_access_fix.json`, kernel SHA-256 `5288bb146a725edf93e0158d10b975936b29be0d548978ed6dd40e1ac540e2bf`.
+
 ## Accepted four-neighbor finite-band baseline — 2026-11-04
 
 The `.18.8a` continuation lives in jj workspace `free-space-distance-bridge`
