@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from features.group_distance_repair import repair_result, write_repair_result
+from features.group_distance_repair import global_repair_result, repair_result, write_repair_result
 from scripts.design.group_level.run_group_distance_ifc import retained_input
 
 
@@ -17,8 +17,11 @@ def main() -> None:
     parser.add_argument("--baseline-run-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--candidate-budget", type=int, default=4)
+    parser.add_argument("--access-candidate-budget", type=int, default=8)
     parser.add_argument("--corridor-margin-cells", type=int, default=3)
     parser.add_argument("--pair-limit", type=int)
+    parser.add_argument("--global-search", action="store_true")
+    parser.add_argument("--checkpoint-dir", type=Path)
     parser.add_argument("--min-left-m", type=float, default=.225)
     parser.add_argument("--min-right-m", type=float, default=.225)
     parser.add_argument("--min-total-m", type=float, default=.55)
@@ -28,14 +31,14 @@ def main() -> None:
         "manifest": json.loads((args.baseline_run_dir / "run_manifest.json").read_text(encoding="utf-8")),
         "observations": json.loads((args.baseline_run_dir / "observations.json").read_text(encoding="utf-8")),
     }
-    result = repair_result(
-        bundle,
-        baseline,
-        {"min_left_m": args.min_left_m, "min_right_m": args.min_right_m, "min_total_m": args.min_total_m},
-        candidate_budget=args.candidate_budget,
-        corridor_margin_cells=args.corridor_margin_cells,
-        pair_limit=args.pair_limit,
-    )
+    policy = {"min_left_m": args.min_left_m, "min_right_m": args.min_right_m, "min_total_m": args.min_total_m}
+    if args.global_search:
+        result = global_repair_result(bundle, baseline, policy, pair_limit=args.pair_limit,
+                                      checkpoint_dir=args.checkpoint_dir)
+    else:
+        result = repair_result(bundle, baseline, policy, candidate_budget=args.candidate_budget,
+                               corridor_margin_cells=args.corridor_margin_cells, pair_limit=args.pair_limit,
+                               access_candidate_budget=args.access_candidate_budget)
     write_repair_result(result, args.output_dir)
     print(json.dumps({key: result[key] for key in ("method", "pair_count", "quality_counts", "geometry_checks", "cache_sizes")},
                      indent=2, sort_keys=True))
