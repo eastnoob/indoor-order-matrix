@@ -618,3 +618,78 @@ notes are preserved, without claiming completed replay. Removing timed stack
 dumping from the observer leaves all product bytes and replay arithmetic unchanged;
 the successful attempt supplies compatibility evidence. Formal constrained execution
 does not use that timed diagnostic and continues independently.
+
+## Two-channel distance evidence publication — 2026-11-07
+
+The owner requested implementation under the shared evidence-package standard
+and a real Blender visualization. The existing jj workline is `clearance-proxy`,
+at `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge_proxy`,
+base `cff116fb`, change `ntuwvszt` (pre-delivery snapshot `bd2b6b16`). Root is
+the sole version writer. Existing repair-kernel and repair-test edits remain
+separate from the accepted package change; no push or main-tree integration is
+included. The accepted local revision is recorded in the publication acceptance
+record after the tested bytes are committed.
+
+Scope is one evidence package with exactly `euclidean_distance` and
+`path_distance`, measured in metres. Free space is an authenticated input and
+exact ResultRef, not an output channel or a duplicated sample field. Path
+distance is source centroid offset plus the selected lattice route plus target
+centroid offset. Offsets are metric-only and do not inherit the route's
+directional-clearance guarantee. This package adds no scoring or support vote.
+
+Implementation uses `features/group_distance_evidence_package.py`, the existing
+shared output/cache/freshness contracts, and
+`scripts/design/group_level/run_group_distance_evidence_package.py`. It
+validates saved/bundle dependency equality, canonical pair scope, version and
+outcome identity, route arithmetic, free route/guard support, endpoint bindings,
+complete saved edge/turn minima, and the recorded policy. Missing access stays
+unknown/partial; only observed infeasibility becomes raw unreachable. A saved
+repair does not invoke the ordinary distance kernel. The selected witness is
+stored once; full free-space samples and old search frontiers stay in their
+retained source artifacts.
+
+The actual source is `run_global_full_current_20261106_merged/repair_result.json`,
+SHA-256 `c3605513bd2e9d21d5f1cb76d54801025eed7cdc2c82ba733a9b21da0319b388`,
+bound to the accepted v4 `input_bundle.json`, SHA-256
+`28e5304317ef52519d4c6d8c37ff17495032ec331f63e8333d7f15df72a1f93d`.
+All 37 groups and 666 unordered pairs are retained, producing 666 source
+envelopes and 1,332 computed channel records. The strict JSON output is
+66,225,835 bytes. Full publication, including JSON, hashes, contract, status and
+visual bindings, takes 20.987 s under concurrent independent verification;
+this is publication time, not a new route-search benchmark.
+
+Independent acceptance is recorded in
+`run_global_full_current_20261106_merged/distance_evidence_package/verification/`:
+`final_package_replay.py/.json` freezes all three code/test candidate hashes,
+checks every actual group combination, 34,975 route cells, 34,309 edges, 34,975
+turns and 1,332 endpoint accesses, and rejects five witness mutations plus three
+visual-index/source mutations. Minimum saved left/right clearance is
+0.225065903854 m and same-position total is 0.640069075296 m; maximum distance
+recomposition residual is 4.62e-14 m. No geometry or route search is rerun.
+Independent and publication output identities are exactly
+`dcf5212a92c3d3753404bd928297c502c177aff6809d17f75ceec2a4fda08a29`.
+The final specification verdict is PASS and quality is Approved, recorded in
+`verification/final_review.md`.
+
+Affected verification uses the locked Pixi Python with user packages disabled:
+`pixi run python -s -m pytest test/test_group_distance.py test/test_group_distance_evidence_package.py test/test_group_distance_route_repair.py test/test_evidence_package_output.py -q`.
+Root and the independent verifier each obtain **85 passed, 1 existing skip**.
+
+Visual decision: required to show the two distances for each actual furniture
+pair. The portable Blender generates
+`distance_evidence_package/native_preview/distance-evidence-pair-inspector.blend`,
+`distance-evidence-overview.png` and `distance-evidence-focus.png`. All 666
+native collections and 2,664 pair objects are indexed by stable pair identity
+in `pair_view_index.json`; Timeline frames 1..666 select one pair using native
+drivers. Blue dashes depict Euclidean distance, orange the route, green the
+two endpoint offsets. The saved file was reopened and its index, object
+identity and representative frame visibility checked. Root then opened it in
+the user's portable Blender and saved a camera/material view with a visible
+Timeline. The publication manifest binds final file hashes, both source IFC
+identities and all pair locators. Delivery is visual evidence, not an inferred
+statement of user visual acceptance.
+
+Limits: saved exact geometry witnesses are checked rather than regenerated;
+global shortestness is not established; retained-publication freshness does
+not assert live-scene currentness. The repository-wide test suite and
+main-workspace integration are outside this increment.

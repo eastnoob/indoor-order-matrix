@@ -106,7 +106,7 @@ pass. A headless reader trusts that external verification; it cannot reobserve
 Blender by reading JSON. A retained observation establishes the recorded
 verification instant, not live currentness after later scene edits.
 
-## Cache hits and restored documents
+## Native session cache hits and restored documents
 
 A cache hit publishes a new result with the current job/request/domain-session
 binding and a new exact ref. Use that publication's independently retained
@@ -145,6 +145,47 @@ Existing consumer, cache and complete-sample contracts are in
 in `test/test_blender_analysis_runtime.py`. Actual-scene acceptance and its
 unobserved branches are recorded separately in the free-space prerequisite
 evidence ledger; this guide does not certify a particular result.
+
+## Reading the free-space evidence package
+
+The package addition is in implementation/verification; see its
+[evidence ledger](project/evidence/free-space-evidence-package-2026-11-07.md)
+for recorded acceptance. Its ordinary reusable entry points are
+`adapters.free_space_evidence_package.evaluate_free_space_package(scene,
+request, cache_directory=None)` and
+`adapters.free_space_evidence_package.evaluate_saved_free_space_package(snapshot)`.
+Both return the shared `EvidencePackageOutput` through the existing
+`EvidencePackage.evaluate(source_envelopes)` path. The saved entry point consumes
+the exact `ReadOnlyResultSnapshot` opened above; opening with independently
+retained expectations remains the authentication boundary.
+
+There is exactly one descriptive output channel, `free_space`, per cell. One
+field-scope source envelope retains the complete compact result document, so
+large shared provenance is stored once. Each output's
+`observation.cell_locator` contains `row`, `column`, `cell_index` and the exact
+`result_ref`; `cell_index = row * n_cols + column`. Resolve that locator against
+the same opened snapshot with `read_analysis_sample`, or use
+`iter_analysis_samples` for the full lattice. Preserve all seven sample fields
+and the original six-state `status`. In the raw sample, `value=True` means
+occupied; the channel name must not be used to reverse this raw meaning.
+
+The package cache stores the validated compact result and package contract.
+On a valid hit it skips projection/occupancy generators and rebuilds the cheap
+evidence-output projection. Source, domain/scope, grid, query, plane and
+implementation/schema dependencies determine reuse. Its origin remains the
+cached calculation's exact ResultRef. Unlike the native session publication
+described above, package cache reuse itself does not issue a new verified native
+publication or relabel the origin as live current.
+
+`build_free_space_package_contract` uses the shared contract builder; freshness
+uses `evaluate_evidence_package_freshness`. A retained-only publication has no
+independently observed current contract: its package status reports
+`freshness="unavailable"` for current comparison and `read_state="historical"`.
+This does not invalidate authenticated historical samples. Comparing a saved
+contract with itself establishes neither current scene identity nor a current
+native observation. The publication runner and native preview consume saved
+package evidence and its manifest; preview colors and meshes are not sample
+authority.
 
 ## Group-distance historical replay and topology identity
 

@@ -1,5 +1,95 @@
 # 软件架构
 
+## Free-space evidence package — 2026-11-07 / implementation and verification in progress
+
+The authorized package reuses the existing `FreeSpaceField` computation through
+`features/analysis_requests.py:execute_analysis_request`. Its shared-contract
+boundary is `features/free_space_evidence_package.py`: the
+`build_free_space_evidence_package` factory returns the existing `EvidencePackage`,
+and `build_free_space_package_contract` declares the existing whole-package
+dependency/freshness contract. `EvidencePackage.evaluate(source_envelopes)`
+returns the same `EvidencePackageOutput` used by potential and distance packages.
+There is one descriptive derived channel, `free_space`, for every lattice cell.
+This does not add a score, clearance channel or room-model field.
+
+One field-scope `FieldResultEnvelope` retains the complete compact
+`free_space_run` document once. Cell outputs carry lineage and
+`observation.cell_locator` with `row`, `column`, `cell_index` and `result_ref`.
+The retained document preserves the original occupied Boolean (`True` means
+occupied), all six `FieldStatus` values and all seven `FieldSample` fields;
+per-cell projection does not duplicate complete calculation provenance. Raw
+sample status and package computation status remain separate.
+
+`adapters/free_space_evidence_package.py:evaluate_free_space_package(scene,
+request, cache_directory=None)` owns reusable computation/cache orchestration.
+A miss calls the existing executor and compact serializer. A valid hit reuses
+the authenticated compact document and package contract, skips geometry/field
+generators, and rebuilds the cheap package output projection. Cache identities
+bind source, query, plane, domain/scope, sampling and implementation/schema
+dependencies. A cache hit preserves its calculation origin; it is not a new
+live native observation. The companion
+`evaluate_saved_free_space_package(snapshot)` accepts an exact opened result.
+The feature module owns evidence semantics; the adapter reuses existing wire
+validation and persistence without moving Blender session concerns into features.
+
+`scripts/design/space_field/run_free_space_evidence_package.py` publishes saved
+evidence, shared output/contract/status and visualization bindings. Saved
+publication compares the retained contract with no independently observed current
+contract, so current freshness is `unavailable` and `read_state` is `historical`.
+Self-comparison is not evidence of live currentness. The native preview consumes
+the same package and manifest and writes PNG/Blend artifacts; it supplies no
+replacement numerical truth. Planned delivery is
+`outputs/design/free_space_evidence_package/run_20261107/`. Implementation,
+tests, timings, native verification, reviews and commit acceptance are tracked in
+the [package evidence ledger](project/evidence/free-space-evidence-package-2026-11-07.md);
+none is certified by this architecture entry. This work is isolated in
+`order_analyzer_free_space_evidence` from base `58fdf846`; prior proxy route-repair
+working files are outside the authorized change.
+
+## Directional group-route repair — 2026-11-06 / active experiment
+
+`features/group_distance_repair.py:global_repair_result` is the constrained
+continuation over the accepted group-distance baseline. It batches one source
+group against all later targets, searches `(cell, incoming_heading)` states on
+the observed lattice, and performs exact edge/turn replay only for selected
+routes. Screen-approved state transitions are cached lazily in the shared
+clearance context and reused across source searches; per-search exact failures
+remain separate blacklists. Checkpoints are source-scoped and fingerprinted by
+input, baseline, policy, group order, and `GLOBAL_METHOD_VERSION`.
+
+Terminal statuses distinguish an exact route (`exact_route_verified`), missing
+access (`proxy_unreachable`), observed topological infeasibility
+(`infeasible_observed`), and a still-possible but unresolved route
+(`unresolved_unknown`). An unresolved status is never promoted to a pass.
+The retained `run_global_full_current_20261106_merged/repair_result.json` now
+contains all 666 unordered pairs of 37 groups, each with an
+`exact_route_verified` selected route under `global-directional-lazy-exact/3`.
+This establishes feasibility of the saved routes under the recorded directional
+policy; the experiment does not establish global shortestness. The original
+baseline readings remain historical inputs rather than the repaired outputs.
+
+`features/group_distance_evidence_package.py` publishes those saved observations
+through the existing `EvidencePackage` / `EvidencePackageOutput` contract. Its
+only derived channels are `euclidean_distance` and `path_distance`, in metres.
+Path distance decomposes into source centroid offset, the selected free-space
+polyline, and target centroid offset; endpoint offsets are metric-only. Free
+space remains an authenticated input dependency and exact ResultRef, without a
+third channel or a duplicate sample field. Source envelopes retain the selected
+witness, raw readings, dependencies, plane/query context and retained-result
+reference. Saved/bundle dependency or pair-scope mismatches are rejected.
+
+`scripts/design/group_level/run_group_distance_evidence_package.py` publishes a
+saved repair without repeating graph construction or search. It writes the
+two-channel output, common package contract/status, input and visual file
+hashes, and a manifest mapping pair identities to native Blender collections,
+objects and timeline frames. Retained-publication freshness does not assert
+live-scene currentness. Per-pair Blender views distinguish Euclidean straight
+lines, selected clearance routes and metric endpoint offsets. This delivery
+lives in sibling jj workspace `clearance-proxy`
+(`order_analyzer_free_space_distance_bridge_proxy`); main-tree integration is
+separate. Acceptance commands, actual candidate hashes, artifact locations and
+known limits are recorded in the existing distance evidence ledger.
+
 ## Analysis board workline — 2026-11-04 / core independently accepted
 
 The free-space baseline is now backed up at `codex/free-space-cache@origin`
