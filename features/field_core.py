@@ -766,6 +766,7 @@ class EvidencePackage:
         source_envelopes: Iterable[FieldResultEnvelope],
         *,
         dependencies: Iterable[EvidencePackageDependency] = (),
+        dependency_graph: Mapping[str, Iterable[str]] | None = None,
     ) -> EvidencePackageOutput:
         """Run the package function and validate its complete additive output."""
         envelopes = tuple(source_envelopes)
@@ -777,6 +778,8 @@ class EvidencePackage:
             raise TypeError("dependencies must contain EvidencePackageDependency values")
         if any(item.package_freshness == "fresh" and item.source_output is None for item in dependencies):
             raise ValueError("fresh dependencies require a typed source_output during evaluation")
+        if dependency_graph is not None:
+            validate_evidence_package_dependency_graph(dependency_graph)
         context = EvidencePackageInput(envelopes, _resolve_package_dependencies(dependencies))
         if self.context_output_function is not None:
             produced = self.context_output_function(context)
@@ -875,10 +878,11 @@ def resolve_evidence_package_channel(
         raise ValueError("package_freshness must be fresh, stale, or unavailable")
     channel = read_evidence_package_channel(output, reference)
     usable = package_freshness == "fresh"
+    audit_channel = channel if usable else replace(channel, observation=None)
     return EvidencePackageResolvedDependency(
         ref=reference,
         channel=channel if usable else None,
-        audit_channel=channel,
+        audit_channel=audit_channel,
         package_freshness=package_freshness,
         channel_status=channel.status,
         effective_status=channel.status if usable else FieldResultStatus.NOT_AVAILABLE,

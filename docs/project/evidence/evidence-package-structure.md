@@ -1,8 +1,8 @@
 # Evidence Package Structure
 
 An evidence package groups several related evidence channels for the same
-target and analysis snapshot. The package keeps shared identity and freshness;
-each channel owns its own calculation and result.
+target and analysis snapshot. The package contract/snapshot carries shared
+identity and freshness; each channel owns its own calculation and result.
 
 ```text
 Evidence package
@@ -23,11 +23,19 @@ they are in the same package.
 
 One package can use a published channel from another package. It records which
 package, output, target and channel it read, then adds its own derived channel.
-The original channel remains unchanged. A fresh source can be used with its
-original channel status; a stale source remains visible for audit but cannot be
-used as current numeric input. This is an optional shared capability, not a
+The original channel remains unchanged. `read_evidence_package_channel()` is an
+identity-only raw reader for a known published output; downstream computation
+must use `resolve_evidence_package_channel()` or package context so freshness is
+enforced. A fresh source can be used with its original channel status. A stale
+or unavailable source cannot be used as current numeric input; when a typed
+source output exists, the resolver may retain a redacted audit record with
+status and provenance, while an unavailable dependency without a source output
+has no observation to audit. This is an optional shared capability, not a
 claim that current potential results already consume distance results.
 
 The dependency reference is part of the consuming package's output identity.
-The shared core does not keep a package registry: a caller validating a chain
-must provide the complete package dependency graph to the cycle checker.
+`source_output` is a typed evaluation-time handle only; published outputs and
+JSON serialization keep compact dependency references and do not recursively
+retain upstream package outputs. The shared core does not keep a package
+registry: a caller validating a chain must provide the complete package
+dependency graph to the cycle checker.

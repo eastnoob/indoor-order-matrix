@@ -750,11 +750,15 @@ and complete source preservation. Derived channels remain separate from raw
 channels, and output-function version participates in the derived identity.
 The package groups channels under common target/scope, snapshot and freshness;
 each channel keeps its own calculation, input lineage, output, units and status.
-An opted-in package can read a declared upstream package channel. Freshness is
-checked separately from that channel's domain status, and a stale channel is
-available only through its audit record. Published outputs store dependency
-references, not nested upstream outputs. The shared core supports this route,
-but current potential outputs do not consume group-distance channels.
+An opted-in package can read a declared upstream package channel. The raw
+reader checks identity only; downstream computation uses the resolver/context,
+which checks freshness separately from the channel's domain status. Stale or
+unavailable channels are available only as audit metadata when a typed source
+output exists, with the observation redacted from computation; an unavailable
+dependency without a source output has no observation. Published outputs store
+compact dependency references, not nested upstream outputs. The shared core
+supports this route, but current potential outputs do not consume group-distance
+channels.
 `features/group_axis_potential_field.py` now adds the reviewed axis-only
 diagnostic package. It consumes only each source envelope's
 `overall_group_axis`, weights the undirected doubled-angle vectors by the
@@ -1065,7 +1069,9 @@ Both group runners now write `package_contract.json` and a stable
 Analysis consumer reads `freshness`, `recompute_required`, `reasons`, and
 `affected_targets` directly and does not infer freshness from visual manifests or
 per-envelope status. UI implementation, automatic recomputation, cache storage
-policy, and target-level dependency graphs remain deferred.
+policy, and target-level dependency graphs remain deferred. The core does expose
+a caller-supplied package-graph cycle validator; it does not maintain a registry
+or schedule dependency traversal automatically.
 The runner-written status is a write-time receipt comparing the newly created
 contract with itself; a later consumer must compare the saved contract with a
 freshly built current contract. Each runner checks all declared artifact paths

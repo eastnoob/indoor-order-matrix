@@ -4,7 +4,7 @@
 
 **Goal:** Add a small shared contract for cross-package channel references and readback while preserving all existing evidence channels and package outputs.
 
-**Architecture:** Extend the existing `EvidencePackageOutput` with explicit external dependencies and stable `EvidencePackageChannelReference` values. Readback validates package/output/target/channel identity; only fresh channels are exposed as usable input, while stale channels remain audit-only. Published outputs retain dependency references, not source output objects. Output identity includes dependencies, direct self-dependencies are rejected, and a DFS helper rejects cycles when given the complete graph. Existing packages remain unchanged unless they opt into dependencies.
+**Architecture:** Extend the existing `EvidencePackageOutput` with explicit external dependencies and stable `EvidencePackageChannelReference` values. The raw reader validates package/output/target/channel identity; resolver/context exposes only fresh channels as usable input, while stale or unavailable channels have observation-redacted audit metadata when a typed source output exists. Published outputs retain compact dependency references, not source output objects. Output identity includes dependencies, direct self-dependencies are rejected, and a caller-supplied complete graph is checked by a DFS helper before package execution. Existing packages remain unchanged unless they opt into dependencies.
 
 **Tech Stack:** Python 3.12, dataclasses, existing `field_core.py` contracts, pytest, JJ workspace.
 
@@ -32,7 +32,7 @@
 - Add `EvidencePackageDependency(package_id, output_identity, channels)`.
 - Add `read_evidence_package_channel(output, reference) -> EvidenceOutputChannel` and a freshness-gated resolver for package callbacks.
 - Add `validate_evidence_package_dependency_graph(graph) -> None`.
-- Add optional `dependencies` to `EvidencePackageOutput` and `EvidencePackage.evaluate(..., dependencies=())`.
+- Add optional `dependencies` and `dependency_graph` to `EvidencePackageOutput`/`EvidencePackage.evaluate` execution flow without changing legacy callback signatures.
 
 - [x] Add tests for dependency identity, readback mismatch, and cycle rejection.
 - [x] Implement the dataclasses, output validation, identity inclusion, readback, and DFS validation.
@@ -58,4 +58,4 @@
 - [ ] Run the full package test subset under Pixi.
 - [x] Inspect retained IFC manifests and report whether a real replay is available without recomputation.
 - [x] Create a task-scoped JJ checkpoint and report the exact commit and remaining risk: bookmark `codex/evidence-package-cross-package-readback` points to `932f5fd0`; the line is based on `e86c8cd1` and has not been integrated into the current main worktree.
-- [ ] Integrate the named workline into the intended mainline after comparing `e86c8cd1`/`a336524b`/`932f5fd0` with the current main worktree, preserving unrelated dirty changes and resolving the existing `codex/free-space-evidence-package` bookmark conflict; rerun the package test subset after integration.
+- [ ] Integrate the named workline into the intended mainline only after the separate cleanup plan verifies the candidate; preserve unrelated dirty changes and leave the existing `codex/free-space-evidence-package` bookmark conflict outside this slice.

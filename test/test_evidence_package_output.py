@@ -352,8 +352,18 @@ def test_external_lineage_requires_declared_package_dependency_and_round_trips()
     assert fresh_read.audit_channel is published.outputs[0]
     stale_read = resolve_evidence_package_channel(published, external, package_freshness="stale")
     assert stale_read.channel is None
-    assert stale_read.audit_channel is published.outputs[0]
+    assert stale_read.audit_channel is not published.outputs[0]
+    assert stale_read.audit_channel.status is published.outputs[0].status
+    assert stale_read.audit_channel.channel == published.outputs[0].channel
+    assert stale_read.audit_channel.observation is None
     assert stale_read.effective_status is FieldResultStatus.NOT_AVAILABLE
+    unavailable_read = resolve_evidence_package_channel(
+        published, external, package_freshness="unavailable"
+    )
+    assert unavailable_read.channel is None
+    assert unavailable_read.audit_channel.observation is None
+    assert unavailable_read.audit_channel.status is published.outputs[0].status
+    assert unavailable_read.effective_status is FieldResultStatus.NOT_AVAILABLE
     assert output.output_identity != _output(evidence).output_identity
 
 
@@ -435,7 +445,11 @@ def test_context_consumer_reads_fresh_channel_and_gates_stale_channel() -> None:
             assert resolved.audit_channel is None
             assert resolved.channel_status is None
         else:
-            assert resolved.audit_channel is upstream.outputs[0]
+            if resolved.package_freshness == "fresh":
+                assert resolved.audit_channel is upstream.outputs[0]
+            else:
+                assert resolved.audit_channel is not upstream.outputs[0]
+                assert resolved.audit_channel.observation is None
             assert resolved.channel_status is FieldResultStatus.PARTIAL
             assert resolved.channel is (upstream.outputs[0] if resolved.package_freshness == "fresh" else None)
         if resolved.package_freshness == "fresh":
@@ -458,7 +472,7 @@ def test_context_consumer_reads_fresh_channel_and_gates_stale_channel() -> None:
     assert seen[0].resolved_dependencies[0].effective_status is FieldResultStatus.PARTIAL
     stale = package.evaluate((evidence,), dependencies=(stale_dependency,))
     assert seen[1].resolved_dependencies[0].channel is None
-    assert seen[1].resolved_dependencies[0].audit_channel.observation == {"score": 7}
+    assert seen[1].resolved_dependencies[0].audit_channel.observation is None
     assert seen[1].resolved_dependencies[0].channel_status is FieldResultStatus.PARTIAL
     assert seen[1].resolved_dependencies[0].effective_status is FieldResultStatus.NOT_AVAILABLE
     serialized = serialize_evidence_package_output(stale)
@@ -600,3 +614,23 @@ def test_package_output_rejects_duplicate_external_channel_declarations() -> Non
             outputs=(output_channel,),
             dependencies=dependencies,
         )
+
+
+def test_evaluate_validates_explicit_dependency_graph_before_callback() -> None:
+    """Evaluation rejects normalized direct and indirect cycles before producing outputs."""
+    evidence = _source_envelope()
+    called = False
+
+    def produce(_sources: tuple[FieldResultEnvelope, ...]) -> tuple[EvidenceOutputChannel, ...]:
+        """Record callback execution and return a valid legacy output."""
+        nonlocal called
+        called = True
+        return _output(evidence).outputs
+
+    package = EvidencePackage("consumer", "consumer-output", "1", produce)
+    with pytest.raises(ValueError, match=r"a -> b -> a"):
+        package.evaluate(
+            (evidence,),
+            dependency_graph={" a ": (" b ",), "b": ("a",)},
+        )
+    assert called is False
