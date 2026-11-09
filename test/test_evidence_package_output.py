@@ -524,8 +524,8 @@ def test_package_output_rejects_direct_self_dependency() -> None:
         )
 
 
-def test_package_output_rejects_computed_result_from_stale_dependency() -> None:
-    """A stale external channel cannot be republished as a current computed value."""
+def test_package_output_rejects_observation_from_stale_dependency() -> None:
+    """A stale external channel cannot be republished with a current observation."""
     evidence = _source_envelope()
     upstream = _output(evidence)
     reference = EvidencePackageChannelReference(
@@ -543,7 +543,37 @@ def test_package_output_rejects_computed_result_from_stale_dependency() -> None:
         derived_from=(reference,),
     )
 
-    with pytest.raises(ValueError, match="stale or unavailable"):
+    with pytest.raises(ValueError, match="cannot carry an observation"):
+        EvidencePackageOutput(
+            package_id="consumer",
+            output_function="consumer-output",
+            output_function_version="1",
+            source_envelopes=(evidence,),
+            outputs=(output_channel,),
+            dependencies=(dependency,),
+        )
+
+
+def test_package_output_rejects_partial_observation_from_unavailable_dependency() -> None:
+    """A non-computed status cannot hide a numeric observation from an unavailable source."""
+    evidence = _source_envelope()
+    reference = EvidencePackageChannelReference(
+        "contract-package", "prior-output", "target-1", "published"
+    )
+    dependency = EvidencePackageDependency(
+        "contract-package", "prior-output", (reference,), package_freshness="unavailable"
+    )
+    output_channel = EvidenceOutputChannel(
+        target=evidence.target,
+        channel="derived_external",
+        observation={"score": 1},
+        status=FieldResultStatus.PARTIAL,
+        scale=EvidenceOutputScale(meaning="invalid unavailable observation"),
+        derived_from=(reference,),
+        explanation="The upstream package is unavailable.",
+    )
+
+    with pytest.raises(ValueError, match="cannot carry an observation"):
         EvidencePackageOutput(
             package_id="consumer",
             output_function="consumer-output",

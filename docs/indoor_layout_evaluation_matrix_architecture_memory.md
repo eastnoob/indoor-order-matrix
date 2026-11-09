@@ -682,13 +682,26 @@ unavailable, invalid, outside, or ambiguous evidence as known free space.
 
 The shared core provides `EvidencePackage` as the execution template for
 package-owned derived outputs and `EvidencePackageOutput` as the validated
-result. A package supplies a required callable and version; the template runs
-it against immutable source envelopes and validates additive output channels,
-status/scale metadata, lineage, and preservation of every source envelope and
-channel. The package function owns its calculation and any declared
-normalization; shared validation checks structure, not scientific correctness.
-Direct `EvidencePackageOutput` construction remains possible, so the template
-is the canonical execution path rather than a global restriction on callers.
+runtime result. A package supplies a required callable and version; the
+template runs it against immutable source envelopes and validates additive
+output channels, status/scale metadata, lineage, and preservation of every
+source envelope and channel. The algorithm identity is package-level; each
+channel retains its own name, input lineage, observation, scale and status.
+The outer package contract/status/manifest carries target/query/scope,
+freshness/recompute state and published views; these are not fields on
+`EvidencePackageOutput`. Direct construction remains possible, so the template
+is not a global restriction on callers.
+
+Cross-package readback uses explicit package/output/target/channel references.
+The raw reader checks identity only. The resolver gates a caller-supplied
+freshness value; freshness calculation belongs to the package-status layer or
+caller. Stale/unavailable channels expose no usable observation, and outputs
+derived from them must use `observation=None` even when marked partial. The
+published result keeps compact references; persisted readback currently needs
+package-specific reconstruction because there is no generic JSON decoder.
+Direct self-dependencies are rejected. `EvidencePackage.evaluate()` checks
+indirect cycles before its callback only when the caller provides a complete
+dependency graph; no registry or scheduler supplies that graph automatically.
 Cross-package fusion still requires reviewed semantic-scale compatibility and
 must retain every package contribution.
 
@@ -745,5 +758,6 @@ The runner-written status compares a new contract with itself as a write-time
 receipt. Later consumers must compare the stored contract with a newly built
 current contract. Artifact validation checks every declared path for non-empty
 readable bytes; it does not validate content or checksums.
-Automatic recomputation, cache storage/eviction, and target-level dependency
-graphs are outside this boundary.
+Automatic recomputation, cache storage/eviction, and automatically maintained
+target-level dependency graphs are outside this boundary; the core only
+validates a complete caller-supplied package graph when one is provided.

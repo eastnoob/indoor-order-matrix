@@ -748,17 +748,29 @@ and version; the template runs it against immutable source envelopes and
 validates channel shape, status, scale metadata, lineage, duplicate prevention
 and complete source preservation. Derived channels remain separate from raw
 channels, and output-function version participates in the derived identity.
-The package groups channels under common target/scope, snapshot and freshness;
-each channel keeps its own calculation, input lineage, output, units and status.
+The current algorithm identity is package-level; output channels have separate
+names, lineages, observations and scale/status records, but no mandatory
+channel-specific algorithm id. The runtime output carries source envelopes,
+additive outputs and compact dependencies. Target/query/scope, freshness and
+visualization manifest live in surrounding package contract/status/manifest
+records, not as fields on `EvidencePackageOutput`.
+
 An opted-in package can read a declared upstream package channel. The raw
 reader checks identity only; downstream computation uses the resolver/context,
-which checks freshness separately from the channel's domain status. Stale or
-unavailable channels are available only as audit metadata when a typed source
-output exists, with the observation redacted from computation; an unavailable
-dependency without a source output has no observation. Published outputs store
-compact dependency references, not nested upstream outputs. The shared core
-supports this route, but current potential outputs do not consume group-distance
-channels.
+which gates the caller-supplied freshness separately from the channel's domain
+status. The resolver does not calculate freshness itself. Stale or unavailable
+channels are available only as audit metadata when a typed source output exists,
+with the observation redacted from computation; outputs derived from those
+dependencies must have `observation=None`, including `partial` outputs. An
+unavailable dependency without a source output has no observation. Published
+outputs store compact dependency references, not nested upstream outputs.
+Persisted readback currently needs package-specific reconstruction into the
+typed output; there is no generic JSON deserializer. Direct self-dependencies
+are rejected. Indirect-cycle validation runs before the callback only when the
+caller supplies a complete `dependency_graph`; omission does not guarantee
+cycle detection. No package registry or scheduler is maintained. The shared
+core supports this route, but current potential outputs do not consume
+group-distance channels.
 `features/group_axis_potential_field.py` now adds the reviewed axis-only
 diagnostic package. It consumes only each source envelope's
 `overall_group_axis`, weights the undirected doubled-angle vectors by the

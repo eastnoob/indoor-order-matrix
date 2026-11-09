@@ -674,9 +674,9 @@ class EvidencePackageOutput:
                     dependency = next(
                         item for item in dependencies if ref in item.channels
                     )
-                    if dependency.package_freshness != "fresh" and output.status is FieldResultStatus.COMPUTED:
+                    if dependency.package_freshness != "fresh" and output.observation is not None:
                         raise ValueError(
-                            "computed outputs cannot consume stale or unavailable package channels"
+                            "outputs consuming stale or unavailable package channels cannot carry an observation"
                         )
                 else:
                     key = (ref.result_identity, ref.target_identity, ref.channel)

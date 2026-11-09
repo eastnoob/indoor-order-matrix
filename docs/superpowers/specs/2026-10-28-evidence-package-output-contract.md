@@ -20,6 +20,10 @@ valid. An opted-in consumer may pass explicit package dependencies and use the
 context callback to read them; the legacy callback still receives only source
 envelopes. The callable accepts only an iterable of
 `EvidenceOutputChannel` records that passes `EvidencePackageOutput` validation.
+The executing algorithm identity is package-level (`output_function` plus
+version); output channels remain distinct by name, lineage, status, scale and
+observation, but the shared core does not require a separate algorithm id on
+each channel.
 The shared validation checks record shape, status explanations, scale metadata,
 source-channel and package-channel lineage, duplicate outputs and preservation
 of every input envelope/channel.
@@ -84,17 +88,25 @@ channel and preserves its own status verbatim; this matters for domain states
 such as an unreachable route. A stale or unavailable dependency exposes no
 usable channel and has effective `not_available`; its original channel is
 available only through an explicitly named audit field. This prevents a
-consumer from accidentally reading a stale observation as current input. The
-reader does not map a channel status into a different domain status or infer
-query compatibility; the consuming package owns that semantic check.
+consumer from accidentally reading a stale observation as current input. A
+derived output that references such a dependency must have
+`observation=None`, even when its status is `partial`; status labels cannot
+smuggle a historical numeric value back into the current result. The reader
+does not map a channel status into a different domain status or infer query
+compatibility; the consuming package owns that semantic check.
 
 Dependencies participate in `output_identity`. Evaluation uses a typed source
 output transiently to resolve a fresh reference; the published result retains
 only package/output/target/channel identity and freshness, never the nested
 source output object. Direct self-dependencies are rejected at output creation.
 The graph validator rejects self-dependencies and longer cycles when the caller
-supplies the complete declared package graph; the shared core has no registry
-from which to discover unrelated package edges and adds no execution scheduler.
+supplies the complete declared package graph; if the caller omits it, indirect
+cycle detection is not guaranteed. The shared core has no registry from which
+to discover unrelated package edges and adds no execution scheduler. The
+resolver gates the caller-supplied freshness value; it does not rebuild or
+compare the package contract. There is no generic JSON deserializer for
+`EvidencePackageOutput` in this slice, so persisted reads first require a
+package-specific typed reconstruction.
 
 ## Preservation invariant
 
