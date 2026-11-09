@@ -57,4 +57,5 @@
 - [ ] Run focused tests for core output, freshness, free-space, distance, and potential packages.
 - [ ] Run the full package test subset under Pixi.
 - [x] Inspect retained IFC manifests and report whether a real replay is available without recomputation.
-- [ ] Create a task-scoped JJ checkpoint and report the exact commit and remaining risk.
+- [x] Create a task-scoped JJ checkpoint and report the exact commit and remaining risk: bookmark `codex/evidence-package-cross-package-readback` points to `932f5fd0`; the line is based on `e86c8cd1` and has not been integrated into the current main worktree.
+- [ ] Integrate the named workline into the intended mainline after comparing `e86c8cd1`/`a336524b`/`932f5fd0` with the current main worktree, preserving unrelated dirty changes and resolving the existing `codex/free-space-evidence-package` bookmark conflict; rerun the package test subset after integration.
