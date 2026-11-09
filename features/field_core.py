@@ -416,12 +416,14 @@ class EvidencePackageDependency:
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{name} must be a non-empty string")
+        package_id = self.package_id.strip()
+        output_identity = self.output_identity.strip()
         channels = tuple(self.channels)
         if not channels or any(not isinstance(item, EvidencePackageChannelReference) for item in channels):
             raise ValueError("channels must contain EvidencePackageChannelReference values")
-        if any(item.package_id != self.package_id for item in channels):
+        if any(item.package_id != package_id for item in channels):
             raise ValueError("dependency channels must use the same package_id")
-        if any(item.output_identity != self.output_identity for item in channels):
+        if any(item.output_identity != output_identity for item in channels):
             raise ValueError("dependency channels must use the same output_identity")
         if len({item.channel for item in channels}) != len(channels):
             raise ValueError("dependency channels must be unique")
@@ -430,10 +432,10 @@ class EvidencePackageDependency:
         if self.source_output is not None:
             if not isinstance(self.source_output, EvidencePackageOutput):
                 raise TypeError("source_output must be an EvidencePackageOutput or None")
-            if self.source_output.package_id != self.package_id or self.source_output.output_identity != self.output_identity:
+            if self.source_output.package_id != package_id or self.source_output.output_identity != output_identity:
                 raise ValueError("source_output identity must match dependency package and output")
-        object.__setattr__(self, "package_id", self.package_id.strip())
-        object.__setattr__(self, "output_identity", self.output_identity.strip())
+        object.__setattr__(self, "package_id", package_id)
+        object.__setattr__(self, "output_identity", output_identity)
         object.__setattr__(self, "channels", tuple(sorted(channels, key=lambda item: (item.target_identity, item.channel))))
 
 
@@ -629,6 +631,7 @@ class EvidencePackageOutput:
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{name} must be a non-empty string")
+        package_id = self.package_id.strip()
         if self.schema != "evidence-package-output/v1":
             raise ValueError("schema must be evidence-package-output/v1")
         envelopes = tuple(self.source_envelopes)
@@ -653,7 +656,10 @@ class EvidencePackageOutput:
             for dependency in dependencies
             for reference in dependency.channels
         }
-        if any(dependency.package_id == self.package_id for dependency in dependencies):
+        declared_external_ref_count = sum(len(dependency.channels) for dependency in dependencies)
+        if len(declared_external_refs) != declared_external_ref_count:
+            raise ValueError("dependencies cannot redeclare the same external channel")
+        if any(dependency.package_id == package_id for dependency in dependencies):
             raise ValueError("evidence package output cannot depend on itself")
         available_refs = {
             (item.cache_identity["identity"], item.target["identity"], channel)
@@ -665,6 +671,13 @@ class EvidencePackageOutput:
                 if isinstance(ref, EvidencePackageChannelReference):
                     if ref not in declared_external_refs:
                         raise ValueError("external output lineage must be declared in dependencies")
+                    dependency = next(
+                        item for item in dependencies if ref in item.channels
+                    )
+                    if dependency.package_freshness != "fresh" and output.status is FieldResultStatus.COMPUTED:
+                        raise ValueError(
+                            "computed outputs cannot consume stale or unavailable package channels"
+                        )
                 else:
                     key = (ref.result_identity, ref.target_identity, ref.channel)
                     if key not in available_refs:
@@ -677,7 +690,7 @@ class EvidencePackageOutput:
                 raise ValueError("package outputs must not replace source evidence channels")
 
         outputs = tuple(sorted(outputs, key=lambda item: (item.target["identity"], item.channel)))
-        object.__setattr__(self, "package_id", self.package_id.strip())
+        object.__setattr__(self, "package_id", package_id)
         object.__setattr__(self, "output_function", self.output_function.strip())
         object.__setattr__(self, "output_function_version", self.output_function_version.strip())
         object.__setattr__(self, "source_envelopes", envelopes)
@@ -885,11 +898,15 @@ def validate_evidence_package_dependency_graph(
     for package_id, dependencies in graph.items():
         if not isinstance(package_id, str) or not package_id.strip():
             raise ValueError("graph package ids must be non-empty strings")
+        package_id = package_id.strip()
+        if package_id in normalized:
+            raise ValueError("graph package ids cannot duplicate after normalization")
         if isinstance(dependencies, (str, bytes)) or not isinstance(dependencies, Iterable):
             raise TypeError("each dependency list must be iterable")
         entries = tuple(dependencies)
         if any(not isinstance(item, str) or not item.strip() for item in entries):
             raise ValueError("dependency package ids must be non-empty strings")
+        entries = tuple(item.strip() for item in entries)
         normalized[package_id] = entries
 
     visiting: list[str] = []

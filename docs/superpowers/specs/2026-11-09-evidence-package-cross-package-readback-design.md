@@ -15,7 +15,7 @@ flowchart TB
     R --> Q[目标包的派生渠道]
 ```
 
-跨包调用是可行的，但必须是显式依赖：目标包引用源包的 `package_id`、`output_identity`、`target_identity` 和 `channel`。fresh 读回把原渠道交给目标包，保留观察值、尺度、状态、来源和 provenance；stale/unavailable 读回不给计算回调提供可用的 `channel`，而把源渠道保存在显式的 `audit_channel` 中，便于审计但不能误作当前输入。目标包只能追加派生渠道，不能覆盖源渠道，也不能把 `not_available` 改成数值零。
+跨包调用是可行的，但必须是显式依赖：目标包引用源包的 `package_id`、`output_identity`、`target_identity` 和 `channel`。底层 `read_evidence_package_channel` 只做身份匹配并返回已发布渠道；包执行使用 `resolve_evidence_package_channel` 做 freshness 门控。fresh 读回把原渠道交给目标包，保留观察值、尺度、状态、来源和 provenance；stale/unavailable 读回不给计算回调提供可用的 `channel`，而把源渠道保存在显式的 `audit_channel` 中，便于审计但不能误作当前输入。输出边界还拒绝把 stale/unavailable 外部依赖发布成 `computed` 数值结果。目标包只能追加派生渠道，不能覆盖源渠道，也不能把 `not_available` 改成数值零。
 
 跨包依赖属于结果身份的一部分。依赖图必须无环；输出对象只保存依赖身份和渠道引用，不递归保存源包输出。直接自依赖在输出边界拒绝；调用方把完整包依赖图交给校验器以拒绝间接环路。同一个目标包不能在一次结果中重复声明同一个源渠道。第一版只提供通用读回和依赖校验，不新增注册表、调度器或统一融合公式；具体包是否消费另一个包仍由该包自己的输出函数声明。
 

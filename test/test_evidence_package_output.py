@@ -315,6 +315,7 @@ def test_external_lineage_requires_declared_package_dependency_and_round_trips()
         output_identity=published.output_identity,
         channels=(external,),
         source_output=published,
+        package_freshness="fresh",
     )
     output_channel = EvidenceOutputChannel(
         target=evidence.target,
@@ -389,10 +390,11 @@ def test_package_evaluate_accepts_keyword_only_dependencies() -> None:
             EvidenceOutputChannel(
                 target=evidence.target,
                 channel="derived_external",
-                observation=1,
-                status=FieldResultStatus.COMPUTED,
+                observation=None,
+                status=FieldResultStatus.NOT_AVAILABLE,
                 scale=EvidenceOutputScale(meaning="external contract test"),
                 derived_from=(external,),
+                explanation="upstream package output is unavailable",
             ),
         )
 
@@ -436,7 +438,19 @@ def test_context_consumer_reads_fresh_channel_and_gates_stale_channel() -> None:
             assert resolved.audit_channel is upstream.outputs[0]
             assert resolved.channel_status is FieldResultStatus.PARTIAL
             assert resolved.channel is (upstream.outputs[0] if resolved.package_freshness == "fresh" else None)
-        return (_output(evidence).outputs[0],)
+        if resolved.package_freshness == "fresh":
+            return (_output(evidence).outputs[0],)
+        return (
+            EvidenceOutputChannel(
+                target=evidence.target,
+                channel="derived_a",
+                observation=None,
+                status=FieldResultStatus.NOT_AVAILABLE,
+                scale=EvidenceOutputScale(meaning="upstream package is not current"),
+                derived_from=(reference,),
+                explanation=resolved.explanation,
+            ),
+        )
 
     package = EvidencePackage("consumer", "consumer-output", "1", None, consume)
     result = package.evaluate((evidence,), dependencies=(fresh_dependency,))
@@ -464,6 +478,8 @@ def test_dependency_graph_rejects_self_and_multi_node_cycles() -> None:
         validate_evidence_package_dependency_graph({"a": ("a",)})
     with pytest.raises(ValueError, match=r"a -> b -> c -> a"):
         validate_evidence_package_dependency_graph({"a": ("b",), "b": ("c",), "c": ("a",)})
+    with pytest.raises(ValueError, match=r"a -> a"):
+        validate_evidence_package_dependency_graph({"a": ("a ",)})
 
 
 def test_package_output_rejects_direct_self_dependency() -> None:
@@ -491,4 +507,96 @@ def test_package_output_rejects_direct_self_dependency() -> None:
             source_envelopes=(evidence,),
             outputs=(output_channel,),
             dependencies=(dependency,),
+        )
+
+
+def test_package_output_rejects_computed_result_from_stale_dependency() -> None:
+    """A stale external channel cannot be republished as a current computed value."""
+    evidence = _source_envelope()
+    upstream = _output(evidence)
+    reference = EvidencePackageChannelReference(
+        "contract-package", upstream.output_identity, "target-1", "derived_a"
+    )
+    dependency = EvidencePackageDependency(
+        "contract-package", upstream.output_identity, (reference,), upstream, "stale"
+    )
+    output_channel = EvidenceOutputChannel(
+        target=evidence.target,
+        channel="derived_external",
+        observation=1,
+        status=FieldResultStatus.COMPUTED,
+        scale=EvidenceOutputScale(meaning="invalid stale computation"),
+        derived_from=(reference,),
+    )
+
+    with pytest.raises(ValueError, match="stale or unavailable"):
+        EvidencePackageOutput(
+            package_id="consumer",
+            output_function="consumer-output",
+            output_function_version="1",
+            source_envelopes=(evidence,),
+            outputs=(output_channel,),
+            dependencies=(dependency,),
+        )
+
+
+def test_package_output_normalizes_id_before_self_dependency_check() -> None:
+    """Whitespace normalization cannot bypass the direct self-dependency guard."""
+    evidence = _source_envelope()
+    reference = EvidencePackageChannelReference("consumer", "prior-output", "target-1", "published")
+    dependency = EvidencePackageDependency("consumer", "prior-output", (reference,), package_freshness="stale")
+    output_channel = EvidenceOutputChannel(
+        target=evidence.target,
+        channel="derived_external",
+        observation=None,
+        status=FieldResultStatus.NOT_AVAILABLE,
+        scale=EvidenceOutputScale(meaning="self-dependency normalization"),
+        derived_from=(reference,),
+        explanation="The referenced package is not current.",
+    )
+
+    with pytest.raises(ValueError, match="cannot depend on itself"):
+        EvidencePackageOutput(
+            package_id="consumer ",
+            output_function="consumer-output",
+            output_function_version="1",
+            source_envelopes=(evidence,),
+            outputs=(output_channel,),
+            dependencies=(dependency,),
+        )
+
+
+def test_package_output_rejects_duplicate_external_channel_declarations() -> None:
+    """One published channel cannot be declared through multiple dependency records."""
+    evidence = _source_envelope()
+    upstream = _output(evidence)
+    reference = EvidencePackageChannelReference(
+        "contract-package", upstream.output_identity, "target-1", "derived_a"
+    )
+    output_channel = EvidenceOutputChannel(
+        target=evidence.target,
+        channel="derived_external",
+        observation=None,
+        status=FieldResultStatus.NOT_AVAILABLE,
+        scale=EvidenceOutputScale(meaning="duplicate dependency rejection"),
+        derived_from=(reference,),
+        explanation="the upstream channel was declared twice",
+    )
+    dependencies = (
+        EvidencePackageDependency(
+            "contract-package", upstream.output_identity, (reference,), package_freshness="unavailable"
+        ),
+        EvidencePackageDependency(
+            "contract-package", upstream.output_identity, (reference,), package_freshness="stale"
+        ),
+    )
+
+    with pytest.raises(ValueError, match="redeclare the same external channel"):
+        EvidencePackageOutput(
+            package_id="consumer",
+            output_function="consumer-output",
+            output_function_version="1",
+            source_envelopes=(evidence,),
+            outputs=(output_channel,),
+            dependencies=dependencies,
         )
