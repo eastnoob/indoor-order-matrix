@@ -8,7 +8,9 @@ boundary is `features/free_space_evidence_package.py`: the
 `build_free_space_evidence_package` factory returns the existing `EvidencePackage`,
 and `build_free_space_package_contract` declares the existing whole-package
 dependency/freshness contract. `EvidencePackage.evaluate(source_envelopes)`
-returns the same `EvidencePackageOutput` used by potential and distance packages.
+returns the same `EvidencePackageOutput` used by potential and distance packages;
+the legacy call remains valid, with optional dependencies available to packages
+that explicitly consume another package's published channel.
 There is one descriptive derived channel, `free_space`, for every lattice cell.
 This does not add a score, clearance channel or room-model field.
 
@@ -746,6 +748,13 @@ and version; the template runs it against immutable source envelopes and
 validates channel shape, status, scale metadata, lineage, duplicate prevention
 and complete source preservation. Derived channels remain separate from raw
 channels, and output-function version participates in the derived identity.
+The package groups channels under common target/scope, snapshot and freshness;
+each channel keeps its own calculation, input lineage, output, units and status.
+An opted-in package can read a declared upstream package channel. Freshness is
+checked separately from that channel's domain status, and a stale channel is
+available only through its audit record. Published outputs store dependency
+references, not nested upstream outputs. The shared core supports this route,
+but current potential outputs do not consume group-distance channels.
 `features/group_axis_potential_field.py` now adds the reviewed axis-only
 diagnostic package. It consumes only each source envelope's
 `overall_group_axis`, weights the undirected doubled-angle vectors by the
@@ -785,10 +794,11 @@ cross-package fusion.
 On 2026-11-01 the user confirmed package cohesion: a package owns the calculations
 needed for its declared relation without requiring another evidence package to
 be enabled. Reuse ordinary functions and valid caches; do not introduce a shared
-measurement layer or package scheduler. Inputs remain declared source envelopes
-through the existing evaluate signature. Pure-axis/source channels stay intact;
-future distance-conditioned or joint results are additional named outputs, not
-automatic extra votes. Real source changes still invalidate dependent results.
+measurement layer or package scheduler. Existing source-envelope calls remain
+valid; an opted-in package may declare explicit cross-package dependencies.
+Pure-axis/source channels stay intact; future distance-conditioned or joint
+results are additional named outputs, not automatic extra votes. Real source
+changes still invalidate dependent results.
 The reusable group-distance module is implemented in `features/group_distance.py`,
 with the pinned-IFC runner `scripts/design/group_level/run_group_distance_ifc.py`
 and output-only `render_group_distance_preview.py`. Kernel review is owner accepted;
@@ -912,8 +922,8 @@ threshold, mode detection or winner is introduced. Parallel references remain
 views/aliases, not extra votes or discovered organization clusters. This is a
 reference-conditioned projection of complete E, not its replacement or final M.
 The proposed fixed producer reads existing source envelopes;
-`EvidencePackage.evaluate(source_envelopes)` stays unchanged, without a new
-proposal-envelope framework. Logical field identity binds scene namespace,
+`EvidencePackage.evaluate(source_envelopes)` remains valid, and the optional
+dependency context does not add a proposal-envelope framework. Logical field identity binds scene namespace,
 immutable anchor group ID, query/plane identity and recipe; canonical content
 fingerprints include normalized scope/query/plane/source axes/envelopes/versions,
 excluding timestamps/revisions so edit/undo can reuse original contents.
@@ -975,8 +985,9 @@ existing `EvidencePackage`/`FieldResultEnvelope` contracts. The ordinary helper
 is `features/group_field_hierarchy.py:build_axis_field_hierarchy`; the existing
 `build_group_axis_potential_package(*, scene_namespace=None)` factory preserves
 legacy mode and appends hierarchy outputs when a non-empty namespace is given.
-`evaluate(source_envelopes)` and `features/field_core.py` are unchanged. The
-existing runner's `_package_contract(..., scene_namespace=...)` includes the
+the hierarchy implementation used `evaluate(source_envelopes)` without changing
+the then-current shared contracts. The existing runner's
+`_package_contract(..., scene_namespace=...)` includes the
 hierarchy identity and target union. Independent subset/full contract tests
 check stale/fresh comparisons; the runner status is a write-time receipt, not
 evidence of live editing or recomputation.

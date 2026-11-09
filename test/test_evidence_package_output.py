@@ -6,9 +6,12 @@ import json
 
 import pytest
 
-from ..features.field_core import (
+from features.field_core import (
     EvidenceChannelRecord,
     EvidenceChannelReference,
+    EvidencePackageChannelReference,
+    EvidencePackageDependency,
+    EvidencePackageInput,
     EvidenceOutputChannel,
     EvidenceOutputScale,
     EvidencePackage,
@@ -17,7 +20,10 @@ from ..features.field_core import (
     FieldResultEnvelope,
     FieldResultStatus,
     build_field_result_cache_identity,
+    read_evidence_package_channel,
+    resolve_evidence_package_channel,
     serialize_evidence_package_output,
+    validate_evidence_package_dependency_graph,
 )
 
 
@@ -279,3 +285,210 @@ def test_bounded_output_scale_requires_explicit_endpoint_meanings() -> None:
         endpoint_meanings=("lower meaning", "upper meaning"),
     )
     assert scale.value_range == (0.0, 1.0)
+
+
+def test_external_lineage_requires_declared_package_dependency_and_round_trips() -> None:
+    """External channel lineage is admitted only through an explicit dependency."""
+    evidence = _source_envelope()
+    published = EvidencePackageOutput(
+        package_id="upstream-package",
+        output_function="upstream-output",
+        output_function_version="1",
+        source_envelopes=(evidence,),
+        outputs=(EvidenceOutputChannel(
+            target=evidence.target,
+            channel="published_a",
+            observation={"published": True},
+            status=FieldResultStatus.COMPUTED,
+            scale=EvidenceOutputScale(meaning="upstream contract output"),
+            derived_from=(EvidenceChannelReference.from_envelope(evidence, "source_a"),),
+        ),),
+    )
+    external = EvidencePackageChannelReference(
+        package_id="upstream-package",
+        output_identity=published.output_identity,
+        target_identity="target-1",
+        channel="published_a",
+    )
+    dependency = EvidencePackageDependency(
+        package_id="upstream-package",
+        output_identity=published.output_identity,
+        channels=(external,),
+        source_output=published,
+    )
+    output_channel = EvidenceOutputChannel(
+        target=evidence.target,
+        channel="derived_external",
+        observation=1,
+        status=FieldResultStatus.COMPUTED,
+        scale=EvidenceOutputScale(meaning="external contract test"),
+        derived_from=(external,),
+    )
+
+    with pytest.raises(ValueError, match="dependencies"):
+        EvidencePackageOutput(
+            package_id="contract-package",
+            output_function="contract-output",
+            output_function_version="1",
+            source_envelopes=(evidence,),
+            outputs=(output_channel,),
+        )
+
+    output = EvidencePackageOutput(
+        package_id="contract-package",
+        output_function="contract-output",
+        output_function_version="1",
+        source_envelopes=(evidence,),
+        outputs=(output_channel,),
+        dependencies=(dependency,),
+    )
+    serialized = serialize_evidence_package_output(output)
+    assert serialized["dependencies"][0]["channels"][0]["package_id"] == "upstream-package"
+    assert output.dependencies[0].source_output is None
+    assert read_evidence_package_channel(published, external) is published.outputs[0]
+    fresh_read = resolve_evidence_package_channel(published, external, package_freshness="fresh")
+    assert fresh_read.channel is published.outputs[0]
+    assert fresh_read.audit_channel is published.outputs[0]
+    stale_read = resolve_evidence_package_channel(published, external, package_freshness="stale")
+    assert stale_read.channel is None
+    assert stale_read.audit_channel is published.outputs[0]
+    assert stale_read.effective_status is FieldResultStatus.NOT_AVAILABLE
+    assert output.output_identity != _output(evidence).output_identity
+
+
+def test_dependency_and_reader_reject_identity_mismatches() -> None:
+    """Dependency references and typed readers reject ambiguous package identities."""
+    with pytest.raises(ValueError, match="same package_id"):
+        EvidencePackageDependency(
+            package_id="package-a",
+            output_identity="output-a",
+            channels=(
+                EvidencePackageChannelReference("package-a", "output-a", "target", "a"),
+                EvidencePackageChannelReference("package-b", "output-a", "target", "b"),
+            ),
+        )
+
+    evidence = _source_envelope()
+    output = _output(evidence)
+    reference = EvidencePackageChannelReference("other-package", output.output_identity, "target-1", "derived_a")
+    with pytest.raises(ValueError, match="package_id"):
+        read_evidence_package_channel(output, reference)
+    with pytest.raises(TypeError, match="EvidencePackageOutput"):
+        read_evidence_package_channel(serialize_evidence_package_output(output), reference)
+
+
+def test_package_evaluate_accepts_keyword_only_dependencies() -> None:
+    """Package evaluation carries declared dependencies into the immutable output."""
+    evidence = _source_envelope()
+    external = EvidencePackageChannelReference("upstream", "upstream-output", "target-1", "published")
+    dependency = EvidencePackageDependency("upstream", "upstream-output", (external,), package_freshness="unavailable")
+
+    def produce(_sources: tuple[FieldResultEnvelope, ...]) -> tuple[EvidenceOutputChannel, ...]:
+        """Produce an output that consumes one published external channel."""
+        return (
+            EvidenceOutputChannel(
+                target=evidence.target,
+                channel="derived_external",
+                observation=1,
+                status=FieldResultStatus.COMPUTED,
+                scale=EvidenceOutputScale(meaning="external contract test"),
+                derived_from=(external,),
+            ),
+        )
+
+    package = EvidencePackage("contract-package", "contract-output", "1", produce)
+    result = package.evaluate((evidence,), dependencies=(dependency,))
+    assert result.dependencies == (dependency,)
+
+
+def test_context_consumer_reads_fresh_channel_and_gates_stale_channel() -> None:
+    """Context consumers receive observations while freshness controls usable status."""
+    evidence = _source_envelope()
+    upstream = EvidencePackageOutput(
+        package_id="upstream",
+        output_function="upstream-output",
+        output_function_version="1",
+        source_envelopes=(evidence,),
+        outputs=(EvidenceOutputChannel(
+            target=evidence.target,
+            channel="published",
+            observation={"score": 7},
+            status=FieldResultStatus.PARTIAL,
+            scale=EvidenceOutputScale(meaning="upstream score"),
+            derived_from=(EvidenceChannelReference.from_envelope(evidence, "source_a"),),
+            explanation="partial upstream evidence",
+        ),),
+    )
+    reference = EvidencePackageChannelReference("upstream", upstream.output_identity, "target-1", "published")
+    fresh_dependency = EvidencePackageDependency("upstream", upstream.output_identity, (reference,), upstream, "fresh")
+    stale_dependency = EvidencePackageDependency("upstream", upstream.output_identity, (reference,), upstream, "stale")
+    seen: list[EvidencePackageInput] = []
+
+    def consume(context: EvidencePackageInput) -> tuple[EvidenceOutputChannel, ...]:
+        """Read the resolved dependency context without changing source status semantics."""
+        seen.append(context)
+        resolved = context.resolved_dependencies[0]
+        if resolved.package_freshness == "unavailable":
+            assert resolved.channel is None
+            assert resolved.audit_channel is None
+            assert resolved.channel_status is None
+        else:
+            assert resolved.audit_channel is upstream.outputs[0]
+            assert resolved.channel_status is FieldResultStatus.PARTIAL
+            assert resolved.channel is (upstream.outputs[0] if resolved.package_freshness == "fresh" else None)
+        return (_output(evidence).outputs[0],)
+
+    package = EvidencePackage("consumer", "consumer-output", "1", None, consume)
+    result = package.evaluate((evidence,), dependencies=(fresh_dependency,))
+    assert seen[0].resolved_dependencies[0].channel.observation == {"score": 7}
+    assert seen[0].resolved_dependencies[0].effective_status is FieldResultStatus.PARTIAL
+    stale = package.evaluate((evidence,), dependencies=(stale_dependency,))
+    assert seen[1].resolved_dependencies[0].channel is None
+    assert seen[1].resolved_dependencies[0].audit_channel.observation == {"score": 7}
+    assert seen[1].resolved_dependencies[0].channel_status is FieldResultStatus.PARTIAL
+    assert seen[1].resolved_dependencies[0].effective_status is FieldResultStatus.NOT_AVAILABLE
+    serialized = serialize_evidence_package_output(stale)
+    assert "source_output" not in json.dumps(serialized)
+    assert result.dependencies[0].package_freshness == "fresh"
+    assert result.output_identity != stale.output_identity
+    unavailable_dependency = EvidencePackageDependency(
+        "upstream", upstream.output_identity, (reference,), package_freshness="unavailable"
+    )
+    package.evaluate((evidence,), dependencies=(unavailable_dependency,))
+    assert seen[2].resolved_dependencies[0].effective_status is FieldResultStatus.NOT_AVAILABLE
+
+
+def test_dependency_graph_rejects_self_and_multi_node_cycles() -> None:
+    """Dependency graph validation reports both direct and indirect cycles."""
+    with pytest.raises(ValueError, match=r"a -> a"):
+        validate_evidence_package_dependency_graph({"a": ("a",)})
+    with pytest.raises(ValueError, match=r"a -> b -> c -> a"):
+        validate_evidence_package_dependency_graph({"a": ("b",), "b": ("c",), "c": ("a",)})
+
+
+def test_package_output_rejects_direct_self_dependency() -> None:
+    """A package cannot publish an output that depends on its own package id."""
+    evidence = _source_envelope()
+    reference = EvidencePackageChannelReference("contract-package", "prior-output", "target-1", "published")
+    dependency = EvidencePackageDependency(
+        "contract-package", "prior-output", (reference,), package_freshness="stale"
+    )
+    output_channel = EvidenceOutputChannel(
+        target=evidence.target,
+        channel="derived_external",
+        observation=None,
+        status=FieldResultStatus.NOT_AVAILABLE,
+        scale=EvidenceOutputScale(meaning="self-dependency rejection"),
+        derived_from=(reference,),
+        explanation="The referenced prior package output is not current.",
+    )
+
+    with pytest.raises(ValueError, match="cannot depend on itself"):
+        EvidencePackageOutput(
+            package_id="contract-package",
+            output_function="contract-output",
+            output_function_version="1",
+            source_envelopes=(evidence,),
+            outputs=(output_channel,),
+            dependencies=(dependency,),
+        )

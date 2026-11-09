@@ -1,17 +1,17 @@
 # 证据包最小通用规范
 
-状态：**设计基线；复用现有 `FieldResultEnvelope` 与 `EvidencePackageOutput`，不新增框架。**
+状态：**设计基线；复用现有 `FieldResultEnvelope` 与 `EvidencePackageOutput`，允许显式、可选的跨包渠道依赖，不新增注册表或调度框架。**
 
 本规范只规定所有证据包必须共有的边界。几何计算、证据语义和包内公式仍由各证据包自己定义。
 
 ## 包内内聚与结果保留（2026-11-01 用户确认）
 
 - 包拥有解释其目标关系所需的计算与逻辑，包括适用的几何计算；不以其他证据包必须启用为前置条件。可以复用普通函数和有效缓存，不新增公共测量层或包间调度框架。
-- 输入仍由调用者按现有 `FieldResultEnvelope` 契约提供并声明来源；本次确认不改变 `evaluate(source_envelopes)`，也不表示已支持直接传入 scene/polygon。
+- 旧调用继续使用 `evaluate(source_envelopes)`。需要跨包结果的包可额外声明 `dependencies=`，并通过带上下文的输出函数读取已发布渠道；旧输出函数保持兼容。这不表示允许直接传入 scene/polygon。
 - 当前纯轴支持保留。未来距离条件势、距离包或联合场只能追加具名结果，不能覆盖原始渠道或擅自改写原结果的含义；场景变化仍按真实依赖检查失效、重算。
 - 保留渠道不等于增加独立票数；联合输出已使用的方向、距离不能默认再各计一票。
 
-本次只确认职责边界；整组距离、尺度、距离条件势公式、具体输入适配及跨包融合仍未定稿或实现。不改变主计划先完成势场 hierarchy/merge spec，再写实现计划的顺序。
+跨包读取可以建立渠道级依赖，但不自动意味着融合。其引用需绑定源包、源输出身份、目标和渠道；源包 freshness 与源渠道 status 分开保留，stale/unavailable 的包结果不能作为当前数值输入。依赖图必须无环；调用方需把完整依赖图交给校验器，因为共享核心不维护包注册表。距离条件势、具体输入适配及跨包融合公式仍需由对应包另行定义。
 
 ## 1. 必须定义的内容
 
@@ -44,7 +44,7 @@ PackageDefinition {
 }
 
 PackageResult = EvidencePackageOutput {
-  source_envelopes, outputs, output_identity
+  source_envelopes, outputs, package_channel_dependencies, output_identity
 }
 
 PackageStatus = {
@@ -61,7 +61,7 @@ PackageStatus = {
 当前共享执行模板的计算函数接收不可变的 `FieldResultEnvelope` 序列。query、scope、
 分析平面和版本必须从这些 envelope 的 `FieldQuery`/provenance 及包 contract 中取得；
 不得读取未声明的全局状态、世界轴、其他包的私有对象或旧缓存。包特有的 target
-枚举与依赖声明属于包 contract，不扩展现有 `EvidencePackage.evaluate()` 的最小签名。
+枚举与依赖声明属于包 contract。现有 `evaluate(source_envelopes)` 调用保持兼容；需要外部渠道的包才显式提供 `dependencies=`，并选择接收上下文的输出函数。
 
 输入必须能回答：
 
@@ -82,13 +82,14 @@ target set 必须在包 contract 中先确定并按稳定身份排序；重复 t
 - 完整保留所有 source envelopes 和其中的原始 channels；
 - 派生结果作为新的 `EvidenceOutputChannel` 追加；
 - 每个派生渠道引用实际使用的 source channels；
+- 跨包渠道引用进入明确的 dependency 列表，并参与目标包输出身份；
 - 派生渠道不能覆盖、删除或把输入状态改成数值零；
 - 输出函数和版本必须写入输出身份。
 
 原始观察、描述性读数、支持读数和状态读数必须分开。角度、距离等原始量不因支持输出规则而被覆盖。
 
 输出渠道的 provenance 至少继承其实际使用的 source envelope 身份、输入 channel
-引用、分析平面和 package/function version；包新增的解释只能追加，不能覆盖来源状态。
+引用、分析平面和 package/function version；跨包输入另保留源 package/output/target/channel 身份及 package freshness。包新增的解释只能追加，不能覆盖来源状态。
 
 ## 5. 状态和缺失
 
@@ -99,6 +100,8 @@ target set 必须在包 contract 中先确定并按稳定身份排序；重复 t
 - `partial` 可以保留可用的结构化观察；
 - `ambiguous` 不得偷偷选择一个赢家；
 - 每个非 `computed` 输出必须有原因说明。
+- package freshness 与 channel status 是两个维度；freshness 过期不会改写已保存渠道的原始 status。跨包读回遇到 stale/unavailable 包时，有效读取状态为 `not_available`，并同时保留历史渠道状态供审计。
+- freshness 为 `fresh` 时，来源渠道原 status 原样交给目标包；目标包按自己的算法解释 `partial`、`outside`、`ambiguous` 等状态，不由共享层猜测语义。
 
 ## 6. 支持输出与归一化
 
@@ -164,3 +167,5 @@ affected_targets: [stable target id, ...]
 通用模板不决定：候选如何生成、成员是否归属、跨包权重、统一融合公式、概率解释、阈值、winner、UI 颜色或某个证据包的几何算法。
 
 这些内容必须在对应证据包或独立融合设计中定义，并继续保留在同一输出契约下。
+
+跨包依赖图只负责拒绝环路；它不负责调度执行。没有声明外部依赖的现有包保持独立运行，且本规范不要求新增任何融合渠道。

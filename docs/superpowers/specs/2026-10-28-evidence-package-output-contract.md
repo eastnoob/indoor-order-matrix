@@ -1,8 +1,8 @@
 # Evidence Package Output Contract
 
-**Status:** working contract implemented in `features/field_core.py`; the
-`group-axis-potential` aggregate baseline is reviewed, while rules for other or
-future packages and cross-package fusion remain unapproved.
+**Status:** working contract implemented in `features/field_core.py`; this
+revision adds optional, explicit cross-package channel readback and dependency
+lineage. It does not approve or implement a fusion formula.
 
 ## Purpose
 
@@ -15,12 +15,14 @@ This is an internal field-core contract, not a plugin system or public API.
 
 `EvidencePackage` is the shared execution template for package-owned derived
 outputs. Construction requires a non-empty package id, output-function id and
-version, plus a callable. `evaluate()` passes the immutable source-envelope
-tuple to that callable and accepts only an iterable of
+version, plus a callable. The existing `evaluate(source_envelopes)` call stays
+valid. An opted-in consumer may pass explicit package dependencies and use the
+context callback to read them; the legacy callback still receives only source
+envelopes. The callable accepts only an iterable of
 `EvidenceOutputChannel` records that passes `EvidencePackageOutput` validation.
 The shared validation checks record shape, status explanations, scale metadata,
-source-channel lineage, duplicate outputs and preservation of every input
-envelope/channel.
+source-channel and package-channel lineage, duplicate outputs and preservation
+of every input envelope/channel.
 
 The callable owns the package's actual calculation and any normalization it
 declares. Shared validation can verify that the output declares a scale and
@@ -38,6 +40,8 @@ path, not a global enforcement mechanism for every caller.
 - `source_envelopes`: the exact immutable `FieldResultEnvelope` inputs used by
   the package output function;
 - `outputs`: additive `EvidenceOutputChannel` records;
+- `dependencies`: exact external package/output/target/channel references and
+  package freshness used by this result (no recursive copy of the source result);
 - `package_id`, `output_function`, and `output_function_version`;
 - `output_identity`, derived from all input result identities, output
   declarations, scale metadata, output schema, and function version. Any
@@ -46,10 +50,11 @@ path, not a global enforcement mechanism for every caller.
 
 Each output channel records its target, channel name, observation, status,
 scale description, direct source-channel references, source ids, provenance,
-and explanation. An output must reference at least one admitted channel from
-the supplied source envelopes. It cannot reuse the same target/channel key as
-an input channel. The complete input envelopes remain attached and
-serializable with the output object.
+and explanation. An output must reference at least one declared source or
+package channel. It cannot reuse the same target/channel key as an input
+channel. The complete input envelopes remain attached and serializable with the
+output object. External references identify the source result without embedding
+the complete source package a second time.
 
 `EvidenceOutputScale` may describe a meaning, units, normalization method,
 optional numeric range, optional endpoint meanings, and an optional `scale_id`.
@@ -70,6 +75,26 @@ scale and interpretation are explicitly reviewed as compatible. It must
 retain each package contribution and its source references. Outputs without a
 reviewed common scale remain available as separate evidence and are not
 silently omitted from package records. This spec does not define fusion.
+
+## Cross-package readback and status
+
+`EvidencePackageChannelReference` binds `package_id`, `output_identity`,
+`target_identity`, and `channel`. A fresh dependency exposes the exact published
+channel and preserves its own status verbatim; this matters for domain states
+such as an unreachable route. A stale or unavailable dependency exposes no
+usable channel and has effective `not_available`; its original channel is
+available only through an explicitly named audit field. This prevents a
+consumer from accidentally reading a stale observation as current input. The
+reader does not map a channel status into a different domain status or infer
+query compatibility; the consuming package owns that semantic check.
+
+Dependencies participate in `output_identity`. Evaluation uses a typed source
+output transiently to resolve a fresh reference; the published result retains
+only package/output/target/channel identity and freshness, never the nested
+source output object. Direct self-dependencies are rejected at output creation.
+The graph validator rejects self-dependencies and longer cycles when the caller
+supplies the complete declared package graph; the shared core has no registry
+from which to discover unrelated package edges and adds no execution scheduler.
 
 ## Preservation invariant
 
@@ -96,10 +121,9 @@ verify package formula correctness or define cross-package fusion.
 
 `test/test_evidence_package_output.py` checks complete input-channel
 preservation, JSON serialization, source-channel lineage, output identity
-versioning, rejection of channel replacement, and explicit endpoint semantics
-for bounded scales. It also checks that a package must provide a callable and
-that its result is validated through the shared output contract. These are
-contract-only tests; they create no scene, geometry, IFC observation, or spatial
+versioning, rejection of channel replacement, package-channel readback and
+dependency-cycle rejection, and explicit endpoint semantics for bounded
+scales. Contract tests create no scene, geometry, IFC observation, or spatial
 result. A separate integration smoke on the pinned IFC selected two real
 authored furniture groups, passed their existing trend envelopes through a
 `not_evaluated` contract probe, confirmed both source channels were preserved,
