@@ -1,15 +1,23 @@
 # Group distance module implementation plan
 
 Date: 2026-11-03  
-Status: **V1 finite-band delivery accepted; corner-safe v2 technical specification PASS and quality Approved, with independent numerical/native verification complete; root local commit and user visual review pending**
+Status: **Two-channel retained distance publication technically accepted (2026-11-07); specification PASS, quality Approved; user visual gates `.18.10` / `.18.C4` and parent `.18` remain open (checked 2026-11-10)**
 
 ## Goal and boundary
 
-Implement the frozen group distance module against one scene-view handoff. Keep the two raw readings separate: centroid-to-centroid Euclidean distance and centroid/free-space hybrid distance. Preserve pair-local state, route lineage, source identity and the complete unordered scope. Do not add a field package, distance-to-support transform, scheduler, cache service, or generic export layer.
+The original kernel scope is retained below: implement the frozen group distance module against one scene-view handoff, keeping centroid-to-centroid Euclidean distance and centroid/free-space hybrid distance separate, with pair-local state, route lineage, source identity and the complete unordered scope. The later authorized evidence-package publication wraps these raw readings in the existing shared package contracts; it adds no distance-to-support transform, potential integration, scheduler, cache service or generic export layer.
 
 The pinned IFC is `outputs/full-rhino-ifc-2026-09-23/live-rhino-10500-furniture-groups.ifc` with SHA-256 `1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`. The historical, now-superseded S4 handoff is the manifest/result pair under `outputs/design/wall_domain_camera_prerequisite/run_20261102T210601Z/`; never consume its failed `domain_result.json` as confirmed domain input. The implementation must resolve scene geometry once and keep coordinate translation in that handoff path, with no second projection.
 
-## Current user-selected domain correction — 2026-11-03
+## Current closeout — 2026-11-10
+
+The latest technical delivery is the [2026-11-07 two-channel publication](../../project/evidence/group-distance-ifc-v1.md#two-channel-distance-evidence-publication--2026-11-07), retained at `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge_proxy/outputs/design/group_distance_ifc/run_global_full_current_20261106_merged/distance_evidence_package/`. All 37 furniture groups and 666 unordered pairs produce 666 source envelopes and 1,332 computed outputs: exactly `euclidean_distance` and `path_distance`. Free space remains an authenticated input dependency. Output identity is `dcf5212a92c3d3753404bd928297c502c177aff6809d17f75ceec2a4fda08a29`.
+
+Independent specification is **PASS**, quality **Approved**, and affected verification is **85 passed, 1 existing skip**. The saved native inspector, two PNGs and `native_preview/pair_view_index.json` cover 666 pair collections and 2,664 objects; frames 1–666 select pairs. Blue dashes show Euclidean distance, orange the recorded route and green the metric endpoint offsets. Saved route/geometry witnesses and publication bindings were checked; **global shortestness is not established**, and retained freshness does not assert live-scene currentness. Endpoint offsets do not inherit the route's directional-clearance guarantee.
+
+The original S4 outside-only and S3 whole-height zero-route runs, v3/v4 route runs, commands and intermediate open-gate statements below are historical checkpoints. Technical `.18.8` and its delivered continuations are complete; `.18.10`, `.18.C4` and parent `.18` remain unchecked because there is no recorded user visual acceptance. Distance-to-potential business integration is not implemented; it needs a same-plane/same-scope design before consuming distance.
+
+## Historical user-selected domain correction — 2026-11-03
 
 The user explicitly corrected the earlier S4 selection using a red outline: the
 intended analysis domain is the **right furniture hall plus its left connecting
@@ -112,8 +120,8 @@ Implemented `scripts/design/group_level/render_group_distance_preview.py` as out
 - [x] `.18.7` Published corrected S3 preview at `run_v2_corrected_domain/preview/index.html`, with complete matrices and 666 readable pair/status locators. Independent artifact review verified 12 runner/preview hashes, the locator bijection, SVG viewer, S3 header and both PNGs. No hybrid route is present; this records presentation and artifact integrity, not user visual acceptance.
 - [x] `.18.8` **Independently accepted (2026-11-04):** current `run_v3_finite_band_result/` reconciles 666 expected/observed/indexed/preview pairs; all 666 hybrid routes are computed. Independent reading of authoritative cells verifies 48,734 selected nodes, 48,068 four-neighbor edges, endpoint access, source lineage and binary64 arithmetic. Maximum `math.fsum` residual is `3.552713678800501e-15 m`, within recorded bounds. Immutable replay is equal. The verifier confirms all 1,332 HTML pair/zoom selections and native route alignment; final specification verdict is PASS and code quality is Approved. Earlier v1/v2 zero-route checks remain historical.
 - [x] `.18.8a` **Implemented and independently accepted (2026-11-04):** the reusable adapter/runner consumes exact accepted ResultRef `fe3243c13b3f45daac8744efc46f3962`, preserves its original 24,442 samples and zero-offset lattice, authenticates retained native capture/domain, and executes all 37 groups/666 pairs without regenerating occupancy. Both graphs have 13,800 nodes/26,301 edges/36 source searches. The full run and immutable replay exit 0, normalized SHA-256 `2a09ed17756b9472f31373df686d7c0abec3455901de58bdcc7139f0000a11b7`. Shared source/support references remove measured expansion; independent actual bridge tests pass 6 checks and the final renderer/camera suite passes 16 checks, exit 0. All 12 frozen code/test hashes match the reviewed candidate. See the [existing execution ledger](../../project/evidence/group-distance-ifc-v1.md#exact-free-space-result-continuation--2026-11-04). Root records the local accepted commit separately; `.18.10` and `.18.C4` remain user-review gates.
-- [x] `.18.9` Current v3 S3 state coverage recorded: 666 hybrid `computed`, 666 Euclidean `computed`, 14,047 established free, 7,023 established occupied and 3,372 outside samples. The exact-domain center rule admits 13,800 graph nodes; all saved samples remain retained. Other hybrid statuses, unknown/tie/conditional route branches remain spatially unobserved. Historical v2 whole-height all-occupied/unreachable evidence remains preserved.
-- [ ] `.18.10` User visual review remains pending for the current v3 full-scope S3 preview and recorded route overlay. Independent artifact/PNG review is not user acceptance. Master `.18` stays open only for user visual acceptance.
+- [x] `.18.9` Historical v3 S3 state coverage recorded: 666 hybrid `computed`, 666 Euclidean `computed`, 14,047 established free, 7,023 established occupied and 3,372 outside samples. The exact-domain center rule admits 13,800 graph nodes; all saved samples remain retained. Other hybrid statuses, unknown/tie/conditional route branches remain spatially unobserved in that run. Historical v2 whole-height all-occupied/unreachable evidence remains preserved; latest publication is recorded in Current closeout above.
+- [ ] `.18.10` User visual review remains pending for the latest two-channel native pair inspector and PNGs identified in Current closeout above. Independent artifact/native/PNG review is not user acceptance. Master `.18` stays open for this user visual gate; global shortestness and live-scene currentness are separate unestablished claims.
 
 **Delegated prerequisite for `.18.8` — 2026-11-03:** At the user's request, chat **自由空间生成与缓存对接** (`01a1a257-c569-7161-b8b7-b583372d4c6f`) owns free-space generation/cache investigation and direct user discussion, with completion handoff to distance owner `01a17389-9f50-7700-a8d7-c2e0ad7b3d09`. Its isolated jj workspace is `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`, change `vvnuuksk`, parent `9c0b024b`; the six-file path-band draft is excluded and the owner's files are untouched.
 
@@ -147,17 +155,18 @@ useful routes and user visual acceptance remain open.
 
 The `.18.2–.18.6` S4 adapter/run details above remain historical. Corrected S3
 preview/state recording is captured by `.18.7`, `.18.9` and `.18.C1–.18.C4`.
-Parent `.18`, useful-route validation `.18.8`, and user visual acceptance
-`.18.10` remain open.
+At this 2026-11-03 checkpoint, useful-route validation `.18.8` was still open;
+it subsequently completed. Parent `.18` and user visual gates remain open as
+recorded in Current closeout above.
 
 - [x] `.18.C1` Identified existing candidate S3 as the right furniture hall + left passage in independent worker/reviewer audits. Area `207.24092382549588 m²`, all 37 groups intersect; original candidate identity/version and retained A22 diagnostics are recorded above. Evidence: `outputs/design/group_distance_ifc/domain_correction_inspection/candidate_report.json` and `s3_candidate_intent_comparison.png`. This checks identification only, not confirmation or acceptance.
 - [x] `.18.C2` **Corrected S3 confirmation frozen (2026-11-03):** `confirmed_domain_manifest.json` and `confirmed_domain_result.json` under `domain_correction_inspection/` agree on the accepted/active session revision 1, exact domain, current binding and candidate version recorded above. The explicit `user-red-outline-s3-20261103` action represents the user-selected hall/passage. Area is unchanged at `207.24092382549588 m²`, holes 0; original A22 refusal and superseded S4 history remain retained. The existing explicit 10 mm² residual request policy retains A22 diagnostics and the separate 1 mm² opening budget. No geometry repair, slab exclusion, or height-policy change is authorized.
 - [x] `.18.C3` **Corrected cached run retained (2026-11-03):** `outputs/design/group_distance_ifc/run_v2_corrected_domain/` contains the actual run manifest, coverage report and spatial-scope audit. The independently audited rebind supplies 37 groups and 343 occupancy records after 10 exact boundary-member exclusions through the existing resolver; the pre-rebind 353-record count is retained as history only, and the slab remains preserved. The 121 × 202 grid at 0.1 m has all 37 centroids inside; source/hash bindings agree, and common-translation polygon symmetric difference is at most `2.57e-16 m²`. All 666 Euclidean values are computed; all 666 hybrid observations are `unreachable`, with null values/routes. Expected/observation/index/visual locator sets reconcile at 666 with no missing/duplicate IDs. Combined kernel/delivery checks passed 19 tests in 14.68s before a metadata-only occupancy-count correction; post-correction focused delivery checks passed 6 tests in 17.71s. The correction changed current count/hash metadata only, not metrics or kernel output. This completes corrected execution and actual-state recording, not useful-route validation.
-- [ ] `.18.C4` **Current v4 preview delivered; user review pending:** `run_v4_eight_neighbor/preview/index.html` contains all 666 recorded routes/pair locators, complete matrices/CSV and two representative PNGs. The accepted v3 four-neighbor preview/native board and prior no-route previews remain history. V4 execution/replay, HTML publication and independent numerical/native verification pass; final specification is PASS and quality Approved in completed technical `.18.8b`. Obtain user review before closing this item or `.18.10`; root records the accepted local commit separately.
+- [ ] `.18.C4` **Latest two-channel native preview delivered; user review pending:** the publication's `native_preview/` contains `distance-evidence-pair-inspector.blend`, overview/focus PNGs and `pair_view_index.json` for all 666 pairs. Their saved identities/hashes and representative frame visibility were independently checked. The earlier v3/v4 HTML/native and no-route previews remain history. Obtain user review before closing this item or `.18.10`; technical success does not establish global shortestness or live currentness.
 
-### Corrected S3 run and retained limits
+### Historical whole-height corrected S3 run and limits — 2026-11-03
 
-The current intended-domain output is `outputs/design/group_distance_ifc/run_v2_corrected_domain/`;
+The intended-domain output at this checkpoint was `outputs/design/group_distance_ifc/run_v2_corrected_domain/`;
 `run_v1/` remains superseded-S4 history. Evidence is `run_manifest.json`,
 `coverage_report.json`, `spatial_scope_audit.json` and the [IFC delivery record](../../project/evidence/group-distance-ifc-v1.md).
 The common view offset is `[-5.150000095367432, -0.30000001192092896]`;
@@ -179,8 +188,9 @@ peak working set `336,601,088 B` and peak commit `329,084,928 B`. These are
 cached-rebind/one-kernel measurements, not full IFC parse cost or an active-route
 benchmark. No corrected same-bundle replay was performed; normalized result
 SHA-256 is `db9cae4be1b8d7628a5a64ffe92ed9ee5efe963a4bfeff53ae3d379780891b93`.
-Source bytes/hash remain unchanged before/after. Parent `.18`, useful-route
-validation `.18.8`, user visual acceptance `.18.10` and `.18.C4` remain open.
+Source bytes/hash remained unchanged before/after. Useful-route validation
+`.18.8` was open at this checkpoint and subsequently completed; parent `.18`
+and user visual gates `.18.10` / `.18.C4` remain open.
 
 ## Authorized eight-neighbor continuation `.18.8b` — 2026-11-04
 
@@ -238,7 +248,7 @@ architecture/memory, exact-result reading guide and existing evidence ledger.
 No new dependency, continuous shortest-path algorithm, smoothing, UI or cache
 framework is included.
 
-## Observation and artifact schema
+## Historical initial observation and artifact schema
 
 JSON schema version: `group-distance/v1`. One top-level result has `group_ids`, sorted
 `observations`, `pair_index`, `manifest`, and `diagnostics`. Pair identity is a stable
@@ -267,7 +277,7 @@ finite metric values when present and component arithmetic. All 37 input group I
 and all 666 pairs remain even though many groups may lie outside the small S4 domain.
 Use an explicit `null/not_applicable` matrix diagonal.
 
-## Runnable commands and checks
+## Historical initial runnable commands and checks
 
 Run all commands from `D:/PROJECTS/understandOtherPackage/order_analyzer_group_distance`:
 
@@ -298,14 +308,14 @@ failure or later shared-boundary edit.
 
 Keep this entire checklist current while executing: mark a task in progress in its
 line, attach the actual code/artifact/check evidence before checking it, and retain
-failed or unobserved items accurately. Text readiness and the corrected S3
-666-pair execution, peak resources, source/hash reconciliation and full-scope
-preview are recorded. All hybrid pairs are unreachable under unchanged whole-height
-occupancy, so useful real-route validation and user visual review remain open
-acceptance gates. Finish the implementation only when real generated artifacts are
-reviewable; user visual acceptance must never be inferred from test success.
+failed or unobserved items accurately. The latest technical delivery has all
+666 pairs and both raw distance channels, with independently checked saved
+route witnesses and native visualization. Earlier zero-route runs remain history.
+User visual gates `.18.10` / `.18.C4` keep parent `.18` open; global shortestness
+and live-scene currentness remain unestablished. User visual acceptance must never
+be inferred from test success.
 
-## Evidence and current implementation record
+## Historical initial implementation record
 
 Kernel implementation: `features/group_distance.py`; focused tests: `test/test_group_distance.py`. The implementer supplied the guarded result below; this documentation update reused that evidence without rerunning the tests:
 
@@ -338,7 +348,7 @@ The latest focused result supersedes the earlier `11 passed in 0.31s` implementa
 - `docs/project/evidence/distance-spec-grill-review-2026-11-02.md`
 - confirmed S4 manifest/result under `outputs/design/wall_domain_camera_prerequisite/run_20261102T210601Z/`
 
-## Historical superseded-S4 run and remaining acceptance
+## Historical superseded-S4 and zero-route runs
 
 The historical wrong-selection package is `outputs/design/group_distance_ifc/run_v1/`; its preview is
 `preview/index.html`, with `source_plan.svg` and two representative PNGs. All 37
@@ -353,7 +363,7 @@ nodes/edges/source searches or selected routes. This records the consequence of
 the confirmed input selection and whole-height occupancy semantics, not a failed
 Dijkstra run. This historical S4 run does not establish useful-route correctness,
 active 37-source route performance, access/tie/unknown/conditional route behavior,
-continuous shortest paths or user visual acceptance. The corrected S3 run also
+continuous shortest paths or user visual acceptance. The historical whole-height corrected S3 run also
 has no routes because unchanged whole-height occupancy leaves no free graph cells;
 it does not validate route behavior. The user has now corrected the selected wall domain; use the matching real wall
 candidate and explicit confirmation, not an arbitrary geometric expansion. Occupancy
@@ -361,7 +371,9 @@ policy changes such as slab exclusion still require a separate design decision.
 
 Complete artifact reconciliation and output-only full-scope visualization are
 recorded in [IFC execution evidence](../../project/evidence/group-distance-ifc-v1.md).
-`.18.8` and `.18.10` remain open. The corrected S3 preview is available at
+At that checkpoint, `.18.8` and `.18.10` were open. The historical corrected S3 preview is available at
 `outputs/design/group_distance_ifc/run_v2_corrected_domain/preview/index.html`;
 user visual acceptance requires the user's review and cannot be inferred from the
-independent artifact review.
+independent artifact review. Technical `.18.8` subsequently completed; the
+remaining user visual gates and latest two-channel delivery are recorded in
+Current closeout above.
