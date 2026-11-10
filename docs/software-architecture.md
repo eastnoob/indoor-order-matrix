@@ -376,6 +376,8 @@ The approved 2026-10-17 extension adds a separate `Space Authoring` panel. It re
 
 任何项目工作先参考本图，确定写什么、怎么写、放在哪里。若图缺项或过期，先查实际代码、测试、fixture、配置和导出，再更新本图；架构变更必须与代码同步维护，不能用旧图掩盖实现事实。
 
+多步骤开发采用项目 [verified-agent-workflow](../skills/verified-agent-workflow/SKILL.md)：需求/计划/任务一致性检查 → 逐项实现 → 独立 agent 实际验收 → 规格/质量审查 → 修复复验 → 本地 jj 提交 → 全范围缺口收敛。每条工作线和任务记录版本身份；可视化仅用于无法靠现有数值/测试充分确认的正确性问题，task brief 必须说明生成、省略或复用的理由，不增加例行逐项人工审批。该流程管理交付证据，不新增生产调度框架或改变分析层职责。
+
 用户于 2026-10-15 澄清：所有后续版本与工作区管理优先使用 **jj**，含派工会话；隔离开发和并行工作副本优先用 **`jj workspace`**，远端推送可用时使用 **`jj git push`**。jj 不可用或不能完成所需操作时，允许使用 Git 命令或 Git worktree，并简述具体原因、保持工作区与历史状态一致。只读 jj 检查使用 `jj --ignore-working-copy`，保留既有 dirty work；完整规则见[项目记忆](indoor_layout_evaluation_matrix_architecture_memory.md#jj-first-version-and-workspace-management)。旧计划的 Git 优先要求和绝对禁用 Git 要求均服从此规则。
 
 当前有两条并列入口：`features/analyzer.py:OrderAnalyzer` 是二维矩阵/OCTA 兼容入口；`adapters/* -> NeutralSceneV2 -> analysis_scene_view -> infer_scene_evidence -> evaluate_scene` 是 indoor-layout 描述与评价入口。

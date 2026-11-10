@@ -1,5 +1,11 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Verified agent workflow — user decision 2026-11-04
+
+For multi-step engineering work, use the project [verified-agent-workflow skill](../skills/verified-agent-workflow/SKILL.md): Spec Kit requirement/plan/task consistency and final gap assessment; Superpowers task implementation; a different agent actually runs acceptance checks; explicit specification/quality review; repairs and re-verification before the designated version writer makes the accepted local jj commit. Reuse existing artifacts and decisions, proceed autonomously within authorized scope, and retain durable evidence for resumption. Every branch/workline and task carries its workspace/base/change/candidate/accepted-commit identity; jj management is foundational throughout, not only at final delivery. Preserve unrelated dirty work and the existing push/merge boundaries below.
+
+Visuals are conditional evidence: generate and show them only when needed to establish correctness that numbers/tests/source checks cannot adequately confirm, such as uncertain real-scene positioning or projection/domain alignment. Each brief records `required / omitted / reuse` and the correctness reason. Cache/serialization/hash checks normally need direct evidence, not pictures; reuse verified geometry views when dependencies are unchanged. Visual delivery does not create a per-step approval gate. Wait only for explicitly requested approval or a genuinely unresolved user interpretation; never infer user acceptance. Keep technical verification, local commits and pending user review distinct.
+
 ## Evidence-package saved readback rollout — 2026-11-10 / locally verified candidate
 
 Continue the existing isolated `evidence-package-structure-e86` candidate and

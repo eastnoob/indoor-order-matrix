@@ -97,11 +97,10 @@ are in `native_preview_receipt.json`.
 | Actual publication command, timing, size and hashes | PASS — receipt and independent hash reconciliation |
 | Portable Blender PNG/Blend generation and reopen verification | PASS — Blender 5.2.0 LTS, PNG 2400×1800, blend mesh counts match receipt |
 | Independent specification and quality review | PASS — verifier: spec PASS, quality PASS; bounded raw-state coverage caveat |
-| Accepted local jj commit / change | PASS — `codex/free-space-evidence-package` at `6a5da482` |
+| Accepted local jj commit / change | PASS — historical implementation checkpoint `6a5da482`; preserved recorded snapshot `d0259ef8` (tree-identical to `e86c8cd1`); completed ledger `47843627` |
 
 Relevant existing fixture families are in `test/test_analysis_requests.py` and
 `test/test_blender_analysis_session.py`. They provide analytic scenes, missing
 sources, substitute-backed samples, compact results and generator-forbidden
-cache patterns. New package-specific test paths and actual command/results will
-be recorded after implementation. No test pass or user visual acceptance is
-claimed by this placeholder table.
+cache patterns. The package-specific tests, retained-source publication and
+native Blender preview have been executed and reconciled in this ledger.
