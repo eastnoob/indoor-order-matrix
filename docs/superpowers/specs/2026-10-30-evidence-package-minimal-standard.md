@@ -11,7 +11,7 @@
 - 当前纯轴支持保留。未来距离条件势、距离包或联合场只能追加具名结果，不能覆盖原始渠道或擅自改写原结果的含义；场景变化仍按真实依赖检查失效、重算。
 - 保留渠道不等于增加独立票数；联合输出已使用的方向、距离不能默认再各计一票。
 
-跨包读取可以建立渠道级依赖，但不自动意味着融合。其引用需绑定源包、源输出身份、目标和渠道；源包 freshness 与源渠道 status 分开保留，stale/unavailable 的包结果不能作为当前数值输入，也不能发布带 observation 的派生输出。调用方可把完整依赖图传给 `evaluate(..., dependency_graph=...)` 做 callback 前的环路检查；省略图时不保证间接环路检查，因为共享核心不维护包注册表。距离条件势、具体输入适配及跨包融合公式仍需由对应包另行定义。
+跨包读取可以建立渠道级依赖，但不自动意味着融合。其引用需完整绑定源包、源输出身份、目标和渠道；不同 target 的同名渠道可同时消费。源包 freshness 与源渠道 status 分开保留，stale/unavailable 的包结果不能作为当前数值输入，也不能发布带 observation 的派生输出。显式传给 `evaluate(..., dependency_graph=...)` 的图必须覆盖全部引用节点、匹配当前包及可用 typed upstream 的实际声明边，并在 callback 前通过无环检查；省略图的旧调用兼容，但不保证完整图或全局间接环检测。共享核心不维护包注册表。距离条件势和跨包融合公式仍需由对应包另行定义。
 
 ## 1. 必须定义的内容
 
@@ -91,6 +91,11 @@ target set 必须在包 contract 中先确定并按稳定身份排序；重复 t
 输出渠道的 provenance 至少继承其实际使用的 source envelope 身份、输入 channel
 引用、分析平面和 package/function version；跨包输入另保留源 package/output/target/channel 身份及 package freshness。包新增的解释只能追加，不能覆盖来源状态。
 
+渠道算法/输入/输出责任直接使用已有字段：provenance 的 method、algorithm/schema
+version 和已声明公式；没有更细声明时使用 package `output_function + version`
+加渠道名；`derived_from`、source `cache_identity` 指纹及外部依赖记录实际输入。
+geometry/trend 渠道可明确继承顶层 envelope provenance。不要求额外嵌套类型。
+
 ## 5. 状态和缺失
 
 包必须区分 `computed`、`partial`、`not_evaluated`、`not_available`、`invalid`、`outside` 和 `ambiguous`。
@@ -147,6 +152,23 @@ affected_targets: [stable target id, ...]
 首版允许整个包失效；`affected_targets` 为空只表示当前结果可复用，不表示没有
 目标。算法版本变化单独报告，不能被渲染器版本或文件时间替代。
 
+计算身份、内容完整性、文件字节和 freshness 分开核验：`output_identity` 不含
+observation/status，空 dependencies 不进入计算 hash 以保留旧发布身份；序列化
+`payload_fingerprint` 是除自身外完整规范化输出的 SHA-256，包含观察、状态、
+provenance 和输入/配方指纹。单渠道可用 `fingerprint_evidence_dependency(channel)`
+计算完整内容指纹。文件 SHA pin 保存字节；保存 contract 必须与新建 current contract
+比较，不能信任旧 status receipt。旧计算身份相等不是结果数值相等的证据。
+
+保存读回使用固定 v1 的 `deserialize_field_result_envelope(payload)` 和
+`deserialize_evidence_package_output(payload)`，复用已有类型校验；拒绝未知 schema/
+结构字段及非 JSON 对象，验证必需的 saved output identity 和存在时的内容指纹。
+旧文件无 dependencies/内容指纹仍可读；消费者绑定其文件 SHA 和当前 contract。
+放行数值前还必须独立提供 `current_source_envelopes`，按 `target`、`query`、
+`channel_set`、`cache_identity`、`raw_status`、`value`、`support`、`source_ids`
+核对快照输入签名；来源 reading 和渠道记录随 value 参与。仅 package ID 相同不能
+绑定 contract 与 output。当前上下文缺失则 unavailable，输入/query/plane 不匹配
+拒绝；顶层 provenance 的 source_freshness/visualization 审计字段不进入签名。
+
 ## 8. 来源、图面和验证
 
 每个包必须保留 source IDs、输入身份、分析平面、算法/schema 版本和计算解释。需要空间解释的输出必须由同一 IFC 指纹生成平面图，并由 manifest 将结果 ID 映射到图层或图面。
@@ -168,4 +190,4 @@ affected_targets: [stable target id, ...]
 
 这些内容必须在对应证据包或独立融合设计中定义，并继续保留在同一输出契约下。
 
-跨包依赖图只负责拒绝环路；它不负责调度执行。没有声明外部依赖的现有包保持独立运行，且本规范不要求新增任何融合渠道。
+跨包依赖图负责闭合节点、声明边一致性和拒绝环路，不负责调度执行。没有声明外部依赖的现有包保持独立运行，且本规范不要求新增融合渠道。2026-11-10 rollout 的独立读回包只忠实追加已有渠道，并分别处理 camera-plane free-space/distance 与 world-plane potential/trend/geometry；distance-to-potential 业务整合未实现。

@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a small shared contract for cross-package channel references and readback while preserving all existing evidence channels and package outputs.
+**Goal:** Add shared cross-package channel references and readback while preserving all existing evidence channels and package outputs; continue saved-snapshot rollout in the existing integration cleanup plan.
 
-**Architecture:** Extend the existing `EvidencePackageOutput` with explicit external dependencies and stable `EvidencePackageChannelReference` values. The raw reader validates package/output/target/channel identity; resolver/context exposes only fresh channels as usable input, while stale or unavailable channels have observation-redacted audit metadata when a typed source output exists. Published outputs retain compact dependency references, not source output objects. Output identity includes dependencies, direct self-dependencies are rejected, and a caller-supplied complete graph is checked by a DFS helper before package execution. Existing packages remain unchanged unless they opt into dependencies.
+**Architecture:** Extend the existing `EvidencePackageOutput` with explicit external dependencies and stable full package/output/target/channel references. Resolver/context exposes fresh channels as usable input and stale/unavailable typed sources as redacted audit metadata. Fixed-v1 saved readers, serialized content fingerprints and complete explicit graph/declaration checks continue in the integration plan. Existing packages retain their outputs; the concrete consumer faithfully reads selected existing channels without adding a formula.
 
 **Tech Stack:** Python 3.12, dataclasses, existing `field_core.py` contracts, pytest, JJ workspace.
 
@@ -46,7 +46,7 @@
 - Add: `docs/project/evidence/evidence-package-structure.md`
 
 - [x] Add the compact package structure diagram and plain-language explanation.
-- [x] Record that cross-package readback is supported by the shared contract but no current package consumes distance/potential across package boundaries.
+- [x] Record the initial shared-contract boundary; the 2026-11-10 integration continuation adds a distinct faithful existing-channel readback package, while distance-to-potential business integration remains unimplemented.
 - [x] Record that source channel preservation and dependency-driven stale status remain mandatory.
 
 ### Task 3: Verification and checkpoint
@@ -57,5 +57,12 @@
 - [ ] Run focused tests for core output, freshness, free-space, distance, and potential packages.
 - [ ] Run the full package test subset under Pixi.
 - [x] Inspect retained IFC manifests and report whether a real replay is available without recomputation.
-- [x] Create a task-scoped JJ checkpoint and report the exact commit and remaining risk: bookmark `codex/evidence-package-cross-package-readback` points to `932f5fd0`; the line is based on `e86c8cd1` and has not been integrated into the current main worktree.
+- [x] Create the initial task-scoped JJ checkpoint; the historical `932f5fd0` was followed by reference checkpoint `9f071266`. The isolated integration bookmark has core-subset checkpoint `51b8c6e7`; no mainline merge is implied.
 - [ ] Integrate the named workline into the intended mainline only after the separate cleanup plan verifies the candidate; preserve unrelated dirty changes and leave the existing `codex/free-space-evidence-package` bookmark conflict outside this slice.
+
+The remaining saved-output acceptance work belongs to Tasks 6–8 of the existing
+[integration cleanup plan](2026-11-09-evidence-package-integration-cleanup.md),
+not a new plan. It covers fixed-schema roundtrip/content integrity, current
+contract gates bound through independent `current_source_envelopes` signatures, two distinct distance targets of the same channel, existing
+package replay and documentation. This original checklist retains historical
+verification gaps until those actual results are recorded there. Exact potential reexecution uses original producer-envelope order for the historical `per_group` audit list; saved roundtrip preserves content directly.

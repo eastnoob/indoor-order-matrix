@@ -9,9 +9,8 @@ from pathlib import Path
 from typing import Any
 
 from features.field_core import (
-    EvidenceChannelRecord,
-    FieldQuery,
     FieldResultEnvelope,
+    deserialize_field_result_envelope,
     evaluate_evidence_package_freshness,
     serialize_evidence_package_output,
 )
@@ -34,23 +33,7 @@ RETAINED_RUN = ROOT / "outputs/design/group_trend_alignment_field_ifc/run_202610
 
 def _load_envelope(payload: dict[str, Any]) -> FieldResultEnvelope:
     """Reconstruct one immutable envelope from the retained JSON contract."""
-    query = FieldQuery(**payload["query"])
-    channels = tuple(EvidenceChannelRecord(**record) for record in payload["value"]["channels"])
-    return FieldResultEnvelope(
-        target=payload["target"],
-        query=query,
-        raw_status=payload["raw_status"],
-        channel_set=tuple(payload["channel_set"]),
-        value={"channels": channels},
-        support=payload.get("support"),
-        field_projection=payload.get("field_projection"),
-        source_ids=tuple(payload.get("source_ids", ())),
-        provenance=payload["provenance"],
-        cache_identity=payload["cache_identity"],
-        visualization_ref=payload.get("visualization_ref"),
-        explanation=payload.get("explanation", ""),
-        schema=payload.get("schema", "field-result-envelope/v1"),
-    )
+    return deserialize_field_result_envelope(payload)
 
 
 def run(retained_run: Path, output_root: Path) -> Path:

@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+import hashlib
 import json
 
 import pytest
+
+import features.field_core as field_core
 
 from features.field_core import (
     EvidenceChannelRecord,
@@ -664,3 +668,241 @@ def test_evaluate_validates_explicit_dependency_graph_before_callback() -> None:
             dependency_graph={" a ": (" b ",), "b": ("a",)},
         )
     assert called is False
+
+
+def _snapshot_output() -> EvidencePackageOutput:
+    """Build saved evidence containing every optional field and both reference types."""
+    evidence = _source_envelope()
+    records = tuple(replace(
+        record, support={"members": ["member-1"]}, units="m",
+    ) for record in evidence.value["channels"])
+    evidence = replace(
+        evidence,
+        query=FieldQuery("contract-domain", "world", {"name": "plan"}, [0, 1], {"kind": "audit"}, 0.01, "r2"),
+        value={"channels": records},
+        support={"area": 2},
+        field_projection={"status": "unknown", "mapping_reason": "partial evidence", "value": None},
+        visualization_ref={"path": "view.svg"},
+    )
+    external = EvidencePackageChannelReference("upstream", "upstream-output", "target-2", "published")
+    output = EvidenceOutputChannel(
+        target=evidence.target,
+        channel="saved-derived",
+        observation={"score": 0.25, "details": [True, None, "é"]},
+        status=FieldResultStatus.PARTIAL,
+        scale=EvidenceOutputScale("saved scale", "scale/1", "unitless", "identity", (0, 1), ("none", "all")),
+        derived_from=(EvidenceChannelReference.from_envelope(evidence, "source_a"), external),
+        source_ids=("member-1",),
+        provenance={"method": "saved-test", "steps": [1, 2]},
+        explanation="only part of the source is available",
+    )
+    return EvidencePackageOutput(
+        "snapshot-consumer", "saved-output", "1", (evidence,), (output,),
+        (EvidencePackageDependency("upstream", "upstream-output", (external,), package_freshness="fresh"),),
+    )
+
+
+def test_fixed_schema_json_roundtrip_preserves_complete_saved_evidence() -> None:
+    """Typed readback retains status, audit data, scales, and local/external lineage."""
+    output = _snapshot_output()
+    payload = json.loads(json.dumps(serialize_evidence_package_output(output)))
+
+    restored = field_core.deserialize_evidence_package_output(payload)
+    envelope = field_core.deserialize_field_result_envelope(payload["source_envelopes"][0])
+
+    assert restored == output
+    assert envelope == output.source_envelopes[0]
+    assert serialize_evidence_package_output(restored) == payload
+    assert isinstance(restored.outputs[0].derived_from[0], EvidenceChannelReference)
+    assert isinstance(restored.outputs[0].derived_from[1], EvidencePackageChannelReference)
+    assert restored.dependencies[0].source_output is None
+
+
+@pytest.mark.parametrize("changes", [{"observation": {"score": 0.5}}, {"status": FieldResultStatus.AMBIGUOUS}])
+def test_payload_fingerprint_covers_full_saved_payload_but_identity_tracks_computation(changes: dict) -> None:
+    """Changing a reading or status changes content without changing computation identity."""
+    output = _snapshot_output()
+    payload = serialize_evidence_package_output(output)
+    fingerprint = payload.pop("payload_fingerprint")
+    expected = hashlib.sha256(json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+    ).encode("utf-8")).hexdigest()
+    revised = replace(output, outputs=(replace(output.outputs[0], **changes),))
+
+    assert fingerprint == expected
+    assert revised.output_identity == output.output_identity
+    assert serialize_evidence_package_output(revised)["payload_fingerprint"] != fingerprint
+
+
+@pytest.mark.parametrize("path,value", [
+    (("outputs", 0, "observation"), {"score": 0.5}),
+    (("outputs", 0, "status"), "ambiguous"),
+    (("source_envelopes", 0, "value", "channels", 0, "observation"), {"raw": "tampered"}),
+    (("source_envelopes", 0, "support"), {"area": 3}),
+    (("source_envelopes", 0, "cache_identity", "input_fingerprint"), "changed-input"),
+    (("source_envelopes", 0, "cache_identity", "recipe_fingerprint"), "changed-recipe"),
+])
+def test_saved_payload_rejects_changed_readings_and_status(path: tuple, value: object) -> None:
+    """Content integrity rejects saved observations or audit values changed after publication."""
+    payload = serialize_evidence_package_output(_snapshot_output())
+    parent = payload
+    for key in path[:-1]:
+        parent = parent[key]
+    parent[path[-1]] = value
+
+    with pytest.raises(ValueError, match="payload_fingerprint"):
+        field_core.deserialize_evidence_package_output(payload)
+
+
+def test_historical_publication_without_dependencies_or_fingerprint_keeps_identity() -> None:
+    """Historical no-dependency publications retain their original computation identity."""
+    output = _output(_source_envelope())
+    historical_identity = "228e33da38c31976d1d04b2acc1e927afb3699f726c5859e8fdf21d9d09b382e"
+    assert output.output_identity == historical_identity
+    payload = serialize_evidence_package_output(output)
+    payload.pop("dependencies")
+    payload.pop("payload_fingerprint", None)
+    payload["output_identity"] = historical_identity
+
+    restored = field_core.deserialize_evidence_package_output(payload)
+
+    assert restored == output
+    assert restored.output_identity == historical_identity
+
+
+@pytest.mark.parametrize("identity", [
+    None,
+    "changed-output-identity",
+    "c619346fa791c8cab9dbdb4f2a40e7f2cf811a4fea6503da450dc66ece1b1c9e",
+])
+def test_saved_publication_requires_matching_declared_identity(identity: str | None) -> None:
+    """Legacy structural decoding still requires the published computation identity."""
+    payload = serialize_evidence_package_output(_output(_source_envelope()))
+    payload.pop("payload_fingerprint", None)
+    if identity is None:
+        payload.pop("output_identity")
+    else:
+        payload["output_identity"] = identity
+
+    with pytest.raises(ValueError, match="output_identity"):
+        field_core.deserialize_evidence_package_output(payload)
+
+
+@pytest.mark.parametrize("path,key", [
+    ((), "unexpected"),
+    (("source_envelopes", 0), "unexpected"),
+    (("source_envelopes", 0, "query"), "unexpected"),
+    (("source_envelopes", 0, "value"), "unexpected"),
+    (("source_envelopes", 0, "value", "channels", 0), "unexpected"),
+    (("outputs", 0), "unexpected"),
+    (("outputs", 0, "scale"), "unexpected"),
+    (("outputs", 0, "derived_from", 0), "package_id"),
+    (("outputs", 0, "derived_from", 1), "result_identity"),
+    (("dependencies", 0), "source_output"),
+    (("dependencies", 0, "channels", 0), "result_identity"),
+])
+def test_fixed_schema_rejects_unknown_contract_fields_and_mixed_references(path: tuple, key: str) -> None:
+    """A decoder must reject unfamiliar contract fields rather than discard saved evidence."""
+    payload = serialize_evidence_package_output(_snapshot_output())
+    payload.pop("payload_fingerprint", None)
+    parent = payload
+    for part in path:
+        parent = parent[part]
+    parent[key] = "unexpected"
+
+    with pytest.raises((TypeError, ValueError)):
+        field_core.deserialize_evidence_package_output(payload)
+
+
+@pytest.mark.parametrize("envelope_only", [False, True])
+@pytest.mark.parametrize("schema", [None, "unknown/v2"])
+def test_fixed_schema_readback_requires_known_explicit_schema(envelope_only: bool, schema: str | None) -> None:
+    """Saved field and package records require their explicit supported v1 schema."""
+    payload = serialize_evidence_package_output(_snapshot_output())
+    payload.pop("payload_fingerprint", None)
+    if envelope_only:
+        payload = payload["source_envelopes"][0]
+    if schema is None:
+        payload.pop("schema")
+    else:
+        payload["schema"] = schema
+    parser = (field_core.deserialize_field_result_envelope if envelope_only
+              else field_core.deserialize_evidence_package_output)
+
+    with pytest.raises(ValueError, match="schema"):
+        parser(payload)
+
+
+@pytest.mark.parametrize("value", [object(), (1, 2), {1: "non-string-key"}, float("nan")])
+def test_fixed_schema_readback_accepts_only_json_values(value: object) -> None:
+    """Readback never admits arbitrary Python objects through open audit fields."""
+    payload = serialize_evidence_package_output(_snapshot_output())
+    payload.pop("payload_fingerprint", None)
+    payload["outputs"][0]["provenance"]["unsupported"] = value
+
+    with pytest.raises((TypeError, ValueError), match="JSON"):
+        field_core.deserialize_evidence_package_output(payload)
+
+
+def test_dependency_admits_same_channel_name_for_distinct_targets() -> None:
+    """A package can consume and read back one channel across multiple target addresses."""
+    references = tuple(EvidencePackageChannelReference("upstream", "output", target, "distance")
+                       for target in ("pair-1", "pair-2"))
+    dependency = EvidencePackageDependency("upstream", "output", references)
+    evidence = _source_envelope()
+    output = EvidencePackageOutput(
+        "consumer", "consumer-output", "1", (evidence,),
+        (replace(_output(evidence).outputs[0], observation=None,
+                 status=FieldResultStatus.NOT_AVAILABLE, derived_from=references,
+                 explanation="upstream package is unavailable"),),
+        (dependency,),
+    )
+
+    assert dependency.channels == references
+    assert field_core.deserialize_evidence_package_output(
+        serialize_evidence_package_output(output),
+    ).dependencies[0].channels == references
+    with pytest.raises(ValueError, match="unique"):
+        EvidencePackageDependency("upstream", "output", (references[0], references[0]))
+
+
+@pytest.mark.parametrize("graph,match", [
+    ({"consumer": ("upstream",)}, "closed"),
+    ({"upstream": ()}, "current package"),
+    ({"consumer": (), "upstream": ()}, "declared dependencies"),
+    ({"consumer": ("upstream",), "upstream": ("extra",), "extra": ()}, "upstream.*declared dependencies"),
+])
+def test_evaluate_rejects_incomplete_or_inconsistent_graph_before_callback(graph: dict, match: str) -> None:
+    """Explicit graph coverage and available upstream declarations gate execution."""
+    evidence = _source_envelope()
+    upstream = replace(_output(evidence), package_id="upstream")
+    reference = EvidencePackageChannelReference("upstream", upstream.output_identity, "target-1", "derived_a")
+    dependency = EvidencePackageDependency("upstream", upstream.output_identity, (reference,), upstream, "fresh")
+    called = False
+
+    def produce(_sources: tuple[FieldResultEnvelope, ...]) -> tuple[EvidenceOutputChannel, ...]:
+        """Expose whether the graph guard runs before package computation."""
+        nonlocal called
+        called = True
+        return _output(evidence).outputs
+
+    package = EvidencePackage("consumer", "consumer-output", "1", produce)
+    with pytest.raises(ValueError, match=match):
+        package.evaluate((evidence,), dependencies=(dependency,), dependency_graph=graph)
+    assert called is False
+
+
+def test_evaluate_normalizes_complete_graph_once_and_accepts_matching_edges() -> None:
+    """A graph can supply one-shot iterables while matching normalized package declarations."""
+    evidence = _source_envelope()
+    upstream = replace(_output(evidence), package_id="upstream")
+    reference = EvidencePackageChannelReference("upstream", upstream.output_identity, "target-1", "derived_a")
+    dependency = EvidencePackageDependency("upstream", upstream.output_identity, (reference,), upstream, "fresh")
+    package = EvidencePackage(" consumer ", "consumer-output", "1", _package_output_function)
+
+    result = package.evaluate((evidence,), dependencies=(dependency,), dependency_graph={
+        " consumer ": iter((" upstream ",)), " upstream ": iter(()),
+    })
+
+    assert result.package_id == "consumer"
+    assert result.dependencies[0].package_id == "upstream"

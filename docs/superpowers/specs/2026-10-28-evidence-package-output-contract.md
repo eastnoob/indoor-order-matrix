@@ -1,8 +1,9 @@
 # Evidence Package Output Contract
 
-**Status:** working contract implemented in `features/field_core.py`; this
-revision adds optional, explicit cross-package channel readback and dependency
-lineage. It does not approve or implement a fusion formula.
+**Status:** working shared contract implemented in `features/field_core.py`;
+the 2026-11-10 saved-snapshot rollout adds fixed-v1 parsing, complete content
+fingerprints and a faithful existing-channel consumer. Rollout verification is
+in progress in the isolated candidate; no fusion formula is approved here.
 
 ## Purpose
 
@@ -20,10 +21,11 @@ valid. An opted-in consumer may pass explicit package dependencies and use the
 context callback to read them; the legacy callback still receives only source
 envelopes. The callable accepts only an iterable of
 `EvidenceOutputChannel` records that passes `EvidencePackageOutput` validation.
-The executing algorithm identity is package-level (`output_function` plus
-version); output channels remain distinct by name, lineage, status, scale and
-observation, but the shared core does not require a separate algorithm id on
-each channel.
+Algorithm tracing uses channel provenance (`method`, algorithm/schema versions
+and formula when declared), otherwise package `output_function` plus version
+scoped to the named channel. `derived_from`, source cache identities and
+explicit dependencies trace actual inputs. These existing fields meet the
+channel responsibility without a separate algorithm/snapshot class tree.
 The shared validation checks record shape, status explanations, scale metadata,
 source-channel and package-channel lineage, duplicate outputs and preservation
 of every input envelope/channel.
@@ -51,6 +53,16 @@ path, not a global enforcement mechanism for every caller.
   declarations, scale metadata, output schema, and function version. Any
   additional parameter that can change a result must be included in the source
   envelope identity or the output function version.
+
+`output_identity` is a computation identity, not a value checksum: it excludes
+observations and statuses. Empty dependencies are omitted from its hash so
+historical publications keep their identities. Serialized output additionally
+contains `payload_fingerprint`, SHA-256 of the complete canonical serialized
+payload excluding that field, including readings, states, provenance, source
+fingerprints and output identity. `fingerprint_evidence_dependency(channel)`
+provides a complete channel content fingerprint when needed. A pinned artifact
+SHA binds file bytes; currentness separately requires saved/current contract
+comparison. Equality of output identities cannot replace a content check.
 
 Each output channel records its target, channel name, observation, status,
 scale description, direct source-channel references, source ids, provenance,
@@ -99,14 +111,32 @@ Dependencies participate in `output_identity`. Evaluation uses a typed source
 output transiently to resolve a fresh reference; the published result retains
 only package/output/target/channel identity and freshness, never the nested
 source output object. Direct self-dependencies are rejected at output creation.
-The graph validator rejects self-dependencies and longer cycles when the caller
-supplies the complete declared package graph; if the caller omits it, indirect
-cycle detection is not guaranteed. The shared core has no registry from which
-to discover unrelated package edges and adds no execution scheduler. The
-resolver gates the caller-supplied freshness value; it does not rebuild or
-compare the package contract. There is no generic JSON deserializer for
-`EvidencePackageOutput` in this slice, so persisted reads first require a
-package-specific typed reconstruction.
+Different targets can publish and consume the same channel name; dependency
+uniqueness uses the full address, with `(target_identity, channel)` within one
+dependency. An explicitly supplied graph must include every referenced node,
+match the current package's actual dependencies and available typed upstream
+declarations, and be acyclic before the callback. If omitted, the compatible
+legacy path makes no complete-graph or global-cycle guarantee. The shared core
+has no registry or scheduler. The resolver gates caller-supplied freshness; the
+consumer must rebuild and compare the current contract.
+The consumer's `current_source_envelopes` must independently bind the saved
+output through `target`, `query`, `channel_set`, `cache_identity`, `raw_status`,
+`value`, `support` and `source_ids`, including source readings. Package-ID
+equality cannot establish this binding. Missing current context yields
+unavailable; input/query/plane mismatch is rejected. Outer provenance audit
+fields (`source_freshness`, visualization) are excluded from the binding
+signature; channel records inside `value` remain included.
+
+## Saved JSON readback
+
+`deserialize_field_result_envelope(payload)` and
+`deserialize_evidence_package_output(payload)` parse only the existing v1
+schemas into the existing validated types. They accept JSON values, reject
+unknown schemas/structural fields, require and recompute the saved
+`output_identity`, and verify `payload_fingerprint` when present. Arbitrary
+object/class loading is outside this boundary. Older publications without
+dependencies or content fingerprints remain readable; exact file SHA and
+fresh contract comparison bind their replay.
 
 ## Preservation invariant
 
@@ -128,6 +158,17 @@ reviewed pairwise axis-relation channels as additive outputs, with independent
 channel status and endpoint lineage; these readings do not create an extra
 global-resultant vote or claim external calibration. The contract does not
 verify package formula correctness or define cross-package fusion.
+
+The rollout consumer in
+`scripts/design/group_level/replay_evidence_package_readback.py` is a distinct
+package that republishes selected existing channels faithfully with full
+external references. Free-space/distance/potential saved outputs remain intact;
+geometry/trend are source-envelope adapters. Its camera-plane chain stays
+separate from world-plane potential/trend/geometry. Shared readback and
+per-package replay do not implement distance-to-potential business integration.
+Potential reexecution uses the pinned original producer envelope order to
+reproduce its historical `per_group` audit list; roundtrip preserves saved
+content directly. Runtime source sorting does not reconstruct that audit order.
 
 ## Verification
 

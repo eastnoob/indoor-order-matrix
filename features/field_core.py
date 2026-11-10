@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass, fields, is_dataclass, replace
+from dataclasses import MISSING, dataclass, fields, is_dataclass, replace
 from enum import Enum
 import hashlib
 import json
@@ -425,7 +425,7 @@ class EvidencePackageDependency:
             raise ValueError("dependency channels must use the same package_id")
         if any(item.output_identity != output_identity for item in channels):
             raise ValueError("dependency channels must use the same output_identity")
-        if len({item.channel for item in channels}) != len(channels):
+        if len({(item.target_identity, item.channel) for item in channels}) != len(channels):
             raise ValueError("dependency channels must be unique")
         if self.package_freshness not in {"fresh", "stale", "unavailable"}:
             raise ValueError("package_freshness must be fresh, stale, or unavailable")
@@ -716,15 +716,6 @@ class EvidencePackageOutput:
             "package_id": self.package_id,
             "output_function": self.output_function,
             "output_function_version": self.output_function_version,
-            "dependencies": tuple(
-                {
-                    "package_id": dependency.package_id,
-                    "output_identity": dependency.output_identity,
-                    "package_freshness": dependency.package_freshness,
-                    "channels": dependency.channels,
-                }
-                for dependency in self.dependencies
-            ),
             "outputs": tuple(
                 {
                     "target": output.target,
@@ -735,6 +726,9 @@ class EvidencePackageOutput:
                 for output in self.outputs
             ),
         }
+        # Historical publications predate cross-package dependencies and keep their IDs.
+        if self.dependencies:
+            payload["dependencies"] = _json_value(self.dependencies)
         return hashlib.sha256(_canonical_json(payload).encode()).hexdigest()
 
 
@@ -768,7 +762,7 @@ class EvidencePackage:
         dependencies: Iterable[EvidencePackageDependency] = (),
         dependency_graph: Mapping[str, Iterable[str]] | None = None,
     ) -> EvidencePackageOutput:
-        """Run the package function and validate its complete additive output."""
+        """Run additive output validation; a complete graph guarantee requires an explicit graph."""
         envelopes = tuple(source_envelopes)
         if not envelopes or any(not isinstance(item, FieldResultEnvelope) for item in envelopes):
             raise TypeError("source_envelopes must contain FieldResultEnvelope values")
@@ -779,7 +773,20 @@ class EvidencePackage:
         if any(item.package_freshness == "fresh" and item.source_output is None for item in dependencies):
             raise ValueError("fresh dependencies require a typed source_output during evaluation")
         if dependency_graph is not None:
-            validate_evidence_package_dependency_graph(dependency_graph)
+            # Materialize one-shot adjacency iterables once for both cycle and declaration checks.
+            graph = _normalize_evidence_package_dependency_graph(dependency_graph)
+            _validate_evidence_package_dependency_cycles(graph)
+            package_id = self.package_id.strip()
+            if package_id not in graph:
+                raise ValueError("dependency graph must contain the current package")
+            if set(graph[package_id]) != {item.package_id for item in dependencies}:
+                raise ValueError("current package graph edges must match declared dependencies")
+            for dependency in dependencies:
+                upstream = dependency.source_output
+                if upstream is not None and set(graph[dependency.package_id]) != {
+                    item.package_id for item in upstream.dependencies
+                }:
+                    raise ValueError("upstream graph edges must match declared dependencies")
         context = EvidencePackageInput(envelopes, _resolve_package_dependencies(dependencies))
         if self.context_output_function is not None:
             produced = self.context_output_function(context)
@@ -816,7 +823,114 @@ def serialize_evidence_package_output(result: EvidencePackageOutput) -> dict[str
         for dependency in result.dependencies
     ]
     serialized["output_identity"] = result.output_identity
+    # Computation identity excludes readings; this digest covers the full saved content.
+    serialized["payload_fingerprint"] = hashlib.sha256(_canonical_json(serialized).encode("utf-8")).hexdigest()
     return serialized
+
+
+def _validate_snapshot_json(value: Any) -> None:
+    """Reject Python-only values before parsing the fixed saved JSON contracts."""
+    if value is None or type(value) in (str, bool, int):
+        return
+    if type(value) is float:
+        if not isfinite(value):
+            raise ValueError("snapshot JSON values must be finite")
+        return
+    if type(value) is list:
+        for item in value:
+            _validate_snapshot_json(item)
+        return
+    if type(value) is dict and all(type(key) is str for key in value):
+        for item in value.values():
+            _validate_snapshot_json(item)
+        return
+    raise TypeError("snapshot payload must contain JSON values only")
+
+
+def _snapshot_record(payload: Any, record_type: type) -> dict[str, Any]:
+    """Check the object shape for an explicitly selected v1 contract record."""
+    if type(payload) is not dict:
+        raise TypeError(f"{record_type.__name__} must be a JSON object")
+    contract_fields = {field.name: field for field in fields(record_type)}
+    unknown = set(payload) - contract_fields.keys()
+    required = {name for name, field in contract_fields.items()
+                if field.default is MISSING and field.default_factory is MISSING}
+    if unknown or required - payload.keys():
+        raise ValueError(f"{record_type.__name__} has unknown or missing contract fields: "
+                         f"{sorted(unknown | (required - payload.keys()))}")
+    for name in ("source_ids", "channel_set", "derived_from", "channels", "source_envelopes", "outputs", "dependencies"):
+        if name in payload and type(payload[name]) is not list:
+            raise TypeError(f"{record_type.__name__}.{name} must be a JSON array")
+    for name in ("value_range", "endpoint_meanings"):
+        if name in payload and payload[name] is not None and type(payload[name]) is not list:
+            raise TypeError(f"{record_type.__name__}.{name} must be a JSON array or null")
+    return dict(payload)
+
+
+def deserialize_field_result_envelope(payload: dict[str, Any]) -> FieldResultEnvelope:
+    """Read the fixed v1 envelope JSON schema without interpreting arbitrary object names."""
+    _validate_snapshot_json(payload)
+    data = _snapshot_record(payload, FieldResultEnvelope)
+    if data.get("schema") != "field-result-envelope/v1":
+        raise ValueError("schema must be field-result-envelope/v1")
+    data["query"] = FieldQuery(**_snapshot_record(data["query"], FieldQuery))
+    if data.get("value") is not None:
+        value = data["value"]
+        if type(value) is not dict or set(value) != {"channels"} or type(value["channels"]) is not list:
+            raise ValueError("value must contain only the channels JSON array")
+        data["value"] = {"channels": tuple(
+            EvidenceChannelRecord(**_snapshot_record(record, EvidenceChannelRecord))
+            for record in value["channels"]
+        )}
+    # Dataclass validation owns evidence semantics after the saved record shapes are admitted.
+    return FieldResultEnvelope(**data)
+
+
+def deserialize_evidence_package_output(payload: dict[str, Any]) -> EvidencePackageOutput:
+    """Read fixed v1 output JSON; historical content alone establishes no current freshness."""
+    _validate_snapshot_json(payload)
+    if type(payload) is not dict:
+        raise TypeError("EvidencePackageOutput must be a JSON object")
+    data = dict(payload)
+    if "output_identity" not in data:
+        raise ValueError("saved package output requires output_identity")
+    declared_identity = data.pop("output_identity")
+    if "payload_fingerprint" in data:
+        declared_fingerprint = data.pop("payload_fingerprint")
+        content = {key: value for key, value in payload.items() if key != "payload_fingerprint"}
+        if declared_fingerprint != hashlib.sha256(_canonical_json(content).encode("utf-8")).hexdigest():
+            raise ValueError("payload_fingerprint does not match saved package content")
+    data = _snapshot_record(data, EvidencePackageOutput)
+    if data.get("schema") != "evidence-package-output/v1":
+        raise ValueError("schema must be evidence-package-output/v1")
+    data["source_envelopes"] = tuple(deserialize_field_result_envelope(item) for item in data["source_envelopes"])
+    outputs = []
+    for item in data["outputs"]:
+        channel = _snapshot_record(item, EvidenceOutputChannel)
+        channel["scale"] = EvidenceOutputScale(**_snapshot_record(channel["scale"], EvidenceOutputScale))
+        # The two fixed reference key sets are disjoint; mixed records are never guessed.
+        channel["derived_from"] = tuple(
+            (EvidencePackageChannelReference(**_snapshot_record(ref, EvidencePackageChannelReference))
+             if "package_id" in ref else EvidenceChannelReference(**_snapshot_record(ref, EvidenceChannelReference)))
+            for ref in channel["derived_from"]
+        )
+        outputs.append(EvidenceOutputChannel(**channel))
+    data["outputs"] = tuple(outputs)
+    dependencies = []
+    for item in data.get("dependencies", ()):
+        dependency = _snapshot_record(item, EvidencePackageDependency)
+        if "source_output" in dependency:
+            raise ValueError("saved dependencies cannot contain source_output")
+        dependency["channels"] = tuple(
+            EvidencePackageChannelReference(**_snapshot_record(ref, EvidencePackageChannelReference))
+            for ref in dependency["channels"]
+        )
+        dependencies.append(EvidencePackageDependency(**dependency))
+    data["dependencies"] = tuple(dependencies)
+    result = EvidencePackageOutput(**data)
+    if declared_identity != result.output_identity:
+        raise ValueError("output_identity does not match saved package computation")
+    return result
 
 
 def _resolve_package_dependencies(
@@ -895,7 +1009,14 @@ def resolve_evidence_package_channel(
 def validate_evidence_package_dependency_graph(
     graph: Mapping[str, Iterable[str]],
 ) -> None:
-    """Reject self-dependencies and longer cycles in a package dependency graph."""
+    """Require a closed package graph and reject self-dependencies and longer cycles."""
+    _validate_evidence_package_dependency_cycles(_normalize_evidence_package_dependency_graph(graph))
+
+
+def _normalize_evidence_package_dependency_graph(
+    graph: Mapping[str, Iterable[str]],
+) -> dict[str, tuple[str, ...]]:
+    """Normalize graph IDs once and require every dependency to have a declared node."""
     if not isinstance(graph, Mapping):
         raise TypeError("graph must be a mapping")
     normalized: dict[str, tuple[str, ...]] = {}
@@ -912,7 +1033,14 @@ def validate_evidence_package_dependency_graph(
             raise ValueError("dependency package ids must be non-empty strings")
         entries = tuple(item.strip() for item in entries)
         normalized[package_id] = entries
+    missing = {item for entries in normalized.values() for item in entries} - normalized.keys()
+    if missing:
+        raise ValueError(f"dependency graph must be closed; missing package nodes: {sorted(missing)}")
+    return normalized
 
+
+def _validate_evidence_package_dependency_cycles(graph: Mapping[str, tuple[str, ...]]) -> None:
+    """Reject cycles in an already normalized closed dependency graph."""
     visiting: list[str] = []
     visited: set[str] = set()
 
@@ -925,12 +1053,12 @@ def validate_evidence_package_dependency_graph(
         if package_id in visited:
             return
         visiting.append(package_id)
-        for dependency in normalized.get(package_id, ()):
+        for dependency in graph[package_id]:
             visit(dependency)
         visiting.pop()
         visited.add(package_id)
 
-    for package_id in normalized:
+    for package_id in graph:
         visit(package_id)
 
 

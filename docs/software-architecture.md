@@ -1,5 +1,42 @@
 # 软件架构
 
+## Evidence-package saved readback rollout — 2026-11-10 / locally verified candidate
+
+The isolated `evidence-package-structure-e86` candidate is extending the existing
+v1 envelope/output boundary with fixed-schema JSON readers and a serialized
+`payload_fingerprint`. Existing dataclass validation remains authoritative;
+saved `output_identity` is required, and a content fingerprint is checked when
+present. Legacy publications without dependencies or fingerprints remain
+readable. Computation identity, complete payload integrity, pinned file bytes,
+and freshness against a freshly built current contract are separate checks.
+
+The concrete consumer is an output-only, faithful channel readback package in
+`scripts/design/group_level/replay_evidence_package_readback.py`. It selects
+explicit published channel references, pins artifact SHA-256, compares retained
+contracts with freshly built contracts, and supplies a complete dependency
+graph before execution. It adds no formula or distance-conditioned potential.
+Before numeric readback, independent `current_source_envelopes` must match a
+signature of `target`, `query`, `channel_set`, `cache_identity`, `raw_status`,
+`value`, `support` and `source_ids`; package ID alone is insufficient. Missing
+context yields unavailable; input/query/plane mismatch is rejected. Outer
+`source_freshness`/visualization provenance is audit-only and excluded from
+this input signature. The P1 repair is implemented and passed scoped independent
+review; the retained replay report records zero errors.
+The camera-plane free-space/distance chain and world-plane
+potential/trend/geometry snapshots remain separate. Per-channel algorithm and
+input tracing reuse provenance, package function/version, `derived_from`,
+source cache identities and explicit dependencies; no parallel class tree is
+needed. The focused rollout tests and retained saved-artifact replay passed;
+the existing core checkpoint `51b8c6e7` is a subset, with no mainline merge or push. See the
+[integration plan](superpowers/plans/2026-11-09-evidence-package-integration-cleanup.md)
+and [evidence record](project/evidence/evidence-package-integration-cleanup-2026-11-09.md).
+
+Potential saved roundtrip preserves all 4,112 outputs and 37 sources. Exact
+reexecution uses the pinned original producer `envelopes.json` order: runtime
+source sorting otherwise permutes its historical `per_group` audit list. This
+does not change a formula or version. The final retained report preserves the
+initial ordering failure and the corrected original-producer-order replay.
+
 ## Free-space evidence package — 2026-11-07 / implementation and verification in progress
 
 The authorized package reuses the existing `FreeSpaceField` computation through
@@ -748,9 +785,10 @@ and version; the template runs it against immutable source envelopes and
 validates channel shape, status, scale metadata, lineage, duplicate prevention
 and complete source preservation. Derived channels remain separate from raw
 channels, and output-function version participates in the derived identity.
-The current algorithm identity is package-level; output channels have separate
-names, lineages, observations and scale/status records, but no mandatory
-channel-specific algorithm id. The runtime output carries source envelopes,
+Channel algorithm tracing uses existing method/algorithm/schema provenance,
+otherwise package function/version scoped to the named channel. Source channels
+may inherit envelope provenance; `derived_from`, source cache fingerprints and
+explicit dependencies identify actual inputs. The runtime output carries source envelopes,
 additive outputs and compact dependencies. Target/query/scope, freshness and
 visualization manifest live in surrounding package contract/status/manifest
 records, not as fields on `EvidencePackageOutput`.
@@ -764,13 +802,18 @@ with the observation redacted from computation; outputs derived from those
 dependencies must have `observation=None`, including `partial` outputs. An
 unavailable dependency without a source output has no observation. Published
 outputs store compact dependency references, not nested upstream outputs.
-Persisted readback currently needs package-specific reconstruction into the
-typed output; there is no generic JSON deserializer. Direct self-dependencies
-are rejected. Indirect-cycle validation runs before the callback only when the
-caller supplies a complete `dependency_graph`; omission does not guarantee
-cycle detection. No package registry or scheduler is maintained. The shared
-core supports this route, but current potential outputs do not consume
-group-distance channels.
+The saved-readback rollout adds fixed-v1 envelope/output readers that reuse
+validated types and reject unknown structural fields/schema. Saved output
+identity is required; optional full-payload fingerprints detect changed
+observations/statuses that computation identity does not cover. Legacy
+no-dependency/no-fingerprint publications remain readable with pinned file
+bytes and current-contract comparison. Different targets may consume the same
+channel name. Direct self-dependencies are rejected. An explicitly supplied
+graph must cover every referenced node and match current/available typed
+upstream declaration edges before its acyclic callback boundary. The compatible
+no-graph call makes no complete-graph or global-cycle guarantee. No registry or
+scheduler is maintained. The separate readback consumer preserves existing
+channels and does not make potential consume group-distance.
 `features/group_axis_potential_field.py` now adds the reviewed axis-only
 diagnostic package. It consumes only each source envelope's
 `overall_group_axis`, weights the undirected doubled-angle vectors by the

@@ -1,5 +1,54 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Evidence-package saved readback rollout — 2026-11-10 / locally verified candidate
+
+Continue the existing isolated `evidence-package-structure-e86` candidate and
+[integration plan](superpowers/plans/2026-11-09-evidence-package-integration-cleanup.md).
+Fixed known-v1 envelope/output JSON readers reuse validated types and reject
+unknown schemas/structural fields; no arbitrary object loading. Validate saved
+output identity and optional `payload_fingerprint`. Empty dependencies stay
+out of the computation hash to preserve actual historical publication IDs.
+Computation identity excludes reading/status bytes; the full canonical payload
+fingerprint, pinned file SHA and freshly compared contract freshness answer
+different questions. Never treat an old identity or saved fresh receipt as
+value integrity or live currentness.
+
+Channel algorithm/input tracing uses existing provenance, package function and
+version scoped by channel, `derived_from`, cache-identity fingerprints and
+explicit dependencies. Geometry/trend source channels inherit their envelope
+algorithm/schema metadata. The distinct faithful readback consumer selects
+complete package/output/target/channel addresses and must consume two different
+targets of the same distance channel; the retained replay consumes two distinct
+distance targets together. Its explicit graph covers referenced
+nodes and actual current/typed-upstream declarations before execution. The
+no-graph legacy API remains compatible without a global-cycle guarantee.
+Independent `current_source_envelopes` must match `target`, `query`,
+`channel_set`, `cache_identity`, `raw_status`, `value`, `support` and `source_ids`
+before numeric use; contract package-ID equality is insufficient. Missing
+current context yields unavailable; input/query/plane mismatch is rejected.
+Outer `source_freshness`/visualization provenance is audit-only and excluded
+from this input signature. The P1 repair is implemented and independently
+reviewed; the retained replay report records zero errors.
+Fresh reads preserve observation/status/scale; stale/unavailable reads have no
+observation. The existing potential's independent pure-axis outputs remain
+unchanged by unused optional stale dependencies.
+
+Keep camera-plane free-space/distance separate from the retained world-plane
+potential/trend/geometry. Per-package saved readback is distinct from
+distance-to-potential business integration, which is not implemented. Reuse
+retained real IFC artifacts and existing visualizations. Core checkpoint
+`51b8c6e7` covers the earlier core subset; this candidate adds the saved-readback
+implementation and retained replay evidence. Freshness remains limited to
+pinned retained inputs, and live scene currentness was not observed. Root is
+sole JJ writer; preserve mainline, original reference
+bookmark, unrelated dirty work and the existing free-space bookmark conflict.
+No merge or push is authorized.
+
+Potential roundtrip preserves its saved 4,112 outputs and 37 sources. Reexecute
+the original pinned producer `envelopes.json` order for exact historical
+`per_group` audit ordering; runtime source storage sorts by cache identity and
+does not encode producer callback order. No formula/version change is needed.
+
 ## Eight-neighbor distance technically accepted — 2026-11-04
 
 The user authorized `.18.8b` in the same `free-space-distance-bridge` workspace,
@@ -685,8 +734,10 @@ package-owned derived outputs and `EvidencePackageOutput` as the validated
 runtime result. A package supplies a required callable and version; the
 template runs it against immutable source envelopes and validates additive
 output channels, status/scale metadata, lineage, and preservation of every
-source envelope and channel. The algorithm identity is package-level; each
-channel retains its own name, input lineage, observation, scale and status.
+source envelope and channel. Algorithm tracing uses channel method/algorithm/
+schema provenance when declared, otherwise package function/version scoped to
+the channel; actual inputs use lineage, source cache identities and explicit
+dependencies. Each channel retains its observation, scale and status.
 The outer package contract/status/manifest carries target/query/scope,
 freshness/recompute state and published views; these are not fields on
 `EvidencePackageOutput`. Direct construction remains possible, so the template
@@ -697,11 +748,15 @@ The raw reader checks identity only. The resolver gates a caller-supplied
 freshness value; freshness calculation belongs to the package-status layer or
 caller. Stale/unavailable channels expose no usable observation, and outputs
 derived from them must use `observation=None` even when marked partial. The
-published result keeps compact references; persisted readback currently needs
-package-specific reconstruction because there is no generic JSON decoder.
+published result keeps compact references. The saved-readback rollout adds
+fixed-v1 envelope/output JSON readers with saved identity and optional content
+fingerprint checks; legacy publications remain readable with artifact SHA and
+fresh current-contract comparison.
 Direct self-dependencies are rejected. `EvidencePackage.evaluate()` checks
-indirect cycles before its callback only when the caller provides a complete
-dependency graph; no registry or scheduler supplies that graph automatically.
+indirect cycles before its callback only when the caller provides an explicit
+graph covering all nodes and matching current/available typed-upstream
+declarations; the no-graph legacy call makes no complete-graph guarantee.
+No registry or scheduler supplies that graph automatically.
 Cross-package fusion still requires reviewed semantic-scale compatibility and
 must retain every package contribution.
 

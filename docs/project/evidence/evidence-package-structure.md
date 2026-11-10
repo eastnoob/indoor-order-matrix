@@ -1,79 +1,102 @@
 # Evidence Package Structure
 
-An evidence package is a result container for one target/scope and one
-materialized analysis snapshot. It groups related channels; it does not turn
-the channels into one shared algorithm or one automatic score.
-
-There are two layers. The outer package contract/status/manifest records the
-target, query/scope/plane, input versions, dependency fingerprints, freshness,
-recompute reasons, and published views. The runtime
-`EvidencePackageOutput` currently carries only the immutable source envelopes,
-additive channel outputs, compact external dependency references, package
-function identity, and the derived output identity. Freshness and
-visualization manifest are therefore package-level records beside the runtime
-output, not fields on `EvidencePackageOutput` itself.
+An evidence package groups related channels for one materialized analysis
+snapshot. Each channel keeps its own meaning, method, inputs, observation,
+status and scale. Grouping channels does not combine them into a score.
 
 ```text
 Evidence package
-├── Outer package records
-│   ├── package contract: target/query/scope/plane and input snapshot
-│   ├── package status: freshness, recompute_required, reasons, affected targets
-│   └── visualization manifest: published JSON/SVG/HTML locators
-├── Runtime EvidencePackageOutput
-│   ├── source_envelopes       original field evidence, retained in full
-│   ├── outputs                additive derived channels
-│   ├── dependencies           compact package/output/target/channel references
-│   └── output_identity        stable identity of the complete result boundary
-└── Channel records
-    ├── algorithm declaration  channel-owned method/recipe and version
-    ├── input snapshot         source envelope lineage and external references
-    ├── output                 observation, status, scale/units, explanation
-    └── provenance             source IDs, lineage, and audit metadata
+├── Publication records
+│   ├── contract: target/query/scope/plane, recipe and input fingerprints
+│   ├── status: freshness, recompute reasons and affected targets
+│   └── manifest: published data and existing visualization locators
+├── EvidencePackageOutput
+│   ├── source_envelopes: complete immutable original evidence
+│   ├── outputs: additive channels with method, input lineage and results
+│   ├── dependencies: explicit package/output/target/channel addresses
+│   └── output_identity: computation identity
+└── Saved JSON
+    └── payload_fingerprint: complete serialized content fingerprint
 ```
 
-The four channel parts are logical responsibilities, not four nested classes:
+The channel responsibilities use existing fields, not additional nested types:
 
-1. **Algorithm declaration:** each channel should name the method/recipe and
-   version that produce it. Different channels may point to the same method,
-   but their identity and meaning remain separate. The current runtime only
-   records package-level `output_function` and `output_function_version`; a
-   typed channel-specific algorithm ID/version is a known follow-up gap.
-2. **Input snapshot:** each channel names the exact source channels it used;
-   package-level `source_envelopes` retain the common materialized input
-   snapshot, and `derived_from` points to each channel's actual inputs.
-   Cross-package inputs add an explicit package/output/target/channel
-   reference and participate in `output_identity`. Separate per-channel input
-   snapshot fingerprints are not yet a typed runtime field.
-3. **Output:** each `EvidenceOutputChannel` carries its observation, status,
-   scale/units, and explanation. Derived channels are additive and cannot
-   replace a source channel.
-4. **Provenance:** source IDs, lineage, and provenance remain attached so a
-   result can be audited without guessing which input was used.
+| Responsibility | Existing representation |
+| --- | --- |
+| Algorithm/recipe | Channel provenance `method`, `algorithm_version`, `schema_version` and formula when declared; otherwise package `output_function` and `output_function_version`, scoped to the named channel. Source records may explicitly inherit top-level envelope provenance. |
+| Actual inputs | `derived_from`, source-envelope `cache_identity` input/source/query/recipe/channel fingerprints, and explicit external dependencies. |
+| Output | Channel `observation`, `status`, `scale`, explanation and source IDs. |
+| Content integrity | `fingerprint_evidence_dependency(output_channel)` fingerprints one complete channel; serialized `payload_fingerprint` covers the complete package. |
 
-One package can read a published channel from another package, then append a
-new derived channel. `read_evidence_package_channel()` is an identity-only raw
-reader for an already reconstructed `EvidencePackageOutput`.
-`resolve_evidence_package_channel()` gates the caller-declared freshness value:
-fresh input exposes the original channel, while stale or unavailable input
-exposes no usable `channel` and retains only a redacted `audit_channel` when a
-typed source output exists. The resolver does not calculate freshness; the
-package contract/status layer or its caller supplies that decision. A stale or
-unavailable external dependency cannot publish any output with a non-`None`
-observation, regardless of whether its status is `partial` or `computed`.
-Without a typed source output, an unavailable dependency has no audit
-observation.
+The outer contract/status/manifest remains separate from the runtime output.
+Freshness is calculated by comparing the saved contract with a freshly built
+current contract. A saved status receipt only records its earlier comparison.
+The consumer's `current_source_envelopes` must be independently supplied;
+matching package IDs cannot bind a saved output to that contract. Numeric use
+compares a binding signature over `target`, `query`, `channel_set`,
+`cache_identity`, `raw_status`, `value`, `support` and `source_ids`, including
+source readings. Missing current context yields unavailable; input/query/plane
+mismatch is rejected. Outer provenance audit fields such as
+`source_freshness` or visualization do not enter this input signature; channel
+records inside `value` remain included.
 
-The dependency reference is part of the consuming package's output identity.
-`source_output` is an evaluation-time handle only. Published outputs and JSON
-serialization keep compact references and do not recursively retain upstream
-package outputs. There is no generic JSON-to-`EvidencePackageOutput`
-deserializer in this slice; persisted readback requires a package-specific
-reconstruction step before the typed reader can be used.
+`output_identity` hashes source result identities, output declarations, scale,
+function/version and nonempty dependencies. It deliberately excludes reading
+and status bytes, so equality alone does not prove equal observations. Empty
+dependencies are omitted from this computation hash to preserve historical
+publication IDs. The serialized `payload_fingerprint` is SHA-256 of canonical
+complete output JSON excluding its own field; it includes observations,
+statuses, provenance, source fingerprints and `output_identity`. A pinned file
+SHA-256 binds the actual artifact bytes. None of these hashes establishes
+currentness without the current-contract comparison.
 
-The shared core does not maintain a package registry or scheduler. The caller
-may pass a complete package dependency graph to
-`EvidencePackage.evaluate(..., dependency_graph=...)`; when supplied, it is
-validated before the callback runs. If the graph is omitted, direct self
-dependencies are still rejected at output construction, but indirect-cycle
-checking is not guaranteed. Cross-package fusion formulas remain owned by the
-consuming package and are not inferred by the shared core.
+The rollout adds fixed known-v1 readers:
+`deserialize_field_result_envelope(payload)` and
+`deserialize_evidence_package_output(payload)`. They rebuild existing validated
+types from JSON values, require and validate the saved output identity, reject
+unsupported schemas and unknown structural fields, and check a payload
+fingerprint when present. They do not load arbitrary classes or objects.
+Historical publications without dependencies or the new fingerprint remain
+readable; their exact file bytes must be pinned by the replay consumer.
+
+An external read uses the full `package_id`, `output_identity`,
+`target_identity`, `channel` address. Two targets may publish the same channel
+name and may both be consumed. The raw reader checks that address against a
+typed output. The resolver separately gates caller-supplied freshness; fresh
+channels retain their observation, status and scale. Stale/unavailable channels
+provide no usable channel; an available typed source contributes only an
+observation-redacted audit record. Every derived output that uses such a
+dependency must have `observation=None`, including `partial` outputs. Missing
+or mismatched references are rejected, rather than filled with zero.
+
+Published dependencies keep compact references; evaluation-time
+`source_output` handles are not recursively serialized. If a dependency graph
+is supplied, it must cover every referenced node, match the current package's
+declared edges and the declarations of available typed upstream outputs, and
+be acyclic before the callback runs. The legacy no-graph call remains valid;
+it rejects direct self-dependencies but makes no complete-graph or global-cycle
+guarantee. The core owns no registry or scheduler.
+
+The concrete rollout consumer is the distinct, output-only readback package in
+`scripts/design/group_level/replay_evidence_package_readback.py`. It selects
+existing published channels with explicit references, artifact hashes, current
+contracts and a complete graph. Its fresh outputs faithfully preserve the
+selected observation/status/scale; stale/unavailable outputs have no
+observation. Original free-space, distance and potential outputs remain intact;
+geometry and trend use the same envelope reader as source adapters, preserving
+their public/audit boundary. This exercises shared readback without defining a
+new metric. The camera-plane free-space/distance snapshots cannot be mixed with
+the retained world-plane potential/trend/geometry snapshots. Distance-to-potential
+business integration remains unimplemented and needs its own agreed meaning.
+
+Readback preserves saved source/output content without rerunning a formula.
+Reexecution also preserves the original producer input order when that order
+appears in an audit list: potential's historical `per_group` list came from
+the pinned original `envelopes.json`, while runtime source storage sorts by
+cache identity. Reexecuting sorted storage may permute that audit list; it is
+not the byte-equivalent original-order replay. See the evidence record for the
+observed failure and corrected comparison.
+
+Implementation and saved-artifact verification are tracked in the existing
+[integration plan](../../superpowers/plans/2026-11-09-evidence-package-integration-cleanup.md)
+and [evidence record](evidence-package-integration-cleanup-2026-11-09.md).
