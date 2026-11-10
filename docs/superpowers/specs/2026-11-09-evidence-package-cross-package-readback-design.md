@@ -1,6 +1,6 @@
 # 证据包结构与跨包读回设计
 
-状态：**共享契约已实现；2026-11-10 保存快照读回 rollout 设计确定，实施和验证进行中。**
+状态：**共享契约与保存快照读回已实现；2026-11-10 在隔离候选和固定留存输入范围内验证通过。未合并、未推送，未验证 live scene。**
 
 证据包是同一次分析快照的结果容器。外围 contract/status/manifest 绑定目标、query、scope、plane、输入/配方版本、freshness 和产物；运行时 `EvidencePackageOutput` 保留完整 source envelopes、追加 outputs、紧凑外部依赖和计算身份。渠道各自保留算法、实际输入、观察、状态、单位和 provenance，不因同包而合成总分。
 
