@@ -62,6 +62,12 @@ def sqrt_comparison_rows(experiment_inputs):
     return build_comparison_rows(experiment_inputs, compare_sqrt_reciprocal=True)
 
 
+@pytest.fixture(scope="module")
+def power_06_comparison_rows(experiment_inputs):
+    """Reuse the authenticated retained context for the standalone fixed-0.6 mode."""
+    return build_comparison_rows(experiment_inputs, compare_power_06=True)
+
+
 def _projection(group, geometry):
     """Apply a mathematical transform to a retained group's polygon components."""
     polygons = tuple(geometry.geoms) if geometry.geom_type == "MultiPolygon" else (geometry,)
@@ -426,9 +432,11 @@ def test_sqrt_comparison_preserves_pinned_reciprocal_rows(comparison_rows, sqrt_
     assert ordered[0]['w_sqrt_reciprocal'] > ordered[333]['w_sqrt_reciprocal'] > ordered[-1]['w_sqrt_reciprocal']
 
 
-@pytest.mark.parametrize('compare,sqrt_compare', ((False, False), (True, False), (True, True)))
-def test_comparison_exports_are_explicit_and_default_stays_exponential(
-    experiment_inputs, decay_rows, comparison_rows, sqrt_comparison_rows, monkeypatch, tmp_path, compare, sqrt_compare,
+@pytest.mark.parametrize('compare,sqrt_compare,power_06', ((False, False, False), (True, False, False),
+                                                        (True, True, False), (True, True, True)))
+def test_power_06_and_old_comparison_exports_keep_explicit_modes(
+    experiment_inputs, decay_rows, comparison_rows, sqrt_comparison_rows, power_06_comparison_rows,
+    monkeypatch, tmp_path, compare, sqrt_compare, power_06,
 ) -> None:
     """Real HTML/CSV/JSON bind the selected mode while the existing output guard still applies."""
     loads = []
@@ -438,10 +446,12 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
         loads.append(paths)
         return experiment_inputs
 
-    def overview(inputs, rows, output_dir, *, compare_reciprocal=False, compare_sqrt_reciprocal=False):
+    def overview(inputs, rows, output_dir, *, compare_reciprocal=False, compare_sqrt_reciprocal=False,
+                 compare_power_06=False):
         """Leave static rendering to the actual trial and test only its export handoff here."""
         assert inputs is experiment_inputs and compare_reciprocal is compare
         assert compare_sqrt_reciprocal is sqrt_compare
+        assert compare_power_06 is power_06
         for name in ('overview.svg', 'overview.png'):
             (output_dir / name).write_bytes(b'static rendering checked in the real retained trial')
 
@@ -449,16 +459,19 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
     monkeypatch.setattr(decay, 'load_experiment_inputs', retained_inputs)
     monkeypatch.setattr(decay, '_write_overview', overview)
     destination = tmp_path / 'outputs/design/comparison-export'
-    options = ({'compare_sqrt_reciprocal': True} if sqrt_compare else
+    options = ({'compare_power_06': True} if power_06 else {'compare_sqrt_reciprocal': True} if sqrt_compare else
                {'compare_reciprocal': True} if compare else {})
     manifest = decay.run_experiment(destination, **options)
     assert loads == [{'bundle_path': decay.BUNDLE_PATH, 'package_path': decay.PACKAGE_PATH}]
-    expected_rows = sqrt_comparison_rows if sqrt_compare else comparison_rows if compare else decay_rows
+    expected_rows = (power_06_comparison_rows if power_06 else sqrt_comparison_rows if sqrt_compare else
+                     comparison_rows if compare else decay_rows)
     payload = json.loads((destination / 'decay_rows.json').read_text(encoding='utf-8'))
     assert payload['rows'] == _json_safe(expected_rows)
-    assert payload['schema'] == ('group-distance-decay-three-curve-rows/1' if sqrt_compare else
+    assert payload['schema'] == ('group-distance-decay-four-curve-rows/1' if power_06 else
+                                 'group-distance-decay-three-curve-rows/1' if sqrt_compare else
                                  'group-distance-decay-comparison-rows/1' if compare else 'group-distance-decay-rows/1')
-    assert manifest['schema'] == ('group-distance-decay-three-curve-run/1' if sqrt_compare else
+    assert manifest['schema'] == ('group-distance-decay-four-curve-run/1' if power_06 else
+                                  'group-distance-decay-three-curve-run/1' if sqrt_compare else
                                   'group-distance-decay-comparison-run/1' if compare else 'group-distance-decay-run/1')
     assert payload['formula_version'] == manifest['formula_version'] == 'group-union-rms-rss-exp/1'
     assert manifest['path_distance_used'] is False
@@ -466,7 +479,7 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
         if compare:
             assert metadata['reciprocal_formula_version'] == RECIPROCAL_FORMULA_VERSION
             assert metadata['reciprocal_formula'] == RECIPROCAL_FORMULA
-            assert metadata['default_curve'] == ('sqrt_reciprocal' if sqrt_compare else 'reciprocal')
+            assert metadata['default_curve'] == ('power_06' if power_06 else 'sqrt_reciprocal' if sqrt_compare else 'reciprocal')
             assert metadata['color_scale'] == [0, 1]
         else:
             assert not {'reciprocal_formula_version', 'reciprocal_formula', 'default_curve'} & metadata.keys()
@@ -475,6 +488,12 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
             assert metadata['sqrt_reciprocal_formula'] == 'w_sqrt_reciprocal=1/sqrt(1+q)'
         else:
             assert 'sqrt_reciprocal_formula_version' not in metadata
+        if power_06:
+            assert metadata['power_06_formula_version'] == 'group-union-rms-rss-power-06/1'
+            assert metadata['power_06_formula'] == 'w_power_06=(1+q)^(-0.6)'
+            assert metadata['power_06_exponent'] == 0.6
+        else:
+            assert not {'power_06_formula_version', 'power_06_formula', 'power_06_exponent'} & metadata.keys()
 
     with (destination / 'decay_rows.csv').open(newline='', encoding='utf-8') as stream:
         exported = list(csv.DictReader(stream))
@@ -493,6 +512,11 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
             assert record['sqrt_reciprocal_formula_version'] == 'group-union-rms-rss-sqrt-reciprocal/1'
         else:
             assert 'w_sqrt_reciprocal' not in record
+        if power_06:
+            assert float(record['w_power_06']) == expected['w_power_06']
+            assert record['power_06_formula_version'] == 'group-union-rms-rss-power-06/1'
+        else:
+            assert 'w_power_06' not in record
 
     document = (destination / 'index.html').read_text(encoding='utf-8')
     assert document.count('<g data-group=') == 37
@@ -503,10 +527,16 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
     assert embedded and json.loads(embedded.group(1)) == _json_safe(expected_rows)
     if compare:
         assert 'id="curve"' in document
-        selected = 'w_sqrt_reciprocal' if sqrt_compare else 'w_reciprocal'
+        selected = 'w_power_06' if power_06 else 'w_sqrt_reciprocal' if sqrt_compare else 'w_reciprocal'
         assert re.search(r'<option(?=[^>]*value="' + selected + r'")(?=[^>]*selected)[^>]*>', document)
         assert 'value="w"' in document
         assert 'w_exp' in document and 'w_reciprocal' in document
+        if power_06:
+            assert document.count('<option value="w') == 4
+            assert '<th>w_power_06</th>' in document
+            assert 'id="formula-version"' in document
+            assert 'w_power_06 = (1 + q)^(-0.6)' in document
+            assert 'data-formula-version="group-union-rms-rss-power-06/1" selected' in document
     else:
         assert 'id="curve"' not in document
     for name, expected_hash in manifest['artifact_hashes'].items():
@@ -529,6 +559,78 @@ def test_sqrt_reciprocal_cli_flag_is_standalone(monkeypatch, tmp_path, capsys) -
     monkeypatch.setattr(sys, 'argv', ['decay', '--output-dir', str(tmp_path), '--compare-sqrt-reciprocal'])
     decay.main()
     assert calls == [(tmp_path, {'bundle_path': decay.BUNDLE_PATH, 'package_path': decay.PACKAGE_PATH,
-                                'compare_reciprocal': False, 'compare_sqrt_reciprocal': True})]
+                                'compare_reciprocal': False, 'compare_sqrt_reciprocal': True,
+                                'compare_power_06': False})]
+    assert json.loads(capsys.readouterr().out) == {}
+
+
+def test_power_06_response_domain() -> None:
+    """The fixed trial keeps unit contact and a finite positive tail at the largest q."""
+    assert decay.power_06_response(0.0) == 1.0
+    assert decay.power_06_response(31.0) == pytest.approx(0.125)
+    assert 0 < decay.power_06_response(sys.float_info.max) < 1
+
+
+@pytest.mark.parametrize('q', (-1.0, math.nan, math.inf, -math.inf))
+def test_power_06_response_rejects_invalid_q(q) -> None:
+    """Invalid dimensionless readings cannot become a usable fixed-power response."""
+    with pytest.raises(ValueError, match='finite and nonnegative'):
+        decay.power_06_response(q)
+
+
+def test_power_06_preserves_all_accepted_rows_and_owner_oracle(sqrt_comparison_rows, power_06_comparison_rows) -> None:
+    """All 666 rows append only the fixed response and match the preimplementation oracle."""
+    root = Path(__file__).resolve().parents[1]
+    baseline = root / 'outputs/design/group_distance_decay_ifc/verification_power_06_20261111/owner-baseline.json'
+    assert hashlib.sha256(baseline.read_bytes()).hexdigest() == (
+        '988c2e9ab778b886c526086d1c2f46a7df80fe8817ad82ddc80c801e39df71a9')
+    oracle = json.loads(baseline.read_text(encoding='utf-8'))
+    for relative, expected_hash in oracle['historical_hashes'].items():
+        assert hashlib.sha256((root / relative).read_bytes()).hexdigest() == expected_hash
+    accepted = root / 'outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/decay_rows.json'
+    assert _json_safe(sqrt_comparison_rows) == json.loads(accepted.read_text(encoding='utf-8'))['rows']
+    assert len(power_06_comparison_rows) == len(oracle['oracle']) == 666
+    for original, fourth, expected in zip(sqrt_comparison_rows, power_06_comparison_rows, oracle['oracle']):
+        assert set(fourth) - set(original) == {'w_power_06', 'power_06_formula_version'}
+        assert {key: fourth[key] for key in original} == original
+        assert fourth['pair_id'] == expected['pair_id'] and fourth['q'] == expected['q']
+        assert fourth['w_power_06'] == pytest.approx(expected['expected_power_06'], rel=2e-15)
+        assert fourth['power_06_formula_version'] == 'group-union-rms-rss-power-06/1'
+        assert 0 < fourth['w'] <= fourth['w_reciprocal'] <= fourth['w_power_06'] <= fourth['w_sqrt_reciprocal'] <= 1
+    ordered = sorted(power_06_comparison_rows, key=lambda row: row['q'])
+    assert all(a['w_power_06'] >= b['w_power_06'] for a, b in zip(ordered, ordered[1:]))
+    assert ordered[0]['w_power_06'] > ordered[333]['w_power_06'] > ordered[-1]['w_power_06']
+
+
+@pytest.mark.parametrize('status', ('unavailable', 'invalid', 'partial', 'unknown'))
+def test_power_06_preserves_unavailable_status_and_nulls(experiment_inputs, status) -> None:
+    """A fourth response cannot bypass the existing raw-reading status gate."""
+    first, *remaining = experiment_inputs.outputs
+    changed = replace(first, observation={**first.observation, 'raw_status': status, 'value': None})
+    context = replace(experiment_inputs, outputs=(changed, *remaining))
+    original = build_comparison_rows(context, compare_sqrt_reciprocal=True)
+    fourth = build_comparison_rows(context, compare_power_06=True)
+    row = next(row for row in fourth if row['pair_id'] == first.target['identity'])
+    assert row['status'] != 'computed' and row['reason']
+    assert row['w_power_06'] is row['w_sqrt_reciprocal'] is row['w_reciprocal'] is row['w'] is None
+    assert [{key: row[key] for key in previous} for previous, row in zip(original, fourth)] == original
+    json.dumps(_json_safe(fourth), allow_nan=False)
+
+
+def test_power_06_cli_flag_is_standalone(monkeypatch, tmp_path, capsys) -> None:
+    """The fixed-power CLI flag alone opts in and leaves older flags at their defaults."""
+    calls = []
+
+    def capture(output_dir, **options):
+        """Observe the parser handoff without repeating IFC authentication."""
+        calls.append((output_dir, options))
+        return {}
+
+    monkeypatch.setattr(decay, 'run_experiment', capture)
+    monkeypatch.setattr(sys, 'argv', ['decay', '--output-dir', str(tmp_path), '--compare-power-06'])
+    decay.main()
+    assert calls == [(tmp_path, {'bundle_path': decay.BUNDLE_PATH, 'package_path': decay.PACKAGE_PATH,
+                                'compare_reciprocal': False, 'compare_sqrt_reciprocal': False,
+                                'compare_power_06': True})]
     assert json.loads(capsys.readouterr().out) == {}
 

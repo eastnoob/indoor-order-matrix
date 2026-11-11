@@ -515,6 +515,69 @@ worker 未执行任何版本写操作，不发送 owner notification。技术完
 后者仍 **pending**。仅保留 pinned retained context；未做 live IFC/Blender/EXPRESS、
 full repository suite、occupancy/route rebuild、客观校准或生产整合；不重复 tests/QA/source audit。
 
+## Fixed 0.6 reciprocal-power comparison（2026-11-12）
+
+This authorized output-only increment compares the accepted exponent 0.5 with
+`w_power_06=(1+q)^(-0.6)`, using the unchanged validated Euclidean q, whole-group
+unions, RMS/RSS scales, status gate and retained input lineage. Exponent 0.6 is
+a modeling choice, not objective calibration or evidence of real interaction;
+potential-package integration and user visual acceptance remain pending.
+The task brief is
+`outputs/design/group_distance_decay_ifc/verification_power_06_20261111/task-brief.md`.
+Workspace: `group-distance-decay` at
+`D:/PROJECTS/understandOtherPackage/order_analyzer/.worktrees/group-distance-decay`;
+accepted base `0302ffa7eb3bcec837da81bf570fa5f2f87513f9`, change `prmxwzvo`,
+pre-edit revision `e2ece7a7`. Root alone writes jj history; this worker makes no
+snapshot, commit, bookmark, merge or push. Only the runner, its existing test,
+this note and `docs/software-architecture.md` may change as tracked files.
+
+This is a consistency assessment of the existing workline, not a formal Spec Kit
+command or a new plan. The sole new mode is default-off `--compare-power-06`;
+it implies the old comparison responses while older modes keep their defaults
+and schemas. New response/version fields, fixed formula/exponent metadata and
+four-curve schemas must agree across CSV, JSON, manifest and HTML.
+
+| Step/interface | Produces / consumes | Consistency |
+| --- | --- | --- |
+| Existing validated q → new response | Same dimensionless q and status; append only | No geometry or scale change |
+| Response → exports/viewer | Named scalar, version, formula, null handling | All labels/defaults identify 0.6 |
+| Implementation → acceptance | Frozen actual bytes plus fresh artifacts | Different verifier runs affected suite once |
+| Acceptance → checkpoint | Four authorized files only | Owner alone commits after PASS |
+
+- [x] Scope/callers confirmed: only runner and its focused tests consume these helpers; no public export/config/core changes.
+- [x] Helper/mode/export/view wired; existing modes and row fields preserved.
+- [x] Focused new regressions: `pixi run pytest test/test_group_distance_decay_ifc.py -k power_06 -q -p no:cacheprovider --basetemp outputs/design/group_distance_decay_ifc/verification_power_06_20261111/pytest_tmp_implementer_1` → 15 passed, 55 deselected in 74.85 s, exit 0.
+- [x] Actual new run and visual/browser evidence: **visual required** to inspect readable gradation; same-source exponent 0.5 left, 0.6 middle, four preserved curves right, absolute [0,1] colors.
+- [x] Independent acceptance by the owner's different verifier: 144 passed in 113.06 s, exit 0; SPEC PASS / QUALITY Approved, no findings. [Receipt](../../outputs/design/group_distance_decay_ifc/verification_power_06_20261111/independent-acceptance.json) and [review](../../outputs/design/group_distance_decay_ifc/verification_power_06_20261111/independent-review.md) retain actual commands/hashes and attributed browser evidence.
+- [x] Owner checkpoint after frozen-byte verification and PASS; accepted local history is recorded in the owner checkpoint receipt linked below.
+- [ ] User visual acceptance (separate from technical acceptance).
+
+Fresh artifacts go only to `run_20261111_power_06_comparison_v1/`; ignored evidence
+goes to `verification_power_06_20261111/` under the existing decay output root.
+Reuse the installed Edge probe/runtime, actual retained geometry and existing
+input checks. No synthetic scene, new projection, IFC/Blender/free-space/path
+rebuild, path-distance input, floor/cutoff or arbitrary exponent option is added.
+
+The standalone real CLI ran once with `--compare-power-06 --output-dir
+outputs/design/group_distance_decay_ifc/run_20261111_power_06_comparison_v1`
+(exit 0, 89.49 s). Its 666 computed exported values have min
+`0.13679036914974477`, median `0.22403684746438804`, max `0.6368828537000543`;
+all owner-oracle values match exactly, every previous row field is exact and
+all 18 historical files retain their hashes. The adapted installed-Edge probe
+passed 288 target color/tooltip checks over two sources × four curves, including
+formula/version/legend/readout/table, navigation/filter/focus and zero page errors.
+The implementation worker inspected the actual PNG and focused screenshot;
+readable gradation is observed, while user visual acceptance stays open.
+Commands, logs, artifact identities, one corrected evidence-checker assumption
+(historical CSV omits squared-radius columns), and limits are in the
+[task report](../../outputs/design/group_distance_decay_ifc/verification_power_06_20261111/task-report.md).
+The [owner checkpoint receipt](../../outputs/design/group_distance_decay_ifc/verification_power_06_20261111/owner-checkpoint.json)
+will identify the local accepted history after independent PASS and owner action;
+it is not an implementation-worker commit or a push/merge authorization.
+The [final candidate freeze](../../outputs/design/group_distance_decay_ifc/verification_power_06_20261111/candidate-freeze.json)
+binds the four tracked files, six run artifacts and implementation/independent
+receipts. The worker stops all writes after that freeze; no repeat suite or run.
+
 ## 持续维护 checklist
 
 执行中每完成一项都补充真实证据并更新勾选；发现偏离或未决先记录，不用实现结果反向改掉要求。

@@ -58,6 +58,22 @@ validation are reused. The new run is
 `outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/`.
 Both historical runs are preserved. Exponent 1/2 is an uncalibrated modeling
 choice, with no fixed floor, interaction proof or production integration.
+The separate, default-off `--compare-power-06` flag works alone and includes
+all three historical responses. It appends only `w_power_06=(1+q)^(-0.6)` and
+`power_06_formula_version=group-union-rms-rss-power-06/1` to each row, retaining
+the same q, scales, status/null gate and lineage. New rows/run use
+`group-distance-decay-four-curve-rows/1` / `group-distance-decay-four-curve-run/1`;
+formula metadata includes the fixed exponent 0.6. Older flags, schemas and
+selected defaults remain unchanged. PNG/SVG compare exponent 0.5 on the left
+and 0.6 in the middle, using identical source unions and absolute [0,1] colors;
+the right q scatter preserves all four responses and uses purple for 0.6.
+HTML defaults to 0.6 only in this mode and retains four response columns,
+37 source choices, 666 pair anchors, filtering, navigation and keyboard focus,
+with synchronized formula/version, legend, readout and tooltips. The fresh run
+is `outputs/design/group_distance_decay_ifc/run_20261111_power_06_comparison_v1/`;
+the three historical six-file runs are preserved. This remains output-only,
+uncalibrated and unintegrated with potential packages; exponent 0.6 is a modeling
+choice rather than evidence of real interaction or objective calibration.
 See the [development note](project/group-distance-decay-development-note.md)
 for input lineage, verification receipts, limitations and pending user review.
 
