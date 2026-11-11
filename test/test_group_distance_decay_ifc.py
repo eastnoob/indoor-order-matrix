@@ -4,9 +4,13 @@ from __future__ import annotations
 
 from dataclasses import replace
 from itertools import combinations
+import csv
+import hashlib
 import math
 import json
 from pathlib import Path
+import re
+import sys
 
 import pytest
 from shapely import constrained_delaunay_triangles
@@ -15,8 +19,10 @@ from shapely.affinity import rotate, scale, translate
 from features.group_distance_evidence_package import SOURCE_CHANNEL
 from features.field_core import build_evidence_package_contract
 from scripts.design.group_level import replay_evidence_package_readback as readback
+from scripts.design.group_level import run_group_distance_decay_ifc as decay
 from scripts.design.group_level.run_group_distance_decay_ifc import (
-    build_decay_rows, geometry_scaled_response, load_experiment_inputs,
+    build_comparison_rows, build_decay_rows, geometry_scaled_response, load_experiment_inputs,
+    reciprocal_response, RECIPROCAL_FORMULA, RECIPROCAL_FORMULA_VERSION,
     _union_rms_radius, validate_euclidean_observation, _json_safe, EXPECTED_HASHES,
 )
 
@@ -42,6 +48,12 @@ def experiment_inputs():
 def decay_rows(experiment_inputs):
     """Build the complete retained Euclidean response rows once."""
     return build_decay_rows(experiment_inputs)
+
+
+@pytest.fixture(scope="module")
+def comparison_rows(experiment_inputs):
+    """Reuse the authenticated retained context for the opt-in two-curve rows."""
+    return build_comparison_rows(experiment_inputs)
 
 
 def _projection(group, geometry):
@@ -135,6 +147,7 @@ def test_retained_pair_survives_units_scaling_and_rigid_motion(experiment_inputs
     assert ell == pytest.approx(row["ell_m"] * factor, rel=1e-9)
     assert q == pytest.approx(row["q"], rel=1e-9)
     assert weight == pytest.approx(row["w"], rel=1e-9, abs=0)
+    assert reciprocal_response(q) == pytest.approx(reciprocal_response(row["q"]), rel=1e-9)
 
 
 def test_equal_dimensionless_distance_has_equal_response(decay_rows) -> None:
@@ -180,9 +193,11 @@ def test_unrelated_real_group_transforms_do_not_change_selected_pair(experiment_
     )
     # Evaluate the production formula directly; transformed source refs are never
     # forged to pass the separate package-authentication or all-pairs replay boundary.
-    assert geometry_scaled_response(
+    changed = geometry_scaled_response(
         row['distance_m'], *(scales[identity]['rho2_m2'] for identity in pair_groups)
-    ) == baseline
+    )
+    assert changed == baseline
+    assert reciprocal_response(changed[1]) == reciprocal_response(baseline[1])
 
 
 def test_post_auth_path_readings_do_not_enter_euclidean_decay(experiment_inputs, decay_rows) -> None:
@@ -286,6 +301,12 @@ def test_invalid_raw_reading_preserves_serializable_null_response(experiment_inp
     assert row['ell_m'] is row['q'] is row['w'] is None
     assert row['raw_distance_reading']['status'] == changes.get('raw_status', 'computed')
     json.dumps(_json_safe(rows), allow_nan=False)
+    compared = next(row for row in build_comparison_rows(replace(
+        experiment_inputs, outputs=(changed, *remaining))) if row['pair_id'] == first.target['identity'])
+    assert compared['w_reciprocal'] is None
+    assert {key: value for key, value in compared.items()
+            if key not in {'w_reciprocal', 'reciprocal_formula_version'}} == row
+    json.dumps(_json_safe(compared), allow_nan=False)
 
 
 @pytest.mark.parametrize('value', (math.nan, math.inf))
@@ -312,4 +333,119 @@ def test_decay_rejects_wrong_euclidean_geometry_binding(experiment_inputs, misma
         changed = replace(first, provenance={**first.provenance, 'analysis_plane': {'identity': 'wrong-plane'}})
     with pytest.raises(ValueError):
         build_decay_rows(replace(experiment_inputs, outputs=(changed, *remaining)))
+
+
+def test_reciprocal_comparison_preserves_all_pinned_v3_rows(decay_rows, comparison_rows) -> None:
+    """The comparison adds only its named response/version to all unchanged v3 evidence."""
+    baseline = Path(__file__).resolve().parents[1] / (
+        'outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/decay_rows.json'
+    )
+    assert hashlib.sha256(baseline.read_bytes()).hexdigest() == (
+        '76b7ac1883f7c19f7d6353e9b71eb406f14152927ca1fb2261ca2acb49b71854'
+    )
+    saved = json.loads(baseline.read_text(encoding='utf-8'))
+    assert saved['schema'] == 'group-distance-decay-rows/1'
+    assert _json_safe(decay_rows) == saved['rows']
+    assert len(comparison_rows) == len(decay_rows) == 666
+    for original, compared in zip(decay_rows, comparison_rows):
+        assert set(compared) - set(original) == {'w_reciprocal', 'reciprocal_formula_version'}
+        assert {key: compared[key] for key in original} == original
+        assert compared['reciprocal_formula_version'] == RECIPROCAL_FORMULA_VERSION
+        assert compared['w_reciprocal'] == 1.0 / (1.0 + original['q'])
+        assert 0 < compared['w_reciprocal'] <= 1
+
+
+def test_reciprocal_response_domain_and_retained_q_order(comparison_rows) -> None:
+    """Finite nonnegative q keeps a positive reciprocal tail and the retained q ordering."""
+    assert reciprocal_response(0.0) == 1.0
+    largest_q = sys.float_info.max
+    assert 0 < reciprocal_response(largest_q) == 1.0 / (1.0 + largest_q) < 1
+    ordered = sorted({row['q'] for row in comparison_rows})
+    responses = [reciprocal_response(q) for q in ordered]
+    # Adjacent binary64 q values may round to one weight; separated retained samples must decrease.
+    assert all(earlier >= later for earlier, later in zip(responses, responses[1:]))
+    assert responses[0] > responses[len(responses) // 2] > responses[-1]
+    assert all(reciprocal_response(row['q']) >= row['w'] for row in comparison_rows)
+
+
+@pytest.mark.parametrize('q', (-1.0, math.nan, math.inf, -math.inf))
+def test_reciprocal_response_rejects_invalid_q(q) -> None:
+    """The opt-in response refuses nonfinite and negative dimensionless distance."""
+    with pytest.raises(ValueError):
+        reciprocal_response(q)
+
+
+@pytest.mark.parametrize('compare', (False, True))
+def test_comparison_exports_are_explicit_and_default_stays_exponential(
+    experiment_inputs, decay_rows, comparison_rows, monkeypatch, tmp_path, compare,
+) -> None:
+    """Real HTML/CSV/JSON bind the selected mode while the existing output guard still applies."""
+    loads = []
+
+    def retained_inputs(**paths):
+        """Reuse this module's already authenticated context instead of reauditing source files."""
+        loads.append(paths)
+        return experiment_inputs
+
+    def overview(inputs, rows, output_dir, *, compare_reciprocal=False):
+        """Leave static rendering to the actual trial and test only its export handoff here."""
+        assert inputs is experiment_inputs and compare_reciprocal is compare
+        for name in ('overview.svg', 'overview.png'):
+            (output_dir / name).write_bytes(b'static rendering checked in the real retained trial')
+
+    monkeypatch.setattr(decay, 'ROOT', tmp_path)
+    monkeypatch.setattr(decay, 'load_experiment_inputs', retained_inputs)
+    monkeypatch.setattr(decay, '_write_overview', overview)
+    destination = tmp_path / 'outputs/design/comparison-export'
+    options = {'compare_reciprocal': True} if compare else {}
+    manifest = decay.run_experiment(destination, **options)
+    assert loads == [{'bundle_path': decay.BUNDLE_PATH, 'package_path': decay.PACKAGE_PATH}]
+    expected_rows = comparison_rows if compare else decay_rows
+    payload = json.loads((destination / 'decay_rows.json').read_text(encoding='utf-8'))
+    assert payload['rows'] == _json_safe(expected_rows)
+    assert payload['schema'] == ('group-distance-decay-comparison-rows/1' if compare else 'group-distance-decay-rows/1')
+    assert manifest['schema'] == ('group-distance-decay-comparison-run/1' if compare else 'group-distance-decay-run/1')
+    assert payload['formula_version'] == manifest['formula_version'] == 'group-union-rms-rss-exp/1'
+    assert manifest['path_distance_used'] is False
+    for metadata in (payload, manifest):
+        if compare:
+            assert metadata['reciprocal_formula_version'] == RECIPROCAL_FORMULA_VERSION
+            assert metadata['reciprocal_formula'] == RECIPROCAL_FORMULA
+            assert metadata['default_curve'] == 'reciprocal'
+            assert metadata['color_scale'] == [0, 1]
+        else:
+            assert not {'reciprocal_formula_version', 'reciprocal_formula', 'default_curve'} & metadata.keys()
+
+    with (destination / 'decay_rows.csv').open(newline='', encoding='utf-8') as stream:
+        exported = list(csv.DictReader(stream))
+    assert len(exported) == 666
+    for record, expected in zip(exported, expected_rows):
+        assert record['pair_id'] == expected['pair_id']
+        assert float(record['w']) == expected['w']
+        assert json.loads(record['lineage']) == _json_safe(expected['lineage'])
+        if compare:
+            assert float(record['w_reciprocal']) == expected['w_reciprocal']
+            assert record['reciprocal_formula_version'] == RECIPROCAL_FORMULA_VERSION
+        else:
+            assert 'w_reciprocal' not in record
+
+    document = (destination / 'index.html').read_text(encoding='utf-8')
+    assert document.count('<g data-group=') == 37
+    assert document.count('data-pair=') == 666
+    assert document.count('fill-rule="evenodd"') == 37
+    assert '#plan g[data-group]{outline:none}' in document
+    embedded = re.search(r'const rows=(.*?), colors=', document)
+    assert embedded and json.loads(embedded.group(1)) == _json_safe(expected_rows)
+    if compare:
+        assert 'id="curve"' in document
+        assert re.search(r'<option(?=[^>]*value="w_reciprocal")(?=[^>]*selected)[^>]*>', document)
+        assert 'value="w"' in document
+        assert 'w_exp' in document and 'w_reciprocal' in document
+    else:
+        assert 'id="curve"' not in document
+    for name, expected_hash in manifest['artifact_hashes'].items():
+        assert hashlib.sha256((destination / name).read_bytes()).hexdigest() == expected_hash
+    with pytest.raises(FileExistsError):
+        decay.run_experiment(destination, **options)
+    assert len(loads) == 1
 

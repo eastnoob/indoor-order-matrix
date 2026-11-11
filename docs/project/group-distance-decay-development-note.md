@@ -267,6 +267,130 @@ triangle integrals 对照。刚体/单位/common-scale 变换选取两个 minimu
 现存的 legacy moment module 从此 worktree test root 收集时存在 relative-import 错误，
 不为本任务修改它。未做用户视觉验收、自然尺度校准或业务/主线整合。
 
+## Reciprocal 同源对照试验计划（2026-11-11）
+
+本次授权为 explicit opt-in output-only comparison。Owner 的独立 grill review
+结论是 **GO for experiment**，并非客观自然定标：`q=d_E/ell` 是相对组尺度的距离，
+不同 `ell` 下不等同于米值严格排序；换曲线保留 q 排序，只改变幅度和尾部。
+本有限场景的最小值为正不构成通用正下限，正尾部也不证明真实相互作用。
+`rho²`、`ell`、原始距离、source、status 与 lineage 全部沿用原试验；单位换算及
+无关组变化的不变性仍须保留。既有 grill 决策已经明确，不重复设用户批准门。
+
+工作区仍仅限 `D:/PROJECTS/understandOtherPackage/order_analyzer/.worktrees/group-distance-decay`。
+accepted base `88e32093192e`，当前只读 change `mzlwzyqvwuss` / revision
+`c2b183d9e22a`；实际未 snapshot 字节以最终 hashes 为准。Owner 是唯一 jj writer，
+worker 不执行 snapshot、commit、bookmark、merge 或 push。
+
+- [x] 实读 stop-that-shit change、grill-me、项目 memory/architecture 及现有 runner/tests；
+  scope 为既有 runner、test、此笔记、architecture 四路径及本 output 区。
+- [x] 增加默认关闭的 `--compare-reciprocal`：调用同一 authenticated loader 和
+  `build_decay_rows`，只追加 `w_reciprocal=1/(1+q)` 及明确公式版本；保留 `w`
+  为 exponential，比较产物使用独立 schema/metadata。无效/不可用行 reciprocal 为 null。
+- [x] 保留默认 API/CLI、原 schema、reject-overwrite guard 和所有历史目录。
+  新产物仅写 `outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/`。
+- [x] **Visual required**：相同 source、真实 union 和绝对 [0,1] 色标下，核对尾部差异
+  是否被忠实显示。PNG/SVG 两个 plan 并排加 both-curve scatter；HTML 复用 37 source、
+  666 anchors 和 paths，明确 two-curve switch（仅比较模式默认 reciprocal），同步
+  formula/legend/tooltip/readout，并在 table 保留两个响应。复用现有键盘/focus 修复。
+- [x] 在既有 test 文件补充 666 行公式/原字段/lineage 与 pinned v3 baseline 比对、
+  reciprocal domain/zero/monotonic/null、既有真实几何 invariance 的 q mapping，以及
+  comparison schema/version/view 绑定。只用 retained 实际几何或其数学变换。
+- [x] Implementer 运行 affected checks 和最小 installed-browser 交互检查、实际检查 PNG；
+  冻结 code/test 后由不同 verifier 实际运行 focused affected suite、验证 666 行、
+  v3 未改及 manifest/HTML/CSV，给出明确 SPEC/QUALITY verdict。
+- [x] 在本笔记记录实际命令、cwd、exit/results、文件 hashes 和最小 receipts/logs；
+  完成后停止编辑并交回 Owner，不推断用户视觉接受，不自行写版本历史。
+
+不新增框架、loader、formula registry、normalizer、正 floor、依赖或模拟场景；
+不消费 path 数值、不接 potential/world-plane cache，不 retessellate IFC、不重建
+free-space/route、不在 loader 已有真实校验之外重复来源审计。Blender 不需要。
+
+### Reciprocal 实际执行与交付
+
+本节命令 cwd 均为上述 isolated workspace。实际生成命令 exit 0：
+
+```powershell
+pixi run python -m scripts.design.group_level.run_group_distance_decay_ifc --compare-reciprocal --output-dir outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1
+```
+
+[新 comparison 目录](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/)
+保留全部 **37 组 / 666 对**。`q=1.121130580246551–26.53641917190541`；
+exponential `w=2.9879930581447315e-12–0.32591111758115104`，
+reciprocal `w_reciprocal=0.036315542473302785–0.47144669418879637`。
+曲线变化没有改变 source、union、rho、ell、原始距离、q 或 q 排序。
+本场景较高的最小响应只是本次有限 q 范围的结果，没有固定 floor。
+
+可直接打开[HTML](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/index.html)、
+[PNG](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/overview.png)、
+[SVG](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/overview.svg)、
+[CSV](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/decay_rows.csv)、
+[JSON](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/decay_rows.json) 和
+[manifest](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/run_manifest.json)。
+PNG 已实际目视检查：两个 plan 的 source 01、组标签、坐标和几何相同；
+共同 [0,1] 色标显示 reciprocal 较少压缩的尾部，scatter 按同一 q 对照两路响应。
+这回答图面忠实性，不等于用户接受该曲线。
+
+实现侧 focused tests **50 passed in 88.71 s，exit 0**：
+
+```powershell
+pixi run pytest test/test_group_distance_decay_ifc.py -q -p no:cacheprovider --basetemp outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/pytest_tmp_implementer_test_1
+```
+
+复用已认证 fixture，测试导出时不重复 source audit；静态 renderer handoff 在 export
+unit test 中以明确 stub 隔离，真实 PNG/SVG 则由上述实际 run 生成并检查。
+针对前轮已确认的 sandbox temp ACL 问题使用 scoped elevation；未弱化 tests 或改配置。
+[实现测试日志](../../outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/implementer-focused-tests.log)
+和[生成日志](../../outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/implementer-run.log) 保留原始输出。
+
+实现侧另在 installed Edge headless 执行
+[browser probe](../../outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/browser-comparison.cjs)，
+exit 0：37 source options / 666 anchors；选两个边界 source、各两曲线，核对 144 个
+target colors/tooltips；同 source 切换、formula/legend、双响应 table/readout、pair
+navigation、filter 和 keyboard focus 均通过，零 page errors。
+[browser receipt](../../outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/browser-comparison.json)
+与[focused screenshot](../../outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/browser-comparison-focused.png)
+独立记录实现侧实际浏览器证据；截图已检查蓝色 focus path 和原生 outline 关闭。
+独立数值 verifier 不冒认其为自己的浏览器执行，用户视觉接受仍 pending。
+
+不同 verifier 在相同 cwd 实际执行最终 affected suite：
+**124 passed in 87.96 s，exit 0**，Pixi 0.69.0 / Python 3.12.13 / pytest 9.0.3。
+复用已确认的 scoped elevation / fresh task-owned basetemp，没有重复完整 source audit
+或真实生成命令；loader 仍在该 suite 的 module fixture 内按既有规则实际校验一次。
+
+```powershell
+pixi run pytest test/test_group_distance_decay_ifc.py test/test_evidence_package_readback.py test/test_group_distance_evidence_package.py -q -p no:cacheprovider --basetemp outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/pytest_tmp_independent_1
+```
+
+[独立原始测试日志](../../outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/independent-combined-tests.log)
+保留完整输出。[独立验收 receipt](../../outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/independent-acceptance.json)
+给出 **SPEC PASS / QUALITY Approved**，无 material findings。全部 666 行 reciprocal
+精确等于 `1/(1+q)`，每个原字段、status、reason 与 lineage 均和 pinned v3 完全一致；
+旧 v3 的 manifest 及五个产物共六个文件均与两份旧冻结 receipts 的 hashes 相符。
+
+Owner 另行传回独立数学 reviewer 的最终 **SPEC PASS / QUALITY Approved**：
+实读四个允许文件相对 accepted base `88e32093192e` 的实际字节，核对 frozen
+runner/test hashes、默认/null/schema 语义、同源 PNG/绝对色标及文档边界，
+无 material findings。此项是单独的 code/doc review，不冒充上述实际 124-test 数值验收。
+
+最终 source/test 与实际 run 绑定的 SHA-256：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| runner | `c1e085a918c36a0b2f27076866e90ed4c49bb6e582846c44e4a0e9dd7e5410ed` |
+| test | `c47fa438be1c048fe7ad200b56e7d54e4adfcdf35d9dc04780c19c9fa6212aa6` |
+| comparison manifest | `e3d6305d6eac018c16385abe698fbbd2f205eda7242966ff5c8b2d7a19c60573` |
+| decay_rows.csv | `29d67c897058a491a0bd487769544c307a54af5c880b592e0bf9dc823a2b83e0` |
+| decay_rows.json | `fa940d82c7121a810c0c8ba48e6a8edbf21646ebedbd6e6c03b2bbeb3bc0b67a` |
+| overview.svg | `a301889ea70382841ed6e7b09037a96ee28bb39a878fa84390abd8658fa8c455` |
+| overview.png | `6449f38964732c01b7cced33d28aa4a2b115a374f7da20af759742b7582885b9` |
+| index.html | `e0918ed0a9fbd6409c9f462f00e8f0fe763f6c1bf9eb1721aa8827eed4e02f2e` |
+
+四个允许 code/test/docs 文件、comparison manifest/产物与独立验收/browser receipts
+的最终实际字节身份记录在最小 [candidate freeze](../../outputs/design/group_distance_decay_ifc/verification_reciprocal_20261111/candidate-freeze.json)。
+worker 写入在此冻结并交回 Owner；Owner 仍为唯一 jj writer，不执行 snapshot、commit、
+bookmark、merge 或 push。技术验收完成，**用户视觉接受仍 pending**；不因此改变生产默认、
+声称客观校准或真实相互作用。最终仅收口文档和 freeze，不重复 suite、生成或 source audit。
+
 ## 持续维护 checklist
 
 执行中每完成一项都补充真实证据并更新勾选；发现偏离或未决先记录，不用实现结果反向改掉要求。

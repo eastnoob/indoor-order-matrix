@@ -27,6 +27,24 @@ selected-source PNG/SVG, an interactive actual-union SVG/HTML with 37 source
 choices and 666 pair anchors, and a hash manifest. All source views use the
 same absolute [0,1] color scale. This remains an uncalibrated, reversible
 experiment, with no distance-conditioned potential or world-plane cache mixing.
+
+The explicit, default-off `--compare-reciprocal` mode reuses that authenticated
+loader and unchanged `build_decay_rows`. `build_comparison_rows` only appends
+`w_reciprocal=1/(1+q)` and `group-union-rms-rss-reciprocal/1`; original `w`
+remains exponential. Comparison rows/run use distinct
+`group-distance-decay-comparison-rows/1` / `group-distance-decay-comparison-run/1`
+schemas. Required-input failures retain null reciprocal values and original
+status/reason/lineage. The original default schemas and numeric semantics remain.
+Comparison PNG/SVG reuse the same union renderer for side-by-side source plans
+and both-curve q scatter. HTML reuses the same 37-source SVG and 666 pair anchors,
+adding a labelled curve selector (comparison-only default reciprocal), both
+response columns and synchronized formula/legend/tooltips on absolute [0,1].
+No source geometry, scale, query, evidence framework or shared API changes.
+The reciprocal positive tail is an experimental amplitude choice, with no
+universal positive floor or claim of real interaction or objective calibration.
+The comparison run lives at
+`outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/`;
+the exponential v3 directory remains the unchanged numeric baseline.
 See the [development note](project/group-distance-decay-development-note.md)
 for input lineage, verification receipts, limitations and pending user review.
 

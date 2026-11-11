@@ -64,6 +64,8 @@ EXPECTED_HASHES = {
 }
 FORMULA_VERSION = "group-union-rms-rss-exp/1"
 FORMULA = "ell=sqrt(rho_g^2+rho_h^2); q=d_E/ell; w=exp(-q)"
+RECIPROCAL_FORMULA_VERSION = "group-union-rms-rss-reciprocal/1"
+RECIPROCAL_FORMULA = "w_reciprocal=1/(1+q)"
 _EXPECTED_ADDED_ENTITY_TYPES = Counter({
     "IFCANNOTATION": 1,
     "IFCAXIS2PLACEMENT3D": 2,
@@ -519,8 +521,25 @@ def build_decay_rows(inputs: ExperimentInputs) -> list[dict[str, Any]]:
     return sorted(rows, key=lambda row: row["pair_id"])
 
 
-def _write_overview(inputs: ExperimentInputs, rows: list[dict[str, Any]], output_dir: Path) -> None:
-    """Color actual target unions by absolute response from one stable source."""
+def reciprocal_response(q: float) -> float:
+    """Map finite nonnegative size-relative distance to the opt-in reciprocal trial."""
+    if not math.isfinite(q) or q < 0:
+        raise ValueError("dimensionless distance must be finite and nonnegative")
+    return 1.0 / (1.0 + q)
+
+
+def build_comparison_rows(inputs: ExperimentInputs) -> list[dict[str, Any]]:
+    """Append the reciprocal trial while retaining every validated exponential field."""
+    # Reuse the existing status and provenance gate before adding a second response.
+    return [{**row,
+             "w_reciprocal": reciprocal_response(row["q"]) if row["status"] == "computed" else None,
+             "reciprocal_formula_version": RECIPROCAL_FORMULA_VERSION}
+            for row in build_decay_rows(inputs)]
+
+
+def _write_overview(inputs: ExperimentInputs, rows: list[dict[str, Any]], output_dir: Path,
+                    *, compare_reciprocal: bool = False) -> None:
+    """Color actual unions on one absolute scale, optionally comparing both curves."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -535,57 +554,77 @@ def _write_overview(inputs: ExperimentInputs, rows: list[dict[str, Any]], output
     source = group_ids[0]
     selected = {row["group_b_id"] if row["group_a_id"] == source else row["group_a_id"]: row
                 for row in rows if source in (row["group_a_id"], row["group_b_id"])}
-    figure, (axes, response_axes) = plt.subplots(1, 2, figsize=(15, 8),
-                                                gridspec_kw={"width_ratios": (2, 1)}, constrained_layout=True)
+    if compare_reciprocal:
+        figure, (axes, reciprocal_axes, response_axes) = plt.subplots(
+            1, 3, figsize=(20, 7.5), gridspec_kw={"width_ratios": (1, 1, 0.65)}, constrained_layout=True)
+        plans = ((axes, "w", "Exponential: exp(-q)"),
+                 (reciprocal_axes, "w_reciprocal", "Reciprocal: 1 / (1 + q)"))
+    else:
+        figure, (axes, response_axes) = plt.subplots(1, 2, figsize=(15, 8),
+                                                    gridspec_kw={"width_ratios": (2, 1)}, constrained_layout=True)
+        plans = ((axes, "w", "Source 01 (red hatch); 36 target unions"),)
     colormap = plt.get_cmap("cividis")
-    for index, group_id in enumerate(group_ids, 1):
-        geometry = inputs.geometries[group_id]
-        if geometry is None:
-            continue
-        row = selected.get(group_id)
-        weight = row["w"] if row else None
-        fill = "white" if group_id == source else colormap(weight) if weight is not None else "#cccccc"
-        polygons = tuple(geometry.geoms) if geometry.geom_type == "MultiPolygon" else (geometry,)
-        for polygon in polygons:
-            vertices, codes = [], []
-            # Opposite ring winding preserves real voids under the nonzero fill rule.
-            polygon = orient(polygon, sign=1.0)
-            for ring in (polygon.exterior, *polygon.interiors):
-                coordinates = list(ring.coords)
-                vertices.extend(coordinates)
-                codes.extend([PlotPath.MOVETO] + [PlotPath.LINETO] * (len(coordinates) - 2) + [PlotPath.CLOSEPOLY])
-            axes.add_patch(PathPatch(PlotPath(vertices, codes), facecolor=fill,
-                                     edgecolor="#c62828" if group_id == source else "#777777",
-                                     linewidth=2 if group_id == source else 0.5,
-                                     hatch="///" if group_id == source else None))
-        center = inputs.scales[group_id]["centroid"]
-        axes.text(*center, f"{index:02d}", ha="center", va="center", fontsize=8,
-                  color="#c62828" if group_id == source else "white",
-                  bbox={"facecolor": "white" if group_id == source else "#333333", "alpha": 0.8, "pad": 1, "edgecolor": "none"})
-    axes.autoscale_view()
-    axes.margins(0.05)
-    axes.set_aspect("equal", adjustable="box")
-    axes.set_xlabel("Analysis-plane X (m)")
-    axes.set_ylabel("Analysis-plane Y (m)")
-    axes.set_title("Source 01 (red hatch); 36 target unions")
+    for axes, response_field, title in plans:
+        for index, group_id in enumerate(group_ids, 1):
+            geometry = inputs.geometries[group_id]
+            if geometry is None:
+                continue
+            row = selected.get(group_id)
+            weight = row[response_field] if row else None
+            fill = "white" if group_id == source else colormap(weight) if weight is not None else "#cccccc"
+            polygons = tuple(geometry.geoms) if geometry.geom_type == "MultiPolygon" else (geometry,)
+            for polygon in polygons:
+                vertices, codes = [], []
+                # Opposite ring winding preserves real voids under the nonzero fill rule.
+                polygon = orient(polygon, sign=1.0)
+                for ring in (polygon.exterior, *polygon.interiors):
+                    coordinates = list(ring.coords)
+                    vertices.extend(coordinates)
+                    codes.extend([PlotPath.MOVETO] + [PlotPath.LINETO] * (len(coordinates) - 2) + [PlotPath.CLOSEPOLY])
+                axes.add_patch(PathPatch(PlotPath(vertices, codes), facecolor=fill,
+                                         edgecolor="#c62828" if group_id == source else "#777777",
+                                         linewidth=2 if group_id == source else 0.5,
+                                         hatch="///" if group_id == source else None))
+            center = inputs.scales[group_id]["centroid"]
+            axes.text(*center, f"{index:02d}", ha="center", va="center", fontsize=8,
+                      color="#c62828" if group_id == source else "white",
+                      bbox={"facecolor": "white" if group_id == source else "#333333", "alpha": 0.8, "pad": 1, "edgecolor": "none"})
+        axes.autoscale_view()
+        axes.margins(0.05)
+        axes.set_aspect("equal", adjustable="box")
+        axes.set_xlabel("Analysis-plane X (m)")
+        axes.set_ylabel("Analysis-plane Y (m)")
+        axes.set_title(title)
     colorbar = figure.colorbar(ScalarMappable(norm=Normalize(0, 1), cmap=colormap),
-                              ax=axes, fraction=0.035, pad=0.02)
+                              ax=[plan[0] for plan in plans] if compare_reciprocal else axes,
+                              fraction=0.035, pad=0.02)
     colorbar.set_label("Absolute response w [0, 1]")
     computed = [row for row in rows if row["w"] is not None]
-    response_axes.scatter([row["distance_m"] for row in computed], [row["w"] for row in computed],
-                          c=[row["w"] for row in computed], cmap=colormap, vmin=0, vmax=1, s=13, alpha=0.8)
-    response_axes.set(xlabel="Cached centroid distance d_E (m)", ylabel="Geometry-scaled response w",
-                      title="All 666 retained pairs", ylim=(0, 1))
+    if compare_reciprocal:
+        # Both curves use the same q, making the amplitude change distinct from geometry changes.
+        for field, label, color in (("w", "exp(-q)", "#006ba4"),
+                                    ("w_reciprocal", "1 / (1 + q)", "#d97800")):
+            response_axes.scatter([row["q"] for row in computed], [row[field] for row in computed],
+                                  c=color, s=13, alpha=0.7, label=label)
+        response_axes.legend()
+        response_axes.set_xlabel("Size-relative distance q = d_E / ell")
+    else:
+        response_axes.scatter([row["distance_m"] for row in computed], [row["w"] for row in computed],
+                              c=[row["w"] for row in computed], cmap=colormap, vmin=0, vmax=1, s=13, alpha=0.8)
+        response_axes.set_xlabel("Cached centroid distance d_E (m)")
+    response_axes.set(ylabel="Geometry-scaled response w", title="All 666 retained pairs", ylim=(0, 1))
     response_axes.grid(color="#dddddd", linewidth=0.45)
-    figure.suptitle("Real IFC experiment: w = exp(-d_E / sqrt(rho_g^2 + rho_h^2))\n"
-                    + source + " | not calibrated; no path input", fontsize=12, parse_math=False)
+    title = ("Real IFC comparison: same source 01, rho, ell and q; absolute [0,1] colors\n"
+             if compare_reciprocal else "Real IFC experiment: w = exp(-d_E / sqrt(rho_g^2 + rho_h^2))\n")
+    figure.suptitle(title + source + " | not calibrated; no path input", fontsize=12, parse_math=False)
     figure.savefig(output_dir / "overview.svg", format="svg")
     figure.savefig(output_dir / "overview.png", dpi=180, format="png")
     plt.close(figure)
 
 
-def _write_html(inputs: ExperimentInputs, rows: list[dict[str, Any]], output_dir: Path) -> None:
-    """Write one actual-union SVG with source selection and all 666 pair anchors."""
+def _write_html(inputs: ExperimentInputs, rows: list[dict[str, Any]], output_dir: Path,
+                *, compare_reciprocal: bool = False) -> None:
+    """Write the actual-union viewer with an optional explicit two-curve selector."""
     from matplotlib import colormaps
     from matplotlib.colors import to_hex
 
@@ -617,13 +656,15 @@ def _write_html(inputs: ExperimentInputs, rows: list[dict[str, Any]], output_dir
         pair_id = html.escape(row["pair_id"])
         values = (row["group_a_id"], row["group_b_id"], row["status"], row["distance_m"],
                   row["rho_a_m"], row["rho_b_m"], row["ell_m"], row["q"], row["w"])
+        if compare_reciprocal:
+            values += (row["w_reciprocal"],)
         cells = "".join(f"<td>{html.escape('' if value is None else str(value))}</td>" for value in values)
         table_rows.append(f'<tr id="{pair_id}"><td><a href="#{pair_id}" data-pair="{pair_id}">{pair_id}</a></td>{cells}</tr>')
     payload = json.dumps(_json_safe(rows), ensure_ascii=False, allow_nan=False).replace("<", "\\u003c")
     colors = json.dumps([to_hex(colormaps["cividis"](index / 255)) for index in range(256)])
     document = r"""<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Group distance decay experiment</title>
+<title>__TITLE__</title>
 <style>
 body{font:14px/1.45 system-ui,sans-serif;margin:24px;color:#202124}h1{font-size:22px;margin:0 0 8px}
 p{max-width:1050px}.links{display:flex;gap:16px;margin:12px 0}select,input{font:inherit;padding:6px;margin:6px}
@@ -635,20 +676,23 @@ p{max-width:1050px}.links{display:flex;gap:16px;margin:12px 0}select,input{font:
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}th,td{border-bottom:1px solid #ddd;padding:5px 7px;text-align:left;white-space:nowrap}
 th{position:sticky;top:0;background:#f4f5f6}.table-wrap{overflow:auto;max-height:60vh}tr:target{background:#fff4bf}
 </style>
-<h1>Geometry-scaled Euclidean response | real IFC</h1>
+<h1>__HEADING__</h1>
 <p>Choose a source; its 36 target unions use the same absolute w scale. Red hatch marks the source (self response is N/A); gray means unavailable. Click or focus a target to inspect d_E, q and w. Click any pair below to select its endpoints. Labels use the source selector's stable 01–37 index.</p>
-<p>w = exp(-d_E / sqrt(rho_g² + rho_h²)), using area-uniform RMS radii of actual projected unions. Overlap counts once and holes stay empty. This is an uncalibrated experiment, not a probability or production rule. Path values are not used. Plan coordinates are metres on the retained camera analysis plane.</p>
+<p id="formula">w = exp(-d_E / sqrt(rho_g² + rho_h²)), using area-uniform RMS radii of actual projected unions. Overlap counts once and holes stay empty. This is an uncalibrated experiment, not a probability or production rule. Path values are not used. Plan coordinates are metres on the retained camera analysis plane.</p>
+__CURVE_NOTES__
 <nav class="links"><a href="overview.png">PNG</a><a href="overview.svg">SVG</a><a href="decay_rows.csv">CSV</a><a href="decay_rows.json">JSON</a><a href="run_manifest.json">Manifest</a></nav>
 <label for="source">Source group</label><select id="source">__OPTIONS__</select>
-<div class="legend"><span>0</span><div class="gradient"></div><span>1 (absolute w)</span><span>red hatch: source</span></div>
+__CURVE_SELECTOR__
+<div class="legend"><span>0</span><div class="gradient"></div><span id="legend-response">1 (absolute w)</span><span>red hatch: source</span></div>
 <svg id="plan" viewBox="__VIEWBOX__" aria-label="Actual retained furniture unions on the camera analysis plane">
 <defs><pattern id="source-hatch" width=".12" height=".12" patternUnits="userSpaceOnUse"><rect width=".12" height=".12" fill="white"/><path d="M0,0 L.12,.12" stroke="#c62828" stroke-width=".025"/></pattern></defs>__PATHS__</svg>
 <pre id="readout" aria-live="polite"></pre>
 <label for="filter">Filter all 666 pairs</label><input id="filter" type="search" placeholder="Pair or group ID">
-<div class="table-wrap"><table id="rows"><thead><tr><th>Pair anchor</th><th>Group A</th><th>Group B</th><th>Status</th><th>d_E (m)</th><th>rho_A (m)</th><th>rho_B (m)</th><th>ell (m)</th><th>q</th><th>w</th></tr></thead><tbody>__ROWS__</tbody></table></div>
+<div class="table-wrap"><table id="rows"><thead><tr><th>Pair anchor</th><th>Group A</th><th>Group B</th><th>Status</th><th>d_E (m)</th><th>rho_A (m)</th><th>rho_B (m)</th><th>ell (m)</th><th>q</th>__RESPONSE_HEADERS__</tr></thead><tbody>__ROWS__</tbody></table></div>
 <script>
 const rows=__DATA__, colors=__COLORS__, source=document.getElementById('source'), readout=document.getElementById('readout');
 const groups=[...document.querySelectorAll('#plan g[data-group]')], byPair=new Map(rows.map(r=>[r.pair_id,r]));
+const curve=document.getElementById('curve');
 let selectedTarget=null;
 /** Find the retained unordered pair for the selected source and target. */
 function pairFor(target){return rows.find(r=>(r.group_a_id===source.value&&r.group_b_id===target)||(r.group_b_id===source.value&&r.group_a_id===target));}
@@ -656,12 +700,17 @@ function pairFor(target){return rows.find(r=>(r.group_a_id===source.value&&r.gro
 function describe(target){
   const r=pairFor(target);
   if(!r)return target+' | source group; self response N/A';
-  return r.pair_id+'\n'+source.value+' -> '+target+'\nstatus='+r.status+' | d_E='+r.distance_m+' m | ell='+r.ell_m+' m | q='+r.q+' | w='+r.w+(r.reason?' | '+r.reason:'');
+  return r.pair_id+'\n'+source.value+' -> '+target+'\nstatus='+r.status+' | d_E='+r.distance_m+' m | ell='+r.ell_m+' m | q='+r.q+(curve?' | w_exp='+r.w+' | w_reciprocal='+r.w_reciprocal+' | displayed='+curve.options[curve.selectedIndex].text:' | w='+r.w)+(r.reason?' | '+r.reason:'');
 }
 /** Apply the same absolute color scale after every source selection. */
 function render(){
+  const field=curve?curve.value:'w';
+  if(curve){
+    document.getElementById('formula').textContent=field==='w_reciprocal'?'Displayed: w_reciprocal = 1 / (1 + q)':'Displayed: w_exp = exp(-q)';
+    document.getElementById('legend-response').textContent='1 (absolute '+(field==='w'?'w_exp':'w_reciprocal')+')';
+  }
   for(const g of groups){const id=g.dataset.group,p=g.querySelector('path'),r=pairFor(id);
-    p.style.fill=id===source.value?'url(#source-hatch)':r&&r.w!==null?colors[Math.round(r.w*255)]:'#ccc';
+    p.style.fill=id===source.value?'url(#source-hatch)':r&&r[field]!==null?colors[Math.round(r[field]*255)]:'#ccc';
     p.style.stroke=id===source.value?'#c62828':id===selectedTarget?'#087fce':'#777';
     p.style.strokeWidth=id===source.value||id===selectedTarget?'.07':'.015';
     p.querySelector('title').textContent=describe(id);
@@ -671,6 +720,7 @@ function render(){
 /** Follow a saved pair anchor to its two authenticated group endpoints. */
 function selectPair(id){const r=byPair.get(id);if(r){source.value=r.group_a_id;selectedTarget=r.group_b_id;render();}}
 source.addEventListener('change',()=>{selectedTarget=null;render();});
+if(curve)curve.addEventListener('change',render);
 for(const g of groups){const inspect=()=>{selectedTarget=g.dataset.group;render();};g.addEventListener('click',inspect);g.addEventListener('focus',inspect);g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();inspect();}});}
 document.querySelectorAll('[data-pair]').forEach(a=>a.addEventListener('click',()=>selectPair(a.dataset.pair)));
 window.addEventListener('hashchange',()=>selectPair(decodeURIComponent(location.hash.slice(1))));
@@ -678,23 +728,36 @@ document.getElementById('filter').addEventListener('input',e=>{const q=e.target.
 render();selectPair(decodeURIComponent(location.hash.slice(1)));
 </script></html>
 """
+    curve_selector = (f'<label for="curve">Displayed curve</label><select id="curve">'
+                      f'<option value="w_reciprocal" data-formula-version="{RECIPROCAL_FORMULA_VERSION}" selected>Reciprocal: 1 / (1 + q)</option>'
+                      f'<option value="w" data-formula-version="{FORMULA_VERSION}">Exponential: exp(-q)</option></select>'
+                      if compare_reciprocal else "")
+    curve_notes = ("<p>Both curves use the same q = d_E / sqrt(rho_g² + rho_h²), from area-uniform RMS radii of the actual projected unions. "
+                   "Overlap counts once; holes stay empty. q is size-relative distance, so ordering across different group sizes need not follow metres. "
+                   "This is an uncalibrated comparison; a positive tail does not establish real interaction. No fixed positive floor or path input. "
+                   "Plan coordinates are metres on the retained camera analysis plane.</p>" if compare_reciprocal else "")
     for key, value in {"OPTIONS": "".join(options), "VIEWBOX": viewbox, "PATHS": "".join(paths),
                        "ROWS": "\n".join(table_rows), "DATA": payload, "COLORS": colors,
+                       "TITLE": "Group distance decay comparison" if compare_reciprocal else "Group distance decay experiment",
+                       "HEADING": "Reciprocal vs exponential | same real IFC" if compare_reciprocal else "Geometry-scaled Euclidean response | real IFC",
+                       "CURVE_SELECTOR": curve_selector, "CURVE_NOTES": curve_notes,
+                       "RESPONSE_HEADERS": "<th>w_exp</th><th>w_reciprocal</th>" if compare_reciprocal else "<th>w</th>",
                        "GRADIENT": ",".join(json.loads(colors)[::17])}.items():
         document = document.replace("__" + key + "__", value)
     (output_dir / "index.html").write_text(document, encoding="utf-8")
 
 
-def _write_csv(rows: list[dict[str, Any]], output_dir: Path) -> None:
-    """Write traceable pair rows as strict CSV with nested lineage encoded as JSON."""
+def _write_csv(rows: list[dict[str, Any]], output_dir: Path, *, compare_reciprocal: bool = False) -> None:
+    """Write original fields and only opt-in comparison fields as strict CSV."""
+    fields = CSV_FIELDS + (("w_reciprocal", "reciprocal_formula_version") if compare_reciprocal else ())
     with (output_dir / "decay_rows.csv").open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=CSV_FIELDS)
+        writer = csv.DictWriter(stream, fieldnames=fields)
         writer.writeheader()
         for row in rows:
             record = dict(row)
             for field in ("raw_distance_reading", "source_ids", "centroid_refs", "geometry_audit", "lineage"):
                 record[field] = json.dumps(record[field], ensure_ascii=False, allow_nan=False, sort_keys=True)
-            writer.writerow({field: record.get(field) for field in CSV_FIELDS})
+            writer.writerow({field: record.get(field) for field in fields})
 
 
 def _json_safe(value: Any) -> Any:
@@ -709,8 +772,8 @@ def _json_safe(value: Any) -> Any:
 
 
 def run_experiment(output_dir: Path, *, bundle_path: Path = BUNDLE_PATH,
-                   package_path: Path = PACKAGE_PATH) -> dict[str, Any]:
-    """Validate the retained evidence, write output-only artifacts, and return its manifest."""
+                   package_path: Path = PACKAGE_PATH, compare_reciprocal: bool = False) -> dict[str, Any]:
+    """Replay exponential defaults or an explicit same-input reciprocal comparison."""
     output_dir = Path(output_dir).resolve()
     output_root = (ROOT / "outputs" / "design").resolve()
     if not output_dir.is_relative_to(output_root):
@@ -718,28 +781,34 @@ def run_experiment(output_dir: Path, *, bundle_path: Path = BUNDLE_PATH,
     if output_dir.exists():
         raise FileExistsError(f"output directory already exists: {output_dir}")
     inputs = load_experiment_inputs(bundle_path=bundle_path, package_path=package_path)
-    rows = build_decay_rows(inputs)
+    rows = build_comparison_rows(inputs) if compare_reciprocal else build_decay_rows(inputs)
+    comparison = ({"reciprocal_formula_version": RECIPROCAL_FORMULA_VERSION,
+                   "reciprocal_formula": RECIPROCAL_FORMULA,
+                   "default_curve": "reciprocal", "color_scale": [0, 1]}
+                  if compare_reciprocal else {})
     output_dir.mkdir(parents=True, exist_ok=False)
-    _write_csv(rows, output_dir)
+    _write_csv(rows, output_dir, compare_reciprocal=compare_reciprocal)
     (output_dir / "decay_rows.json").write_text(
         json.dumps(_json_safe({
-            "schema": "group-distance-decay-rows/1",
+            "schema": "group-distance-decay-comparison-rows/1" if compare_reciprocal else "group-distance-decay-rows/1",
             "formula_version": FORMULA_VERSION,
             "formula": FORMULA,
+            **comparison,
             "distance_channel": "euclidean_distance",
             "rows": rows,
         }), indent=2, ensure_ascii=False, allow_nan=False) + "\n",
         encoding="utf-8",
     )
-    _write_overview(inputs, rows, output_dir)
-    _write_html(inputs, rows, output_dir)
+    _write_overview(inputs, rows, output_dir, compare_reciprocal=compare_reciprocal)
+    _write_html(inputs, rows, output_dir, compare_reciprocal=compare_reciprocal)
     statuses = Counter(row["status"] for row in rows)
     artifacts = ("decay_rows.csv", "decay_rows.json", "overview.svg", "overview.png", "index.html")
     manifest = {
-        "schema": "group-distance-decay-run/1",
+        "schema": "group-distance-decay-comparison-run/1" if compare_reciprocal else "group-distance-decay-run/1",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "formula_version": FORMULA_VERSION,
         "formula": FORMULA,
+        **comparison,
         "interpretation": "continuous geometry-relative response; not calibrated and not a hard radius",
         "distance_channel": "euclidean_distance",
         "path_distance_used": False,
@@ -759,7 +828,8 @@ def run_experiment(output_dir: Path, *, bundle_path: Path = BUNDLE_PATH,
         "default_source_group_id": sorted(inputs.scales)[0],
         "moment_definition": "rho^2 = trace(area-uniform covariance of the hole-aware projected union)",
         "scale_definition": "ell(g,h) = sqrt(rho_g^2 + rho_h^2)",
-        "visualization": "selected-source actual union plan; 36 targets use absolute w [0,1]; all 666 pair anchors retained",
+        "visualization": ("same-source exponential/reciprocal union plans and q scatter; HTML curve switch defaults to reciprocal; absolute [0,1] colors; all 666 pair anchors retained"
+                          if compare_reciprocal else "selected-source actual union plan; 36 targets use absolute w [0,1]; all 666 pair anchors retained"),
         "runner_sha256": file_hash(Path(__file__)),
         "artifact_hashes": {name: file_hash(output_dir / name) for name in artifacts},
     }
@@ -774,8 +844,11 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--bundle", type=Path, default=BUNDLE_PATH)
     parser.add_argument("--package", type=Path, default=PACKAGE_PATH)
+    parser.add_argument("--compare-reciprocal", action="store_true",
+                        help="compare reciprocal 1/(1+q) with the unchanged exponential response")
     args = parser.parse_args()
-    print(json.dumps(run_experiment(args.output_dir, bundle_path=args.bundle, package_path=args.package),
+    print(json.dumps(run_experiment(args.output_dir, bundle_path=args.bundle, package_path=args.package,
+                                    compare_reciprocal=args.compare_reciprocal),
                      indent=2, ensure_ascii=False, allow_nan=False))
 
 
