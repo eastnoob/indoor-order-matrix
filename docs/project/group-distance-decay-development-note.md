@@ -1,6 +1,6 @@
 # 距离衰减开发笔记
 
-日期：2026-11-11。状态：**讨论草案，尚未冻结衰减公式或实现。首轮只使用欧几里得距离。**
+日期：2026-11-11。状态：**真实 IFC 的单一欧氏试验已实现并生成产物；仅是可回退、未校准的试验，不是生产公式冻结。技术核验与用户视觉判断分别记录。**
 
 ## 工作线与范围
 
@@ -35,7 +35,7 @@
 
 | 具名配方 | 对已解释响应的计算 | 声明命题 | 启用状态 |
 | --- | --- | --- | --- |
-| `single/identity` | `H(w)=w` | 只采用所选距离的接近支持 | 首轮唯一选用，待实现 |
+| `single/identity` | `H(w)=w` | 只采用所选距离的接近支持 | 首轮唯一选用，已用于独立试验 |
 | `joint/all-min` | `H(w_1,...,w_n)=min(w_1,...,w_n)` | 每个声明的接近条件都必要，取最弱支持 | 未来可选，未启用、非默认 |
 | `alternative/any-max` | `H(w_1,...,w_n)=max(w_1,...,w_n)` | 输入明确是替代条件，其中一个支持就足够 | 未来可选，未启用、非默认 |
 
@@ -110,7 +110,7 @@ w(g,h) = exp(-q(g,h))
 
 此尺度各向同性，会忽略长薄组的方向差异，分散或远离主体的小块可能抬高尺度；文献没有裁定面积尺度、分布尺度和方向尺度谁适合家具组，不能把本选择称为唯一自然定标。
 
-输入须取同一已认证场景/平面/组身份下的完整 union。[`_group_geometry`](../../features/group_distance.py#L312) 已以整体 union 计算质心和 `union_area`；现有欧氏输出不能仅靠面积与质心恢复该二阶矩，需从核验后的输入几何计算并记录实际来源，不能宣称已经缓存 `rho`。本轮不重算距离，不实现代码；保持既有原始米值、纯轴及全部旧渠道。
+输入须取同一已认证场景/平面/组身份下的完整 union。[`_group_geometry`](../../features/group_distance.py#L312) 已以整体 union 计算质心和 `union_area`；现有欧氏输出不能仅靠面积与质心恢复该二阶矩，需从核验后的输入几何计算并记录实际来源，不能宣称已经缓存 `rho`。本段记录设计阶段边界；后续独立试验已实现，但不重算距离，保持既有原始米值、纯轴及全部旧渠道。
 
 固定几何来源：[保留的 input bundle](D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge/outputs/design/group_distance_ifc/run_v4_eight_neighbor/input_bundle.json)，SHA-256 `28e5304317ef52519d4c6d8c37ff17495032ec331f63e8333d7f15df72a1f93d`；沿用 [`run_group_distance_ifc.py:416`](../../scripts/design/group_level/run_group_distance_ifc.py#L416) 的 `retained_input` 指纹核对，再由 `_group_geometry` 取得实际 union。同 bundle 的独立内存审计得到 37 个有效 union 的 RMS 半径（Pixi exit 0），只证明输入可计算，`rho` 仍非现有缓存输出，未运行衰减。
 
@@ -140,9 +140,132 @@ w(g,h) = exp(-q(g,h))
 - **心理距离（原文 p.1317、p.1321 核验）：** [Shepard (1987)](https://doi.org/10.1126/science.3629243) 讨论心理空间中的概化概率随心理距离指数衰减；心理距离及该命题不能直接移植为家具间物理米距的事实。
 - **实现参考（固定提交源码实读）：** 官方 [scikit-fuzzy `fuzzy_and`/`fuzzy_or`](https://github.com/scikit-fuzzy/scikit-fuzzy/blob/be7e344f3ce65845e39922aa5fc1af7412d01944/skfuzzy/fuzzymath/fuzzy_logic.py#L83-L134) 以 `np.fmin`/`np.fmax` 实现 min/max；官方 [scikit-learn `RBF`](https://github.com/scikit-learn/scikit-learn/blob/98408191f7e021819b5b39c82db92c116ed03619/sklearn/gaussian_process/kernels.py#L1421-L1541) 展示带 length scale 的平方指数核，[`Matern(nu=.5)`](https://github.com/scikit-learn/scikit-learn/blob/98408191f7e021819b5b39c82db92c116ed03619/sklearn/gaussian_process/kernels.py#L1683-L1692) 对应候选 `exp(-d/ell)`。它们不决定本项目的语义、尺度或状态门；NumPy 官方 [`fmin`](https://numpy.org/doc/stable/reference/generated/numpy.fmin.html)/[`fmax`](https://numpy.org/doc/stable/reference/generated/numpy.fmax.html) 在一侧 NaN、另一侧数值有效时返回有效侧，两侧均 NaN 才返回 NaN，不能替代“必需输入缺失则不产联合值”的校验。当前标量运算不需新增依赖。
 
-结论：保留 `raw → per-channel response → explicit named combination → provenance/status/cache`。首轮 `identity + Euclidean` 仅为待实现选择；指数衰减仍是候选，不冻结，也不称为家具布局的客观定律。自然尺度仍未解决。
+结论：保留 `raw → per-channel response → explicit named combination → provenance/status/cache`。首轮 `identity + Euclidean` 已用于下述独立试验；指数衰减仍是候选，不冻结，也不称为家具布局的客观定律。自然尺度的适用性仍未解决。
 
 首轮视觉目标：仅用指定真实 IFC 的欧氏距离，先看同一批组对的原始距离和候选响应曲线；若展示几个尺度切片，明确它们只是图面采样，未被选为事实或生产默认。不得新造模拟布局来获得理想衰减效果。未对齐势与距离的源、组身份、分析平面及范围前，只能看距离响应，不能将两套旧缓存直接相乘。
+
+## 真实 IFC 实现与交付（2026-11-11）
+
+范围只到 output-only 试验：[runner](../../scripts/design/group_level/run_group_distance_decay_ifc.py)
+与[测试](../../test/test_group_distance_decay_ifc.py)。不改共享 contracts、exports、
+`room_analysis_model`、原始距离、纯方向势、分组或生产默认；没有将 camera-plane
+距离与旧 world-plane 势相乘，也未实现多距离组合。
+
+当前 continuation 的只读 jj 记录为 workspace `group-distance-decay`、
+parent `396f6977`（change `knstntwo`）、working change `xqpqtvzn`、
+revision `ebde12d3`。这些只读 revision 不代表未 snapshot 的文件；
+候选以实际 SHA-256 验收。Owner 仍是唯一版本写入者，本次执行没有
+snapshot、commit、bookmark 变更、merge 或 push。
+
+### 输入来源与数值门
+
+- 原始 IFC SHA-256 `1c97e93d5c6f6e2f2430816aca2d2f72bb44fed1ac98afa3aed567ae905cc077`；
+  retained derivative SHA-256 `06400121d7a60dc5a45e64b90c5c9310900103946b2f2fff6cae477c1f935f99`。
+  流式核对确认 **3,597,391 条原始 DATA entity records 逐字节保持原顺序**，
+  derivative 只在末尾附加 39 条 drawing/analysis-plane records。
+  早期 3,597,397 计数包含非 entity 行，已修正为上述 entity-only 口径。
+- 附加内容包含 `IfcBlock` drawing representation；不能说“没有新增几何”。
+  冻结 lineage receipt 的现有 role gate 将它归为 `drawing_camera / analysis_plane`，
+  明确 `physical_inventory_eligible=false` 及
+  `physical_mass_eligible_even_with_geometry=false`。37 个原始家具组和
+  95 个家具 GUID 均保留；该 receipt 只验 preparation scope，没有重新 tessellate
+  或执行 EXPRESS validation。
+- bundle、source-integrity、repair result、package contract、saved package、
+  IFC 和两个来源 receipts 全部按固定 SHA 认证。复用既有
+  `retained_input`、`build_group_distance_source_envelopes`、
+  `build_group_distance_package_contract` 与
+  `consume_saved_evidence_package` 的完整 current-source signature。
+  每个实际 pair 只选择 `euclidean_distance`；没有另造信任框架。
+- 每行直接核对 canonical/distinct group pair、output/pair identity、centroid refs、
+  retained/current union centroid coordinates、plane/query、完整
+  `package/output/target/channel` 地址。cached `d_E` 与 current union 质心距离
+  的 binary64 审计容差是 absolute `1e-9 m` / relative `1e-12`；
+  它不是尺度 epsilon，未替换缓存读数。666 对的实际 residual 全为零。
+- union 先合并，重叠计一次，孔洞扣除；只对已 union 后的互不重叠组件合并二阶矩。
+  没有房间归一、近邻数、阈值、截断或 epsilon。非 computed/无效输入留原因、
+  raw status 与 null response；typed core 在入口拒绝 NaN/Infinity。
+
+### 产物与观察
+
+最终目录：[run_20261111_rms_rss_v3](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/)。
+v1/v2 保留为修复前技术过程证据，不作为最终交付。可直接打开
+[交互 HTML](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/index.html)、
+[PNG](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/overview.png)、
+[SVG](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/overview.svg)、
+[CSV](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/decay_rows.csv)、
+[JSON](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/decay_rows.json) 和
+[manifest](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/run_manifest.json)。
+
+所有 **37 组、666 对均 computed**。原始距离范围
+`0.749998744837162–16.23278261190861 m`；组 RMS 半径
+`0.432549264109483–0.47303183485198874 m`；
+pair `ell=0.6117170356981327–0.6689680177316812 m`；
+响应 `w=2.9879930581447315e-12–0.32591111758115104`。
+因此绝对 [0,1] 图上远端普遍很暗，这是本试验尺度下指数响应很快变小的结果，
+不是 cutoff，也没有为增强图面反差而按 source 重归一。
+
+PNG/SVG 给出稳定 source 01 的真实 union plan 与全部 raw distance/response scatter。
+HTML 只保存一次真实 union paths，保留孔洞；选择任一 source 后，
+36 个 targets 按同一绝对 [0,1] 色标更新。source 以红色 hatch 区分，自项 N/A；
+每个 target 有 d_E/ell/q/w tooltip/readout，666 个 pair anchors 可回选端点，
+并有过滤与键盘操作。显示颜色的离散 palette 不改连续数值。
+
+### 技术验收与用户判断
+
+最终候选由不同 agent 实际执行 affected suite：**116 passed in 86.65 s，exit 0**；
+独立 verdict 为 **SPEC PASS / QUALITY Approved**，声明的数值、来源和产物范围内
+没有 material findings。实际命令（cwd 为本笔记记录的 isolated workspace）：
+
+```powershell
+pixi run pytest test/test_group_distance_decay_ifc.py test/test_evidence_package_readback.py test/test_group_distance_evidence_package.py -q -p no:cacheprovider --basetemp outputs/design/group_distance_decay_ifc/verification_20261111/pytest_tmp_final_20261111
+```
+
+Pixi 0.69.0 / Python 3.12.13 / pytest 9.0.3。前次 sandbox temp-directory ACL
+错误和两项已修正的 typed-boundary 测试构造错误日志仍保留；最终命令仅为受限本地
+验收使用 scoped elevation，没有弱化测试、改变配置或清理旧失败证据。
+[独立最终 receipt](../../outputs/design/group_distance_decay_ifc/verification_20261111/independent-final-acceptance.json)、
+[完整测试日志](../../outputs/design/group_distance_decay_ifc/verification_20261111/independent-pytest-final.log) 和
+[v3 artifact receipt](../../outputs/design/group_distance_decay_ifc/verification_20261111/independent-artifact-check-v3.json)
+记录实际执行及冻结候选；五个 artifact hashes 全部吻合，CSV/JSON/HTML 行一一对应，
+666 对公式重算完全一致，质心距离审计最大 residual 为 `0.0 m`。
+
+Root 另用 installed Edge headless 实际复核最终 **v3**，覆盖 37 个 source、
+1,332 个 target colors/tooltips、666 anchors、pair navigation、filter 和 keyboard
+selection，零 page errors。focused group 的 computed `outlineStyle=none`，
+同时保留蓝色 `rgb(8,127,206)` path；[focused screenshot](../../outputs/design/group_distance_decay_ifc/verification_20261111/browser_focused_v3.png)
+已实际目视检查，无旧版大黑色 focus halo。
+[v3 browser receipt](../../outputs/design/group_distance_decay_ifc/verification_20261111/browser_acceptance_v3.json)
+与[可重跑 probe](../../outputs/design/group_distance_decay_ifc/verification_20261111/browser_acceptance_v3.cjs)
+独立保存，不冒充由独立数值 verifier 执行；v2 receipt 仍按原版本保留。
+PNG 也已复核，v2/v3 PNG bytes 相同。没有从任何技术检查推断用户视觉接受。
+
+最终固定 hashes（SHA-256）：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| runner | `af4670809ac77bc457671a1dc234182142c62ed94a17653491e2a765be92e826` |
+| focused test | `0c4c5b444fbdcf6a86f628143dbd1dcf05de9718b2bd8e94d252f99e514a6e91` |
+| v3 manifest | `b9fb35917a589159e64f544942595ab5a72ed659ce5e70f0d9daa681d37e9dad` |
+| decay_rows.csv | `0051731cfb734f1c9797282437981135ec03897a555e5e86854427906d2bb604` |
+| decay_rows.json | `76b7ac1883f7c19f7d6353e9b71eb406f14152927ca1fb2261ca2acb49b71854` |
+| overview.svg | `8fd5f6fd3f931e829422b78bbc0bc824c96089bcac5860d5ac4dee4e0ed901ae` |
+| overview.png | `335289109c62dcb09adae35ffefe49d95dca37692346d6d2819a6b25ae88ba26` |
+| index.html | `c6975e98c3ccd3d1bf2f76fd1cac5594cdc349abaa1fa220f984dbd204a54840` |
+
+四个 task-owned code/test/docs 文件、manifest、产物与验收 receipts 的最终字节身份
+汇总到[delivery freeze](../../outputs/design/group_distance_decay_ifc/verification_20261111/final-delivery-freeze.json)。
+
+测试只变换/复制 retained 真实几何，没有新造布局；真实带孔 union 与独立
+triangle integrals 对照。刚体/单位/common-scale 变换选取两个 minimum-clearance
+较大的 retained unions，避免近重合 tessellation 顶点在 binary64 旋转中坍缩；
+这不代表所有潜在退化几何都已通过变换检验。固定正 `ell` 下连续严格递减由
+`exp(-d/ell)` 的解析形式保证，有限测试采样不冒充连续性证明。
+
+验收命令、实际结果、候选 hashes、artifact hashes 与独立审查 receipt 保存在
+[verification_20261111](../../outputs/design/group_distance_decay_ifc/verification_20261111/)。
+本试验没有重新打开 live IFC/Blender、重建 occupancy/route、执行 EXPRESS 或全仓库 suite；
+现存的 legacy moment module 从此 worktree test root 收集时存在 relative-import 错误，
+不为本任务修改它。未做用户视觉验收、自然尺度校准或业务/主线整合。
 
 ## 持续维护 checklist
 
@@ -156,9 +279,10 @@ w(g,h) = exp(-q(g,h))
 - [x] 外部依据审查（2026-11-11）：Yager/Kubovy 为摘要/索引核验，Shepard 为原文核验，GitHub/NumPy 为源码/官方文档实读；Zadeh 仅未全文核验线索。独立引用审查已修正 Yager DOI 和 Matern 源码位置；仍未解决家具米制自然尺度。
 - [x] Owner 裁定单一试验尺度/曲线：整体 union 的 RMS 半径 RSS + 欧氏指数响应；有条件、可回退，非最终自然定标或生产公式冻结。
 - [x] 本轮单一试验设计独立复核：SPEC PASS / QUALITY Approved；候选 SHA-256 `A0E39F185E6EE461E45E9AC672C058D358428A82C8DEFB98B4827ED74FCFD0E8`，8 个本地链接检查 exit 0；输入 readiness 不等于衰减验收，尺度依赖与图面交接尚待完成。
-- [ ] 核验试验输入几何、缓存身份与可视化交接口径；需要方向调制时先核对同源、同平面和同范围。
-- [ ] 实现最小欧氏试验，复用已认证缓存；记录函数版本及输入身份。
-- [ ] 用指定 IFC 产出欧氏对照图；核验连续性、单调性、单位换算及无关场景变化不改组对数学响应；区分技术检查与用户视觉结论。
+- [x] 核验试验输入几何、缓存身份与可视化交接口径；直接绑定 centroid/plane/query/address，方向调制继续不启用。
+- [x] 实现最小 output-only 欧氏试验，复用已认证缓存，记录 `group-union-rms-rss-exp/1`、完整输入与渠道身份。
+- [x] 用指定 IFC 产出欧氏对照图，核验公式性质、真实几何变换和无关变化；技术检查已记录，用户视觉判断仍待观察。
+- [x] 最终 frozen candidate 独立验收：116 tests passed，SPEC PASS / QUALITY Approved；v3 数值、hash、浏览器交互与 focus screenshot 均已实际核验，保留所有前次失败证据。
 - [ ] 根据观察回到自然定标问题；多距离组合实现继续暂缓，其可选配方与接口设计已明确，不因预留而提前实现。
 
-本轮仅细化设计笔记，不表示公式冻结、自然定标、试验、主线整合、距离调制势或视觉验收已完成。
+真实 IFC 试验与技术交付已实现；自然尺度适用性、用户视觉判断、主线整合和距离调制势仍未完成，不把本试验当作生产公式冻结。

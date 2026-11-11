@@ -1,5 +1,35 @@
 # 软件架构
 
+## Geometry-scaled Euclidean IFC experiment — 2026-11-11
+
+The isolated `group-distance-decay` workline adds only
+`scripts/design/group_level/run_group_distance_decay_ifc.py` and its focused
+`test/test_group_distance_decay_ifc.py`; no shared contract, public export,
+room-analysis-model layer or production default changes. The output-only runner
+reuses the existing retained-input fingerprint check, group union geometry,
+hole-aware polygon moments, source-envelope/contract builders and secure saved
+channel readback. It selects all 666 Euclidean targets from 37 real IFC groups.
+Pinned original/derived IFC hashes and an ordered STEP-entity comparison bind
+the additive analysis-plane derivative; the added drawing geometry is explicitly
+excluded from physical mass under the existing role policy.
+
+Each computed row checks the canonical group pair, centroid references and
+coordinates, cached distance audit, camera plane/query and complete channel
+address. The experimental formula is
+`rho²=trace(area-uniform covariance of union); ell=sqrt(rho_g²+rho_h²); w=exp(-d_E/ell)`.
+It reads cached Euclidean distance, never path values; whole-package freshness
+still applies. Invalid or unavailable required readings retain status/reason and
+null response. The output preserves original distance, scales, q/w and lineage.
+
+Final artifacts live under
+`outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/`: CSV/JSON,
+selected-source PNG/SVG, an interactive actual-union SVG/HTML with 37 source
+choices and 666 pair anchors, and a hash manifest. All source views use the
+same absolute [0,1] color scale. This remains an uncalibrated, reversible
+experiment, with no distance-conditioned potential or world-plane cache mixing.
+See the [development note](project/group-distance-decay-development-note.md)
+for input lineage, verification receipts, limitations and pending user review.
+
 ## Evidence-package saved readback rollout — 2026-11-10 / locally verified candidate
 
 The isolated `evidence-package-structure-e86` candidate is extending the existing
