@@ -66,6 +66,8 @@ FORMULA_VERSION = "group-union-rms-rss-exp/1"
 FORMULA = "ell=sqrt(rho_g^2+rho_h^2); q=d_E/ell; w=exp(-q)"
 RECIPROCAL_FORMULA_VERSION = "group-union-rms-rss-reciprocal/1"
 RECIPROCAL_FORMULA = "w_reciprocal=1/(1+q)"
+SQRT_RECIPROCAL_FORMULA_VERSION = "group-union-rms-rss-sqrt-reciprocal/1"
+SQRT_RECIPROCAL_FORMULA = "w_sqrt_reciprocal=1/sqrt(1+q)"
 _EXPECTED_ADDED_ENTITY_TYPES = Counter({
     "IFCANNOTATION": 1,
     "IFCAXIS2PLACEMENT3D": 2,
@@ -528,18 +530,31 @@ def reciprocal_response(q: float) -> float:
     return 1.0 / (1.0 + q)
 
 
-def build_comparison_rows(inputs: ExperimentInputs) -> list[dict[str, Any]]:
-    """Append the reciprocal trial while retaining every validated exponential field."""
+def sqrt_reciprocal_response(q: float) -> float:
+    """Map finite nonnegative q to the opt-in square-root reciprocal trial."""
+    if not math.isfinite(q) or q < 0:
+        raise ValueError("dimensionless distance must be finite and nonnegative")
+    return 1.0 / math.sqrt(1.0 + q)
+
+
+def build_comparison_rows(inputs: ExperimentInputs, *, compare_sqrt_reciprocal: bool = False) -> list[dict[str, Any]]:
+    """Append opt-in responses while retaining every validated exponential field."""
     # Reuse the existing status and provenance gate before adding a second response.
-    return [{**row,
+    rows = [{**row,
              "w_reciprocal": reciprocal_response(row["q"]) if row["status"] == "computed" else None,
              "reciprocal_formula_version": RECIPROCAL_FORMULA_VERSION}
             for row in build_decay_rows(inputs)]
+    if compare_sqrt_reciprocal:
+        # A third curve uses the same gate and q; it does not reinterpret unavailable input as zero.
+        for row in rows:
+            row["w_sqrt_reciprocal"] = sqrt_reciprocal_response(row["q"]) if row["status"] == "computed" else None
+            row["sqrt_reciprocal_formula_version"] = SQRT_RECIPROCAL_FORMULA_VERSION
+    return rows
 
 
 def _write_overview(inputs: ExperimentInputs, rows: list[dict[str, Any]], output_dir: Path,
-                    *, compare_reciprocal: bool = False) -> None:
-    """Color actual unions on one absolute scale, optionally comparing both curves."""
+                    *, compare_reciprocal: bool = False, compare_sqrt_reciprocal: bool = False) -> None:
+    """Color actual unions on one absolute scale with the selected trial plans."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -550,6 +565,7 @@ def _write_overview(inputs: ExperimentInputs, rows: list[dict[str, Any]], output
     from matplotlib.patches import PathPatch
     from shapely.geometry.polygon import orient
 
+    compare_reciprocal = compare_reciprocal or compare_sqrt_reciprocal
     group_ids = sorted(inputs.geometries)
     source = group_ids[0]
     selected = {row["group_b_id"] if row["group_a_id"] == source else row["group_a_id"]: row
@@ -559,6 +575,9 @@ def _write_overview(inputs: ExperimentInputs, rows: list[dict[str, Any]], output
             1, 3, figsize=(20, 7.5), gridspec_kw={"width_ratios": (1, 1, 0.65)}, constrained_layout=True)
         plans = ((axes, "w", "Exponential: exp(-q)"),
                  (reciprocal_axes, "w_reciprocal", "Reciprocal: 1 / (1 + q)"))
+        if compare_sqrt_reciprocal:
+            plans = ((axes, "w_reciprocal", "Reciprocal: 1 / (1 + q)"),
+                     (reciprocal_axes, "w_sqrt_reciprocal", "Square-root reciprocal: 1 / sqrt(1 + q)"))
     else:
         figure, (axes, response_axes) = plt.subplots(1, 2, figsize=(15, 8),
                                                     gridspec_kw={"width_ratios": (2, 1)}, constrained_layout=True)
@@ -601,9 +620,11 @@ def _write_overview(inputs: ExperimentInputs, rows: list[dict[str, Any]], output
     colorbar.set_label("Absolute response w [0, 1]")
     computed = [row for row in rows if row["w"] is not None]
     if compare_reciprocal:
-        # Both curves use the same q, making the amplitude change distinct from geometry changes.
-        for field, label, color in (("w", "exp(-q)", "#006ba4"),
-                                    ("w_reciprocal", "1 / (1 + q)", "#d97800")):
+        # Shared q separates the amplitude choice from geometry and scale changes.
+        curves = (("w", "exp(-q)", "#006ba4"), ("w_reciprocal", "1 / (1 + q)", "#d97800"))
+        if compare_sqrt_reciprocal:
+            curves += (("w_sqrt_reciprocal", "1 / sqrt(1 + q)", "#208040"),)
+        for field, label, color in curves:
             response_axes.scatter([row["q"] for row in computed], [row[field] for row in computed],
                                   c=color, s=13, alpha=0.7, label=label)
         response_axes.legend()
@@ -623,11 +644,12 @@ def _write_overview(inputs: ExperimentInputs, rows: list[dict[str, Any]], output
 
 
 def _write_html(inputs: ExperimentInputs, rows: list[dict[str, Any]], output_dir: Path,
-                *, compare_reciprocal: bool = False) -> None:
-    """Write the actual-union viewer with an optional explicit two-curve selector."""
+                *, compare_reciprocal: bool = False, compare_sqrt_reciprocal: bool = False) -> None:
+    """Write the actual-union viewer with explicit opt-in curve choices."""
     from matplotlib import colormaps
     from matplotlib.colors import to_hex
 
+    compare_reciprocal = compare_reciprocal or compare_sqrt_reciprocal
     options, paths = [], []
     for index, group_id in enumerate(sorted(inputs.geometries), 1):
         label = f"{index:02d} | {group_id}"
@@ -658,6 +680,8 @@ def _write_html(inputs: ExperimentInputs, rows: list[dict[str, Any]], output_dir
                   row["rho_a_m"], row["rho_b_m"], row["ell_m"], row["q"], row["w"])
         if compare_reciprocal:
             values += (row["w_reciprocal"],)
+        if compare_sqrt_reciprocal:
+            values += (row["w_sqrt_reciprocal"],)
         cells = "".join(f"<td>{html.escape('' if value is None else str(value))}</td>" for value in values)
         table_rows.append(f'<tr id="{pair_id}"><td><a href="#{pair_id}" data-pair="{pair_id}">{pair_id}</a></td>{cells}</tr>')
     payload = json.dumps(_json_safe(rows), ensure_ascii=False, allow_nan=False).replace("<", "\\u003c")
@@ -700,14 +724,14 @@ function pairFor(target){return rows.find(r=>(r.group_a_id===source.value&&r.gro
 function describe(target){
   const r=pairFor(target);
   if(!r)return target+' | source group; self response N/A';
-  return r.pair_id+'\n'+source.value+' -> '+target+'\nstatus='+r.status+' | d_E='+r.distance_m+' m | ell='+r.ell_m+' m | q='+r.q+(curve?' | w_exp='+r.w+' | w_reciprocal='+r.w_reciprocal+' | displayed='+curve.options[curve.selectedIndex].text:' | w='+r.w)+(r.reason?' | '+r.reason:'');
+  return r.pair_id+'\n'+source.value+' -> '+target+'\nstatus='+r.status+' | d_E='+r.distance_m+' m | ell='+r.ell_m+' m | q='+r.q+(curve?' | w_exp='+r.w+' | w_reciprocal='+r.w_reciprocal+('w_sqrt_reciprocal' in r?' | w_sqrt_reciprocal='+r.w_sqrt_reciprocal:'')+' | displayed='+curve.options[curve.selectedIndex].text:' | w='+r.w)+(r.reason?' | '+r.reason:'');
 }
 /** Apply the same absolute color scale after every source selection. */
 function render(){
   const field=curve?curve.value:'w';
   if(curve){
-    document.getElementById('formula').textContent=field==='w_reciprocal'?'Displayed: w_reciprocal = 1 / (1 + q)':'Displayed: w_exp = exp(-q)';
-    document.getElementById('legend-response').textContent='1 (absolute '+(field==='w'?'w_exp':'w_reciprocal')+')';
+    document.getElementById('formula').textContent=field==='w_sqrt_reciprocal'?'Displayed: w_sqrt_reciprocal = 1 / sqrt(1 + q)':field==='w_reciprocal'?'Displayed: w_reciprocal = 1 / (1 + q)':'Displayed: w_exp = exp(-q)';
+    document.getElementById('legend-response').textContent='1 (absolute '+(field==='w'?'w_exp':field)+')';
   }
   for(const g of groups){const id=g.dataset.group,p=g.querySelector('path'),r=pairFor(id);
     p.style.fill=id===source.value?'url(#source-hatch)':r&&r[field]!==null?colors[Math.round(r[field]*255)]:'#ccc';
@@ -728,28 +752,42 @@ document.getElementById('filter').addEventListener('input',e=>{const q=e.target.
 render();selectPair(decodeURIComponent(location.hash.slice(1)));
 </script></html>
 """
-    curve_selector = (f'<label for="curve">Displayed curve</label><select id="curve">'
-                      f'<option value="w_reciprocal" data-formula-version="{RECIPROCAL_FORMULA_VERSION}" selected>Reciprocal: 1 / (1 + q)</option>'
+    sqrt_option = (f'<option value="w_sqrt_reciprocal" data-formula-version="{SQRT_RECIPROCAL_FORMULA_VERSION}" selected>Square-root reciprocal: 1 / sqrt(1 + q)</option>'
+                   if compare_sqrt_reciprocal else "")
+    reciprocal_selected = "" if compare_sqrt_reciprocal else " selected"
+    curve_selector = (f'<label for="curve">Displayed curve</label><select id="curve">{sqrt_option}'
+                      f'<option value="w_reciprocal" data-formula-version="{RECIPROCAL_FORMULA_VERSION}"{reciprocal_selected}>Reciprocal: 1 / (1 + q)</option>'
                       f'<option value="w" data-formula-version="{FORMULA_VERSION}">Exponential: exp(-q)</option></select>'
                       if compare_reciprocal else "")
     curve_notes = ("<p>Both curves use the same q = d_E / sqrt(rho_g² + rho_h²), from area-uniform RMS radii of the actual projected unions. "
                    "Overlap counts once; holes stay empty. q is size-relative distance, so ordering across different group sizes need not follow metres. "
                    "This is an uncalibrated comparison; a positive tail does not establish real interaction. No fixed positive floor or path input. "
                    "Plan coordinates are metres on the retained camera analysis plane.</p>" if compare_reciprocal else "")
+    if compare_sqrt_reciprocal:
+        curve_notes = curve_notes.replace("Both curves", "All three curves")
+        curve_notes += "<p>The exponent 1/2 is a modeling choice for this reversible gradient trial.</p>"
+    response_headers = "<th>w_exp</th><th>w_reciprocal</th>" if compare_reciprocal else "<th>w</th>"
+    if compare_sqrt_reciprocal:
+        response_headers += "<th>w_sqrt_reciprocal</th>"
     for key, value in {"OPTIONS": "".join(options), "VIEWBOX": viewbox, "PATHS": "".join(paths),
                        "ROWS": "\n".join(table_rows), "DATA": payload, "COLORS": colors,
                        "TITLE": "Group distance decay comparison" if compare_reciprocal else "Group distance decay experiment",
-                       "HEADING": "Reciprocal vs exponential | same real IFC" if compare_reciprocal else "Geometry-scaled Euclidean response | real IFC",
+                       "HEADING": ("Square-root reciprocal vs reciprocal vs exponential | same real IFC" if compare_sqrt_reciprocal else
+                                   "Reciprocal vs exponential | same real IFC" if compare_reciprocal else "Geometry-scaled Euclidean response | real IFC"),
                        "CURVE_SELECTOR": curve_selector, "CURVE_NOTES": curve_notes,
-                       "RESPONSE_HEADERS": "<th>w_exp</th><th>w_reciprocal</th>" if compare_reciprocal else "<th>w</th>",
+                       "RESPONSE_HEADERS": response_headers,
                        "GRADIENT": ",".join(json.loads(colors)[::17])}.items():
         document = document.replace("__" + key + "__", value)
     (output_dir / "index.html").write_text(document, encoding="utf-8")
 
 
-def _write_csv(rows: list[dict[str, Any]], output_dir: Path, *, compare_reciprocal: bool = False) -> None:
+def _write_csv(rows: list[dict[str, Any]], output_dir: Path, *, compare_reciprocal: bool = False,
+               compare_sqrt_reciprocal: bool = False) -> None:
     """Write original fields and only opt-in comparison fields as strict CSV."""
-    fields = CSV_FIELDS + (("w_reciprocal", "reciprocal_formula_version") if compare_reciprocal else ())
+    fields = CSV_FIELDS + (("w_reciprocal", "reciprocal_formula_version")
+                           if compare_reciprocal or compare_sqrt_reciprocal else ())
+    if compare_sqrt_reciprocal:
+        fields += ("w_sqrt_reciprocal", "sqrt_reciprocal_formula_version")
     with (output_dir / "decay_rows.csv").open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=fields)
         writer.writeheader()
@@ -772,8 +810,9 @@ def _json_safe(value: Any) -> Any:
 
 
 def run_experiment(output_dir: Path, *, bundle_path: Path = BUNDLE_PATH,
-                   package_path: Path = PACKAGE_PATH, compare_reciprocal: bool = False) -> dict[str, Any]:
-    """Replay exponential defaults or an explicit same-input reciprocal comparison."""
+                   package_path: Path = PACKAGE_PATH, compare_reciprocal: bool = False,
+                   compare_sqrt_reciprocal: bool = False) -> dict[str, Any]:
+    """Replay exponential defaults or explicit same-input two/three-curve comparisons."""
     output_dir = Path(output_dir).resolve()
     output_root = (ROOT / "outputs" / "design").resolve()
     if not output_dir.is_relative_to(output_root):
@@ -781,16 +820,25 @@ def run_experiment(output_dir: Path, *, bundle_path: Path = BUNDLE_PATH,
     if output_dir.exists():
         raise FileExistsError(f"output directory already exists: {output_dir}")
     inputs = load_experiment_inputs(bundle_path=bundle_path, package_path=package_path)
-    rows = build_comparison_rows(inputs) if compare_reciprocal else build_decay_rows(inputs)
+    # The new standalone flag includes the prior curve without changing either older mode.
+    compare_reciprocal = compare_reciprocal or compare_sqrt_reciprocal
+    rows = (build_comparison_rows(inputs, compare_sqrt_reciprocal=compare_sqrt_reciprocal)
+            if compare_reciprocal else build_decay_rows(inputs))
     comparison = ({"reciprocal_formula_version": RECIPROCAL_FORMULA_VERSION,
                    "reciprocal_formula": RECIPROCAL_FORMULA,
                    "default_curve": "reciprocal", "color_scale": [0, 1]}
                   if compare_reciprocal else {})
+    if compare_sqrt_reciprocal:
+        comparison.update(sqrt_reciprocal_formula_version=SQRT_RECIPROCAL_FORMULA_VERSION,
+                          sqrt_reciprocal_formula=SQRT_RECIPROCAL_FORMULA,
+                          default_curve="sqrt_reciprocal")
     output_dir.mkdir(parents=True, exist_ok=False)
-    _write_csv(rows, output_dir, compare_reciprocal=compare_reciprocal)
+    _write_csv(rows, output_dir, compare_reciprocal=compare_reciprocal,
+               compare_sqrt_reciprocal=compare_sqrt_reciprocal)
     (output_dir / "decay_rows.json").write_text(
         json.dumps(_json_safe({
-            "schema": "group-distance-decay-comparison-rows/1" if compare_reciprocal else "group-distance-decay-rows/1",
+            "schema": ("group-distance-decay-three-curve-rows/1" if compare_sqrt_reciprocal else
+                       "group-distance-decay-comparison-rows/1" if compare_reciprocal else "group-distance-decay-rows/1"),
             "formula_version": FORMULA_VERSION,
             "formula": FORMULA,
             **comparison,
@@ -799,12 +847,15 @@ def run_experiment(output_dir: Path, *, bundle_path: Path = BUNDLE_PATH,
         }), indent=2, ensure_ascii=False, allow_nan=False) + "\n",
         encoding="utf-8",
     )
-    _write_overview(inputs, rows, output_dir, compare_reciprocal=compare_reciprocal)
-    _write_html(inputs, rows, output_dir, compare_reciprocal=compare_reciprocal)
+    _write_overview(inputs, rows, output_dir, compare_reciprocal=compare_reciprocal,
+                    compare_sqrt_reciprocal=compare_sqrt_reciprocal)
+    _write_html(inputs, rows, output_dir, compare_reciprocal=compare_reciprocal,
+                compare_sqrt_reciprocal=compare_sqrt_reciprocal)
     statuses = Counter(row["status"] for row in rows)
     artifacts = ("decay_rows.csv", "decay_rows.json", "overview.svg", "overview.png", "index.html")
     manifest = {
-        "schema": "group-distance-decay-comparison-run/1" if compare_reciprocal else "group-distance-decay-run/1",
+        "schema": ("group-distance-decay-three-curve-run/1" if compare_sqrt_reciprocal else
+                   "group-distance-decay-comparison-run/1" if compare_reciprocal else "group-distance-decay-run/1"),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "formula_version": FORMULA_VERSION,
         "formula": FORMULA,
@@ -828,7 +879,9 @@ def run_experiment(output_dir: Path, *, bundle_path: Path = BUNDLE_PATH,
         "default_source_group_id": sorted(inputs.scales)[0],
         "moment_definition": "rho^2 = trace(area-uniform covariance of the hole-aware projected union)",
         "scale_definition": "ell(g,h) = sqrt(rho_g^2 + rho_h^2)",
-        "visualization": ("same-source exponential/reciprocal union plans and q scatter; HTML curve switch defaults to reciprocal; absolute [0,1] colors; all 666 pair anchors retained"
+        "visualization": ("same-source reciprocal/square-root reciprocal union plans and all-three q scatter; HTML curve switch defaults to square-root reciprocal; absolute [0,1] colors; all 666 pair anchors retained"
+                          if compare_sqrt_reciprocal else
+                          "same-source exponential/reciprocal union plans and q scatter; HTML curve switch defaults to reciprocal; absolute [0,1] colors; all 666 pair anchors retained"
                           if compare_reciprocal else "selected-source actual union plan; 36 targets use absolute w [0,1]; all 666 pair anchors retained"),
         "runner_sha256": file_hash(Path(__file__)),
         "artifact_hashes": {name: file_hash(output_dir / name) for name in artifacts},
@@ -846,9 +899,12 @@ def main() -> None:
     parser.add_argument("--package", type=Path, default=PACKAGE_PATH)
     parser.add_argument("--compare-reciprocal", action="store_true",
                         help="compare reciprocal 1/(1+q) with the unchanged exponential response")
+    parser.add_argument("--compare-sqrt-reciprocal", action="store_true",
+                        help="compare square-root reciprocal 1/sqrt(1+q) with both existing responses")
     args = parser.parse_args()
     print(json.dumps(run_experiment(args.output_dir, bundle_path=args.bundle, package_path=args.package,
-                                    compare_reciprocal=args.compare_reciprocal),
+                                    compare_reciprocal=args.compare_reciprocal,
+                                    compare_sqrt_reciprocal=args.compare_sqrt_reciprocal),
                      indent=2, ensure_ascii=False, allow_nan=False))
 
 

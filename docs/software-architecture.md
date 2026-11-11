@@ -45,6 +45,19 @@ universal positive floor or claim of real interaction or objective calibration.
 The comparison run lives at
 `outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/`;
 the exponential v3 directory remains the unchanged numeric baseline.
+The separate, default-off `--compare-sqrt-reciprocal` flag includes both old
+responses and appends only `w_sqrt_reciprocal=1/sqrt(1+q)` with version
+`group-union-rms-rss-sqrt-reciprocal/1`. Three-curve rows/run use
+`group-distance-decay-three-curve-rows/1` / `group-distance-decay-three-curve-run/1`;
+the flag works alone. Older modes retain their schemas and numeric semantics.
+The same status gate leaves unavailable third responses null. Its PNG/SVG
+compare reciprocal and square-root reciprocal source plans plus all-three q
+scatter; HTML offers all three curves and defaults to square-root reciprocal
+only in this new mode. Actual unions, absolute [0,1] colors, anchors and input
+validation are reused. The new run is
+`outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/`.
+Both historical runs are preserved. Exponent 1/2 is an uncalibrated modeling
+choice, with no fixed floor, interaction proof or production integration.
 See the [development note](project/group-distance-decay-development-note.md)
 for input lineage, verification receipts, limitations and pending user review.
 

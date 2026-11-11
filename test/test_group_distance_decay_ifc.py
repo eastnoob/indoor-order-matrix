@@ -56,6 +56,12 @@ def comparison_rows(experiment_inputs):
     return build_comparison_rows(experiment_inputs)
 
 
+@pytest.fixture(scope="module")
+def sqrt_comparison_rows(experiment_inputs):
+    """Reuse the authenticated retained context for the opt-in third curve."""
+    return build_comparison_rows(experiment_inputs, compare_sqrt_reciprocal=True)
+
+
 def _projection(group, geometry):
     """Apply a mathematical transform to a retained group's polygon components."""
     polygons = tuple(geometry.geoms) if geometry.geom_type == "MultiPolygon" else (geometry,)
@@ -148,6 +154,7 @@ def test_retained_pair_survives_units_scaling_and_rigid_motion(experiment_inputs
     assert q == pytest.approx(row["q"], rel=1e-9)
     assert weight == pytest.approx(row["w"], rel=1e-9, abs=0)
     assert reciprocal_response(q) == pytest.approx(reciprocal_response(row["q"]), rel=1e-9)
+    assert decay.sqrt_reciprocal_response(q) == pytest.approx(decay.sqrt_reciprocal_response(row["q"]), rel=1e-9)
 
 
 def test_equal_dimensionless_distance_has_equal_response(decay_rows) -> None:
@@ -198,6 +205,7 @@ def test_unrelated_real_group_transforms_do_not_change_selected_pair(experiment_
     )
     assert changed == baseline
     assert reciprocal_response(changed[1]) == reciprocal_response(baseline[1])
+    assert decay.sqrt_reciprocal_response(changed[1]) == decay.sqrt_reciprocal_response(baseline[1])
 
 
 def test_post_auth_path_readings_do_not_enter_euclidean_decay(experiment_inputs, decay_rows) -> None:
@@ -307,6 +315,12 @@ def test_invalid_raw_reading_preserves_serializable_null_response(experiment_inp
     assert {key: value for key, value in compared.items()
             if key not in {'w_reciprocal', 'reciprocal_formula_version'}} == row
     json.dumps(_json_safe(compared), allow_nan=False)
+    third = next(row for row in build_comparison_rows(replace(
+        experiment_inputs, outputs=(changed, *remaining)), compare_sqrt_reciprocal=True)
+                 if row['pair_id'] == first.target['identity'])
+    assert third['w_sqrt_reciprocal'] is None
+    assert {key: third[key] for key in compared} == compared
+    json.dumps(_json_safe(third), allow_nan=False)
 
 
 @pytest.mark.parametrize('value', (math.nan, math.inf))
@@ -375,9 +389,46 @@ def test_reciprocal_response_rejects_invalid_q(q) -> None:
         reciprocal_response(q)
 
 
-@pytest.mark.parametrize('compare', (False, True))
+def test_sqrt_reciprocal_response_domain() -> None:
+    """The third curve keeps unit contact, a stronger tail and finite large-q support."""
+    assert decay.sqrt_reciprocal_response(0.0) == 1.0
+    assert decay.sqrt_reciprocal_response(3.0) == 0.5
+    assert decay.sqrt_reciprocal_response(15.0) == 0.25
+    assert 0 < decay.sqrt_reciprocal_response(sys.float_info.max) < 1
+
+
+@pytest.mark.parametrize('q', (-1.0, math.nan, math.inf, -math.inf))
+def test_sqrt_reciprocal_response_rejects_invalid_q(q) -> None:
+    """The third curve refuses invalid q rather than returning a fabricated response."""
+    with pytest.raises(ValueError):
+        decay.sqrt_reciprocal_response(q)
+
+
+def test_sqrt_comparison_preserves_pinned_reciprocal_rows(comparison_rows, sqrt_comparison_rows) -> None:
+    """All third-curve rows retain the complete previously accepted two-curve evidence."""
+    baseline = Path(__file__).resolve().parents[1] / (
+        'outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/decay_rows.json'
+    )
+    assert hashlib.sha256(baseline.read_bytes()).hexdigest() == (
+        'fa940d82c7121a810c0c8ba48e6a8edbf21646ebedbd6e6c03b2bbeb3bc0b67a'
+    )
+    assert _json_safe(comparison_rows) == json.loads(baseline.read_text(encoding='utf-8'))['rows']
+    assert len(sqrt_comparison_rows) == 666
+    for original, third in zip(comparison_rows, sqrt_comparison_rows):
+        assert set(third) - set(original) == {'w_sqrt_reciprocal', 'sqrt_reciprocal_formula_version'}
+        assert {key: third[key] for key in original} == original
+        assert third['sqrt_reciprocal_formula_version'] == 'group-union-rms-rss-sqrt-reciprocal/1'
+        assert third['w_sqrt_reciprocal'] == 1.0 / math.sqrt(1.0 + third['q'])
+        assert third['w_sqrt_reciprocal'] ** 2 == pytest.approx(third['w_reciprocal'], rel=1e-15)
+        assert 0 < third['w'] <= third['w_reciprocal'] <= third['w_sqrt_reciprocal'] <= 1
+    ordered = sorted(sqrt_comparison_rows, key=lambda row: row['q'])
+    assert all(a['w_sqrt_reciprocal'] >= b['w_sqrt_reciprocal'] for a, b in zip(ordered, ordered[1:]))
+    assert ordered[0]['w_sqrt_reciprocal'] > ordered[333]['w_sqrt_reciprocal'] > ordered[-1]['w_sqrt_reciprocal']
+
+
+@pytest.mark.parametrize('compare,sqrt_compare', ((False, False), (True, False), (True, True)))
 def test_comparison_exports_are_explicit_and_default_stays_exponential(
-    experiment_inputs, decay_rows, comparison_rows, monkeypatch, tmp_path, compare,
+    experiment_inputs, decay_rows, comparison_rows, sqrt_comparison_rows, monkeypatch, tmp_path, compare, sqrt_compare,
 ) -> None:
     """Real HTML/CSV/JSON bind the selected mode while the existing output guard still applies."""
     loads = []
@@ -387,9 +438,10 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
         loads.append(paths)
         return experiment_inputs
 
-    def overview(inputs, rows, output_dir, *, compare_reciprocal=False):
+    def overview(inputs, rows, output_dir, *, compare_reciprocal=False, compare_sqrt_reciprocal=False):
         """Leave static rendering to the actual trial and test only its export handoff here."""
         assert inputs is experiment_inputs and compare_reciprocal is compare
+        assert compare_sqrt_reciprocal is sqrt_compare
         for name in ('overview.svg', 'overview.png'):
             (output_dir / name).write_bytes(b'static rendering checked in the real retained trial')
 
@@ -397,24 +449,32 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
     monkeypatch.setattr(decay, 'load_experiment_inputs', retained_inputs)
     monkeypatch.setattr(decay, '_write_overview', overview)
     destination = tmp_path / 'outputs/design/comparison-export'
-    options = {'compare_reciprocal': True} if compare else {}
+    options = ({'compare_sqrt_reciprocal': True} if sqrt_compare else
+               {'compare_reciprocal': True} if compare else {})
     manifest = decay.run_experiment(destination, **options)
     assert loads == [{'bundle_path': decay.BUNDLE_PATH, 'package_path': decay.PACKAGE_PATH}]
-    expected_rows = comparison_rows if compare else decay_rows
+    expected_rows = sqrt_comparison_rows if sqrt_compare else comparison_rows if compare else decay_rows
     payload = json.loads((destination / 'decay_rows.json').read_text(encoding='utf-8'))
     assert payload['rows'] == _json_safe(expected_rows)
-    assert payload['schema'] == ('group-distance-decay-comparison-rows/1' if compare else 'group-distance-decay-rows/1')
-    assert manifest['schema'] == ('group-distance-decay-comparison-run/1' if compare else 'group-distance-decay-run/1')
+    assert payload['schema'] == ('group-distance-decay-three-curve-rows/1' if sqrt_compare else
+                                 'group-distance-decay-comparison-rows/1' if compare else 'group-distance-decay-rows/1')
+    assert manifest['schema'] == ('group-distance-decay-three-curve-run/1' if sqrt_compare else
+                                  'group-distance-decay-comparison-run/1' if compare else 'group-distance-decay-run/1')
     assert payload['formula_version'] == manifest['formula_version'] == 'group-union-rms-rss-exp/1'
     assert manifest['path_distance_used'] is False
     for metadata in (payload, manifest):
         if compare:
             assert metadata['reciprocal_formula_version'] == RECIPROCAL_FORMULA_VERSION
             assert metadata['reciprocal_formula'] == RECIPROCAL_FORMULA
-            assert metadata['default_curve'] == 'reciprocal'
+            assert metadata['default_curve'] == ('sqrt_reciprocal' if sqrt_compare else 'reciprocal')
             assert metadata['color_scale'] == [0, 1]
         else:
             assert not {'reciprocal_formula_version', 'reciprocal_formula', 'default_curve'} & metadata.keys()
+        if sqrt_compare:
+            assert metadata['sqrt_reciprocal_formula_version'] == 'group-union-rms-rss-sqrt-reciprocal/1'
+            assert metadata['sqrt_reciprocal_formula'] == 'w_sqrt_reciprocal=1/sqrt(1+q)'
+        else:
+            assert 'sqrt_reciprocal_formula_version' not in metadata
 
     with (destination / 'decay_rows.csv').open(newline='', encoding='utf-8') as stream:
         exported = list(csv.DictReader(stream))
@@ -428,6 +488,11 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
             assert record['reciprocal_formula_version'] == RECIPROCAL_FORMULA_VERSION
         else:
             assert 'w_reciprocal' not in record
+        if sqrt_compare:
+            assert float(record['w_sqrt_reciprocal']) == expected['w_sqrt_reciprocal']
+            assert record['sqrt_reciprocal_formula_version'] == 'group-union-rms-rss-sqrt-reciprocal/1'
+        else:
+            assert 'w_sqrt_reciprocal' not in record
 
     document = (destination / 'index.html').read_text(encoding='utf-8')
     assert document.count('<g data-group=') == 37
@@ -438,7 +503,8 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
     assert embedded and json.loads(embedded.group(1)) == _json_safe(expected_rows)
     if compare:
         assert 'id="curve"' in document
-        assert re.search(r'<option(?=[^>]*value="w_reciprocal")(?=[^>]*selected)[^>]*>', document)
+        selected = 'w_sqrt_reciprocal' if sqrt_compare else 'w_reciprocal'
+        assert re.search(r'<option(?=[^>]*value="' + selected + r'")(?=[^>]*selected)[^>]*>', document)
         assert 'value="w"' in document
         assert 'w_exp' in document and 'w_reciprocal' in document
     else:
@@ -448,4 +514,21 @@ def test_comparison_exports_are_explicit_and_default_stays_exponential(
     with pytest.raises(FileExistsError):
         decay.run_experiment(destination, **options)
     assert len(loads) == 1
+
+
+def test_sqrt_reciprocal_cli_flag_is_standalone(monkeypatch, tmp_path, capsys) -> None:
+    """The new CLI flag alone opts in without silently changing the older flag."""
+    calls = []
+
+    def capture(output_dir, **options):
+        """Observe the CLI handoff without another authenticated IFC generation."""
+        calls.append((output_dir, options))
+        return {}
+
+    monkeypatch.setattr(decay, 'run_experiment', capture)
+    monkeypatch.setattr(sys, 'argv', ['decay', '--output-dir', str(tmp_path), '--compare-sqrt-reciprocal'])
+    decay.main()
+    assert calls == [(tmp_path, {'bundle_path': decay.BUNDLE_PATH, 'package_path': decay.PACKAGE_PATH,
+                                'compare_reciprocal': False, 'compare_sqrt_reciprocal': True})]
+    assert json.loads(capsys.readouterr().out) == {}
 

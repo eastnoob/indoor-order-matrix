@@ -391,6 +391,130 @@ worker 写入在此冻结并交回 Owner；Owner 仍为唯一 jj writer，不执
 bookmark、merge 或 push。技术验收完成，**用户视觉接受仍 pending**；不因此改变生产默认、
 声称客观校准或真实相互作用。最终仅收口文档和 freeze，不重复 suite、生成或 source audit。
 
+## Square-root reciprocal 同源试验（2026-11-11）
+
+授权为新的可回退 output-only 三曲线试验：`w_sqrt_reciprocal=1/sqrt(1+q)`，
+沿用相同 `q=d_E/ell`、实际 union、尺度、缓存地址和状态/lineage；指数 1/2 是建模选择，
+更强尾部不证明真实相互作用、客观校准、生产规则或用户视觉接受。不设 floor/cutoff。
+仅在既有 runner、test、本笔记、architecture 四个 tracked 文件及本 output 区工作。
+workspace 为 `group-distance-decay`，accepted base `375e09f483b536353964f133bdbd912ce1e8940f`；
+只读 change `qwvkxxkvusvn` / revision `6d2b56f477ba`。Owner 是唯一 jj writer；worker
+不 snapshot、commit、bookmark、merge 或 push；最终通过 reply 交接，不发送通知。
+
+- [x] 读取项目 memory/architecture、stop-that-shit change、Ponytail 和 verified-agent workflow；
+  核对 callers、既有 defaults/two-curve exports、tests 和 browser probe；复用本笔记而不另建计划。
+- [x] 增加默认关闭的 `--compare-sqrt-reciprocal`，单独使用即可进入三曲线模式；
+  只追加具名响应/版本，独立 three-curve rows/run schema；旧 default 和 reciprocal 模式保持。
+- [x] **Visual required**：同 source、实际 union、绝对 [0,1] 色标，左右 reciprocal/sqrt
+  plan 与 all-three q scatter；HTML 三选项、sqrt-only new default、三列数值及同步交互。
+- [x] 既有 test 文件验证 pinned v3/reciprocal 原字段、666 公式、domain/null、真实几何
+  invariance、standalone CLI 和 exports；实现侧 targeted checks 后冻结 code/test 给 Owner verifier。
+- [x] 在全新 `run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/` 实际运行一次，保留
+  所有旧目录；核对导出统计、installed Edge 两 source 三曲线、实际 PNG 和 screenshot。
+- [x] 更新架构与实际命令/results/hashes；由 Owner 的不同 verifier 实际运行一次 combined
+  affected suite。记录独立 verdict、最小 freeze 后停止写入；用户视觉接受仍 pending。
+
+不改 loader/core/shared contracts，不新造几何、场景或来源审计，不 retessellate、重建
+free-space/route、消费 path 或接 potential；使用既有 Pixi 环境及 installed browser/runtime。
+
+### Square-root 实际执行
+
+本节命令 cwd 为上述 isolated workspace。实现侧先运行新 scalar regression，
+因尚未实现 `sqrt_reciprocal_response` 而得到预期 failure（exit 1）；记录在
+[red log](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/implementer-red.log)。
+实现后实际执行 focused checks，**58 passed in 107.15 s，exit 0**：
+
+```powershell
+pixi run pytest test/test_group_distance_decay_ifc.py -q -p no:cacheprovider --basetemp outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/pytest_tmp_implementer_1
+```
+
+继续复用前轮已确认的 scoped elevation 解决 sandbox temp ACL，不改变配置或弱化 checks。
+[完整实现测试日志](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/implementer-focused-tests.log)
+记录该次实际执行；包含旧 default/two-curve schema 与 pinned rows、全部 666 新公式、
+finite/zero/large/bad q、null/status、实际 retained 几何的单位/common-scale/rigid/unrelated
+变换、CSV/JSON/HTML 导出及 standalone 新 CLI flag。测试的静态 renderer handoff 延用
+明确 stub；实际 PNG/SVG 由新 real-run 生成后单独检查，不冒充 unit-test render。
+
+code/test 在上述实现检查后冻结供 Owner 的不同 verifier 使用：runner
+`0ff3c3cf19ae9b80c975869080afa24380d17a9df2499cbb04ed455efadf0598`；test
+`efb10dcd2d23aa47c3c267a703035db06f8e1be9847e53f4b16cfa9198a22ff9`。
+Owner 的独立实际验收见下文；未由实现 worker 另跑 combined suite 或另派 verifier。
+
+实际生成命令仅执行一次，exit 0：
+
+```powershell
+pixi run python -m scripts.design.group_level.run_group_distance_decay_ifc --compare-sqrt-reciprocal --output-dir outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1
+```
+
+[新 HTML](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/index.html)、
+[PNG](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/overview.png)、
+[SVG](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/overview.svg)、
+[CSV](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/decay_rows.csv)、
+[JSON](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/decay_rows.json) 与
+[manifest](../../outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/run_manifest.json)
+保留 **37 组 / 666 computed pairs**；[生成日志](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/implementer-run.log)
+保存原始输出。实际导出重读确认全部新值精确为 `1/sqrt(1+q)`，所有旧 reciprocal 行字段完全相同，
+CSV/JSON/HTML 数值与 lineage 一致；新 manifest 的五个 artifact hashes 匹配。
+
+从最终 JSON 重新计算 square-root response：min `0.19056637288174108`、
+median `0.2874746395183023`、max `0.6866197595385647`，与 Owner 先前 scalar oracle
+逐值一致，而非直接复制预测。按实际 `distance_m` 的半开区间统计：
+
+| 距离区间（m） | 对数 | 新响应中位数 |
+| --- | ---: | ---: |
+| `[2,4)` | 108 | `0.41134201935924336` |
+| `[6,8)` | 137 | `0.28428471471952943` |
+| `[10,12)` | 83 | `0.23232587046339415` |
+| `[12,16)` | 43 | `0.21246081575833406` |
+
+q 与其排序未改变；这里的米值分箱是描述性统计，不能改写为跨不同组尺度的严格米距排序。
+新响应仍是相对尺寸的建模选择；有限场景最小值为正不代表通用 floor。
+旧 exponential v3 和 reciprocal v1 各六文件均核对各自既有 freeze 的 hashes，通过且未改。
+
+实现侧使用 installed Edge headless 实际执行[复用 browser probe](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/browser-comparison.cjs)：
+初次 sandbox `spawn EPERM` 发生在浏览器启动前；scoped elevation 后 exit 0，
+两 source × 三 curves 共 **216 target color/tooltip checks**，37 options、666 anchors、
+same-source retention、同步公式/legend、三列/readout、navigation/filter/keyboard focus
+均通过，零 page errors。保留[receipt](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/browser-comparison.json)
+与[原始日志](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/browser-check.log)；
+此 browser execution 归实现 worker，不冒认为 Owner independent verifier 执行。
+实际目视检查 PNG 和[focused screenshot](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/browser-comparison-focused.png)：
+两 plan source 01、真实几何、标签和坐标相同；共同绝对 [0,1] 色标忠实显示较强尾部，
+scatter 三曲线可辨。蓝色 focus path 可见且无原生 outline。**用户视觉接受仍 pending**。
+
+本次实际产物 SHA-256：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| manifest | `857f7e5052a8f5389425b30a77e062bc7e332d3615580c3ae2612141186e7218` |
+| decay_rows.csv | `2da565299b04c67e124e3b7d2a4801ef1d10e4cf0dc124f9f97d767bf88f3e3e` |
+| decay_rows.json | `318a261d76ae21324e02bd30dd85d7a6ce85265ade7967c08e108f5c4453c209` |
+| overview.svg | `051393a054f6f2a3bcd65ab6eed1c12f98132ac3ba78aa58b9f6eda4c1054aa1` |
+| overview.png | `eba8c08f014c04536a645e6139924ac9790429177affc96131099f2a3220cbbe` |
+| index.html | `e495a6c5ec1ea62c39933205ef7fffb5b2b2ece3315076eb7d9cb5b792eb61ac` |
+
+Owner 的不同 verifier 在相同 cwd 对上述 frozen code/test 实际运行一次 affected suite：
+**132 passed in 95.78 s，exit 0**，**SPEC PASS / QUALITY Approved**，无 blocking findings。
+
+```powershell
+pixi run pytest test/test_group_distance_decay_ifc.py test/test_evidence_package_readback.py test/test_group_distance_evidence_package.py -q -p no:cacheprovider --basetemp outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/pytest_tmp_independent_1
+```
+
+[独立 receipt](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/independent-acceptance.json)、
+[原始 pytest log](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/independent-pytest.log) 和
+[exit record](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/independent-pytest-exit.txt)
+记录实际执行。Verifier 以先前 accepted reciprocal 的 q 独立计算 oracle，全部 666 新值
+最大误差 `0`，原字段/status/source/q/两旧响应完全保持；新 CSV/JSON/HTML/manifest
+一致，旧 v3 与 reciprocal v1 各六文件 hashes 均未变。独立目视 PNG 和 focus screenshot
+通过；复用并明确归属实现侧 Edge 的 216 checks，不声称第二次 browser execution。
+
+最终四个 code/test/docs 的实际字节、manifest/artifacts 及 receipts/logs hashes 记录在
+最小 [candidate freeze](../../outputs/design/group_distance_decay_ifc/verification_sqrt_reciprocal_20261111/candidate-freeze.json)。
+worker 在该 freeze 后停止全部写入，由 Owner 独立核对最终 hashes 并执行本地 jj checkpoint；
+worker 未执行任何版本写操作，不发送 owner notification。技术完成与用户视觉接受分开，
+后者仍 **pending**。仅保留 pinned retained context；未做 live IFC/Blender/EXPRESS、
+full repository suite、occupancy/route rebuild、客观校准或生产整合；不重复 tests/QA/source audit。
+
 ## 持续维护 checklist
 
 执行中每完成一项都补充真实证据并更新勾选；发现偏离或未决先记录，不用实现结果反向改掉要求。
