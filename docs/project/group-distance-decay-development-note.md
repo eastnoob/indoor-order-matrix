@@ -99,6 +99,15 @@ C_E(g,a; ell) = A(g,a) * w_E(g,a; ell)
 
 保存读回放行数值前须独立提供 `current_source_envelopes`，核对 `target/query/channel_set/cache_identity/raw_status/value/support/source_ids`；上下文缺失为 unavailable，来源、query 或 plane 不匹配则拒绝。旧 `fresh` 收据不能替代这道现有检查。
 
+## 外部依据与设计边界（2026-11-11）
+
+- **模糊交并语义：** [Yager (1979), *A measurement-informational discussion of fuzzy union and intersection*](https://doi.org/10.1016/S0020-7373(79)80016-4) 的摘要/索引核验支持在 ordinal membership 下采用 min/max 的交/并语义，不证明它们是所有证据融合的普适规则。[Zadeh (1965)](https://doi.org/10.1016/S0019-9958(65)90241-X) 仅作原始文献线索，本轮未取得全文，不列为全文核验依据。
+- **接近分组（摘要/索引核验）：** [Kubovy & Wagemans (1995)](https://doi.org/10.1111/j.1467-9280.1995.tb00597.x) 对点阵知觉分组提出带实验参数的指数距离吸引函数；[Kubovy, Holcombe & Wagemans (1998)](https://doi.org/10.1006/cogp.1997.0673) 分析多稳态点阵分组，报告相对分组强度近似随相对点距指数下降。这些支持感知分组中的候选形式，实验对象与参数都不是家具组的米制定标。
+- **心理距离（原文 p.1317、p.1321 核验）：** [Shepard (1987)](https://doi.org/10.1126/science.3629243) 讨论心理空间中的概化概率随心理距离指数衰减；心理距离及该命题不能直接移植为家具间物理米距的事实。
+- **实现参考（固定提交源码实读）：** 官方 [scikit-fuzzy `fuzzy_and`/`fuzzy_or`](https://github.com/scikit-fuzzy/scikit-fuzzy/blob/be7e344f3ce65845e39922aa5fc1af7412d01944/skfuzzy/fuzzymath/fuzzy_logic.py#L83-L134) 以 `np.fmin`/`np.fmax` 实现 min/max；官方 [scikit-learn `RBF`](https://github.com/scikit-learn/scikit-learn/blob/98408191f7e021819b5b39c82db92c116ed03619/sklearn/gaussian_process/kernels.py#L1421-L1541) 展示带 length scale 的平方指数核，[`Matern(nu=.5)`](https://github.com/scikit-learn/scikit-learn/blob/98408191f7e021819b5b39c82db92c116ed03619/sklearn/gaussian_process/kernels.py#L1683-L1692) 对应候选 `exp(-d/ell)`。它们不决定本项目的语义、尺度或状态门；NumPy 官方 [`fmin`](https://numpy.org/doc/stable/reference/generated/numpy.fmin.html)/[`fmax`](https://numpy.org/doc/stable/reference/generated/numpy.fmax.html) 在一侧 NaN、另一侧数值有效时返回有效侧，两侧均 NaN 才返回 NaN，不能替代“必需输入缺失则不产联合值”的校验。当前标量运算不需新增依赖。
+
+结论：保留 `raw → per-channel response → explicit named combination → provenance/status/cache`。首轮 `identity + Euclidean` 仅为待实现选择；指数衰减仍是候选，不冻结，也不称为家具布局的客观定律。自然尺度仍未解决。
+
 首轮视觉目标：仅用指定真实 IFC 的欧氏距离，先看同一批组对的原始距离和候选响应曲线；若展示几个尺度切片，明确它们只是图面采样，未被选为事实或生产默认。不得新造模拟布局来获得理想衰减效果。未对齐势与距离的源、组身份、分析平面及范围前，只能看距离响应，不能将两套旧缓存直接相乘。
 
 ## 持续维护 checklist
@@ -110,6 +119,7 @@ C_E(g,a; ell) = A(g,a) * w_E(g,a; ell)
 - [x] 保存上一轮多尺度候选，明确没有冻结公式或解决自然定标。
 - [x] 初版独立审查（2026-11-11）：SPEC PASS / QUALITY Approved；7 个本地链接及代码定位核验通过，补齐独立 `current_source_envelopes` 放行门。该记录不代表本轮修订已重新通过独立验收。
 - [x] 本轮数学审查：Pixi 内存标量断言 1,251 项通过（exit 0）；检查恒等、范围、单调、交换/幂等、响应变换、路径支配与重复反例。连续性按算子代数核对，有限采样不充当证明；修订独立设计审阅 PASS，仅修正选用/已实现的措辞区分；无 IFC、Blender 或业务实现验收。
+- [x] 外部依据审查（2026-11-11）：Yager/Kubovy 为摘要/索引核验，Shepard 为原文核验，GitHub/NumPy 为源码/官方文档实读；Zadeh 仅未全文核验线索。独立引用审查已修正 Yager DOI 和 Matern 源码位置；仍未解决家具米制自然尺度。
 - [ ] 裁定首轮衰减表达及可视化口径；需要方向调制时先核对同源、同平面和同范围。
 - [ ] 实现最小欧氏试验，复用已认证缓存；记录函数版本及输入身份。
 - [ ] 用指定 IFC 产出欧氏对照图；核验连续性、单调性、单位换算及无关场景变化不改组对数学响应；区分技术检查与用户视觉结论。
