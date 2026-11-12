@@ -775,7 +775,7 @@ D 是同一完整声明范围的全部 666 对欧氏距离，不逐 source/视�
 - [x] 明确有限范围端点与曲率要求，两个独立子代理完成推导/质疑。
 - [x] 用保留的 666 对真实数据核对公式、范围和单调性并生成设计预览。
 - [x] 对笔记、预览与输入绑定做独立核对，记录设计审查结论。
-- [ ] 用户判断设计曲线；后续实现及其测试另行推进。
+- [x] 用户授权按当前候选实现并做模型测试；最终模型图面效果另行判断。
 
 独立数学设计审查为 **DESIGN PASS / SPEC PASS，无发现**：666 对均在 (0,1)，
 两式最大误差 4.44e-16；221,444 个异距比较保持严格远弱近强，1 个同距比较同值。
@@ -783,6 +783,48 @@ D 是同一完整声明范围的全部 666 对欧氏距离，不逐 source/视�
 输入/产物 hash 核对通过；这是设计验收，不代表 processor 实现或用户视觉接受。
 Owner 的[设计核对记录](../../.superpowers/sdd/group-distance-processed-trial-20261112/reciprocal-symmetric-design-review.json)
 保留独立结果、受审字节及本地 jj 记录；不推送或合并。
+
+## 对称反比例输出：实现与模型测试（2026-11-12）
+
+用户已授权把上述设计接入距离包并测试指定 IFC。继续同一工作线，基线
+`4e7a9574`，起始 change `qtskvzls` / `e255e604`，root 为唯一 jj 写入者。
+前节设计预览作为历史保留；本节区分实际 processor 产物和数学预览。
+
+本轮只增加可显式选用的加工输出，采用前述稳定式和试验留白 `.01`；
+原始欧氏/路径渠道、已有加工函数及默认关闭的接口保留。所有 37 组 / 666 对
+共用一套 min/max/median；图面直接读取实际加工接口值。尺寸权重、势包接入、
+生产默认和跨场景定标不在本轮。
+
+执行中持续维护本清单，并在每项完成时补充真实命令/产物/独立验收记录：
+
+- [x] 复核已审设计、当前工作线与调用/测试/导出边界，形成最小实现 brief。
+- [x] 实现对称反比例 processor、完整来源/身份和异常门，补充针对性回归；首轮 Pixi 三文件测试 173 passed / 158.13 s，仍待独立验收。
+- [x] 使用指定 IFC 的认证缓存，通过实际接口产出数据、曲线及同源平面图；37 组 / 666 对，CLI exit 0，产物为下列独立目录。
+- [x] 冻结候选；另一代理实际执行测试并检查全部读数、历史 hash 与 PNG：173 passed / 160.49 s，SPEC PASS / QUALITY Approved，无发现。
+- [x] SPEC / QUALITY 通过后更新架构、索引和记忆；root 本地 jj 验收提交的精确身份记录于下列 owner receipt。
+
+实施与验收记录沿用
+[当前 ledger](../../.superpowers/sdd/group-distance-processed-trial-20261112/progress.md)
+及 [本轮 brief](../../.superpowers/sdd/group-distance-processed-trial-20261112/symmetric-trial-brief.md)。
+技术通过与用户对曲线效果的视觉判断分开记录；不推送或合并。
+
+实际接口产物位于
+[`run_20261112_symmetric_reciprocal_v1`](../../outputs/design/group_distance_processed_ifc/run_20261112_symmetric_reciprocal_v1/manifest.json)：
+[三曲线](../../outputs/design/group_distance_processed_ifc/run_20261112_symmetric_reciprocal_v1/curves.png)、
+[同源平面图](../../outputs/design/group_distance_processed_ifc/run_20261112_symmetric_reciprocal_v1/overview.png)、
+[全部读数 CSV](../../outputs/design/group_distance_processed_ifc/run_20261112_symmetric_reciprocal_v1/pairs.csv)。
+新函数为 `build_euclidean_symmetric_reciprocal_proximity_processor`，既有对照脚本使用
+`--compare-symmetric-reciprocal` 显式启用；未加此参数时保留原双曲线行为。
+独立验收核对全部 666 对、完整来源/身份、9 个输入及 312 个历史文件 hash，
+并实际查看两张 PNG，通过。独立公式误差不超过 4.44e-16；最近 .99、最远 .01，
+留白差 8.67e-18（容差 1e-15），221,444 个异距比较严格递减、1 个同距比较同值。
+原始 1,332 渠道与旧加工结果保留。最终模型图面偏好仍待用户判断，不由技术通过代替。
+
+验收证据：
+[独立审阅](../../.superpowers/sdd/group-distance-processed-trial-20261112/symmetric-trial-review.md)、
+[测试/数值 receipt](../../.superpowers/sdd/group-distance-processed-trial-20261112/symmetric-trial-acceptance.json)、
+[owner 本地验收身份](../../.superpowers/sdd/group-distance-processed-trial-20261112/symmetric-owner-acceptance.json)。
+本轮仍只实现运行时可选加工输出；未接势包、未改变生产默认、未声称跨场景校准。
 
 ## 持续维护 checklist
 

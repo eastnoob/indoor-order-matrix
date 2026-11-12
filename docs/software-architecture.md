@@ -1,5 +1,25 @@
 # 软件架构
 
+## Symmetric reciprocal processed trial — 2026-11-12 / locally verified
+
+`build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=...)`
+in `features/group_distance_evidence_package.py` supplies an explicit processor for
+`s=.01+.98*(b-d)/(b-a)*(m+a)/(m+d)`, with complete-scope minimum `a`, maximum `b`
+and median `m`. It preserves reciprocal curvature and gives observed .99/.01
+endpoints with equal margins. Raw publication/caches and older processors/defaults
+remain the existing boundary. Missing/unusable/nonfresh input, constant scope,
+nonpositive median or unrepresentable arithmetic must produce no processed value.
+`scripts/design/group_level/run_group_distance_linear_comparison_ifc.py` adds
+the explicit `--compare-symmetric-reciprocal` mode while preserving its ordinary
+two-curve mode. Its plots consume actual processed values on the same
+authenticated IFC unions; no geometry/routes rebuild or potential integration.
+See the [implementation and acceptance checklist](project/group-distance-decay-development-note.md#对称反比例输出实现与模型测试2026-11-12).
+Implementation, independent verification and local acceptance are recorded there.
+Independent acceptance passed 173 focused tests, all 666 readings/identities,
+312 historical artifact hashes and both actual PNGs: SPEC PASS / QUALITY Approved,
+no findings. Root retains the workline for local acceptance; user visual judgment
+and later potential integration remain separate.
+
 ## User-requested linear-floor comparison — 2026-11-12 / locally verified
 
 The bounded distance trial adds an explicit default-off

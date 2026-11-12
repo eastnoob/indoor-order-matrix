@@ -882,6 +882,60 @@ def build_euclidean_linear_proximity_processor(*, expected_target_ids: Iterable[
     )
 
 
+def _symmetric_reciprocal_euclidean_proximity(
+    raw: EvidencePackageOutput, parameters: Mapping[str, Any],
+) -> tuple[EvidenceOutputChannel, ...]:
+    """Normalize the retained reciprocal between symmetric observed endpoint margins."""
+    members, values, lineage, source_ids = _euclidean_proximity_scope(raw, parameters)
+    ordered = sorted(values)
+    minimum, maximum = ordered[0], ordered[-1]
+    middle = len(ordered) // 2
+    # The nonnegative midpoint preserves the common median without overflowing its sum.
+    median = (ordered[middle] if len(ordered) % 2 else
+              ordered[middle - 1] + (ordered[middle] - ordered[middle - 1]) / 2)
+    if minimum == maximum or median <= 0:
+        raise ValueError("the symmetric reciprocal requires a positive median and nonconstant scope")
+    numerator = median + minimum
+    denominators = [median + distance for distance in values]
+    if not math.isfinite(numerator) or any(not math.isfinite(value) for value in denominators):
+        raise ValueError("symmetric reciprocal arithmetic is not representable")
+    epsilon = parameters["epsilon"]
+    # This equivalent form avoids subtracting almost-equal reciprocal values at the endpoints.
+    proximities = [epsilon + (1 - 2 * epsilon) * ((maximum - distance) / (maximum - minimum))
+                   * (numerator / denominator) for distance, denominator in zip(values, denominators)]
+    distinct = sorted(set(zip(values, proximities)))
+    if (any(not math.isfinite(value) or not 0 < value < 1 for value in proximities)
+            or any(first[1] <= second[1] for first, second in pairwise(distinct))):
+        raise ValueError("symmetric reciprocal bounds or distance ordering are not representable")
+    scale = EvidenceOutputScale(
+        meaning="Scope-relative symmetric reciprocal Euclidean proximity; larger is closer; endpoints 0.99/0.01",
+        scale_id="euclidean-symmetric-reciprocal-relative-proximity/1", units="dimensionless",
+        normalization_method="s=0.01+0.98*((b-d)/(b-a))*((m+a)/(m+d)); a=min(D), b=max(D), m=median(D)",
+        value_range=(0, 1), endpoint_meanings=("unused below trial margin 0.01", "unused above trial margin 0.99"),
+    )
+    return tuple(EvidenceOutputChannel(
+        target=item.target, channel="euclidean_symmetric_reciprocal_relative_proximity", observation=proximity,
+        status=FieldResultStatus.COMPUTED, scale=scale, derived_from=lineage, source_ids=source_ids,
+        provenance={"method": "euclidean_symmetric_reciprocal_relative_proximity",
+                    "algorithm_version": "euclidean-symmetric-reciprocal-relative-proximity/1",
+                    "minimum_distance_m": minimum, "maximum_distance_m": maximum,
+                    "median_distance_m": median, "epsilon": epsilon, "scope_pair_count": len(members)},
+        explanation="Experimental scope-relative endpoint-normalized reciprocal; changing scope requires reprocessing.",
+    ) for item, proximity in zip(members, proximities))
+
+
+def build_euclidean_symmetric_reciprocal_proximity_processor(
+    *, expected_target_ids: Iterable[str],
+) -> EvidenceOutputProcessor:
+    """Explicitly opt into the fixed 0.01/0.99 symmetric reciprocal scope trial."""
+    return EvidenceOutputProcessor(
+        function_id="euclidean_symmetric_reciprocal_relative_proximity",
+        version="euclidean-symmetric-reciprocal-relative-proximity/1",
+        function=_symmetric_reciprocal_euclidean_proximity,
+        parameters={"expected_target_ids": _proximity_target_scope(expected_target_ids), "epsilon": 0.01},
+    )
+
+
 def evaluate_group_distance_package(
     bundle: GroupDistanceInput,
     *,
@@ -1038,6 +1092,7 @@ __all__ = [
     "build_group_distance_evidence_package",
     "build_euclidean_median_proximity_processor",
     "build_euclidean_linear_proximity_processor",
+    "build_euclidean_symmetric_reciprocal_proximity_processor",
     "build_group_distance_source_envelopes",
     "evaluate_group_distance_package",
     "serialize_group_distance_package_output",

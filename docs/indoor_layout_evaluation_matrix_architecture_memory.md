@@ -2,6 +2,16 @@
 
 ## Evidence-package two-port rule — user decision 2026-11-12
 
+The user now authorizes implementing the later symmetric-endpoint reciprocal
+trial: `.01+.98*(b-d)/(b-a)*(m+a)/(m+d)`, with complete-scope min/max/median.
+Its observed endpoints are .99/.01, not 1/0; scope changes require reprocessing.
+Continue the existing workline and [maintained checklist](project/group-distance-decay-development-note.md#对称反比例输出实现与模型测试2026-11-12).
+This is an opt-in processed-port experiment, not a raw/cache/default change.
+The implementation and actual IFC trial independently pass 173 tests plus all
+666 pair/identity/lineage and 312 historical-file checks. SPEC PASS / QUALITY
+Approved; actual PNGs checked. The maintained note owns acceptance receipts;
+user visual judgment, potential integration and cross-scene calibration remain separate.
+
 Keep input/calculation/raw cache and the required legacy publication callback.
 Add a separate runtime processed port, default `output_processor=None`:
 `OUTPUT_FUNCTION_NOT_CONFIGURED` has no channels/value; no implicit identity

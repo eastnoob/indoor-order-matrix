@@ -10,7 +10,8 @@ from typing import Any
 
 from features.field_core import EvidencePackageOutput, EvidenceProcessedOutput, _json_value
 from features.group_distance_evidence_package import (
-    build_euclidean_linear_proximity_processor, build_group_distance_evidence_package,
+    build_euclidean_linear_proximity_processor, build_euclidean_symmetric_reciprocal_proximity_processor,
+    build_group_distance_evidence_package,
 )
 from scripts.design.group_level import run_group_distance_processed_ifc as trial
 
@@ -23,8 +24,9 @@ LIMITS = ("Scope-relative trial, sensitive to observed extrema; 0.01 is a chosen
 
 def build_comparison_rows(
     raw: EvidencePackageOutput, reciprocal: EvidenceProcessedOutput, linear: EvidenceProcessedOutput,
+    symmetric: EvidenceProcessedOutput | None = None,
 ) -> list[dict[str, Any]]:
-    """Join both actual processed ports to unchanged raw metres and reject foreign bindings."""
+    """Join actual processed ports to unchanged raw metres and reject foreign bindings."""
     if (linear.error_code is not None or linear.package_id != reciprocal.package_id
             or linear.raw_output_identity != reciprocal.raw_output_identity
             or linear.raw_payload_fingerprint != reciprocal.raw_payload_fingerprint):
@@ -35,6 +37,18 @@ def build_comparison_rows(
     if (set(outputs) != {row["pair_id"] for row in reciprocal_rows}
             or any(item.channel != "euclidean_linear_relative_proximity" for item in linear.outputs)):
         raise ValueError("both processed results must cover the same raw Euclidean target scope")
+    symmetric_outputs = {}
+    if symmetric is not None:
+        if (symmetric.error_code is not None or symmetric.package_id != reciprocal.package_id
+                or symmetric.raw_output_identity != reciprocal.raw_output_identity
+                or symmetric.raw_payload_fingerprint != reciprocal.raw_payload_fingerprint):
+            raise ValueError("symmetric processed result must bind the same raw producer payload")
+        symmetric_outputs = {item.target["identity"]: item for item in symmetric.outputs}
+        if (set(symmetric_outputs) != set(outputs)
+                or any(item.channel != "euclidean_symmetric_reciprocal_relative_proximity"
+                       or item.derived_from != outputs[item.target["identity"]].derived_from
+                       for item in symmetric.outputs)):
+            raise ValueError("symmetric processed result must cover the same raw Euclidean target scope and lineage")
     rows = []
     for original in reciprocal_rows:
         item = outputs[original["pair_id"]]
@@ -46,6 +60,10 @@ def build_comparison_rows(
                      "maximum_distance_m": item.provenance["maximum_distance_m"],
                      "floor": item.provenance["floor"], "status": item.status.value,
                      "raw_channel_ref": original["raw_channel_ref"], "lineage_scope": original["lineage_scope"]})
+        if symmetric is not None:
+            symmetric_item = symmetric_outputs[original["pair_id"]]
+            rows[-1].update(symmetric_reciprocal_proximity=symmetric_item.observation,
+                            epsilon=symmetric_item.provenance["epsilon"])
     return rows
 
 
@@ -58,8 +76,11 @@ def _write_curves(rows: list[dict[str, Any]], output_dir: Path) -> None:
 
     ordered = sorted(rows, key=lambda row: row["distance_m"])
     figure, axis = plt.subplots(figsize=(8, 5), constrained_layout=True)
-    for key, label, color in (("reciprocal_proximity", "Reciprocal: m/(m+d)", "#2166ac"),
-                              ("linear_proximity", "Linear: floor 0.01", "#b2182b")):
+    curves = [("reciprocal_proximity", "Reciprocal: m/(m+d)", "#2166ac"),
+              ("linear_proximity", "Linear: floor 0.01", "#b2182b")]
+    if "symmetric_reciprocal_proximity" in rows[0]:
+        curves.append(("symmetric_reciprocal_proximity", "Symmetric reciprocal: 0.99 to 0.01", "#238b45"))
+    for key, label, color in curves:
         axis.plot([row["distance_m"] for row in ordered], [row[key] for row in ordered],
                   color=color, linewidth=1, marker=".", markersize=3, label=label)
     axis.set(xlabel="Raw Euclidean distance (m)", ylabel="Processed relative proximity [0,1]",
@@ -84,10 +105,14 @@ def _write_overview(inputs, rows: list[dict[str, Any]], output_dir: Path) -> Non
     source = group_ids[0]
     selected = {row["group_b_id"] if row["group_a_id"] == source else row["group_a_id"]: row
                 for row in rows if source in (row["group_a_id"], row["group_b_id"])}
-    figure, axes = plt.subplots(1, 2, figsize=(15, 8), constrained_layout=True)
+    views = [("reciprocal_proximity", "Reciprocal: m/(m+d)"),
+             ("linear_proximity", "Linear: fixed trial floor 0.01")]
+    symmetric_mode = "symmetric_reciprocal_proximity" in rows[0]
+    if symmetric_mode:
+        views.append(("symmetric_reciprocal_proximity", "New symmetric reciprocal: endpoints 0.99 / 0.01"))
+    figure, axes = plt.subplots(1, len(views), figsize=(7.5 * len(views), 8), constrained_layout=True)
     cmap = plt.get_cmap("cividis")
-    for axis, key, label in zip(axes, ("reciprocal_proximity", "linear_proximity"),
-                                ("Reciprocal: m/(m+d)", "Linear: fixed trial floor 0.01")):
+    for axis, (key, label) in zip(axes, views):
         for number, identity in enumerate(group_ids, 1):
             # Reuse the retained hole-aware union renderer; color only supplied processed outputs.
             trial._draw_union(axis, inputs.geometries[identity],
@@ -106,15 +131,19 @@ def _write_overview(inputs, rows: list[dict[str, Any]], output_dir: Path) -> Non
     figure.suptitle("Same actual IFC reference group 01 (red hatch), 36 observed targets\n"
                    f"Common complete scope: 37 groups / 666 pairs; d_min={rows[0]['minimum_distance_m']:.6f} m, "
                    f"d_max={rows[0]['maximum_distance_m']:.6f} m", fontsize=12)
-    figure.text(0.5, -0.025, "Linear: s(d)=0.01+0.99*(d_max-d)/(d_max-d_min). Scope-relative and sensitive to extrema.\n"
-                "The 0.01 floor is a trial convention; no physical attenuation or cross-scene calibration is claimed.",
+    caption = ("Symmetric reciprocal: s=0.01+0.98*((b-d)/(b-a))*((m+a)/(m+d)); complete-scope min/max/median.\n"
+               "Equal 0.01 endpoint margins are a trial convention; scope changes require reprocessing."
+               if symmetric_mode else
+               "Linear: s(d)=0.01+0.99*(d_max-d)/(d_max-d_min). Scope-relative and sensitive to extrema.\n"
+               "The 0.01 floor is a trial convention; no physical attenuation or cross-scene calibration is claimed.")
+    figure.text(0.5, -0.025, caption,
                 ha="center", fontsize=9)
     figure.savefig(output_dir / "overview.png", dpi=160, bbox_inches="tight")
     figure.savefig(output_dir / "overview.svg", bbox_inches="tight")
     plt.close(figure)
 
 
-def run_trial(output_dir: Path) -> dict[str, Any]:
+def run_trial(output_dir: Path, *, compare_symmetric_reciprocal: bool = False) -> dict[str, Any]:
     """Authenticate retained inputs once and write a new static comparison directory."""
     output_dir = Path(output_dir)
     if output_dir.exists():
@@ -124,7 +153,14 @@ def run_trial(output_dir: Path) -> dict[str, Any]:
         [item.target["identity"] for item in raw.outputs if item.channel == "euclidean_distance"])
     linear = build_group_distance_evidence_package(output_processor=processor).process_output(
         raw, package_freshness=inputs.package_freshness)
-    rows = build_comparison_rows(raw, reciprocal, linear)
+    processors = [("reciprocal", reciprocal), ("linear", linear)]
+    symmetric = None
+    if compare_symmetric_reciprocal:
+        symmetric = build_group_distance_evidence_package(output_processor=
+            build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=
+                processor.parameters["expected_target_ids"])).process_output(raw, package_freshness=inputs.package_freshness)
+        processors.append(("symmetric_reciprocal", symmetric))
+    rows = build_comparison_rows(raw, reciprocal, linear, symmetric)
     output_dir.mkdir(parents=True, exist_ok=False)
     (output_dir / "pairs.json").write_text(json.dumps(rows, indent=2, allow_nan=False), encoding="utf-8")
     with (output_dir / "pairs.csv").open("w", newline="", encoding="utf-8") as handle:
@@ -155,10 +191,18 @@ def run_trial(output_dir: Path) -> dict[str, Any]:
             "channel": processed.outputs[0].channel,
             "scale": {"range": list(processed.outputs[0].scale.value_range), "meaning": processed.outputs[0].scale.meaning,
                       "normalization_method": processed.outputs[0].scale.normalization_method},
-        } for name, processed in (("reciprocal", reciprocal), ("linear", linear))},
+        } for name, processed in processors},
         "artifacts": {name: trial.retained.file_hash(output_dir / name) for name in
                       ("pairs.json", "pairs.csv", "curves.png", "overview.png", "overview.svg")},
     }
+    if symmetric is not None:
+        manifest.update(
+            trial="euclidean-symmetric-reciprocal-comparison/1", epsilon=0.01,
+            implementation_hashes={name: trial.retained.file_hash(ROOT / name) for name in (
+                "features/group_distance_evidence_package.py", "features/field_core.py",
+                "scripts/design/group_level/run_group_distance_processed_ifc.py",
+                "scripts/design/group_level/run_group_distance_decay_ifc.py")},
+        )
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, allow_nan=False), encoding="utf-8")
     return manifest
 
@@ -166,11 +210,15 @@ def run_trial(output_dir: Path) -> dict[str, Any]:
 def main() -> None:
     """Run the bounded comparison in the existing Pixi environment."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output-dir", type=Path, default=ROOT /
-                        "outputs/design/group_distance_processed_ifc/run_20261112_linear_floor_001_v1")
+    parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--compare-symmetric-reciprocal", action="store_true",
+                        help="add the explicit complete-scope reciprocal with symmetric 0.01/0.99 endpoints")
     args = parser.parse_args()
-    manifest = run_trial(args.output_dir)
-    print(json.dumps({"output_dir": str(args.output_dir), "pair_count": manifest["pair_count"],
+    output_dir = args.output_dir or ROOT / "outputs/design/group_distance_processed_ifc" / (
+        "run_20261112_symmetric_reciprocal_v1" if args.compare_symmetric_reciprocal else
+        "run_20261112_linear_floor_001_v1")
+    manifest = run_trial(output_dir, compare_symmetric_reciprocal=args.compare_symmetric_reciprocal)
+    print(json.dumps({"output_dir": str(output_dir), "pair_count": manifest["pair_count"],
                       "minimum_distance_m": manifest["minimum_distance_m"], "maximum_distance_m": manifest["maximum_distance_m"],
                       "processing_identities": {key: value["processing_identity"] for key, value in manifest["processors"].items()}}))
 

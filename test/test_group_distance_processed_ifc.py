@@ -33,6 +33,15 @@ def small_raw(retained_trial):
                    source_envelopes=tuple(item for item in raw.source_envelopes if item.target["identity"] in targets))
 
 
+@pytest.fixture(scope="module")
+def symmetric_output(retained_trial):
+    """Process the authenticated full scope once through the explicit symmetric trial."""
+    _, raw, _ = retained_trial
+    processor = distance_package.build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=
+        [item.target["identity"] for item in raw.outputs if item.channel == "euclidean_distance"])
+    return build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh")
+
+
 def _configured(raw):
     """Explicitly bind the actual target set of a retained raw subset."""
     return build_group_distance_evidence_package(output_processor=
@@ -106,20 +115,24 @@ def test_linear_full_scope_uses_actual_distances_floor_and_complete_lineage(reta
     assert result.processing_identity != reciprocal.processing_identity
 
 
+@pytest.mark.parametrize("factory", [distance_package.build_euclidean_linear_proximity_processor,
+                                     distance_package.build_euclidean_symmetric_reciprocal_proximity_processor])
 @pytest.mark.parametrize("scope", [[], ["same", "same"], [""], "not-a-sequence", None])
-def test_linear_declared_scope_must_be_nonempty_unique_ids(scope):
-    """The linear trial rejects malformed declarations before processing."""
+def test_linear_and_symmetric_declared_scope_must_be_nonempty_unique_ids(scope, factory):
+    """Explicit extrema-based trials reject malformed declarations before processing."""
     with pytest.raises(ValueError, match="nonempty unique"):
-        distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=scope)
+        factory(expected_target_ids=scope)
 
 
+@pytest.mark.parametrize("factory", [distance_package.build_euclidean_linear_proximity_processor,
+                                     distance_package.build_euclidean_symmetric_reciprocal_proximity_processor])
 @pytest.mark.parametrize("fault", ["missing", "foreign", "empty", "units", "scale-units", "raw-status", "status",
                                  "missing-value", "negative", "boolean"])
-def test_linear_unusable_scope_fails_closed(small_raw, fault):
-    """Contract fault injection cannot silently shrink or reinterpret the linear scope."""
+def test_linear_and_symmetric_unusable_scope_fails_closed(small_raw, fault, factory):
+    """Contract fault injection cannot silently shrink or reinterpret the declared scope."""
     scope = [item.target["identity"] for item in small_raw.outputs]
     package = build_group_distance_evidence_package(output_processor=
-        distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=scope))
+        factory(expected_target_ids=scope))
     original = small_raw.outputs[0]
     if fault in {"missing", "empty"}:
         changed = replace(small_raw, outputs=small_raw.outputs[1:] if fault == "missing" else
@@ -204,6 +217,127 @@ def test_linear_comparison_renderer_consumes_supplied_values(retained_trial, tmp
         ordinary = next(patch for patch in axis.patches if patch.get_hatch() is None)
         assert ordinary.get_facecolor() == plt.get_cmap("cividis")(value)
     assert {path.name for path in tmp_path.iterdir()} == {"curves.png", "overview.png", "overview.svg"}
+    close(curves)
+    close(overview)
+
+
+def test_symmetric_full_scope_matches_independent_reciprocal_normalization(retained_trial, symmetric_output):
+    """All 666 actual pairs use one endpoint-normalized reciprocal and complete raw lineage."""
+    _, raw, reciprocal = retained_trial
+    before = distance_package.serialize_evidence_package_output(raw)
+    originals = {item.target["identity"]: item for item in raw.outputs if item.channel == "euclidean_distance"}
+    distances = [item.observation["value"] for item in originals.values()]
+    minimum, maximum, median = min(distances), max(distances), statistics.median(distances)
+    refs = {EvidencePackageChannelReference(raw.package_id, raw.output_identity, target, "euclidean_distance")
+            for target in originals}
+    assert symmetric_output.error_code is None and len(symmetric_output.outputs) == 666
+    readings = []
+    for item in symmetric_output.outputs:
+        distance = originals[item.target["identity"]].observation["value"]
+        # Independently normalize the old reciprocal instead of restating the implementation's stable expression.
+        expected = 0.01 + 0.98 * ((median / (median + distance) - median / (median + maximum))
+                                 / (median / (median + minimum) - median / (median + maximum)))
+        assert math.isclose(item.observation, expected, rel_tol=0, abs_tol=1e-15)
+        assert 0 < item.observation < 1
+        assert item.channel == "euclidean_symmetric_reciprocal_relative_proximity"
+        assert item.status is FieldResultStatus.COMPUTED and item.scale.value_range == (0, 1)
+        assert item.scale.scale_id == symmetric_output.processor_version == "euclidean-symmetric-reciprocal-relative-proximity/1"
+        assert item.provenance["minimum_distance_m"] == minimum
+        assert item.provenance["maximum_distance_m"] == maximum
+        assert item.provenance["median_distance_m"] == median
+        assert item.provenance["epsilon"] == symmetric_output.parameters["epsilon"] == 0.01
+        assert item.provenance["scope_pair_count"] == 666
+        assert set(item.derived_from) == refs
+        readings.append((distance, item.observation))
+    readings.sort()
+    assert readings[0][1] == 0.99 and readings[-1][1] == 0.01
+    assert abs((1 - readings[0][1]) - readings[-1][1]) <= 1e-15
+    assert all((first[1] == second[1] if first[0] == second[0] else first[1] > second[1])
+               for first, second in zip(readings, readings[1:]))
+    assert symmetric_output.raw_output_identity == reciprocal.raw_output_identity
+    assert symmetric_output.raw_payload_fingerprint == reciprocal.raw_payload_fingerprint
+    assert symmetric_output.processing_identity != reciprocal.processing_identity
+    assert distance_package.serialize_evidence_package_output(raw) == before
+    assert len(raw.outputs) == 1332 and {item.channel for item in raw.outputs} == {"euclidean_distance", "path_distance"}
+    assert "build_euclidean_symmetric_reciprocal_proximity_processor" in distance_package.__all__
+
+
+def test_symmetric_ties_and_arithmetic_failure_gates(small_raw):
+    """Injected retained records cover ties, positive-span medians and unrepresentable arithmetic."""
+    processor = distance_package.build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=
+        [item.target["identity"] for item in small_raw.outputs])
+    package = build_group_distance_evidence_package(output_processor=processor)
+    for values, expected in (([0, 4, 8], [0.99, 0.255, 0.01]), ([0, 4, 4], [0.99, 0.01, 0.01])):
+        injected = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
+                                                    for item, value in zip(small_raw.outputs, values)))
+        result = package.process_output(injected, package_freshness="fresh")
+        assert result.error_code is None and [item.observation for item in result.outputs] == expected
+    for values in ([0, 0, 0], [4, 4, 4], [0, 0, 8], [1e308, 1.1e308, 1.2e308],
+                   [math.nextafter(1, 0), 1, 1e308]):
+        injected = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
+                                                    for item, value in zip(small_raw.outputs, values)))
+        result = package.process_output(injected, package_freshness="fresh")
+        assert result.error_code == "OUTPUT_PROCESSING_FAILED" and result.outputs == ()
+
+
+def test_symmetric_freshness_identity_and_scope_reprocessing(small_raw):
+    """The optional recipe binds raw content/version/scope while freshness failures stay empty."""
+    factory = distance_package.build_euclidean_symmetric_reciprocal_proximity_processor
+    processor = factory(expected_target_ids=[item.target["identity"] for item in small_raw.outputs])
+    package = build_group_distance_evidence_package(output_processor=processor)
+    first = package.process_output(small_raw, package_freshness="fresh")
+    assert first.error_code is None
+    for freshness in ("stale", "unavailable"):
+        result = package.process_output(small_raw, package_freshness=freshness)
+        assert result.error_code == "OUTPUT_SOURCE_NOT_FRESH" and result.outputs == ()
+    changed_version = replace(package, output_processor=replace(processor, version="contract-fault-version"))
+    assert changed_version.process_output(small_raw, package_freshness="fresh").processing_identity != first.processing_identity
+    assert replace(first, parameters={**first.parameters, "epsilon": 0.02}).processing_identity != first.processing_identity
+    assert factory(expected_target_ids=reversed(processor.parameters["expected_target_ids"])).parameters == processor.parameters
+    original = small_raw.outputs[0]
+    changed = replace(small_raw, outputs=(replace(original, observation={**original.observation,
+                      "value": original.observation["value"] * 2}), *small_raw.outputs[1:]))
+    second = package.process_output(changed, package_freshness="fresh")
+    assert second.error_code is None and second.raw_output_identity == first.raw_output_identity
+    assert second.processing_identity != first.processing_identity and second.raw_payload_fingerprint != first.raw_payload_fingerprint
+    subset = replace(small_raw, outputs=small_raw.outputs[:2])
+    narrowed = build_group_distance_evidence_package(output_processor=factory(expected_target_ids=
+        [item.target["identity"] for item in subset.outputs])).process_output(subset, package_freshness="fresh")
+    assert narrowed.error_code is None and narrowed.processing_identity != first.processing_identity
+    assert all(len(item.derived_from) == 2 for item in narrowed.outputs)
+    assert package.process_output(subset, package_freshness="fresh").error_code == "OUTPUT_PROCESSING_FAILED"
+
+
+def test_symmetric_comparison_renderer_consumes_supplied_values(retained_trial, symmetric_output, tmp_path, monkeypatch):
+    """The green curve and third same-source plan consume values supplied by the new port."""
+    from scripts.design.group_level import run_group_distance_linear_comparison_ifc as comparison
+    import matplotlib.pyplot as plt
+
+    inputs, raw, reciprocal = retained_trial
+    linear = build_group_distance_evidence_package(output_processor=
+        distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=
+            symmetric_output.parameters["expected_target_ids"])).process_output(raw, package_freshness="fresh")
+    rows = comparison.build_comparison_rows(raw, reciprocal, linear, symmetric_output)
+    assert all(row["symmetric_reciprocal_proximity"] == item.observation for row, item in zip(rows, symmetric_output.outputs))
+    with pytest.raises(ValueError, match="same raw"):
+        comparison.build_comparison_rows(raw, reciprocal, linear, replace(symmetric_output, raw_payload_fingerprint="foreign"))
+    with pytest.raises(ValueError, match="same raw Euclidean"):
+        comparison.build_comparison_rows(raw, reciprocal, linear, replace(symmetric_output, outputs=symmetric_output.outputs[:-1]))
+    # Presentation fault injection proves the supplied-value handoff; it is never scene evidence.
+    rows = [{**row, "symmetric_reciprocal_proximity": 0.3456789} for row in rows]
+    close = plt.close
+    monkeypatch.setattr(plt, "close", lambda *args, **kwargs: None)
+    comparison._write_curves(rows, tmp_path)
+    curves = plt.gcf()
+    assert len(curves.axes[0].lines) == 3
+    assert list(curves.axes[0].lines[2].get_ydata()) == [0.3456789] * 666
+    assert curves.axes[0].lines[2].get_color() == "#238b45"
+    comparison._write_overview(inputs, rows, tmp_path)
+    overview = plt.gcf()
+    assert len(overview.axes) == 4 and "0.99 / 0.01" in overview.axes[2].get_title()
+    assert all(sum(patch.get_hatch() == "///" for patch in axis.patches) >= 1 for axis in overview.axes[:3])
+    ordinary = next(patch for patch in overview.axes[2].patches if patch.get_hatch() is None)
+    assert ordinary.get_facecolor() == plt.get_cmap("cividis")(0.3456789)
     close(curves)
     close(overview)
 
