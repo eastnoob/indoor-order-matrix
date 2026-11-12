@@ -9,8 +9,9 @@ distance or turn free-space provenance into a third evidence channel.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from itertools import pairwise
+from itertools import combinations, pairwise
 import math
+from pathlib import Path
 from typing import Any
 
 from .field_core import (
@@ -28,8 +29,12 @@ from .field_core import (
     build_evidence_package_contract,
     build_field_result_cache_identity,
     fingerprint_evidence_dependency,
+    evaluate_evidence_package_freshness,
     serialize_evidence_package_output,
 )
+from . import group_distance as distance_kernel
+from .evidence_package_storage import (load_raw_output, save_raw_output, processed_cache_key,
+                                      load_processed_output, save_processed_output)
 from .group_distance import (
     GroupDistanceInput,
     GroupDistanceResult,
@@ -965,6 +970,97 @@ def evaluate_group_distance_package(
     return build_group_distance_evidence_package().evaluate(sources)
 
 
+def _run_contract(bundle, repaired_result):
+    """Return the current contract and actual input fingerprints before any kernel work."""
+    if not isinstance(bundle, GroupDistanceInput):
+        raise TypeError("bundle must be a GroupDistanceInput")
+    inputs = group_distance_input_fingerprints(bundle)
+    if bundle.dependency_fingerprints and dict(bundle.dependency_fingerprints) != inputs:
+        raise ValueError("input bundle dependency fingerprints are stale")
+    groups = tuple(sorted(group.group_id for group in bundle.groups))
+    if len(groups) != len(set(groups)):
+        raise ValueError("input bundle contains duplicate group identities")
+    if repaired_result is not None:
+        if not isinstance(repaired_result, Mapping):
+            raise TypeError("repaired_result must be a saved result mapping")
+        # Preserve the existing saved-result trust boundary before admitting a hit.
+        saved_contract = build_group_distance_package_contract(repaired_result, bundle)
+    recipe = {"function": OUTPUT_FUNCTION_ID, "function_version": OUTPUT_FUNCTION_VERSION,
+              "source_algorithm": SOURCE_ALGORITHM_VERSION, "source_schema": SOURCE_SCHEMA_VERSION,
+              "kernel_versions": {name: getattr(distance_kernel, name) for name in (
+                  "ALGORITHM_VERSION", "SCHEMA_VERSION", "EDGE_SUPPORT_VERSION", "ARITHMETIC_VERSION",
+                  "CLEARANCE_ALGORITHM_VERSION", "CLEARANCE_SCHEMA_VERSION", "CLEARANCE_EDGE_SUPPORT_VERSION",
+                  "CLEARANCE_POLICY_VERSION")},
+              "networkx_version": distance_kernel.nx.__version__,
+              "shapely_version": distance_kernel.shapely.__version__}
+    dependencies = {"scene": inputs["source"], "model": inputs["groups"],
+        "source": fingerprint_evidence_dependency({"inputs": inputs, "repaired_result": repaired_result}),
+        "plane": inputs["analysis_plane"], "query": inputs["query"],
+        "recipe": fingerprint_evidence_dependency(recipe),
+        "channels": fingerprint_evidence_dependency(tuple(name for name, _, _ in _DISTANCE_CHANNELS))}
+    # An accepted saved repair may publish a subset, including an empty-scope
+    # diagnostic. Its already-validated contract owns those actual target IDs.
+    targets = (tuple(saved_contract["target_ids"]) if repaired_result is not None else
+               tuple(_pair_id(ids, bundle.source_identity) for ids in combinations(groups, 2)))
+    if not targets:
+        constrained = bundle.clearance_policy is not None
+        manifest = {"algorithm_version": distance_kernel.CLEARANCE_ALGORITHM_VERSION if constrained else distance_kernel.ALGORITHM_VERSION,
+            "schema_version": distance_kernel.CLEARANCE_SCHEMA_VERSION if constrained else distance_kernel.SCHEMA_VERSION,
+            "edge_support_version": distance_kernel.CLEARANCE_EDGE_SUPPORT_VERSION if constrained else distance_kernel.EDGE_SUPPORT_VERSION,
+            "arithmetic_version": distance_kernel.ARITHMETIC_VERSION, "dependency_fingerprints": inputs}
+        if constrained:
+            manifest.update(clearance_policy_version=distance_kernel.CLEARANCE_POLICY_VERSION, clearance_policy=bundle.clearance_policy)
+        empty_dependencies = _dependencies(repaired_result if repaired_result is not None else {"manifest": manifest}, bundle)
+        targets = ("empty-scope:" + fingerprint_evidence_dependency({"groups": (), "dependencies": empty_dependencies})[:24],)
+    return build_evidence_package_contract(package_id=PACKAGE_ID, package_schema=PACKAGE_SCHEMA,
+        producer=PRODUCER, target_ids=targets, dependencies=dependencies,
+        algorithm_version=OUTPUT_FUNCTION_VERSION, schema_version=PACKAGE_SCHEMA), inputs
+
+
+def _cached_sources_match(raw, bundle, inputs, targets):
+    """Cross-check retained source bindings independently of a receipt's claimed contract."""
+    if ({source.target["identity"] for source in raw.source_envelopes} != set(targets)
+            or {output.target["identity"] for output in raw.outputs} != set(targets)):
+        return False
+    for source in raw.source_envelopes:
+        dependencies = source.provenance.get("dependency_fingerprints")
+        if (source.query != bundle.query or source.channel_set != (SOURCE_CHANNEL,)
+                or not isinstance(dependencies, Mapping)
+                or any(dependencies.get(name) != value for name, value in inputs.items())
+                or source.provenance.get("algorithm_version") != SOURCE_ALGORITHM_VERSION
+                or source.provenance.get("schema_version") != SOURCE_SCHEMA_VERSION):
+            return False
+    return True
+
+
+def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=None, output_processor=None):
+    """Own distance computation and independently cached optional processed results."""
+    package = build_group_distance_evidence_package(output_processor=output_processor)
+    contract, inputs = _run_contract(bundle, repaired_result)
+    cache_key = contract["package_identity"]
+    path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
+    raw = None if path is None else load_raw_output(path, cache_key=cache_key, contract=contract, package=package)
+    if raw is not None and not _cached_sources_match(raw, bundle, inputs, contract["target_ids"]):
+        raw = None
+    hit = raw is not None
+    cache_status = evaluate_evidence_package_freshness(cached_contract=contract if hit else None, current_contract=contract)
+    if raw is None:
+        raw = evaluate_group_distance_package(bundle, repaired_result=repaired_result)
+        if path is not None:
+            save_raw_output(path, cache_key=cache_key, contract=contract, raw_output=raw)
+    processed_path = (None if path is None or output_processor is None else
+                      path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
+    processed = None if processed_path is None else load_processed_output(
+        processed_path, raw_output=raw, processor=output_processor)
+    if processed is None:
+        processed = package.process_output(raw, package_freshness="fresh")
+        if processed_path is not None:
+            save_processed_output(processed_path, processed)
+    return {"raw_output": raw, "processed_output": processed, "contract": contract,
+            "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
+            "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}
+
+
 def serialize_group_distance_package_output(result: EvidencePackageOutput) -> dict[str, Any]:
     """Serialize the additive package output using the shared JSON contract."""
     if not isinstance(result, EvidencePackageOutput):
@@ -1097,5 +1193,6 @@ __all__ = [
     "evaluate_group_distance_package",
     "serialize_group_distance_package_output",
     "build_group_distance_package_contract",
+    "run_group_distance_package",
     "build_group_distance_visualization_manifest",
 ]

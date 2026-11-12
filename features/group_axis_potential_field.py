@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 import json
+from pathlib import Path
 from math import atan2, cos, degrees, hypot, isfinite, radians, sin
 from typing import Any
 
@@ -17,7 +18,13 @@ from .field_core import (
     EvidencePackage,
     FieldResultEnvelope,
     FieldResultStatus,
+    _json_value,
+    build_evidence_package_contract,
+    evaluate_evidence_package_freshness,
+    fingerprint_evidence_dependency,
 )
+from .evidence_package_storage import (load_raw_output, save_raw_output, processed_cache_key,
+                                      load_processed_output, save_processed_output)
 
 
 PACKAGE_ID = "group-axis-potential"
@@ -793,10 +800,77 @@ def build_group_axis_potential_package(
     )
 
 
+def build_group_axis_potential_package_contract(source_envelopes, *, scene_namespace=None, output_targets=None):
+    """Bind actual typed sources and the selected producer without running its algorithm."""
+    sources = tuple(source_envelopes)
+    producer = build_group_axis_potential_package(scene_namespace=scene_namespace)
+    if not sources or any(not isinstance(source, FieldResultEnvelope) for source in sources):
+        raise TypeError("source_envelopes must contain FieldResultEnvelope values")
+    # Preserve producer order: audit lists and exact aggregate bytes retain that order.
+    contents = [{name: _json_value(getattr(source, name)) for name in (
+        "target", "query", "channel_set", "cache_identity", "raw_status", "value", "support", "source_ids")}
+        | {"algorithm_provenance": {key: _json_value(value) for key, value in source.provenance.items()
+                                   if key in {"algorithm_version", "schema_version"}}} for source in sources]
+    schema = "group-axis-field-hierarchy-output/v1" if scene_namespace is not None else FIELD_OUTPUT_SCHEMA
+    dependencies = {
+        "scene": fingerprint_evidence_dependency({"scene_namespace": scene_namespace}),
+        "model": fingerprint_evidence_dependency([source.target for source in sources]),
+        "source": fingerprint_evidence_dependency(contents),
+        "plane": fingerprint_evidence_dependency([source.query.plane for source in sources]),
+        "query": fingerprint_evidence_dependency([source.query for source in sources]),
+        "recipe": fingerprint_evidence_dependency({"function": producer.output_function_id,
+            "version": producer.output_function_version, "scene_namespace": scene_namespace,
+            "field_recipe": FIELD_RECIPE_ID, "field_schema": FIELD_OUTPUT_SCHEMA}),
+        "channels": fingerprint_evidence_dependency([source.channel_set for source in sources]),
+    }
+    return build_evidence_package_contract(package_id=PACKAGE_ID, package_schema=schema,
+        producer="features.group_axis_potential_field", target_ids=(
+            (source.target["identity"] for source in sources) if output_targets is None else output_targets),
+        dependencies=dependencies, algorithm_version=producer.output_function_version, schema_version=schema)
+
+
+def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
+                                     cache_directory=None, output_processor=None):
+    """Own potential calculation reuse and its separately configured processed publication."""
+    sources = tuple(source_envelopes)
+    package = build_group_axis_potential_package(scene_namespace=scene_namespace, output_processor=output_processor)
+    contract = build_group_axis_potential_package_contract(sources, scene_namespace=scene_namespace)
+    cache_key = contract["package_identity"]
+    path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
+    raw = None if path is None else load_raw_output(path, cache_key=cache_key, contract=contract, package=package)
+    # Core canonicalizes retained sources; compare content without changing producer order.
+    if raw is not None and _json_value(raw.source_envelopes) != _json_value(
+            tuple(sorted(sources, key=lambda source: source.cache_identity["identity"]))):
+        raw = None
+    hit = raw is not None
+    if raw is None:
+        raw = package.evaluate(sources)
+        if path is not None:
+            save_raw_output(path, cache_key=cache_key, contract=contract, raw_output=raw)
+    # Receipt identity describes calculation inputs; publication freshness names
+    # actual output targets, including hierarchy addresses available only afterward.
+    contract = build_group_axis_potential_package_contract(sources, scene_namespace=scene_namespace,
+        output_targets={item.target["identity"] for item in raw.outputs})
+    cache_status = evaluate_evidence_package_freshness(cached_contract=contract if hit else None, current_contract=contract)
+    processed_path = (None if path is None or output_processor is None else
+                      path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
+    processed = None if processed_path is None else load_processed_output(
+        processed_path, raw_output=raw, processor=output_processor)
+    if processed is None:
+        processed = package.process_output(raw, package_freshness="fresh")
+        if processed_path is not None:
+            save_processed_output(processed_path, processed)
+    return {"raw_output": raw, "processed_output": processed, "contract": contract,
+            "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
+            "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}
+
+
 __all__ = [
     "aggregate_axis_observations",
     "aggregate_group_axis_potential_outputs",
     "axis_angle_gap",
     "build_axis_relation_records",
     "build_group_axis_potential_package",
+    "build_group_axis_potential_package_contract",
+    "run_group_axis_potential_package",
 ]
