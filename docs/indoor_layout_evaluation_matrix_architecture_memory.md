@@ -12,8 +12,19 @@ publication/validation/processing template. Compose functions, preserving
 adapter layering and all existing formulas/defaults/raw JSON. Separate content
 identity from current freshness, preserve original calculation provenance on
 restoration reuse, and require a current processing recipe for processed reuse.
+The three `run_*_package` entries own reuse/recompute and return separate raw and
+processed outputs, current publication `status` and precomputation `cache_status`.
+Small feature-owned JSON storage functions serve the pure packages; the
+free-space adapter retains authenticated storage and separates legacy publication
+identity from normalized content identity. Potential input cache identity and
+returned output-target contract identity are separate. Processed v1 persistence
+and explicit port/recipe references preserve raw v1 wire bytes. Saved processed
+use requires independent current sources/contracts and current recipe context.
 The [lifecycle plan](superpowers/plans/2026-11-12-evidence-package-lifecycle.md)
-owns tasks and acceptance; implementation is starting, not yet accepted.
+owns tasks and independent acceptance. Implementation is locally verified:
+SPEC PASS / QUALITY PASS, 353 combined tests passed with one unchanged hierarchy
+test excluded and separately covered by the independent 46-pass retained run.
+Accepted local checkpoints and original-workline preservation are recorded there.
 
 ## Evidence-package two-port rule — user decision 2026-11-12
 
@@ -28,7 +39,7 @@ Approved; actual PNGs checked. The maintained note owns acceptance receipts;
 user visual judgment, potential integration and cross-scene calibration remain separate.
 
 Keep input/calculation/raw cache and the required legacy publication callback.
-Add a separate runtime processed port, default `output_processor=None`:
+Keep a separate processed port, default `output_processor=None`:
 `OUTPUT_FUNCTION_NOT_CONFIGURED` has no channels/value; no implicit identity
 or raw fallback. Processor failures and nonfresh sources have distinct empty
 errors. Bind processing identity to raw content plus function/version/parameters,
@@ -44,7 +55,8 @@ in a separate explicit processor/run. Preserve reciprocal history/defaults;
 the trial note owns its checklist, scope sensitivity and independent acceptance.
 See the authoritative [structure](project/evidence/evidence-package-structure.md)
 and [execution checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
-Parent owns final acceptance and all jj history on `group-distance-decay`.
+The earlier optional-processing/trial workline owns its acceptance and jj history
+on `group-distance-decay`; the lifecycle workline above is isolated from it.
 
 ## Verified agent workflow — user decision 2026-11-04
 

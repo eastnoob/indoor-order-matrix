@@ -1,19 +1,35 @@
 # 软件架构
 
-## Package-owned lifecycle — approved / implementation starting 2026-11-12
+## Package-owned lifecycle — locally verified 2026-11-12
 
 The dedicated `evidence-package-lifecycle` jj workspace starts from `b8a66a65`
 on `codex/evidence-package-lifecycle`; the source distance workline is preserved.
-The approved [lifecycle plan](superpowers/plans/2026-11-12-evidence-package-lifecycle.md)
+The [lifecycle plan](superpowers/plans/2026-11-12-evidence-package-lifecycle.md)
 composes package entry functions, existing algorithms and storage adapters with
 the unchanged role of the frozen `EvidencePackage` publication/processing
 template. A storage adapter is inside the logical package capability, while its
 code remains in the appropriate layer. Pure features do not import Blender
-session adapters. The implementation targets independent processed persistence/
-channel references, package-owned reuse/recompute entries and current-content/
-recipe validation. Existing formulas/defaults/raw v1 remain the compatibility
-baseline. The plan records actual acceptance; this entry does not claim these
-new interfaces are already implemented.
+session adapters. `run_free_space_package` in the existing adapter,
+`run_group_distance_package` and `run_group_axis_potential_package` in their
+feature modules own calculation/cache decisions. The small
+`features/evidence_package_storage.py` supplies typed raw/processed receipts and
+atomic storage; the free-space adapter retains authenticated storage and the
+legacy publication identity separately from its revision-normalized content key.
+Returned `status` describes the current publication while `cache_status` keeps
+the precomputation decision, reasons and actual affected output targets. The
+potential input cache key is separate from its output-target publication
+contract. Existing evaluate APIs, producer order, formulas/defaults and raw v1
+remain the compatibility boundary.
+
+`features/field_core.py` provides separate `evidence-processed-output/v1` JSON
+with full payload integrity and exact raw-content binding. Explicit processed
+references add a port and processing identity while historical raw references
+retain four wire fields. Readers/dependencies select one port without fallback;
+decoding does not run callbacks. Saved processed consumption additionally needs
+independent current source/contract and recipe context. Independent final review
+is SPEC PASS / QUALITY PASS: 353 combined tests passed, with one unchanged
+hierarchy test deliberately excluded and covered by the separate 46-pass
+retained-hierarchy run. The plan records scope, commands and local checkpoints.
 
 ## Symmetric reciprocal processed trial — 2026-11-12 / locally verified
 
@@ -110,9 +126,11 @@ identity binds full raw content and processor ID/version/parameters without
 polluting raw computation identity.
 
 Free-space, distance and both potential factory variants only forward this
-optional configuration. Adapters, computation kernels and persistence are
-unchanged. The processed port is runtime-only; existing saved readers and
-cross-package dependency handling still read raw publications. No normalization
+optional configuration. At this original optional-processing checkpoint,
+adapters, computation kernels and persistence were unchanged and processed
+results were runtime-only. The lifecycle extension above adds persistence and
+explicit processed dependencies without changing that checkpoint's formulas.
+No normalization
 default, size weighting or exponent 0.6 is configured; the later trial above
 opts in explicitly without changing those defaults.
 See [package structure](project/evidence/evidence-package-structure.md),
@@ -1328,8 +1346,10 @@ Both group runners now write `package_contract.json` and a stable
 `features/field_core.py`. The status payload is the planned UI handoff: a future
 Analysis consumer reads `freshness`, `recompute_required`, `reasons`, and
 `affected_targets` directly and does not infer freshness from visual manifests or
-per-envelope status. UI implementation, automatic recomputation, cache storage
-policy, and target-level dependency graphs remain deferred. The core does expose
+per-envelope status. UI implementation, UI-triggered automatic recomputation and
+target-level dependency graphs remain deferred. The package entries above now
+own execution and validated cache reuse; core freshness assessment remains
+read-only. The core does expose
 a caller-supplied package-graph cycle validator; it does not maintain a registry
 or schedule dependency traversal automatically.
 The runner-written status is a write-time receipt comparing the newly created

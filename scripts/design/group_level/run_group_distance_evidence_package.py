@@ -18,7 +18,7 @@ from features.field_core import evaluate_evidence_package_freshness
 from features.group_distance_evidence_package import (
     build_group_distance_package_contract,
     build_group_distance_visualization_manifest,
-    evaluate_group_distance_package,
+    run_group_distance_package,
     serialize_group_distance_package_output,
 )
 from scripts.design.group_level.run_group_distance_ifc import file_hash, retained_input
@@ -79,7 +79,8 @@ def publish_saved_repair_result(
         "path": str(repair_result.resolve()), "sha256": input_hashes[str(repair_result.resolve())],
         "observation_lookup": "observations[*].pair_id",
     }
-    package = evaluate_group_distance_package(bundle, repaired_result=repair)
+    # Keep saved-repair publication on its package-owned adapter path without kernel execution.
+    package = run_group_distance_package(bundle, repaired_result=repair)["raw_output"]
     serialized = serialize_group_distance_package_output(package)
     output_dir.mkdir(parents=True, exist_ok=True)
     package_path = output_dir / "group_distance_package_output.json"

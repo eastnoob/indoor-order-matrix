@@ -28,9 +28,37 @@ known to be publication metadata, preserving semantic query revisions. Saved
 processed readback must verify current raw content and an independently supplied
 current processing recipe. Raw JSON v1 and default-off processing remain intact.
 
-This section is the approved target; implementation and independent acceptance
-are tracked in the [lifecycle plan](../../superpowers/plans/2026-11-12-evidence-package-lifecycle.md).
-The runtime-only limitations below describe the baseline until that plan closes.
+The public entries are `run_free_space_package` in
+`adapters/free_space_evidence_package.py`, `run_group_distance_package` in
+`features/group_distance_evidence_package.py`, and
+`run_group_axis_potential_package` in `features/group_axis_potential_field.py`.
+They return `raw_output`, `processed_output`, `contract`, `status`, `cache_key`,
+`cache_hit` and `cache_status`. `status` describes the returned publication;
+`cache_status` retains the earlier reuse/recompute decision and its reasons and
+affected targets. A potential input-cache key may differ from the returned
+publication contract identity, which uses the actual output targets.
+
+`features/evidence_package_storage.py` supplies small JSON receipt and atomic
+storage functions. The free-space adapter retains its authenticated document
+boundary, separates the content storage key from the legacy publication ID,
+and reconstructs current request metadata while retaining the original
+calculation reference on revision-only reuse. Pure feature packages do not
+import that adapter. Existing `evaluate` APIs remain available.
+
+```text
+Caller -> package run_* entry
+          |-- algorithm -> raw publication ---------> explicit raw selection
+          |-- storage adapter <-> validated cache
+          `-- optional processor -> processed ------> explicit processed selection
+                                      |
+                              separate saved JSON
+```
+
+Implementation and independent acceptance are tracked in the
+[lifecycle plan](../../superpowers/plans/2026-11-12-evidence-package-lifecycle.md).
+The lifecycle implementation is locally verified: SPEC PASS / QUALITY PASS,
+353 combined tests passed and one unchanged hierarchy test excluded, with the
+full retained hierarchy covered by a separate independent 46-pass run.
 
 ## Two output ports — user decision 2026-11-12
 
@@ -81,17 +109,21 @@ The separate `processing_identity` binds the package, raw `output_identity`,
 complete raw payload fingerprint, processor ID/version and immutable
 parameters. Different processing recipes or changed raw readings/statuses
 therefore have distinguishable identities while the original cache key stays
-unchanged. This identity is not a live-currentness receipt or a new persistent
-cache. A processor must use the supplied raw publication and declared
+unchanged. This identity is not a live-currentness receipt. A processor must use
+the supplied raw publication and declared
 parameters, rather than hidden mutable inputs, and version changes to its
 behavior.
 
-This implementation exposes runtime processing only. The historical serializer,
-saved reader, adapters and cross-package dependency resolver still consume raw
-`EvidencePackageOutput`. Processed-result persistence, processed cross-package
-dependencies and formula selection have no new implementation in this change.
-Execution and acceptance are recorded in the
-[optional-processing plan](../../superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
+The original [optional-processing checkpoint](../../superpowers/plans/2026-11-12-evidence-package-optional-processing.md)
+provided runtime processing. The lifecycle extension adds a separate
+`evidence-processed-output/v1` serializer/decoder and explicit processed
+cross-package references. Saved processed JSON requires both the processing
+identity and a full payload fingerprint; decoding binds the complete supplied
+raw publication and reuses channel validation without executing a callback.
+Package entries cache successful processed results separately, against the
+current raw content and processor ID/version/parameters. Processing errors
+remain empty results and are not reused as successful cache hits. No default
+formula is selected.
 
 ```text
 Evidence package
@@ -106,10 +138,11 @@ Evidence package
 │   └── output_identity: computation identity
 ├── Saved raw JSON
 │   └── payload_fingerprint: complete serialized content fingerprint
-└── Optional processed port: EvidenceProcessedOutput (runtime)
+└── Optional processed port: EvidenceProcessedOutput
     ├── raw_output_identity / raw_payload_fingerprint
     ├── processor identity / version / parameters / processing_identity
-    └── outputs, or fixed error_code with no channels
+    ├── outputs, or fixed error_code with no channels
+    └── separate saved JSON / complete payload_fingerprint
 ```
 
 The channel responsibilities use existing fields, not additional nested types:
@@ -153,9 +186,14 @@ Historical publications without dependencies or the new fingerprint remain
 readable; their exact file bytes must be pinned by the replay consumer.
 
 An external read uses the full `package_id`, `output_identity`,
-`target_identity`, `channel` address. Two targets may publish the same channel
-name and may both be consumed. The raw reader checks that address against a
-typed output. The resolver separately gates caller-supplied freshness; fresh
+`target_identity`, `channel` address and keyword-only `port="raw"` by default.
+Historical raw JSON references retain exactly their original four fields.
+A processed reference additionally requires `port="processed"` and the exact
+`processing_identity`; its `output_identity` still identifies the raw
+publication. Two targets may publish the same channel name and may both be
+consumed, as may both ports at the same address. Readers select only the named
+port, validate its raw-content binding and never fall back. The resolver
+separately gates caller-supplied freshness; fresh
 channels retain their observation, status and scale. Stale/unavailable channels
 provide no usable channel; an available typed source contributes only an
 observation-redacted audit record. Every derived output that uses such a
@@ -163,7 +201,8 @@ dependency must have `observation=None`, including `partial` outputs. Missing
 or mismatched references are rejected, rather than filled with zero.
 
 Published dependencies keep compact references; evaluation-time
-`source_output` handles are not recursively serialized. If a dependency graph
+`source_output` and `source_processed_output` handles are not recursively
+serialized. Graph declarations remain on the raw `source_output`. If a dependency graph
 is supplied, it must cover every referenced node, match the current package's
 declared edges and the declarations of available typed upstream outputs, and
 be acyclic before the callback runs. The legacy no-graph call remains valid;
@@ -181,6 +220,16 @@ their public/audit boundary. This exercises shared readback without defining a
 new metric. The camera-plane free-space/distance snapshots cannot be mixed with
 the retained world-plane potential/trend/geometry snapshots. Distance-to-potential
 business integration remains unimplemented and needs its own agreed meaning.
+
+`consume_saved_evidence_package` keeps its original raw selections and accepts
+`processed_path`, a separate `expected_processed_sha256`, independently supplied
+`current_processing_identity`, and `processed_selections` triples
+`(target_identity, saved_channel, output_alias)`. Aliases keep consumer addresses
+distinct when raw and processed ports share a target/channel. Missing or changed
+current recipe context redacts processed observations while independently fresh
+raw selections remain usable. Current-source/contract checks and explicit graph
+validation apply to both ports; decoding never infers currentness from saved
+metadata or executes the processor.
 
 Readback preserves saved source/output content without rerunning a formula.
 Reexecution also preserves the original producer input order when that order

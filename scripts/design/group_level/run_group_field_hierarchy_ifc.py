@@ -11,7 +11,7 @@ from typing import Any
 from urllib.parse import quote
 
 from features.field_core import evaluate_evidence_package_freshness, serialize_evidence_package_output
-from features.group_axis_potential_field import build_group_axis_potential_package
+from features.group_axis_potential_field import run_group_axis_potential_package
 from scripts.design.group_level.run_group_axis_potential_ifc import (
     _aggregate_svg,
     _artifacts_readable,
@@ -173,7 +173,8 @@ def run(retained_run: Path, output_root: Path) -> Path:
         raise RuntimeError("retained envelope schema is not the verified IFC trend schema")
     envelopes = tuple(_load_envelope(item) for item in envelope_payload["envelopes"])
     namespace = f"ifc-project:{source_manifest['project_global_id']}"
-    result = build_group_axis_potential_package(scene_namespace=namespace).evaluate(envelopes)
+    # Preserve original producer order for historical per-group audit lists.
+    result = run_group_axis_potential_package(envelopes, scene_namespace=namespace)["raw_output"]
     description = _read(retained_run / "description.json")
     original_output = _read(retained_run / "axis_potential_output.json")
     original_matrix = _read(retained_run / "field_matrix.json")

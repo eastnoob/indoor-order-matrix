@@ -97,13 +97,26 @@ Each returns an ordinary mapping: `raw_output`, `processed_output`, `contract`, 
 
 Raw keys bind producer/version and complete calculation content, excluding processor configuration. Potential binds actual source values/status/support/source IDs/query, not only cache IDs; add its feature-owned contract builder rather than importing a runner. Distance binds complete input fingerprints and supplied repair content, preserving meaningful revisions and exact result references.
 
+The validated saved repair scope remains authoritative, including accepted
+partial or empty observation sets. Potential may use an input contract for its
+storage key and return a publication contract over actual output targets;
+`cache_key` need not equal that returned contract's identity.
+Keep producer order in potential's input key and audit output, but compare cached
+source content independently of the canonical source-storage sequence.
+
 For free-space, reuse session content-key/cached-run mechanisms where valid: normalize only the publication plane revision, reconstruct current strict request/query metadata on restored hits, and retain the original calculation reference. Never label the old document as a newly observed calculation. Optional processed caching uses complete raw content plus processor ID/version/parameters; reject stale recipe or foreign raw bindings.
 
-- [ ] Write/run failing lifecycle tests before production edits, using small real producer inputs and sentinels proving hits skip calculation.
-- [ ] Implement shared storage and the three public entries, retaining old behavior and caller compatibility.
-- [ ] Verify compute→hit, input change→miss, restoration→hit, processor change without raw calculation, status payload, corrupted receipt rejection, atomic failure preservation, free-space current metadata plus retained origin.
-- [ ] Run lifecycle and affected free-space/distance/potential/processing regressions.
-- [ ] Freeze bytes; a different agent runs acceptance and SPEC / QUALITY review. Repair findings before a task checkpoint.
+Retain the legacy free-space publication-key formula separately from the
+normalized storage key, with authenticated raw and processed receipts. Existing
+old cache filenames are not migrated and may incur an initial safe miss. Exact
+legacy-byte comparisons hold backend provenance equal; the existing executor
+hashes implementation bytes as a backend input.
+
+- [x] Write/run failing lifecycle tests before production edits, using small real producer inputs and sentinels proving hits skip calculation.
+- [x] Implement shared storage and the three public entries, retaining old behavior and caller compatibility.
+- [x] Verify compute→hit, input change→miss, restoration→hit, processor change without raw calculation, status payload, corrupted receipt rejection, atomic failure preservation, free-space current metadata plus retained origin.
+- [x] Run lifecycle and affected free-space/distance/potential/processing regressions.
+- [x] Freeze bytes; a different agent runs acceptance and SPEC / QUALITY review. Repair findings before a task checkpoint.
 
 Acceptance example:
 
@@ -123,19 +136,51 @@ assert again["status"]["recompute_required"] is False
 
 **Produces:** Explicit processed saved-selection with separately SHA-pinned bytes and independently supplied current processor identity/metadata. Check raw current-source binding and contract freshness, processed raw-content binding and current recipe before numeric use. Equal raw contracts cannot admit an obsolete recipe. Select raw/processed channels and distinct same-channel targets while preserving values/status/scale/lineage/provenance. No business fusion.
 
-- [ ] Write/run failing processed-consumer tests for current recipe changes, changed current sources, stale/unavailable redaction and same-name two-port selection.
-- [ ] Extend existing readback and relevant actual callers to use package entries while preserving historical replay recipes and bytes.
-- [ ] Synchronize `docs/project/evidence/evidence-package-structure.md`, `docs/software-architecture.md`, `docs/indoor_layout_evaluation_matrix_architecture_memory.md` and `docs/project/group-evidence-design-index.md` with actual behavior and limits.
-- [ ] Run affected shared output/processing/freshness/readback/lifecycle and producer regressions; check original bookmark/workspace and accepted formulas/defaults remain intact.
-- [ ] Whole-scope coverage assessment against all constraints; independent final acceptance plus SPEC / QUALITY review of the complete diff.
-- [ ] Record accepted local commit, leave a clean empty next change and own bookmark at acceptance. Retain workspaces/evidence; no push/merge.
+- [x] Write/run failing processed-consumer tests for current recipe changes, changed current sources, stale/unavailable redaction and same-name two-port selection.
+- [x] Extend existing readback and relevant actual callers to use package entries while preserving historical replay recipes and bytes.
+- [x] Synchronize `docs/project/evidence/evidence-package-structure.md`, `docs/software-architecture.md`, `docs/indoor_layout_evaluation_matrix_architecture_memory.md` and `docs/project/group-evidence-design-index.md` with actual behavior and limits.
+- [x] Run affected shared output/processing/freshness/readback/lifecycle and producer regressions; check original bookmark/workspace and accepted formulas/defaults remain intact.
+- [x] Whole-scope coverage assessment against all constraints; independent final acceptance plus SPEC / QUALITY review of the complete diff.
+
+Closure procedure: after the final write, record the accepted local revision,
+verify a clean empty next change and own bookmark, and retain workspaces/evidence
+in the ignored closure ledger. No push or merge.
 
 ## Acceptance record
 
 - [x] Design and implementation authorized by user; independent own jj workspace and baseline established.
 - [x] Task 1 independently accepted: 189 tests passed, exit 0; SPEC PASS / QUALITY PASS; frozen SHA-256 values matched before and after independent execution. Review/report/probes are in the ledger directory. Nonblocking limit: individual processed selections revalidate the full processed set.
-- [ ] Task 2 independently accepted.
-- [ ] Task 3 and whole-scope review independently accepted.
-- [ ] Final commit, clean next change and preserved original workline recorded.
+- [x] Task 2 independently accepted: final SPEC PASS / QUALITY PASS after two independently found cache-scope/order repairs, with both original defect probes passing on the final freeze.
+- [x] Task 3 and whole-scope review independently accepted: final combined run 353 passed, 1 deselected in 8.65s, exit 0, with all 19 frozen file hashes matched before/after. Separate Task 3 acceptance ran 46 tests in 239.01s, exit 0, including the full retained 37-group hierarchy.
+
+The final revision, clean next change, bookmark and preserved-original-workline
+checks are recorded after the final write in the ignored closure ledger.
 
 Actual commands, candidate hashes, findings and accepted revisions are recorded in the ledger and summarized here as tasks close.
+
+### Accepted local checkpoints and final evidence
+
+- Plan: `5a23140d128edbfb0673e42db85997672d297036`.
+- Task 1: `e9945fd848c85155152d80e32d41dad6be2bde7a`; independent 189-pass acceptance and SPEC PASS / QUALITY PASS.
+- Task 2: `bdaaefa67637093f8062d77d076dd468b31d5119`; only its five producer/storage/test paths. Final Task 2 round 2 and whole-scope SPEC PASS / QUALITY PASS are in `final-review.md` under the ledger directory.
+- Task 3 plus synchronized architecture/plan: the final revision is recorded in the ignored closure ledger, avoiding a self-referential commit ID in this plan.
+
+The final reviewer ran the eleven-file combined suite against the exact final
+freeze, plus the unchanged saved-subset and reverse-producer-order probes. All
+passed. The separately executed full hierarchy evidence is reused because the
+later distance repair affects only saved target scope and the potential repair
+affects only cached-source validation; the retained hierarchy uses no cache.
+The changed distance and ordinary potential runners were rerun in the final
+combined suite. Do not add the overlapping 46-pass count to 353.
+
+The source audit checked 21 path/environment expectations with zero mismatches.
+All 20 existing potential and 29 existing distance functions remain AST-equal to
+the original base. The original workspace stays at `bf55db54`, its bookmark at
+`b8a66a65`; Pixi manifests/lock files and all 51 retained fixture hashes are
+unchanged. Final code hashes are rechecked around local checkpointing.
+
+Limits: no full-repository suite, new IFC extraction, Blender run or new geometry
+visuals. Old free-space cache filenames are not migrated and can incur one safe
+miss. Individual processed selections revalidate the full set. Current sources,
+contracts and processor recipe context must still be supplied independently;
+saved hashes/freshness receipts alone never establish live currentness.

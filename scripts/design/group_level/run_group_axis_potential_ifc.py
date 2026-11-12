@@ -21,7 +21,7 @@ from features.group_axis_potential_field import (
     FIELD_RECIPE_ID,
     HIERARCHY_OUTPUT_FUNCTION_VERSION,
     OUTPUT_FUNCTION_VERSION,
-    build_group_axis_potential_package,
+    run_group_axis_potential_package,
 )
 from features.group_self_description import describe_group_relations
 
@@ -272,7 +272,8 @@ def run(source_path: Path, output_root: Path, *, group_limit: int | None = None)
         algorithm_version="group-axis-potential-v1",
         schema_version="group-axis-potential-source-envelope/v1",
     )
-    result = build_group_axis_potential_package().evaluate(envelopes)
+    # Preserve original producer order for historical per-group audit lists.
+    result = run_group_axis_potential_package(envelopes)["raw_output"]
     after = _fingerprint(source_path)
     if before != after:
         raise RuntimeError("pinned IFC changed during axis-potential extraction")
