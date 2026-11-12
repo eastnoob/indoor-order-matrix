@@ -24,6 +24,15 @@ The bounded candidate independently passed 135 focused tests, full 666-pair
 raw/processed comparison and actual PNG/Edge inspection; specification PASS,
 quality Approved. User visual assessment remains open.
 
+The user confirmed continuing with this reciprocal as the bounded working rule:
+the observed farthest pair need not approach zero; zero is an infinite-distance
+limit. It preserves ordering, compresses distant differences and does not
+preserve distance-gap ratios. Scope-median selection is explicit and can change
+earlier pair values when groups are added. Reuse the unchanged implementation
+and retained visuals; this does not select a production default or implement
+processed cross-package consumption. See the dated working-rule confirmation
+and maintained checklist in the trial note above.
+
 ## Evidence-package optional processing — 2026-11-12 / locally verified
 
 The existing `group-distance-decay` jj workline implements the user-confirmed

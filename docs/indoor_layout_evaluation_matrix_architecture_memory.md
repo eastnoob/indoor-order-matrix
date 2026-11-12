@@ -9,8 +9,12 @@ or raw fallback. Processor failures and nonfresh sources have distinct empty
 errors. Bind processing identity to raw content plus function/version/parameters,
 without changing raw identity or JSON v1. No normalization/size/0.6 default is
 selected. The explicit pure-distance [trial](project/group-distance-decay-development-note.md#optional-processed-port-pure-distance-trial2026-11-12)
-uses a scope-median ruler only; its verification is tracked there, with no
-potential integration or cross-scene calibration claim. See the authoritative [structure](project/evidence/evidence-package-structure.md)
+uses the user-confirmed working rule `m/(m+d)`, with one complete-scope median:
+zero is an infinite-distance limit, not a forced observed endpoint. Scope changes
+may change old pair values. Reuse the existing implementation/artifacts; formula
+confirmation is separate from user visual acceptance. Verification is tracked
+there, with no potential integration or cross-scene calibration claim.
+See the authoritative [structure](project/evidence/evidence-package-structure.md)
 and [execution checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
 Parent owns final acceptance and all jj history on `group-distance-decay`.
 

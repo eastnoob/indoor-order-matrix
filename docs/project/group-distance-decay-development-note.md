@@ -652,6 +652,48 @@ and [owner checkpoint](../../.superpowers/sdd/group-distance-processed-trial-202
 No full-suite run, live IFC/Blender check, geometry/route rebuild, production
 integration, processed-result persistence or potential-distance rule is claimed.
 
+## 反比例相对接近度：工作规则确认（2026-11-12）
+
+用户确认沿用 `s(d)=L/(L+d)`，`L=median(D)>0`；D 是本次完整声明范围内
+全部有效欧氏组对距离。现有 processor、接口与 IFC 图已经使用此式，本轮复用，
+不重复实现或重算几何。它是距离包的**相对接近度**，不是势包的最终衰减公式。
+
+- 数学上，d=0 时为 1，d=L 时为 0.5；有限正距离对应 (0,1)，无限远才趋零。
+  当前范围的最远对象不必接近零；不设置 0.01 底座或强行拉满端点。
+- 保留远近顺序，相同距离输出相同值；近处差异更突出、远处差异压缩，
+  **不保留距离差的比例**。全体等距时输出一致，不制造不存在的梯度。
+- 中位数是明示的相对尺度选择，不是自然常数或客观校准。全部 source 使用同一
+  范围和 L；增加家具组可能改变中位数及旧组对读数，早期的组对局部不变性仍不成立。
+- 原始米数与渠道继续保留；加工输出沿用现有 raw 内容绑定、完整范围来源、
+  processor 版本、L 和 processing identity。范围缺失、不完整、读数不可用或
+  中位数非正时不输出数字，不能临时删项、补零或另选尺度。
+- 距离包负责距离及其相对表达；尺寸、朝向和后续势调制由势包负责。
+  默认 processor 仍关闭；加工结果跨包读取与距离调制势尚未实现，本次确认不改变此状态。
+
+已保留的真实结果为 37 组 / 666 对，L=6.904454822184903 m，
+接近度范围 0.29841310320008–0.9020179901451872。
+复用[平面图](../../outputs/design/group_distance_processed_ifc/run_20261112_median_v1/overview.png)
+和[交互读数](../../outputs/design/group_distance_processed_ifc/run_20261112_median_v1/index.html)：
+红色斜线是参照家具组，颜色表示其他组相对它的接近度，原始米数仍可查阅。
+公式和工作授权已确认，用户视觉验收单独保留，不由本轮授权推断。
+
+本次收口继续维护此 checklist；只有取得对应证据才勾选：
+
+- [x] 确认工作规则，对照现有实现与保留图的实际字节。
+- [x] 同步架构、记忆和精简索引；保持原始输出、默认行为及既有实现不变。
+- [x] 独立复核：25 项相关测试通过，全部 666 对原始值、公式、来源和图面/manifest 绑定一致。
+- [x] Owner 核对复核字节并建立独立本地 jj checkpoint（见下方本轮记录）。
+- [ ] 用户视觉验收（与公式确认、技术验收分开）。
+
+独立复核结果为 **SPEC PASS / QUALITY Approved，无发现**；25 tests passed / 87.81 s。
+详见[本轮验收](../../.superpowers/sdd/group-distance-processed-trial-20261112/reciprocal-confirmation-review.md)
+与[本地 checkpoint](../../.superpowers/sdd/group-distance-processed-trial-20261112/reciprocal-confirmation-owner-checkpoint.json)。
+
+工作线仍为 `group-distance-decay`，本轮基线为已接受实现 `dbbd54f0`，
+起始空 change 为 `ttrpnpon` / `f9521b31`；root 是唯一版本写入者，不推送或合并。
+详细过程沿用 `.superpowers/sdd/group-distance-processed-trial-20261112/` 下
+`reciprocal-confirmation-*` 记录。未重新声明跨场景/跨包强度可比或完成势包接入。
+
 ## 持续维护 checklist
 
 执行中每完成一项都补充真实证据并更新勾选；发现偏离或未决先记录，不用实现结果反向改掉要求。
