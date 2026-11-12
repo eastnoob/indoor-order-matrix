@@ -1,5 +1,20 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Package-owned lifecycle — user approval 2026-11-12
+
+The user authorized the discussion chat to write the lifecycle plan and develop
+it with Superpowers. Work is isolated from `b8a66a65` in jj workspace/bookmark
+`evidence-package-lifecycle` / `codex/evidence-package-lifecycle`; that chat alone
+writes its history, retaining the original distance bookmark/workspace.
+A complete package owns its entry, algorithms, raw/processed artifacts, cache
+policy and storage adapter; the frozen `EvidencePackage` remains the shared
+publication/validation/processing template. Compose functions, preserving
+adapter layering and all existing formulas/defaults/raw JSON. Separate content
+identity from current freshness, preserve original calculation provenance on
+restoration reuse, and require a current processing recipe for processed reuse.
+The [lifecycle plan](superpowers/plans/2026-11-12-evidence-package-lifecycle.md)
+owns tasks and acceptance; implementation is starting, not yet accepted.
+
 ## Evidence-package two-port rule — user decision 2026-11-12
 
 The user now authorizes implementing the later symmetric-endpoint reciprocal

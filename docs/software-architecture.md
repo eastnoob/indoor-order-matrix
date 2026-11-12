@@ -1,5 +1,20 @@
 # 软件架构
 
+## Package-owned lifecycle — approved / implementation starting 2026-11-12
+
+The dedicated `evidence-package-lifecycle` jj workspace starts from `b8a66a65`
+on `codex/evidence-package-lifecycle`; the source distance workline is preserved.
+The approved [lifecycle plan](superpowers/plans/2026-11-12-evidence-package-lifecycle.md)
+composes package entry functions, existing algorithms and storage adapters with
+the unchanged role of the frozen `EvidencePackage` publication/processing
+template. A storage adapter is inside the logical package capability, while its
+code remains in the appropriate layer. Pure features do not import Blender
+session adapters. The implementation targets independent processed persistence/
+channel references, package-owned reuse/recompute entries and current-content/
+recipe validation. Existing formulas/defaults/raw v1 remain the compatibility
+baseline. The plan records actual acceptance; this entry does not claim these
+new interfaces are already implemented.
+
 ## Symmetric reciprocal processed trial — 2026-11-12 / locally verified
 
 `build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=...)`

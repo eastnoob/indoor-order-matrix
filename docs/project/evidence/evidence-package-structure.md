@@ -4,6 +4,34 @@ An evidence package groups related channels for one materialized analysis
 snapshot. Each channel keeps its own meaning, method, inputs, observation,
 status and scale. Grouping channels does not combine them into a score.
 
+## Package-owned lifecycle — approved 2026-11-12
+
+The user approved implementation of a package-owned execution boundary after
+discussion with the parent chat. A complete package includes its public entry,
+channel algorithms, raw/processed artifacts, cache policy and storage adapter.
+The existing frozen `EvidencePackage` remains the shared publication/validation/
+processing template within that capability. Compose existing functions; no
+inheritance hierarchy, manager or wrapper is required. Storage code may stay in
+its existing adapter layer; pure features do not import Blender/session code.
+
+The package decides artifact ownership, content identity, freshness and reuse or
+recomputation. The storage adapter performs authenticated/validated reads and
+atomic writes. Callers use package-level entry functions for raw and optional
+processed output plus `recompute_required`, `reasons` and `affected_targets`.
+Raw values remain intact. Processing recipes have independent identities and
+optional cache entries; changing a processor must not recompute valid raw data.
+
+Content identity is not proof of currentness. Restoring equal calculation input
+may reuse retained artifacts, while current request metadata is reconstructed
+and original calculation provenance remains explicit. Normalize only revisions
+known to be publication metadata, preserving semantic query revisions. Saved
+processed readback must verify current raw content and an independently supplied
+current processing recipe. Raw JSON v1 and default-off processing remain intact.
+
+This section is the approved target; implementation and independent acceptance
+are tracked in the [lifecycle plan](../../superpowers/plans/2026-11-12-evidence-package-lifecycle.md).
+The runtime-only limitations below describe the baseline until that plan closes.
+
 ## Two output ports — user decision 2026-11-12
 
 The common template keeps its existing inputs, algorithms and raw computation
