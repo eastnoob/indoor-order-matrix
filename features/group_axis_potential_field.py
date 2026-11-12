@@ -12,6 +12,7 @@ from .group_field_hierarchy import build_axis_field_hierarchy
 from .field_core import (
     EvidenceChannelReference,
     EvidenceOutputChannel,
+    EvidenceOutputProcessor,
     EvidenceOutputScale,
     EvidencePackage,
     FieldResultEnvelope,
@@ -755,8 +756,10 @@ def aggregate_group_axis_potential_outputs(
     return tuple(outputs) + _relation_outputs(source_envelopes) + source_axis_outputs
 
 
-def build_group_axis_potential_package(*, scene_namespace: str | None = None) -> EvidencePackage:
-    """Return the legacy package or an additive namespace-bound hierarchy package."""
+def build_group_axis_potential_package(
+    *, scene_namespace: str | None = None, output_processor: EvidenceOutputProcessor | None = None,
+) -> EvidencePackage:
+    """Return legacy or hierarchy publication with optional separate runtime processing."""
     if scene_namespace is not None and (not isinstance(scene_namespace, str) or not scene_namespace.strip()):
         raise ValueError("scene_namespace must be non-empty when hierarchy mode is requested")
     if scene_namespace is None:
@@ -765,6 +768,7 @@ def build_group_axis_potential_package(*, scene_namespace: str | None = None) ->
             output_function_id=OUTPUT_FUNCTION_ID,
             output_function_version=OUTPUT_FUNCTION_VERSION,
             output_function=aggregate_group_axis_potential_outputs,
+            output_processor=output_processor,
         )
 
     def output_function(source_envelopes: tuple[FieldResultEnvelope, ...]) -> tuple[EvidenceOutputChannel, ...]:
@@ -785,6 +789,7 @@ def build_group_axis_potential_package(*, scene_namespace: str | None = None) ->
         output_function_id=HIERARCHY_OUTPUT_FUNCTION_ID,
         output_function_version=HIERARCHY_OUTPUT_FUNCTION_VERSION,
         output_function=output_function,
+        output_processor=output_processor,
     )
 
 

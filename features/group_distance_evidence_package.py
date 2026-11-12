@@ -17,6 +17,7 @@ from .field_core import (
     EvidenceChannelRecord,
     EvidenceChannelReference,
     EvidenceOutputChannel,
+    EvidenceOutputProcessor,
     EvidenceOutputScale,
     EvidencePackage,
     EvidencePackageOutput,
@@ -748,13 +749,14 @@ def _output_records(source_envelopes: tuple[FieldResultEnvelope, ...]) -> tuple[
     return tuple(outputs)
 
 
-def build_group_distance_evidence_package() -> EvidencePackage:
-    """Return the package that emits Euclidean and path distance channels."""
+def build_group_distance_evidence_package(*, output_processor: EvidenceOutputProcessor | None = None) -> EvidencePackage:
+    """Return raw distance publication with explicitly optional runtime processing."""
     return EvidencePackage(
         package_id=PACKAGE_ID,
         output_function_id=OUTPUT_FUNCTION_ID,
         output_function_version=OUTPUT_FUNCTION_VERSION,
         output_function=_output_records,
+        output_processor=output_processor,
     )
 
 

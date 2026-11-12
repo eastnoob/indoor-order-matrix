@@ -4,19 +4,84 @@ An evidence package groups related channels for one materialized analysis
 snapshot. Each channel keeps its own meaning, method, inputs, observation,
 status and scale. Grouping channels does not combine them into a score.
 
+## Two output ports — user decision 2026-11-12
+
+The common template keeps its existing inputs, algorithms and raw computation
+cache. The raw port remains `EvidencePackage.evaluate(...)`, which returns the
+existing `EvidencePackageOutput`. Its historical `output_function` or
+`context_output_function` still performs the required publication step: the
+word "raw" here includes those existing published derived channels, alongside
+the complete original source envelopes. Their values, units, statuses,
+provenance, output identities and saved JSON v1 are preserved.
+
+The second port is `package.process_output(raw_output,
+package_freshness="fresh")`. It reads an already computed or deserialized raw
+publication; it does not rerun `evaluate()` or the original algorithm. Each
+package may explicitly configure its own `EvidenceOutputProcessor`, containing
+`function_id`, `version`, `function` and immutable JSON-compatible `parameters`.
+The callback receives `(raw_output, parameters)` and returns existing
+`EvidenceOutputChannel` records. The three current factories accept the
+keyword-only `output_processor=` argument, including both potential variants.
+
+Every package defaults to `output_processor=None`. The processed result is a
+separate `EvidenceProcessedOutput`; it never appends to the historical raw
+`.outputs` or replaces original channels.
+
+| Processed-port condition | `error_code` | `outputs` |
+| --- | --- | --- |
+| No processor configured, regardless of freshness | `OUTPUT_FUNCTION_NOT_CONFIGURED` | Empty; no usable value |
+| Configured, but source freshness is stale/unavailable | `OUTPUT_SOURCE_NOT_FRESH` | Empty; callback not run |
+| Configured callback raises or returns invalid channels | `OUTPUT_PROCESSING_FAILED` | Empty; no raw fallback |
+| Configured, fresh, valid callback result | `None` | Validated processed channels |
+
+`package_freshness` defaults to `"unavailable"`. Callers obtain a fresh receipt
+through the existing contract comparison; a saved output identity is not that
+receipt. Invalid source type, package/producer identity or freshness argument
+is an API error, distinct from callback failure. The fixed marker and empty
+channels let a UI or runtime consumer reliably identify a closed port. There
+is no implicit identity transformation and no universal normalization formula.
+
+Processed channels declare their own names, scales, units and statuses. Their
+`derived_from` uses complete `EvidencePackageChannelReference` addresses into
+the exact supplied raw publication. The boundary rejects unknown lineage and
+duplicate target/channel addresses. A missing or unusable referenced reading
+cannot become a usable observation; a noncomputed source cannot be promoted
+to computed. Finite values and declared scalar bounds are validated without
+requiring every package to use `[0,1]`.
+
+The separate `processing_identity` binds the package, raw `output_identity`,
+complete raw payload fingerprint, processor ID/version and immutable
+parameters. Different processing recipes or changed raw readings/statuses
+therefore have distinguishable identities while the original cache key stays
+unchanged. This identity is not a live-currentness receipt or a new persistent
+cache. A processor must use the supplied raw publication and declared
+parameters, rather than hidden mutable inputs, and version changes to its
+behavior.
+
+This implementation exposes runtime processing only. The historical serializer,
+saved reader, adapters and cross-package dependency resolver still consume raw
+`EvidencePackageOutput`. Processed-result persistence, processed cross-package
+dependencies and formula selection have no new implementation in this change.
+Execution and acceptance are recorded in the
+[optional-processing plan](../../superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
+
 ```text
 Evidence package
 ├── Publication records
 │   ├── contract: target/query/scope/plane, recipe and input fingerprints
 │   ├── status: freshness, recompute reasons and affected targets
 │   └── manifest: published data and existing visualization locators
-├── EvidencePackageOutput
+├── Raw port: EvidencePackageOutput (existing publication)
 │   ├── source_envelopes: complete immutable original evidence
 │   ├── outputs: additive channels with method, input lineage and results
 │   ├── dependencies: explicit package/output/target/channel addresses
 │   └── output_identity: computation identity
-└── Saved JSON
-    └── payload_fingerprint: complete serialized content fingerprint
+├── Saved raw JSON
+│   └── payload_fingerprint: complete serialized content fingerprint
+└── Optional processed port: EvidenceProcessedOutput (runtime)
+    ├── raw_output_identity / raw_payload_fingerprint
+    ├── processor identity / version / parameters / processing_identity
+    └── outputs, or fixed error_code with no channels
 ```
 
 The channel responsibilities use existing fields, not additional nested types:

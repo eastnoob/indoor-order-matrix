@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
-from dataclasses import MISSING, dataclass, fields, is_dataclass, replace
+from dataclasses import MISSING, dataclass, field, fields, is_dataclass, replace
 from enum import Enum
 import hashlib
 import json
@@ -733,14 +733,102 @@ class EvidencePackageOutput:
 
 
 @dataclass(frozen=True, slots=True)
+class EvidenceOutputProcessor:
+    """Configure one explicit runtime transformation of an existing raw publication."""
+
+    function_id: str
+    version: str
+    function: Callable[[EvidencePackageOutput, Mapping[str, Any]], Iterable[EvidenceOutputChannel]]
+    parameters: Mapping[str, Any] = MappingProxyType({})
+
+    def __post_init__(self) -> None:
+        """Validate recipe metadata and detach nested parameters from caller mutation."""
+        for name in ("function_id", "version"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+            object.__setattr__(self, name, value.strip())
+        if not callable(self.function):
+            raise TypeError("function must be callable")
+        if not isinstance(self.parameters, Mapping):
+            raise TypeError("parameters must be a mapping")
+        object.__setattr__(self, "parameters", _freeze(self.parameters))
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceProcessedOutput:
+    """Keep optional processed channels separate from raw publication and disk schemas."""
+
+    package_id: str
+    raw_output_identity: str
+    raw_payload_fingerprint: str
+    processor_id: str | None
+    processor_version: str | None
+    parameters: Mapping[str, Any]
+    outputs: tuple[EvidenceOutputChannel, ...]
+    error_code: str | None
+    explanation: str = ""
+
+    def __post_init__(self) -> None:
+        """Freeze the recipe and require either valid processed channels or one error marker."""
+        for name in ("package_id", "raw_output_identity", "raw_payload_fingerprint"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+        for name in ("processor_id", "processor_version"):
+            value = getattr(self, name)
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ValueError(f"{name} must be a non-empty string or None")
+        if (self.processor_id is None) != (self.processor_version is None):
+            raise ValueError("processor_id and processor_version must both be present or absent")
+        if not isinstance(self.parameters, Mapping):
+            raise TypeError("parameters must be a mapping")
+        if self.error_code not in {
+            None, "OUTPUT_FUNCTION_NOT_CONFIGURED", "OUTPUT_SOURCE_NOT_FRESH", "OUTPUT_PROCESSING_FAILED"
+        }:
+            raise ValueError("error_code must be a supported processing outcome")
+        if (self.processor_id is None) != (self.error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED"):
+            raise ValueError("an absent processor requires OUTPUT_FUNCTION_NOT_CONFIGURED")
+        if not isinstance(self.explanation, str):
+            raise TypeError("explanation must be a string")
+        outputs = tuple(self.outputs)
+        if self.error_code is None:
+            if not outputs or any(not isinstance(item, EvidenceOutputChannel) for item in outputs):
+                raise ValueError("successful outputs must contain EvidenceOutputChannel values")
+        elif outputs or not self.explanation.strip():
+            raise ValueError("processing errors require empty outputs and an explanation")
+        keys = [(item.target["identity"], item.channel) for item in outputs]
+        if len(set(keys)) != len(keys):
+            raise ValueError("outputs cannot duplicate target/channel pairs")
+        object.__setattr__(self, "parameters", _freeze(self.parameters))
+        object.__setattr__(self, "outputs", tuple(item[2] for item in sorted(
+            (output.target["identity"], output.channel, output) for output in outputs
+        )))
+
+    @property
+    def processing_identity(self) -> str:
+        """Bind the complete raw content and explicit recipe independently of raw cache IDs."""
+        payload = {
+            "package_id": self.package_id,
+            "raw_output_identity": self.raw_output_identity,
+            "raw_payload_fingerprint": self.raw_payload_fingerprint,
+            "processor_id": self.processor_id,
+            "processor_version": self.processor_version,
+            "parameters": self.parameters,
+        }
+        return hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+@dataclass(frozen=True, slots=True)
 class EvidencePackage:
-    """Define the required callable output step for one evidence package."""
+    """Define required raw publication and an optional, separate processing port."""
 
     package_id: str
     output_function_id: str
     output_function_version: str
     output_function: Callable[[tuple[FieldResultEnvelope, ...]], Iterable[EvidenceOutputChannel]] | None
     context_output_function: Callable[[EvidencePackageInput], Iterable[EvidenceOutputChannel]] | None = None
+    output_processor: EvidenceOutputProcessor | None = field(default=None, kw_only=True)
 
     def __post_init__(self) -> None:
         """Validate stable function metadata before a package can run."""
@@ -754,6 +842,82 @@ class EvidencePackage:
             raise TypeError("output_function must be callable")
         if self.context_output_function is not None and not callable(self.context_output_function):
             raise TypeError("context_output_function must be callable")
+        if self.output_processor is not None and not isinstance(self.output_processor, EvidenceOutputProcessor):
+            raise TypeError("output_processor must be an EvidenceOutputProcessor or None")
+
+    def process_output(
+        self,
+        raw_output: EvidencePackageOutput,
+        *,
+        package_freshness: str = "unavailable",
+    ) -> EvidenceProcessedOutput:
+        """Process a matching fresh raw publication without invoking its producer again."""
+        if not isinstance(raw_output, EvidencePackageOutput):
+            raise TypeError("raw_output must be an EvidencePackageOutput")
+        if raw_output.package_id != self.package_id.strip():
+            raise ValueError("raw_output package_id must match the package")
+        if (raw_output.output_function != self.output_function_id.strip()
+                or raw_output.output_function_version != self.output_function_version.strip()):
+            raise ValueError("raw_output producer function and version must match the package")
+        if package_freshness not in {"fresh", "stale", "unavailable"}:
+            raise ValueError("package_freshness must be fresh, stale, or unavailable")
+
+        # Full content integrity is separate from the historical calculation identity.
+        serialized = serialize_evidence_package_output(raw_output)
+        processor = self.output_processor
+        metadata = {
+            "package_id": raw_output.package_id,
+            "raw_output_identity": serialized["output_identity"],
+            "raw_payload_fingerprint": serialized["payload_fingerprint"],
+            "processor_id": None if processor is None else processor.function_id,
+            "processor_version": None if processor is None else processor.version,
+            "parameters": {} if processor is None else processor.parameters,
+        }
+        if processor is None:
+            return EvidenceProcessedOutput(**metadata, outputs=(), error_code="OUTPUT_FUNCTION_NOT_CONFIGURED",
+                                           explanation="No output processor is configured for this package.")
+        if package_freshness != "fresh":
+            return EvidenceProcessedOutput(**metadata, outputs=(), error_code="OUTPUT_SOURCE_NOT_FRESH",
+                                           explanation="The raw package has not been confirmed fresh.")
+        try:
+            produced = processor.function(raw_output, processor.parameters)
+            if isinstance(produced, (str, bytes, Mapping)) or not isinstance(produced, Iterable):
+                raise TypeError("processor must return an iterable of EvidenceOutputChannel values")
+            outputs = tuple(produced)
+            if not outputs or any(not isinstance(item, EvidenceOutputChannel) for item in outputs):
+                raise ValueError("outputs must contain EvidenceOutputChannel values")
+            # One local address index avoids rescanning large raw cell sets for every output.
+            raw_channels = {(item.target["identity"], item.channel): item for item in raw_output.outputs}
+            for output in outputs:
+                if (output.observation is not None
+                        and output.status not in {FieldResultStatus.COMPUTED, FieldResultStatus.PARTIAL}):
+                    raise ValueError("processed observations require computed or partial status")
+                for reference in output.derived_from:
+                    if not isinstance(reference, EvidencePackageChannelReference):
+                        raise ValueError("processed lineage must reference a raw package channel")
+                    if (reference.package_id != raw_output.package_id
+                            or reference.output_identity != metadata["raw_output_identity"]):
+                        raise ValueError("processed lineage must match the supplied raw publication")
+                    source = raw_channels.get((reference.target_identity, reference.channel))
+                    if source is None:
+                        raise ValueError("processed lineage target/channel is not published by raw_output")
+                    # Missing and partial evidence retain their limits through transformations.
+                    if output.status is FieldResultStatus.COMPUTED and source.status is not FieldResultStatus.COMPUTED:
+                        raise ValueError("processing cannot promote a non-computed source to computed")
+                    if output.observation is not None and (
+                        source.observation is None
+                        or source.status not in {FieldResultStatus.COMPUTED, FieldResultStatus.PARTIAL}
+                    ):
+                        raise ValueError("processing cannot create an observation from an unusable raw channel")
+                if output.scale.value_range is not None and isinstance(output.observation, (int, float)):
+                    lower, upper = output.scale.value_range
+                    if not lower <= output.observation <= upper:
+                        raise ValueError("processed scalar observation is outside its declared range")
+            return EvidenceProcessedOutput(**metadata, outputs=outputs, error_code=None)
+        except Exception as exc:
+            # A failed transform never exposes a partially yielded channel or raw fallback.
+            return EvidenceProcessedOutput(**metadata, outputs=(), error_code="OUTPUT_PROCESSING_FAILED",
+                                           explanation=f"Output processing failed: {exc}")
 
     def evaluate(
         self,

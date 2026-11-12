@@ -1,5 +1,38 @@
 # 软件架构
 
+## Evidence-package optional processing — 2026-11-12 / implementation candidate
+
+The existing `group-distance-decay` jj workline implements the user-confirmed
+two-port template in `features/field_core.py`. `EvidencePackage.evaluate()`
+continues the required legacy calculation/publication callback and returns the
+unchanged raw `EvidencePackageOutput`; its source evidence, cache identities,
+JSON v1 and saved channel readback remain the existing boundary.
+
+An optional keyword-only `output_processor` defaults to `None`.
+`process_output(raw_output, package_freshness="unavailable")` returns a separate
+`EvidenceProcessedOutput`. Missing configuration yields
+`OUTPUT_FUNCTION_NOT_CONFIGURED`; nonfresh input skips processing and yields
+`OUTPUT_SOURCE_NOT_FRESH`; callback/output failure yields
+`OUTPUT_PROCESSING_FAILED`. Each error has no processed channels or usable
+numeric fallback. A configured callback consumes only the already published
+raw result and immutable declared parameters. Raw-channel references, statuses,
+finite data and declared scalar bounds are checked. A separate processing
+identity binds full raw content and processor ID/version/parameters without
+polluting raw computation identity.
+
+Free-space, distance and both potential factory variants only forward this
+optional configuration. Adapters, computation kernels and persistence are
+unchanged. The processed port is runtime-only; existing saved readers and
+cross-package dependency handling still read raw publications. No numeric
+formula, normalization default, size weighting or exponent 0.6 is configured.
+See [package structure](project/evidence/evidence-package-structure.md),
+[minimum standard](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md)
+and the [execution/acceptance checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
+The checklist records actual verification and parent-owned local acceptance;
+this architecture entry alone does not certify either. Visuals are omitted
+because this change concerns routing/status/identity and leaves spatial results
+unchanged.
+
 ## Geometry-scaled Euclidean IFC experiment — 2026-11-11
 
 The isolated `group-distance-decay` workline adds only

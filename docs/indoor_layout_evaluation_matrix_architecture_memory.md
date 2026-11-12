@@ -1,5 +1,17 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Evidence-package two-port rule — user decision 2026-11-12
+
+Keep input/calculation/raw cache and the required legacy publication callback.
+Add a separate runtime processed port, default `output_processor=None`:
+`OUTPUT_FUNCTION_NOT_CONFIGURED` has no channels/value; no implicit identity
+or raw fallback. Processor failures and nonfresh sources have distinct empty
+errors. Bind processing identity to raw content plus function/version/parameters,
+without changing raw identity or JSON v1. No normalization/size/0.6 formula is
+selected. See the authoritative [structure](project/evidence/evidence-package-structure.md)
+and [execution checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
+Parent owns final acceptance and all jj history on `group-distance-decay`.
+
 ## Verified agent workflow — user decision 2026-11-04
 
 For multi-step engineering work, use the project [verified-agent-workflow skill](../skills/verified-agent-workflow/SKILL.md): Spec Kit requirement/plan/task consistency and final gap assessment; Superpowers task implementation; a different agent actually runs acceptance checks; explicit specification/quality review; repairs and re-verification before the designated version writer makes the accepted local jj commit. Reuse existing artifacts and decisions, proceed autonomously within authorized scope, and retain durable evidence for resumption. Every branch/workline and task carries its workspace/base/change/candidate/accepted-commit identity; jj management is foundational throughout, not only at final delivery. Preserve unrelated dirty work and the existing push/merge boundaries below.

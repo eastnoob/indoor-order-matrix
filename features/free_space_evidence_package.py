@@ -11,7 +11,7 @@ from collections.abc import Mapping
 import json
 
 from .field_core import (
-    EvidenceChannelRecord, EvidenceChannelReference, EvidenceOutputChannel,
+    EvidenceChannelRecord, EvidenceChannelReference, EvidenceOutputChannel, EvidenceOutputProcessor,
     EvidenceOutputScale, EvidencePackage, FieldQuery, FieldResultEnvelope,
     FieldResultStatus, _json_value, build_evidence_package_contract,
     build_field_result_cache_identity, fingerprint_evidence_dependency,
@@ -193,6 +193,7 @@ def _outputs(source_envelopes):
                         "sample_locator": locator}, explanation=reason)
 
 
-def build_free_space_evidence_package():
-    """Construct the existing shared execution template for the one declared channel."""
-    return EvidencePackage(PACKAGE_ID, OUTPUT_FUNCTION_ID, OUTPUT_FUNCTION_VERSION, _outputs)
+def build_free_space_evidence_package(*, output_processor: EvidenceOutputProcessor | None = None) -> EvidencePackage:
+    """Construct raw free-space publication with explicitly optional runtime processing."""
+    return EvidencePackage(PACKAGE_ID, OUTPUT_FUNCTION_ID, OUTPUT_FUNCTION_VERSION, _outputs,
+                           output_processor=output_processor)
