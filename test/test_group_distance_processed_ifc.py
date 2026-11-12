@@ -10,6 +10,7 @@ import statistics
 import pytest
 
 from features.field_core import EvidencePackageChannelReference, FieldResultStatus
+from features import group_distance_evidence_package as distance_package
 from features.group_distance_evidence_package import (
     build_euclidean_median_proximity_processor, build_group_distance_evidence_package,
 )
@@ -69,6 +70,142 @@ def test_full_scope_preserves_raw_metres_and_has_common_median_lineage(retained_
     assert all(first["proximity"] >= second["proximity"] for first, second in zip(ordered, ordered[1:]))
     assert raw.output_identity == identity == processed.raw_output_identity
     assert len(raw.outputs) == 1332 and {item.channel for item in raw.outputs} == {"euclidean_distance", "path_distance"}
+
+
+def test_linear_full_scope_uses_actual_distances_floor_and_complete_lineage(retained_trial):
+    """The requested linear recipe preserves all real distances and its common scope."""
+    _, raw, reciprocal = retained_trial
+    factory = getattr(distance_package, "build_euclidean_linear_proximity_processor", None)
+    assert callable(factory), "the explicit linear-floor processor is not implemented"
+    originals = {item.target["identity"]: item for item in raw.outputs if item.channel == "euclidean_distance"}
+    before = distance_package.serialize_evidence_package_output(raw)
+    processor = factory(expected_target_ids=tuple(originals))
+    result = build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh")
+    assert result.error_code is None and len(result.outputs) == 666
+    d_min = min(item.observation["value"] for item in originals.values())
+    d_max = max(item.observation["value"] for item in originals.values())
+    expected_refs = {EvidencePackageChannelReference(raw.package_id, raw.output_identity, target, "euclidean_distance")
+                     for target in originals}
+    readings = []
+    for item in result.outputs:
+        distance = originals[item.target["identity"]].observation["value"]
+        assert item.observation == 0.01 + 0.99 * (d_max - distance) / (d_max - d_min)
+        assert item.channel == "euclidean_linear_relative_proximity" and item.status is FieldResultStatus.COMPUTED
+        assert item.scale.value_range == (0, 1) and item.scale.scale_id == "euclidean-linear-relative-proximity/1"
+        assert item.provenance["minimum_distance_m"] == d_min
+        assert item.provenance["maximum_distance_m"] == d_max
+        assert item.provenance["floor"] == processor.parameters["floor"] == 0.01
+        assert set(item.derived_from) == expected_refs
+        readings.append((distance, item.observation))
+    readings.sort()
+    assert readings[0][1] == 1 and readings[-1][1] == 0.01
+    assert all(first[1] >= second[1] for first, second in zip(readings, readings[1:]))
+    assert distance_package.serialize_evidence_package_output(raw) == before
+    assert result.raw_output_identity == reciprocal.raw_output_identity
+    assert result.raw_payload_fingerprint == reciprocal.raw_payload_fingerprint
+    assert result.processing_identity != reciprocal.processing_identity
+
+
+@pytest.mark.parametrize("scope", [[], ["same", "same"], [""], "not-a-sequence", None])
+def test_linear_declared_scope_must_be_nonempty_unique_ids(scope):
+    """The linear trial rejects malformed declarations before processing."""
+    with pytest.raises(ValueError, match="nonempty unique"):
+        distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=scope)
+
+
+@pytest.mark.parametrize("fault", ["missing", "foreign", "empty", "units", "scale-units", "raw-status", "status",
+                                 "missing-value", "negative", "boolean"])
+def test_linear_unusable_scope_fails_closed(small_raw, fault):
+    """Contract fault injection cannot silently shrink or reinterpret the linear scope."""
+    scope = [item.target["identity"] for item in small_raw.outputs]
+    package = build_group_distance_evidence_package(output_processor=
+        distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=scope))
+    original = small_raw.outputs[0]
+    if fault in {"missing", "empty"}:
+        changed = replace(small_raw, outputs=small_raw.outputs[1:] if fault == "missing" else
+                          (replace(original, channel="path_distance"),))
+    elif fault == "foreign":
+        changed = replace(small_raw, outputs=(replace(original, target={**original.target, "identity": "foreign"}),
+                                              *small_raw.outputs[1:]))
+    else:
+        observation = dict(original.observation)
+        changes = {}
+        if fault == "scale-units":
+            changes["scale"] = replace(original.scale, units="mm")
+        elif fault == "status":
+            changes.update(status=FieldResultStatus.PARTIAL, explanation="contract fault injection")
+        else:
+            key, value = {"units": ("units", "mm"), "raw-status": ("raw_status", "unknown"),
+                          "missing-value": ("value", None), "negative": ("value", -1), "boolean": ("value", True)}[fault]
+            observation[key] = value
+        changed = replace(small_raw, outputs=(replace(original, observation=observation, **changes), *small_raw.outputs[1:]))
+    result = package.process_output(changed, package_freshness="fresh")
+    assert result.error_code == "OUTPUT_PROCESSING_FAILED" and result.outputs == ()
+
+
+def test_linear_equal_values_zero_median_and_zero_span(small_raw):
+    """Contract faults prove ties and a zero median work whenever the observed span is positive."""
+    package = build_group_distance_evidence_package(output_processor=
+        distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=
+            [item.target["identity"] for item in small_raw.outputs]))
+    for values, expected in (([0, 0, 8], [1, 1, 0.01]), ([0, 4, 8], [1, 0.505, 0.01]),
+                             ([0, 0, 1e308], [1, 1, 0.01])):
+        changed = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
+                                                  for item, value in zip(small_raw.outputs, values)))
+        result = package.process_output(changed, package_freshness="fresh")
+        assert result.error_code is None and [item.observation for item in result.outputs] == expected
+    for value in (0, 4):
+        changed = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
+                                                  for item in small_raw.outputs))
+        failed = package.process_output(changed, package_freshness="fresh")
+        assert failed.error_code == "OUTPUT_PROCESSING_FAILED" and failed.outputs == ()
+        assert "no distance gradient" in failed.explanation
+
+
+def test_linear_freshness_and_recipe_identity(small_raw):
+    """The linear identity binds its declared floor/version while nonfresh inputs stay empty."""
+    processor = distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=
+        [item.target["identity"] for item in small_raw.outputs])
+    package = build_group_distance_evidence_package(output_processor=processor)
+    first = package.process_output(small_raw, package_freshness="fresh")
+    for freshness in ("stale", "unavailable"):
+        failed = package.process_output(small_raw, package_freshness=freshness)
+        assert failed.error_code == "OUTPUT_SOURCE_NOT_FRESH" and failed.outputs == ()
+    changed_version = replace(package, output_processor=replace(processor, version="contract-fault-version"))
+    assert changed_version.process_output(small_raw, package_freshness="fresh").processing_identity != first.processing_identity
+    changed_floor = replace(first, parameters={**first.parameters, "floor": 0.02})
+    assert changed_floor.processing_identity != first.processing_identity
+
+
+def test_linear_comparison_renderer_consumes_supplied_values(retained_trial, tmp_path, monkeypatch):
+    """Both static views consume supplied outputs and render the same retained reference group."""
+    from scripts.design.group_level import run_group_distance_linear_comparison_ifc as comparison
+    import matplotlib.pyplot as plt
+
+    inputs, raw, reciprocal = retained_trial
+    processor = distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=
+        [item.target["identity"] for item in raw.outputs if item.channel == "euclidean_distance"])
+    linear = build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh")
+    rows = comparison.build_comparison_rows(raw, reciprocal, linear)
+    with pytest.raises(ValueError, match="same raw"):
+        comparison.build_comparison_rows(raw, reciprocal, replace(linear, raw_payload_fingerprint="foreign"))
+    # Presentation fault injection verifies the handoff; these values are never exported as IFC observations.
+    rows = [{**row, "reciprocal_proximity": 0.123456789, "linear_proximity": 0.876543211} for row in rows]
+    close = plt.close
+    monkeypatch.setattr(plt, "close", lambda *args, **kwargs: None)
+    comparison._write_curves(rows, tmp_path)
+    curves = plt.gcf()
+    assert list(curves.axes[0].lines[0].get_ydata()) == [0.123456789] * 666
+    assert list(curves.axes[0].lines[1].get_ydata()) == [0.876543211] * 666
+    comparison._write_overview(inputs, rows, tmp_path)
+    overview = plt.gcf()
+    for axis, value in zip(overview.axes[:2], (0.123456789, 0.876543211)):
+        assert sum(patch.get_hatch() == "///" for patch in axis.patches) >= 1
+        ordinary = next(patch for patch in axis.patches if patch.get_hatch() is None)
+        assert ordinary.get_facecolor() == plt.get_cmap("cividis")(value)
+    assert {path.name for path in tmp_path.iterdir()} == {"curves.png", "overview.png", "overview.svg"}
+    close(curves)
+    close(overview)
 
 
 @pytest.mark.parametrize("scope", [[], ["same", "same"], [""], "not-a-sequence", None])

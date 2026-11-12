@@ -694,6 +694,48 @@ integration, processed-result persistence or potential-distance rule is claimed.
 详细过程沿用 `.superpowers/sdd/group-distance-processed-trial-20261112/` 下
 `reciprocal-confirmation-*` 记录。未重新声明跨场景/跨包强度可比或完成势包接入。
 
+## 线性正底座对照试验（2026-11-12）
+
+用户在反比例工作规则确认之后，明确要求尝试
+`s(d)=0.01+0.99*(d_max-d)/(d_max-d_min)`。本轮沿用同一真实 IFC 的
+37 个家具组 / 666 对欧氏距离，以全部声明范围共同的最小、最大值计算。
+最近为 1，最远为 0.01，中间保留距离差的比例。0.01 是本次明确约定，
+不是客观发现的最低作用力；范围或极值变化可能改变旧读数，极小距离差也可能
+被拉开。它是相对接近度对照，不代表物理衰减或跨场景校准。
+
+通过距离包独立的 `build_euclidean_linear_proximity_processor` 输出，
+绘图直接读取加工结果。原始米数、渠道、反比例实现和历史图全部保留；
+默认 processor 仍关闭，不接入势包、不重建几何或路径。范围缺失、不可用、
+失效或全体等距时不输出数字；全体等距明示“无可区分梯度”，不补 epsilon。
+每个结果保留共同 min/max、0.01 底座、版本、完整范围来源和加工身份。
+
+工作线仍为 `group-distance-decay`，基线 `93718c7a`，起始 change
+`tyzourtk` / `544a9fd1`；root 是唯一版本写入者，不推送或合并。
+沿用既有 [执行 brief](../../.superpowers/sdd/group-distance-processed-trial-20261112/linear-trial-brief.md)
+及进度记录；不新开 spec。对照产物写入新的
+`outputs/design/group_distance_processed_ifc/run_20261112_linear_floor_001_v1/`，
+包含共同色标的同参照家具组平面图、独立曲线、666 对 CSV/JSON 和 hash manifest。
+
+执行中持续维护以下 checklist，取得对应证据后才勾选：
+
+- [x] 记录用户公式、范围、端点与失效语义，保持原始值和历史结果。
+- [x] 实现独立 processor、复用认证 IFC 输入并生成对照产物。
+- [x] 同步架构/索引并冻结实际候选字节。
+- [x] 不同代理执行相关测试、666 对独立核算和 PNG 审阅；给出 SPEC/QUALITY 结论。
+- [x] Owner 核验验收字节、建立本地 jj checkpoint 并交付曲线与数据（本地记录见下）。
+- [ ] 用户视觉判断（与技术验收分开）。
+
+技术验收为 **SPEC PASS / QUALITY Approved，无发现**：独立执行 154 tests
+passed / 151.41 s，全部 666 对原始米数、既有反比例值及新线性公式核算一致，
+共同原始内容/加工身份、9 个来源 hash、6 个新产物和 302 个历史文件全部通过。
+实现方和独立验收方实际查看两张 PNG；最近为 1，最远为 0.01，距离中位数
+6.904454822184903 m 映射约 0.6064718355。首轮两处新增测试 fixture 构造错误
+已修正，独立核算器一次旧 manifest 字段假设也已修正；失败与通过日志均保留。
+详见[独立审阅](../../.superpowers/sdd/group-distance-processed-trial-20261112/linear-trial-review.md)、
+[验收记录](../../.superpowers/sdd/group-distance-processed-trial-20261112/linear-trial-acceptance.json)
+和 [Owner checkpoint](../../.superpowers/sdd/group-distance-processed-trial-20261112/linear-trial-owner-checkpoint.json)。
+用户视觉判断仍待观察；未进行生产默认切换、势包接入、跨场景校准或全库测试。
+
 ## 持续维护 checklist
 
 执行中每完成一项都补充真实证据并更新勾选；发现偏离或未决先记录，不用实现结果反向改掉要求。

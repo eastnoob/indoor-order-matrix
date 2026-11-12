@@ -14,6 +14,9 @@ zero is an infinite-distance limit, not a forced observed endpoint. Scope change
 may change old pair values. Reuse the existing implementation/artifacts; formula
 confirmation is separate from user visual acceptance. Verification is tracked
 there, with no potential integration or cross-scene calibration claim.
+The later user-requested linear comparison uses `.01+.99*(d_max-d)/(d_max-d_min)`
+in a separate explicit processor/run. Preserve reciprocal history/defaults;
+the trial note owns its checklist, scope sensitivity and independent acceptance.
 See the authoritative [structure](project/evidence/evidence-package-structure.md)
 and [execution checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
 Parent owns final acceptance and all jj history on `group-distance-decay`.

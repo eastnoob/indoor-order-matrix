@@ -1,5 +1,26 @@
 # 软件架构
 
+## User-requested linear-floor comparison — 2026-11-12 / locally verified
+
+The bounded distance trial adds an explicit default-off
+`build_euclidean_linear_proximity_processor(expected_target_ids=...)` beside the
+retained reciprocal processor. It uses one complete Euclidean scope and
+`s=.01+.99*(d_max-d)/(d_max-d_min)`: nearest 1, farthest .01, preserving distance-gap
+ratios. Missing/unusable/nonfresh input or a zero span produces no numeric result.
+The floor is a trial convention; extrema/scope changes can alter earlier values.
+Raw channels, reciprocal behavior and all production defaults remain unchanged.
+
+`scripts/design/group_level/run_group_distance_linear_comparison_ifc.py` reuses
+authenticated retained IFC inputs and actual package processing interfaces for
+both curves. It exports all 666 raw/reciprocal/linear readings, standalone curves,
+same-source plan comparisons and a lineage/hash manifest to a fresh directory.
+No geometry/route rebuild, processed persistence or potential integration.
+See the maintained [trial checklist](project/group-distance-decay-development-note.md#线性正底座对照试验2026-11-12)
+for independent verification and owner acceptance; user visual judgment is separate.
+Independent acceptance passed 154 focused tests, all 666 exact formula/raw/
+reciprocal comparisons, both actual PNG views and all 302 historical artifact
+hashes. SPEC PASS / QUALITY Approved; the trial remains explicit and default-off.
+
 ## Opt-in pure Euclidean processed-port trial — 2026-11-12
 
 `features/group_distance_evidence_package.py` adds the explicit experimental

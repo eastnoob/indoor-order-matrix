@@ -6,6 +6,7 @@ the detail.
 
 | Decision | Meaning | Status | Code / evidence |
 | --- | --- | --- | --- |
+| Linear distance comparison | Full-scope `.01+.99*(max-d)/(max-min)` preserves distance-gap ratios; fixed .01 is a trial convention. Raw/reciprocal retained; no potential integration. | Independently verified: 154 tests, 666 exact readings, actual PNGs; user visual judgment pending | `features/group_distance_evidence_package.py`; [Trial/checklist](group-distance-decay-development-note.md#线性正底座对照试验2026-11-12) |
 | Public unit | A furniture group is the active analysis unit; single-furniture channels remain suppressed/audit. | Confirmed, implemented | `features/group_trend_alignment_field.py`; `features/group_geometry_relation_field.py` |
 | Group axis | `overall_group_axis` is the whole-group PCA major axis, undirected modulo 180°. | Confirmed, implemented | `features/group_self_description.py`; `features/group_trend_alignment_field.py` |
 | Axis clarity | `strength = (λ1−λ2)/(λ1+λ2)` describes how clearly one group axis is expressed; it is not probability or physical force. | Confirmed, implemented | `features/group_self_description.py`; `test/test_group_axis_potential_field.py` |
