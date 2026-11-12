@@ -1,6 +1,6 @@
 # 软件架构
 
-## Evidence-package optional processing — 2026-11-12 / implementation candidate
+## Evidence-package optional processing — 2026-11-12 / locally verified
 
 The existing `group-distance-decay` jj workline implements the user-confirmed
 two-port template in `features/field_core.py`. `EvidencePackage.evaluate()`
@@ -28,6 +28,9 @@ formula, normalization default, size weighting or exponent 0.6 is configured.
 See [package structure](project/evidence/evidence-package-structure.md),
 [minimum standard](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md)
 and the [execution/acceptance checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
+Independent verification passed 58 processing tests, 165 core tests and full raw
+roundtrip/republication of the real free-space, distance and potential caches.
+The accepted implementation checkpoint is `17ab4ec8`; no spatial result changed.
 The checklist records actual verification and parent-owned local acceptance;
 this architecture entry alone does not certify either. Visuals are omitted
 because this change concerns routing/status/identity and leaves spatial results

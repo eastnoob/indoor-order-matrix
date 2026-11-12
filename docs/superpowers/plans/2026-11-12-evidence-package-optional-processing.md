@@ -88,8 +88,8 @@ Reuse `EvidenceOutputChannel`, scale, statuses, canonical fingerprinting and `Ev
 - [x] Freeze Python writers, record SHA-256 of every changed file and the diff; independent reviewer actually reruns the new behavior suite and explicitly returns specification and quality verdicts.
 - [x] Resolve substantive findings, rerun affected checks and re-review changed bytes when necessary. No findings were reported, so no repair rerun was needed. Actual cwd, Pixi Python version, commands, exit codes, test totals, logs and candidate hashes are recorded below.
 - [x] Freeze all writers after documentation and local review. Report all changed paths and exact hashes to parent through the candidate handoff manifest.
-- [ ] Parent completes its assigned whole-candidate independent core regression and retained raw roundtrip, without duplicating the complete new suite.
-- [ ] Parent checks accepted bytes and records the local jj checkpoint. This child stops writes at handoff, and does not claim acceptance/commit before parent records it. No push, merge or workspace deletion.
+- [x] Parent completes its assigned whole-candidate independent core regression and retained raw roundtrip, without duplicating the complete new suite.
+- [x] Parent checks accepted bytes and records the local jj checkpoint. This child stops writes at handoff, and does not claim acceptance/commit before parent records it. No push, merge or workspace deletion.
 
 ## Plan assessment and execution record
 
@@ -123,7 +123,7 @@ raise SystemExit(pytest.main(['--import-mode=importlib', 'test/test_free_space_e
 '@ | pixi run python -
 ```
 
-Plan-local scratch receipts are in `.superpowers/sdd/2026-11-12-evidence-package-optional-processing/`: `implementer-red.log`, `implementer-red-full.log`, `implementer-status-red.log`, `implementer-new-suite.log`, `implementer-core-regression.log`, `implementer-free-space-alias-regression.log` and `implementer-python-freeze.json`. The latter pins all five Python files and records that every function has a docstring. Owner acceptance remains unchecked until the parent records it.
+Plan-local scratch receipts are in `.superpowers/sdd/2026-11-12-evidence-package-optional-processing/`: `implementer-red.log`, `implementer-red-full.log`, `implementer-status-red.log`, `implementer-new-suite.log`, `implementer-core-regression.log`, `implementer-free-space-alias-regression.log` and `implementer-python-freeze.json`. The latter pins all five Python files and records that every function has a docstring. Owner acceptance is recorded below.
 
 Coordinator scope check: `source-compatibility.json` records 11 exact AST
 preservation checks against base `3c91eb4f`: `EvidencePackageOutput`,
@@ -145,9 +145,9 @@ the scratch directory.
 Final child handoff: all 11 task-owned Python/documentation paths and their
 actual SHA-256 values are in `candidate-handoff.json` in that directory;
 `candidate.diff` records their final bytes against base. All child writers are
-stopped. Parent's independent verifier is running the core regression and real
-retained raw roundtrip on the frozen Python hashes; parent alone records that
-result and any accepted local jj checkpoint. This child has made no history
+stopped. At child handoff, the parent's independent verifier was running the core
+regression and real retained raw roundtrip on the frozen Python hashes; parent
+alone records that result and any accepted local jj checkpoint. This child has made no history
 write and does not claim the parent acceptance is complete.
 
 Limits: runtime processing uses caller-supplied freshness from the existing
@@ -155,3 +155,32 @@ contract check. No production processor/formula, processed persistence/cache
 storage, processed cross-package routing, full-suite run or IFC/Blender
 regeneration is included. The existing free-space test collection limitation
 and all failure logs remain visible above.
+
+## Owner acceptance — 2026-11-12
+
+Independent core verification passed **165 tests in 0.81s**, exit 0, with the
+same cwd and Pixi Python 3.12.13. The separate reviewer independently passed
+the **58 processing tests**. Both specification and quality verdicts passed
+with no findings. Final hashes of all 11 candidate files matched the handoff;
+the five tested Python hashes remained unchanged throughout acceptance.
+
+Real saved free-space (**24,442 outputs / 1 source**), distance (**1,332 / 666**)
+and potential (**4,112 / 37**) publications passed complete raw roundtrip and
+default/configured raw republication checks. Historical identities, complete
+readings, units, statuses, sources and lineage stayed equal. Actual mixed
+computed/outside lineage correctly rejected numeric processing with no raw
+fallback. All three input artifact hashes remained unchanged; no IFC was
+recomputed. The initial harness assumption that every outside observation is
+null was corrected in the harness only; its first failure remains recorded.
+
+Receipts in the scratch directory: `parent-independent-core.log`,
+`parent-independent-retained-v2.log`, `parent-independent-retained-command.txt`,
+`parent-independent-raw-code-preservation.json` and
+`parent-independent-retained-report.json`. The final
+`parent-independent-summary.json` SHA-256 is
+`71cb47fe87232b47cbdcf08769f0220ef9c1aa69e270d9d7b761eb665bf06b90`.
+
+The owner committed the accepted implementation as **`17ab4ec8`**, change
+**`yoorwylwrppv`**, directly on base **`3c91eb4f`**. This checklist closure and
+the architecture's verified status are documentation-only follow-up changes.
+All task items are complete; the runtime-only limits above remain intentional.
