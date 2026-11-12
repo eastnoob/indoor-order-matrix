@@ -62,10 +62,10 @@ resolve_evidence_package_channel(output, reference, *, package_freshness,
 
 Separate `evidence-processed-output/v1` JSON contains existing processed fields, required processing identity and complete payload fingerprint. Validate known JSON fields, both identities, raw-content binding and channel rules without executing callbacks. Extract/reuse current processing validation. Errors remain empty results and successful decoding does not prove freshness.
 
-- [ ] Write and run failing tests first: historical raw identity/JSON unchanged; both ports at identical target/channel; valid/error roundtrip; malformed/tampered/foreign bytes; finite/range/lineage/status limits; freshness redaction and dependency consumption.
-- [ ] Implement the above using existing validation; no numerical/default changes.
-- [ ] Run shared output/processing and new processed-readback tests.
-- [ ] Freeze relevant bytes; a different agent runs acceptance and gives explicit SPEC / QUALITY verdicts. Repair substantive findings, then the designated writer checkpoints the accepted task.
+- [x] Write and run failing tests first: historical raw identity/JSON unchanged; both ports at identical target/channel; valid/error roundtrip; malformed/tampered/foreign bytes; finite/range/lineage/status limits; freshness redaction and dependency consumption.
+- [x] Implement the above using existing validation; no numerical/default changes.
+- [x] Run shared output/processing and new processed-readback tests.
+- [x] Freeze relevant bytes; a different agent runs acceptance and gives explicit SPEC / QUALITY verdicts. Repair substantive findings, then the designated writer checkpoints the accepted task.
 
 Acceptance example:
 
@@ -93,7 +93,7 @@ run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
                                  cache_directory=None, output_processor=None)
 ```
 
-Each returns an ordinary mapping: `raw_output`, `processed_output`, `contract`, `status`, `cache_key`, `cache_hit`. Existing evaluate functions keep their return types. Storage functions validate receipts and save atomically; no manager/wrapper, registry or scheduler.
+Each returns an ordinary mapping: `raw_output`, `processed_output`, `contract`, `status`, `cache_key`, `cache_hit`, `cache_status`. `status` describes the returned current publication; `cache_status` retains the read-only precomputation decision (recompute Boolean, reasons and affected targets). This prevents a newly computed valid result from being labeled stale while preserving the UI explanation for why it was recomputed. Existing evaluate functions keep their return types. Storage functions validate receipts and save atomically; no manager/wrapper, registry or scheduler.
 
 Raw keys bind producer/version and complete calculation content, excluding processor configuration. Potential binds actual source values/status/support/source IDs/query, not only cache IDs; add its feature-owned contract builder rather than importing a runner. Distance binds complete input fingerprints and supplied repair content, preserving meaningful revisions and exact result references.
 
@@ -133,7 +133,7 @@ assert again["status"]["recompute_required"] is False
 ## Acceptance record
 
 - [x] Design and implementation authorized by user; independent own jj workspace and baseline established.
-- [ ] Task 1 independently accepted.
+- [x] Task 1 independently accepted: 189 tests passed, exit 0; SPEC PASS / QUALITY PASS; frozen SHA-256 values matched before and after independent execution. Review/report/probes are in the ledger directory. Nonblocking limit: individual processed selections revalidate the full processed set.
 - [ ] Task 2 independently accepted.
 - [ ] Task 3 and whole-scope review independently accepted.
 - [ ] Final commit, clean next change and preserved original workline recorded.
