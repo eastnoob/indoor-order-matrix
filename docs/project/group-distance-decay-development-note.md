@@ -578,6 +578,80 @@ The [final candidate freeze](../../outputs/design/group_distance_decay_ifc/verif
 binds the four tracked files, six run artifacts and implementation/independent
 receipts. The worker stops all writes after that freeze; no repeat suite or run.
 
+## Optional processed-port pure-distance trial（2026-11-12）
+
+User authorized a minimal trial using the new processed outlet. Reuse the pinned
+real IFC geometry and raw distance cache; do not rebuild projection, occupancy
+or routes. Distance owns only metres and distance processing. Furniture sizes,
+the older exponent 0.6 and potential modulation remain consumer-side concerns.
+
+Ruling: explicitly opt in to `n=m/(m+d)`, where `m` is the median of the complete
+declared Euclidean-pair scope. Zero maps to 1 and the median maps to 0.5; positive
+finite distances remain positive and preserve metric ordering. This is an
+experimental relative proximity, not physical attenuation or a calibrated
+cross-scene strength. It replaces neither the raw output nor the earlier trial.
+Changing the scope can change `m` and existing pair values; uniformly scaling
+the layout leaves `n` unchanged. The earlier pair-local invariance requirement
+is therefore not claimed for this scope-relative trial. No rank spreading,
+epsilon, clipping, per-source normalization or arbitrary threshold is added.
+Incomplete/unusable scope or a nonpositive median produces no numeric result.
+
+Workline: `group-distance-decay`,
+`D:/PROJECTS/understandOtherPackage/order_analyzer/.worktrees/group-distance-decay`;
+base `e28eee8f`, change `wslqqvkm`, pre-edit commit `a13e5799`.
+Root alone owns jj history; no push/merge. Implementation may touch only
+`features/group_distance_evidence_package.py`, the new
+`scripts/design/group_level/run_group_distance_processed_ifc.py` and
+`test/test_group_distance_processed_ifc.py`; root maintains this note, the
+architecture map and concise memory/index pointers so their "no formula"
+wording remains accurate about defaults. No shared-core/schema/config/production-default change.
+
+| Interface / step | Required behavior | Assessment |
+| --- | --- | --- |
+| Raw package → explicit processor | Authenticate producer output, complete declared scope, units/status/values; retain all raw channels | Existing two-port contract reused |
+| Processor → trial viewer | Read actual processed channels; common 666-pair ruler and full raw lineage | No formula calculation in renderer |
+| Trial → verification | Real 37-group plan, raw metres beside [0,1] proximity, source selection, frozen bytes | Visual required for gradient readability |
+| Verification → local checkpoint | Different agent runs focused checks and gives spec/quality verdicts | Root commits only after PASS |
+
+Maintain this checklist as work progresses; record evidence and deviations
+before changing any checked state. This bounded assessment uses the existing
+note and contract, not a new formal Spec Kit feature.
+
+- [x] Inspect current interfaces/callers/tests and choose the bounded trial.
+- [x] Implement explicit package-owned processing and a viewer consuming its result.
+- [x] Generate fresh real-IFC artifacts, preserving historical artifacts/raw cache.
+- [x] Freeze actual file hashes; independent focused numerical, wiring and visual verification; SPEC PASS / QUALITY Approved.
+- [x] Update architecture/checklist and create the owner-only accepted local jj checkpoint; exact history is in the owner receipt below.
+- [ ] User visual assessment (separate from technical acceptance).
+
+Trial outputs: `outputs/design/group_distance_processed_ifc/run_20261112_median_v1/`.
+Brief/reports/freeze: `.superpowers/sdd/group-distance-processed-trial-20261112/`.
+
+Technical acceptance: implementer **135 passed / 109.26 s**; different verifier
+**135 passed / 76.44 s**, exit 0, running the new trial, distance-package and
+optional-processing tests. Final CLI exit 0 produced 37 groups / 666 pairs,
+median **6.904454822184903 m**, range **0.29841310320008–0.9020179901451872**.
+JSON and CSV metre readings exactly match the pinned original; all 666 outputs
+carry complete scope lineage. Disabled/nonfresh/incomplete/unusable sources
+produce no processed numbers, and the renderer binds the full raw payload.
+Independent installed-Edge execution checked first/last source switching,
+36 target readouts, keyboard selection and zero page errors; both implementer
+and verifier actually viewed the final PNG. Technical acceptance does not imply
+user visual acceptance.
+
+The earlier interrupted CLI's two partial exports are preserved in the sibling
+`incomplete_20261112_median_v1_interrupted/`. Independent audit initially used
+an incorrect table selector and compared a CSV string to a float; corrected
+checks passed, with both diagnostic and corrected logs retained. These were
+verification-method corrections, not discarded product failures.
+
+See [independent review](../../.superpowers/sdd/group-distance-processed-trial-20261112/independent-review.md),
+[acceptance receipt](../../.superpowers/sdd/group-distance-processed-trial-20261112/independent-acceptance.json),
+[final freeze](../../.superpowers/sdd/group-distance-processed-trial-20261112/candidate-freeze.json)
+and [owner checkpoint](../../.superpowers/sdd/group-distance-processed-trial-20261112/owner-checkpoint.json).
+No full-suite run, live IFC/Blender check, geometry/route rebuild, production
+integration, processed-result persistence or potential-distance rule is claimed.
+
 ## 持续维护 checklist
 
 执行中每完成一项都补充真实证据并更新勾选；发现偏离或未决先记录，不用实现结果反向改掉要求。

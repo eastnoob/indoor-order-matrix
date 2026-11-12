@@ -20,6 +20,7 @@ from .field_core import (
     EvidenceOutputProcessor,
     EvidenceOutputScale,
     EvidencePackage,
+    EvidencePackageChannelReference,
     EvidencePackageOutput,
     FieldResultEnvelope,
     FieldResultStatus,
@@ -760,6 +761,76 @@ def build_group_distance_evidence_package(*, output_processor: EvidenceOutputPro
     )
 
 
+def _median_euclidean_proximity(
+    raw: EvidencePackageOutput, parameters: Mapping[str, Any],
+) -> tuple[EvidenceOutputChannel, ...]:
+    """Transform the complete declared Euclidean scope using one common median."""
+    expected = parameters["expected_target_ids"]
+    members = tuple(item for item in raw.outputs if item.channel == "euclidean_distance")
+    identities = tuple(item.target["identity"] for item in members)
+    if len(identities) != len(expected) or set(identities) != set(expected):
+        raise ValueError("Euclidean members must match the complete declared target scope exactly")
+    values = []
+    for item in members:
+        observation = item.observation
+        if (item.status is not FieldResultStatus.COMPUTED or not isinstance(observation, Mapping)
+                or observation.get("raw_status") != "computed" or observation.get("units") != "m"
+                or item.scale.units != "m"):
+            raise ValueError("every Euclidean scope member must be computed in metres")
+        value = observation.get("value")
+        if (isinstance(value, bool) or not isinstance(value, (int, float))
+                or not math.isfinite(value) or value < 0):
+            raise ValueError("every Euclidean scope value must be finite and nonnegative")
+        values.append(value)
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    # This nonnegative midpoint avoids overflow without filtering inputs or adding epsilon.
+    median = (ordered[middle] if len(ordered) % 2 else
+              ordered[middle - 1] + (ordered[middle] - ordered[middle - 1]) / 2)
+    if not math.isfinite(median) or median <= 0:
+        raise ValueError("the complete Euclidean scope median must be finite and positive")
+    raw_identity = raw.output_identity
+    # Every output depends on every member of the common ruler, including its own distance.
+    lineage = tuple(EvidencePackageChannelReference(raw.package_id, raw_identity, identity, "euclidean_distance")
+                    for identity in sorted(identities))
+    source_ids = tuple(sorted({identity for item in members for identity in item.source_ids}))
+    scale = EvidenceOutputScale(
+        meaning="Scope-relative Euclidean proximity; larger is closer",
+        scale_id="euclidean-median-relative-proximity/1", units="dimensionless",
+        normalization_method="n=m/(m+d); m=median of complete declared Euclidean target scope",
+        value_range=(0, 1), endpoint_meanings=("infinite-distance limit", "zero Euclidean distance"),
+    )
+    outputs = []
+    for item, distance in zip(members, values):
+        denominator = median + distance
+        # The scaled equivalent retains the same ratio when two finite metres overflow on addition.
+        proximity = (median / denominator if math.isfinite(denominator) else
+                     (median / 2) / (median / 2 + distance / 2))
+        outputs.append(EvidenceOutputChannel(
+            target=item.target, channel="euclidean_relative_proximity", observation=proximity,
+            status=FieldResultStatus.COMPUTED, scale=scale, derived_from=lineage, source_ids=source_ids,
+            provenance={"method": "euclidean_median_relative_proximity",
+                        "algorithm_version": "euclidean-median-relative-proximity/1",
+                        "median_distance_m": median, "scope_pair_count": len(members)},
+            explanation="Experimental scope-relative proximity; changing scope can change every value.",
+        ))
+    return tuple(outputs)
+
+
+def build_euclidean_median_proximity_processor(*, expected_target_ids: Iterable[str]) -> EvidenceOutputProcessor:
+    """Explicitly opt into an experimental pure-distance, complete-scope ruler."""
+    if isinstance(expected_target_ids, (str, bytes, Mapping)) or not isinstance(expected_target_ids, Iterable):
+        raise ValueError("expected_target_ids must be a nonempty unique target-ID sequence")
+    scope = tuple(expected_target_ids)
+    if (not scope or any(not isinstance(identity, str) or not identity.strip() for identity in scope)
+            or len(set(scope)) != len(scope)):
+        raise ValueError("expected_target_ids must be a nonempty unique target-ID sequence")
+    return EvidenceOutputProcessor(
+        function_id="euclidean_median_relative_proximity", version="euclidean-median-relative-proximity/1",
+        function=_median_euclidean_proximity, parameters={"expected_target_ids": tuple(sorted(scope))},
+    )
+
+
 def evaluate_group_distance_package(
     bundle: GroupDistanceInput,
     *,
@@ -914,6 +985,7 @@ __all__ = [
     "OUTPUT_FUNCTION_VERSION",
     "SOURCE_CHANNEL",
     "build_group_distance_evidence_package",
+    "build_euclidean_median_proximity_processor",
     "build_group_distance_source_envelopes",
     "evaluate_group_distance_package",
     "serialize_group_distance_package_output",

@@ -7,8 +7,10 @@ Add a separate runtime processed port, default `output_processor=None`:
 `OUTPUT_FUNCTION_NOT_CONFIGURED` has no channels/value; no implicit identity
 or raw fallback. Processor failures and nonfresh sources have distinct empty
 errors. Bind processing identity to raw content plus function/version/parameters,
-without changing raw identity or JSON v1. No normalization/size/0.6 formula is
-selected. See the authoritative [structure](project/evidence/evidence-package-structure.md)
+without changing raw identity or JSON v1. No normalization/size/0.6 default is
+selected. The explicit pure-distance [trial](project/group-distance-decay-development-note.md#optional-processed-port-pure-distance-trial2026-11-12)
+uses a scope-median ruler only; its verification is tracked there, with no
+potential integration or cross-scene calibration claim. See the authoritative [structure](project/evidence/evidence-package-structure.md)
 and [execution checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
 Parent owns final acceptance and all jj history on `group-distance-decay`.
 

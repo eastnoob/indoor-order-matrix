@@ -1,5 +1,29 @@
 # 软件架构
 
+## Opt-in pure Euclidean processed-port trial — 2026-11-12
+
+`features/group_distance_evidence_package.py` adds the explicit experimental
+`build_euclidean_median_proximity_processor(expected_target_ids=...)`. It uses
+only the complete declared Euclidean scope and publishes relative proximity
+`n=m/(m+d)` through the existing runtime processed port; `m` is the scope
+median. Unusable/incomplete inputs or a nonpositive median fail closed. Every
+processed channel cites all raw Euclidean channels used by the common ruler.
+The existing raw factory default, two raw channels, caches and JSON stay intact.
+
+`scripts/design/group_level/run_group_distance_processed_ifc.py` reuses the
+authenticated retained IFC loader, processes the actual distance producer, and
+renders supplied processed values beside raw metres. All 37 groups / 666 pairs
+use one ruler; the source selector never recalculates that ruler. New PNG/SVG,
+HTML and compact trial exports do not rebuild geometry or routes. This is
+scope-relative display/consumer normalization, without furniture-size weighting,
+potential integration, physical attenuation or cross-scene calibration.
+Changing scope can change existing pair values. See the bounded
+[trial/checklist](project/group-distance-decay-development-note.md#optional-processed-port-pure-distance-trial2026-11-12)
+for verification and acceptance; implementation alone is not acceptance.
+The bounded candidate independently passed 135 focused tests, full 666-pair
+raw/processed comparison and actual PNG/Edge inspection; specification PASS,
+quality Approved. User visual assessment remains open.
+
 ## Evidence-package optional processing — 2026-11-12 / locally verified
 
 The existing `group-distance-decay` jj workline implements the user-confirmed
@@ -23,8 +47,9 @@ polluting raw computation identity.
 Free-space, distance and both potential factory variants only forward this
 optional configuration. Adapters, computation kernels and persistence are
 unchanged. The processed port is runtime-only; existing saved readers and
-cross-package dependency handling still read raw publications. No numeric
-formula, normalization default, size weighting or exponent 0.6 is configured.
+cross-package dependency handling still read raw publications. No normalization
+default, size weighting or exponent 0.6 is configured; the later trial above
+opts in explicitly without changing those defaults.
 See [package structure](project/evidence/evidence-package-structure.md),
 [minimum standard](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md)
 and the [execution/acceptance checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
