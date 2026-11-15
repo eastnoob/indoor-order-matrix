@@ -16,6 +16,7 @@ from .field_core import (
     FieldResultStatus, _json_value, build_evidence_package_contract,
     build_field_result_cache_identity, fingerprint_evidence_dependency,
 )
+from .evidence_package_parameters import ParameterImpact, ParameterSchema, ParameterSnapshot, ParameterSpec
 
 PACKAGE_ID = "free-space"
 PACKAGE_SCHEMA = "free-space-evidence-package/v1"
@@ -38,6 +39,153 @@ _CHANNELS = ({"channel": SOURCE_CHANNEL, "polarity": "descriptive", "units": "bo
              {"channel": OUTPUT_CHANNEL, "polarity": "descriptive", "units": "boolean"})
 _RECIPE = {"formula": "free_space = not physical_occupancy for Boolean values; otherwise null",
            "meaning": "Empty under the declared physical query; no walkability, clearance or connectivity claim"}
+
+FREE_SPACE_PARAMETER_SCHEMA = ParameterSchema(
+    PACKAGE_ID,
+    "free-space-parameters/1",
+    (
+        ParameterSpec("analysis_plane", dict, unit="request_context"),
+        ParameterSpec("plane_publication_metadata", dict, unit="request_context",
+                      impact=ParameterImpact.METADATA_ONLY),
+        ParameterSpec("grid_spacing_m", float, unit="m", minimum=0.0),
+        ParameterSpec("lattice", dict, unit="request_context"),
+        ParameterSpec("geometry_query", dict, unit="request_context"),
+        ParameterSpec("height_band_datum", dict, unit="request_context", nullable=True),
+        ParameterSpec("geometry_tolerance_m", float, .001, unit="m", minimum=0.0),
+        ParameterSpec("topology_tolerance_m", float, .001, unit="m", minimum=0.0),
+        ParameterSpec("source_rules", dict, unit="request_context"),
+        ParameterSpec("demand", dict, unit="request_context", nullable=True),
+    ),
+)
+
+
+def build_free_space_parameter_snapshot(
+    request_values: Mapping[str, object], *, parameter_sources: Mapping[str, str] | None = None,
+) -> ParameterSnapshot:
+    """Capture validated free-space request geometry and sampling context."""
+    if not isinstance(request_values, Mapping):
+        raise TypeError("request_values must be a validated request mapping")
+    required = ("plane", "sampling", "geometry_query", "source_rules")
+    missing = [name for name in required if name not in request_values]
+    if missing:
+        raise ValueError(f"validated request is missing {missing[0]}")
+    plane = request_values["plane"]
+    sampling = request_values["sampling"]
+    if not isinstance(plane, Mapping) or not isinstance(sampling, Mapping):
+        raise TypeError("validated request plane and sampling must be mappings")
+    # Publication name/revision are retained as audit metadata but excluded
+    # from calculation identity so an unchanged geometric plane can be reused.
+    analysis_plane = {key: value for key, value in plane.items()
+                      if key not in {"name", "revision"}}
+    publication = {key: plane[key] for key in ("name", "revision") if key in plane}
+    if "spacing" not in sampling:
+        raise ValueError("validated request sampling requires spacing")
+    values = {
+        "analysis_plane": analysis_plane,
+        "plane_publication_metadata": publication,
+        "grid_spacing_m": sampling["spacing"],
+        "lattice": dict(sampling),
+        "geometry_query": request_values["geometry_query"],
+        "height_band_datum": request_values.get("height_band_datum"),
+        "geometry_tolerance_m": request_values.get("geometry_tolerance", .001),
+        "topology_tolerance_m": request_values.get("topology_tolerance", .001),
+        "source_rules": request_values["source_rules"],
+        "demand": request_values.get("demand"),
+    }
+    sources = dict(parameter_sources or {})
+    resolved_sources = {name: sources.get(name, "request") for name in values}
+    return FREE_SPACE_PARAMETER_SCHEMA.resolve(values, sources=resolved_sources)
+
+
+def _calculation_source_values(document: Mapping[str, object]) -> list[object]:
+    """Normalize publication-only query values before binding calculation identity."""
+    tables = document["tables"]
+    if not isinstance(tables, Mapping) or not isinstance(tables.get("values"), (list, tuple)):
+        raise ValueError("free-space document values table is required")
+    values = list(tables["values"])
+    cells = document.get("cells")
+    if not isinstance(cells, (list, tuple)):
+        raise ValueError("free-space document cells are required")
+    references = {
+        cell["query_ref"] for cell in cells
+        if isinstance(cell, Mapping) and type(cell.get("query_ref")) is int
+    }
+    provenance = tables.get("sample_provenance")
+    if isinstance(provenance, Mapping):
+        references.update(
+            value for key in ("frame", "input_query_context")
+            if type((value := provenance.get(key))) is int
+        )
+
+    def normalize(value):
+        """Strip only plane publication fields from one referenced table value."""
+        if isinstance(value, Mapping):
+            normalized = {}
+            has_plane = "plane" in value and isinstance(value["plane"], Mapping)
+            for key, nested in value.items():
+                if has_plane and key == "revision":
+                    continue
+                if key == "plane" and isinstance(nested, Mapping):
+                    normalized[key] = {
+                        name: item for name, item in nested.items()
+                        if name not in {"name", "revision"}}
+                elif key == "frame" and isinstance(nested, str) and nested.startswith("analysis-plane:"):
+                    normalized[key] = nested.rsplit(":", 1)[0]
+                else:
+                    normalized[key] = normalize(nested)
+            return normalized
+        if isinstance(value, (list, tuple)):
+            return [normalize(item) for item in value]
+        if isinstance(value, str) and value.startswith("analysis-plane:"):
+            return value.rsplit(":", 1)[0]
+        return value
+
+    for reference in references:
+        if 0 <= reference < len(values):
+            values[reference] = normalize(values[reference])
+    return sorted(values, key=lambda item: json.dumps(
+        item, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+
+
+def _calculation_source_cells(document: Mapping[str, object]) -> list[dict[str, object]]:
+    """Resolve cell references so publication table ordering cannot alter identity."""
+    values = _calculation_source_values(document)
+    cells = document["cells"]
+
+    def resolve_delta(value):
+        """Resolve compact delta references while leaving literal cell fields intact."""
+        if isinstance(value, Mapping):
+            if set(value) == {"snapshot"}:
+                return _value(document, value)
+            return {
+                key: resolve_delta(nested)
+                for key, nested in value.items()
+            }
+        if isinstance(value, (list, tuple)):
+            return [resolve_delta(item) for item in value]
+        return value
+
+    normalized = []
+    for cell in cells:
+        row = dict(cell)
+        for key in ("query_ref", "source_ids_ref", "explanation_ref"):
+            reference = cell[key]
+            if type(reference) is int:
+                row[key] = values[reference]
+            else:
+                row[key] = _value(document, reference)
+        for key in ("support_delta", "provenance_delta"):
+            if key in cell:
+                delta = dict(cell[key])
+                changes = delta.get("changes")
+                if isinstance(changes, Mapping):
+                    delta["changes"] = {
+                        name: (_value(document, item) if type(item) is int else resolve_delta(item))
+                        for name, item in changes.items()
+                    }
+                row[key] = delta
+        normalized.append(row)
+    return normalized
 
 
 def _value(document, reference):
@@ -83,7 +231,11 @@ def _document_scope(document):
         scope = fingerprint_evidence_dependency({
             "source": identity["project_source_identity"],
             "scene": identity["request_source_fingerprint"],
-            "domain": request["domain"], "plane": request["plane"],
+            "domain": request["domain"],
+            "plane": {
+                key: value for key, value in request["plane"].items()
+                if key not in {"name", "revision"}
+            },
             "lattice": lattice, "geometry_query": request["geometry_query"],
         })
         return "free-space-grid:" + scope
@@ -112,17 +264,30 @@ def _source_identity(document, target, query):
     )
 
 
-def build_free_space_package_contract(document, *, dependency_fingerprints=None, visualization_manifest=None):
+def build_free_space_package_contract(
+    document, *, dependency_fingerprints=None, visualization_manifest=None,
+    parameter_snapshot: ParameterSnapshot | None = None,
+):
     """Bind actual source bytes and optional declared dependencies to seven shared roles."""
     scope = _document_scope(document)
     request = document["tables"]["snapshot"]["request"]
+    if parameter_snapshot is None:
+        parameter_snapshot = build_free_space_parameter_snapshot(request)
+    snapshot_values = parameter_snapshot.effective_parameters
+    # Use geometry-only plane/query projections in calculation dependencies;
+    # complete publication metadata remains in the typed snapshot audit field.
+    calculation_request = dict(request)
+    calculation_request["plane"] = dict(snapshot_values["analysis_plane"])
+    calculation_request.pop("request_id", None)
     declared = {} if dependency_fingerprints is None else dict(dependency_fingerprints)
     actual = {
-        "scene": {"source_fingerprint": document["identity"]["request_source_fingerprint"], "document_digest": document["digest"]},
+        "scene": {"source_fingerprint": document["identity"]["request_source_fingerprint"]},
         "model": {"backend_versions": document["backend_versions"], "producer": PRODUCER},
-        "source": {"identity": document["identity"]["project_source_identity"], "result_ref": _result_ref(document)},
-        "plane": request["plane"],
-        "query": {key: value for key, value in request.items() if key != "request_id"},
+        "source": {"identity": document["identity"]["project_source_identity"],
+                   "cells": _calculation_source_cells(document),
+                   "values": _calculation_source_values(document)},
+        "plane": snapshot_values["analysis_plane"],
+        "query": calculation_request,
         "recipe": {**_RECIPE, "output_function": OUTPUT_FUNCTION_ID, "output_function_version": OUTPUT_FUNCTION_VERSION},
         "channels": _CHANNELS,
     }
@@ -135,6 +300,7 @@ def build_free_space_package_contract(document, *, dependency_fingerprints=None,
         target_ids=(_target(scope, cell)["identity"] for cell in document["cells"]),
         dependencies=dependencies, algorithm_version=ALGORITHM_VERSION, schema_version=PACKAGE_SCHEMA,
         artifacts={} if visualization_manifest is None else {"visualization_manifest": visualization_manifest},
+        parameter_snapshot=parameter_snapshot,
     )
 
 

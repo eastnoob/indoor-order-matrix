@@ -70,6 +70,27 @@ def test_single_source_preserves_every_raw_sample_and_cell_lineage():
     assert core.build_free_space_evidence_package().package_id == result.package_id
 
 
+def test_free_space_snapshot_captures_required_request_geometry():
+    """Required context comes from the validated request without new defaults."""
+    _, document = _compact_document()
+    request = document["tables"]["snapshot"]["request"]
+    snapshot = package_module.build_free_space_parameter_snapshot(request)
+    values = snapshot.to_json()["effective_parameters"]
+    assert values["analysis_plane"] == {
+        key: value for key, value in request["plane"].items()
+        if key not in {"name", "revision"}}
+    assert values["plane_publication_metadata"] == {
+        key: request["plane"][key] for key in ("name", "revision")
+        if key in request["plane"]}
+    assert values["grid_spacing_m"] == request["sampling"]["spacing"]
+    assert values["geometry_query"] == request["geometry_query"]
+    assert values["height_band_datum"] == request.get("height_band_datum")
+    incomplete = dict(request)
+    incomplete.pop("plane")
+    with pytest.raises((KeyError, TypeError, ValueError)):
+        package_module.build_free_space_parameter_snapshot(incomplete)
+
+
 def test_six_statuses_keep_nulls_and_explanations():
     """Only Boolean known/conditional occupancies have a Boolean complement."""
     _, adapter = _modules()

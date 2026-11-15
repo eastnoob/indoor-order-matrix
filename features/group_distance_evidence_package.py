@@ -32,6 +32,7 @@ from .field_core import (
     evaluate_evidence_package_freshness,
     serialize_evidence_package_output,
 )
+from .evidence_package_parameters import ParameterSchema, ParameterSnapshot, ParameterSpec
 from . import group_distance as distance_kernel
 from .evidence_package_storage import (load_raw_output, save_raw_output, processed_cache_key,
                                       load_processed_output, save_processed_output)
@@ -54,6 +55,63 @@ SOURCE_CHANNEL = "group_distance_observation"
 SOURCE_ALGORITHM_VERSION = "group-distance-source/1"
 SOURCE_SCHEMA_VERSION = "group-distance-source/v1"
 VISUALIZATION_MANIFEST_SCHEMA = "group-walk-distance-visualization-manifest/v1"
+
+GROUP_DISTANCE_CLEARANCE_SCHEMA = ParameterSchema(
+    PACKAGE_ID,
+    "group-distance-clearance/1",
+    (
+        ParameterSpec("min_left_m", float, .225, unit="m", minimum=0.0),
+        ParameterSpec("min_right_m", float, .225, unit="m", minimum=0.0),
+        ParameterSpec("min_total_m", float, .55, unit="m", minimum=0.0),
+    ),
+)
+GROUP_DISTANCE_PARAMETER_SCHEMA = ParameterSchema(
+    PACKAGE_ID,
+    "group-distance-parameters/1",
+    (
+        ParameterSpec("grid", dict, unit="request_context"),
+        ParameterSpec("query_context", dict, unit="request_context"),
+        ParameterSpec("free_space_result_ref", dict, unit="request_context", nullable=True),
+        ParameterSpec("clearance_mode", str, choices=("unconstrained", "constrained")),
+        ParameterSpec("clearance_policy", dict, unit="request_context", nullable=True),
+    ),
+)
+
+
+def build_group_distance_parameter_snapshot(
+    bundle: GroupDistanceInput, *, parameter_sources: Mapping[str, str] | None = None,
+) -> ParameterSnapshot:
+    """Capture the exact distance input context and opt-in clearance policy."""
+    if not isinstance(bundle, GroupDistanceInput):
+        raise TypeError("bundle must be a GroupDistanceInput")
+    policy = bundle.clearance_policy
+    if policy is None:
+        mode, policy_value = "unconstrained", None
+    else:
+        # Constrained repair accepts exactly the owner defaults/keys; no hidden
+        # thresholds are inserted into an unconstrained ordinary calculation.
+        policy_snapshot = GROUP_DISTANCE_CLEARANCE_SCHEMA.capture_calculated(
+            dict(policy), sources={name: "bundle" for name in (
+                "min_left_m", "min_right_m", "min_total_m")},
+        )
+        mode, policy_value = "constrained", dict(policy_snapshot.effective_parameters)
+    free_space_ref = None
+    if isinstance(bundle.free_space_samples, Mapping):
+        free_space_ref = bundle.free_space_samples.get("result_ref")
+        if free_space_ref is not None and not isinstance(free_space_ref, Mapping):
+            # Legacy fixtures used scalar publication tokens; retain their
+            # identity inside a typed mapping without changing the raw contract.
+            free_space_ref = {"value": free_space_ref}
+    values = {
+        "grid": _json_value(bundle.grid),
+        "query_context": _json_value(bundle.query_context),
+        "free_space_result_ref": _json_value(free_space_ref),
+        "clearance_mode": mode,
+        "clearance_policy": policy_value,
+    }
+    source_map = dict(parameter_sources or {})
+    resolved_sources = {name: source_map.get(name, "bundle") for name in values}
+    return GROUP_DISTANCE_PARAMETER_SCHEMA.resolve(values, sources=resolved_sources)
 
 _DISTANCE_CHANNELS = (
     ("euclidean_distance", "center_to_center_euclidean", "Centroid-to-centroid Euclidean distance"),
@@ -970,7 +1028,7 @@ def evaluate_group_distance_package(
     return build_group_distance_evidence_package().evaluate(sources)
 
 
-def _run_contract(bundle, repaired_result):
+def _run_contract(bundle, repaired_result, *, parameter_sources=None):
     """Return the current contract and actual input fingerprints before any kernel work."""
     if not isinstance(bundle, GroupDistanceInput):
         raise TypeError("bundle must be a GroupDistanceInput")
@@ -1012,9 +1070,13 @@ def _run_contract(bundle, repaired_result):
             manifest.update(clearance_policy_version=distance_kernel.CLEARANCE_POLICY_VERSION, clearance_policy=bundle.clearance_policy)
         empty_dependencies = _dependencies(repaired_result if repaired_result is not None else {"manifest": manifest}, bundle)
         targets = ("empty-scope:" + fingerprint_evidence_dependency({"groups": (), "dependencies": empty_dependencies})[:24],)
+    parameter_snapshot = build_group_distance_parameter_snapshot(
+        bundle, parameter_sources=parameter_sources,
+    )
     return build_evidence_package_contract(package_id=PACKAGE_ID, package_schema=PACKAGE_SCHEMA,
         producer=PRODUCER, target_ids=targets, dependencies=dependencies,
-        algorithm_version=OUTPUT_FUNCTION_VERSION, schema_version=PACKAGE_SCHEMA), inputs
+        algorithm_version=OUTPUT_FUNCTION_VERSION, schema_version=PACKAGE_SCHEMA,
+        parameter_snapshot=parameter_snapshot), inputs
 
 
 def _cached_sources_match(raw, bundle, inputs, targets):
@@ -1033,10 +1095,13 @@ def _cached_sources_match(raw, bundle, inputs, targets):
     return True
 
 
-def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=None, output_processor=None):
+def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=None,
+                               output_processor=None, parameter_sources=None):
     """Own distance computation and independently cached optional processed results."""
     package = build_group_distance_evidence_package(output_processor=output_processor)
-    contract, inputs = _run_contract(bundle, repaired_result)
+    contract, inputs = _run_contract(
+        bundle, repaired_result, parameter_sources=parameter_sources,
+    )
     cache_key = contract["package_identity"]
     path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
     raw = None if path is None else load_raw_output(path, cache_key=cache_key, contract=contract, package=package)
@@ -1073,12 +1138,15 @@ def build_group_distance_package_contract(
     bundle: GroupDistanceInput,
     *,
     visualization_manifest: Mapping[str, Any] | None = None,
+    parameter_snapshot: ParameterSnapshot | None = None,
 ) -> dict[str, Any]:
     """Declare package dependencies and stable output channels for one result."""
     if not isinstance(result, (GroupDistanceResult, Mapping)):
         raise TypeError("result must be a GroupDistanceResult or result mapping")
     if not isinstance(bundle, GroupDistanceInput):
         raise TypeError("bundle must be a GroupDistanceInput")
+    if parameter_snapshot is None:
+        parameter_snapshot = build_group_distance_parameter_snapshot(bundle)
     actual_dependencies = group_distance_input_fingerprints(bundle)
     observations, dependencies, _ = _validated_result_scope(
         result, bundle, actual_dependencies=actual_dependencies,
@@ -1125,6 +1193,7 @@ def build_group_distance_package_contract(
         algorithm_version=OUTPUT_FUNCTION_VERSION,
         schema_version=PACKAGE_SCHEMA,
         artifacts=artifacts,
+        parameter_snapshot=parameter_snapshot,
     )
 
 
@@ -1182,6 +1251,8 @@ def build_group_distance_visualization_manifest(
 __all__ = [
     "PACKAGE_ID",
     "PACKAGE_SCHEMA",
+    "GROUP_DISTANCE_CLEARANCE_SCHEMA",
+    "build_group_distance_parameter_snapshot",
     "OUTPUT_FUNCTION_ID",
     "OUTPUT_FUNCTION_VERSION",
     "SOURCE_CHANNEL",

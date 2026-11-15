@@ -23,11 +23,148 @@ from shapely.geometry import LineString, Point
 from shapely.ops import unary_union
 
 from . import group_distance as kernel
+from .field_core import fingerprint_evidence_dependency
 
 
 METHOD_VERSION = "route-first-lazy-exact/1"
 SCHEMA_VERSION = "route-repair/1"
 GLOBAL_METHOD_VERSION = "global-directional-lazy-exact/1"
+CHECKPOINT_SCHEMA = "directional-repair-checkpoint/1"
+
+
+def _normalized_checkpoint_policy(policy: Mapping[str, float]) -> dict[str, float]:
+    """Validate the exact finite clearance policy used by checkpoint identity."""
+    if not isinstance(policy, Mapping):
+        raise TypeError("policy must be a mapping")
+    names = ("min_left_m", "min_right_m", "min_total_m")
+    if set(policy) != set(names):
+        raise ValueError("policy must contain exactly the clearance thresholds")
+    normalized = {}
+    for name in names:
+        value = policy[name]
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+            raise ValueError("clearance thresholds must be finite nonnegative numbers")
+        normalized[name] = float(value)
+    return normalized
+
+
+def _checkpoint_fingerprint(bundle: Any, baseline: Mapping[str, Any], policy: Mapping[str, float], *, pair_limit=None) -> str:
+    """Fingerprint all facts that make one global repair receipt reusable."""
+    ordinary = _unconstrained_bundle(bundle)
+    groups = tuple(group.group_id for group in ordinary.groups)
+    observations = baseline.get("observations") if isinstance(baseline, Mapping) else None
+    if isinstance(observations, (str, bytes)) or not isinstance(observations, (tuple, list)):
+        raise TypeError("baseline observations must be a sequence")
+    wanted = tuple(observations if pair_limit is None else observations[:pair_limit])
+    wanted_pairs = tuple(sorted(tuple(row["group_ids"]) for row in wanted))
+    baseline_fingerprint = fingerprint_evidence_dependency({
+        "manifest": baseline.get("manifest") if isinstance(baseline, Mapping) else None,
+        "observations": wanted,
+    })
+    free_space_ref = None
+    if isinstance(ordinary.free_space_samples, Mapping):
+        free_space_ref = ordinary.free_space_samples.get("result_ref")
+    payload = {
+        "schema": CHECKPOINT_SCHEMA,
+        "input_fingerprints": kernel.group_distance_input_fingerprints(ordinary),
+        "free_space_result_ref": free_space_ref,
+        "group_ids": groups,
+        "wanted_pairs": wanted_pairs,
+        "baseline_fingerprint": baseline_fingerprint,
+        "policy": _normalized_checkpoint_policy(policy),
+        "method": GLOBAL_METHOD_VERSION,
+    }
+    return fingerprint_evidence_dependency(payload)
+
+
+def _checkpoint_matches(payload: Mapping[str, Any], *, fingerprint: str, source_index: int,
+                        source_id: str, wanted_pairs: tuple[tuple[str, str], ...]) -> bool:
+    """Accept only complete, shape-valid receipts for this source and invocation."""
+    if not isinstance(payload, Mapping) or payload.get("schema") != CHECKPOINT_SCHEMA:
+        return False
+    if payload.get("checkpoint_fingerprint") != fingerprint:
+        return False
+    saved_index = payload.get("source_index")
+    if isinstance(saved_index, bool) or not isinstance(saved_index, int) or saved_index != source_index:
+        return False
+    if payload.get("source_id") != source_id:
+        return False
+    raw_results = payload.get("results")
+    if isinstance(raw_results, (str, bytes)) or not isinstance(raw_results, (tuple, list)):
+        return False
+    wanted = set(wanted_pairs)
+    seen: set[tuple[str, str]] = set()
+
+    def finite_nonnegative(value: Any) -> bool:
+        """Check route measurements without admitting Boolean numerics."""
+        return not isinstance(value, bool) and isinstance(value, (int, float)) and math.isfinite(value) and value >= 0
+
+    for item in raw_results:
+        if not isinstance(item, Mapping):
+            return False
+        key = item.get("key")
+        if isinstance(key, (str, bytes)) or not isinstance(key, (tuple, list)) or len(key) != 2:
+            return False
+        pair = (key[0], key[1])
+        if pair in seen or pair not in wanted or pair[0] != source_id:
+            return False
+        route, exact = item.get("route"), item.get("exact")
+        if not isinstance(route, Mapping) or not isinstance(exact, Mapping):
+            return False
+        if not finite_nonnegative(route.get("value")):
+            return False
+        if (not isinstance(route.get("cell_keys"), (tuple, list)) or not route["cell_keys"]
+                or not isinstance(route.get("state_keys"), (tuple, list)) or not route["state_keys"]
+                or not isinstance(route.get("source_access"), Mapping)
+                or not isinstance(route.get("target_access"), Mapping)):
+            return False
+        if type(exact.get("passed")) is not bool:
+            return False
+        if exact["passed"]:
+            if any(name not in exact for name in ("edge_witnesses", "turn_witnesses", "minimum_m")):
+                return False
+            minimum = exact["minimum_m"]
+            if not isinstance(minimum, Mapping) or any(name not in minimum for name in ("left", "right", "total")):
+                return False
+            if any(value is not None and not finite_nonnegative(value)
+                   for value in (minimum["left"], minimum["right"], minimum["total"])):
+                return False
+        elif not isinstance(exact.get("failure"), Mapping):
+            return False
+        seen.add(pair)
+    return seen == wanted
+
+
+def _write_checkpoint(checkpoint_dir: Path, source_index: int, source_id: str,
+                      fingerprint: str, wanted_pairs: tuple[tuple[str, str], ...],
+                      results: list[Mapping[str, Any]]) -> None:
+    """Atomically publish one bound checkpoint while retaining invalid bytes."""
+    checkpoint = checkpoint_dir / f"source_{source_index:03d}-{fingerprint}.json"
+    if checkpoint.exists():
+        try:
+            existing = checkpoint.read_bytes()
+            payload = json.loads(existing.decode("utf-8"))
+            if not _checkpoint_matches(payload, fingerprint=fingerprint,
+                                       source_index=source_index, source_id=source_id,
+                                       wanted_pairs=wanted_pairs):
+                rejected = checkpoint.with_name(
+                    checkpoint.stem + ".rejected-" + hashlib.sha256(existing).hexdigest()[:16] + checkpoint.suffix
+                )
+                checkpoint.replace(rejected)
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            try:
+                existing = checkpoint.read_bytes()
+                rejected = checkpoint.with_name(
+                    checkpoint.stem + ".rejected-" + hashlib.sha256(existing).hexdigest()[:16] + checkpoint.suffix
+                )
+                checkpoint.replace(rejected)
+            except OSError:
+                pass
+    payload = {"schema": CHECKPOINT_SCHEMA, "checkpoint_fingerprint": fingerprint,
+               "source_index": source_index, "source_id": source_id, "results": results}
+    temporary = checkpoint.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(payload, sort_keys=True, ensure_ascii=False), encoding="utf-8")
+    temporary.replace(checkpoint)
 
 
 def _tuple_cell(value: Any) -> tuple[int, int]:
@@ -768,14 +905,30 @@ def global_repair_result(bundle: Any, baseline: Mapping[str, Any], policy: Mappi
     groups = tuple(group.group_id for group in ordinary.groups)
     wanted = baseline["observations"] if pair_limit is None else baseline["observations"][:pair_limit]
     wanted_ids = {tuple(row["group_ids"]): row for row in wanted}
+    checkpoint_fingerprint = _checkpoint_fingerprint(
+        ordinary, baseline, policy, pair_limit=pair_limit,
+    )
     results = {}
     completed_sources: set[int] = set()
     if checkpoint_dir is not None:
         checkpoint_dir.mkdir(parents=True, exist_ok=True)
         for checkpoint in sorted(checkpoint_dir.glob("source_*.json")):
+            if ".rejected-" in checkpoint.stem:
+                continue
             try:
                 payload = json.loads(checkpoint.read_text(encoding="utf-8"))
-                source_index = int(payload["source_index"])
+                source_index = payload["source_index"]
+                if (isinstance(source_index, bool) or not isinstance(source_index, int)
+                        or not 0 <= source_index < len(groups) - 1):
+                    continue
+                source_id = groups[source_index]
+                target_ids = tuple(target_id for target_id in groups[source_index + 1:]
+                                   if (source_id, target_id) in wanted_ids)
+                source_pairs = tuple((source_id, target_id) for target_id in target_ids)
+                if not _checkpoint_matches(payload, fingerprint=checkpoint_fingerprint,
+                                           source_index=source_index, source_id=source_id,
+                                           wanted_pairs=source_pairs):
+                    continue
                 for item in payload.get("results", ()):
                     key = tuple(item["key"])
                     results[key] = {"route": item["route"], "exact": item["exact"]}
@@ -788,22 +941,17 @@ def global_repair_result(bundle: Any, baseline: Mapping[str, Any], policy: Mappi
             continue
         target_ids = tuple(target_id for target_id in groups[index + 1:]
                            if (source_id, target_id) in wanted_ids)
+        source_pairs = tuple((source_id, target_id) for target_id in target_ids)
         if not target_ids:
             if checkpoint_dir is not None:
-                checkpoint = checkpoint_dir / f"source_{index:03d}.json"
-                temporary = checkpoint.with_suffix(".json.tmp")
-                temporary.write_text(json.dumps({"source_index": index, "source_id": source_id,
-                                                 "results": []}, sort_keys=True), encoding="utf-8")
-                temporary.replace(checkpoint)
+                _write_checkpoint(checkpoint_dir, index, source_id, checkpoint_fingerprint,
+                                  source_pairs, [])
             continue
         source_accesses = get_access(source_id)
         if not source_accesses:
             if checkpoint_dir is not None:
-                checkpoint = checkpoint_dir / f"source_{index:03d}.json"
-                temporary = checkpoint.with_suffix(".json.tmp")
-                temporary.write_text(json.dumps({"source_index": index, "source_id": source_id,
-                                                 "results": []}, sort_keys=True), encoding="utf-8")
-                temporary.replace(checkpoint)
+                _write_checkpoint(checkpoint_dir, index, source_id, checkpoint_fingerprint,
+                                  source_pairs, [])
             continue
         candidate_targets = {
             target_id: get_access(target_id)
@@ -812,11 +960,8 @@ def global_repair_result(bundle: Any, baseline: Mapping[str, Any], policy: Mappi
         }
         if not candidate_targets:
             if checkpoint_dir is not None:
-                checkpoint = checkpoint_dir / f"source_{index:03d}.json"
-                temporary = checkpoint.with_suffix(".json.tmp")
-                temporary.write_text(json.dumps({"source_index": index, "source_id": source_id,
-                                                 "results": []}, sort_keys=True), encoding="utf-8")
-                temporary.replace(checkpoint)
+                _write_checkpoint(checkpoint_dir, index, source_id, checkpoint_fingerprint,
+                                  source_pairs, [])
             continue
         routes = _global_source_search(observed, source_accesses,
                                        candidate_targets, context)
@@ -830,12 +975,8 @@ def global_repair_result(bundle: Any, baseline: Mapping[str, Any], policy: Mappi
             results[key] = {"route": route, "exact": exact}
             source_results.append({"key": list(key), "route": route, "exact": exact})
         if checkpoint_dir is not None:
-            checkpoint = checkpoint_dir / f"source_{index:03d}.json"
-            temporary = checkpoint.with_suffix(".json.tmp")
-            temporary.write_text(json.dumps({"source_index": index, "source_id": source_id,
-                                             "results": source_results},
-                                            sort_keys=True, ensure_ascii=False), encoding="utf-8")
-            temporary.replace(checkpoint)
+            _write_checkpoint(checkpoint_dir, index, source_id, checkpoint_fingerprint,
+                              source_pairs, source_results)
     observations = []
     counts = {"exact_route_verified": 0, "unresolved_global": 0, "proxy_unreachable": 0}
     for original in wanted:
@@ -867,6 +1008,7 @@ def global_repair_result(bundle: Any, baseline: Mapping[str, Any], policy: Mappi
         row["directional_repair"] = repair
         observations.append(row)
     return {"schema_version": "route-repair/2", "method": GLOBAL_METHOD_VERSION,
+            "checkpoint_fingerprint": checkpoint_fingerprint,
             "policy": dict(policy), "group_count": len(groups), "pair_count": len(observations),
             "pair_limit": pair_limit, "quality_counts": counts, "geometry_checks": context["checks"],
             "cache_sizes": {"edges": len(context["edge_cache"]), "turns": len(context["turn_cache"]),

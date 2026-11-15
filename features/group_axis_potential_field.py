@@ -27,6 +27,7 @@ from .field_core import (
     evaluate_evidence_package_freshness,
     fingerprint_evidence_dependency,
 )
+from .evidence_package_parameters import ParameterSchema, ParameterSnapshot, ParameterSpec
 from .evidence_package_storage import (load_raw_output, save_raw_output, processed_cache_key,
                                       load_processed_output, save_processed_output)
 
@@ -51,6 +52,22 @@ FIELD_CELL_KIND = "furniture_group_axis_field_cell"
 FIELD_VIEW_KIND = "furniture_group_axis_field"
 FIELD_RECIPE_ID = "source-axis-g-to-k-v1"
 FIELD_OUTPUT_SCHEMA = "group-axis-potential-field-output/v1"
+
+GROUP_AXIS_PARAMETER_SCHEMA = ParameterSchema(
+    PACKAGE_ID,
+    "group-axis-potential/parameters/1",
+    (ParameterSpec("distance_modulation_enabled", bool, False),),
+)
+
+
+def build_group_axis_parameter_snapshot(
+    *, distance_modulation_enabled: bool, parameter_sources: Mapping[str, str] | None = None,
+) -> ParameterSnapshot:
+    """Resolve this package's own optional distance-modulation switch."""
+    return GROUP_AXIS_PARAMETER_SCHEMA.resolve(
+        {"distance_modulation_enabled": distance_modulation_enabled},
+        sources=parameter_sources,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1014,6 +1031,8 @@ def build_group_axis_potential_package(
 def build_group_axis_potential_package_contract(
     source_envelopes, *, scene_namespace=None, output_targets=None,
     distance_modulation: DistanceModulationInput | None = None,
+    parameter_snapshot: ParameterSnapshot | None = None,
+    parameter_sources: Mapping[str, str] | None = None,
 ):
     """Bind actual typed sources and the selected producer without running its algorithm."""
     sources = tuple(source_envelopes)
@@ -1022,6 +1041,13 @@ def build_group_axis_potential_package_contract(
     )
     if not sources or any(not isinstance(source, FieldResultEnvelope) for source in sources):
         raise TypeError("source_envelopes must contain FieldResultEnvelope values")
+    if parameter_snapshot is None:
+        parameter_snapshot = build_group_axis_parameter_snapshot(
+            distance_modulation_enabled=distance_modulation is not None,
+            parameter_sources=parameter_sources,
+        )
+    elif parameter_snapshot.effective_parameters.get("distance_modulation_enabled") != (distance_modulation is not None):
+        raise ValueError("parameter snapshot does not match distance modulation binding")
     # Preserve producer order: audit lists and exact aggregate bytes retain that order.
     contents = [{name: _json_value(getattr(source, name)) for name in (
         "target", "query", "channel_set", "cache_identity", "raw_status", "value", "support", "source_ids")}
@@ -1052,12 +1078,14 @@ def build_group_axis_potential_package_contract(
     return build_evidence_package_contract(package_id=PACKAGE_ID, package_schema=schema,
         producer="features.group_axis_potential_field", target_ids=(
             (source.target["identity"] for source in sources) if output_targets is None else output_targets),
-        dependencies=dependencies, algorithm_version=producer.output_function_version, schema_version=schema)
+        dependencies=dependencies, algorithm_version=producer.output_function_version, schema_version=schema,
+        parameter_snapshot=parameter_snapshot)
 
 
 def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
                                      cache_directory=None, output_processor=None,
-                                     distance_modulation: DistanceModulationInput | None = None):
+                                     distance_modulation: DistanceModulationInput | None = None,
+                                     parameter_sources: Mapping[str, str] | None = None):
     """Own potential calculation reuse and its separately configured processed publication."""
     sources = tuple(source_envelopes)
     package = build_group_axis_potential_package(
@@ -1068,6 +1096,7 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
     graph = None if distance_modulation is None else distance_modulation.dependency_graph
     contract = build_group_axis_potential_package_contract(
         sources, scene_namespace=scene_namespace, distance_modulation=distance_modulation,
+        parameter_sources=parameter_sources,
     )
     cache_key = contract["package_identity"]
     path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
@@ -1086,7 +1115,7 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
     contract = build_group_axis_potential_package_contract(
         sources, scene_namespace=scene_namespace,
         output_targets={item.target["identity"] for item in raw.outputs},
-        distance_modulation=distance_modulation,
+        distance_modulation=distance_modulation, parameter_sources=parameter_sources,
     )
     cache_status = evaluate_evidence_package_freshness(cached_contract=contract if hit else None, current_contract=contract)
     processed_path = (None if path is None or output_processor is None else
@@ -1109,6 +1138,8 @@ __all__ = [
     "build_axis_relation_records",
     "build_group_axis_potential_package",
     "build_group_axis_potential_package_contract",
+    "GROUP_AXIS_PARAMETER_SCHEMA",
+    "build_group_axis_parameter_snapshot",
     "DistanceModulationInput",
     "run_group_axis_potential_package",
 ]

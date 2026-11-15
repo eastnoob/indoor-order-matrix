@@ -1,5 +1,7 @@
 """Focused checks for route-first directional-clearance repair."""
 
+from dataclasses import replace
+import json
 from types import SimpleNamespace
 
 from features import group_distance as kernel
@@ -7,7 +9,9 @@ from features.group_distance import GridDescriptor
 import networkx as nx
 import pytest
 
-from features.group_distance_repair import _access_route_candidates, _clearance_context, check_path
+from features.group_distance_repair import (
+    _access_route_candidates, _checkpoint_fingerprint, _checkpoint_matches,
+    _clearance_context, check_path, global_repair_result)
 
 
 def _polygon(x0, y0, x1, y1):
@@ -104,3 +108,120 @@ def test_access_route_candidates_skip_blocked_interface_variant():
     routes = _access_route_candidates(graph, source, target, 1, blocked_access_keys={("s", 0)})
     assert len(routes) == 1
     assert routes[0]["source_access"]["access_key"] == ("s", 1)
+
+
+def test_global_source_cli_uses_owner_clearance_defaults_and_overrides():
+    """The external entry resolves package defaults without copying constants."""
+    from scripts.design.group_level.run_group_distance_global_source import (
+        build_parser, resolve_clearance_cli_parameters)
+    from features.group_distance_evidence_package import GROUP_DISTANCE_CLEARANCE_SCHEMA
+
+    base = ["--input-bundle", "input.json", "--baseline-run-dir", "baseline",
+            "--output-dir", "result", "--source-index", "0"]
+    default = resolve_clearance_cli_parameters(build_parser().parse_args(base))
+    assert default.parameter_fingerprint == GROUP_DISTANCE_CLEARANCE_SCHEMA.resolve().parameter_fingerprint
+    changed = resolve_clearance_cli_parameters(build_parser().parse_args(
+        base + ["--min-left-m", "0.3", "--min-total-m", "0.8"]))
+    assert changed.effective_parameters["min_left_m"] == 0.3
+    assert changed.effective_parameters["min_total_m"] == 0.8
+    assert changed.parameter_sources["min_left_m"] == "cli"
+    with pytest.raises((TypeError, ValueError)):
+        resolve_clearance_cli_parameters(build_parser().parse_args(
+            base + ["--min-left-m", "nan"]))
+
+
+def test_checkpoint_fingerprint_changes_with_policy_input_and_method(monkeypatch):
+    """Checkpoint identity binds real computation inputs independently of its path."""
+    from features import group_distance_repair as repair
+    from .test_group_distance import _missing_bundle
+
+    bundle = _missing_bundle()
+    baseline = {"observations": [{"group_ids": ["a", "b"]}]}
+    policy = {"min_left_m": 0.225, "min_right_m": 0.225, "min_total_m": 0.55}
+    first = repair._checkpoint_fingerprint(bundle, baseline, policy)
+    assert repair._checkpoint_fingerprint(bundle, baseline, dict(policy)) == first
+    changed_policy = {**policy, "min_total_m": 0.8}
+    assert repair._checkpoint_fingerprint(bundle, baseline, changed_policy) != first
+    changed_input = replace(bundle, source_identity={"id": "other-source"})
+    assert repair._checkpoint_fingerprint(changed_input, baseline, policy) != first
+    changed_pairs = {"observations": [{"group_ids": ["a", "c"]}]}
+    assert repair._checkpoint_fingerprint(bundle, changed_pairs, policy) != first
+    monkeypatch.setattr(repair, "GLOBAL_METHOD_VERSION", "changed-method")
+    assert repair._checkpoint_fingerprint(bundle, baseline, policy) != first
+
+
+def test_unbound_or_foreign_checkpoint_never_marks_source_complete():
+    """A retained old JSON file cannot silently skip the current source search."""
+    from features import group_distance_repair as repair
+
+    unbound = {"source_index": 0, "source_id": "a", "results": []}
+    assert not repair._checkpoint_matches(
+        unbound, fingerprint="current", source_index=0, source_id="a",
+        wanted_pairs=(("a", "b"),))
+    policy = {"min_left_m": .2, "min_right_m": .2, "min_total_m": .5}
+    context = repair._clearance_context(_bundle(), policy)
+    cells = ((1, 1), (1, 2))
+    route = {"value": 1.0, "cell_keys": cells,
+             "state_keys": ((cells[0], None), (cells[1], (1.0, 0.0))),
+             "source_access": {"free_cell": cells[0], "offset": 0.0},
+             "target_access": {"free_cell": cells[1], "offset": 0.0}}
+    exact = repair._exact_path(cells, context)
+    assert exact["passed"]
+    bound = {**unbound, "schema": "directional-repair-checkpoint/1",
+             "checkpoint_fingerprint": "current", "results": [
+                 {"key": ["a", "b"], "route": route, "exact": exact}]}
+    assert repair._checkpoint_matches(
+        bound, fingerprint="current", source_index=0, source_id="a",
+        wanted_pairs=(("a", "b"),))
+    assert not repair._checkpoint_matches(
+        bound, fingerprint="changed-policy", source_index=0, source_id="a",
+        wanted_pairs=(("a", "b"),))
+    assert not repair._checkpoint_matches(
+        {**bound, "results": []}, fingerprint="current", source_index=0,
+        source_id="a", wanted_pairs=(("a", "b"),))
+    assert not repair._checkpoint_matches(
+        {**bound, "results": bound["results"] * 2}, fingerprint="current",
+        source_index=0, source_id="a", wanted_pairs=(("a", "b"),))
+    assert not repair._checkpoint_matches(
+        {**bound, "source_index": True}, fingerprint="current", source_index=0,
+        source_id="a", wanted_pairs=(("a", "b"),))
+
+
+def test_global_checkpoint_guard_controls_actual_source_search(tmp_path, monkeypatch):
+    """Only complete, matching receipts skip a source after policy changes."""
+    from features import group_distance_repair as repair
+    from .test_group_distance import _missing_bundle
+
+    geometry = _bundle()
+    original = _missing_bundle()
+    bundle = replace(original, grid=geometry.grid, domain=geometry.domain,
+                     physical_occupancy=())
+    source, target = (group.group_id for group in bundle.groups[:2])
+    baseline = {"observations": [{"group_ids": [source, target]}]}
+    policy = {"min_left_m": .2, "min_right_m": .2, "min_total_m": .5}
+    cells = ((1, 1), (1, 2))
+    access = {"free_cell": cells[0], "offset": 0.0}
+    calls = []
+    monkeypatch.setattr(repair.kernel, "_graphs",
+                        lambda *args: ({}, nx.Graph(), nx.Graph(), {}))
+    monkeypatch.setattr(repair, "_access_candidates_for_group",
+                        lambda *args: (access,))
+
+    def search(graph, source_accesses, target_accesses, context):
+        """Return one fully shaped route without invoking a graph search."""
+        calls.append(tuple(context["thresholds"]))
+        return {target: {"value": 1.0, "cell_keys": cells,
+                         "state_keys": ((cells[0], None), (cells[1], (1.0, 0.0))),
+                         "source_access": access, "target_access": access}}
+
+    monkeypatch.setattr(repair, "_global_source_search", search)
+    old = tmp_path / "source_000.json"
+    old.write_text(json.dumps({"source_index": 0, "source_id": source,
+                               "results": []}), encoding="utf-8")
+    retained = old.read_bytes()
+    repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    assert len(calls) == 1 and old.read_bytes() == retained
+    calls.clear()
+    repair.global_repair_result(bundle, baseline,
+                                {**policy, "min_total_m": .8}, checkpoint_dir=tmp_path)
+    assert len(calls) == 1

@@ -151,6 +151,22 @@ def test_free_space_plane_publication_revision_reuses_with_current_metadata(tmp_
     assert restored["raw_output"] == first["raw_output"]
 
 
+def test_free_space_plane_publication_name_reuses_with_current_metadata(tmp_path, monkeypatch):
+    """Plane display names must not force a second geometry calculation."""
+    assert hasattr(free_space, "run_free_space_package"), "package-owned entry is missing"
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    first = free_space.run_free_space_package(scene, request, cache_directory=tmp_path)
+    updated = replace(request, plane=replace(request.plane, name="renamed display plane"))
+    scene = replace(scene, context=replace(scene.context, analysis_plane=updated.plane))
+    monkeypatch.setattr(free_space.requests, "execute_analysis_request", _forbidden)
+    again = free_space.run_free_space_package(scene, updated, cache_directory=tmp_path)
+    assert again["cache_hit"] is True
+    assert again["cache_key"] == first["cache_key"]
+    document = again["raw_output"].source_envelopes[0].value["channels"][0].observation["document"]
+    assert document["tables"]["snapshot"]["request"]["plane"]["name"] == updated.plane.name
+
+
 def _processor(version="1", function=None, core=field_core):
     """Configure one explicit transform with independently hand-checked scalar output."""
     def transform(raw, parameters):

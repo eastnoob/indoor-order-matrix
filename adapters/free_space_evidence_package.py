@@ -47,9 +47,12 @@ def free_space_cache_key(scene, request):
     """Bind complete factual inputs and calculation versions without transient request ids."""
     if not isinstance(scene, requests.NeutralSceneV2) or not isinstance(request, requests.AnalysisRequest):
         raise TypeError("free-space computation requires NeutralSceneV2 and AnalysisRequest")
-    normalized_request = replace(request, plane=replace(request.plane, revision=1))
+    # Plane name and revision describe publication state; geometry reuse binds
+    # the stable plane identity and pose while normalizing those audit fields.
+    calculation_plane = replace(request.plane, name="__calculation_plane__", revision=1)
+    normalized_request = replace(request, plane=calculation_plane)
     normalized_scene = replace(scene, context=replace(scene.context,
-        analysis_plane=replace(scene.context.analysis_plane, revision=1)))
+        analysis_plane=calculation_plane))
     request_data = normalized_request.to_dict()
     del request_data["request_id"]
     # The legacy key also binds registry bytes and numerical backends, but omits

@@ -12,7 +12,11 @@ from math import isfinite
 from types import MappingProxyType
 from typing import Any, Callable, Generic, TypeVar
 
-from .evidence_package_parameters import ParameterSchema, ParameterSnapshot
+from .evidence_package_parameters import (
+    ParameterSchema,
+    ParameterSnapshot,
+    compare_parameter_snapshots,
+)
 
 
 Target = TypeVar("Target")
@@ -1521,7 +1525,7 @@ def _package_dependencies(value: Any) -> tuple[dict[str, str], ...]:
 
 def _package_identity_payload(contract: Mapping[str, Any]) -> dict[str, Any]:
     """Return the identity-bearing subset of a package contract."""
-    return {
+    payload = {
         "package_id": contract["package_id"],
         "package_schema": contract["package_schema"],
         "producer": contract["producer"],
@@ -1531,6 +1535,13 @@ def _package_identity_payload(contract: Mapping[str, Any]) -> dict[str, Any]:
         "schema_version": contract["schema_version"],
         "invalidation_scope": contract["invalidation_scope"],
     }
+    # A typed snapshot contributes only its owner-declared computation values;
+    # source labels and audit-only values must not churn raw cache identity.
+    if "parameter_snapshot" in contract:
+        payload["parameter_snapshot"] = ParameterSnapshot.from_json(
+            contract["parameter_snapshot"]
+        ).identity_payload()
+    return payload
 
 
 def build_evidence_package_contract(
@@ -1543,6 +1554,7 @@ def build_evidence_package_contract(
     algorithm_version: str,
     schema_version: str,
     artifacts: Mapping[str, Any] | None = None,
+    parameter_snapshot: ParameterSnapshot | None = None,
 ) -> dict[str, Any]:
     """Build a deterministic package contract without reading or recomputing evidence."""
     for name, value in (
@@ -1571,6 +1583,14 @@ def build_evidence_package_contract(
         raise TypeError("artifacts must be a JSON mapping")
     frozen_artifacts = _freeze(artifact_mapping)
     normalized["artifacts"] = _json_value(frozen_artifacts)
+    if parameter_snapshot is not None:
+        if not isinstance(parameter_snapshot, ParameterSnapshot):
+            raise TypeError("parameter_snapshot must be a ParameterSnapshot or None")
+        if parameter_snapshot.package_id != package_id:
+            raise ValueError("parameter snapshot must belong to this package")
+        # Keep the expanded snapshot as an additive audit field; identity uses
+        # only the projection above so legacy contracts remain byte-compatible.
+        normalized["parameter_snapshot"] = parameter_snapshot.to_json()
     identity_payload = _package_identity_payload(normalized)
     normalized["package_identity"] = hashlib.sha256(
         _canonical_json(identity_payload).encode()
@@ -1584,6 +1604,11 @@ def _validate_evidence_package_contract(contract: Mapping[str, Any]) -> dict[str
         raise TypeError("package contract must be a mapping")
     if contract.get("schema") != _EVIDENCE_PACKAGE_CONTRACT_SCHEMA:
         raise ValueError("unsupported evidence package contract schema")
+    snapshot = None
+    if "parameter_snapshot" in contract:
+        # Validate persisted snapshots before rebuilding the normalized
+        # contract; current defaults must never be applied to old receipts.
+        snapshot = ParameterSnapshot.from_json(contract["parameter_snapshot"])
     normalized = build_evidence_package_contract(
         package_id=contract.get("package_id"),
         package_schema=contract.get("package_schema"),
@@ -1593,6 +1618,7 @@ def _validate_evidence_package_contract(contract: Mapping[str, Any]) -> dict[str
         algorithm_version=contract.get("algorithm_version"),
         schema_version=contract.get("schema_version"),
         artifacts=contract.get("artifacts", {}),
+        parameter_snapshot=snapshot,
     )
     if contract.get("invalidation_scope") != "whole_package":
         raise ValueError("evidence package invalidation_scope must be whole_package")
@@ -1623,6 +1649,7 @@ def evaluate_evidence_package_freshness(
     affected_targets = tuple(sorted(set(cached_targets) | set(current_targets)))
     reasons: list[dict[str, Any]] = []
     cached = current = None
+    parameter_status = None
     try:
         if cached_contract is not None:
             cached = _validate_evidence_package_contract(cached_contract)
@@ -1711,6 +1738,35 @@ def evaluate_evidence_package_freshness(
                 "cached": cached["package_schema"] + "::" + cached["schema_version"],
                 "current": current["package_schema"] + "::" + current["schema_version"],
             })
+        cached_snapshot = cached.get("parameter_snapshot")
+        current_snapshot = current.get("parameter_snapshot")
+        if cached_snapshot is not None or current_snapshot is not None:
+            if cached_snapshot is None or current_snapshot is None:
+                # A legacy receipt remains readable, but it cannot claim a
+                # typed exact hit without a complete independently validated snapshot.
+                # Missing typed history is an adoption warning, not proof that
+                # the underlying calculation is stale; legacy bytes remain usable.
+                parameter_status = {
+                    "reuse": "missing",
+                    "exact_match": False,
+                    "recompute_required": False,
+                    "calculated_parameters": None,
+                    "requested_parameters": None,
+                    "warnings": [{"code": "parameter_snapshot_missing"}],
+                }
+            else:
+                comparison = compare_parameter_snapshots(
+                    ParameterSnapshot.from_json(cached_snapshot),
+                    ParameterSnapshot.from_json(current_snapshot),
+                )
+                parameter_status = comparison
+                if comparison["recompute_required"]:
+                    reasons.append({
+                        "code": "parameters_changed",
+                        "dependency": "parameters",
+                        "cached": cached_snapshot["parameter_fingerprint"],
+                        "current": current_snapshot["parameter_fingerprint"],
+                    })
 
     if not artifacts_available:
         reasons.append({"code": "package_invalid", "dependency": "artifacts", "cached": None, "current": None})
@@ -1722,7 +1778,7 @@ def evaluate_evidence_package_freshness(
         if not reasons
         else "stale"
     )
-    return {
+    status = {
         "schema": _EVIDENCE_PACKAGE_STATUS_SCHEMA,
         "package_id": package_id,
         "cached_package_identity": cached["package_identity"] if cached else None,
@@ -1739,6 +1795,11 @@ def evaluate_evidence_package_freshness(
             "recompute_required": algorithm_recompute if algorithm_status != "same" else False,
         },
     }
+    # Preserve the legacy status shape when neither side carries a typed
+    # snapshot; add this field only for a typed comparison or its absence.
+    if parameter_status is not None:
+        status["parameter_status"] = parameter_status
+    return status
 
 
 def project_field_sample(result: FieldResultEnvelope) -> FieldSample[Any] | None:
