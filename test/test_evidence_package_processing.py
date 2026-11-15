@@ -332,6 +332,43 @@ def test_processor_parameters_are_frozen_and_recipe_changes_processing_identity_
     assert result.outputs[0].observation == 0.5
 
 
+def test_typed_processor_sources_identity_and_roundtrip() -> None:
+    """Receipts keep source labels while computation identity excludes them."""
+    from features.evidence_package_parameters import ParameterSchema, ParameterSpec
+
+    schema = ParameterSchema("contract-package", "processor-parameters/1", (
+        ParameterSpec("value", float, 0.25, minimum=0.0, maximum=1.0),))
+    first_processor = core.EvidenceOutputProcessor(
+        "typed-process", "1", _process, parameter_schema=schema)
+    cli_processor = core.EvidenceOutputProcessor(
+        "typed-process", "1", _process, {"value": 0.25},
+        parameter_schema=schema, parameter_sources={"value": "cli"})
+    raw = _raw()
+    first = _package(first_processor).process_output(raw, package_freshness="fresh")
+    cli = _package(cli_processor).process_output(raw, package_freshness="fresh")
+    assert first.processing_identity == cli.processing_identity
+    assert first.parameter_snapshot.parameter_sources != cli.parameter_snapshot.parameter_sources
+    saved = core.serialize_evidence_processed_output(cli)
+    restored = core.deserialize_evidence_processed_output(
+        json.loads(json.dumps(saved)), raw_output=raw)
+    assert restored == cli
+    assert restored.parameter_snapshot.calculated_parameters["value"] == 0.25
+
+
+def test_processed_cache_key_matches_identity_without_invoking_callback() -> None:
+    """The storage key shares the receipt projection and never executes processing."""
+    from features.evidence_package_storage import processed_cache_key
+
+    def forbidden(raw: EvidencePackageOutput, parameters: Mapping[str, Any]) -> tuple:
+        """Fail if key calculation accidentally calls the processor callback."""
+        raise AssertionError("processed_cache_key invoked the callback")
+
+    raw = _raw()
+    processor = core.EvidenceOutputProcessor("typed-process", "1", forbidden, {"value": 0.25})
+    result = _package(processor).process_output(raw, package_freshness="stale")
+    assert processed_cache_key(raw, processor) == result.processing_identity
+
+
 def test_processing_identity_binds_full_raw_readings_and_audit_content() -> None:
     """Equal calculation identities cannot hide changed raw values or provenance."""
     raw = _raw()

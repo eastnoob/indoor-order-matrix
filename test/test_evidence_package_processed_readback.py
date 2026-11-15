@@ -64,6 +64,16 @@ def test_processed_json_roundtrip_never_executes_callback_and_freezes_parameters
         restored.parameters["nested"]["items"][0] = 9
 
 
+def test_legacy_processed_receipt_keeps_legacy_attestation():
+    """Old receipts stay readable without inventing a typed parameter history."""
+    raw = _raw()
+    old = core.serialize_evidence_processed_output(_processed(raw))
+    assert "parameter_snapshot" not in old
+    restored = core.deserialize_evidence_processed_output(old, raw_output=raw)
+    assert restored.parameter_snapshot is None
+    assert core.serialize_evidence_processed_output(restored) == old
+
+
 @pytest.mark.parametrize("state", ["unconfigured", "stale", "failure"])
 def test_empty_processing_errors_roundtrip_without_raw_fallback(state):
     """All supported closed-port outcomes survive persistence with no usable channel."""

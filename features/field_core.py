@@ -12,6 +12,8 @@ from math import isfinite
 from types import MappingProxyType
 from typing import Any, Callable, Generic, TypeVar
 
+from .evidence_package_parameters import ParameterSchema, ParameterSnapshot
+
 
 Target = TypeVar("Target")
 Value = TypeVar("Value")
@@ -768,6 +770,9 @@ class EvidenceOutputProcessor:
     version: str
     function: Callable[[EvidencePackageOutput, Mapping[str, Any]], Iterable[EvidenceOutputChannel]]
     parameters: Mapping[str, Any] = MappingProxyType({})
+    parameter_schema: ParameterSchema | None = field(default=None, kw_only=True)
+    parameter_sources: Mapping[str, str] = field(default_factory=dict, kw_only=True)
+    parameter_snapshot: ParameterSnapshot | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
         """Validate recipe metadata and detach nested parameters from caller mutation."""
@@ -780,7 +785,21 @@ class EvidenceOutputProcessor:
             raise TypeError("function must be callable")
         if not isinstance(self.parameters, Mapping):
             raise TypeError("parameters must be a mapping")
-        object.__setattr__(self, "parameters", _freeze(self.parameters))
+        if self.parameter_schema is not None and not isinstance(self.parameter_schema, ParameterSchema):
+            raise TypeError("parameter_schema must be a ParameterSchema or None")
+        if not isinstance(self.parameter_sources, Mapping):
+            raise TypeError("parameter_sources must be a mapping")
+        if self.parameter_schema is None:
+            if self.parameter_sources:
+                raise ValueError("parameter_sources require parameter_schema")
+            object.__setattr__(self, "parameters", _freeze(self.parameters))
+            object.__setattr__(self, "parameter_snapshot", None)
+            return
+        # Resolve once so callbacks and receipts share the same complete, immutable values.
+        snapshot = self.parameter_schema.resolve(self.parameters, sources=self.parameter_sources)
+        object.__setattr__(self, "parameters", snapshot.effective_parameters)
+        object.__setattr__(self, "parameter_sources", snapshot.parameter_sources)
+        object.__setattr__(self, "parameter_snapshot", snapshot)
 
 
 @dataclass(frozen=True, slots=True)
@@ -796,6 +815,7 @@ class EvidenceProcessedOutput:
     outputs: tuple[EvidenceOutputChannel, ...]
     error_code: str | None
     explanation: str = ""
+    parameter_snapshot: ParameterSnapshot | None = field(default=None, kw_only=True)
 
     def __post_init__(self) -> None:
         """Freeze the recipe and require either valid processed channels or one error marker."""
@@ -811,6 +831,13 @@ class EvidenceProcessedOutput:
             raise ValueError("processor_id and processor_version must both be present or absent")
         if not isinstance(self.parameters, Mapping):
             raise TypeError("parameters must be a mapping")
+        if self.parameter_snapshot is not None:
+            if not isinstance(self.parameter_snapshot, ParameterSnapshot):
+                raise TypeError("parameter_snapshot must be a ParameterSnapshot or None")
+            if self.parameter_snapshot.package_id != self.package_id:
+                raise ValueError("parameter snapshot must belong to this package")
+            if dict(self.parameter_snapshot.effective_parameters) != dict(self.parameters):
+                raise ValueError("parameter snapshot effective values must match parameters")
         if self.error_code not in {
             None, "OUTPUT_FUNCTION_NOT_CONFIGURED", "OUTPUT_SOURCE_NOT_FRESH", "OUTPUT_PROCESSING_FAILED"
         }:
@@ -836,15 +863,36 @@ class EvidenceProcessedOutput:
     @property
     def processing_identity(self) -> str:
         """Bind the complete raw content and explicit recipe independently of raw cache IDs."""
-        payload = {
-            "package_id": self.package_id,
-            "raw_output_identity": self.raw_output_identity,
-            "raw_payload_fingerprint": self.raw_payload_fingerprint,
-            "processor_id": self.processor_id,
-            "processor_version": self.processor_version,
-            "parameters": self.parameters,
-        }
+        payload = _processed_identity_payload(
+            self.package_id, self.raw_output_identity, self.raw_payload_fingerprint,
+            self.processor_id, self.processor_version, self.parameters,
+            self.parameter_snapshot)
         return hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def _processed_identity_payload(
+    package_id: str,
+    raw_output_identity: str,
+    raw_payload_fingerprint: str,
+    processor_id: str | None,
+    processor_version: str | None,
+    parameters: Mapping[str, Any],
+    parameter_snapshot: ParameterSnapshot | None,
+) -> dict[str, Any]:
+    """Build the shared legacy or typed processing identity projection."""
+    payload = {
+        "package_id": package_id,
+        "raw_output_identity": raw_output_identity,
+        "raw_payload_fingerprint": raw_payload_fingerprint,
+        "processor_id": processor_id,
+        "processor_version": processor_version,
+    }
+    # Typed identities exclude source labels and audit-only metadata by design.
+    if parameter_snapshot is not None:
+        payload["parameter_identity"] = parameter_snapshot.identity_payload()
+    else:
+        payload["parameters"] = parameters
+    return payload
 
 
 def _validate_processed_channels(
@@ -941,6 +989,9 @@ class EvidencePackage:
         # Full content integrity is separate from the historical calculation identity.
         serialized = serialize_evidence_package_output(raw_output)
         processor = self.output_processor
+        if (processor is not None and processor.parameter_snapshot is not None
+                and processor.parameter_snapshot.package_id != self.package_id.strip()):
+            raise ValueError("parameter snapshot must belong to the package")
         metadata = {
             "package_id": raw_output.package_id,
             "raw_output_identity": serialized["output_identity"],
@@ -948,6 +999,7 @@ class EvidencePackage:
             "processor_id": None if processor is None else processor.function_id,
             "processor_version": None if processor is None else processor.version,
             "parameters": {} if processor is None else processor.parameters,
+            "parameter_snapshot": None if processor is None else processor.parameter_snapshot,
         }
         if processor is None:
             return EvidenceProcessedOutput(**metadata, outputs=(), error_code="OUTPUT_FUNCTION_NOT_CONFIGURED",
@@ -1047,6 +1099,11 @@ def serialize_evidence_processed_output(result: EvidenceProcessedOutput) -> dict
     if not isinstance(result, EvidenceProcessedOutput):
         raise TypeError("result must be an EvidenceProcessedOutput")
     serialized = _json_value(result)
+    if result.parameter_snapshot is None:
+        # Keep schema-less receipts byte-for-byte compatible with historical records.
+        serialized.pop("parameter_snapshot", None)
+    else:
+        serialized["parameter_snapshot"] = result.parameter_snapshot.to_json()
     serialized["schema"] = "evidence-processed-output/v1"
     serialized["processing_identity"] = result.processing_identity
     # Recipe identity excludes output readings; a second digest protects those bytes.
@@ -1178,6 +1235,8 @@ def deserialize_evidence_processed_output(
     content = {key: value for key, value in payload.items() if key != "payload_fingerprint"}
     if declared_fingerprint != hashlib.sha256(_canonical_json(content).encode("utf-8")).hexdigest():
         raise ValueError("payload_fingerprint does not match saved processed content")
+    if "parameter_snapshot" in data:
+        data["parameter_snapshot"] = ParameterSnapshot.from_json(data["parameter_snapshot"])
     data = _snapshot_record(data, EvidenceProcessedOutput)
     data["outputs"] = tuple(_deserialize_output_channel(item) for item in data["outputs"])
     result = EvidenceProcessedOutput(**data)

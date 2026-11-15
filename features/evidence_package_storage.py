@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 
 from .field_core import (
+    _processed_identity_payload,
     deserialize_evidence_package_output, deserialize_evidence_processed_output,
     fingerprint_evidence_dependency, serialize_evidence_package_output,
     serialize_evidence_processed_output,
@@ -57,12 +58,10 @@ def load_raw_output(path, *, cache_key, contract, package):
 def processed_cache_key(raw_output, processor):
     """Derive the recipe identity without executing its callback."""
     raw = serialize_evidence_package_output(raw_output)
-    return fingerprint_evidence_dependency({
-        "package_id": raw_output.package_id, "raw_output_identity": raw["output_identity"],
-        "raw_payload_fingerprint": raw["payload_fingerprint"],
-        "processor_id": processor.function_id, "processor_version": processor.version,
-        "parameters": processor.parameters,
-    })
+    return fingerprint_evidence_dependency(_processed_identity_payload(
+        raw_output.package_id, raw["output_identity"], raw["payload_fingerprint"],
+        processor.function_id, processor.version, processor.parameters,
+        processor.parameter_snapshot))
 
 
 def load_processed_output(path, *, raw_output, processor):
