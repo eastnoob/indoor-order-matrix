@@ -21,7 +21,7 @@ The current project uses Pixi and Python 3.12. Version and workspace management 
 ## Design Principles
 
 1. **Package ownership**: a package declares and validates its own parameters. A downstream package may select an upstream `ResultRef`, but cannot modify the upstream package's parameters or saved bytes.
-2. **Identity by effective computation inputs**: cache identity includes canonical effective parameters, input fingerprints, upstream result identities, algorithm versions, and schema versions. Parameter source labels, paths, timestamps, and UI selection state are display or audit metadata and do not enter identity.
+2. **Identity by effective computation inputs**: cache identity includes the canonical `recompute_required` parameter projection, consumed input fingerprints, upstream result identities, algorithm versions, and schema versions. Every effective value remains in the audit snapshot. Warning-only values, parameter source labels, paths, timestamps, and UI selection state do not enter calculation identity.
 3. **Output defines cache kind**: semantic outputs are the durable cache kinds. Raw and processed are calculation layers of one semantic output; they are not automatically separate business outputs.
 4. **Sidecar locality**: the default cache lives next to the model and moves with it. The sidecar path is a locator, not a calculation input.
 5. **Explicit intermediate caching**: a package may declare a reusable intermediate stage, but no generic decorator may guess which function calls are safe to cache.
@@ -37,7 +37,7 @@ The current project uses Pixi and Python 3.12. Version and workspace management 
 - A thin `CacheStore` for sidecar paths, atomic receipt/payload writes, locks, migration, listing, deletion, and index rebuilding.
 - Sidecar migration that copies validated cache material, including free-space authentication material, without changing identities.
 - Lifecycle states and exact-hit versus migrated-reuse reporting.
-- A stable contract for output-port identities and explicit reusable intermediate receipts.
+- A stable contract for output-port identities, plus a documented intermediate boundary whose runtime implementation is conditional on an accepted real need.
 - Regression tests for parameter round trips, cache migration, corrupted receipts, cache-directory changes, and the `1 → 2 → 1` reuse path.
 
 ### Deferred from Plan A
@@ -57,7 +57,7 @@ The current project uses Pixi and Python 3.12. Version and workspace management 
 
 **Plan B — model-side CacheStore and migration.** Add the thin persistence layer for sidecar resolution, atomic writes, per-identity locks, receipt/payload verification, listing, exact deletion, index rebuilding, lifecycle states, and migration. Migrate validated existing cache material without recomputation, including free-space authentication material. Plan B starts from Plan A's accepted receipts and must not invent a second parameter identity format.
 
-**Plan C — output ports and explicit intermediates.** After Plan B acceptance, run a new Superpowers brainstorming/Grill pass over the actual receipts and dependencies. Then implement the smallest accepted change that separates independent output identities, adds explicit `IntermediateRef`/receipt support where a real package needs it, and proves that deleting or changing one output does not corrupt unrelated outputs. C may be a new plan or a repair plan; it must not be assumed complete by A or B.
+**Plan C — output ports and conditional intermediates.** After Plan B acceptance, run a new Superpowers brainstorming/Grill pass over the actual receipts and dependencies. Then implement the smallest accepted change that separates independent output identities and proves that deleting or changing one output does not corrupt unrelated outputs. Keep `IntermediateRef` and reusable intermediate persistence in the long-term design unless that review accepts a concrete package need. C may be replaced by a repair plan; it must not be assumed complete by A or B.
 
 ## Package Configuration Contract
 
@@ -73,26 +73,47 @@ Each package may expose a frozen typed configuration object. The object owns:
 
 The package resolves a caller's partial values into a complete `effective_parameters` record. Resolution rejects unknown fields, missing required values, booleans used as numbers, `NaN`, infinity, negative values where prohibited, and noncanonical units. Canonical JSON uses one stable representation for equivalent values.
 
-The sidecar may contain an editable current profile, for example `settings/<package_id>.json`. A profile is an input convenience and can be changed without mutating any historical result. Every immutable output receipt stores the complete resolved snapshot:
+The sidecar may contain an editable current profile, for example `settings/<package_id>.json`. A profile is an input convenience and can be changed without mutating any historical result. Every typed immutable output receipt stores the complete resolved snapshot. The constrained distance snapshot has this shape; the real fingerprint is calculated from its computation projection:
 
 ```json
 {
+  "package_id": "group-walk-distance",
   "config_schema_version": "group-distance/parameters/1",
   "effective_parameters": {
+    "clearance_mode": "constrained",
+    "min_left_m": 0.225,
+    "min_right_m": 0.225,
+    "min_total_m": 0.55
+  },
+  "calculated_parameters": {
+    "clearance_mode": "constrained",
     "min_left_m": 0.225,
     "min_right_m": 0.225,
     "min_total_m": 0.55
   },
   "parameter_sources": {
+    "clearance_mode": "request",
     "min_left_m": "default",
     "min_right_m": "cli",
     "min_total_m": "cli"
+  },
+  "parameter_impacts": {
+    "clearance_mode": "recompute_required",
+    "min_left_m": "recompute_required",
+    "min_right_m": "recompute_required",
+    "min_total_m": "recompute_required"
+  },
+  "parameter_value_contracts": {
+    "clearance_mode": {"type": "str", "nullable": false, "unit": "dimensionless"},
+    "min_left_m": {"type": "float", "nullable": false, "unit": "m"},
+    "min_right_m": {"type": "float", "nullable": false, "unit": "m"},
+    "min_total_m": {"type": "float", "nullable": false, "unit": "m"}
   },
   "parameter_fingerprint": "..."
 }
 ```
 
-`parameter_sources` is audit metadata. It does not affect identity. `calculated_parameters` in a historical receipt are authoritative for that result; `requested_parameters` are current user intent and may be compared to show `reuse_with_warning`.
+`parameter_sources` is audit metadata. It does not affect identity. `calculated_parameters` in a historical receipt are authoritative for that result; `requested_parameters` are current user intent and may be compared to show `reuse_with_warning`. Persisted value contracts use only restricted type tags, nullable flags and canonical units. Current reuse compares their complete declarations and impacts with an independently resolved current owner snapshot; a historical file cannot certify its own schema or live currentness.
 
 Changing a default value changes the effective configuration for new runs. Existing receipts retain their expanded values and remain interpretable. A semantic schema change increments `config_schema_version` and prevents accidental reuse across incompatible meanings.
 
@@ -115,7 +136,7 @@ An output identity is a canonical digest of:
 
 - package id and output port;
 - source fingerprint and external dependency fingerprints;
-- effective package parameters and configuration schema version;
+- the output's recompute_required effective parameter projection and configuration schema version;
 - upstream `ResultRef` identities, when present;
 - algorithm and output schema versions;
 - declared channel or target scope.
@@ -158,14 +179,20 @@ apartment.order_analyzer/
   index.json
   settings/
     <package-id>.json
+  auth/
+    <key-id>/.free_space_cache_key
+  locks/
+  quarantine/
   sources/
     <source-fingerprint>/
       source.json
       outputs/
-        <output-port>/
-          <version-key>/
-            receipt.json
-            payload.json | payload.bin
+        <package-id>/
+          <output-port>/
+            <raw-or-processed>/
+              <version-key>/
+                receipt.json
+                payload.json | payload.bin
       intermediates/
         <package-id>/
           <stage-id>/
@@ -179,7 +206,7 @@ apartment.order_analyzer/
           scratch/
 ```
 
-`manifest.json` records source and external dependency fingerprints, cache format version, producer/tool versions, and migration history. `index.json` is an advisory, rebuildable catalog. Receipt files and payload fingerprints are the content authority.
+`manifest.json` records source and external dependency fingerprints, cache format version, producer/tool versions, and migration history. `index.json` is an advisory, rebuildable catalog. Receipt files and payload fingerprints are the content authority. The `intermediates/` tree is reserved documentation, not a directory or API that A/B must create. Source namespaces do not change when only a request parameter changes.
 
 For unsaved Blender scenes, a temporary sidecar is allowed until the model is saved; saving the model migrates the temporary material to the model-side sidecar. A read-only model directory requires an explicit alternate cache location. Moving or renaming the model does not change identity when the sidecar moves with it.
 
@@ -207,8 +234,10 @@ A common receipt shell is:
 ```json
 {
   "schema": "cache-receipt/v1",
+  "source_fingerprint": "...",
   "package_id": "group_distance",
   "output_port": "path_distance",
+  "layer": "raw",
   "identity": "...",
   "contract": {
     "effective_parameters": {},
@@ -222,6 +251,7 @@ A common receipt shell is:
   "payload": {
     "path": "payload.bin",
     "format": "json",
+    "size_bytes": 123,
     "fingerprint": "..."
   },
   "status": "complete"
@@ -232,11 +262,11 @@ Small payloads may remain JSON. Large lattices, arrays, and geometry records may
 
 ## Intermediate Products
 
-Plan C defines the explicit intermediate receipt boundary but does not retrofit every package automatically. A package that opts in must declare a stable stage id, serializer, dependencies, effective parameters, algorithm/schema versions, and completion status. The resulting `IntermediateRef` is immutable after publication.
+Plan C re-evaluates whether any completed intermediate needs independent reuse. The default is to document the boundary without adding an unused class, serializer registry or runtime store. If a concrete need is accepted, the package declares a stable stage id, serializer, dependencies, effective parameters, algorithm/schema versions, and completion status; its `IntermediateRef` is immutable after publication.
 
 Intermediate products are distinct from run-local checkpoints:
 
-- **Semantic output**: long-lived public result, indexed under `outputs/<port>/`.
+- **Semantic output**: long-lived public result, indexed under `outputs/<package>/<port>/<layer>/`.
 - **Reusable intermediate**: package-declared completed stage, indexed under `intermediates/`.
 - **Checkpoint/scratch**: mutable run state, valid only for exact input/policy/upstream/algorithm fingerprints; never treated as a completed output.
 
@@ -252,7 +282,7 @@ Changing the cache directory is a storage migration, never a computation input c
 4. Rebuilds or updates the new index with source, destination, verification, and migration status.
 5. Reuses the copied identity before scheduling computation.
 
-The free-space directory authentication key (`.free_space_cache_key` in the current implementation) must move with the authenticated cache, or be replaced by a stable sidecar/source-level key. Copying JSON without the key is an invalid migration.
+The free-space directory authentication key (`.free_space_cache_key` in the current implementation) must move with the authenticated cache. Distinct old and destination keys coexist under explicit key IDs; migration cannot overwrite a destination key or resign the retained bytes. Copying JSON without the matching key is an invalid migration.
 
 Migration is allowed to partially succeed. A failed output is marked `migration_failed` or `unavailable`; successful independent outputs remain reusable. The old directory is retained until validation completes and is not deleted automatically.
 
@@ -260,7 +290,7 @@ Lifecycle states are:
 
 `running`, `complete`, `failed`, `stale`, `orphaned`, `quarantined`, `migration_failed`, and `unavailable`.
 
-Only a complete verified receipt is an exact cache hit. A copied valid entry reports `migrated_reuse`. Historical evidence remains `historical` and cannot silently become current. Deleting an upstream version marks dependent entries `orphaned` or `unavailable`; it does not rewrite their payloads.
+Only a complete verified receipt with matching calculation inputs and available dependencies is a calculation hit. Warning-only differences remain reusable with explicit calculated/requested values and `exact_match=False`. `migrated_reuse` and `legacy_adopted` describe lookup provenance, separate from stored lifecycle status and the existing freshness mapping. Historical evidence remains `historical` and cannot silently become current. Deleting an upstream version derives dependent entries as `orphaned` or `unavailable`; it does not rewrite signed receipts or payloads.
 
 The sidecar must survive a missing or corrupt `index.json` by scanning receipts. Partial files from a crash are cleaned or quarantined and never treated as hits. A per-identity lock prevents two processes from publishing the same identity concurrently.
 
@@ -272,15 +302,15 @@ The source manifest records content fingerprints for the IFC/Blender source and 
 
 ## jj Safety and Rollback Design
 
-Design and implementation use jj workspaces derived from the accepted parent, without modifying the owner worktree. The design workspace records one local commit for the spec and one for the implementation plan. Implementation uses a fresh workspace from the approved spec/plan commit, with one commit per independently testable gate:
+Design and implementation use jj workspaces derived from the accepted parent, without modifying the owner worktree. The design workspace records the spec, A, B, C and rollout notes as local documentation checkpoints. Implementation uses a fresh workspace from the approved spec/plan commit, with one commit per independently testable gate:
 
 1. typed configuration and receipt snapshots;
 2. `CacheStore` sidecar persistence and locking;
 3. migration and free-space authentication preservation;
 4. lifecycle/index/delete behavior and regression tests;
-5. output-port/intermediate contract scaffolding, only if separately authorized.
+5. semantic-output independence after C's fresh review; intermediate runtime support only if that review accepts a real need.
 
-Before each gate, record the workspace path, parent revision, dirty-file manifest, and intended files. After each gate, run the focused Pixi tests, inspect `jj diff`, and create a local jj commit. If a gate fails, abandon or reset only that workspace to its previous commit; do not edit the owner worktree. `jj op log` and `jj undo` remain recovery tools for accidental jj operations. No push, merge, or owner-worktree integration is part of this spec.
+Before each gate, record the workspace path, parent revision, dirty-file manifest, and intended files. After each gate, run the focused Pixi tests, inspect `jj diff`, and create a local jj commit. Preserve a failed candidate before recovering in a fresh task workspace from its accepted parent, or restore only named task files after checking for unrelated edits. Inspect `jj op log` for diagnosis; do not run a repository-wide undo or operation restore across other active workspaces. B starts from the actual accepted A implementation commit, and C from the actual accepted B implementation commit. No push, merge, or owner-worktree integration is part of this spec.
 
 ## Acceptance Conditions
 
@@ -288,14 +318,14 @@ The design is implemented only when all of the following have observable evidenc
 
 - A package rejects invalid or unknown parameter values and emits a complete canonical effective-parameter snapshot.
 - Equal effective values from default, CLI, and GUI sources produce the same parameter fingerprint.
-- Different effective values produce different identities; restoring an old value reuses its old receipt without recalculation.
+- Different computation-affecting effective values produce different identities; restoring an old value reuses its old receipt without recalculation. Warning-only and metadata-only changes retain calculation identity and historical values.
 - A downstream package cannot alter an upstream package's parameters or payload through its `ResultRef`.
 - Sidecar relocation copies validated results, free-space authentication material, indexes, and supported checkpoints without changing identity.
 - A missing or damaged index is rebuilt from receipts.
 - Partial, corrupt, stale, orphaned, and historical entries are not reported as exact current hits.
 - Concurrent writers do not publish duplicate or partially readable entries.
 - Independent output ports do not invalidate one another when their dependency sets are disjoint.
-- Intermediate artifacts are opt-in, explicitly declared, separately referenced, and never confused with checkpoints.
+- Intermediate artifacts remain deferred by default. If separately accepted, they are opt-in, explicitly declared, separately referenced, and never confused with checkpoints.
 - Existing `outputs/design/...` historical artifacts remain readable as history and are not silently imported.
 
 ## Grill Findings and Dispositions
@@ -313,8 +343,24 @@ The design is implemented only when all of the following have observable evidenc
 
 ## Plan Handoff and Acceptance Gates
 
-Each plan has a separate jj workspace and local commit lineage. The working copy for Plan B is created from the accepted Plan A commit; the working copy for Plan C is created from the accepted Plan B commit after its fresh Superpowers review. A failed plan can be abandoned or reset to its preceding accepted commit without touching the owner worktree.
+Each plan has a separate jj workspace and local commit lineage. The working copy for Plan B is created from the accepted Plan A implementation commit; the working copy for Plan C is created from the accepted Plan B implementation commit and begins its fresh Superpowers review there. Preserve a failed candidate before restarting in a fresh task workspace at its preceding accepted gate, or restore only its recorded task paths after checking for unrelated edits. Do not reset a shared workspace or repository.
 
 Plan A may hand off only when effective parameter snapshots, canonical fingerprints, validation errors, default expansion, and source-independent identity tests are present. Plan B may hand off only when sidecar relocation reuses validated results, preserves free-space authentication, rebuilds a damaged index, and prevents duplicate concurrent publication. Plan C may hand off only when its fresh review identifies exact output dependencies and its focused tests demonstrate independent version reuse or document why a safe split is not yet possible.
 
 No plan may silently broaden the next plan's scope. The handoff artifact must name the accepted jj commit, changed files, focused tests, unresolved risks, and the exact next-plan entry point.
+
+## Planning Review Refinements
+
+These refinements resolve implementation ambiguities; they do not mark the planned behavior as implemented.
+
+- Parameter snapshots retain every effective/calculated/requested value. The calculation fingerprint projects only recompute_required parameters; reuse_with_warning fields are compared against the historical calculation snapshot and reported with an explicit warning, while metadata_only fields do not change calculation identity. No existing geometry/topology tolerance is downgraded merely to avoid recomputation. Type hints complement runtime checks.
+- A semantic output port is separate from the existing raw/processed layer. Port identities and processed payload fingerprints project only the declared port dependency/parameter/content subset. Clearance and free-space are excluded from Euclidean identity. Existing digest-bearing v1 JSON is validated before compatibility defaults are materialized.
+- Sidecar output addresses include source, package, semantic port, raw/processed layer and identity; each operation verifies resolved containment and refuses traversal or symlink/junction escapes.
+- Parameter versions share a source namespace. A source fingerprint is not the request/cache key. Same-stem IFC and Blender anchors may share the sidecar root only with distinct verified source namespaces.
+- Current IFC capture includes an absolute path in ifc_source_identity. B must add verified portable SourceBinding handoff and relocation tests; relocating authenticated legacy inputs retains their original source ID and ResultRefs. Copying a directory alone does not correct a new capture's path-derived identity.
+- An entry is published as one verified staging generation; a different payload under an existing identity is a conflict. Entry locks cover lookup, calculation and publication. Catalog/manifest/authentication initialization needs a separate short lock.
+- migrated_reuse and legacy_adopted describe lookup provenance, not persisted computation-completion states. Existing runner cache_status remains a freshness mapping.
+- Authentication keys from distinct old/destination directories coexist under explicit key IDs. Migration never overwrites a different destination key or resigns immutable old payloads.
+- Index rebuilding derives dependency availability across every source namespace. Deleting an upstream cannot rewrite authenticated dependent receipts or cascade-delete other versions.
+- Existing checkpoints without a complete input/parameter/upstream/algorithm binding remain historical or quarantined; copying them does not authorize resumption. B must fix the current unguarded group_distance_repair checkpoint reader before declaring checkpoint reuse.
+- Plan C is a conditional implementation plan: its first action after accepted A/B is fresh brainstorming/Grill. It may be replaced by a repair plan based on actual outputs; no arbitrary two-use threshold is required to justify an intermediate. Completed intermediates stay deferred unless a real package need is accepted.
