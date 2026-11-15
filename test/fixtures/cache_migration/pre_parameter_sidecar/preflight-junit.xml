@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.572" timestamp="2026-11-16T00:27:17.659142+01:00" hostname="ftian"><testcase classname="test.test_cache_migration_preflight" name="test_pre_parameter_receipts_reopen_with_original_readers" time="0.023" /></testsuite></testsuites>
