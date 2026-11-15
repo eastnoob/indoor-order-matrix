@@ -77,26 +77,28 @@ apartment.order_analyzer/
 apartment.order_analyzer/
   manifest.json
   index.json
+  settings/<package-id>.json
+  auth/<key-id>/.free_space_cache_key
+  locks/
+  quarantine/
+  runs/<pending-capture-run-id>/
   sources/
     <source-fingerprint>/
       source.json
       outputs/
-        free_space/
-          <version-key>.json
-        euclidean_distance/
-          <version-key>.json
-        path_distance/
-          <version-key>.json
-        axis_potential/
-          <version-key>.json
+        <package-id>/<semantic-port>/<raw-or-processed>/<version-key>/
+          receipt.json
+          payload.json
       runs/
         <run-id>/
           logs/
           checkpoints/
-          intermediate/
+          scratch/
 ```
 
 `source-fingerprint` 应绑定 IFC、Blender 或 canonical scene capture 的内容，以及被分析的外部依赖文件。文件名和路径主要用于显示；实际复用身份使用内容和依赖指纹，因此模型改名或移动时，只要 sidecar 一起移动，缓存仍可识别。
+
+参数版本变化不创建新的 source namespace。尚未完成捕获、无法确定内容身份的运行先放在 sidecar 根下的 `runs/`，完成后在运行记录中绑定来源；临时 run ID 不作为正式计算身份。
 
 sidecar 的 `manifest.json` 还应记录缓存格式版本、源文件和外部依赖摘要、创建工具版本及迁移历史。路径、时间和当前选中版本属于展示或工作区状态，不进入计算 identity。
 
@@ -139,12 +141,12 @@ raw 和 processed 是同一语义输出的不同计算层，不应误认为两�
 ## 7. 后续最小实现顺序
 
 1. 为各证据包增加冻结的 typed config，并保留现有默认行为。
-2. 让所有实际运行入口读取同一组包级参数；先补 global source runner 的净空参数。
+2. 让所有实际运行入口读取同一组包级参数；开放 global source runner 的可变净空前，先在 A 中补齐 checkpoint 的输入与 policy 绑定保护。
 3. 为 package contract 增加参数暴露级别、单位、来源和影响级别。
 4. 将 sidecar 路径解析为默认缓存位置，并保留显式 `cache_directory` 覆盖能力。
 5. 明确输出口依赖边界，逐步拆开欧氏与路径结果的缓存 identity。
 6. 增加版本列出、精确删除和 `1 → 2 → 1` 命中测试。
-7. 为 checkpoint 增加输入、上游 ResultRef、policy 和算法指纹校验。
+7. 在 B 中完善 checkpoint 的可验证迁移与恢复；缺少完整绑定的旧 checkpoint 只保留为历史。
 
 暂不引入 SQLite，不先做完整参数平台或 GUI，也不先开放 `epsilon`。现有 JSON receipt、原子写入和目录索引足以支持第一阶段的版本管理。
 
@@ -156,7 +158,7 @@ raw 和 processed 是同一语义输出的不同计算层，不应误认为两�
 
 1. 读取旧目录中的 receipt、索引、运行记录和可验证 checkpoint。
 2. 校验 receipt 的 cache key、contract、内容指纹、签名或认证标签，以及它引用的上游结果是否仍可解析。
-3. 将通过校验的文件复制到新目录；复制到临时文件后再原子改名，避免留下半个结果。
+3. 将通过校验的 receipt 和 payload 复制为目标暂存目录中的完整一代，再原子发布整个结果目录，避免暴露只有部分文件的结果。
 4. 在新目录重建或更新 `index.json`，记录原位置、目标位置、复制时间、校验结果和迁移状态。
 5. 复制完成后，优先从新目录命中旧版本；只有目标版本不存在或校验失败时，才重新计算受影响的输出。
 
@@ -178,7 +180,7 @@ raw、processed、运行日志和最终报告可以直接复制。checkpoint 只
 2. **当前可编辑配置**：sidecar 中保存用户对各包的覆盖值，供下一次运行或 GUI 编辑。它不是历史结果的权威，也不直接决定旧缓存是否存在。
 3. **不可变结果 receipt 中的 effective configuration**：保存补齐默认值、完成单位归一和校验后的完整参数快照，以及 `parameter_fingerprint` 和 `config_schema_version`。
 
-receipt 还应记录每个参数的来源，例如 `default`、`user`、`cli` 或 `gui`，用于解释和审计；来源标签不进入计算 identity，同样的有效值不应因为入口不同而重算。计算 identity 只使用 canonical effective parameters、输入依赖、算法版本和 schema 版本。
+receipt 还应记录每个参数的来源，例如 `default`、`user`、`cli` 或 `gui`，用于解释和审计；来源标签不进入计算 identity，同样的有效值不应因为入口不同而重算。计算 identity 只使用 canonical effective parameters 中的 `recompute_required` 投影、实际输入依赖、算法版本和 schema 版本。
 
 归一化过程必须拒绝未知字段、缺失必填值、`bool` 冒充数字、`NaN`、无穷值和无法转换的单位；同一语义的参数只能有一种 canonical JSON 表示。现有 processed receipt 已保存 processor parameters 和 `processing_identity`，但这还不能替代所有证据包共享的参数快照格式。
 
@@ -187,7 +189,9 @@ receipt 还应记录每个参数的来源，例如 `default`、`user`、`cli` �
 - `calculated_parameters`：该历史结果实际使用的参数；
 - `requested_parameters`：当前用户想使用的参数。
 
-两者不同时，系统才能准确显示 `reuse_with_warning`，而不是把旧结果误报为当前 fresh 结果。默认值必须在 receipt 中具体展开，不能依赖运行时重新读取代码默认值；否则代码默认值改变后会产生无法解释的历史结果。
+两者不同时，系统才能准确显示 `reuse_with_warning` 和 `exact_match=False`，不会声称当前请求参数就是历史计算参数。原有 freshness 映射继续描述计算输入是否有效；warning 和缓存来源单独呈现。默认值必须在 receipt 中具体展开，不能依赖运行时重新读取代码默认值；否则代码默认值改变后会产生无法解释的历史结果。
+
+计算指纹只投影 `recompute_required` 参数；完整 effective snapshot、参数类型/单位/影响声明和来源仍保存在审计记录。`reuse_with_warning`、`metadata_only` 与来源标签不创建新的数值计算版本。
 
 ### 9.2 需要很薄的 Cache Store，而不是包语义中间件
 
@@ -229,7 +233,7 @@ receipt 还应记录每个参数的来源，例如 `default`、`user`、`cli` �
 
 不建议一开始做会自动拦截任意函数的“万能可缓存中间件”。它无法可靠判断函数的输入边界、随机状态、外部资源和结果语义。更小且安全的设计是：
 
-- **语义 output**：包对外发布的长期 immutable 结果，进入 `outputs/<port>/` 和版本索引；
+- **语义 output**：包对外发布的长期 immutable 结果，进入 `outputs/<package>/<port>/<layer>/` 和版本索引；
 - **可复用 intermediate**：包显式声明的阶段产物，拥有自己的 `IntermediateRef`、identity、依赖、参数和 schema，完成后才进入可复用索引；
 - **run-local checkpoint/scratch**：可变的运行中状态，只用于精确指纹匹配后的恢复，不作为普通 output 或 intermediate 版本。
 
@@ -237,7 +241,7 @@ receipt 还应记录每个参数的来源，例如 `default`、`user`、`cli` �
 
 ### 9.4 free-space 迁移必须带上认证密钥
 
-当前 free-space cache 使用目录内的 `_cache_secret(directory)` / `.free_space_cache_key` 进行 receipt 认证。只复制 JSON 而不复制该密钥，会使新目录验证失败并触发重算。因此迁移必须复制完整 sidecar，包含认证密钥；或者将密钥改成稳定的 sidecar/source 级密钥。密钥本身不进入计算 identity，但属于缓存可验证性所需的元数据。
+当前 free-space cache 使用目录内的 `_cache_secret(directory)` / `.free_space_cache_key` 进行 receipt 认证。只复制 JSON 而不复制该密钥，会使新目录验证失败并触发重算。因此迁移必须保留对应密钥。新旧目录已有不同密钥时，按 key ID 并存，不能覆盖目的地密钥或重签历史 payload。密钥本身不进入计算 identity，但属于缓存可验证性所需的元数据；其初始化也必须加锁，避免并发覆盖。
 
 ### 9.5 生命周期、并发和历史导入规则
 
@@ -249,4 +253,25 @@ receipt 还应记录每个参数的来源，例如 `default`、`user`、`cli` �
 
 ### 9.6 自检查后的实施边界
 
-第一阶段只需要实现 typed config 快照、薄 `CacheStore`、sidecar 迁移和正式 output 的版本管理。中间产品 API 可以先定义 receipt 形状和显式注册边界，不必立即接入所有包；SQLite、自动中间件拦截、完整 GUI 管理器和历史批量导入都留到有实际需求时再做。
+第一阶段只需要实现 typed config 快照、薄 `CacheStore`、sidecar 迁移和正式 output 的版本管理。中间产品先保留长期设计，不为未出现的需求添加运行时类、注册器或目录；SQLite、自动中间件拦截、完整 GUI 管理器和历史批量导入都留到有实际需求时再做。
+
+## 10. 已确认的 Spec 与 A → B → C 计划
+
+用户确认覆盖全部三个范围，并要求连续完成到 Plan C。本轮交付设计与实施计划，尚未实施产品功能、迁移真实缓存或重跑模型。
+
+| 文档 | 责任与交接 |
+| --- | --- |
+| [总 Spec](../superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md) | 参数所有权、身份、sidecar、兼容性与验收条件 |
+| [Plan A](../superpowers/plans/2026-11-15-package-owned-parameters.md) | typed 参数、默认值、快照与 receipt、warning 传播；开放可变净空前先保护 checkpoint |
+| [Plan B](../superpowers/plans/2026-11-15-model-side-cache-store-migration.md) | 模型旁所有缓存和运行文件、迁移、认证域、锁、索引、精确删除 |
+| [Plan C](../superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md) | 从实际验收的 A/B 重新 Brainstorm/Grill，决定直接拆分或先修补；默认延期中间产物 |
+| [jj 推进与交付记录](../superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md) | 唯一交付工作线、检查点、恢复方式、审查证据和未验收草稿隔离 |
+
+审查补齐的关键限制：
+
+- 现有 IFC capture 含绝对路径。迁移需验证 `SourceBinding` 并保留原 canonical source ID，不能以“路径不参与 identity”的文字替代实际修复。
+- 本轮重构会改变现有 key 所绑定的实现文件 hash。必须使用重构前的真实、小型 receipt 和旧 hash 清单验证受限兼容映射，不能只拿改完代码后生成的 fixture 证明迁移成功。未知算法或数值依赖变化仍然 miss。
+- raw/processed loader 必须向 runner 传递历史计算 contract、warning 和 adoption 来源，不能用当前 contract 与自身比较而伪造 exact 命中。
+- 模型旁目录还包括 UI worker 的 request/result、stdout/stderr 和 terminal diagnostics；固定 Pixi 解释器、模块路径与工作目录继续使用受信任项目根。
+- 删除版本只派生依赖可用性，不修改已认证 receipt，也不隐式级联删除。路径/free-space 版本被删不能使无依赖的 Euclidean modulation 失效。
+- B 的起点是实际验收的 A **实现**提交，C 的起点是实际验收的 B **实现**提交。三份计划文档的存在不代表这些功能已经完成。

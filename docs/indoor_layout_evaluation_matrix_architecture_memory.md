@@ -1,5 +1,23 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Parameter/cache planning — user direction 2026-11-15
+
+The user approved the [master design](superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md)
+and continuous planning through A, B and C. This authorization delivers plans,
+not product implementation. Keep package-owned typed parameters, immutable
+upstream refs, identity by computation-affecting effective values, and all
+default cache/run files beside the model. Copy verified existing caches rather
+than recomputing when only the storage locator changes. Preserve authentication,
+old payloads/ResultRefs and numerical version checks during explicit adoption.
+
+Follow the [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md):
+A owns snapshots/receipts and a checkpoint safety prerequisite; B owns sidecar,
+migration and lifecycle; C begins with a fresh Superpowers/Grill on actually
+accepted A/B implementations and may become a repair plan. Intermediate runtime
+support remains deferred by default. Root is sole jj writer; preserve owner and
+other worklines. Unaccepted experimental implementation drafts are isolated and
+must not be treated as the accepted A base. No push, merge or owner integration.
+
 ## Package-owned lifecycle — user approval 2026-11-12
 
 The user authorized the discussion chat to write the lifecycle plan and develop

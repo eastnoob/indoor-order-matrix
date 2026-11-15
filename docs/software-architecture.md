@@ -1,5 +1,41 @@
 # 软件架构
 
+## Package parameters and model-side cache — planned 2026-11-15
+
+The approved [master design](superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md)
+has sequential [Plan A](superpowers/plans/2026-11-15-package-owned-parameters.md),
+[Plan B](superpowers/plans/2026-11-15-model-side-cache-store-migration.md), and
+[Plan C](superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md).
+These documents describe pending changes; they do not replace the implemented
+lifecycle below. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
+owns workline identities, review evidence, recovery and scope limits.
+
+A proposes an independent `features/evidence_package_parameters.py` for owner
+schemas, frozen effective/calculated snapshots and computation-impact projection.
+Existing package contracts and storage loaders would carry historical parameter
+status through cache hits, preserving legacy wire bytes and package ownership.
+Opening variable clearance CLI inputs requires a fail-closed checkpoint guard
+in A, before B adds validated checkpoint migration/resumption.
+
+B proposes `features/cache_paths.py` and `features/cache_store.py` as storage
+infrastructure, below package semantics. The model-side root holds namespaced
+source/package/semantic-port/raw-or-processed/identity entries, rebuildable
+catalogs and separate authentication key domains. Package validators retain
+control of contracts, algorithms and freshness. UI run request/result/log files
+would move beside the model while trusted Pixi/module execution stays rooted in
+the repository. Current capture still embeds an absolute IFC locator; current
+content keys also hash implementation files that A/B would modify. Portable
+source binding and narrowly verified legacy lookup compatibility must address
+both facts before any no-recalculation migration claim.
+
+C starts with a fresh review of actual accepted A/B implementations. Its
+proposed semantic publications project inputs, parameters, payloads, processors
+and readers together; existing reference `port=raw/processed` keeps its meaning.
+Euclidean output and Euclidean modulation cannot inherit route/free-space
+dependencies. Completed intermediates stay a long-term design unless a concrete
+package need is accepted. No new runtime modules, sidecar migration or model
+recalculation is accepted by this planning entry.
+
 ## Package-owned lifecycle — locally verified 2026-11-12
 
 The dedicated `evidence-package-lifecycle` jj workspace starts from `b8a66a65`
