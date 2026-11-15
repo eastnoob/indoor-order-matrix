@@ -9,6 +9,9 @@ has sequential [Plan A](superpowers/plans/2026-11-15-package-owned-parameters.md
 These documents describe pending changes; they do not replace the implemented
 lifecycle below. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
 owns workline identities, review evidence, recovery and scope limits.
+Its 2026-11-16 acceptance audit also fixes required-node/outcome evidence,
+real-runner numerical/concurrency checks, fresh-process migration and immutable
+stage handoffs; these are execution gates, not new runtime components.
 
 A proposes an independent `features/evidence_package_parameters.py` for owner
 schemas, frozen effective/calculated snapshots and computation-impact projection.

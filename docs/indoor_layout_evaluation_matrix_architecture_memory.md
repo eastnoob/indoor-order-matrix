@@ -17,6 +17,10 @@ accepted A/B implementations and may become a repair plan. Intermediate runtime
 support remains deferred by default. Root is sole jj writer; preserve owner and
 other worklines. Unaccepted experimental implementation drafts are isolated and
 must not be treated as the accepted A base. No push, merge or owner integration.
+The 2026-11-16 audit adds mandatory node/outcome and byte-freeze evidence,
+real-calculation/runner/restart tests and nonvacuous C dependency checks. Use
+the handoff's common acceptance/jj runbook: explicit task filesets, full accepted
+stage IDs, no Git HEAD scripts or global undo, and preserve failed candidates.
 
 ## Package-owned lifecycle — user approval 2026-11-12
 

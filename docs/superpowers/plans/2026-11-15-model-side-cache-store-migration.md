@@ -12,7 +12,8 @@
 
 ## Global Constraints
 
-- Execute after Plan A implementation acceptance, using the exact commit recorded in docs/superpowers/handoffs/2026-11-15-plan-a-accepted.md. A planning-document commit is not an accepted implementation.
+- Apply the [shared acceptance and jj runbook](../handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议) to every PASS and commit below. Required nodes must run without skip/xfail; root commits explicit task paths and records exact tested bytes, not just a passing aggregate.
+- Execute after Plan A implementation acceptance, from A's accepted handoff commit containing docs/superpowers/handoffs/2026-11-15-plan-a-accepted.md and the tested code. Record that full handoff ID and its separately named implementation ID. A planning-document commit is not an accepted implementation.
 - Read project memory and software-architecture.md first; synchronize the architecture map in each task that changes its interfaces.
 - Only the designated root version writer changes jj history. Read-only inspection uses jj --ignore-working-copy; create one implementation workspace from the accepted A revision.
 - Maintain package ownership, formulas, unconstrained clearance_policy=None, existing ResultRefs and numerical backend/version checks.
@@ -247,6 +248,8 @@ Use OS-released file locks: msvcrt.locking on Windows, fcntl.flock on POSIX, plu
 Treat index.json as disposable acceleration. Validate direct receipt bytes regardless of index claims. Scan all source namespaces to rebuild entries and dependency availability. Catalog refresh uses its own short lock and atomic replacement; independent identities cannot lose each other's catalog entries.
 
 - [ ] **Step 4:** Use multiprocessing.get_context("spawn") for two writers of one identity and for two different identities. Assert one computation for the former, two readable catalog entries for the latter; inject a crashed holder and prove OS lock release. Run both test files. Expected: PASS.
+
+The Store-only test is prerequisite evidence, not runner acceptance. Task 3 must add `test_real_runner_concurrent_first_miss_computes_once` in `test/test_cache_store_concurrency.py`, parameterized over the ordinary distance raw runner, authenticated free-space runner and Blender session entry. Spawn two workers, synchronize immediately before runner invocation (never place a two-party barrier inside the serialized calculation), instrument each actual expensive boundary with a process-shared counter, and retain real tiny-fixture results. Equal addresses must produce exactly one calculation, one immutable publication and consistent computed/hit decisions. Different addresses must each calculate once and both remain in the rebuilt catalog. Use bounded joins and fail on worker error, timeout or missing result; do not treat subprocess completion alone as success.
 - [ ] **Step 5:** Root jj commit -m "feat: lock cache calculations and rebuild lifecycle catalog".
 
 ---
@@ -272,6 +275,7 @@ Treat index.json as disposable acceleration. Validate direct receipt bytes regar
 - Modify: test/test_blender_analysis_capture.py and test/test_bonsai_live.py
 - Modify: test/test_blender_analysis_runtime.py
 - Modify: test/test_evidence_package_lifecycle_runners.py at its existing live/replay/hierarchy runner seams
+- Modify: test/test_cache_store_concurrency.py to run the actual package/session first-miss cases introduced in Task 2
 - Modify: test/test_blender_analysis_ui.py at model-anchor and locator envelope assembly
 - Modify: test/test_group_axis_distance_modulation.py at the retained-run caller seam
 - Modify: docs/software-architecture.md
@@ -309,6 +313,8 @@ The potential live/replay CLIs currently default --output-root to repository out
 - [ ] **Step 3: Wire one store and existing codecs at each runner.**
 
 Hold identity lock over hit checking, calculation and publication. Preserve current package keys, processed keys, wire versions and HMAC validation. Update test file-discovery assumptions from flat glob("*.json") to exact store addresses and manifest paths.
+
+Complete the real-runner concurrency cases named in Task 2 after wiring these entries. A correctly locked demonstration `CacheStore.put` cannot stand in for the public runner's lookup → compute → publish scope.
 
 The current capture puts absolute IFC path in ifc_source_identity, and downstream source hashes include it. Do not merely declare paths excluded. Add an optional SourceBinding handoff to begin_analysis_capture; when its content and external fingerprints match the current file/scene, reuse canonical_source_identity while updating only current_locator. On the first legacy adoption, preserve the authenticated original source ID. New portable bindings derive their source identity from content/project identity rather than a display path. Reject binding reuse when source bytes, captured geometry or external dependencies change.
 
@@ -387,6 +393,8 @@ The refactor itself changes files hashed by _content_cache_key and analysis_requ
 
 Use both the pinned pre-refactor receipts and a post-A two-version fixture; patch calculation/generator callbacks to _forbidden after fixture creation. Request parameter values 1, then 2, then 1 in the destination. Assert both copied versions hit, unchanged origin keys/payload hashes/ResultRefs, cache_status["freshness"] == "fresh", cache_reuse == "migrated_reuse", and old bytes still exist. A current request key may use an explicit validated lookup binding; never relabel the legacy result as originally computed under that new key. Mutating an algorithm hash outside the reviewed compatibility set or a numerical package version must reject adoption. Run migration, route-repair and package lifecycle suites. Root jj commit -m "feat: migrate validated caches and authentication domains".
 
+Add `test_migrated_legacy_runner_reuse_survives_process_restart`, parameterized over the pre-A raw/processed/authenticated free-space/Blender-wire families, to `test/test_cache_migration.py`. Process P imports/migrates and exits. Fresh process Q opens only the destination sidecar plus independently supplied current inputs/recipe (no importer objects or process-local key/lookup registry), patches the actual producer/generator boundaries to fail, and performs the destination requests above. Assert original keys/ref/bytes and migrated reuse, including coexistence with the destination's original auth domain. Rebuild the advisory index, exit Q, and repeat in process R; persistent lookup bindings and credentials must survive both restarts. In an isolated empty sidecar, the same patched runner must reach the sentinel, proving that the no-calculation assertion is attached to the real boundary. Keep the old fixture/source bytes intact. Missing retained families or unavailable current input bindings cannot skip these gates and still claim complete no-recompute migration.
+
 ---
 
 ### Task 5: Freeze acceptance and prepare C's fresh review
@@ -400,7 +408,7 @@ Use both the pinned pre-refactor receipts and a post-A two-version fixture; patc
 ~~~text
 pixi run pytest test/test_cache_paths.py test/test_cache_store.py test/test_cache_store_concurrency.py test/test_cache_migration.py test/test_evidence_package_lifecycle.py test/test_evidence_package_lifecycle_runners.py test/test_free_space_evidence_package.py test/test_blender_analysis_session.py test/test_blender_analysis_capture.py test/test_bonsai_live.py test/test_blender_analysis_runtime.py test/test_blender_analysis_ui.py test/test_group_distance_route_repair.py test/test_group_axis_distance_modulation.py -q
 ~~~
-Expected: PASS. A different verifier records cwd, command, exit code, pass count and hashes.
+Expected: PASS under the shared protocol. Include the real-runner concurrency nodes from `test_cache_store_concurrency.py` and every restart migration family; a different verifier records collection, all outcomes, cwd, command, exit code, logs/XML and frozen hashes. Do not advance B's accepted bookmark on skipped or missing critical cases.
 - [ ] **Step 2:** Root inspects jj diff --git, checks touched bytes for whitespace/errors, and verifies the frozen tested bytes match. Obtain separate spec and quality review per verified-agent-workflow. Failures are repaired and reverified before acceptance.
 - [ ] **Step 3:** Record accepted implementation commit, source/path binding, unchanged legacy keys/refs, source versus request fingerprint example, HMAC migration into an already-used destination, two-process lock evidence, index rebuilding, exact deletion across sources and partial migration results.
 - [ ] **Step 4:** Set next entry point to C Task 1: fresh Superpowers brainstorming/Grill over actual accepted A/B receipts, dependencies and costs; select a new plan or repair plan and reassess the intermediate need.

@@ -275,3 +275,7 @@ receipt 还应记录每个参数的来源，例如 `default`、`user`、`cli` �
 - 模型旁目录还包括 UI worker 的 request/result、stdout/stderr 和 terminal diagnostics；固定 Pixi 解释器、模块路径与工作目录继续使用受信任项目根。
 - 删除版本只派生依赖可用性，不修改已认证 receipt，也不隐式级联删除。路径/free-space 版本被删不能使无依赖的 Euclidean modulation 失效。
 - B 的起点是实际验收的 A **实现**提交，C 的起点是实际验收的 B **实现**提交。三份计划文档的存在不代表这些功能已经完成。
+
+2026-11-16 对抗复审进一步收紧验收：参数必须改变真实计算结果，迁移必须跨进程保持禁算命中，锁必须覆盖真实 runner，C 必须用可用几何、真实依赖和独立当前 owner/recipe 验证隔离。关键测试不准通过 skip/xfail 或缺 fixture 降低承诺；证据绑定实际文件 SHA。详见交付记录的[共同验收协议](../superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议)与阶段 jj 命令约束。
+
+阶段交接提交包含原样验收实现和其证据记录；B/C 从该交接提交的完整 ID 出发，记录中另列最后实现提交，避免 handoff 自指。root 是唯一 jj 写入者，提交明确文件，失败保留候选后从最近 accepted 提交新建工作区。工作 bookmark、已验收 bookmark 和未验收草稿分开，Git HEAD 不作为这个 jj 工作区的版本依据。

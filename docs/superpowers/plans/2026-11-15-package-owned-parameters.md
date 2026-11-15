@@ -12,6 +12,7 @@
 
 ## Global Constraints
 
+- Apply the [shared acceptance and jj runbook](../handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议) to every PASS and commit below. Required nodes must run without skip/xfail; root commits only explicit task paths after independent verification. All read-only jj commands use `--ignore-working-copy`.
 - Work in an isolated Plan A jj workspace from the accepted spec/plan commit. Do not edit the distance-potential owner workspace, push or merge.
 - Use Pixi for Python and tests. Every new/modified function needs an English-first docstring and important identity/validation/serialization blocks need intent comments.
 - Type hints do not provide runtime checks. Explicitly reject bool-as-number, nonfinite values, invalid bounds/units, unknown fields and missing required values.
@@ -892,6 +893,13 @@ def test_processed_parameter_versions_restore_without_transform(tmp_path, monkey
     schema = ParameterSchema(potential.PACKAGE_ID, "processed-versions/1", (
         ParameterSpec("value", float, 1.0),))
     base = _processor()
+    calls = []
+
+    def scaled(raw, parameters):
+        """Make effective recipe values visible within the declared 0..1 scale."""
+        calls.append(parameters["value"])
+        return tuple(replace(item, observation=item.observation * parameters["value"])
+                     for item in base.function(raw, parameters))
 
     def configured(value, function):
         """Create the same owned recipe at a chosen effective value."""
@@ -899,14 +907,55 @@ def test_processed_parameter_versions_restore_without_transform(tmp_path, monkey
             function, {"value": value}, parameter_schema=schema)
 
     first = potential.run_group_axis_potential_package(_potential_sources(),
-        cache_directory=tmp_path, output_processor=configured(1.0, base.function))
+        cache_directory=tmp_path, output_processor=configured(1.0, scaled))
     second = potential.run_group_axis_potential_package(_potential_sources(),
-        cache_directory=tmp_path, output_processor=configured(2.0, base.function))
+        cache_directory=tmp_path, output_processor=configured(2.0, scaled))
+    assert first["processed_output"].error_code is None
+    assert second["processed_output"].error_code is None
+    assert first["processed_output"].outputs[0].observation == 0.25
+    assert second["processed_output"].outputs[0].observation == 0.5
+    assert calls == [1.0, 2.0]
     assert first["processed_output"].processing_identity != second["processed_output"].processing_identity
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
     restored = potential.run_group_axis_potential_package(_potential_sources(),
         cache_directory=tmp_path, output_processor=configured(1.0, _forbidden))
     assert restored["processed_output"] == first["processed_output"]
+    assert calls == [1.0, 2.0]
+
+
+def test_free_space_grid_parameter_changes_real_samples_then_restores(tmp_path, monkeypatch):
+    """An owner knob reaches geometry execution before its old version is reused."""
+    scene = _scene(_object("chair"))
+    coarse = _request(scene)
+    fine = replace(coarse, sampling=replace(coarse.sampling,
+        spacing=0.5, n_rows=8, n_cols=8))
+    execute = free_space.requests.execute_analysis_request
+    calls = []
+
+    def counted(scene_value, request_value, *args, **kwargs):
+        """Observe real execution without substituting manufactured outputs."""
+        calls.append(request_value.sampling.spacing)
+        return execute(scene_value, request_value, *args, **kwargs)
+
+    monkeypatch.setattr(free_space.requests, "execute_analysis_request", counted)
+    first = free_space.run_free_space_package(scene, coarse, cache_directory=tmp_path)
+    raw_path = tmp_path / (first["cache_key"] + ".json")
+    retained_bytes = raw_path.read_bytes()
+    second = free_space.run_free_space_package(scene, fine, cache_directory=tmp_path)
+    assert calls == [1.0, 0.5]
+    assert not first["cache_hit"] and not second["cache_hit"]
+    assert len(first["raw_output"].outputs) == 16
+    assert len(second["raw_output"].outputs) == 64
+    assert first["contract"]["parameter_snapshot"]["calculated_parameters"]["grid_spacing_m"] == 1.0
+    assert second["contract"]["parameter_snapshot"]["calculated_parameters"]["grid_spacing_m"] == 0.5
+    assert first["cache_key"] != second["cache_key"]
+    monkeypatch.setattr(free_space.requests, "execute_analysis_request", _forbidden)
+    restored = free_space.run_free_space_package(scene, coarse, cache_directory=tmp_path)
+    assert restored["cache_hit"] is True
+    assert restored["cache_key"] == first["cache_key"]
+    assert restored["raw_output"] == first["raw_output"]
+    assert raw_path.read_bytes() == retained_bytes
+    assert calls == [1.0, 0.5]
 
 def test_verified_distance_legacy_receipt_reuses_and_reports_origin(tmp_path, monkeypatch):
     """A known old raw key is adopted before the producer can run."""
@@ -1079,7 +1128,7 @@ Retain existing EvidencePackageDependency and raw output immutability tests. Aud
 
 Run: pixi run pytest test/test_evidence_package_parameters.py test/test_evidence_package_processing.py test/test_evidence_package_readback.py test/test_evidence_package_processed_readback.py test/test_evidence_package_saved_processed_consumer.py test/test_evidence_package_freshness.py test/test_evidence_package_lifecycle.py test/test_free_space_evidence_package.py test/test_group_distance_evidence_package.py test/test_group_distance_clearance.py test/test_group_distance_route_repair.py test/test_group_axis_distance_modulation.py -q
 
-Expected: PASS. Record actual counts/duration; do not claim a full repository suite or real-model replay unless executed.
+Expected: PASS under the shared protocol, including both actual-value version tests above. Record required node IDs, collection, actual outcome counts/duration and durable logs/XML; do not claim a full repository suite or real-model replay unless executed. Missing preflight fixture families block their migration handoff rather than silently reducing accepted scope.
 
 - [ ] **Step 3: Update architecture and handoff.**
 
@@ -1088,10 +1137,10 @@ Record workspace, accepted parent and nonempty commits; changed files; exact tes
 - [ ] **Step 4: Inspect and commit handoff.**
 
 ~~~powershell
-jj status
-jj diff --stat
-jj diff --git
-jj commit -m "docs: accept Plan A and hand off parameter receipts to Plan B"
+jj --ignore-working-copy status
+jj --ignore-working-copy diff --stat
+jj --ignore-working-copy diff --git
+jj commit docs/software-architecture.md docs/project/parameter-and-cache-ownership-note.md docs/superpowers/handoffs/2026-11-15-plan-a-accepted.md -m "docs: accept Plan A and hand off parameter receipts to Plan B"
 jj --ignore-working-copy log -r "@-" -n 1 --no-graph
 ~~~
 

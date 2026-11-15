@@ -1,6 +1,7 @@
 # 参数与模型旁缓存：规划交付及 jj 推进记录
 
 日期：2026-11-15。范围：Spec 与 Plan A/B/C；产品功能尚未实施。
+验收与 jj 复审：2026-11-16；修订沿用原规划文件名。
 
 ## 唯一交付工作线
 
@@ -9,6 +10,7 @@
 - 原始 Spec 检查点：`9456173b`，父提交 `5baf3273`。
 - 最初 Plan A 文档检查点：`8449f67c`。后续修订以本记录和最终规划 bookmark 为准。
 - 最终 Spec 与 A 修订检查点：`961c84f5`；B 文档检查点：`6d24695f`。这两个提交仍只包含规划文档。
+- 本次验收严密性审查之前的规划交付：`b66bf3cfd365f236ea65157b7e6dd1f8b42911de`；保留在祖先链，审查修订另作非空文档提交。
 - 最终规划 bookmark：`codex/parameter-cache-planning-20261115`，只指向经过审查的文档交付提交。
 - 版本写入者：root。委派者可以写被明确分配的文档；不得修改 jj 历史。
 - owner 工作区和其他项目工作线不纳入本轮修改；没有 push、merge 或 owner 集成。
@@ -26,12 +28,26 @@
 ## 执行前后如何衔接
 
 1. **A 的起点**：最终规划 bookmark。创建新的 task-owned jj workspace；先固定小型真实旧 receipt、原始 payload hash、实现/backend hash 清单，再改动它们所依赖的代码。不得以本轮未验收草稿代替 A。
-2. **A 的验收**：依次执行其可独立验证的任务；不同 agent 运行 focused checks，取得 specification/quality verdict 后由 root 提交。真实的 `plan-a-accepted.md` 记录最终实现提交、候选文件 hash、命令结果、兼容性限制与 B 入口。
-3. **B 的起点**：A handoff 中的实际验收实现提交，保留 A 参数 API。验证模型移动、所有 UI/CLI run-local 目录、旧 hash 兼容映射、HMAC 多域、锁、索引重建与精确删除。真实的 `plan-b-accepted.md` 记录同等证据。
-4. **C 的起点**：B handoff 中的实际验收实现提交。先 Brainstorm/Grill 实际产物；结果可以是继续 C、先执行小型修补计划，或明确安全拆分尚不可行。没有真实中间产物需求就只交长期设计，不增加运行时框架。
+2. **A 的验收**：依次执行其可独立验证的任务；不同 agent 运行 focused checks，取得 specification/quality verdict 后由 root 提交。真实的 `plan-a-accepted.md` 记录最终实现提交、候选文件 hash、命令结果、兼容性限制与 B 入口；后续交接提交包含这份记录和原样被测代码。
+3. **B 的起点**：A 的已验收交接提交（包含记录中那份实际验收实现），保留 A 参数 API。验证模型移动、所有 UI/CLI run-local 目录、旧 hash 兼容映射、HMAC 多域、锁、索引重建与精确删除。真实的 `plan-b-accepted.md` 记录同等证据。
+4. **C 的起点**：B 的已验收交接提交（包含记录中那份实际验收实现）。先 Brainstorm/Grill 实际产物；结果可以是继续 C、先执行小型修补计划，或明确安全拆分尚不可行。没有真实中间产物需求就只交长期设计，不增加运行时框架。
 5. **阶段完成**：架构图、讨论笔记和 handoff 与实际代码同步；计划勾选不能替代测试或独立验收。每个任务只记录真实跑过的检查，不声称整个仓库或真实 IFC 重算已经验证。
 
 实现期间由 root 在阶段验收后建立 `codex/parameter-cache-a-accepted`、`codex/parameter-cache-b-accepted` 等 bookmark；存在未通过的检查时不得创建或前移这些验收 bookmark。
+
+## 共同验收协议
+
+本节约束 Spec、A/B/C 的所有 `Expected: PASS` 和提交步骤；局部示例不能降低本协议。只有需求、测试、真实证据和已验收字节能够逐项对应，阶段才可交接。
+
+1. **先固定基线与必需测试**：每任务 brief 列出需求、关键 pytest node ID（含参数化分支）、fixture、命令、预期行为和证据位置。先在接受的父提交检查既有测试；新增测试必须因目标行为缺失而 RED，不能把导入错误当作数值/缓存行为已被证明。阶段验收前用相同测试路径 `--collect-only -q` 核实必需节点确实收集；检查 pytest 配置、`PYTEST_ADDOPTS` 和实际命令，禁止无记录的 `-k`/`-m` 排除。
+2. **通过必须可核验**：独立 verifier 使用计划的完整 focused set，加 `-ra --junitxml=<本任务证据目录中的文件>`，保留终端输出和 XML，记录命令、cwd、Pixi/Python、退出码、collected/passed/failed/error/skipped/xfail/xpass/deselected、耗时及 fixture/候选 SHA256。关键节点必须实际 PASS；skip、xfail、xpass、未收集或缺 fixture 都不能算通过。pytest 退出码 0 或总通过数不能替代逐节点对照。项目 conftest 会切回当前 checkout 根，必须核实导入的模块和 fixture 确实来自该 jj workspace。
+3. **基线失败不能洗掉**：记录父提交同一命令的具体失败节点、原因和相关字节。不随便移除失败用例；要修复目标范围内的回归。若无关失败确实只能保留，阶段记录为 `partial / blocked`，列出缺口；不得创建或前移 fully accepted bookmark。可以提交清楚标记的候选供修补，但下一阶段不能把它当 accepted parent。
+4. **迁移按家族证明**：A preflight manifest 对 raw、processed、认证 free-space、Blender-wire 逐项固定原 reader、旧 key、输入、实现/backend 与文件 SHA；缺一种即缺该家族的迁移验收。B 必须用真实 pre-A 字节、新进程和独立当前输入证明零计算复用，不能只用新实现生成的缓存或同进程内存登记。缺失证据只能标历史/不支持，不能让 A/B 全范围交接为通过；需要调整承诺时先修订相应 scope/repair gate，并保留未完成需求。
+5. **防止空断言**：版本变化须同时验证参数进入真实计算、数值/格点变化与实际调用次数；复用须验证原 key/ref/bytes 和零调用。用空 sidecar 或隔离的冷 miss 证明禁止计算的 sentinel 的确位于真实调用边界。并发从真实 runner 入口验证；删除前必须有真实可用版本、非空依赖和数值，`delete_exact` 返回 True；缺对象不准当删除成功。
+6. **冻结后独立验收**：暂停全部写入者，保存允许路径的 diff、实际文件 SHA 和 fixture 清单；不同 agent 在这些字节上执行检查并给出 SPEC/QUALITY verdict。修补后重跑受影响检查并复审。root 提交前再次比对所有被测代码/测试/fixture/config 的 SHA；代码或测试变动使对应证据失效。只追加证据文档时确认不改变被测行为并另做文档检查，避免无限重跑。
+7. **交接不自指**：先接受最后的非空实现提交，再在后续文档提交记录它的完整 commit ID、证据文件/hash、结论和下一阶段入口。handoff 的自身提交由外部 bookmark/log 标识，不把未知的自身 hash 写进自身。阶段 accepted bookmark 指向这个已检查的交接提交；B/C 记录它及其中的实现提交，核对祖先关系。C 若只完成安全拆分延期，结论必须是 `split deferred`，不能建立暗示独立输出已实现的 accepted bookmark。
+
+这些证据优先保存在本任务模型旁的 run/evidence 目录；A/B 尚未接线时用明确的临时测试证据目录，并在 handoff 保存可继续访问的绝对路径和 hash。不得为验证更改缓存位置而重算大型模型。
 
 ## 检查点与恢复
 
@@ -42,6 +58,35 @@
 推荐恢复路径是保留失败候选，再从最后一个已验收 gate 建一个新的 task workspace。既不丢失诊断材料，也不改动其他工作区。只有确认路径完全属于本任务且不存在混合编辑时，才按已核查的 `jj restore --from` 语法恢复明确文件。`jj op log` 用于诊断；不对共享仓库执行全局 undo/op restore，也不删除或清空 owner。
 
 缓存迁移同样可回退：旧目录始终保留；目标冲突或部分失败不覆盖已有有效项。完成验证前不删除旧目录。暂存失败不能成为命中；不可验证的 checkpoint 只能作为历史，不能直接恢复计算。
+
+### 阶段工作线与命令约束
+
+| 阶段 | 新 jj workspace | 父提交 | 工作 bookmark / 验收 bookmark |
+| --- | --- | --- | --- |
+| A | `parameter-cache-a-implementation` | 本轮审查后最终规划提交的完整 ID | `codex/parameter-cache-a-work` / `codex/parameter-cache-a-accepted` |
+| B | `parameter-cache-b-implementation` | 真实 A accepted handoff 提交的完整 ID | `codex/parameter-cache-b-work` / `codex/parameter-cache-b-accepted` |
+| C | `parameter-cache-c-implementation` | 真实 B accepted handoff 提交的完整 ID | `codex/parameter-cache-c-work` / 完成输出拆分才设 `codex/parameter-cache-c-accepted` |
+
+workspace 路径均在本记录的仓库 `.worktrees/` 下。先检查名称/路径不存在；不得复用 `parameter-cache-plan-a` 未验收草稿。bookmarks 是移动定位器，不是验收凭据：每个 brief 固定完整 `planning_commit_id`、`implementation_base_commit_id`、workspace/path、change ID、candidate 文件/hash、accepted implementation/handoff commit ID 和 root writer。已接受提交不 amend/rebase；修补另建子提交。B/C 从真实父提交继承，不能三阶段平行从规划提交各写实现。
+
+以下只由 root 在 canonical planning workspace 执行；此时规划 bookmark 必须已包含本次审查修订。命令展示建 A 的方式，不在本轮文档审查执行：
+
+```powershell
+$planningCommit = (jj --ignore-working-copy log -r 'bookmarks(exact:"codex/parameter-cache-planning-20261115")' --no-graph -T 'commit_id').Trim()
+if ($LASTEXITCODE -ne 0 -or $planningCommit -notmatch '^[0-9a-f]{40}$') { throw 'Planning commit is not unique' }
+jj --ignore-working-copy workspace list
+jj workspace add --name parameter-cache-a-implementation --revision $planningCommit 'D:/PROJECTS/understandOtherPackage/order_analyzer/.worktrees/parameter-cache-a-implementation'
+```
+
+创建后进入返回的明确路径，核 `jj --ignore-working-copy root`、`status`、`log -r '@ | @-'` 和实际文件/hash。B/C 的 `--revision` 使用已验证 handoff 的完整 ID，禁止默认 revision、猜测 `@-` 或随时变化的 bookmark。后续规划修订若未包含在该 accepted parent 中，只带入相应文档修订并记录来源；如改动已验收运行时契约，先走 repair gate，不能按工作区内过期计划继续。
+
+任务中的 `jj commit -m ...` 是提交意图，必须由 root 增加该 task brief 的明确 filesets 后执行。所有只读 status/diff/log 带 `--ignore-working-copy`；仅 root 在暂停写入者后有意运行一次普通 `jj status` 来 snapshot，随即核对非空差异、允许路径和实测 SHA。裸 commit 会提交全部变更，禁止照抄；混入同文件的无关编辑先分离，不能用选择整个文件来偷偷带入。工作 bookmark 由 root 显式指向非空候选提交，不会因 `jj commit` 自动追踪新空 `@`；未验收候选只标 `candidate/draft`。
+
+提交后从 log 读出完整实现/交接 ID，核 diff 与被测字节，再用带显式 `--revision` 的 `jj bookmark create`（首次）或 `jj bookmark set`（后续）更新验收 bookmark。不能默认指向新空 `@`。无失败或跳过、证据齐全且 SPEC/QUALITY 均通过才执行。
+
+失败先保存 task-owned 文件、diff、SHA、诊断和非空 draft checkpoint（若含无关编辑则保留原工作区），再由 root 用最后 accepted 的完整 ID 创建 `parameter-cache-a-recovery-01` 等新工作区。命名文件恢复只允许 `jj restore --from <已记录的accepted完整ID> <确认独属本任务的明确路径>`，不省略路径。`jj op log` / `jj --at-op ...` 只作只读诊断；禁止共享仓库的 `jj undo`、`jj op restore`，也不依赖本机不存在的 `jj op undo`。
+
+**Superpowers 的 jj 适配**：本机 canonical 的 `jj root` 是该工作区，但 `git rev-parse --show-toplevel` 返回 owner 根，Git HEAD 也不是此工作线。委派 brief 必须覆盖技能中的 Git worktree 检测、Git HEAD/review-package 脚本、implementer 自行 commit 和自动清理：使用 jj 的 base/candidate 完整 ID、`jj --ignore-working-copy diff --from ... --to ... --git` 与真实文件 SHA；只有 root 写历史。不得自动运行 `git clean`、`rm -rf`、workspace 删除、finishing merge/push；保留全部验收证据与草稿。
 
 ## 审查发现及修复归属
 
@@ -91,9 +136,9 @@
 
 其他早期重复计划工作区 `parameter-owned-plan-a`、`model-side-cache-plan-b`、`output-port-plan-c` 也不是最终交付路径。保留它们的历史，不 cherry-pick 其实现或把其中的计划当成最新版本。
 
-## 本轮验证边界
+## 原规划交付的验证边界（b66bf3cf）
 
-最终冻结候选已经由 root 和独立 `planning_coverage` reviewer 复核，规划 **SPEC PASS / QUALITY PASS**，无剩余实质阻断。A 另由 `plan_b_map` 独立交叉核查；B/C 的实际 caller、runtime/UI 与现有 fixture/test 路径也已检查。上述结论是规划验收，不是实现验收。
+原规划冻结候选由 root 和独立 `planning_coverage` reviewer 复核，记录为规划 **SPEC PASS / QUALITY PASS**。A 另由 `plan_b_map` 独立交叉核查；B/C 的实际 caller、runtime/UI 与现有 fixture/test 路径也已检查。2026-11-16 的对抗复审发现下面的验收充分性缺口，因此上述历史结论不替代本次修订复核，更不代表实现验收。
 
 检查环境为本记录的 canonical 工作区、Pixi Python。独立命令为 `pixi run python C:/Users/tianf/AppData/Local/Temp/parameter_cache_plan_check_20261115.py`，退出码 `0`：8 份文档、48 段 Python 示例，`errors=[]`。检查范围为 Markdown 本地链接、围栏、占位标记、空白、Python AST 和 JSON 示例语法；未导入或执行示例中的待实现模块。架构大文档的链接与标记审查限本轮新增条目，未声称全面清理历史文档。
 
@@ -112,3 +157,21 @@
 最终本地交付检查使用 `jj --ignore-working-copy diff --from 5baf3273 --to <planning-bookmark> --summary`，确认只含这 8 份 Markdown；提交后核对 bookmark 指向、canonical 空工作副本和 owner 原有 revision。无 push、merge 或 owner 集成。
 
 本轮没有实施 sidecar/CacheStore/新参数 API，没有迁移实际用户缓存，没有运行产品测试或重新计算模型；所有实现测试命令属于后续计划的验收步骤。已知不能验证或无法映射的旧缓存会安全 miss，并报告原因，不能保证任意历史 JSON 都无需重算。
+
+## 2026-11-16 验收充分性复审
+
+root 与只读 reviewer `audit_ab_acceptance`、`audit_c_acceptance`、`audit_jj_runbook` 对照实际 fixtures/callers 和安装的 jj 命令复审；问题与修订如下。它们是计划验收漏洞，不是已实现功能的缺陷报告。
+
+| 原验收可能漏过的错误 | 修订后的必需证据 |
+| --- | --- |
+| 只改 key/snapshot，计算仍忽略新参数 | A processed callback 读取参数并改变结果；微小 free-space 的真实网格、样本数、两次计算和旧值禁算恢复 |
+| Store 示例锁正确，真实 runner 在锁外重复计算 | B 普通包、认证 free-space、Blender 入口的 spawn 首 miss 调用计数 |
+| importer 只在内存保存兼容 lookup 或认证域 | B P 迁移退出、Q 新进程真实 runner 禁算命中、重建索引后 R 再命中及冷 miss 阳性对照 |
+| 缺失几何掩盖新 path 分支、路由 provenance 污染 Euclidean | C 有限真实路径与 combined 对照，禁共享 Euclidean 原语；真实有效 route-only 输入变更不改变 Euclidean bytes/key |
+| 手动 projector 预填缓存掩盖 runner 未接入 adoption | C 只有 combined entry 时直接调用 runner，禁两个 producer 且保留历史 bytes/来源 |
+| processor/modulation 偷用历史 owner 或忽略当前 recipe | C 各入口独立 current snapshot/schema/recipe 拒绝矩阵与 callback 哨兵；raw selected warning 单独验证 |
+| 被删对象/边本来就不存在 | C 四种 fresh-store 删除案例，事前完整数值/边、delete=True、free-space 使真实 path 不可用的阳性对照 |
+| pytest 总 PASS 掩盖 skip/缺 node/缺 fixture；提交后 bytes 漂移 | 共同协议的 collect、逐节点 outcome、日志/XML、冻结 SHA、独立验收和阶段交接 |
+| Git 脚本读到 owner；全局恢复/裸 commit 伤及其他工作 | jj 专用工作线、root filesets、完整父提交、保留 draft 后新 workspace、禁全局 undo/自动清理 |
+
+原 `b66bf3cf` 和隔离草稿都继续保留；本次仅修订这八份 Markdown。产品实现、真实缓存迁移、Blender/IFC 运行与迁移重启测试仍是后续执行的验收工作。

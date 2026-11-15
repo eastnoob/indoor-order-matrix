@@ -310,11 +310,13 @@ Design and implementation use jj workspaces derived from the accepted parent, wi
 4. lifecycle/index/delete behavior and regression tests;
 5. semantic-output independence after C's fresh review; intermediate runtime support only if that review accepts a real need.
 
-Before each gate, record the workspace path, parent revision, dirty-file manifest, and intended files. After each gate, run the focused Pixi tests, inspect `jj diff`, and create a local jj commit. Preserve a failed candidate before recovering in a fresh task workspace from its accepted parent, or restore only named task files after checking for unrelated edits. Inspect `jj op log` for diagnosis; do not run a repository-wide undo or operation restore across other active workspaces. B starts from the actual accepted A implementation commit, and C from the actual accepted B implementation commit. No push, merge, or owner-worktree integration is part of this spec.
+Before each gate, record the workspace path, parent revision, dirty-file manifest, and intended files. After each gate, run the focused Pixi tests, inspect `jj --ignore-working-copy diff`, and let root create a local jj commit with explicit task filesets. Preserve a failed candidate before recovering in a fresh task workspace from its accepted parent, or restore only named task files after checking for unrelated edits. Inspect `jj op log` for diagnosis; do not run a repository-wide undo or operation restore across other active workspaces. B starts from A's accepted handoff commit containing the tested implementation, and C from B's corresponding handoff commit. Both record the exact preceding implementation commit separately. No push, merge, or owner-worktree integration is part of this spec.
 
 ## Acceptance Conditions
 
 The design is implemented only when all of the following have observable evidence:
+
+Every condition is governed by the [shared acceptance and jj runbook](../handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议): required test nodes actually execute, evidence binds frozen bytes, missing fixtures block full acceptance, and accepted parents are exact implementation/handoff commits. Key-only or all-unavailable fixtures cannot prove numerical parameter routing or output independence.
 
 - A package rejects invalid or unknown parameter values and emits a complete canonical effective-parameter snapshot.
 - Equal effective values from default, CLI, and GUI sources produce the same parameter fingerprint.
@@ -327,6 +329,9 @@ The design is implemented only when all of the following have observable evidenc
 - Independent output ports do not invalidate one another when their dependency sets are disjoint.
 - Intermediate artifacts remain deferred by default. If separately accepted, they are opt-in, explicitly declared, separately referenced, and never confused with checkpoints.
 - Existing `outputs/design/...` historical artifacts remain readable as history and are not silently imported.
+- Parameter changes demonstrably reach the real numerical producer; restoring the original values invokes no calculation and returns the original validated version.
+- Migration lookup/authentication survives fresh interpreter restarts and index rebuilding; concurrent first misses are serialized at the real package/session runner boundary.
+- Semantic split acceptance includes a usable real path through the new path-only kernel, direct runner adoption from combined entries, current-context forwarding through processors/consumers, selected raw warnings, and deletion of an actually populated dependency graph.
 
 ## Grill Findings and Dispositions
 
@@ -343,7 +348,7 @@ The design is implemented only when all of the following have observable evidenc
 
 ## Plan Handoff and Acceptance Gates
 
-Each plan has a separate jj workspace and local commit lineage. The working copy for Plan B is created from the accepted Plan A implementation commit; the working copy for Plan C is created from the accepted Plan B implementation commit and begins its fresh Superpowers review there. Preserve a failed candidate before restarting in a fresh task workspace at its preceding accepted gate, or restore only its recorded task paths after checking for unrelated edits. Do not reset a shared workspace or repository.
+Each plan has a separate jj workspace and local commit lineage. Plan B is created from the accepted A handoff commit, and Plan C from the accepted B handoff commit; each includes the independently tested implementation and its evidence record, with full implementation and handoff IDs recorded separately. C begins its fresh Superpowers review there. Preserve a failed candidate before restarting in a fresh task workspace at its preceding accepted gate, or restore only its recorded task paths after checking for unrelated edits. Do not reset a shared workspace or repository.
 
 Plan A may hand off only when effective parameter snapshots, canonical fingerprints, validation errors, default expansion, and source-independent identity tests are present. Plan B may hand off only when sidecar relocation reuses validated results, preserves free-space authentication, rebuilds a damaged index, and prevents duplicate concurrent publication. Plan C may hand off only when its fresh review identifies exact output dependencies and its focused tests demonstrate independent version reuse or document why a safe split is not yet possible.
 
