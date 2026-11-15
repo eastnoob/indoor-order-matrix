@@ -175,3 +175,23 @@ root 与只读 reviewer `audit_ab_acceptance`、`audit_c_acceptance`、`audit_jj
 | Git 脚本读到 owner；全局恢复/裸 commit 伤及其他工作 | jj 专用工作线、root filesets、完整父提交、保留 draft 后新 workspace、禁全局 undo/自动清理 |
 
 原 `b66bf3cf` 和隔离草稿都继续保留；本次仅修订这八份 Markdown。产品实现、真实缓存迁移、Blender/IFC 运行与迁移重启测试仍是后续执行的验收工作。
+
+### 本次复核结论与证据
+
+最终复核候选为 `f25920994bc008e41a0e5f094db4ceda4170eb53`。三位独立 reviewer 对各自 A/B、C、jj 分工均给出 **SPEC PASS / QUALITY PASS**，无剩余阻断；root 核对实际文件、输出与 diff 后，用明确的八份文件路径提交修订为 `4c48b07d3f67a790fd4e7a647fe2888236d705e2`。本小节是后续证据追加，其自身交付提交由最终规划 bookmark/log 标识。
+
+独立 verifier `audit_ab_acceptance` 在 canonical 工作区通过 Pixi 执行原文档 validator，退出码 `0`，8 份文档、48 段 Python 示例、`errors=[]`。保留输出为 `C:/Users/tianf/AppData/Local/Temp/parameter_cache_plan_check_20261116_audit_ab_f2592099.jsonl`，SHA256 为 `d38b46cb2aa0b7f0f34db282ced8eff45dc65cd0975dd2fe1c2087d0a7df5b24`；root 已读取并核验。该检查只验证文档链接/围栏/示例语法等，不导入待实现模块，也不执行未来的产品验收测试。
+
+下表是独立验收时的磁盘字节 SHA256。memory/architecture 在 checkout 为 CRLF、jj 存储为 LF，独立 reviewer 已核对规范化文本相同；其余六份复核文档磁盘与候选字节一致。本记录在候选时的 SHA 为 `ea1c67cde7a702a28a8aea3d0b86e9562850fd998a63d2caad1383b238d89081`，追加此小节后以交付提交为准。
+
+| 文件 | SHA256 |
+| --- | --- |
+| Spec | `d044911e8dab8a72e593b0388da01a2823050dcb6c062b9ff86b0ef259de3469` |
+| Plan A | `3d73d1d542207da48d176e7aa8714d0956a3b834b9e8828758333323bdaa8d70` |
+| Plan B | `377b6a9fe5d314bf9ef9bb132e82f38ad28e1343fd4c5400a57814aea8906acb` |
+| Plan C | `96bed9c2b17f3a0f8816b1c20be84c9fe140c7e8c2eed14a39034d7ced9cabb3` |
+| 讨论笔记 | `9cbe3c92982b0d2c84f930866e3d472c47592b74b3f4aecee5af66665a18ecaf` |
+| software-architecture | `8a6d90c63b564b4045ff99bad106b646c341746c09ba0fb00d7165d721de3590` |
+| architecture memory | `fc4b71e767b195fd03fdd289edb79d0a05cf11f78395cbced480184e6f597a02` |
+
+已验收内容仍为规划修订。没有产品代码修改、生产缓存复制/删除、大模型重算、Git 操作恢复或 owner 集成。是否满足未来运行时承诺，必须由 A/B/C 的实际执行证据判定。
