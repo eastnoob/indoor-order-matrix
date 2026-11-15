@@ -150,7 +150,7 @@ The channel responsibilities use existing fields, not additional nested types:
 | Responsibility | Existing representation |
 | --- | --- |
 | Algorithm/recipe | Channel provenance `method`, `algorithm_version`, `schema_version` and formula when declared; otherwise package `output_function` and `output_function_version`, scoped to the named channel. Source records may explicitly inherit top-level envelope provenance. |
-| Actual inputs | `derived_from`, source-envelope `cache_identity` input/source/query/recipe/channel fingerprints, and explicit external dependencies. |
+| Actual inputs | `derived_from`, source-envelope `cache_identity` input/source/query/recipe/channel fingerprints, and explicit external dependencies. A package such as potential may declare `distance_modulation` as a typed processed dependency while retaining the distance package's raw and processed ports separately. |
 | Output | Channel `observation`, `status`, `scale`, explanation and source IDs. |
 | Content integrity | `fingerprint_evidence_dependency(output_channel)` fingerprints one complete channel; serialized `payload_fingerprint` covers the complete package. |
 

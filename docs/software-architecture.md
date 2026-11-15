@@ -170,7 +170,9 @@ Final artifacts live under
 selected-source PNG/SVG, an interactive actual-union SVG/HTML with 37 source
 choices and 666 pair anchors, and a hash manifest. All source views use the
 same absolute [0,1] color scale. This remains an uncalibrated, reversible
-experiment, with no distance-conditioned potential or world-plane cache mixing.
+experiment; the separate potential trial consumes the processed distance port
+only through an explicit default-off dependency and does not mix world-plane
+and camera-plane caches.
 
 The explicit, default-off `--compare-reciprocal` mode reuses that authenticated
 loader and unchanged `build_decay_rows`. `build_comparison_rows` only appends
@@ -235,7 +237,9 @@ The concrete consumer is an output-only, faithful channel readback package in
 `scripts/design/group_level/replay_evidence_package_readback.py`. It selects
 explicit published channel references, pins artifact SHA-256, compares retained
 contracts with freshly built contracts, and supplies a complete dependency
-graph before execution. It adds no formula or distance-conditioned potential.
+graph before execution. The distance-conditioned potential trial uses this
+path as an additive package-owned channel; it does not alter the default
+potential publication or choose a cross-package fusion formula.
 Before numeric readback, independent `current_source_envelopes` must match a
 signature of `target`, `query`, `channel_set`, `cache_identity`, `raw_status`,
 `value`, `support` and `source_ids`; package ID alone is insufficient. Missing
@@ -1078,9 +1082,10 @@ needed for its declared relation without requiring another evidence package to
 be enabled. Reuse ordinary functions and valid caches; do not introduce a shared
 measurement layer or package scheduler. Existing source-envelope calls remain
 valid; an opted-in package may declare explicit cross-package dependencies.
-Pure-axis/source channels stay intact; future distance-conditioned or joint
-results are additional named outputs, not automatic extra votes. Real source
-changes still invalidate dependent results.
+Pure-axis/source channels stay intact; distance-conditioned or joint results are
+additional named outputs, not automatic extra votes. Real source changes still
+invalidate dependent results. The current distance-conditioned axis channel is
+explicitly default-off and experimental.
 The reusable group-distance module is implemented in `features/group_distance.py`,
 with the pinned-IFC runner `scripts/design/group_level/run_group_distance_ifc.py`
 and output-only `render_group_distance_preview.py`. Kernel review is owner accepted;

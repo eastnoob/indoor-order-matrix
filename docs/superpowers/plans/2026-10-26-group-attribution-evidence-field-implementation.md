@@ -191,6 +191,61 @@
   - [x] **.17.8 独立审阅和 owner acceptance（completed 2026-11-03）：** The independent endpoint/topology/state review findings and owner grill are resolved. Owner accepted the smallest floating-point correction before spec edits: backend labels determine selection, deterministic predecessor recovery handles ties, residual/ULP reporting explains component reassociation, and no normal second Dijkstra is required. The user delegated text-spec acceptance to the owner; actual IFC visual acceptance follows real output. Evidence: [`owner grill`](../../project/evidence/distance-spec-grill-review-2026-11-02.md), [`readiness evidence`](../../project/evidence/distance-readiness-2026-11-03.md).
   - [x] **.17.9 readiness 门（completed 2026-11-03）：**目标、模块边界、输入/输出、算法/状态、依赖身份、距离专用 artifact/index schema、666 组对覆盖对账及未来 IFC/可视化验收协议均已冻结并写入 [`2026-11-03-group-distance-module-implementation.md`](../plans/2026-11-03-group-distance-module-implementation.md)。实现、真实 IFC 全量运行、资源测量和用户视觉审阅仍是后续门；势包如何使用距离保持独立未决。
 - [ ] **阶段 2B.6a.18：距离实现与两通道证据包已技术交付；仅用户视觉验收待完成（状态核对 2026-11-10）。**最新 retained publication 为 `run_global_full_current_20261106_merged/distance_evidence_package/`，实际位于 `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_distance_bridge_proxy/outputs/design/group_distance_ifc/`。37 个家具组、666 个无序组对完整保留，666 个 source envelopes 产生 `euclidean_distance` 与 `path_distance` 共 1,332 个 computed 输出；自由空间是输入依赖，不是第三通道。独立 specification **PASS**、quality **Approved**，相关验证 **85 passed / 1 existing skip**；原生 Blender inspector 的 666 个组对、2,664 个对象及 1–666 帧索引已核验。`.18.8` 技术路线验证已完成，`.18.10/.18.C4` 尚无用户视觉接受记录，因此父项继续未勾选。已核验保存的路线/几何见证；**未证明全局最短性，也不以历史缓存 freshness 声称当前模型未变**。原错误 S4 全 outside、纠正 S3 whole-height 全 unreachable 和后续 v3/v4 路线均保留为历史，不再作为当前零路线结论。详见[实施计划](2026-11-03-group-distance-module-implementation.md)与[最新两通道交付证据](../../project/evidence/group-distance-ifc-v1.md#two-channel-distance-evidence-publication--2026-11-07)。跨包读回 rollout 已完成，但 **distance-to-potential 业务接入尚未实现**；下一项设计须先对齐分析平面/范围，再决定势包如何消费距离，不在此项冻结公式或新增编号。
+
+### Distance-to-potential continuation — 2026-11-15
+
+The lifecycle prerequisite is accepted and reusable: `105passed1deselected` with
+one deselected check, carried through the accepted handoff. This continuation
+does not close parent `.18`, `.18.10`, or `.18.C4`, and does not claim lifecycle
+merge, business integration, formula selection, or fresh live-scene state.
+
+- [x] Prove source/group/plane/scope compatibility before consumption. Accepted
+  coordinate-registration evidence only: 37 groups/95 members match; descriptor/
+  envelope and in-plane transform identities match; 37 Body unions mutually cover
+  at the existing `0.001 m` distance tolerance; max centroid delta is
+  `7.0574e-7 m`, symmetric difference `7.9930e-6 m²`. Exact geometry/query
+  sameness is not asserted. Analysis-PCA shape and Body-centroid remain distinct
+  estimands with separate plane/query/provenance. Evidence: compatibility report
+  SHA-256 `cba773eb7efebbb0e36b76db0f31a9d31ceed431572b41c927c2993773abe68d`; the
+  comparison script exits 0; the authenticated loader also verified original/
+  derived IFC source and 666 Euclidean channels, with diagnostic/report readback
+  exit 0. Distance camera identity (`basisz=1.6`) and pure-axis world identity
+  (`basisz=0`) remain distinct.
+- [x] Define and implement the minimum opt-in diagnostic path for consuming the
+  distance package's accepted normalized Euclidean processed output while
+  retaining pure-axis channels: `M_d(g,k)=S(g,k) × p(g,anchor(k))`, appending only
+  potential-owned raw `distance_modulated_axis_support`. Accepted after focused
+  opt-in tests and independent artifact checks; no size weight, `0.6` constant,
+  production calibration or evidence-vote semantics.
+- [x] Prepare the designated real-IFC before/after contrast visualization and
+  manifest, retaining the old distance and pure-axis channels. Visual evidence is
+  required for the distance effect and cannot be replaced by summary numbers.
+  The fixed `[0,1]` S/p/M PNG, complete 37×37 matrix, 666-pair table, HTML and
+  manifest are under `outputs/design/group_axis_distance_modulation_ifc_v2/`.
+- [x] Obtain independent specification/quality acceptance and a local checkpoint;
+  update this checklist and the progress ledger with evidence before ticking any item.
+  Independent verdict: **SPEC PASS / QUALITY Approved** in
+  `.superpowers/sdd/distance-potential-integration-20261115/verification/acceptance-result-20261115.md`.
+  Local jj checkpoint created with message `feat: add opt-in distance-conditioned axis diagnostic` (inspect the parent of the empty working-copy change with `jj log -r '@-'`).
+
+**Distance-to-potential continuation execution record (2026-11-15):**
+The opt-in implementation consumes the processed Euclidean proximity channel
+through an explicit typed dependency and appends only
+`distance_modulated_axis_support`; all pure-axis channels and 37 self cells are
+preserved. The first real runner exposed a `mappingproxy` manifest serialization
+failure; wrapping the two manifest fields with the existing `_json_value` helper
+fixed the root cause. The fresh authenticated runner now exits 0 at
+`outputs/design/group_axis_distance_modulation_ifc_v2/verification_runner_fix_20261115/run_20261115_symmetric_reciprocal/`.
+The accepted scope is 37 groups/95 members/666 unordered pairs/1,369 directed
+cells/1,332 computed non-self cells/37 `NOT_AVAILABLE` self cells. All five
+artifact hashes match, and every computed cell satisfies `M_d=S×p`. The broader
+isolated-worktree regression has 11 missing unrelated historical fixtures; this
+is recorded as an environment gap and does not invalidate the focused verdict.
+No user visual acceptance or production formula freeze is claimed.
+
+Progress/evidence updates are required before ticks. No new IFC extraction,
+synthetic scene, dependency, config, or room-model export is authorized by this
+continuation.
 - [x] **阶段 2B.6b.0：完成 Frame 包只读预审。**确认当前没有 active 的家具组级 Frame 包；`infer_furniture_frame` 仍是单体家具层并保持 suppressed/audit；可复用的组级输入为 support area、center、within/between/total covariance、分析平面、状态和来源。历史上 `group_axis`（2θ）与 `group_frame`（4θ）语义分离。未运行 IFC，未冻结规则，未写实现。证据：[`group-frame-package-preflight-v1.md`](../../project/evidence/group-frame-package-preflight-v1.md)。
 - [ ] **阶段 2B.6b：家具组级 Frame 包。**保持 deferred；只有势包 `g→k` 支持层完成审阅和指定 IFC 验证后才恢复。Frame 独立于 axis-only 势以及 form/scale，不从单体家具 frame 推导。
 - [ ] **阶段 2B.6c：家具组 Form + Scale 几何特征证据包。**Form 与 Scale 作为一个独立包，输入、观察、状态、来源和同一 IFC 平面可视化须单独讨论；其相对排列包的先后保持未决。

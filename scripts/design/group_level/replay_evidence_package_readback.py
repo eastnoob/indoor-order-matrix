@@ -25,6 +25,8 @@ from features.field_core import (
     deserialize_evidence_processed_output,
     evaluate_evidence_package_freshness,
     fingerprint_evidence_dependency,
+    _read_evidence_package_channel,
+    _validate_processed_binding,
     read_evidence_package_channel,
 )
 
@@ -143,9 +145,17 @@ def consume_saved_evidence_package(
     output_addresses = [(reference.target_identity, alias) for reference, alias in aliases.items()]
     if len(set(output_addresses)) != len(output_addresses):
         raise ValueError("output aliases must keep consumer target/channel addresses distinct")
-    # Resolve exact ports before evaluation so a miss cannot become an empty or raw fallback view.
-    for reference in (*references, *processed_references):
+    # Validate each exact address before evaluation; the batch resolver performs one complete
+    # processed/raw binding check for the dependency while retaining these address checks.
+    for reference in references:
         read_evidence_package_channel(source, reference, processed_output=processed)
+    for reference in processed_references:
+        _read_evidence_package_channel(
+            source,
+            reference,
+            processed_output=processed,
+            processed_binding_validated=True,
+        )
     freshness = evaluate_evidence_package_freshness(
         cached_contract=cached_contract, current_contract=current_contract,
     )

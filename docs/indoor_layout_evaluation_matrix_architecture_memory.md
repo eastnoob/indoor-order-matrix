@@ -531,11 +531,13 @@ structure and lineage; package formulas remain local.
 
 User confirmation (2026-11-01): keep packages cohesive, without requiring another
 evidence package to be enabled or adding a measurement layer. Reuse the existing
-source-envelope input; retain pure-axis/source channels and append future
-conditioned/joint results without extra votes. Real dependency changes still
-require freshness checks. Potential distance-conditioned formulas remain undecided.
-Group distance is a separate reusable calculation, not a package or current potential
-channel. Its `.17` design/readiness was accepted by the owner on 2026-11-03 after a
+source-envelope input; retain pure-axis/source channels and append conditioned
+or joint results without extra votes. Real dependency changes still require
+freshness checks. The potential package now has a default-off experimental
+`distance_modulated_axis_support` channel that consumes the distance package's
+processed proximity port through an explicit typed dependency; its production
+formula remains undecided. Group distance remains a separate reusable
+calculation and evidence package. Its `.17` design/readiness was accepted by the owner on 2026-11-03 after a
 guarded nonspatial NetworkX 3.6.1 tie/lineage probe and confirmed S4/source audit.
 The kernel, same-view adapter, full-pair runner and output-only preview now exist
 in the isolated workspace. The historical superseded-S4 `group_distance_ifc/run_v1/` records all

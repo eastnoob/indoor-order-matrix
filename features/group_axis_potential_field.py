@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 import json
 from pathlib import Path
 from math import atan2, cos, degrees, hypot, isfinite, radians, sin
@@ -16,6 +17,9 @@ from .field_core import (
     EvidenceOutputProcessor,
     EvidenceOutputScale,
     EvidencePackage,
+    EvidencePackageChannelReference,
+    EvidencePackageDependency,
+    EvidencePackageInput,
     FieldResultEnvelope,
     FieldResultStatus,
     _json_value,
@@ -47,6 +51,112 @@ FIELD_CELL_KIND = "furniture_group_axis_field_cell"
 FIELD_VIEW_KIND = "furniture_group_axis_field"
 FIELD_RECIPE_ID = "source-axis-g-to-k-v1"
 FIELD_OUTPUT_SCHEMA = "group-axis-potential-field-output/v1"
+
+
+@dataclass(frozen=True, slots=True)
+class DistanceModulationInput:
+    """Declare one explicit processed-distance dependency for the axis diagnostic."""
+
+    dependency: EvidencePackageDependency
+    current_processing_identity: str
+    compatibility: Mapping[str, Any]
+    dependency_graph: Mapping[str, Iterable[str]]
+
+    def __post_init__(self) -> None:
+        """Reject incomplete processed bindings before opt-in evaluation."""
+        if not isinstance(self.dependency, EvidencePackageDependency):
+            raise TypeError("dependency must be an EvidencePackageDependency")
+        if self.dependency.package_freshness not in {"fresh", "stale", "unavailable"}:
+            raise ValueError("distance dependency freshness must be fresh, stale, or unavailable")
+        if any(reference.port != "processed" for reference in self.dependency.channels):
+            raise ValueError("distance modulation requires processed channel references")
+        if self.dependency.source_output is None or self.dependency.source_processed_output is None:
+            raise ValueError("distance modulation requires typed raw and processed outputs")
+        if not isinstance(self.current_processing_identity, str) or not self.current_processing_identity.strip():
+            raise ValueError("current_processing_identity must be non-empty")
+        if not isinstance(self.compatibility, Mapping) or not self.compatibility:
+            raise ValueError("compatibility must contain explicit registration facts")
+        if not isinstance(self.dependency_graph, Mapping):
+            raise TypeError("dependency_graph must be a mapping")
+
+
+def _validate_distance_modulation(
+    source_envelopes: tuple[FieldResultEnvelope, ...], modulation: DistanceModulationInput,
+) -> tuple[EvidencePackageChannelReference, ...]:
+    """Bind every declared processed pair to the current axis group and recipe facts."""
+    groups = tuple(sorted(str(source.target["id"]) for source in source_envelopes))
+    facts = modulation.compatibility
+    if tuple(sorted(facts.get("group_ids", ()))) != groups:
+        raise ValueError("distance compatibility group scope differs from axis source scope")
+    if facts.get("axis_source_sha256") != facts.get("original_source_sha256"):
+        raise ValueError("distance compatibility must bind the original axis source")
+    if facts.get("in_plane_origin_delta_m") != (0.0, 0.0):
+        raise ValueError("distance compatibility requires zero in-plane origin shift")
+    raw = modulation.dependency.source_output
+    processed = modulation.dependency.source_processed_output
+    expected = tuple(sorted(modulation.dependency.channels, key=lambda item: item.target_identity))
+    raw_by_target = {(item.target["identity"], item.channel): item for item in raw.outputs}
+    processed_by_target = {(item.target["identity"], item.channel): item for item in processed.outputs}
+    raw_sources = {item.target["identity"]: item for item in raw.source_envelopes}
+    if (modulation.dependency.package_freshness == "fresh"
+            and processed.processing_identity != modulation.current_processing_identity):
+        raise ValueError("current processing identity does not match the supplied processed output")
+    axis_refs = facts.get("axis_member_refs")
+    distance_refs = facts.get("distance_member_refs")
+    if not isinstance(axis_refs, Mapping) or not isinstance(distance_refs, Mapping):
+        raise ValueError("distance compatibility must bind actual axis and distance member refs")
+    for source in source_envelopes:
+        group_id = source.target["id"]
+        if source.cache_identity["input_fingerprint"] != facts["axis_source_sha256"]:
+            raise ValueError("axis source identity differs from compatibility binding")
+        axis_plane = _json_value(source.query.plane)
+        if axis_plane != facts.get("axis_plane"):
+            raise ValueError("axis query plane differs from compatibility binding")
+        bindings = source.provenance.get("member_bindings", ())
+        members = tuple(sorted({str(item.get("original_source_id")) for item in bindings
+                                if isinstance(item, Mapping) and item.get("status") == "accepted"}))
+        if not members or members != tuple(sorted(axis_refs.get(group_id, ()))):
+            raise ValueError("axis member refs differ from compatibility binding")
+    if len(expected) != len(groups) * (len(groups) - 1) // 2:
+        raise ValueError("distance modulation requires one processed reference per unordered group pair")
+    seen_pairs: set[tuple[str, str]] = set()
+    for reference in expected:
+        if (modulation.dependency.package_freshness == "fresh"
+                and reference.processing_identity != modulation.current_processing_identity):
+            raise ValueError("processed reference recipe identity is not current")
+        raw_channel = raw_by_target.get((reference.target_identity, "euclidean_distance"))
+        processed_channel = processed_by_target.get((reference.target_identity, reference.channel))
+        if raw_channel is None or processed_channel is None:
+            raise ValueError("distance modulation reference address is not published")
+        group_ids = tuple(raw_channel.observation.get("group_ids", ())) if isinstance(raw_channel.observation, Mapping) else ()
+        if len(group_ids) != 2 or any(group_id not in groups for group_id in group_ids):
+            raise ValueError("distance modulation reference lacks two valid group identities")
+        if raw_channel.provenance.get("analysis_plane") != facts.get("distance_plane"):
+            raise ValueError("distance projection plane differs from compatibility binding")
+        if raw_channel.provenance.get("query_context") != facts.get("distance_query"):
+            raise ValueError("distance query differs from compatibility binding")
+        source = raw_sources.get(reference.target_identity)
+        if source is None:
+            raise ValueError("distance source envelope is missing for the referenced pair")
+        source_record = next((record for record in source.value["channels"] if record.channel == "group_distance"), None)
+        if source_record is None:
+            source_record = next((record for record in source.value["channels"]
+                                  if isinstance(record.observation, Mapping)
+                                  and "geometry_audit" in record.observation), None)
+        audit_map = source_record.observation.get("geometry_audit", {}) if source_record else {}
+        for group_id in group_ids:
+            audit = audit_map.get(group_id, {})
+            members = tuple(sorted(audit.get("source_refs", ()))) if isinstance(audit, Mapping) else ()
+            if not members or members != tuple(sorted(distance_refs.get(group_id, ()))):
+                raise ValueError("distance member refs differ from compatibility binding")
+        seen_pairs.add(tuple(sorted(group_ids)))
+        if (modulation.dependency.package_freshness == "fresh"
+                and (processed_channel.status.value != "computed"
+                     or not isinstance(processed_channel.observation, (int, float)))):
+            raise ValueError("distance modulation processed observations must be computed scalars")
+    if len(seen_pairs) != len(groups) * (len(groups) - 1) // 2:
+        raise ValueError("distance modulation must cover every unordered group pair")
+    return expected
 
 
 def _overall_record(envelope: FieldResultEnvelope) -> Any | None:
@@ -763,18 +873,119 @@ def aggregate_group_axis_potential_outputs(
     return tuple(outputs) + _relation_outputs(source_envelopes) + source_axis_outputs
 
 
+def _distance_modulated_outputs(
+    context: EvidencePackageInput,
+    modulation: DistanceModulationInput,
+    legacy_outputs: tuple[EvidenceOutputChannel, ...],
+) -> tuple[EvidenceOutputChannel, ...]:
+    """Append distance-conditioned support while preserving every legacy output."""
+    references = _validate_distance_modulation(context.source_envelopes, modulation)
+    raw = modulation.dependency.source_output
+    processed = modulation.dependency.source_processed_output
+    raw_by_target = {(item.target["identity"], item.channel): item for item in raw.outputs}
+    processed_by_target = {(item.target["identity"], item.channel): item for item in processed.outputs}
+    resolved_by_ref = {item.ref: item for item in context.resolved_dependencies}
+    pair_values: dict[tuple[str, str], tuple[EvidencePackageChannelReference, float, EvidenceOutputChannel]] = {}
+    for reference in references:
+        raw_channel = raw_by_target[(reference.target_identity, "euclidean_distance")]
+        processed_channel = processed_by_target[(reference.target_identity, reference.channel)]
+        group_ids = tuple(raw_channel.observation["group_ids"])
+        pair_values[tuple(sorted(group_ids))] = (reference, float(processed_channel.observation), processed_channel)
+    output: list[EvidenceOutputChannel] = []
+    for axis in legacy_outputs:
+        if axis.channel != "axis_field_support" or axis.target["kind"] != FIELD_CELL_KIND:
+            continue
+        observation = axis.observation if isinstance(axis.observation, Mapping) else {}
+        anchor = str(observation.get("anchor_group_id", ""))
+        target = str(observation.get("target_group_id", ""))
+        self_reference = bool(observation.get("self_reference"))
+        derived = tuple(axis.derived_from)
+        if self_reference:
+            output.append(EvidenceOutputChannel(
+                target=axis.target, channel="distance_modulated_axis_support", observation=None,
+                status=FieldResultStatus.NOT_AVAILABLE,
+                scale=EvidenceOutputScale(
+                    meaning="Distance-conditioned source-axis support diagnostic", units="unitless",
+                    normalization_method="M_d=S*processed_Euclidean_proximity", value_range=(0.0, 1.0),
+                    endpoint_meanings=("no combined support", "full combined support"),
+                ), derived_from=derived, source_ids=axis.source_ids,
+                provenance={**axis.provenance, "method": "distance_modulated_axis_support",
+                            "algorithm_version": "distance-modulated-axis-support/1"},
+                explanation="distance_self_not_applicable",
+            ))
+            continue
+        pair = pair_values.get(tuple(sorted((anchor, target))))
+        if pair is None:
+            raise ValueError("distance modulation has no exact processed reference for a nonself axis cell")
+        reference, proximity, processed_channel = pair
+        support = observation.get("axis_field_support")
+        resolved = resolved_by_ref[reference]
+        if resolved.channel is None:
+            status = resolved.effective_status
+            value = None
+            explanation = resolved.explanation
+        elif axis.status is not FieldResultStatus.COMPUTED or not isinstance(support, (int, float)):
+            status = axis.status
+            value = None
+            explanation = "axis support is unavailable"
+        else:
+            status = processed_channel.status
+            value = float(support) * proximity if status is FieldResultStatus.COMPUTED else None
+            explanation = "" if value is not None else "distance proximity is unavailable"
+        output.append(EvidenceOutputChannel(
+            target=axis.target, channel="distance_modulated_axis_support", observation=value,
+            status=status,
+            scale=EvidenceOutputScale(
+                meaning="Distance-conditioned source-axis support diagnostic", units="unitless",
+                normalization_method="M_d(g,k)=S(g,k)*p(g,anchor(k))", value_range=(0.0, 1.0),
+                endpoint_meanings=("no combined support", "full combined support"),
+            ), derived_from=derived + (reference,),
+            source_ids=tuple(sorted(set(axis.source_ids) | set(processed_channel.source_ids))),
+            provenance={**axis.provenance, "method": "distance_modulated_axis_support",
+                        "algorithm_version": "distance-modulated-axis-support/1",
+                        "distance_processed_channel": reference.channel,
+                        "distance_processing_identity": reference.processing_identity},
+            explanation=explanation,
+        ))
+    if len(output) != len(context.source_envelopes) ** 2:
+        raise ValueError("distance modulation must retain one output slot for every axis cell")
+    return tuple(output)
+
+
 def build_group_axis_potential_package(
     *, scene_namespace: str | None = None, output_processor: EvidenceOutputProcessor | None = None,
+    distance_modulation: DistanceModulationInput | None = None,
 ) -> EvidencePackage:
     """Return legacy or hierarchy publication with optional separate runtime processing."""
     if scene_namespace is not None and (not isinstance(scene_namespace, str) or not scene_namespace.strip()):
         raise ValueError("scene_namespace must be non-empty when hierarchy mode is requested")
-    if scene_namespace is None:
+    if distance_modulation is not None and scene_namespace is not None:
+        raise ValueError("distance modulation is supported only for the base potential publication")
+    if scene_namespace is None and distance_modulation is None:
         return EvidencePackage(
             package_id=PACKAGE_ID,
             output_function_id=OUTPUT_FUNCTION_ID,
             output_function_version=OUTPUT_FUNCTION_VERSION,
             output_function=aggregate_group_axis_potential_outputs,
+            output_processor=output_processor,
+        )
+
+    if scene_namespace is None:
+        def output_function(source_envelopes: tuple[FieldResultEnvelope, ...]) -> tuple[EvidenceOutputChannel, ...]:
+            """Compute the legacy axis publication for the context callback."""
+            return aggregate_group_axis_potential_outputs(source_envelopes)
+
+        def context_output_function(context: EvidencePackageInput) -> tuple[EvidenceOutputChannel, ...]:
+            """Append the explicit processed-distance diagnostic to legacy outputs."""
+            legacy = aggregate_group_axis_potential_outputs(context.source_envelopes)
+            return legacy + _distance_modulated_outputs(context, distance_modulation, legacy)
+
+        return EvidencePackage(
+            package_id=PACKAGE_ID,
+            output_function_id=OUTPUT_FUNCTION_ID + "+distance-modulation",
+            output_function_version=OUTPUT_FUNCTION_VERSION + "+distance-modulation-1",
+            output_function=output_function,
+            context_output_function=context_output_function,
             output_processor=output_processor,
         )
 
@@ -800,10 +1011,15 @@ def build_group_axis_potential_package(
     )
 
 
-def build_group_axis_potential_package_contract(source_envelopes, *, scene_namespace=None, output_targets=None):
+def build_group_axis_potential_package_contract(
+    source_envelopes, *, scene_namespace=None, output_targets=None,
+    distance_modulation: DistanceModulationInput | None = None,
+):
     """Bind actual typed sources and the selected producer without running its algorithm."""
     sources = tuple(source_envelopes)
-    producer = build_group_axis_potential_package(scene_namespace=scene_namespace)
+    producer = build_group_axis_potential_package(
+        scene_namespace=scene_namespace, distance_modulation=distance_modulation,
+    )
     if not sources or any(not isinstance(source, FieldResultEnvelope) for source in sources):
         raise TypeError("source_envelopes must contain FieldResultEnvelope values")
     # Preserve producer order: audit lists and exact aggregate bytes retain that order.
@@ -823,6 +1039,16 @@ def build_group_axis_potential_package_contract(source_envelopes, *, scene_names
             "field_recipe": FIELD_RECIPE_ID, "field_schema": FIELD_OUTPUT_SCHEMA}),
         "channels": fingerprint_evidence_dependency([source.channel_set for source in sources]),
     }
+    if distance_modulation is not None:
+        _validate_distance_modulation(sources, distance_modulation)
+        dependencies["distance_modulation"] = fingerprint_evidence_dependency({
+            "dependency": distance_modulation.dependency,
+            "current_processing_identity": distance_modulation.current_processing_identity,
+            "compatibility": distance_modulation.compatibility,
+            "dependency_graph": distance_modulation.dependency_graph,
+            "raw_output": distance_modulation.dependency.source_output,
+            "processed_output": distance_modulation.dependency.source_processed_output,
+        })
     return build_evidence_package_contract(package_id=PACKAGE_ID, package_schema=schema,
         producer="features.group_axis_potential_field", target_ids=(
             (source.target["identity"] for source in sources) if output_targets is None else output_targets),
@@ -830,11 +1056,19 @@ def build_group_axis_potential_package_contract(source_envelopes, *, scene_names
 
 
 def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
-                                     cache_directory=None, output_processor=None):
+                                     cache_directory=None, output_processor=None,
+                                     distance_modulation: DistanceModulationInput | None = None):
     """Own potential calculation reuse and its separately configured processed publication."""
     sources = tuple(source_envelopes)
-    package = build_group_axis_potential_package(scene_namespace=scene_namespace, output_processor=output_processor)
-    contract = build_group_axis_potential_package_contract(sources, scene_namespace=scene_namespace)
+    package = build_group_axis_potential_package(
+        scene_namespace=scene_namespace, output_processor=output_processor,
+        distance_modulation=distance_modulation,
+    )
+    dependencies = () if distance_modulation is None else (distance_modulation.dependency,)
+    graph = None if distance_modulation is None else distance_modulation.dependency_graph
+    contract = build_group_axis_potential_package_contract(
+        sources, scene_namespace=scene_namespace, distance_modulation=distance_modulation,
+    )
     cache_key = contract["package_identity"]
     path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
     raw = None if path is None else load_raw_output(path, cache_key=cache_key, contract=contract, package=package)
@@ -844,13 +1078,16 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
         raw = None
     hit = raw is not None
     if raw is None:
-        raw = package.evaluate(sources)
+        raw = package.evaluate(sources, dependencies=dependencies, dependency_graph=graph)
         if path is not None:
             save_raw_output(path, cache_key=cache_key, contract=contract, raw_output=raw)
     # Receipt identity describes calculation inputs; publication freshness names
     # actual output targets, including hierarchy addresses available only afterward.
-    contract = build_group_axis_potential_package_contract(sources, scene_namespace=scene_namespace,
-        output_targets={item.target["identity"] for item in raw.outputs})
+    contract = build_group_axis_potential_package_contract(
+        sources, scene_namespace=scene_namespace,
+        output_targets={item.target["identity"] for item in raw.outputs},
+        distance_modulation=distance_modulation,
+    )
     cache_status = evaluate_evidence_package_freshness(cached_contract=contract if hit else None, current_contract=contract)
     processed_path = (None if path is None or output_processor is None else
                       path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
@@ -872,5 +1109,6 @@ __all__ = [
     "build_axis_relation_records",
     "build_group_axis_potential_package",
     "build_group_axis_potential_package_contract",
+    "DistanceModulationInput",
     "run_group_axis_potential_package",
 ]

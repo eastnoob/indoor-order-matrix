@@ -211,11 +211,12 @@ It reports two raw readings independently: fixed-group-centroid Euclidean
 distance and fixed-centroid/free-grid hybrid distance. It does not produce
 support, decay, normalization, membership or a potential result.
 
-Later, the potential package may decide to add a separately named,
-traceable distance-conditioned cohesion reading to express the question “do
-similarly oriented groups still support one another when spatially separated?”
-That would be a package-owned additive calculation: preserve all current pure
-axis, relation, resultant and hierarchy channels; choose which raw distance to
-use and define any monotone transform/combination only in a separate reviewed
-design. This note does not freeze that formula or claim the distance module is
-already implemented.
+The potential package now exposes a separately named, traceable, default-off
+distance-conditioned diagnostic for the question “do similarly oriented groups
+still support one another when spatially separated?” It is a package-owned
+additive calculation: `M_d(g,k)=S(g,k)*p(g,anchor(k))`, where `S` is the
+existing axis support and `p` is the accepted processed Euclidean proximity
+channel. The trial preserves all pure-axis, relation, resultant and hierarchy
+channels, keeps 37 self cells unavailable, and computes 1,332 non-self cells on
+the pinned IFC. This is an experimental feasibility reading, not a frozen
+production attenuation formula, size-weighted model or fusion vote.

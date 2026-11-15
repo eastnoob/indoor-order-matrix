@@ -255,3 +255,33 @@ def test_contract_requires_all_dependency_roles() -> None:
             algorithm_version="algorithm/1",
             schema_version="schema/1",
         )
+
+
+def test_distance_modulation_is_the_only_optional_dependency_name() -> None:
+    """The diagnostic contract admits its exact optional dependency while unknown names remain rejected."""
+    base = _contract()
+    dependencies = {
+        item["name"]: item["fingerprint"] for item in base["dependencies"]
+    }
+    dependencies["distance_modulation"] = fingerprint_evidence_dependency({"recipe": "symmetric-reciprocal"})
+    accepted = build_evidence_package_contract(
+        package_id="group-axis-potential",
+        package_schema="group-axis/v1",
+        producer="test-runner",
+        target_ids=("group-a",),
+        dependencies=dependencies,
+        algorithm_version="algorithm/1",
+        schema_version="schema/1",
+    )
+    assert {item["name"] for item in accepted["dependencies"]} >= {"distance_modulation"}
+    dependencies["unexpected"] = "foreign"
+    with pytest.raises(ValueError, match="unsupported evidence package dependency"):
+        build_evidence_package_contract(
+            package_id="group-axis-potential",
+            package_schema="group-axis/v1",
+            producer="test-runner",
+            target_ids=("group-a",),
+            dependencies=dependencies,
+            algorithm_version="algorithm/1",
+            schema_version="schema/1",
+        )

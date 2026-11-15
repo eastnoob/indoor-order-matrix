@@ -6,6 +6,7 @@ import json
 
 import pytest
 
+import features.field_core as core
 from features.evidence_package_storage import processed_cache_key
 from features.field_core import (
     EvidenceOutputProcessor, EvidencePackage, EvidencePackageChannelReference,
@@ -72,6 +73,44 @@ def test_saved_processed_channels_preserve_two_targets_and_complete_metadata(tmp
         assert (reference.port, reference.processing_identity, reference.channel) == (
             "processed", processed.processing_identity, "path_distance")
     assert original_bytes == (path.read_bytes(), arguments["processed_path"].read_bytes())
+
+
+def test_saved_processed_consumer_binds_complete_raw_payload_once(tmp_path, monkeypatch):
+    """Many exact processed selections reuse one validated raw binding."""
+    path, raw, processed, arguments = _saved_processed(tmp_path)
+    arguments["processed_selections"] = (
+        ("target-0", "path_distance", "proximity-0"),
+        ("target-1", "path_distance", "proximity-1"),
+    )
+    calls = 0
+    serialize = core.serialize_evidence_package_output
+    binding_calls = 0
+    validate_binding = core._validate_processed_binding
+
+    def counted_serialize(output):
+        """Count complete raw publication serializations at the shared validation boundary."""
+        nonlocal calls
+        calls += 1
+        return serialize(output)
+
+    def counted_binding(processed_output, raw_output):
+        """Count complete processed/raw binding validations during package consumption."""
+        nonlocal binding_calls
+        binding_calls += 1
+        return validate_binding(processed_output, raw_output)
+
+    monkeypatch.setattr(core, "serialize_evidence_package_output", counted_serialize)
+    monkeypatch.setattr(core, "_validate_processed_binding", counted_binding)
+    result = adapter.consume_saved_evidence_package(path, **arguments)
+
+    assert calls == 2
+    # One validation belongs to saved processed decoding; the second is the single
+    # dependency-level runtime binding shared by both exact requested addresses.
+    assert binding_calls == 2
+    assert [(item.channel, item.observation) for item in result.outputs] == [
+        ("proximity-0", 0.25),
+        ("proximity-1", 0.75),
+    ]
 
 
 def test_mixed_ports_keep_same_address_with_explicit_output_alias(tmp_path):

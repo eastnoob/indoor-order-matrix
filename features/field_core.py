@@ -1193,13 +1193,28 @@ def _resolve_package_dependencies(
     """Resolve declared references while withholding stale observations as usable values."""
     resolved = []
     for dependency in dependencies:
+        if dependency.source_output is not None and dependency.channels:
+            if dependency.package_freshness not in {"fresh", "stale", "unavailable"}:
+                raise ValueError("package_freshness must be fresh, stale, or unavailable")
+            if any(reference.port == "processed" for reference in dependency.channels):
+                # The binding serializes and fingerprints the complete raw publication, so verify it once
+                # before resolving this dependency's exact processed addresses.
+                _validate_processed_binding(
+                    dependency.source_processed_output,
+                    dependency.source_output,
+                )
         for reference in dependency.channels:
             if dependency.source_output is not None:
-                resolved.append(resolve_evidence_package_channel(
+                channel = _read_evidence_package_channel(
                     dependency.source_output,
                     reference,
-                    package_freshness=dependency.package_freshness,
                     processed_output=dependency.source_processed_output,
+                    processed_binding_validated=reference.port == "processed",
+                )
+                resolved.append(_resolved_package_channel(
+                    reference,
+                    channel,
+                    dependency.package_freshness,
                 ))
                 continue
             resolved.append(EvidencePackageResolvedDependency(
@@ -1221,6 +1236,22 @@ def read_evidence_package_channel(
     processed_output: EvidenceProcessedOutput | None = None,
 ) -> EvidenceOutputChannel:
     """Read only the explicitly addressed raw or processed port from matching typed outputs."""
+    return _read_evidence_package_channel(
+        output,
+        reference,
+        processed_output=processed_output,
+        processed_binding_validated=False,
+    )
+
+
+def _read_evidence_package_channel(
+    output: EvidencePackageOutput,
+    reference: EvidencePackageChannelReference,
+    *,
+    processed_output: EvidenceProcessedOutput | None,
+    processed_binding_validated: bool,
+) -> EvidenceOutputChannel:
+    """Read one exact address, optionally reusing a dependency-level binding check."""
     if not isinstance(output, EvidencePackageOutput):
         raise TypeError("output must be an EvidencePackageOutput")
     if not isinstance(reference, EvidencePackageChannelReference):
@@ -1231,7 +1262,11 @@ def read_evidence_package_channel(
         raise ValueError("reference output_identity does not match output")
     channels = output.outputs
     if reference.port == "processed":
-        _validate_processed_binding(processed_output, output)
+        if processed_binding_validated:
+            if not isinstance(processed_output, EvidenceProcessedOutput):
+                raise TypeError("processed_output must be an EvidenceProcessedOutput")
+        else:
+            _validate_processed_binding(processed_output, output)
         if reference.processing_identity != processed_output.processing_identity:
             raise ValueError("reference processing_identity does not match processed_output")
         channels = processed_output.outputs
@@ -1255,6 +1290,15 @@ def resolve_evidence_package_channel(
     if package_freshness not in {"fresh", "stale", "unavailable"}:
         raise ValueError("package_freshness must be fresh, stale, or unavailable")
     channel = read_evidence_package_channel(output, reference, processed_output=processed_output)
+    return _resolved_package_channel(reference, channel, package_freshness)
+
+
+def _resolved_package_channel(
+    reference: EvidencePackageChannelReference,
+    channel: EvidenceOutputChannel,
+    package_freshness: str,
+) -> EvidencePackageResolvedDependency:
+    """Apply the package freshness gate to an already address-checked channel."""
     usable = package_freshness == "fresh"
     audit_channel = channel if usable else replace(channel, observation=None)
     return EvidencePackageResolvedDependency(
@@ -1354,6 +1398,7 @@ _EVIDENCE_PACKAGE_DEPENDENCIES = (
     "recipe",
     "channels",
 )
+_EVIDENCE_PACKAGE_OPTIONAL_DEPENDENCIES = ("distance_modulation",)
 _EVIDENCE_PACKAGE_REASON_CODES = {
     "scene": "scene_changed",
     "model": "model_changed",
@@ -1362,6 +1407,7 @@ _EVIDENCE_PACKAGE_REASON_CODES = {
     "query": "query_changed",
     "recipe": "recipe_changed",
     "channels": "channel_set_changed",
+    "distance_modulation": "distance_modulation_changed",
 }
 
 
@@ -1399,7 +1445,7 @@ def _package_dependencies(value: Any) -> tuple[dict[str, str], ...]:
             raise TypeError("dependency records must be mappings")
         name = record.get("name")
         fingerprint = record.get("fingerprint")
-        if name not in _EVIDENCE_PACKAGE_DEPENDENCIES:
+        if name not in (_EVIDENCE_PACKAGE_DEPENDENCIES + _EVIDENCE_PACKAGE_OPTIONAL_DEPENDENCIES):
             raise ValueError(f"unsupported evidence package dependency: {name!r}")
         if not isinstance(fingerprint, str) or not fingerprint:
             raise ValueError(f"dependency {name!r} requires a non-empty fingerprint")
@@ -1577,7 +1623,7 @@ def evaluate_evidence_package_freshness(
     if cached is not None and current is not None:
         cached_dependencies = {item["name"]: item["fingerprint"] for item in cached["dependencies"]}
         current_dependencies = {item["name"]: item["fingerprint"] for item in current["dependencies"]}
-        for name in _EVIDENCE_PACKAGE_DEPENDENCIES:
+        for name in (_EVIDENCE_PACKAGE_DEPENDENCIES + _EVIDENCE_PACKAGE_OPTIONAL_DEPENDENCIES):
             if cached_dependencies.get(name) != current_dependencies.get(name):
                 reasons.append({
                     "code": _EVIDENCE_PACKAGE_REASON_CODES[name],

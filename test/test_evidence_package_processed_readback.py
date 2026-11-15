@@ -191,6 +191,81 @@ def test_processed_dependencies_consume_both_ports_and_strip_runtime_handles():
     assert core.deserialize_evidence_package_output(saved) == result
 
 
+@pytest.mark.parametrize("reference_count", [1, 12])
+@pytest.mark.parametrize("freshness", ["fresh", "stale", "unavailable"])
+def test_dependency_resolver_validates_raw_binding_once_and_matches_single_reads(
+    reference_count, freshness, monkeypatch,
+):
+    """A batch verifies one complete raw binding while preserving each single-address result."""
+    raw = _raw()
+
+    def produce_many(source, parameters):
+        """Publish multiple exact processed addresses over one authenticated raw channel."""
+        return tuple(_channel(source, channel=f"processed-{index}", observation=index / 12)
+                     for index in range(12))
+
+    processor = core.EvidenceOutputProcessor("many-addresses", "1", produce_many)
+    processed = _package(processor).process_output(raw, package_freshness="fresh")
+    references = tuple(core.EvidencePackageChannelReference(
+        raw.package_id,
+        raw.output_identity,
+        output.target["identity"],
+        output.channel,
+        port="processed",
+        processing_identity=processed.processing_identity,
+    ) for output in processed.outputs[:reference_count])
+    dependency = core.EvidencePackageDependency(
+        raw.package_id,
+        raw.output_identity,
+        references,
+        raw,
+        freshness,
+        source_processed_output=processed,
+    )
+    expected = tuple(core.resolve_evidence_package_channel(
+        raw,
+        reference,
+        package_freshness=freshness,
+        processed_output=processed,
+    ) for reference in dependency.channels)
+
+    calls = 0
+    serialize = core.serialize_evidence_package_output
+
+    def counted_serialize(output):
+        """Count complete raw payload fingerprint operations at the binding boundary."""
+        nonlocal calls
+        calls += 1
+        return serialize(output)
+
+    monkeypatch.setattr(core, "serialize_evidence_package_output", counted_serialize)
+    actual = core._resolve_package_dependencies((dependency,))
+
+    assert actual == expected
+    assert calls == 1
+    if freshness == "fresh":
+        assert all(item.channel is not None and item.audit_channel.observation is not None for item in actual)
+    else:
+        assert all(item.channel is None and item.audit_channel.observation is None for item in actual)
+        assert all(item.effective_status is core.FieldResultStatus.NOT_AVAILABLE for item in actual)
+
+
+def test_dependency_resolver_rejects_missing_processed_binding():
+    """A processed dependency without its typed source remains unusable and fails closed."""
+    raw = _raw()
+    processed = _processed(raw)
+    dependency = core.EvidencePackageDependency(
+        raw.package_id,
+        raw.output_identity,
+        (_reference(raw, processed),),
+        raw,
+        "fresh",
+    )
+
+    with pytest.raises(TypeError, match="processed_output must be an EvidenceProcessedOutput"):
+        core._resolve_package_dependencies((dependency,))
+
+
 @pytest.mark.parametrize("change", ["range", "status", "lineage", "raw-value"])
 def test_direct_processed_objects_cannot_bypass_read_boundary_validation(change):
     """Typed construction is no substitute for validating the exact supplied raw binding."""
