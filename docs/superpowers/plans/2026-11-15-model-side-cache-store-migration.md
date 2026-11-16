@@ -10,6 +10,30 @@
 
 **Spec:** docs/superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md
 
+## Execution status — 2026-11-16
+
+Tasks 1–5 are locally verified: 786/786 required nodes passed in 807.82 seconds,
+with 712 unchanged frozen files and independent SPEC PASS / QUALITY APPROVED.
+Accepted implementation: `3b160264c80dbba631fbe90ab02dca48bc348e0d`. The
+[final B handoff](../handoffs/2026-11-15-plan-b-accepted.md) records exact evidence;
+`codex/parameter-cache-b-accepted` identifies its separate documentation commit.
+
+Execution differs from the original commit-by-task prescription: the retained
+Task 1 draft `4123363af72296463fbd8f5d6f35637e9bed6f32` was unaccepted. Its
+repairs and Tasks 2–4 were accepted from working change `vupsowxp` as one
+explicit-fileset implementation commit after complete acceptance, followed by a
+separate handoff commit. No per-task accepted commit or unrecorded historical RED run is claimed.
+The historical RED prescriptions below remain process history, not open product
+requirements or assertions that they were run. Observed repair failures include
+four explicit-directory bypass cases and the distance parameter/source namespace
+regression; the final gate tests the actual repaired bytes.
+
+Independent final subsets: 200 cache/lifecycle/concurrency, 237 adapter/capture,
+17 locator/capture/runtime boundary and 25 migration/concurrency tests passed.
+These overlap and are not added together as a full-suite count. Full collection
+contains 786 nodes and all passed with zero failure/error/skip/xfail/xpass/deselected;
+per-node matching and before/after byte verification passed.
+
 ## Global Constraints
 
 - Apply the [shared acceptance and jj runbook](../handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议) to every PASS and commit below. Required nodes must run without skip/xfail; root commits explicit task paths and records exact tested bytes, not just a passing aggregate.
@@ -144,7 +168,7 @@ Detach and deeply freeze `SourceBinding.external_dependencies` and `CacheEntry.r
 - Produces CacheAddress, CacheEntry, resolve_sidecar_path(model_path: Path) -> Path, and CacheStore.put/get.
 - SourceBinding is introduced here as frozen (source_fingerprint, canonical_source_identity, content_fingerprint, external_dependencies, current_locator). Only locators change when moving a model; content must be verified first.
 
-- [ ] **Step 1: Write failing location, containment and round-trip tests.**
+- [x] **Step 1: Add location, containment and round-trip tests.** Historical RED execution is not independently attested.
 
 ~~~python
 from dataclasses import FrozenInstanceError
@@ -186,8 +210,8 @@ def test_address_rejects_unsafe_components(component):
 
 Also create an outside sentinel and a junction/symlink fixture where supported; put/get/migrate/delete must refuse a resolved path outside the verified sidecar root. Do not follow directory links while scanning receipts.
 
-- [ ] **Step 2:** Run pixi run pytest test/test_cache_paths.py test/test_cache_store.py -q. Expected: import failures because new modules do not exist.
-- [ ] **Step 3: Implement the address, locator and stage-then-publish path.**
+**Historical RED prescription (not independently attested), step 2:** Run pixi run pytest test/test_cache_paths.py test/test_cache_store.py -q. Expected: import failures because new modules do not exist.
+- [x] **Step 3: Implement the address, locator and stage-then-publish path.**
 
 ~~~python
 def resolve_sidecar_path(model_path: Path) -> Path:
@@ -199,8 +223,8 @@ def resolve_sidecar_path(model_path: Path) -> Path:
 
 Validate every address component before joining; verify resolved containment for payload paths and for copy/delete operations. Create a sibling staging directory, write and fsync payload then receipt using the existing writer, verify both, and rename the complete directory into place. The initial atomic publish refuses an existing destination and verifies any winner before reuse; Task 2 adds the shared lock around the entire calculation. Never overwrite a complete same-identity entry with differing bytes; raise CacheConflictError. A crash before publication leaves only staging data, never a hit.
 
-- [ ] **Step 4:** Run the two test files, including injected os.replace failure retaining old bytes. Expected: PASS and no visible partial complete entries.
-- [ ] **Step 5:** Root runs jj diff and commits the task-owned files with jj commit -m "feat: add safe model-side cache publication". Record revision, diff and tests in B handoff.
+- [x] **Step 4:** Run the two test files, including injected os.replace failure retaining old bytes. Expected: PASS and no visible partial complete entries.
+**Step 5 versioning disposition:** Root runs jj diff and commits the task-owned files with jj commit -m "feat: add safe model-side cache publication". Record revision, diff and tests in B handoff. Superseded by the consolidated final implementation commit described above; this individual commit is not claimed.
 
 ---
 
@@ -217,7 +241,7 @@ Validate every address component before joining; verify resolved containment for
 - Lock scope surrounds lookup → compute → publish, not just the final file write. A runner that acquires identity_lock can call get/put under that same reentrant context.
 - Persisted entry status remains complete; stale/orphaned/unavailable derive from current contract/dependency checks. Quarantine and failed run journals are separate records.
 
-- [ ] **Step 1: Add failing crash, catalog and deletion tests.**
+- [x] **Step 1: Add crash, catalog and deletion tests.** Historical RED execution is not independently attested.
 
 ~~~python
 def test_corrupt_index_cannot_hide_entry(tmp_path):
@@ -240,17 +264,17 @@ def test_delete_exact_preserves_neighbor(tmp_path):
 
 Add tests for corrupt payload quarantine, receipt fingerprint failure, missing upstream across two sources, and unchanged signed payload bytes after orphaning. The upstream reference is the complete CacheAddress, not only an identity string.
 
-- [ ] **Step 2:** Run pixi run pytest test/test_cache_store.py test/test_cache_store_concurrency.py -q. Expected: failures for missing locking/catalog behavior.
-- [ ] **Step 3: Implement locks and catalog recovery.**
+**Historical RED prescription (not independently attested), step 2:** Run pixi run pytest test/test_cache_store.py test/test_cache_store_concurrency.py -q. Expected: failures for missing locking/catalog behavior.
+- [x] **Step 3: Implement locks and catalog recovery.**
 
 Use OS-released file locks: msvcrt.locking on Windows, fcntl.flock on POSIX, plus a per-address thread lock where the platform lock semantics need it. Leave harmless lock files in place; do not delete a "stale" lock solely from a PID or elapsed time. A short catalog lock protects manifest/index/key setup; no catalog lock may wait while acquiring an entry lock. Under entry lock, re-read before computing; failed lock acquisition raises a typed timeout error. Dependency validation reads immutable upstream snapshots without waiting for another entry lock while a downstream lock is held. Multi-entry/root operations avoid nested entry locks, or acquire every needed lock in the same resolved-root/address order.
 
 Treat index.json as disposable acceleration. Validate direct receipt bytes regardless of index claims. Scan all source namespaces to rebuild entries and dependency availability. Catalog refresh uses its own short lock and atomic replacement; independent identities cannot lose each other's catalog entries.
 
-- [ ] **Step 4:** Use multiprocessing.get_context("spawn") for two writers of one identity and for two different identities. Assert one computation for the former, two readable catalog entries for the latter; inject a crashed holder and prove OS lock release. Run both test files. Expected: PASS.
+- [x] **Step 4:** Use multiprocessing.get_context("spawn") for two writers of one identity and for two different identities. Assert one computation for the former, two readable catalog entries for the latter; inject a crashed holder and prove OS lock release. Run both test files. Expected: PASS.
 
 The Store-only test is prerequisite evidence, not runner acceptance. Task 3 must add `test_real_runner_concurrent_first_miss_computes_once` in `test/test_cache_store_concurrency.py`, parameterized over the ordinary distance raw runner, authenticated free-space runner and Blender session entry. Spawn two workers, synchronize immediately before runner invocation (never place a two-party barrier inside the serialized calculation), instrument each actual expensive boundary with a process-shared counter, and retain real tiny-fixture results. Equal addresses must produce exactly one calculation, one immutable publication and consistent computed/hit decisions. Different addresses must each calculate once and both remain in the rebuilt catalog. Use bounded joins and fail on worker error, timeout or missing result; do not treat subprocess completion alone as success.
-- [ ] **Step 5:** Root jj commit -m "feat: lock cache calculations and rebuild lifecycle catalog".
+**Step 5 versioning disposition:** Root jj commit -m "feat: lock cache calculations and rebuild lifecycle catalog". Superseded by the consolidated final implementation commit described above; this individual commit is not claimed.
 
 ---
 
@@ -289,7 +313,7 @@ The Store-only test is prerequisite evidence, not runner acceptance. Task 3 must
 - Keep cache_status as its existing freshness mapping. Add cache_reuse: "computed" | "exact_hit" | "migrated_reuse" | "legacy_adopted" and cache_location: str | None. Update RESULT_KEYS assertions in lifecycle tests.
 - Package validators are callbacks passed to CacheStore; no feature imports a Blender adapter.
 
-- [ ] **Step 1: Add failing real-fixture tests.**
+- [x] **Step 1: Add real-fixture tests.** Historical RED execution is not independently attested.
 
 In test_blender_analysis_session.py use existing _cache_payload(); in lifecycle tests use _missing_bundle(), _potential_sources(), _scene(), _request() and _forbidden. Do not create a second synthetic geometry fixture.
 
@@ -309,8 +333,8 @@ Add separate tests for model_path resolving a sibling sidecar, explicit override
 
 The potential live/replay CLIs currently default --output-root to repository outputs/design. Make omitted output roots resolve to the model-side run directory; explicit user output roots still win. A replay without a model locator may use a verified source-manifest locator or an explicit temporary/output root, but must not infer the model from the retained artifact directory. Test actual parsed CLI defaults reaching run_dir for each caller in test_evidence_package_lifecycle_runners.py, including the distance-modulation runner. Explicit exports to outputs/design remain supported. Do not move a running worker's open directory on save/rename; finish or cancel it, preserve its evidence, then migrate closed artifacts and set the next run's locator.
 
-- [ ] **Step 2:** Run the modified package/session/capture tests. Expected: failures for new locator arguments and return metadata.
-- [ ] **Step 3: Wire one store and existing codecs at each runner.**
+**Historical RED prescription (not independently attested), step 2:** Run the modified package/session/capture tests. Expected: failures for new locator arguments and return metadata.
+- [x] **Step 3: Wire one store and existing codecs at each runner.**
 
 Hold identity lock over hit checking, calculation and publication. Preserve current package keys, processed keys, wire versions and HMAC validation. Update test file-discovery assumptions from flat glob("*.json") to exact store addresses and manifest paths.
 
@@ -318,15 +342,15 @@ Complete the real-runner concurrency cases named in Task 2 after wiring these en
 
 The current capture puts absolute IFC path in ifc_source_identity, and downstream source hashes include it. Do not merely declare paths excluded. Add an optional SourceBinding handoff to begin_analysis_capture; when its content and external fingerprints match the current file/scene, reuse canonical_source_identity while updating only current_locator. On the first legacy adoption, preserve the authenticated original source ID. New portable bindings derive their source identity from content/project identity rather than a display path. Reject binding reuse when source bytes, captured geometry or external dependencies change.
 
-- [ ] **Step 4: Verify model relocation through the real capture/session seam.**
+- [x] **Step 4: Verify model relocation through the real capture/session seam.**
 
 Write a regression using the existing capture fixture: move/rename IFC and its sidecar, change the display locator, retain project/geometry bytes, and assert unchanged calculation keys and old ResultRefs. Changing IFC content at the same path must miss. Do not hash a live Blend file on every UI metadata edit; retain the existing validated scene-content capture for analysis identity and record file hashes separately as provenance.
 
-- [ ] **Step 5:** Run:
+- [x] **Step 5:** Covered by the final complete 14-file acceptance, including:
 ~~~text
 pixi run pytest test/test_evidence_package_lifecycle.py test/test_evidence_package_lifecycle_runners.py test/test_free_space_evidence_package.py test/test_blender_analysis_session.py test/test_blender_analysis_capture.py test/test_bonsai_live.py test/test_blender_analysis_runtime.py test/test_blender_analysis_ui.py test/test_group_axis_distance_modulation.py -q
 ~~~
-Expected: PASS, with original formulas and old no-locator nonpersistent callers preserved. Root jj commit -m "feat: connect package caches to model locators".
+Passed within the final complete gate, with original formulas and old no-locator nonpersistent callers preserved. The proposed individual integration commit is superseded by the consolidated implementation commit recorded above.
 
 ---
 
@@ -350,7 +374,7 @@ Expected: PASS, with original formulas and old no-locator nonpersistent callers 
 - Import validates legacy keys/contracts, current supplied sources and payload digests; preserves the original bytes/ResultRefs and records a lookup binding. No output-generation callback is invoked to "import" a cache.
 - A legacy parameter receipt may be expanded only from saved explicit effective input values under the verified old algorithm/schema. If these cannot be proven, keep it historical/unavailable and report the exact missing evidence.
 
-- [ ] **Step 1: Write failing byte-preserving migration tests.**
+- [x] **Step 1: Add byte-preserving migration tests.** Historical RED execution is not independently attested.
 
 ~~~python
 from features.cache_store import CacheStore
@@ -374,12 +398,12 @@ def test_migration_preserves_payload_and_old_root(tmp_path):
 
 Add valid-plus-corrupt partial migration, missing/corrupt index, interrupted publication, repeat migration, two versions, and same-identity/different-bytes conflict tests. A must already reject mismatched/unbound checkpoints before exposing variable CLI thresholds. B adds validated checkpoint copy/resumption with method/schema, exact input/clearance/upstream fingerprints, ordered group scope and requested pair scope. Old unbound checkpoints remain nonresumable; policy 1 -> 2 -> 1 must resume only the matching bound checkpoint. Inspect the sibling proxy fingerprint implementation as reference evidence, without merging its unrelated route algorithm changes.
 
-- [ ] **Step 2: Add HMAC collision tests using the existing free-space fixtures.**
+- [x] **Step 2: Add HMAC collision tests using the existing free-space fixtures.**
 
 Create independent old and destination stores with different valid secrets and different entry identities. Migration must retain both credentials under auth/<key-id>/, preserve both receipt byte streams, and reuse both after verification. If the same immutable address instead contains differing authenticated bytes, keep the normal conflict rule and retain the old root; two auth tags do not justify overwriting one address. Copying JSON without its key must fail authentication. Concurrent _cache_secret initialization must not overwrite the winning key: protect initialization with the auth/catalog lock and create-once publication; current os.replace-over-existing behavior is not safe.
 
-- [ ] **Step 3:** Run pixi run pytest test/test_cache_migration.py test/test_free_space_evidence_package.py test/test_blender_analysis_session.py test/test_group_distance_route_repair.py -q. Expected: new migration/auth tests fail before implementation.
-- [ ] **Step 4: Implement verified copy and explicit legacy adoption.**
+**Historical RED prescription (not independently attested), step 3:** Run pixi run pytest test/test_cache_migration.py test/test_free_space_evidence_package.py test/test_blender_analysis_session.py test/test_group_distance_route_repair.py -q. Expected: new migration/auth tests fail before implementation.
+- [x] **Step 4: Implement verified copy and explicit legacy adoption.**
 
 Copy a verified immutable snapshot under the source lock, release that lock, then verify/publish under destination locks; never hold source and destination entry locks in opposite migration orders. Retain old root on success and failure. If any upstream/auth/schema dependency is missing, mark that entry migration_failed/unavailable and continue independent entries. Never overwrite a destination HMAC key or a complete conflicting identity; key-id references select the matching auth domain through CacheValidationContext.
 
@@ -389,7 +413,7 @@ Migrate the existing known locations, including Blender CONTENT_CACHE_DIRECTORY 
 
 The refactor itself changes files hashed by _content_cache_key and analysis_requests._backend_versions, including field_core, session, capture, runtime and UI. Preserve a small real pre-A/B receipt set and its exact old implementation/backend manifest before execution; a fixture generated only after B changes cannot prove historical reuse. Add a package-owned, reviewed compatibility/lookup binding from those explicitly recognized old implementation hashes to the current storage-only changes. Validate old receipt digests/HMAC, old recipe/schema/numerical backend versions, full independent current factual inputs, effective parameters and upstream refs before adoption. Preserve original cache keys, publication IDs and payload bytes; a new storage lookup binding may map the current request to that immutable legacy result. Do not remove version checks, whitelist unknown hashes, or equate a genuine numerical dependency/algorithm change. Those cases safely miss with an explicit reason.
 
-- [ ] **Step 5: Prove migration did no calculation.**
+- [x] **Step 5: Prove migration did no calculation.** Independently verified in all four restart families.
 
 Use both the pinned pre-refactor receipts and a post-A two-version fixture; patch calculation/generator callbacks to _forbidden after fixture creation. Request parameter values 1, then 2, then 1 in the destination. Assert both copied versions hit, unchanged origin keys/payload hashes/ResultRefs, cache_status["freshness"] == "fresh", cache_reuse == "migrated_reuse", and old bytes still exist. A current request key may use an explicit validated lookup binding; never relabel the legacy result as originally computed under that new key. Mutating an algorithm hash outside the reviewed compatibility set or a numerical package version must reject adoption. Run migration, route-repair and package lifecycle suites. Root jj commit -m "feat: migrate validated caches and authentication domains".
 
@@ -404,15 +428,15 @@ Add `test_migrated_legacy_runner_reuse_survives_process_restart`, parameterized 
 - Modify: docs/software-architecture.md
 - Modify: docs/indoor_layout_evaluation_matrix_architecture_memory.md with a concise implemented-state entry after actual acceptance
 
-- [ ] **Step 1:** Run all B focused tests once on a frozen candidate:
+- [x] **Step 1:** Run all B focused tests once on a frozen candidate:
 ~~~text
 pixi run pytest test/test_cache_paths.py test/test_cache_store.py test/test_cache_store_concurrency.py test/test_cache_migration.py test/test_evidence_package_lifecycle.py test/test_evidence_package_lifecycle_runners.py test/test_free_space_evidence_package.py test/test_blender_analysis_session.py test/test_blender_analysis_capture.py test/test_bonsai_live.py test/test_blender_analysis_runtime.py test/test_blender_analysis_ui.py test/test_group_distance_route_repair.py test/test_group_axis_distance_modulation.py -q
 ~~~
 Expected: PASS under the shared protocol. Include the real-runner concurrency nodes from `test_cache_store_concurrency.py` and every restart migration family; a different verifier records collection, all outcomes, cwd, command, exit code, logs/XML and frozen hashes. Do not advance B's accepted bookmark on skipped or missing critical cases.
-- [ ] **Step 2:** Root inspects jj diff --git, checks touched bytes for whitespace/errors, and verifies the frozen tested bytes match. Obtain separate spec and quality review per verified-agent-workflow. Failures are repaired and reverified before acceptance.
-- [ ] **Step 3:** Record accepted implementation commit, source/path binding, unchanged legacy keys/refs, source versus request fingerprint example, HMAC migration into an already-used destination, two-process lock evidence, index rebuilding, exact deletion across sources and partial migration results.
-- [ ] **Step 4:** Set next entry point to C Task 1: fresh Superpowers brainstorming/Grill over actual accepted A/B receipts, dependencies and costs; select a new plan or repair plan and reassess the intermediate need.
-- [ ] **Step 5:** Root jj commit -m "docs: accept model-side cache migration and hand off to C".
+- [x] **Step 2:** Root inspects jj diff --git, checks touched bytes for whitespace/errors, and verifies the frozen tested bytes match. Obtain separate spec and quality review per verified-agent-workflow. Failures are repaired and reverified before acceptance.
+- [x] **Step 3:** Record accepted implementation commit, source/path binding, unchanged legacy keys/refs, source versus request fingerprint example, HMAC migration into an already-used destination, two-process lock evidence, index rebuilding, exact deletion across sources and partial migration results.
+- [x] **Step 4:** Set next entry point to C Task 1: fresh Superpowers brainstorming/Grill over actual accepted A/B receipts, dependencies and costs; select a new plan or repair plan and reassess the intermediate need.
+- [x] **Step 5:** Root jj commit -m "docs: accept model-side cache migration and hand off to C".
 
 ## Self-review and deferred work
 

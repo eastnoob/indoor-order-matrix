@@ -1,5 +1,31 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Model-side cache — Plan B locally verified 2026-11-16
+
+Final B implementation: `3b160264c80dbba631fbe90ab02dca48bc348e0d`, descending from
+accepted A handoff `488d0d4e439a7c6674d2973f3ddbaa9b34fa2fe8`. The
+[accepted B handoff](superpowers/handoffs/2026-11-15-plan-b-accepted.md) records
+786/786 required tests (807.82 seconds), 712 unchanged frozen files,
+SPEC PASS / QUALITY APPROVED and exact evidence. All four pre-A families survive
+P→Q→index rebuild→R with original bytes/keys/refs. Historical adoption, migration
+and destination reads make zero producer calls; post-A version fixtures are
+calculated before migration as test setup.
+
+Saved model caches/run artifacts now live beside the model; explicit directory
+overrides and caller-owned unsaved roots remain supported. Source namespaces
+exclude request parameter versions. CacheStore owns immutable publication,
+identity locks, authentication domains, catalog recovery, exact deletion and
+validated migration; package validators retain numerical admission. Closed run
+logs/settings/bound checkpoints copy without overwriting destination profiles;
+active runs and scratch remain source-local. Historical compatibility is limited
+to the reviewed original/current hashes and unchanged numerical dependencies.
+
+Next entry: C Task 1 fresh Superpowers/Grill on these actual accepted A/B
+artifacts. Semantic output splitting and reusable intermediate stages are not
+implemented by B. No push, owner integration, workspace/cache deletion, live
+Blender launch or large model geometry recomputation occurred. The accepted
+bookmark names the separate handoff commit, whose ID is recorded externally.
+
 ## Package parameter implementation — locally verified 2026-11-16
 
 Plan A's final implementation is `92ff7d521415c95d505c2e35eca60781e09b7f96`; the
@@ -10,7 +36,8 @@ processed origins remain immutable; historical adoption requires independent
 current context. Checkpoints now revalidate current route graph/access/
 arithmetic/exact geometry before suppressing search and retain rejected bytes.
 B must begin from the separate full accepted A handoff ID, preserving all four
-pre-A fixture families. B/C storage migration/output separation remain pending.
+pre-A fixture families. B storage migration is now locally verified above; C
+output separation remains pending.
 No push, owner integration, workspace/cache deletion or live model recomputation.
 
 
