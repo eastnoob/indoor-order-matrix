@@ -840,8 +840,17 @@ class EvidenceProcessedOutput:
                 raise TypeError("parameter_snapshot must be a ParameterSnapshot or None")
             if self.parameter_snapshot.package_id != self.package_id:
                 raise ValueError("parameter snapshot must belong to this package")
-            if dict(self.parameter_snapshot.effective_parameters) != dict(self.parameters):
-                raise ValueError("parameter snapshot effective values must match parameters")
+            try:
+                # Reuse persisted value-contract validation so scalar float
+                # normalization remains valid without conflating nested JSON types.
+                ParameterSnapshot.from_json({
+                    **self.parameter_snapshot.to_json(),
+                    "calculated_parameters": _json_value(self.parameters),
+                })
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "parameter snapshot effective values must match parameters"
+                ) from exc
         if self.error_code not in {
             None, "OUTPUT_FUNCTION_NOT_CONFIGURED", "OUTPUT_SOURCE_NOT_FRESH", "OUTPUT_PROCESSING_FAILED"
         }:

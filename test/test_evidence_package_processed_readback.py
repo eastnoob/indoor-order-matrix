@@ -499,3 +499,124 @@ def test_processed_decoder_rejects_python_only_and_nested_nonfinite_json(field):
         saved["outputs"][0][field] = {"nested": [object()]}
     with pytest.raises((ValueError, TypeError)):
         core.deserialize_evidence_processed_output(saved, raw_output=raw)
+
+
+@pytest.mark.parametrize("boundary", ["construction", "readback"])
+def test_processed_parameters_cannot_hide_nested_boolean_numeric_mismatch(boundary):
+    """A typed processing identity must attest the exact callback-visible JSON values."""
+    from features.evidence_package_parameters import ParameterSchema, ParameterSpec
+
+    raw = _raw()
+    schema = ParameterSchema(raw.package_id, "nested-processing/1", (
+        ParameterSpec("context", dict),
+    ))
+    processor = core.EvidenceOutputProcessor(
+        "saved-process", "1", _process,
+        {"context": {"nested": [{"x": 1}]}}, parameter_schema=schema,
+    )
+    processed = _package(processor).process_output(raw, package_freshness="fresh")
+    assert processed.error_code is None
+    changed = {"context": {"nested": [{"x": True}]}}
+    assert json.dumps(changed, sort_keys=True) != json.dumps(
+        schema.resolve(processor.parameters).to_json()["effective_parameters"],
+        sort_keys=True,
+    )
+    with pytest.raises(ValueError, match="effective values must match parameters"):
+        if boundary == "construction":
+            replace(processed, parameters=changed)
+        else:
+            payload = core.serialize_evidence_processed_output(processed)
+            payload["parameters"] = changed
+            core.deserialize_evidence_processed_output(
+                _resign(payload), raw_output=raw)
+
+
+def test_processed_float_parameters_allow_declared_integer_normalization():
+    """Scalar float compatibility uses the owner value contract rather than wire spelling."""
+    from features.evidence_package_parameters import ParameterSchema, ParameterSpec
+
+    raw = _raw()
+    schema = ParameterSchema(raw.package_id, "float-processing/1", (
+        ParameterSpec("value", float, 1.0),
+    ))
+    processed = _package(core.EvidenceOutputProcessor(
+        "saved-process", "1", _process, parameter_schema=schema,
+    )).process_output(raw, package_freshness="fresh")
+    payload = core.serialize_evidence_processed_output(processed)
+    payload["parameters"]["value"] = 1
+    restored = core.deserialize_evidence_processed_output(
+        _resign(payload), raw_output=raw)
+    assert restored.error_code is None
+    assert type(restored.parameter_snapshot.effective_parameters["value"]) is float
+
+
+def test_explicit_legacy_processed_warning_path_uses_saved_origin_parameters(tmp_path):
+    """A located historical warning variant is adopted without changing its bytes."""
+    from features import evidence_package_storage as storage
+    from features.evidence_package_parameters import (
+        ParameterImpact, ParameterSchema, ParameterSpec,
+    )
+
+    raw = _raw()
+    saved = _package(core.EvidenceOutputProcessor(
+        "saved-process", "1", _process, {"review_m": 0.01},
+    )).process_output(raw, package_freshness="fresh")
+    old_path = tmp_path / "explicit-historical-warning.json"
+    storage.save_processed_output(old_path, saved)
+    retained = old_path.read_bytes()
+    payload = json.loads(retained)
+    # Independently attest the original full-parameter identity, not today's recipe.
+    original_identity = hashlib.sha256(json.dumps({
+        "package_id": raw.package_id,
+        "raw_output_identity": payload["raw_output_identity"],
+        "raw_payload_fingerprint": payload["raw_payload_fingerprint"],
+        "processor_id": payload["processor_id"],
+        "processor_version": payload["processor_version"],
+        "parameters": payload["parameters"],
+    }, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+    assert original_identity == saved.processing_identity
+    schema = ParameterSchema(raw.package_id, "historical-warning/1", (
+        ParameterSpec("review_m", float, 0.02, unit="m",
+                      impact=ParameterImpact.REUSE_WITH_WARNING),
+    ))
+
+    def forbidden(*args, **kwargs):
+        """Expose an accidental transform during receipt-only reconstruction."""
+        pytest.fail("legacy processed lookup executed a transform")
+
+    processor = core.EvidenceOutputProcessor(
+        "saved-process", "1", forbidden, parameter_schema=schema,
+    )
+    assert storage.legacy_processed_cache_key(raw, processor) != original_identity
+    lookup = storage.load_processed_entry(
+        tmp_path / "typed-missing.json", raw_output=raw, processor=processor,
+        legacy_path=old_path,
+        legacy_processed_adopter=storage.reconstruct_legacy_processed_snapshot,
+    )
+    assert lookup is not None
+    assert lookup.processed_output.outputs == saved.outputs
+    assert json.dumps(
+        lookup.processed_output.parameter_snapshot.to_json()["calculated_parameters"],
+        sort_keys=True,
+    ) == json.dumps({"review_m": 0.01}, sort_keys=True)
+    assert lookup.parameter_status["requested_parameters"]["review_m"] == 0.02
+    assert lookup.parameter_status["warnings"]
+    assert lookup.parameter_status["exact_match"] is False
+    assert lookup.reuse_origin["mode"] == "adopted_legacy"
+    assert lookup.reuse_origin["origin_processing_identity"] == original_identity
+    assert lookup.reuse_origin["origin_payload_fingerprint"] == payload["payload_fingerprint"]
+
+    # The same historical bytes cannot authorize a computation-affecting change.
+    calculation_schema = replace(schema, specs=(
+        replace(schema.specs[0], impact=ParameterImpact.RECOMPUTE_REQUIRED),
+    ))
+    calculation_processor = core.EvidenceOutputProcessor(
+        processor.function_id, processor.version, forbidden,
+        parameter_schema=calculation_schema,
+    )
+    assert storage.load_processed_entry(
+        tmp_path / "typed-missing.json", raw_output=raw,
+        processor=calculation_processor, legacy_path=old_path,
+        legacy_processed_adopter=storage.reconstruct_legacy_processed_snapshot,
+    ) is None
+    assert old_path.read_bytes() == retained

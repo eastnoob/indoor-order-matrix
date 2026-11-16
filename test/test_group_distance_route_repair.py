@@ -221,7 +221,111 @@ def test_global_checkpoint_guard_controls_actual_source_search(tmp_path, monkeyp
     retained = old.read_bytes()
     repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
     assert len(calls) == 1 and old.read_bytes() == retained
-    calls.clear()
+    repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    assert len(calls) == 1 and old.read_bytes() == retained
     repair.global_repair_result(bundle, baseline,
                                 {**policy, "min_total_m": .8}, checkpoint_dir=tmp_path)
-    assert len(calls) == 1
+    assert len(calls) == 2 and old.read_bytes() == retained
+
+
+@pytest.mark.parametrize("damage", [
+    "cell", "cell_boolean", "state", "state_cell", "state_heading",
+    "source_access", "target_offset", "access_cell", "edge_witnesses",
+    "edge_measurement", "turn_witness", "minimum", "minimum_boolean",
+    "minimum_missing", "minimum_disagrees", "failure", "failure_cell", "pair",
+])
+def test_matching_checkpoint_rejects_malformed_assembly_fields(damage):
+    """A matching fingerprint cannot turn malformed nested route evidence into completion."""
+    from features import group_distance_repair as repair
+
+    cells = ((1, 1), (1, 2))
+    context = repair._clearance_context(
+        _bundle(), {"min_left_m": .2, "min_right_m": .2, "min_total_m": .5})
+    exact = repair._exact_path(cells, context)
+    assert exact["passed"] is True and exact["edge_witnesses"]
+    route = {
+        "value": 1.0, "cell_keys": cells,
+        "state_keys": ((cells[0], None), (cells[1], (1.0, 0.0))),
+        "source_access": {"free_cell": cells[0], "offset": 0.0},
+        "target_access": {"free_cell": cells[1], "offset": 0.0},
+    }
+    payload = json.loads(json.dumps({
+        "schema": repair.CHECKPOINT_SCHEMA,
+        "checkpoint_fingerprint": "current",
+        "source_index": 0, "source_id": "a",
+        "results": [{"key": ["a", "b"], "route": route, "exact": exact}],
+    }))
+    assert repair._checkpoint_matches(
+        payload, fingerprint="current", source_index=0, source_id="a",
+        wanted_pairs=(("a", "b"),))
+    item = payload["results"][0]
+    route, exact = item["route"], item["exact"]
+    if damage == "cell":
+        route["cell_keys"] = [None]
+    elif damage == "cell_boolean":
+        route["cell_keys"][0][0] = True
+    elif damage == "state":
+        route["state_keys"] = [None]
+    elif damage == "state_cell":
+        route["state_keys"][0][0] = [0, 0]
+    elif damage == "state_heading":
+        route["state_keys"][1][1] = [True, 0.0]
+    elif damage == "source_access":
+        route["source_access"] = {}
+    elif damage == "target_offset":
+        route["target_access"]["offset"] = True
+    elif damage == "access_cell":
+        route["target_access"]["free_cell"] = [None, 1]
+    elif damage == "edge_witnesses":
+        exact["edge_witnesses"] = None
+    elif damage == "edge_measurement":
+        exact["edge_witnesses"][0]["min_left_m"] = True
+    elif damage == "turn_witness":
+        exact["turn_witnesses"] = [None]
+    elif damage == "minimum":
+        exact["minimum_m"] = None
+    elif damage == "minimum_boolean":
+        exact["minimum_m"]["left"] = True
+    elif damage == "minimum_missing":
+        exact["minimum_m"] = {"left": None, "right": None, "total": None}
+    elif damage == "minimum_disagrees":
+        exact["minimum_m"]["left"] += 1.0
+    elif damage == "failure":
+        item["exact"] = {"passed": False, "failure": {}}
+    elif damage == "failure_cell":
+        item["exact"] = {
+            "passed": False,
+            "failure": {"kind": "edge", "from": None, "to": [1, 2]},
+        }
+    else:
+        item["key"] = [["a"], "b"]
+    assert not repair._checkpoint_matches(
+        payload, fingerprint="current", source_index=0, source_id="a",
+        wanted_pairs=(("a", "b"),))
+
+
+def test_checkpoint_retention_failure_prevents_original_replacement(tmp_path, monkeypatch):
+    """Publication must fail when rejected bytes cannot be retained."""
+    from pathlib import Path
+    from features import group_distance_repair as repair
+
+    checkpoint = tmp_path / "source_000-current.json"
+    original = b'{"source_index":0,"results":[null]}'
+    checkpoint.write_bytes(original)
+    replace_path = Path.replace
+    attempts = []
+
+    def refuse_retention(path, destination):
+        """Refuse both retention attempts while allowing any accidental final replacement."""
+        if path == checkpoint:
+            attempts.append(destination)
+            raise OSError("rejected retention refused")
+        return replace_path(path, destination)
+
+    monkeypatch.setattr(Path, "replace", refuse_retention)
+    with pytest.raises(OSError):
+        repair._write_checkpoint(
+            tmp_path, 0, "a", "current", (("a", "b"),), [])
+    assert attempts
+    assert checkpoint.read_bytes() == original
+    assert not list(tmp_path.glob("*.tmp"))

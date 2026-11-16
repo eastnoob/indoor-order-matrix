@@ -79,13 +79,14 @@ def _checkpoint_fingerprint(bundle: Any, baseline: Mapping[str, Any], policy: Ma
 
 def _checkpoint_matches(payload: Mapping[str, Any], *, fingerprint: str, source_index: int,
                         source_id: str, wanted_pairs: tuple[tuple[str, str], ...]) -> bool:
-    """Accept only complete, shape-valid receipts for this source and invocation."""
+    """Accept complete receipts only when their nested assembly inputs are valid."""
     if not isinstance(payload, Mapping) or payload.get("schema") != CHECKPOINT_SCHEMA:
         return False
     if payload.get("checkpoint_fingerprint") != fingerprint:
         return False
     saved_index = payload.get("source_index")
-    if isinstance(saved_index, bool) or not isinstance(saved_index, int) or saved_index != source_index:
+    if (type(saved_index) is not int or saved_index < 0
+            or saved_index != source_index):
         return False
     if payload.get("source_id") != source_id:
         return False
@@ -99,11 +100,31 @@ def _checkpoint_matches(payload: Mapping[str, Any], *, fingerprint: str, source_
         """Check route measurements without admitting Boolean numerics."""
         return not isinstance(value, bool) and isinstance(value, (int, float)) and math.isfinite(value) and value >= 0
 
+    def cell_key(value: Any) -> bool:
+        """Require the two nonnegative integer coordinates consumed as lattice cells."""
+        return (isinstance(value, (tuple, list)) and len(value) == 2
+                and all(type(coordinate) is int and coordinate >= 0
+                        for coordinate in value))
+
+    def heading(value: Any) -> bool:
+        """Validate optional initial headings and finite two-component search headings."""
+        if value is None:
+            return True
+        if not isinstance(value, (tuple, list)):
+            return False
+        return len(value) == 0 or (
+            len(value) == 2
+            and all(type(component) in (int, float) and math.isfinite(component)
+                    for component in value)
+            and any(component != 0 for component in value))
+
     for item in raw_results:
         if not isinstance(item, Mapping):
             return False
         key = item.get("key")
         if isinstance(key, (str, bytes)) or not isinstance(key, (tuple, list)) or len(key) != 2:
+            return False
+        if any(type(group_id) is not str or not group_id for group_id in key):
             return False
         pair = (key[0], key[1])
         if pair in seen or pair not in wanted or pair[0] != source_id:
@@ -118,19 +139,61 @@ def _checkpoint_matches(payload: Mapping[str, Any], *, fingerprint: str, source_
                 or not isinstance(route.get("source_access"), Mapping)
                 or not isinstance(route.get("target_access"), Mapping)):
             return False
+        # Final assembly retains these nested records as exact evidence. Validate
+        # their actual consumed fields rather than trusting nonempty containers.
+        cells, states = route["cell_keys"], route["state_keys"]
+        if any(not cell_key(cell) for cell in cells) or len(states) != len(cells):
+            return False
+        for cell, state in zip(cells, states):
+            if (not isinstance(state, (tuple, list)) or len(state) != 2
+                    or not cell_key(state[0]) or tuple(state[0]) != tuple(cell)
+                    or not heading(state[1])):
+                return False
+        for access in (route["source_access"], route["target_access"]):
+            if (not cell_key(access.get("free_cell"))
+                    or not finite_nonnegative(access.get("offset"))):
+                return False
+            if access.get("footprint_cell") is not None and not cell_key(access["footprint_cell"]):
+                return False
+            if any(not heading(access.get(name)) for name in ("heading", "target_heading")):
+                return False
         if type(exact.get("passed")) is not bool:
             return False
         if exact["passed"]:
             if any(name not in exact for name in ("edge_witnesses", "turn_witnesses", "minimum_m")):
                 return False
+            edges, turns = exact["edge_witnesses"], exact["turn_witnesses"]
+            if (not isinstance(edges, (tuple, list))
+                    or not isinstance(turns, (tuple, list))
+                    or len(edges) != len(cells) - 1
+                    or len(turns) < max(0, len(cells) - 2)):
+                return False
+            witnesses = tuple(edges) + tuple(turns)
+            for witness in witnesses:
+                if not isinstance(witness, Mapping) or any(
+                        not finite_nonnegative(witness.get(f"min_{name}_m"))
+                        for name in ("left", "right", "total")):
+                    return False
             minimum = exact["minimum_m"]
             if not isinstance(minimum, Mapping) or any(name not in minimum for name in ("left", "right", "total")):
                 return False
-            if any(value is not None and not finite_nonnegative(value)
-                   for value in (minimum["left"], minimum["right"], minimum["total"])):
+            for name in ("left", "right", "total"):
+                value = minimum[name]
+                if witnesses:
+                    if (not finite_nonnegative(value)
+                            or value != min(witness[f"min_{name}_m"] for witness in witnesses)):
+                        return False
+                elif value is not None:
+                    return False
+        else:
+            failure = exact.get("failure")
+            if not isinstance(failure, Mapping) or failure.get("kind") not in {"edge", "turn"}:
                 return False
-        elif not isinstance(exact.get("failure"), Mapping):
-            return False
+            names = ("from", "to") if failure["kind"] == "edge" else ("from", "at", "to")
+            if any(not cell_key(failure.get(name)) for name in names):
+                return False
+            if failure.get("endpoint") not in {None, "source", "target", "both"}:
+                return False
         seen.add(pair)
     return seen == wanted
 
@@ -158,8 +221,9 @@ def _write_checkpoint(checkpoint_dir: Path, source_index: int, source_id: str,
                     checkpoint.stem + ".rejected-" + hashlib.sha256(existing).hexdigest()[:16] + checkpoint.suffix
                 )
                 checkpoint.replace(rejected)
-            except OSError:
-                pass
+            except OSError as exc:
+                # Losing the rejected original is worse than failing publication.
+                raise OSError("cannot retain rejected checkpoint") from exc
     payload = {"schema": CHECKPOINT_SCHEMA, "checkpoint_fingerprint": fingerprint,
                "source_index": source_index, "source_id": source_id, "results": results}
     temporary = checkpoint.with_suffix(".json.tmp")

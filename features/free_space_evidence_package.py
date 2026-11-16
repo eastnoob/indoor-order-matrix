@@ -98,7 +98,7 @@ def build_free_space_parameter_snapshot(
 
 
 def _calculation_source_values(document: Mapping[str, object]) -> list[object]:
-    """Normalize publication-only query values before binding calculation identity."""
+    """Normalize publication-only query values while preserving original table indices."""
     tables = document["tables"]
     if not isinstance(tables, Mapping) or not isinstance(tables.get("values"), (list, tuple)):
         raise ValueError("free-space document values table is required")
@@ -143,8 +143,9 @@ def _calculation_source_values(document: Mapping[str, object]) -> list[object]:
     for reference in references:
         if 0 <= reference < len(values):
             values[reference] = normalize(values[reference])
-    return sorted(values, key=lambda item: json.dumps(
-        item, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+    # Compact references belong to this indexed table. Canonical ordering is
+    # applied only after cell references have been resolved against it.
+    return values
 
 
 def _calculation_source_cells(document: Mapping[str, object]) -> list[dict[str, object]]:
@@ -285,7 +286,9 @@ def build_free_space_package_contract(
         "model": {"backend_versions": document["backend_versions"], "producer": PRODUCER},
         "source": {"identity": document["identity"]["project_source_identity"],
                    "cells": _calculation_source_cells(document),
-                   "values": _calculation_source_values(document)},
+                   "values": sorted(_calculation_source_values(document), key=lambda item: json.dumps(
+                       _json_value(item), sort_keys=True, separators=(",", ":"),
+                       ensure_ascii=False, allow_nan=False))},
         "plane": snapshot_values["analysis_plane"],
         "query": calculation_request,
         "recipe": {**_RECIPE, "output_function": OUTPUT_FUNCTION_ID, "output_function_version": OUTPUT_FUNCTION_VERSION},
@@ -301,6 +304,52 @@ def build_free_space_package_contract(
         dependencies=dependencies, algorithm_version=ALGORITHM_VERSION, schema_version=PACKAGE_SCHEMA,
         artifacts={} if visualization_manifest is None else {"visualization_manifest": visualization_manifest},
         parameter_snapshot=parameter_snapshot,
+    )
+
+
+def build_legacy_free_space_package_contract(document):
+    """Reconstruct the original pre-A adapter contract from its complete document."""
+    _document_scope(document)
+    request = document["tables"]["snapshot"]["request"]
+    if any(name not in request for name in (
+            "height_band_datum", "geometry_tolerance", "topology_tolerance", "demand")):
+        raise ValueError("legacy free-space reconstruction requires explicit saved parameters")
+    # The original projection included plane publication fields and exact source bytes.
+    scope = "free-space-grid:" + fingerprint_evidence_dependency({
+        "source": document["identity"]["project_source_identity"],
+        "scene": document["identity"]["request_source_fingerprint"],
+        "domain": request["domain"], "plane": request["plane"],
+        "lattice": document["tables"]["lattice"],
+        "geometry_query": request["geometry_query"],
+    })
+    actual = {
+        "scene": {
+            "source_fingerprint": document["identity"]["request_source_fingerprint"],
+            "document_digest": document["digest"],
+        },
+        "model": {"backend_versions": document["backend_versions"], "producer": PRODUCER},
+        "source": {
+            "identity": document["identity"]["project_source_identity"],
+            "result_ref": _result_ref(document),
+        },
+        "plane": request["plane"],
+        "query": {key: value for key, value in request.items() if key != "request_id"},
+        "recipe": {
+            **_RECIPE, "output_function": OUTPUT_FUNCTION_ID,
+            "output_function_version": OUTPUT_FUNCTION_VERSION,
+        },
+        "channels": _CHANNELS,
+    }
+    # The original adapter supplied neither dependency overrides nor artifacts.
+    return build_evidence_package_contract(
+        package_id=PACKAGE_ID, package_schema=PACKAGE_SCHEMA, producer=PRODUCER,
+        target_ids=(_target(scope, cell)["identity"] for cell in document["cells"]),
+        dependencies={
+            name: fingerprint_evidence_dependency({"actual": value, "declared": None})
+            for name, value in actual.items()
+        },
+        algorithm_version=ALGORITHM_VERSION, schema_version=PACKAGE_SCHEMA,
+        artifacts={},
     )
 
 

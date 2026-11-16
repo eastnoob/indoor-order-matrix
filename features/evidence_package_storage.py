@@ -53,14 +53,12 @@ class ProcessedCacheLookup:
 
 
 def compare_receipt_parameters(cached_contract, current_contract):
-    """Compare saved and requested owner snapshots without trusting receipt metadata."""
+    """Compare owner snapshots without discarding other contract freshness failures."""
     status = evaluate_evidence_package_freshness(
         cached_contract=cached_contract, current_contract=current_contract,
     )
     parameter_status = status.get("parameter_status")
-    if parameter_status is not None:
-        return parameter_status
-    return {
+    result = parameter_status if parameter_status is not None else {
         "reuse": "legacy",
         "exact_match": True,
         "recompute_required": False,
@@ -68,6 +66,12 @@ def compare_receipt_parameters(cached_contract, current_contract):
         "requested_parameters": None,
         "warnings": [],
     }
+    # Parameter reconstruction can repair missing parameter provenance only.
+    # Producer, version, dependency and document bindings remain admission gates.
+    if any(reason.get("dependency") != "parameters" for reason in status["reasons"]):
+        return {**result, "reuse": "recompute_required",
+                "exact_match": False, "recompute_required": True}
+    return result
 
 
 def _contract_arguments(contract):
@@ -90,12 +94,13 @@ def legacy_candidate_contract(current_contract):
     )
 
 
-def legacy_processed_cache_key(raw_output, processor) -> str:
-    """Locate one exact old processed version using its full saved parameters."""
+def legacy_processed_cache_key(raw_output, processor, *, parameters=None) -> str:
+    """Bind a legacy recipe to its explicit full parameters without a typed projection."""
     raw = serialize_evidence_package_output(raw_output)
     return fingerprint_evidence_dependency(_processed_identity_payload(
         raw_output.package_id, raw["output_identity"], raw["payload_fingerprint"],
-        processor.function_id, processor.version, processor.parameters, None,
+        processor.function_id, processor.version,
+        processor.parameters if parameters is None else parameters, None,
     ))
 
 
@@ -258,15 +263,19 @@ def load_processed_entry(path, *, raw_output, processor, legacy_path=None,
     try:
         payload = _load_receipt(legacy_path)
         saved = deserialize_evidence_processed_output(payload, raw_output=raw_output)
-        if saved.error_code is not None:
+        if (saved.error_code is not None or saved.parameter_snapshot is not None
+                or saved.processor_id != processor.function_id
+                or saved.processor_version != processor.version):
+            return None
+        # Authenticate the historical full-parameter recipe independently of
+        # today's requested warning values before constructing typed provenance.
+        if legacy_processed_cache_key(
+                raw_output, processor, parameters=saved.parameters) != saved.processing_identity:
             return None
         adopted_snapshot = legacy_processed_adopter(saved, processor)
         if adopted_snapshot is None:
             return None
         adopted = replace(saved, parameter_snapshot=adopted_snapshot)
-        # The original legacy identity is checked before a typed in-memory attestation.
-        if legacy_processed_cache_key(raw_output, processor) != saved.processing_identity:
-            return None
         if processor.parameter_snapshot is None:
             return None
         status = compare_parameter_snapshots(adopted_snapshot, processor.parameter_snapshot)

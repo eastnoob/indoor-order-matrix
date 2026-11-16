@@ -337,3 +337,121 @@ def test_package_rejects_source_document_replaced_under_old_identity():
     forged = replace(source, value=changed.value)
     with pytest.raises(ValueError, match="identity"):
         core.build_free_space_evidence_package().evaluate((forged,))
+
+
+def test_calculation_identity_resolves_original_table_indices_before_sorting():
+    """Remapped compact-table permutations retain both cell meaning and identity."""
+    _, document = _compact_document()
+    reordered = wire.plain(document)
+    values = reordered["tables"]["values"]
+    permutation = tuple(reversed(range(len(values))))
+    remapped = {old: new for new, old in enumerate(permutation)}
+    reordered["tables"]["values"] = [values[index] for index in permutation]
+    for cell in reordered["cells"]:
+        for name in ("query_ref", "source_ids_ref", "explanation_ref"):
+            if type(cell[name]) is int:
+                cell[name] = remapped[cell[name]]
+        for name in ("support_delta", "provenance_delta"):
+            changes = cell.get(name, {}).get("changes", {})
+            for key, value in tuple(changes.items()):
+                if type(value) is int:
+                    changes[key] = remapped[value]
+    provenance = reordered["tables"].get("sample_provenance", {})
+    for name, value in tuple(provenance.items()):
+        if type(value) is int:
+            provenance[name] = remapped[value]
+    reordered["digest"] = wire.document_digest(reordered)
+    wire.validate_document(reordered)
+    original_cells = [
+        wire.decode_cell(document, row=cell["row"], column=cell["column"])
+        for cell in document["cells"]
+    ]
+    reordered_cells = [
+        wire.decode_cell(reordered, row=cell["row"], column=cell["column"])
+        for cell in reordered["cells"]
+    ]
+    # Standard JSON independently distinguishes Boolean, integer and float values.
+    assert json.dumps(original_cells, sort_keys=True, separators=(",", ":")) == json.dumps(
+        reordered_cells, sort_keys=True, separators=(",", ":"))
+    assert package_module.build_free_space_package_contract(document)["package_identity"] == \
+        package_module.build_free_space_package_contract(reordered)["package_identity"]
+
+
+def test_calculation_identity_changes_when_cell_value_associations_change():
+    """Sorting a shared table cannot erase which source list belongs to each cell."""
+    _, document = _compact_document()
+    first = len(document["tables"]["values"])
+    document["tables"]["values"].extend([["association-a"], ["association-b"]])
+    document["cells"][0]["source_ids_ref"] = first
+    document["cells"][1]["source_ids_ref"] = first + 1
+    document["digest"] = wire.document_digest(document)
+    changed = wire.plain(document)
+    values = changed["tables"]["values"]
+    values[first], values[first + 1] = values[first + 1], values[first]
+    changed["digest"] = wire.document_digest(changed)
+    wire.validate_document(document)
+    wire.validate_document(changed)
+    before = wire.decode_cell(document, row=0, column=0)["source_ids"]
+    after = wire.decode_cell(changed, row=0, column=0)["source_ids"]
+    assert json.dumps(before) != json.dumps(after)
+    assert package_module.build_free_space_package_contract(document)["package_identity"] != \
+        package_module.build_free_space_package_contract(changed)["package_identity"]
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+@pytest.mark.parametrize("damage", [
+    "producer", "algorithm_version", "package_schema", "schema_version",
+    "query_dependency", "document",
+])
+def test_authenticated_lookup_requires_document_and_nonparameter_compatibility(
+    tmp_path, legacy, damage,
+):
+    """Valid HMACs cannot authorize stale versions, foreign queries or contract/document drift."""
+    core, adapter = _modules()
+    storage = importlib.import_module(core.__package__ + ".evidence_package_storage")
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    first = adapter.run_free_space_package(scene, request, cache_directory=tmp_path)
+    path = tmp_path / (first["cache_key"] + ".json")
+    receipt = wire.load_json(path.read_text(encoding="utf-8"))
+    if legacy:
+        receipt["contract"] = storage.legacy_candidate_contract(receipt["contract"])
+    contract = receipt["contract"]
+    arguments = {name: contract[name] for name in (
+        "package_id", "package_schema", "producer", "target_ids",
+        "dependencies", "algorithm_version", "schema_version",
+    )}
+    if damage == "query_dependency":
+        arguments["dependencies"] = [
+            {**item, "fingerprint": "foreign-query"} if item["name"] == "query" else item
+            for item in contract["dependencies"]
+        ]
+    elif damage == "document":
+        cell = next(cell for cell in receipt["document"]["cells"]
+                    if type(cell["value"]) is bool)
+        cell["value"] = not cell["value"]
+        receipt["document"]["digest"] = wire.document_digest(receipt["document"])
+        receipt["document_digest"] = receipt["document"]["digest"]
+        wire.validate_document(receipt["document"])
+    else:
+        arguments[damage] += "-foreign"
+    if damage != "document":
+        snapshot = (None if legacy else core.ParameterSnapshot.from_json(
+            contract["parameter_snapshot"]))
+        receipt["contract"] = core.build_evidence_package_contract(
+            **arguments, parameter_snapshot=snapshot,
+        )
+    secret = (tmp_path / ".free_space_cache_key").read_bytes()
+    receipt["auth_tag"] = adapter._receipt_tag(receipt, secret)
+    adapter._write_cache(path, receipt)
+    rejected_bytes = path.read_bytes()
+    assert adapter._read_cache(path, first["cache_key"], secret) is None
+    assert adapter._read_cache_entry(
+        path, first["cache_key"], secret,
+        expected_parameter_snapshot=core.build_free_space_parameter_snapshot(request.to_dict()),
+        legacy_adopter=adapter._reconstruct_legacy_free_space_contract,
+    ) is None
+    assert path.read_bytes() == rejected_bytes
+    if damage != "document":
+        assert storage.compare_receipt_parameters(
+            receipt["contract"], first["contract"])["recompute_required"] is True

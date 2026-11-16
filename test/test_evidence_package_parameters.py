@@ -142,6 +142,25 @@ def test_schema_rejects_duplicates_choices_and_noncanonical_declarations():
         ParameterSpec("x", float, 1.0, unit="cm")
 
 
+def test_choices_use_type_aware_nested_json_equality():
+    """Nested Boolean and numeric values remain distinct in choice checks."""
+    schema = ParameterSchema("p", "v1", (
+        ParameterSpec("context", dict, choices=({"x": 1},)),
+    ))
+    accepted = schema.resolve({"context": {"x": 1}})
+    assert type(accepted.effective_parameters["context"]["x"]) is int
+    with pytest.raises(ValueError, match="allowed choice"):
+        schema.resolve({"context": {"x": True}})
+    with pytest.raises(ValueError, match="unique"):
+        ParameterSchema("p", "v1", (
+            ParameterSpec(
+                "context",
+                dict,
+                choices=({"a": 1, "b": 2}, {"b": 2, "a": 1}),
+            ),
+        ))
+
+
 def test_nested_values_are_frozen_and_key_order_is_canonical():
     """Nested JSON is detached and equivalent mapping order has one identity."""
     value = {"b": [2, {"z": 0.0}], "a": 1}
@@ -186,3 +205,58 @@ def test_direct_snapshot_construction_freezes_mutable_inputs():
     assert snapshot.effective_parameters["context"]["nested"][1]["value"] == 2.0
     with pytest.raises(TypeError):
         snapshot.effective_parameters["context"]["nested"][1]["value"] = 3.0
+
+
+@pytest.mark.parametrize("value_type,old,new", [
+    (dict, {"nested": [{"x": 1}]}, {"nested": [{"x": True}]}),
+    (dict, {"nested": [{"x": False}]}, {"nested": [{"x": 0}]}),
+    (tuple, [{"nested": [1]}], [{"nested": [True]}]),
+    (dict, {"x": 1}, {"x": 1.0}),
+])
+def test_persisted_calculated_values_require_type_aware_equality(value_type, old, new):
+    """Python numeric equality cannot attest different nested JSON values."""
+    schema = ParameterSchema("p", "nested-values/1", (
+        ParameterSpec("context", value_type),
+    ))
+    payload = schema.resolve({"context": old}).to_json()
+    payload["calculated_parameters"]["context"] = new
+    assert json.dumps(payload["effective_parameters"], sort_keys=True) != json.dumps(
+        payload["calculated_parameters"], sort_keys=True)
+    with pytest.raises(ValueError, match="calculated parameters"):
+        ParameterSnapshot.from_json(payload)
+
+
+def test_persisted_float_equality_follows_its_declared_normalization():
+    """A scalar float declaration normalizes integer input before comparison."""
+    schema = ParameterSchema("p", "float-values/1", (
+        ParameterSpec("value", float, 1.0),
+    ))
+    payload = schema.resolve().to_json()
+    payload["calculated_parameters"]["value"] = 1
+    restored = ParameterSnapshot.from_json(payload)
+    assert type(restored.calculated_parameters["value"]) is float
+    assert json.dumps(restored.to_json(), sort_keys=True) == json.dumps(
+        schema.resolve().to_json(), sort_keys=True)
+
+
+@pytest.mark.parametrize("impact", [
+    ParameterImpact.RECOMPUTE_REQUIRED,
+    ParameterImpact.REUSE_WITH_WARNING,
+])
+def test_snapshot_comparison_distinguishes_nested_boolean_and_number(impact):
+    """Container parameters retain JSON types in both computation and warning checks."""
+    schema = ParameterSchema("p", "nested-comparison/1", (
+        ParameterSpec("context", dict, impact=impact),
+    ))
+    old = schema.resolve({"context": {"nested": [1]}})
+    current = schema.resolve({"context": {"nested": [True]}})
+    assert json.dumps(old.to_json()["effective_parameters"], sort_keys=True) != json.dumps(
+        current.to_json()["effective_parameters"], sort_keys=True)
+    status = compare_parameter_snapshots(old, current)
+    assert status["exact_match"] is False
+    assert status["recompute_required"] is (
+        impact is ParameterImpact.RECOMPUTE_REQUIRED)
+    if impact is ParameterImpact.REUSE_WITH_WARNING:
+        assert status["reuse"] == "reuse_with_warning"
+        assert type(status["warnings"][0]["calculated"]["nested"][0]) is int
+        assert type(status["warnings"][0]["requested"]["nested"][0]) is bool

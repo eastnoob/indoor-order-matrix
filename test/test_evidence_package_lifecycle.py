@@ -660,3 +660,185 @@ def test_potential_reverse_producer_order_reuses_cache_and_retains_audit_order(t
     assert again["cache_hit"] is True
     assert again["cache_key"] == first["cache_key"]
     assert again["raw_output"] == first["raw_output"]
+
+
+def test_typed_effective_values_one_two_one_route_values_and_callback_counts(tmp_path, monkeypatch):
+    """One fixed processor version computes each effective value once and restores its receipt."""
+    from features.evidence_package_parameters import ParameterSchema, ParameterSpec
+
+    schema = ParameterSchema(potential.PACKAGE_ID, "effective-values/1", (
+        ParameterSpec("value", float, 1.0),
+    ))
+    base = _processor()
+    calls = []
+
+    def scaled(raw, parameters):
+        """Expose the actual typed effective value through a bounded numeric channel."""
+        calls.append(parameters["value"])
+        return tuple(replace(item, observation=item.observation * parameters["value"])
+                     for item in base.function(raw, parameters))
+
+    def configured(value, function):
+        """Keep recipe identity/version fixed while changing its owned effective value."""
+        return field_core.EvidenceOutputProcessor(
+            base.function_id, base.version, function, {"value": value},
+            parameter_schema=schema,
+        )
+
+    first = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path,
+        output_processor=configured(1, scaled))
+    monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+    second = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path,
+        output_processor=configured(2, scaled))
+    assert first["processed_output"].error_code is None
+    assert second["processed_output"].error_code is None
+    assert first["processed_output"].processor_version == second["processed_output"].processor_version
+    assert first["processed_output"].outputs[0].observation == 0.25
+    assert second["processed_output"].outputs[0].observation == 0.5
+    assert calls == [1.0, 2.0]
+    assert all(type(value) is float for value in calls)
+    assert first["processed_output"].processing_identity != second["processed_output"].processing_identity
+    retained_path = tmp_path / (
+        "processed-" + first["processed_output"].processing_identity + ".json")
+    retained = retained_path.read_bytes()
+    restored = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path,
+        output_processor=configured(1, _forbidden))
+    assert restored["processed_output"] == first["processed_output"]
+    assert restored["processed_output"].outputs[0].observation == 0.25
+    assert calls == [1.0, 2.0]
+    assert retained_path.read_bytes() == retained
+
+
+def test_free_space_grid_parameters_reach_real_execution_and_samples(tmp_path, monkeypatch):
+    """Two real lattices execute separately and restoring the first reuses its exact bytes."""
+    scene = _scene(_object("chair"))
+    coarse = _request(scene)
+    fine = replace(coarse, sampling=replace(
+        coarse.sampling, spacing=0.5, n_rows=8, n_cols=8))
+    execute = free_space.requests.execute_analysis_request
+    calls = []
+
+    def counted(scene_value, request_value, *args, **kwargs):
+        """Observe the real executor's effective sampling without manufacturing results."""
+        sampling = request_value.sampling
+        calls.append((sampling.spacing, sampling.n_rows, sampling.n_cols))
+        return execute(scene_value, request_value, *args, **kwargs)
+
+    monkeypatch.setattr(free_space.requests, "execute_analysis_request", counted)
+    first = free_space.run_free_space_package(scene, coarse, cache_directory=tmp_path)
+    raw_path = tmp_path / (first["cache_key"] + ".json")
+    retained = raw_path.read_bytes()
+    second = free_space.run_free_space_package(scene, fine, cache_directory=tmp_path)
+    assert calls == [(1.0, 4, 4), (0.5, 8, 8)]
+    assert not first["cache_hit"] and not second["cache_hit"]
+    assert len(first["raw_output"].outputs) == 16
+    assert len(second["raw_output"].outputs) == 64
+    for result, spacing, count in ((first, 1.0, 16), (second, 0.5, 64)):
+        document = result["raw_output"].source_envelopes[0].value["channels"][0].observation["document"]
+        assert document["tables"]["lattice"]["spacing"] == spacing
+        assert len(document["cells"]) == count
+        assert result["contract"]["parameter_snapshot"]["calculated_parameters"]["grid_spacing_m"] == spacing
+        for output in result["raw_output"].outputs:
+            locator = output.observation["cell_locator"]
+            sample = free_space.wire.decode_cell(
+                document, row=locator["row"], column=locator["column"])
+            assert output.observation["physical_occupancy"] is sample["value"]
+            assert output.observation["value"] is (
+                None if sample["value"] is None else not sample["value"])
+    assert first["cache_key"] != second["cache_key"]
+    monkeypatch.setattr(free_space.requests, "execute_analysis_request", _forbidden)
+    restored = free_space.run_free_space_package(scene, coarse, cache_directory=tmp_path)
+    assert restored["cache_hit"] is True
+    assert restored["raw_output"] == first["raw_output"]
+    assert restored["cache_key"] == first["cache_key"]
+    assert calls == [(1.0, 4, 4), (0.5, 8, 8)]
+    assert raw_path.read_bytes() == retained
+
+
+def test_authenticated_explicit_legacy_processed_warning_adopts_saved_values(tmp_path):
+    """Authenticated explicit-path adoption verifies historical parameters before warning reuse."""
+    core = importlib.import_module("lifecycle_workspace.features.field_core")
+    parameters = importlib.import_module(
+        "lifecycle_workspace.features.evidence_package_parameters")
+    storage = importlib.import_module(
+        "lifecycle_workspace.features.evidence_package_storage")
+    scene = _scene(_object("chair"))
+    base = _processor(core=core)
+    old_processor = core.EvidenceOutputProcessor(
+        base.function_id, base.version, base.function, {"review_m": 0.01})
+    first = free_space.run_free_space_package(
+        scene, _request(scene), cache_directory=tmp_path,
+        output_processor=old_processor)
+    saved = first["processed_output"]
+    assert saved.error_code is None and saved.parameter_snapshot is None
+    path = tmp_path / ("processed-" + saved.processing_identity + ".json")
+    retained = path.read_bytes()
+    receipt = json.loads(retained)
+    original_identity = __import__("hashlib").sha256(json.dumps({
+        "package_id": saved.package_id,
+        "raw_output_identity": saved.raw_output_identity,
+        "raw_payload_fingerprint": saved.raw_payload_fingerprint,
+        "processor_id": saved.processor_id,
+        "processor_version": saved.processor_version,
+        "parameters": receipt["processed_output"]["parameters"],
+    }, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+    assert original_identity == saved.processing_identity
+    schema = parameters.ParameterSchema(saved.package_id, "authenticated-warning/1", (
+        parameters.ParameterSpec(
+            "review_m", float, 0.02, unit="m",
+            impact=parameters.ParameterImpact.REUSE_WITH_WARNING),
+    ))
+    processor = core.EvidenceOutputProcessor(
+        base.function_id, base.version, _forbidden, parameter_schema=schema)
+    assert storage.legacy_processed_cache_key(first["raw_output"], processor) != original_identity
+    secret = (tmp_path / ".free_space_cache_key").read_bytes()
+    lookup = free_space._read_processed_cache_entry(
+        tmp_path / "typed-missing.json", raw_output=first["raw_output"],
+        processor=processor, secret=secret, legacy_path=path,
+        legacy_processed_adopter=storage.reconstruct_legacy_processed_snapshot)
+    assert lookup is not None and lookup.processed_output.outputs == saved.outputs
+    assert json.dumps(
+        lookup.processed_output.parameter_snapshot.to_json()["calculated_parameters"],
+        sort_keys=True,
+    ) == json.dumps({"review_m": 0.01}, sort_keys=True)
+    assert lookup.parameter_status["requested_parameters"]["review_m"] == 0.02
+    assert lookup.parameter_status["warnings"] and not lookup.parameter_status["exact_match"]
+    assert lookup.reuse_origin["mode"] == "adopted_legacy"
+    assert lookup.reuse_origin["origin_processing_identity"] == original_identity
+    assert lookup.reuse_origin["origin_payload_fingerprint"] == \
+        receipt["processed_output"]["payload_fingerprint"]
+    calculation_schema = replace(schema, specs=(replace(
+        schema.specs[0], impact=parameters.ParameterImpact.RECOMPUTE_REQUIRED),))
+    incompatible = core.EvidenceOutputProcessor(
+        base.function_id, base.version, _forbidden,
+        parameter_schema=calculation_schema)
+    assert free_space._read_processed_cache_entry(
+        tmp_path / "typed-missing.json", raw_output=first["raw_output"],
+        processor=incompatible, secret=secret, legacy_path=path,
+        legacy_processed_adopter=storage.reconstruct_legacy_processed_snapshot,
+    ) is None
+    assert path.read_bytes() == retained
+
+
+def test_authenticated_processed_outer_identity_must_match_its_payload(tmp_path):
+    """An authenticated envelope cannot relabel an otherwise valid processed receipt."""
+    core = importlib.import_module("lifecycle_workspace.features.field_core")
+    scene = _scene(_object("chair"))
+    processor = _processor(core=core)
+    result = free_space.run_free_space_package(
+        scene, _request(scene), cache_directory=tmp_path,
+        output_processor=processor)
+    path = tmp_path / ("processed-" + result["processed_output"].processing_identity + ".json")
+    receipt = json.loads(path.read_bytes())
+    receipt["processing_identity"] = "foreign-envelope-identity"
+    secret = (tmp_path / ".free_space_cache_key").read_bytes()
+    receipt["auth_tag"] = free_space._receipt_tag(receipt, secret)
+    free_space._write_cache(path, receipt)
+    retained = path.read_bytes()
+    assert free_space._read_processed_cache_entry(
+        path, raw_output=result["raw_output"], processor=processor, secret=secret,
+    ) is None
+    assert path.read_bytes() == retained

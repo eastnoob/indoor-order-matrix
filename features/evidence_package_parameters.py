@@ -140,7 +140,9 @@ def _validate_value(spec, value):
     if spec.choices is not None:
         normalized_choices = [_validate_value_without_choices(spec, item)
                               for item in spec.choices]
-        if value not in normalized_choices:
+        if _fingerprint(value) not in {
+            _fingerprint(item) for item in normalized_choices
+        }:
             raise ValueError(f"parameter {spec.name!r} is not an allowed choice")
     return value
 
@@ -188,7 +190,7 @@ def _validate_spec(spec):
             raise ValueError("choices must be a nonempty tuple")
         normalized = [_validate_value_without_choices(spec, item)
                      for item in spec.choices]
-        if len({repr(item) for item in normalized}) != len(normalized):
+        if len({_fingerprint(item) for item in normalized}) != len(normalized):
             raise ValueError("choices must be unique")
     if spec.default is not REQUIRED:
         _validate_value(spec, spec.default)
@@ -210,7 +212,7 @@ def _identity_payload(package_id, schema_version, effective, impacts):
 def _fingerprint(payload):
     """Hash canonical finite JSON without source or request metadata."""
     return hashlib.sha256(json.dumps(
-        payload, sort_keys=True, separators=(",", ":"),
+        _json_value(payload), sort_keys=True, separators=(",", ":"),
         ensure_ascii=False, allow_nan=False).encode("utf-8")).hexdigest()
 
 
@@ -365,8 +367,6 @@ class ParameterSnapshot:
         if set(calculated) != names or set(sources) != names or set(impacts) != names \
                 or set(contracts) != names:
             raise ValueError("snapshot parameter key sets must match")
-        if dict(effective) != dict(calculated):
-            raise ValueError("calculated parameters must equal effective parameters")
         _validate_source_map(sources, names, required=True)
         frozen_effective = {}
         frozen_calculated = {}
@@ -394,6 +394,10 @@ class ParameterSnapshot:
             frozen_contracts[name] = MappingProxyType({
                 "type": tag, "nullable": nullable, "unit": unit,
             })
+        # Normalize declared scalar floats first; nested JSON still distinguishes
+        # Boolean, integer and float values that Python equality conflates.
+        if _fingerprint(frozen_effective) != _fingerprint(frozen_calculated):
+            raise ValueError("calculated parameters must equal effective parameters")
         snapshot = cls(
             package_id,
             schema_version,
@@ -552,7 +556,7 @@ def compare_parameter_snapshots(calculated: ParameterSnapshot,
     for name in sorted(calculated.effective_parameters):
         old = calculated.effective_parameters[name]
         new = requested.effective_parameters[name]
-        if old == new:
+        if _fingerprint(old) == _fingerprint(new):
             continue
         impact = calculated.parameter_impacts[name]
         if impact == ParameterImpact.RECOMPUTE_REQUIRED.value:

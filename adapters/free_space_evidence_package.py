@@ -24,6 +24,7 @@ if "." in (__package__ or ""):
     from ..features.evidence_package_storage import (
         ProcessedCacheLookup, legacy_processed_cache_key, processed_cache_key,
         reconstruct_legacy_processed_snapshot, compare_receipt_parameters,
+        legacy_candidate_contract,
     )
 else:
     from features import analysis_requests as requests
@@ -35,6 +36,7 @@ else:
     from features.evidence_package_storage import (
         ProcessedCacheLookup, legacy_processed_cache_key, processed_cache_key,
         reconstruct_legacy_processed_snapshot, compare_receipt_parameters,
+        legacy_candidate_contract,
     )
 
 
@@ -141,7 +143,7 @@ def _receipt_tag(receipt, secret):
 
 def _read_cache_entry(path, cache_key, secret, *, expected_parameter_snapshot=None,
                       legacy_adopter=None):
-    """Authenticate the complete envelope before any typed parameter comparison."""
+    """Authenticate and independently bind the saved contract to its document before reuse."""
     try:
         receipt = wire.load_json(path.read_text(encoding="utf-8"))
         if not hmac.compare_digest(receipt.get("auth_tag", ""), _receipt_tag(receipt, secret)):
@@ -156,6 +158,27 @@ def _read_cache_entry(path, cache_key, secret, *, expected_parameter_snapshot=No
         if document["result_id"] != "free-space:" + receipt.get("publication_key", cache_key):
             return None
         cached_contract = _validate_evidence_package_contract(receipt["contract"])
+        request = document["tables"]["snapshot"]["request"]
+        document_snapshot = package.build_free_space_parameter_snapshot(request)
+        document_contract = package.build_free_space_package_contract(
+            document, parameter_snapshot=document_snapshot)
+        # A signed contract must still describe these signed document bytes.
+        # Missing typed provenance does not excuse any nonparameter mismatch.
+        saved_document_contract = (
+            document_contract if "parameter_snapshot" in cached_contract
+            else legacy_candidate_contract(document_contract))
+        legacy_document_contract = (
+            None if "parameter_snapshot" in cached_contract
+            else package.build_legacy_free_space_package_contract(document))
+        if evaluate_evidence_package_freshness(
+                cached_contract=cached_contract,
+                current_contract=saved_document_contract)["recompute_required"]:
+            # Only the complete independently derived original contract can
+            # bridge the pre-A identity projection; typed receipts stay strict.
+            if (legacy_document_contract is None
+                    or wire.canonical_json(receipt["contract"])
+                    != wire.canonical_json(legacy_document_contract)):
+                return None
         historical_contract = cached_contract
         origin = {
             "mode": "cache_hit",
@@ -163,13 +186,11 @@ def _read_cache_entry(path, cache_key, secret, *, expected_parameter_snapshot=No
             "origin_contract": cached_contract,
             "origin_payload_fingerprint": receipt["document_digest"],
         }
-        # The original bare reader has no current owner request to compare.
-        # Keep that compatibility boundary read-only; the package runner always
-        # supplies a typed snapshot and therefore takes the strict path below.
+        # Bare historical reads retain their API after document/contract binding;
+        # the runner additionally requires independently current owner parameters.
         if expected_parameter_snapshot is None and legacy_adopter is None:
             return AuthenticatedFreeSpaceLookup(document, historical_contract, None, origin)
-        request = document["tables"]["snapshot"]["request"]
-        snapshot = expected_parameter_snapshot or package.build_free_space_parameter_snapshot(request)
+        snapshot = expected_parameter_snapshot or document_snapshot
         current = package.build_free_space_package_contract(document, parameter_snapshot=snapshot)
         status = compare_receipt_parameters(cached_contract, current)
         if status["recompute_required"]:
@@ -214,6 +235,7 @@ def _read_processed_cache_entry(path, *, raw_output, processor, secret,
                                 legacy_path=None, legacy_processed_adopter=None):
     """Authenticate processed receipts before shared parameter-aware reuse."""
     def read_one(candidate):
+        """Authenticate one envelope and require its declared identity to match the payload."""
         receipt = wire.load_json(Path(candidate).read_text(encoding="utf-8"))
         expected = processed_cache_key(raw_output, processor)
         if (set(receipt) != {"schema", "processing_identity", "processed_output", "auth_tag"}
@@ -224,7 +246,8 @@ def _read_processed_cache_entry(path, *, raw_output, processor, secret,
         if output.error_code is not None or output.processor_id != processor.function_id \
                 or output.processor_version != processor.version:
             return None
-        if output.processing_identity != expected:
+        if (receipt["processing_identity"] != output.processing_identity
+                or output.processing_identity != expected):
             return None
         if output.parameter_snapshot is not None and processor.parameter_snapshot is not None:
             status = compare_parameter_snapshots(output.parameter_snapshot, processor.parameter_snapshot)
@@ -255,15 +278,21 @@ def _read_processed_cache_entry(path, *, raw_output, processor, secret,
                 or not hmac.compare_digest(receipt["auth_tag"], _receipt_tag(receipt, secret))):
             return None
         saved = deserialize_evidence_processed_output(receipt["processed_output"], raw_output=raw_output)
-        if saved.error_code is not None:
+        if (saved.error_code is not None or saved.parameter_snapshot is not None
+                or saved.processor_id != processor.function_id
+                or saved.processor_version != processor.version
+                or receipt["processing_identity"] != saved.processing_identity):
+            return None
+        # Verify the saved full recipe first; current warning values can have
+        # another legacy key while sharing the same authorized computation.
+        if saved.processing_identity != legacy_processed_cache_key(
+                raw_output, processor, parameters=saved.parameters):
             return None
         snapshot = legacy_processed_adopter(saved, processor)
         if snapshot is None or processor.parameter_snapshot is None:
             return None
         from dataclasses import replace as _replace
         adopted = _replace(saved, parameter_snapshot=snapshot)
-        if receipt["processing_identity"] != legacy_processed_cache_key(raw_output, processor):
-            return None
         status = compare_parameter_snapshots(snapshot, processor.parameter_snapshot)
         if status["recompute_required"]:
             return None
@@ -298,15 +327,30 @@ def evaluate_free_space_package(scene, request, *, cache_directory=None):
 
 
 def _reconstruct_legacy_free_space_contract(receipt, current_contract):
-    """Rebuild a typed free-space contract from the authenticated historical request."""
+    """Attest explicit historical parameters after independently verifying their contract."""
     try:
-        old = receipt["contract"]
+        old = _validate_evidence_package_contract(receipt["contract"])
+        if "parameter_snapshot" in old:
+            return None
+        legacy_document_contract = package.build_legacy_free_space_package_contract(
+            receipt["document"])
         request = receipt["document"]["tables"]["snapshot"]["request"]
         snapshot = package.build_free_space_parameter_snapshot(request)
-        return package.build_free_space_package_contract(
+        reconstructed = package.build_free_space_package_contract(
             receipt["document"], dependency_fingerprints=None,
             parameter_snapshot=snapshot,
         )
+        # Authentication proves origin; independently derived dependencies and
+        # versions prove that the historical contract actually binds this source.
+        if evaluate_evidence_package_freshness(
+                cached_contract=old,
+                current_contract=legacy_candidate_contract(reconstructed))["recompute_required"]:
+            if (wire.canonical_json(receipt["contract"])
+                    != wire.canonical_json(legacy_document_contract)):
+                return None
+        if compare_receipt_parameters(reconstructed, current_contract)["recompute_required"]:
+            return None
+        return reconstructed
     except (KeyError, TypeError, ValueError):
         return None
 
