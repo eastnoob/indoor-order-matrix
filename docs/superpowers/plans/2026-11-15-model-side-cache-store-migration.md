@@ -421,3 +421,21 @@ Spec coverage: Tasks 1–2 cover sidecar paths, atomicity, locks, namespace isol
 Type consistency: A's ParameterSnapshot remains package-owned. B uses one CacheAddress everywhere; migrated_reuse is lookup provenance, complete is stored lifecycle status, and existing cache_status remains a mapping. C's semantic-port split is not assumed implemented by B.
 
 Scope: UI receives location wiring only. Version-manager GUI, SQLite, semantic port decomposition and real reusable intermediates remain outside B.
+
+
+## Execution preflight rulings — 2026-11-16
+
+These complete the existing persistence contracts; they do not extend B to semantic splitting or intermediate persistence.
+
+- B uses output_port="combined" for each existing package, with raw and processed layers distinct. C owns semantic decomposition.
+- Persist SourceBinding in sources/<source-fingerprint>/source.json under source-binding/v1, independent of index.json. Add CacheStore.put_source_binding(binding) and get_source_binding(source_fingerprint). Updating a locator requires unchanged canonical/content/external fingerprints; changed factual geometry cannot reuse a binding. Capture binding acceptance is provisional until synchronous/cooperative finalization verifies complete facts.
+- Persist legacy lookup attestations separately from immutable entry payloads and disposable index.json. They bind the current request, original full address/key/ref/hash, factual inputs, effective parameters and a reviewed compatibility profile. Add their narrow API only with actual owner integration; never invent compatibility for unknown implementation or numerical versions.
+- Persist per-entry migration/adoption provenance outside immutable receipts/payloads. Top-level cache_reuse follows raw cache_hit: migrated_reuse, legacy_adopted, exact_hit or computed; processed reuse remains independently reported in its nested evidence.
+- Register create-once auth secrets by SHA256(secret); durable sidecar metadata selects the default key for new entries. Existing entries always select their own key ID. CacheValidationContext carries the detached frozen wrapper contract to support owner consistency validation.
+- list/rebuild report storage validity and dependency availability, not live numerical eligibility. Only get with caller-owned current validation authorizes numerical reuse.
+- Reentrant lock identity is resolved root plus full CacheAddress, including across Store instances. Use bounded typed timeout. Catalog/auth locks never acquire entry locks; dependency inspection does not wait for an upstream entry lock. Migration releases source snapshot locks before destination publication locks.
+- temporary_cache_root is caller-provided and session-scoped. Active run directories never move. Saved locators affect only later jobs or migration of terminal artifacts.
+- Trusted execution root/interpreter/modules/PYTHONPATH/cwd remain independent of model artifact locators. Cover all eight UI launch sites and real main(argv) request-file boundaries.
+- Preserve each CLI's explicit output contract: distance --output-dir is exact; potential live/replay --output-root is parent; hierarchy --output-root is exact final directory and retains refusal of existing/input-contained roots. Replace modulation's colliding default fixed leaf with unique sidecar runs and keep temporary JSON run-local. Do not silently loosen historical envelope decoding restrictions.
+
+The preflight's task/interface tables and runtime integration map are retained in this plan's SDD directory. Accepted A handoff 488d0d4e439a7c6674d2973f3ddbaa9b34fa2fe8 includes implementation 92ff7d521415c95d505c2e35eca60781e09b7f96 and all four immutable pre-A fixture families. B's independent runner/restart gates remain mandatory.

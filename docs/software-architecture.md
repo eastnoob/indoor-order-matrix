@@ -1,5 +1,53 @@
 # 软件架构
 
+## Model-side cache — Plan B Task 1, acceptance pending
+
+`features/cache_paths.py` owns the model-stem sidecar locator, validated
+`CacheAddress`, filesystem containment and immutable `SourceBinding`.
+Every address separates source fingerprint, package, output port, raw/processed
+layer and result identity. Existing packages use `output_port="combined"`.
+Path checks reject symlinks, Windows junctions and other reparse points before
+following or creating directory ancestors, and repeat containment checks after
+creation. An explicit store root is used directly without repository fallback.
+
+`features/cache_store.py` persists complete entries at
+`sources/<source>/outputs/<package>/<port>/<layer>/<identity>/`.
+It validates caller-supplied payloads, fsyncs payload and receipt in a sibling
+staging directory, rereads both, then publishes through a directory rename that
+refuses an existing destination. Windows uses `os.rename`; Linux uses
+`renameat2(RENAME_NOREPLACE)`. Unsupported platforms/filesystems fail explicitly.
+An existing or competing publication is reused only after full wrapper,
+exact payload-byte and package-validator checks. Conflicts preserve existing
+bytes; interrupted or losing stages remain outside the addressable namespace.
+The existing `evidence_package_storage.write_receipt` supplies atomic JSON
+replacement and receipt fsync without modification.
+
+Storage receipts use `cache-receipt/v1`, bind the full address and opaque
+package contract, and record payload format, byte length, SHA256, upstream
+addresses, completion status and receipt fingerprint. Reads reject duplicate
+JSON keys, nonfinite JSON, unexpected wrapper fields, mismatched addresses and
+invalid payload integrity. Missing or invalid stored upstreams prevent a hit.
+Current package-owned callbacks authorize payload reuse and receive a frozen
+contract through `CacheValidationContext`; storage never calculates results,
+resolves parameters, imports Blender adapters or selects numerical eligibility.
+`CacheEntry.receipt` and callback contracts are detached and deeply frozen.
+
+Source facts persist independently at `sources/<source>/source.json` under
+`source-binding/v1`. `put_source_binding` consumes independently verified source
+facts; it does not inspect model geometry. First publication creates the file
+without replacement, and later publications require unchanged canonical
+identity, content fingerprint and external fingerprints before updating only
+the locator. Neither locators nor storage paths become calculation inputs.
+
+Task 1 preserves public authentication/context fields but explicitly rejects
+non-null authentication key IDs until Task 2. Authentication, shared locks,
+catalogs, lifecycle operations, migration and provenance remain Task 2 work.
+Task 1 tests cover namespace round trips, nested immutability, strict receipt
+admission, validator failure, publication races/failures and mandatory directory
+link containment, including a Windows junction fallback. Root execution and
+acceptance remain pending; this section records the implementation boundary,
+not a completed acceptance claim.
+
 ## Package parameters and model-side cache — Plan A locally verified 2026-11-16
 
 The approved [master design](superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md)
