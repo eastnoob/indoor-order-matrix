@@ -104,6 +104,16 @@ class GroupPairDistanceObservation(_FrozenRecord):
 
 
 @dataclass(frozen=True)
+class EuclideanPairObservation(_FrozenRecord):
+    """Retain the historical pair address with only centroid measurement evidence."""
+
+    pair_id: str
+    group_ids: tuple[str, str]
+    reading: Any
+    geometry_audit: Any
+
+
+@dataclass(frozen=True)
 class GroupDistanceResult(_FrozenRecord):
     """Complete pair scope, reusable manifest, and measured execution diagnostics."""
 
@@ -328,6 +338,40 @@ def _group_geometry(group: GroupProjection) -> dict:
              "centroid_source_ref": "group-union:" + fingerprint_evidence_dependency(_ordered(group.components)),
              "centroid": tuple(centroid.coords[0]), "source_refs": group.source_refs}
     return {"status": "computed", "shape": geometry, "audit": audit}
+
+
+def _euclidean_reading(first_geometry, second_geometry):
+    """Share the original endpoint precedence and exact centroid distance formula."""
+    statuses = {first_geometry["status"], second_geometry["status"]}
+    status = "invalid" if "invalid" in statuses else "not_available" if "not_available" in statuses else "computed"
+    reading = {"status": status, "value": None, "units": "m"}
+    if status == "computed":
+        reading.update(value=math.dist(first_geometry["audit"]["centroid"], second_geometry["audit"]["centroid"]),
+                       centroid_source_refs=tuple(item["audit"]["centroid_source_ref"]
+                                                  for item in (first_geometry, second_geometry)))
+    return reading
+
+
+def calculate_euclidean_pairs(bundle: GroupDistanceInput) -> tuple[EuclideanPairObservation, ...]:
+    """Measure sorted group centroids without constructing route or occupancy state."""
+    if not isinstance(bundle, GroupDistanceInput):
+        raise TypeError("bundle must be a GroupDistanceInput")
+    if any(not isinstance(group, GroupProjection) or not isinstance(group.group_id, str)
+           or not group.group_id for group in bundle.groups):
+        raise ValueError("groups require unique nonempty GroupProjection identities")
+    groups = tuple(sorted(bundle.groups, key=lambda group: group.group_id))
+    if len({group.group_id for group in groups}) != len(groups):
+        raise ValueError("groups require unique nonempty GroupProjection identities")
+    geometry = {group.group_id: _group_geometry(group) for group in groups}
+    result = []
+    for first, second in combinations(groups, 2):
+        ids = (first.group_id, second.group_id)
+        audit = {identity: geometry[identity].get("audit", {
+            "status": geometry[identity]["status"], "explanation": geometry[identity].get("explanation", "")})
+            for identity in ids}
+        result.append(EuclideanPairObservation(_pair_id(ids, bundle.source_identity), ids,
+                      _euclidean_reading(geometry[ids[0]], geometry[ids[1]]), audit))
+    return tuple(result)
 
 
 def _analysis_plane_binding_error(bundle: GroupDistanceInput, fingerprints: Mapping) -> str | None:
@@ -1325,7 +1369,7 @@ def _component_failure_cells(frontier: nx.Graph, samples: Mapping) -> dict:
     return failures
 
 
-def calculate_group_pair_distances(input_bundle: GroupDistanceInput) -> GroupDistanceResult:
+def calculate_group_pair_distances(input_bundle: GroupDistanceInput, *, include_euclidean: bool = True) -> GroupDistanceResult:
     """Calculate every unordered pair, batching each graph by source group."""
     if not isinstance(input_bundle, GroupDistanceInput):
         raise TypeError("input_bundle must be a GroupDistanceInput")
@@ -1339,13 +1383,13 @@ def calculate_group_pair_distances(input_bundle: GroupDistanceInput) -> GroupDis
     if owns_trace:
         tracemalloc.start()
     try:
-        return _calculate(bundle, groups, started)
+        return _calculate(bundle, groups, started, include_euclidean=include_euclidean)
     finally:
         if owns_trace:
             tracemalloc.stop()
 
 
-def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> GroupDistanceResult:
+def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float, *, include_euclidean: bool = True) -> GroupDistanceResult:
     """Keep one source search state alive at a time and assemble typed pair output."""
     try:
         fingerprints = group_distance_input_fingerprints(bundle)
@@ -1401,10 +1445,8 @@ def _calculate(bundle: GroupDistanceInput, groups: tuple, started: float) -> Gro
         audits = {identity: geometry[identity].get("audit", {"status": geometry[identity]["status"], "explanation": geometry[identity].get("explanation", "")}) for identity in ids}
         endpoint_statuses = {first["status"], second["status"]}
         endpoint_status = "invalid" if "invalid" in endpoint_statuses else "not_available" if "not_available" in endpoint_statuses else None
-        euclidean = {"status": endpoint_status or "computed", "value": None, "units": "m"}
-        if endpoint_status is None:
-            euclidean.update(value=math.dist(first["audit"]["centroid"], second["audit"]["centroid"]),
-                             centroid_source_refs=tuple(audits[identity]["centroid_source_ref"] for identity in ids))
+        # Route-only misses reuse geometry for endpoint offsets without measuring the independent channel.
+        euclidean = _euclidean_reading(first, second) if include_euclidean else None
         selected, lower, failures, explanation = None, None, (), global_explanation
         status = "invalid" if "invalid" in {global_status, endpoint_status} else global_status or endpoint_status
         if status is None:

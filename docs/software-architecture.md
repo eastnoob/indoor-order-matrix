@@ -96,7 +96,8 @@ by `complete` or `failed`; default model-side hierarchy outputs keep that journa
 at their unique run parent, while explicit output roots keep it at the exact root.
 The B handoff records 786/786 required tests (807.82 seconds), 712 unchanged
 frozen file hashes, SPEC PASS / QUALITY APPROVED and exact evidence.
-Semantic output splitting and reusable intermediate stages remain Plan C work.
+Plan C's semantic publication and distance producers are described below;
+selected processing and potential consumers remain in progress.
 
 ## Package parameters and model-side cache — Plan A locally verified 2026-11-16
 
@@ -110,7 +111,7 @@ Plan A Tasks 1–4 have accepted checkpoints in commits `bba814f87fda68f1778e5c4
 `418be9199f73f38443f499549eed4dfcab677933`, after the preflight fixture
 checkpoint `9d39d27032752a61ac98c73a1015152d4f48c614`. Final A implementation `92ff7d521415c95d505c2e35eca60781e09b7f96`
 passes 533/533 required tests and independent SPEC/QUALITY review; it implements the typed parameter/receipt layer described below. Plan B's implementation
-is described above; Plan C remains planned work. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
+is described above; Plan C's current implementation is mapped below. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
 owns workline identities, review evidence, recovery and scope limits.
 Its 2026-11-16 acceptance audit also fixes required-node/outcome evidence,
 real-runner numerical/concurrency checks, fresh-process migration and immutable
@@ -176,11 +177,35 @@ original inner bytes before decoding, compare independently supplied current
 owner declarations, and restrict reuse/warnings to declared selected names while
 preserving the full historical audit. Native upstreams retain their owner codec.
 
-Package-specific distance/potential producers and selected processing remain
-subsequent C tasks at this checkpoint. Euclidean output and its modulation must
-exclude route/free-space dependencies. Completed intermediates remain design
-only unless a concrete package stage is separately accepted; C does not add a
-second storage backend or require model recalculation.
+`features/group_distance_output_ports.py` supplies the opt-in independent
+distance entry points: `euclidean_port_contract`, `distance_port_contracts`,
+`evaluate_euclidean_port`, `evaluate_path_port`, `run_group_distance_ports` and
+`project_verified_distance_ports`. Its factual source/geometry registration
+and canonical semantic pair IDs exclude locator/session and route-only facts
+from Euclidean views. Historical combined IDs and APIs remain unchanged;
+adoption reopens an exact B entry through its original owner before projecting
+new selected views without producers. Old-to-new target mappings stay in
+external adoption provenance. Automatic combined fallback is checked after a
+selected miss; invalid historical fallback bytes cannot block independent
+hits. Invalid selected entries are retained through B quarantine before only
+that missing port is recalculated. Explicit combined selection remains strict.
+
+`features/group_distance.py` shares the original `_euclidean_reading` with
+`calculate_euclidean_pairs`; its explicit route-only branch skips that reading
+while retaining route/witness/uncertainty calculations. Path receipts bind the
+full native free-space address when saved samples are used.
+The independent path entry also requires repair policy to match the current
+bundle and owner snapshot; historical combined readers keep their old behavior.
+`adapters/free_space_distance.py::build_distance_free_space_validator` owns
+the independent wire/native-request/context and exact-sample comparison;
+features never guess a B address from a wire ResultRef. The adapter shares its
+sample handoff without reprojecting furniture. A successful check is reused
+only for identical payload bytes within the same immutable validator context.
+
+Selected processing and potential producers remain subsequent C tasks at this
+checkpoint. Euclidean output and its modulation exclude route/free-space
+dependencies. The explicit intermediate contract remains design only; no
+concrete stage warrants runtime adoption or a second storage backend.
 
 ## Package-owned lifecycle — locally verified 2026-11-12
 

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import asdict, replace
+from hashlib import sha256
 from itertools import chain
 
 from . import blender_analysis_result_wire as wire
 from .bonsai_live import _mesh
 from features.field_core import FieldQuery, _json_value, fingerprint_evidence_dependency
+from features.cache_store import CacheValidationContext
 from features.geometry_substitutes import mass_patch_from_mesh
 from features.geometry_views import plan_projection
 from features.group_distance import (GridDescriptor, GroupDistanceInput, GroupProjection,
@@ -74,8 +76,8 @@ def _group_projections(capture, authored_groups, plane):
     return tuple(groups)
 
 
-def distance_input_from_free_space(snapshot, native_request):
-    """Use exact saved samples; project only same-capture group/domain geometry.
+def _distance_sample_handoff(snapshot, native_request):
+    """Build exact saved samples and confirmed domain without member projection.
 
     Callers open the ResultRef with independently supplied consumer expectations
     and explicit freshness policy. The native request is authenticated against
@@ -166,10 +168,54 @@ def distance_input_from_free_space(snapshot, native_request):
     grid = GridDescriptor(f"free-space:{snapshot.ref.result_id}:{snapshot.ref.digest}",
         query.frame, tuple(lattice["origin"]), lattice["spacing"], lattice["n_rows"], lattice["n_cols"])
     bundle = GroupDistanceInput(source_identity, analysis_plane, domain, grid,
-        _group_projections(capture, binding["authored_groups"], plane),
+        (),
         saved["provenance"]["selected_records"], tuple(saved["provenance"]["unknown_source_ids"]),
         saved["provenance"]["trusted_unknown_supports"], query, context, (0, 0), {}, exact)
     fingerprints = group_distance_input_fingerprints(bundle)
     bundle = replace(bundle, query_context={**context, "analysis_plane_fingerprint": fingerprints["analysis_plane"]},
         grid=replace(grid, domain_fingerprint=fingerprints["domain"], occupancy_fingerprint=fingerprints["occupancy"]))
     return replace(bundle, dependency_fingerprints=group_distance_input_fingerprints(bundle))
+
+
+def distance_input_from_free_space(snapshot, native_request):
+    """Bind exact saved samples and same-capture authored group projections."""
+    bundle = _distance_sample_handoff(snapshot, native_request)
+    capture = native_request["canonical_capture"]
+    groups = _group_projections(capture, snapshot.payload["binding"]["authored_groups"],
+                               AnalysisPlane.from_dict(wire.plain(snapshot.payload["tables"]["snapshot"]["request"]["plane"])))
+    bundle = replace(bundle, groups=groups, dependency_fingerprints={})
+    return replace(bundle, dependency_fingerprints=group_distance_input_fingerprints(bundle))
+
+
+def build_distance_free_space_validator(bundle, *, native_request, context):
+    """Bind stored native bytes to independent consumer intent and exact route samples.
+
+    The caller supplies current observation evidence or explicitly allows a
+    historical retained read. Saved document flags never establish currentness.
+    """
+    if not isinstance(bundle, GroupDistanceInput) or not isinstance(context, wire.ResultReadContext):
+        raise TypeError("bundle and independent ResultReadContext are required")
+    reference = wire.ResultRef(**wire.plain((bundle.free_space_samples or {}).get("result_ref", {})))
+    native_request = wire.freeze(native_request)
+    validated_digest = None
+
+    def validate(payload, storage_context):
+        """Reopen the exact wire ref and compare independently supplied handoff facts."""
+        nonlocal validated_digest
+        if not isinstance(storage_context, CacheValidationContext):
+            raise TypeError("storage context is required")
+        digest = sha256(payload).digest()
+        # B revalidates publication bytes repeatedly; this closure's independent intent is immutable.
+        if digest == validated_digest:
+            return
+        document = wire.load_json(payload.decode("utf-8"))
+        snapshot = wire.open_analysis_result([document], result_ref=reference, context=context)
+        actual = _distance_sample_handoff(snapshot, native_request)
+        names = ("source_identity", "analysis_plane", "domain", "grid", "physical_occupancy",
+                 "unresolved_source_ids", "unresolved_supports", "query", "query_context", "origin_offset",
+                 "free_space_samples")
+        if any(fingerprint_evidence_dependency(getattr(actual, name)) !=
+               fingerprint_evidence_dependency(getattr(bundle, name)) for name in names):
+            raise ValueError("free-space publication differs from the current distance sample handoff")
+        validated_digest = digest
+    return validate

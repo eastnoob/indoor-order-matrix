@@ -57,6 +57,93 @@ def actual_bundle():
     return retained_input(RUN / "input_bundle.json")
 
 
+@pytest.fixture(scope="module")
+def stored_distance_free_space(actual_publication, actual_bundle, tmp_path_factory):
+    """Store the actual nonempty native document under a complete B address."""
+    import hashlib
+    from features.cache_paths import CacheAddress
+    from features.cache_store import CacheStore
+    from features.output_port_cache import OutputPortRef
+
+    native, receipt, snapshot = actual_publication
+    _, context = retained_read_context(native, receipt)
+    validator = bridge.build_distance_free_space_validator(actual_bundle, native_request=native, context=context)
+    store = CacheStore(tmp_path_factory.mktemp("distance-native-free-space"))
+    payload = (SOURCE / "result.json").read_bytes()
+    address = CacheAddress(kernel.fingerprint_evidence_dependency(actual_bundle.source_identity),
+                           "blender-analysis", "combined", "raw", snapshot.ref.digest)
+    store.put(address, contract={"result_ref": wire.plain(actual_bundle.free_space_samples["result_ref"])},
+              payload=payload, payload_format="json", validator=validator)
+    reference = OutputPortRef(address.source_fingerprint, address.package_id, address.output_port,
+                              address.identity, address.layer, hashlib.sha256(payload).hexdigest())
+    return store, reference, validator
+
+
+def test_distance_free_space_validator_reopens_actual_samples_without_group_projection(
+        actual_publication, actual_bundle, stored_distance_free_space, monkeypatch):
+    """Owner validation consumes exact actual samples without recalculating member geometry."""
+    store, reference, validator = stored_distance_free_space
+    def forbidden(*args, **kwargs):
+        """Detect unnecessary member projection or occupancy execution during a read."""
+        pytest.fail("native validation recalculated independent geometry")
+    monkeypatch.setattr(bridge, "_group_projections", forbidden)
+    assert store.get(reference.address, validator=validator) is not None
+
+
+def test_distance_free_space_validation_memo_is_local_to_exact_bytes_and_intent(
+        actual_publication, actual_bundle, stored_distance_free_space, monkeypatch):
+    """Repeated B validation reuses a success only for this callback's identical bytes."""
+    from features.cache_store import CacheValidationContext
+    store, reference, validator = stored_distance_free_space
+    entry = store.get(reference.address, validator=validator)
+    payload = entry.payload_paths[0].read_bytes()
+    context = CacheValidationContext(reference.address, None, None, entry.receipt["contract"])
+    def forbidden(*args, **kwargs):
+        """An identical validated payload needs no second full wire/sample traversal."""
+        pytest.fail("reopened an already validated identical native payload")
+    with monkeypatch.context() as patch:
+        patch.setattr(wire, "open_analysis_result", forbidden)
+        validator(payload, context)
+    changed = wire.load_json(payload.decode("utf-8"))
+    changed["digest"] = "0" * 64
+    with pytest.raises(ValueError):
+        validator(wire.canonical_json(changed).encode("utf-8"), context)
+    native, receipt, _ = actual_publication
+    _, independent = retained_read_context(native, receipt)
+    incompatible = bridge.build_distance_free_space_validator(actual_bundle, native_request=native,
+        context=replace(independent, require_current=True, allow_historical=False))
+    with pytest.raises(ValueError, match="current read"):
+        incompatible(payload, context)
+
+
+@pytest.mark.parametrize("fault", ["query", "lattice", "sample", "ref", "currentness"])
+def test_distance_free_space_validator_rejects_independent_context_drift(
+        actual_publication, actual_bundle, stored_distance_free_space, fault):
+    """A valid saved document cannot authorize different current sample intent."""
+    native, receipt, _ = actual_publication
+    store, reference, _ = stored_distance_free_space
+    _, context = retained_read_context(native, receipt)
+    bundle = actual_bundle
+    if fault == "query":
+        bundle = replace(bundle, query=replace(bundle.query, revision="different-current-query"))
+    elif fault == "lattice":
+        bundle = replace(bundle, grid=replace(bundle.grid, spacing=bundle.grid.spacing * 2))
+    elif fault == "sample":
+        samples = dict(bundle.free_space_samples)
+        cells = list(samples["cells"])
+        index = next(index for index, item in enumerate(cells) if type(item["value"]) is bool)
+        cells[index] = {**cells[index], "value": not cells[index]["value"]}
+        bundle = replace(bundle, free_space_samples={**samples, "cells": cells})
+    elif fault == "ref":
+        samples = dict(bundle.free_space_samples)
+        bundle = replace(bundle, free_space_samples={**samples, "result_ref": {**samples["result_ref"], "digest": "0" * 64}})
+    else:
+        context = replace(context, require_current=True, allow_historical=False)
+    validator = bridge.build_distance_free_space_validator(bundle, native_request=native, context=context)
+    with pytest.raises(ValueError):
+        store.get(reference.address, validator=validator)
+
+
 def test_exact_adapter_refuses_another_request_capture_or_domain(actual_publication):
     """Reject swapped native inputs before they can contribute group geometry."""
     native, _, snapshot = actual_publication

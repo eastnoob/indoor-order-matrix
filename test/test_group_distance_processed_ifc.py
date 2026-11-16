@@ -15,12 +15,127 @@ from features.group_distance_evidence_package import (
     build_euclidean_median_proximity_processor, build_group_distance_evidence_package,
 )
 from scripts.design.group_level import run_group_distance_processed_ifc as trial
+from .test_free_space_distance import actual_publication, actual_bundle, stored_distance_free_space
 
 
 @pytest.fixture(scope="module")
 def retained_trial():
     """Authenticate and process the full actual IFC-derived scope once."""
     return trial.load_trial()
+
+
+def test_standalone_euclidean_matches_retained_readings(retained_trial):
+    """The shared primitive preserves all actual historical values and statuses."""
+    from features.group_distance import calculate_euclidean_pairs
+    inputs, raw, _ = retained_trial
+    expected = {item.target["identity"]: item for item in raw.outputs if item.channel == "euclidean_distance"}
+    actual = {item.pair_id: item for item in calculate_euclidean_pairs(inputs.bundle)}
+    assert set(actual) == set(expected) and len(actual) == 666
+    for pair_id, item in actual.items():
+        assert item.reading["value"] == expected[pair_id].observation["value"]
+        assert item.reading["status"] == expected[pair_id].observation["raw_status"]
+
+
+def test_path_only_matches_combined_on_retained_geometry(retained_trial, stored_distance_free_space, monkeypatch):
+    """A real bounded route retains witnesses while forbidding the Euclidean primitive."""
+    from features import group_distance as kernel
+    from features import group_distance_output_ports as ports
+    inputs, retained_raw, _ = retained_trial
+    store, reference, validator = stored_distance_free_space
+    usable = [item for item in retained_raw.outputs if item.channel == "path_distance"
+              and item.observation["value"] is not None and math.isfinite(item.observation["value"])]
+    assert usable, "real route acceptance requires a usable retained pair"
+    ids = set(usable[0].observation["group_ids"])
+    bundle = replace(inputs.bundle, groups=tuple(group for group in inputs.bundle.groups if group.group_id in ids), dependency_fingerprints={})
+    bundle = replace(bundle, dependency_fingerprints=kernel.group_distance_input_fingerprints(bundle))
+    combined = distance_package.evaluate_group_distance_package(bundle)
+    expected = {tuple(item.observation["group_ids"]): item for item in combined.outputs if item.channel == "path_distance"}
+    def forbidden(*args, **kwargs):
+        """Detect calculating the independent Euclidean reading inside route evaluation."""
+        pytest.fail("path-only producer called the Euclidean primitive")
+    monkeypatch.setattr(kernel, "_euclidean_reading", forbidden)
+    selected = ports.evaluate_path_port(bundle, parameters=distance_package.build_group_distance_parameter_snapshot(bundle),
+        store=store, free_space_ref=reference, free_space_validator=validator)
+    actual = {tuple(item.observation["group_ids"]): item for item in selected.raw_view.outputs}
+    assert actual and set(actual) == set(expected)
+    assert any(item.observation["value"] is not None for item in actual.values())
+    for pair, item in actual.items():
+        original = expected[pair]
+        assert item.status == original.status
+        assert {key: item.observation[key] for key in ("value", "raw_status", "distance")} == {
+            key: original.observation[key] for key in ("value", "raw_status", "distance")}
+    old_rows = {tuple(record.observation["group_ids"]): record.observation
+                for source in combined.source_envelopes for record in source.value["channels"]}
+    for source in selected.raw_view.source_envelopes:
+        row = source.value["channels"][0].observation
+        assert row["route"] == old_rows[tuple(row["group_ids"])]["route"]
+        original_lineage = old_rows[tuple(row["group_ids"])]["lineage"]
+        assert row["lineage"] == {**original_lineage, "group_source_refs": {
+            identity: kernel._ordered(refs) for identity, refs in original_lineage["group_source_refs"].items()}}
+
+
+def test_real_euclidean_excludes_route_only_inputs(retained_trial, stored_distance_free_space):
+    """Actual alternate lattice/ref samples preserve the independently cached centroids."""
+    import hashlib
+    from adapters import blender_analysis_result_wire as wire
+    from adapters import free_space_distance as bridge
+    from features.cache_paths import CacheAddress
+    from features import group_distance as kernel
+    from features import group_distance_output_ports as ports
+    from features.output_port_cache import OutputPortRef, load_raw_port, save_raw_port, selected_raw_bytes
+    from scripts.design.group_level.run_group_distance_free_space import load_json, retained_read_context
+    from .test_free_space_distance import RECEIPT, SOURCE
+    inputs, _, _ = retained_trial
+    store, reference, original_validator = stored_distance_free_space
+    bundle = inputs.bundle
+    parameters = distance_package.build_group_distance_parameter_snapshot(bundle)
+    baseline = ports.evaluate_euclidean_port(bundle, parameters=parameters)
+    assert all(item.observation["value"] is not None for item in baseline.raw_view.outputs)
+    assert ports.euclidean_port_contract(bundle, parameters=parameters) == baseline.contract
+    original_bytes = selected_raw_bytes(baseline.raw_view)
+    assert b"free_space" not in original_bytes and b"clearance" not in original_bytes
+    reordered = replace(bundle, groups=tuple(replace(group, source_refs=tuple(reversed(group.source_refs))) for group in reversed(bundle.groups)))
+    assert ports.evaluate_euclidean_port(reordered, parameters=parameters).ref == baseline.ref
+    path = ports.distance_port_contracts(bundle, parameters=parameters, free_space_ref=reference)["path_distance"]
+    entry = save_raw_port(store, baseline)
+    original_payload = entry.payload_paths[0].read_bytes()
+
+    # The accepted native variant changes real sampling, not merely an audit label.
+    directory = SOURCE.parent / "a1e511e865414d7a81ddab033af042a6"
+    native = load_json(directory / "request.json")
+    receipt = load_json(RECEIPT.with_name("native-free-codec-variant-publication.json"))
+    native_ref, context = retained_read_context(native, receipt)
+    payload = (directory / "result.json").read_bytes()
+    snapshot = wire.open_analysis_result([wire.load_json(payload.decode("utf-8"))], result_ref=native_ref, context=context)
+    changed = bridge.distance_input_from_free_space(snapshot, native)
+    validator = bridge.build_distance_free_space_validator(changed, native_request=native, context=context)
+    address = CacheAddress(kernel.fingerprint_evidence_dependency(changed.source_identity),
+                           "blender-analysis", "combined", "raw", native_ref.digest)
+    store.put(address, contract={"result_ref": wire.plain(changed.free_space_samples["result_ref"])},
+              payload=payload, payload_format="json", validator=validator)
+    alternate_ref = OutputPortRef(address.source_fingerprint, address.package_id, address.output_port,
+                                 address.identity, address.layer, hashlib.sha256(payload).hexdigest())
+    assert store.get(address, validator=validator) is not None
+    with pytest.raises(ValueError):
+        store.get(address, validator=original_validator)
+    assert changed.grid.spacing != bundle.grid.spacing
+    assert len(changed.free_space_samples["cells"]) != len(bundle.free_space_samples["cells"])
+    assert changed.query_context != bundle.query_context and alternate_ref != reference
+    assert kernel._saved_samples_error(changed) is None
+    original_inputs = kernel.group_distance_input_fingerprints(bundle)
+    alternate_inputs = kernel.group_distance_input_fingerprints(changed)
+    # Occupancy identity includes actual saved samples even when physical polygons agree.
+    assert changed.physical_occupancy == bundle.physical_occupancy
+    assert all(original_inputs[name] != alternate_inputs[name] for name in ("grid", "query", "occupancy"))
+
+    current = distance_package.build_group_distance_parameter_snapshot(changed)
+    contracts = ports.distance_port_contracts(changed, parameters=current, free_space_ref=alternate_ref)
+    assert contracts["path_distance"].identity != path.identity
+    assert contracts["euclidean_distance"] == baseline.contract
+    reused = load_raw_port(store, contracts["euclidean_distance"], requested_parameters=current)
+    assert reused is not None and reused.ref == baseline.ref
+    assert selected_raw_bytes(reused.raw_view) == original_bytes
+    assert entry.payload_paths[0].read_bytes() == original_payload
 
 
 @pytest.fixture(scope="module")
