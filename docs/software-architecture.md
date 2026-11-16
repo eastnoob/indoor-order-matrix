@@ -163,13 +163,24 @@ the repository. Portable source binding and narrowly verified legacy lookup
 compatibility address the historical absolute IFC locator and implementation
 hash coupling; the retained pre-A bytes and restart gates establish reuse.
 
-C starts with a fresh review of actual accepted A/B implementations. Its
-proposed semantic publications project inputs, parameters, payloads, processors
-and readers together; existing reference `port=raw/processed` keeps its meaning.
-Euclidean output and Euclidean modulation cannot inherit route/free-space
-dependencies. Completed intermediates stay a long-term design unless a concrete
-package need is accepted. No new runtime modules, sidecar migration or model
-recalculation is accepted by this planning entry.
+C Task 1 reviewed actual accepted A/B and passed the independent B regression
+gate. `features/output_port_cache.py` now owns frozen `OutputPortContract`,
+`OutputPortRef`, `RawPortPublication` and `PortRun`, exact selected-view binding,
+the `semantic-output-receipt/v1` raw envelope and B-backed raw save/load.
+Semantic kind and raw/processed layer are distinct; the historical channel
+reference `port=raw/processed` and original serializers remain unchanged.
+The contract binds exact target/channel pairs, selected parameter projection
+and full upstream references. Contract input identity, selected inner payload
+digest and outer stored-envelope digest remain separate. Loaders validate the
+original inner bytes before decoding, compare independently supplied current
+owner declarations, and restrict reuse/warnings to declared selected names while
+preserving the full historical audit. Native upstreams retain their owner codec.
+
+Package-specific distance/potential producers and selected processing remain
+subsequent C tasks at this checkpoint. Euclidean output and its modulation must
+exclude route/free-space dependencies. Completed intermediates remain design
+only unless a concrete package stage is separately accepted; C does not add a
+second storage backend or require model recalculation.
 
 ## Package-owned lifecycle — locally verified 2026-11-12
 
