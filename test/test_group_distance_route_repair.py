@@ -2,9 +2,11 @@
 
 from dataclasses import replace
 import json
+import math
 from types import SimpleNamespace
 
 from features import group_distance as kernel
+from features.field_core import FieldQuery
 from features.group_distance import GridDescriptor
 import networkx as nx
 import pytest
@@ -27,6 +29,44 @@ def _bundle(blocker=None):
         domain={"components": (_polygon(0.0, 0.0, 4.0, 4.0),)},
         physical_occupancy=occupancy,
     )
+
+
+def _checkpoint_fixture(*, shared_cell=False):
+    """Build real occupied footprints, owner accesses and a small accepted graph."""
+    geometry = _bundle()
+    domain = {"id": "checkpoint-domain", "frame": geometry.grid.frame, **geometry.domain}
+    target_bounds = (2.1, 1.1, 2.9, 1.9) if shared_cell else (3.1, 2.1, 3.9, 2.9)
+    groups = tuple(
+        kernel.GroupProjection(identity, (_polygon(*bounds),), ("source:" + identity,))
+        for identity, bounds in (("a", (.1, 1.1, .7, 1.7)), ("b", target_bounds))
+    )
+    occupancy = tuple(
+        {"id": group.group_id, "geometry_components": group.components,
+         "represented_source_ids": (group.group_id,), "representation_status": "original",
+         "representation_provenance": {"representation_identifier": "Analysis"}}
+        for group in groups
+    )
+    bundle = kernel.GroupDistanceInput(
+        source_identity={"id": "checkpoint-route-fixture"},
+        analysis_plane={"frame": geometry.grid.frame, "units": "m"},
+        domain=domain, grid=geometry.grid, groups=groups, physical_occupancy=occupancy,
+        unresolved_source_ids=(), unresolved_supports={},
+        query=FieldQuery(domain["id"], geometry.grid.frame),
+        query_context={"domain_id": domain["id"], "frame": geometry.grid.frame},
+        origin_offset=(0, 0), dependency_fingerprints={},
+    )
+    fingerprints = kernel.group_distance_input_fingerprints(bundle)
+    bundle = replace(
+        bundle,
+        grid=replace(bundle.grid, domain_fingerprint=fingerprints["domain"],
+                     occupancy_fingerprint=fingerprints["occupancy"]),
+        query_context={**bundle.query_context,
+                       "analysis_plane_fingerprint": fingerprints["analysis_plane"]},
+    )
+    bundle = replace(bundle, dependency_fingerprints=kernel.group_distance_input_fingerprints(bundle))
+    baseline = {"observations": [{"group_ids": ["a", "b"]}]}
+    policy = {"min_left_m": .2, "min_right_m": .2, "min_total_m": .5}
+    return bundle, baseline, policy
 
 
 def test_route_repair_accepts_clear_route():
@@ -187,45 +227,234 @@ def test_unbound_or_foreign_checkpoint_never_marks_source_complete():
         source_id="a", wanted_pairs=(("a", "b"),))
 
 
-def test_global_checkpoint_guard_controls_actual_source_search(tmp_path, monkeypatch):
-    """Only complete, matching receipts skip a source after policy changes."""
+@pytest.mark.parametrize("shared_cell", [False, True])
+def test_global_checkpoint_guard_controls_actual_source_search(tmp_path, monkeypatch, shared_cell):
+    """Real diagonal and endpoint-only receipts skip search until policy changes."""
     from features import group_distance_repair as repair
-    from .test_group_distance import _missing_bundle
 
-    geometry = _bundle()
-    original = _missing_bundle()
-    bundle = replace(original, grid=geometry.grid, domain=geometry.domain,
-                     physical_occupancy=())
-    source, target = (group.group_id for group in bundle.groups[:2])
-    baseline = {"observations": [{"group_ids": [source, target]}]}
-    policy = {"min_left_m": .2, "min_right_m": .2, "min_total_m": .5}
-    cells = ((1, 1), (1, 2))
-    access = {"free_cell": cells[0], "offset": 0.0}
+    bundle, baseline, policy = _checkpoint_fixture(shared_cell=shared_cell)
+    source, target = baseline["observations"][0]["group_ids"]
     calls = []
-    monkeypatch.setattr(repair.kernel, "_graphs",
-                        lambda *args: ({}, nx.Graph(), nx.Graph(), {}))
-    monkeypatch.setattr(repair, "_access_candidates_for_group",
-                        lambda *args: (access,))
+    original_search = repair._global_source_search
 
     def search(graph, source_accesses, target_accesses, context):
-        """Return one fully shaped route without invoking a graph search."""
+        """Count the actual search while retaining current graph and geometry behavior."""
         calls.append(tuple(context["thresholds"]))
-        return {target: {"value": 1.0, "cell_keys": cells,
-                         "state_keys": ((cells[0], None), (cells[1], (1.0, 0.0))),
-                         "source_access": access, "target_access": access}}
+        return original_search(graph, source_accesses, target_accesses, context)
 
     monkeypatch.setattr(repair, "_global_source_search", search)
     old = tmp_path / "source_000.json"
     old.write_text(json.dumps({"source_index": 0, "source_id": source,
                                "results": []}), encoding="utf-8")
     retained = old.read_bytes()
-    repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    first = repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    assert first["quality_counts"]["exact_route_verified"] == 1
+    witness = first["observations"][0]["directional_repair"]["exact_witness"]
+    assert len(witness["cell_keys"]) == (1 if shared_cell else 2)
     assert len(calls) == 1 and old.read_bytes() == retained
     repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
     assert len(calls) == 1 and old.read_bytes() == retained
     repair.global_repair_result(bundle, baseline,
                                 {**policy, "min_total_m": .8}, checkpoint_dir=tmp_path)
     assert len(calls) == 2 and old.read_bytes() == retained
+
+
+@pytest.mark.parametrize("damage", [
+    "in_grid_cell", "out_of_grid_cell", "nonadjacent", "diagonal_corner",
+    "source_heading", "movement_heading", "source_offset", "target_offset",
+    "source_endpoint", "target_endpoint", "source_owner", "target_owner",
+    "access_key", "route_value", "edge_witness", "turn_witness", "minimum",
+    "forged_failure",
+])
+def test_semantically_tampered_checkpoint_runs_search_and_retains_bytes(tmp_path, monkeypatch, damage):
+    """Well-typed route forgeries must miss admission and execute the real search."""
+    from features import group_distance_repair as repair
+
+    bundle, baseline, policy = _checkpoint_fixture()
+    calls = []
+    original_search = repair._global_source_search
+
+    def search(*args, **kwargs):
+        """Observe the real search seam without replacing graph or access facts."""
+        calls.append(1)
+        return original_search(*args, **kwargs)
+
+    monkeypatch.setattr(repair, "_global_source_search", search)
+    original = repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    assert original["quality_counts"]["exact_route_verified"] == 1
+    checkpoint, = tmp_path.glob("source_*.json")
+    payload = json.loads(checkpoint.read_text(encoding="utf-8"))
+    item = payload["results"][0]
+    route, exact = item["route"], item["exact"]
+    path = tuple(tuple(cell) for cell in route["cell_keys"])
+    assert path == ((1, 1), (2, 2))
+
+    if damage in {"nonadjacent", "diagonal_corner", "source_endpoint", "target_endpoint"}:
+        context = repair._clearance_context(bundle, policy)
+        samples, graph, _, frontier = kernel._graphs(bundle, context["domain"])
+        owners = {
+            group.group_id: repair._access_candidates_for_group(
+                bundle, group.group_id, context["domain"], samples, frontier)
+            for group in bundle.groups
+        }
+        if damage == "nonadjacent":
+            path = ((0, 0), (3, 3))
+            assert path[1] not in kernel._route_neighbors(path[0], bundle.grid)
+        elif damage == "diagonal_corner":
+            path = ((0, 0), (1, 1), (2, 2))
+            assert path[1] in kernel._route_neighbors(path[0], bundle.grid)
+            assert (1, 0) not in graph
+            assert not graph.has_edge(path[0], path[1])
+        source_cell = (0, 0) if damage == "source_endpoint" else path[0]
+        target_cell = (3, 3) if damage == "target_endpoint" else path[-1]
+        source = next(access for access in owners["a"] if access["free_cell"] == source_cell)
+        target = next(access for access in owners["b"] if access["free_cell"] == target_cell)
+        # Keep other route facts genuine so topology and endpoint checks carry the rejection.
+        value = float(source["offset"])
+        for first, second in zip(path, path[1:]):
+            value += math.dist(kernel._center(first, bundle.grid), kernel._center(second, bundle.grid))
+        value += float(target["offset"])
+        route.update(
+            value=value, cell_keys=path, source_access=source, target_access=target,
+            state_keys=((path[0], source["heading"]),)
+            + tuple(zip(path[1:], repair._path_headings(path, bundle.grid))),
+        )
+        item["exact"] = repair._exact_path(path, context, source, target)
+    elif damage in {"in_grid_cell", "out_of_grid_cell"}:
+        cell = [1, 0] if damage == "in_grid_cell" else [bundle.grid.n_rows, bundle.grid.n_cols]
+        route["cell_keys"][0] = cell
+        route["state_keys"][0][0] = cell
+    elif damage == "source_heading":
+        route["state_keys"][0][1] = [-1.0, 0.0]
+    elif damage == "movement_heading":
+        route["state_keys"][1][1] = [1.0, 0.0]
+    elif damage in {"source_offset", "target_offset"}:
+        route[damage.replace("_offset", "_access")]["offset"] += .125
+        route["value"] += .125
+    elif damage in {"source_owner", "target_owner"}:
+        route[damage.replace("_owner", "_access")]["group_id"] = (
+            "b" if damage == "source_owner" else "a")
+    elif damage == "access_key":
+        route["source_access"]["access_key"][0] = "b"
+    elif damage == "route_value":
+        route["value"] = math.nextafter(route["value"], math.inf)
+    elif damage == "edge_witness":
+        exact["edge_witnesses"][0]["limiting_position_m"] += .125
+    elif damage == "turn_witness":
+        exact["turn_witnesses"][0]["limiting_angle_fraction"] += .125
+    elif damage == "minimum":
+        for witness in exact["edge_witnesses"] + exact["turn_witnesses"]:
+            witness["min_left_m"] += .125
+        exact["minimum_m"]["left"] += .125
+    else:
+        item["exact"] = {
+            "passed": False,
+            "failure": {"kind": "edge", "from": path[0], "to": path[1]},
+            "edge_witnesses": [], "turn_witnesses": [],
+        }
+
+    assert repair._checkpoint_matches(
+        payload, fingerprint=original["checkpoint_fingerprint"], source_index=0,
+        source_id="a", wanted_pairs=(("a", "b"),))
+    rejected_bytes = json.dumps(payload, sort_keys=True).encode("utf-8")
+    checkpoint.write_bytes(rejected_bytes)
+    restored = repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    assert len(calls) == 2
+    assert restored["observations"] == original["observations"]
+    rejected, = tmp_path.glob("*.rejected-*.json")
+    assert rejected.read_bytes() == rejected_bytes
+    assert checkpoint.read_bytes() != rejected_bytes
+    repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize("damage", [None, "pass", "failure", "witness"])
+def test_checkpoint_failure_evidence_is_rechecked_under_current_policy(tmp_path, monkeypatch, damage):
+    """A genuine failed route may be reused, but forged pass or failure evidence may not."""
+    from features import group_distance_repair as repair
+
+    bundle, baseline, policy = _checkpoint_fixture()
+    repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    checkpoint, = tmp_path.glob("source_*.json")
+    payload = json.loads(checkpoint.read_text(encoding="utf-8"))
+    item = payload["results"][0]
+    passed_exact = item["exact"]
+    route = item["route"]
+    path = tuple(tuple(cell) for cell in route["cell_keys"])
+    current_policy = {**policy, "min_total_m": 100.0}
+    exact = repair._exact_path(
+        path, repair._clearance_context(bundle, current_policy),
+        route["source_access"], route["target_access"])
+    assert exact["passed"] is False
+    item["exact"] = json.loads(json.dumps(exact))
+    if damage == "pass":
+        item["exact"] = passed_exact
+    elif damage == "failure":
+        item["exact"]["failure"]["to"] = item["exact"]["failure"]["from"]
+    elif damage == "witness":
+        item["exact"]["edge_witnesses"] = passed_exact["edge_witnesses"]
+    fingerprint = repair._checkpoint_fingerprint(bundle, baseline, current_policy)
+    payload["checkpoint_fingerprint"] = fingerprint
+    assert repair._checkpoint_matches(
+        payload, fingerprint=fingerprint, source_index=0, source_id="a",
+        wanted_pairs=(("a", "b"),))
+    current_checkpoint = tmp_path / f"source_000-{fingerprint}.json"
+    retained = json.dumps(payload, sort_keys=True).encode("utf-8")
+    current_checkpoint.write_bytes(retained)
+    calls = []
+    original_search = repair._global_source_search
+
+    def search(*args, **kwargs):
+        """Count real policy-constrained search after checkpoint admission."""
+        calls.append(1)
+        return original_search(*args, **kwargs)
+
+    monkeypatch.setattr(repair, "_global_source_search", search)
+    result = repair.global_repair_result(
+        bundle, baseline, current_policy, checkpoint_dir=tmp_path)
+    assert len(calls) == (0 if damage is None else 1)
+    reading = result["observations"][0]["directional_repair"]
+    assert reading["quality"] == "unresolved_global"
+    if damage is None:
+        assert reading["failed_checks"] == json.loads(json.dumps([exact["failure"]]))
+        assert current_checkpoint.read_bytes() == retained
+    else:
+        rejected, = tmp_path.glob("*.rejected-*.json")
+        assert rejected.read_bytes() == retained
+
+
+def test_semantic_checkpoint_retention_failure_prevents_publication(tmp_path, monkeypatch):
+    """A structurally valid forgery must survive unchanged when retention fails."""
+    from pathlib import Path
+    from features import group_distance_repair as repair
+
+    bundle, baseline, policy = _checkpoint_fixture()
+    result = repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    checkpoint, = tmp_path.glob("source_*.json")
+    payload = json.loads(checkpoint.read_text(encoding="utf-8"))
+    route = payload["results"][0]["route"]
+    route["value"] = math.nextafter(route["value"], math.inf)
+    assert repair._checkpoint_matches(
+        payload, fingerprint=result["checkpoint_fingerprint"], source_index=0,
+        source_id="a", wanted_pairs=(("a", "b"),))
+    retained = json.dumps(payload, sort_keys=True).encode("utf-8")
+    checkpoint.write_bytes(retained)
+    replace_path = Path.replace
+    attempts = []
+
+    def refuse_retention(path, destination):
+        """Refuse retention while leaving an accidental publication detectable."""
+        if path == checkpoint:
+            attempts.append(destination)
+            raise OSError("rejected retention refused")
+        return replace_path(path, destination)
+
+    monkeypatch.setattr(Path, "replace", refuse_retention)
+    with pytest.raises(OSError, match="cannot retain rejected checkpoint"):
+        repair.global_repair_result(bundle, baseline, policy, checkpoint_dir=tmp_path)
+    assert attempts
+    assert checkpoint.read_bytes() == retained
+    assert not list(tmp_path.glob("*.tmp"))
 
 
 @pytest.mark.parametrize("damage", [

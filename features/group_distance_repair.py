@@ -198,6 +198,52 @@ def _checkpoint_matches(payload: Mapping[str, Any], *, fingerprint: str, source_
     return seen == wanted
 
 
+def _checkpoint_routes_match(payload: Mapping[str, Any], graph: nx.Graph,
+                             accesses: Mapping[str, tuple[dict, ...]], context: dict) -> bool:
+    """Replay structurally admitted routes against current graph, accesses and geometry."""
+    grid = context["bundle"].grid
+    try:
+        # Full current owner records bind offsets and interfaces across JSON round trips.
+        by_group = {
+            group_id: {fingerprint_evidence_dependency(access): access for access in candidates}
+            for group_id, candidates in accesses.items()
+        }
+        for item in payload["results"]:
+            source_id, target_id = item["key"]
+            route = item["route"]
+            source = by_group[source_id].get(fingerprint_evidence_dependency(route["source_access"]))
+            target = by_group[target_id].get(fingerprint_evidence_dependency(route["target_access"]))
+            if source is None or target is None:
+                return False
+            path = tuple(tuple(cell) for cell in route["cell_keys"])
+            if any(cell not in graph for cell in path):
+                return False
+            if tuple(source["free_cell"]) != path[0] or tuple(target["free_cell"]) != path[-1]:
+                return False
+            for first, second in pairwise(path):
+                if second not in kernel._route_neighbors(first, grid) or not graph.has_edge(first, second):
+                    return False
+                if first[0] != second[0] and first[1] != second[1]:
+                    if any(guard not in graph for guard in (
+                            (first[0], second[1]), (second[0], first[1]))):
+                        return False
+            states = ((path[0], tuple(source.get("heading", ()))),) + tuple(
+                zip(path[1:], _path_headings(path, grid)))
+            if fingerprint_evidence_dependency(route["state_keys"]) != fingerprint_evidence_dependency(states):
+                return False
+            kernel._arithmetic(
+                float(source["offset"]),
+                tuple(float(graph[first][second]["weight"]) for first, second in pairwise(path)),
+                float(target["offset"]), float(route["value"]))
+            # Recheck only the saved route; claimed clearance evidence cannot authorize reuse.
+            exact = _exact_path(path, context, source, target)
+            if fingerprint_evidence_dependency(item["exact"]) != fingerprint_evidence_dependency(exact):
+                return False
+    except (ArithmeticError, KeyError, TypeError, ValueError):
+        return False
+    return True
+
+
 def _write_checkpoint(checkpoint_dir: Path, source_index: int, source_id: str,
                       fingerprint: str, wanted_pairs: tuple[tuple[str, str], ...],
                       results: list[Mapping[str, Any]]) -> None:
@@ -980,7 +1026,8 @@ def global_repair_result(bundle: Any, baseline: Mapping[str, Any], policy: Mappi
             if ".rejected-" in checkpoint.stem:
                 continue
             try:
-                payload = json.loads(checkpoint.read_text(encoding="utf-8"))
+                existing = checkpoint.read_bytes()
+                payload = json.loads(existing.decode("utf-8"))
                 source_index = payload["source_index"]
                 if (isinstance(source_index, bool) or not isinstance(source_index, int)
                         or not 0 <= source_index < len(groups) - 1):
@@ -993,13 +1040,29 @@ def global_repair_result(bundle: Any, baseline: Mapping[str, Any], policy: Mappi
                                            source_index=source_index, source_id=source_id,
                                            wanted_pairs=source_pairs):
                     continue
-                for item in payload.get("results", ()):
-                    key = tuple(item["key"])
-                    results[key] = {"route": item["route"], "exact": item["exact"]}
-                completed_sources.add(source_index)
+                current_accesses = {
+                    group_id: get_access(group_id)
+                    for group_id in (source_id, *target_ids)
+                }
+                routes_match = _checkpoint_routes_match(
+                    payload, observed, current_accesses, context)
             except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
                 # A partial or malformed checkpoint is ignored and recomputed.
                 continue
+            if not routes_match:
+                rejected = checkpoint.with_name(
+                    checkpoint.stem + ".rejected-" + hashlib.sha256(existing).hexdigest()[:16] + checkpoint.suffix
+                )
+                # Retention failures must escape the read-miss handler before publication.
+                try:
+                    checkpoint.replace(rejected)
+                except OSError as exc:
+                    raise OSError("cannot retain rejected checkpoint") from exc
+                continue
+            for item in payload["results"]:
+                key = tuple(item["key"])
+                results[key] = {"route": item["route"], "exact": item["exact"]}
+            completed_sources.add(source_index)
     for index, source_id in enumerate(groups[:-1]):
         if index in completed_sources:
             continue
