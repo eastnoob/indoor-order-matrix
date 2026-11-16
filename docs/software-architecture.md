@@ -1,24 +1,59 @@
 # 软件架构
 
-## Package parameters and model-side cache — planned 2026-11-15
+## Package parameters and model-side cache — Plan A locally verified 2026-11-16
 
 The approved [master design](superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md)
 has sequential [Plan A](superpowers/plans/2026-11-15-package-owned-parameters.md),
 [Plan B](superpowers/plans/2026-11-15-model-side-cache-store-migration.md), and
 [Plan C](superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md).
-These documents describe pending changes; they do not replace the implemented
-lifecycle below. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
+Plan A Tasks 1–4 have accepted checkpoints in commits `bba814f87fda68f1778e5c43c073b797b0d1e24e`,
+`8ebe4e5b7e2d7eb2fddc95f5330cfa52befbda02`,
+`7f521c903c688885454359f446b260f89505a4d1`, and
+`418be9199f73f38443f499549eed4dfcab677933`, after the preflight fixture
+checkpoint `9d39d27032752a61ac98c73a1015152d4f48c614`. Final A implementation `92ff7d521415c95d505c2e35eca60781e09b7f96`
+passes 533/533 required tests and independent SPEC/QUALITY review; it implements the typed parameter/receipt layer described below; Plan B
+and Plan C remain planned work. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
 owns workline identities, review evidence, recovery and scope limits.
 Its 2026-11-16 acceptance audit also fixes required-node/outcome evidence,
 real-runner numerical/concurrency checks, fresh-process migration and immutable
 stage handoffs; these are execution gates, not new runtime components.
 
-A proposes an independent `features/evidence_package_parameters.py` for owner
-schemas, frozen effective/calculated snapshots and computation-impact projection.
-Existing package contracts and storage loaders would carry historical parameter
-status through cache hits, preserving legacy wire bytes and package ownership.
-Opening variable clearance CLI inputs requires a fail-closed checkpoint guard
-in A, before B adds validated checkpoint migration/resumption.
+### Task 5 acceptance repair — retained distance adoption and axis readback
+
+The retained IFC distance runner now handles the known pre-A publication
+boundary explicitly. It independently rebuilds the legacy untyped contract
+from the current authenticated bundle, requires every non-parameter contract
+field to match byte-pinned history, and then uses
+reconstruct_legacy_group_distance_contract to attest the historical parameter
+values with authenticated-retained-bundle sources. The saved contract remains
+historical; adoption metadata preserves its origin and calculated/requested
+parameter values. A mismatch in query, algorithm, target, source, schema or
+artifact identity remains a miss/error and cannot be made fresh by adoption.
+
+The axis distance-modulation runner receives that adopted historical contract,
+the independently rebuilt current contract, and the independently rebuilt
+source envelopes from the distance loader. Its second saved readback therefore
+retains the strict current-source comparison and does not compare a saved
+contract with itself. The retained package bytes and all fixed source hashes
+are unchanged.
+
+The final A prerequisite also validates saved repair routes against the current
+accepted graph (including diagonal guards), current owner accesses, movement
+headings, exact arithmetic replay and a fresh route-only geometry check.
+Rejected semantic bytes are retained before replacement; retention errors abort
+publication. Valid checkpoints still avoid source search. Final complete acceptance passed 533/533 nodes with all 315 frozen hashes
+unchanged; independent review is SPEC PASS / QUALITY APPROVED. The earlier
+509-node candidate was preserved but not accepted before this repair.
+
+A provides an independent `features/evidence_package_parameters.py` for owner
+schemas, frozen effective/calculated snapshots, computation-impact projection,
+typed raw/processed lookup metadata, and strict explicit legacy adoption.
+The accepted owners are `free_space`, `group-walk-distance`, and
+`group-axis-potential`; authenticated free-space lookup verifies the HMAC and
+document before shared parameter comparison. Opening variable clearance CLI
+inputs is protected by the accepted fail-closed checkpoint guard. A does not
+provide the model-side CacheStore, sidecar migration, locking, output-port
+split, or intermediate persistence.
 
 B proposes `features/cache_paths.py` and `features/cache_store.py` as storage
 infrastructure, below package semantics. The model-side root holds namespaced

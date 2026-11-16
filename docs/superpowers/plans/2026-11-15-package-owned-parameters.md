@@ -1,6 +1,6 @@
 # Package-Owned Parameters Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [x]) syntax for tracking.
 
 **Goal:** Add typed package-owned parameters and auditable receipts while reusing validated historical results wherever their calculated values can be proved.
 
@@ -47,8 +47,8 @@
 
 ### Preflight: Retain real receipts before changing parameter identities
 
-- [ ] Record the workspace, accepted pre-A commit and dirty-file manifest before any A implementation. Create `test/fixtures/cache_migration/pre_parameter_sidecar/` from small, already calculated legacy raw, processed, authenticated free-space and Blender-wire test receipts. Prefer exact existing bytes; if a family has no suitable small test artifact, run the unchanged pre-A implementation once on an existing tiny test fixture with an independent test key before any source edit. This is a true pre-refactor baseline, and does not rerun a large model. Keep each receipt's old filename/key, relative artifact address and verification metadata. Save a `manifest.json` with SHA-256, original schema/key, producer/backend versions, implementation-file hashes, source bindings and test authentication domain for every retained file. Never copy a real user/production sidecar secret into the repository; use only established test-domain credentials or the independently created tiny-fixture test key, retained through the project's approved test fixture mechanism. Never include secret values in the manifest. Record unavailable families explicitly rather than presenting a post-refactor receipt as historical evidence. These fixtures are required for Plan B's no-recompute migration acceptance because A/B refactoring can change implementation-derived keys even when geometry/effective parameters are unchanged.
-- [ ] Verify the retained digests and original readers before changing code, then retain the fixture and manifest in the first nonempty A checkpoint. The A handoff names this directory and the exact pre-A revision. This preservation step authorizes only tiny test baselines where necessary, not large-model recomputation or production credential copying.
+- [x] Record the workspace, accepted pre-A commit and dirty-file manifest before any A implementation. Create `test/fixtures/cache_migration/pre_parameter_sidecar/` from small, already calculated legacy raw, processed, authenticated free-space and Blender-wire test receipts. Prefer exact existing bytes; if a family has no suitable small test artifact, run the unchanged pre-A implementation once on an existing tiny test fixture with an independent test key before any source edit. This is a true pre-refactor baseline, and does not rerun a large model. Keep each receipt's old filename/key, relative artifact address and verification metadata. Save a `manifest.json` with SHA-256, original schema/key, producer/backend versions, implementation-file hashes, source bindings and test authentication domain for every retained file. Never copy a real user/production sidecar secret into the repository; use only established test-domain credentials or the independently created tiny-fixture test key, retained through the project's approved test fixture mechanism. Never include secret values in the manifest. Record unavailable families explicitly rather than presenting a post-refactor receipt as historical evidence. These fixtures are required for Plan B's no-recompute migration acceptance because A/B refactoring can change implementation-derived keys even when geometry/effective parameters are unchanged.
+- [x] Verify the retained digests and original readers before changing code, then retain the fixture and manifest in the first nonempty A checkpoint. The A handoff names this directory and the exact pre-A revision. This preservation step authorizes only tiny test baselines where necessary, not large-model recomputation or production credential copying.
 
 ### Task 1: Schema, immutable snapshot and impact projection
 
@@ -128,7 +128,7 @@ REQUIRED is a module-owned sentinel. Requiredness, nullable and default are inde
 
 parameter_value_contracts stores only each field's restricted type tag, nullable boolean and canonical unit; it never stores today's default. The fixed tags are str, bool, int, float, dict, tuple and none. No class names, dynamic imports, arbitrary deserialization or global schema registry are introduced. Historical self-description is insufficient for current reuse: the requested snapshot is independently produced by the current owner schema, and comparison checks schema ID, complete field set, impacts and type/unit/nullable declarations before accepting the saved values.
 
-- [ ] **Step 1: Record the checkpoint manifest and write these failing tests.**
+- [x] **Step 1: Record the checkpoint manifest and write these failing tests.**
 
 ~~~python
 from dataclasses import replace
@@ -238,9 +238,9 @@ def test_saved_value_contract_cannot_reclassify_current_calculation_fields():
         ParameterSnapshot.from_json(malformed)
 ~~~
 
-- [ ] **Step 2: Run RED.** Run pixi run pytest test/test_evidence_package_parameters.py -q. Record the missing-module/type or failed assertion before implementation.
+- [x] **Step 2: Run RED.** Run pixi run pytest test/test_evidence_package_parameters.py -q. Record the missing-module/type or failed assertion before implementation.
 
-- [ ] **Step 3: Implement declaration validation, resolution, freeze and projection.**
+- [x] **Step 3: Implement declaration validation, resolution, freeze and projection.**
 
 Keep standard-library JSON/hash/freeze helpers inside this small module. It must not import field_core if field_core imports it. Reject arbitrary Python objects, nonstring map keys, nonfinite numbers and unit-bearing mappings supplied to numeric specs. Normalize int to float for a float specification and -0.0 to 0.0. Validate duplicate names, supported type declarations, finite bounds, nonempty units/choices and nonempty string source labels; never coerce a source with str().
 
@@ -307,8 +307,8 @@ from_json requires the exact snapshot keys, identical effective/calculated/sourc
 
 Warning records contain parameter, calculated, requested and impact. Warning differences use reuse_with_warning/exact_match=False; computation differences use recompute_required=True. metadata_only differences neither warn nor rewrite historical values.
 
-- [ ] **Step 4: Run GREEN.** Run the focused file. Add corruption, duplicate-name, choices, source-map, nested freeze and key-order tests. Expect PASS.
-- [ ] **Step 5: Inspect jj status, jj diff --stat and jj diff --git; commit nonempty changes with jj commit -m "feat: add typed package parameter snapshots". Record the resulting accepted parent.**
+- [x] **Step 4: Run GREEN.** Run the focused file. Add corruption, duplicate-name, choices, source-map, nested freeze and key-order tests. Expect PASS.
+- [x] **Step 5: Inspect jj status, jj diff --stat and jj diff --git; commit nonempty changes with jj commit -m "feat: add typed package parameter snapshots". Record the resulting accepted parent.**
 
 ---
 
@@ -326,7 +326,7 @@ Warning records contain parameter, calculated, requested and impact. Warning dif
 - Keep callback signature unchanged. processing_identity and processed_cache_key use the same projection.
 - Missing snapshot remains a legacy record. When None, omit the new serialized field and retain historical identity bytes.
 
-- [ ] **Step 1: Record manifest and add failing tests using existing _raw, _package and _process in test_evidence_package_processing.py.**
+- [x] **Step 1: Record manifest and add failing tests using existing _raw, _package and _process in test_evidence_package_processing.py.**
 
 ~~~python
 def test_typed_processor_sources_identity_and_roundtrip():
@@ -364,8 +364,8 @@ def test_legacy_processed_receipt_keeps_legacy_attestation():
     assert core.serialize_evidence_processed_output(restored) == old
 ~~~
 
-- [ ] **Step 2: Run RED.** Run pixi run pytest test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py -q.
-- [ ] **Step 3: Resolve typed parameters once, pass full effective values to callbacks, bind the saved snapshot to success/error outcomes, and reject snapshot/package mismatch.**
+- [x] **Step 2: Run RED.** Run pixi run pytest test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py -q.
+- [x] **Step 3: Resolve typed parameters once, pass full effective values to callbacks, bind the saved snapshot to success/error outcomes, and reject snapshot/package mismatch.**
 
 Use identity_payload for typed processors and preserve the old parameters payload for legacy processors. Do not append a None key to old identity payloads.
 
@@ -378,7 +378,7 @@ else:
 
 The result property uses self.parameter_snapshot equivalently. Add a regression that processed_cache_key equals actual processing_identity without invoking the callback.
 
-- [ ] **Step 4: Extend serialization/readback while preserving old bytes.**
+- [x] **Step 4: Extend serialization/readback while preserving old bytes.**
 
 ~~~python
 serialized = _json_value(result)
@@ -390,8 +390,8 @@ else:
 
 Do this before payload_fingerprint. Readback checks transport fingerprint before decoding optional ParameterSnapshot.from_json, verifies effective values equal the parameters field, and never expands defaults.
 
-- [ ] **Step 5: Run GREEN.** Run pixi run pytest test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_saved_processed_consumer.py -q. Expect PASS including existing pinned legacy identities.
-- [ ] **Step 6: Inspect diff and commit with jj commit -m "feat: record typed processor parameters in receipts".**
+- [x] **Step 5: Run GREEN.** Run pixi run pytest test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_saved_processed_consumer.py -q. Expect PASS including existing pinned legacy identities.
+- [x] **Step 6: Inspect diff and commit with jj commit -m "feat: record typed processor parameters in receipts".**
 
 ---
 
@@ -421,7 +421,7 @@ Do this before payload_fingerprint. Readback checks transport fingerprint before
 - scripts/design/group_level/run_group_distance_global_source.py adds build_parser() -> argparse.ArgumentParser and resolve_clearance_cli_parameters(args: argparse.Namespace) -> ParameterSnapshot. The CLI flags default to None; the package schema supplies omitted values.
 - features/group_distance_repair.py adds _checkpoint_fingerprint(bundle, baseline, policy, *, pair_limit=None) -> str and _checkpoint_matches(payload, *, fingerprint, source_index, source_id, wanted_pairs) -> bool. All checkpoint writer branches include the same schema and input/policy/method binding; absent/foreign bindings are never resumed.
 
-- [ ] **Step 1: Record manifest and add failing tests using existing _contract in test_evidence_package_freshness.py.**
+- [x] **Step 1: Record manifest and add failing tests using existing _contract in test_evidence_package_freshness.py.**
 
 ~~~python
 def test_contract_warning_retains_historical_calculated_values():
@@ -475,8 +475,8 @@ def test_free_space_snapshot_captures_required_request_geometry():
         package_module.build_free_space_parameter_snapshot(incomplete)
 ~~~
 
-- [ ] **Step 2: Run RED.** Run pixi run pytest test/test_evidence_package_freshness.py test/test_free_space_evidence_package.py -q.
-- [ ] **Step 3: Add optional snapshot validation and typed status.**
+- [x] **Step 2: Run RED.** Run pixi run pytest test/test_evidence_package_freshness.py test/test_free_space_evidence_package.py -q.
+- [x] **Step 3: Add optional snapshot validation and typed status.**
 
 ~~~python
 if parameter_snapshot is not None:
@@ -489,7 +489,7 @@ if parameter_snapshot is not None:
 
 Validate saved snapshots through from_json. Missing snapshot on one side reports parameter_snapshot_missing, exact_match=False and no typed hit. Warning mismatch keeps evidence usable but explicitly warns; computation/schema mismatch reports parameters_changed and recompute_required=True.
 
-- [ ] **Step 4: Declare each owner's exact semantics.**
+- [x] **Step 4: Declare each owner's exact semantics.**
 
 Distance keeps clearance_policy=None as unconstrained mode; do not silently replace it with .225/.225/.55. For explicitly constrained mode a frozen owner config exposes defaults min_left_m=.225, min_right_m=.225, min_total_m=.55, validates exact key set and finite nonnegative numbers, then uses actual bundle or validated repair values. Snapshot includes mode; unconstrained thresholds do not become hidden effective algorithm inputs. Upstream saved repair policy stays immutable.
 
@@ -657,8 +657,8 @@ def test_global_checkpoint_guard_controls_actual_source_search(tmp_path, monkeyp
     assert len(calls) == 2 and old.read_bytes() == retained
 ~~~
 
-- [ ] **Step 5: Run GREEN.** Run pixi run pytest test/test_evidence_package_freshness.py test/test_group_distance_evidence_package.py test/test_group_distance_clearance.py test/test_group_distance_route_repair.py test/test_free_space_evidence_package.py test/test_group_axis_distance_modulation.py -q. Expect PASS.
-- [ ] **Step 6: Inspect diff and commit with jj commit -m "feat: bind package contracts to owned parameter snapshots".**
+- [x] **Step 5: Run GREEN.** Run pixi run pytest test/test_evidence_package_freshness.py test/test_group_distance_evidence_package.py test/test_group_distance_clearance.py test/test_group_distance_route_repair.py test/test_free_space_evidence_package.py test/test_group_axis_distance_modulation.py -q. Expect PASS.
+- [x] **Step 6: Inspect diff and commit with jj commit -m "feat: bind package contracts to owned parameter snapshots".**
 
 ---
 
@@ -730,7 +730,7 @@ def load_processed_output(path, *, raw_output, processor):
 - Preserve every public top-level runner result key. Put raw status under cache_status["parameter_status"], processed status under cache_status["processed_parameter_status"], and origin under cache_status["reuse_origin"] / cache_status["processed_reuse_origin"]. Adoption origin uses mode="adopted_legacy" and forces exact_match=False while retaining any warning records.
 - Free space retains its authenticated adapters: add AuthenticatedFreeSpaceLookup(document, cached_contract, parameter_status, reuse_origin), _read_cache_entry(path, cache_key, secret, *, expected_parameter_snapshot=None, legacy_adopter=None), and _read_processed_cache_entry(path, *, raw_output, processor, secret, legacy_path=None, legacy_processed_adopter=None). Existing _read_cache/_read_processed_cache wrappers continue returning the old document/output shape. The new adapter entries authenticate the complete existing HMAC envelope before document decoding, historical reconstruction or shared parameter comparison. They must not pass an authenticated path directly to the ordinary unsigned JSON loader. Freeze the historical document/contract; the runner uses a detached wire.plain copy for publication-revision rebinding and retains the original receipt in cache_status. Ordinary raw lookup cannot replace this document-based storage boundary.
 
-- [ ] **Step 1: Record manifest and add failing no-recompute tests with existing _missing_bundle and _forbidden in test_evidence_package_lifecycle.py.**
+- [x] **Step 1: Record manifest and add failing no-recompute tests with existing _missing_bundle and _forbidden in test_evidence_package_lifecycle.py.**
 
 ~~~python
 def test_parameter_source_change_does_not_recalculate_distance(tmp_path, monkeypatch):
@@ -811,8 +811,8 @@ def test_missing_snapshot_cannot_attest_exact_typed_match():
         item["code"] for item in status["reasons"]}
 ~~~
 
-- [ ] **Step 2: Run RED.** Run pixi run pytest test/test_evidence_package_lifecycle.py test/test_evidence_package_freshness.py -q.
-- [ ] **Step 3: Implement verified identity-bearing matching, retaining full audit receipts.**
+- [x] **Step 2: Run RED.** Run pixi run pytest test/test_evidence_package_lifecycle.py test/test_evidence_package_freshness.py -q.
+- [x] **Step 3: Implement verified identity-bearing matching, retaining full audit receipts.**
 
 Keep current producer/version, source-content, query/dependency and payload validation. First verify each receipt fingerprint and declared key against its own saved contract/legacy identity. A typed hit additionally requires the independently requested computation key to match. Full contract dict equality must not gate reuse because source/audit metadata can differ. Delegate snapshot comparison to the independently current owner declaration; do not trust saved impacts to omit current calculation fields. The legacy branch is opt-in and owner-specific:
 
@@ -882,7 +882,7 @@ def reconstruct_legacy_processed_snapshot(saved_output, processor):
 
 A leaves adopted legacy files unchanged and repeats their verified lookup on later calls; do not persist an unaudited typed copy that loses adoption origin. Typed ordinary misses may use the existing writers. B owns durable migrated receipt shells and discovery of old variants whose exact keys cannot be derived. It must exercise the pre-A real fixtures retained at preflight.
 
-- [ ] **Step 4: Add actual 1 -> 2 -> 1 and adoption regressions.**
+- [x] **Step 4: Add actual 1 -> 2 -> 1 and adoption regressions.**
 
 Add these lifecycle tests using the existing _processor factory and actual run entries:
 
@@ -1094,8 +1094,8 @@ def test_legacy_processed_missing_parameters_cannot_inherit_defaults(tmp_path):
 
 Also damage saved source/query/version and assert a preserved-byte miss; the existing source guard still executes. In free-space tests use the authenticated preflight fixture, its original declared key and its matching .free_space_cache_key to exercise _read_cache_entry at the known old path; prove HMAC/document validation and complete historical snapshot reconstruction without calling execute_analysis_request. A foreign key domain or altered authenticated document must miss. The fixture's pre-A implementation hash may prevent normal current-key runner discovery; record that limit explicitly. B owns verified cross-implementation compatibility mapping and must prove current runner no-recompute reuse with this true old fixture. JSON-only receipts cannot establish authenticated reuse.
 
-- [ ] **Step 5: Run GREEN.** Run pixi run pytest test/test_evidence_package_lifecycle.py test/test_evidence_package_readback.py test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_saved_processed_consumer.py test/test_free_space_evidence_package.py -q. Expect PASS.
-- [ ] **Step 6: Inspect diff and commit with jj commit -m "feat: verify parameter-aware receipt reuse and legacy adoption".**
+- [x] **Step 5: Run GREEN.** Run pixi run pytest test/test_evidence_package_lifecycle.py test/test_evidence_package_readback.py test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_saved_processed_consumer.py test/test_free_space_evidence_package.py -q. Expect PASS.
+- [x] **Step 6: Inspect diff and commit with jj commit -m "feat: verify parameter-aware receipt reuse and legacy adoption".**
 
 ---
 
@@ -1106,7 +1106,7 @@ Also damage saved source/query/version and assert a preserved-byte miss; the exi
 - Modify: docs/project/parameter-and-cache-ownership-note.md
 - Create: docs/superpowers/handoffs/2026-11-15-plan-a-accepted.md
 
-- [ ] **Step 1: Record final manifest and audit ownership/immutability.**
+- [x] **Step 1: Record final manifest and audit ownership/immutability.**
 
 Add to test_evidence_package_parameters.py:
 
@@ -1124,17 +1124,17 @@ def test_downstream_cannot_mutate_historical_parameters():
 
 Retain existing EvidencePackageDependency and raw output immutability tests. Audit every touched function for docstrings and important blocks for intent comments.
 
-- [ ] **Step 2: Run the acceptance set once after fixes.**
+- [x] **Step 2: Run the acceptance set once after fixes.**
 
 Run: pixi run pytest test/test_evidence_package_parameters.py test/test_evidence_package_processing.py test/test_evidence_package_readback.py test/test_evidence_package_processed_readback.py test/test_evidence_package_saved_processed_consumer.py test/test_evidence_package_freshness.py test/test_evidence_package_lifecycle.py test/test_free_space_evidence_package.py test/test_group_distance_evidence_package.py test/test_group_distance_clearance.py test/test_group_distance_route_repair.py test/test_group_axis_distance_modulation.py -q
 
 Expected: PASS under the shared protocol, including both actual-value version tests above. Record required node IDs, collection, actual outcome counts/duration and durable logs/XML; do not claim a full repository suite or real-model replay unless executed. Missing preflight fixture families block their migration handoff rather than silently reducing accepted scope.
 
-- [ ] **Step 3: Update architecture and handoff.**
+- [x] **Step 3: Update architecture and handoff.**
 
 Record workspace, accepted parent and nonempty commits; changed files; exact tests/results; snapshot schema, nullable/value contracts and impact projection; warning behavior; lookup return types and authenticated wrappers; legacy adoption rules and any family with insufficient provenance; unresolved risks. Record the retained `test/fixtures/cache_migration/pre_parameter_sidecar/` fixture manifest and original pre-A implementation/backend hashes. Plan B starts from the accepted A commit and consumes these exact snapshots and fixtures in CacheStore. Its entry point is model-side resolution, locks, migration and authentication preservation, without inventing another parameter identity. Output-port split and intermediate persistence remain deferred to the fresh C review.
 
-- [ ] **Step 4: Inspect and commit handoff.**
+- [x] **Step 4: Inspect and commit handoff.**
 
 ~~~powershell
 jj --ignore-working-copy status

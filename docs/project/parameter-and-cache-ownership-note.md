@@ -1,7 +1,30 @@
 # 证据包参数所有权与模型旁缓存设计笔记
 
 日期：2026-11-15  
-状态：设计共识记录，尚未实施迁移
+状态：Plan A 已于 2026-11-16 接受；Plan B/C 仍待执行
+
+## Plan A 已接受（2026-11-16）
+
+Plan A 的 Tasks 1–4 已在 `bba814f87fda68f1778e5c43c073b797b0d1e24e`、
+`8ebe4e5b7e2d7eb2fddc95f5330cfa52befbda02`、
+`7f521c903c688885454359f446b260f89505a4d1` 和
+`418be9199f73f38443f499549eed4dfcab677933` 中接受各自检查点；完整 A 的最终非空实现为
+`92ff7d521415c95d505c2e35eca60781e09b7f96`，已通过 533/533 项和独立复审。
+B 只能从随后单独接受的 handoff 提交开始，完整 ID 由验收 bookmark/版本记录定位；
+不得以 Task 4 或空工作提交代替。起点为保留真实
+pre-A receipt 的 `9d39d27032752a61ac98c73a1015152d4f48c614`。
+
+当前已落地的边界是：每个选择暴露参数的证据包拥有自己的
+`ParameterSchema`；receipt 保存完整有效参数快照、来源、单位、类型、影响级别
+和 fingerprint；计算 identity 只投影 `recompute_required` 参数。raw/processed
+读取返回冻结的历史 contract、参数状态和复用来源。warning 复用保留历史
+`calculated_parameters`，把当前请求放在 `requested_parameters` 并标记
+`exact_match=false`。legacy adoption 只接受明确的旧路径/旧 key，并要求包自身
+从已验证 receipt 重建完整历史参数；不完整、认证失败或需要重算的旧 receipt
+继续作为 miss。free-space 在共享参数比较前先验证 HMAC 和完整 compact document。
+
+Plan A 没有实现模型旁 sidecar 路径解析、CacheStore、迁移、锁、索引/删除、
+output-port 拆分或可复用 intermediate persistence；这些是 Plan B/C 的入口。
 
 ## 1. 已确定的原则
 
@@ -28,19 +51,15 @@
 
 ## 3. 当前实现状态
 
-当前代码已经有参数进入 cache identity 的基础：
+截至 2026-11-16，Plan A 已被接受并实现以下运行时边界：
 
-- `free_space`、`group_distance` 和 `group_axis_potential` 都接受 `cache_directory`；
-- raw 结果通常保存为 `<cache_key>.json`；
-- processed 结果保存为 `processed-<processed_key>.json`；
-- 参数从 `1` 改为 `2` 会产生新的 identity，改回 `1` 理论上可以命中原版本。
+- `free_space`、`group_distance` 和 `group_axis_potential` 各自声明包拥有的 typed 参数 schema；schema 记录类型、默认值、单位、约束、暴露性和计算影响。
+- immutable `ParameterSnapshot` 保存完整有效值、来源、schema 与参数 fingerprint；计算 identity 只投影 `recompute_required` 参数，相同有效值不因入口来源不同而产生新版本。
+- raw 与 processed receipts 保存参数快照及其处理身份；`RawCacheLookup` / `ProcessedCacheLookup` 暴露冻结的历史 contract、参数状态和复用来源。warning 复用保留历史计算值，并把当前请求值另行呈现。
+- legacy receipt 只允许 owner 基于已验证的历史 receipt 显式 adoption；缺少历史参数、身份不匹配或认证失败时仍为 miss。free-space 先验证完整 HMAC envelope 和 compact document，再读取参数或重建快照。
+- global source runner 的净空参数和 repair checkpoint 现已绑定完整输入、policy、来源和 pair scope；不完整或外来 checkpoint 不会被当作已完成结果。
 
-当前仍有几个结构性缺口：
-
-1. `group_distance` 的欧氏距离和路径距离仍放在同一个 package 中，当前失效范围是 `whole_package`；改变路径净空可能连带使欧氏结果重算。
-2. 某些参数仍通过 `Any` 或普通 mapping 传递，没有统一的“暴露参数、默认值、影响级别”描述。
-3. global source runner 仍直接写入净空值，未完全复用统一参数入口。
-4. owner 工作线的旧 global checkpoint 缺少完整的输入和 policy 指纹保护；不同规则不能安全复用同一个旧 checkpoint 目录。
+持久化仍使用现有包级 JSON receipt 与显式 cache directory；尚没有模型旁 sidecar resolver、统一 `CacheStore`、目录迁移、跨进程 identity lock、索引重建/版本列表/精确删除或 quarantine。`group_distance` 的 Euclidean 与 path 结果也尚未拆成独立 output-port identity；可复用 intermediate persistence 尚未实现。
 
 当前显式运行产物仍主要放在 `outputs/design/...` 的 run 目录中，例如 `input_bundle.json`、`observations.json`、`run_manifest.json` 和 `repair_result.json`。Blender 内容缓存目前有固定路径：
 
@@ -138,17 +157,16 @@ raw 和 processed 是同一语义输出的不同计算层，不应误认为两�
 
 当前网格、height band、几何容差、拓扑容差和净空规则都属于 `recompute_required`。将来若需要“改变后不重跑”，应增加只影响报告解释的诊断容差，而不是从计算身份中删除真实计算容差。
 
-## 7. 后续最小实现顺序
+## 7. 后续实施顺序
 
-1. 为各证据包增加冻结的 typed config，并保留现有默认行为。
-2. 让所有实际运行入口读取同一组包级参数；开放 global source runner 的可变净空前，先在 A 中补齐 checkpoint 的输入与 policy 绑定保护。
-3. 为 package contract 增加参数暴露级别、单位、来源和影响级别。
-4. 将 sidecar 路径解析为默认缓存位置，并保留显式 `cache_directory` 覆盖能力。
-5. 明确输出口依赖边界，逐步拆开欧氏与路径结果的缓存 identity。
-6. 增加版本列出、精确删除和 `1 → 2 → 1` 命中测试。
-7. 在 B 中完善 checkpoint 的可验证迁移与恢复；缺少完整绑定的旧 checkpoint 只保留为历史。
+Plan A 的 typed 参数、receipt 快照、warning 复用、显式 legacy adoption、认证读取和 checkpoint 绑定保护已经完成并接受。下一阶段 Plan B 从包含已接受 A handoff 的提交开始，其父提交是最终 A 实现提交 `92ff7d521415c95d505c2e35eca60781e09b7f96`：
 
-暂不引入 SQLite，不先做完整参数平台或 GUI，也不先开放 `epsilon`。现有 JSON receipt、原子写入和目录索引足以支持第一阶段的版本管理。
+1. 为已保存的 IFC/Blender 模型解析默认邻接 sidecar 路径，同时保留显式缓存目录覆盖；未保存模型的临时运行位置与保存后的迁移规则需明确。
+2. 实现薄 `CacheStore`，为现有包级序列化提供原子发布、校验、identity 锁、索引重建、列出和精确删除；包仍拥有计算语义、参数和 contract。
+3. 实现经过 receipt、payload、来源和认证校验的迁移/复制，路径变更不得改变计算 identity；迁移失败不得损坏或删除原目录。
+4. 用新进程验证旧目录复制后能够禁算命中，并保留 raw、processed、authenticated free-space 和 Blender-wire 历史 fixture 的逐字节证据；不能验证的 checkpoint 只留作历史。
+
+Plan C 必须在 A/B 有新的实测结果后独立 review 和重新规划：决定是否按语义 output-port 拆分 Euclidean/path 等计算身份，并决定中间产物是否出现了足以支持显式持久化的实际需求。中间产物默认继续延期；SQLite、自动拦截任意函数和完整 GUI 管理器不属于当前已实现范围。`epsilon` 也不因 A 完成而自动成为用户旋钮。
 
 ## 8. 缓存目录变更时的迁移规则
 
@@ -257,25 +275,25 @@ receipt 还应记录每个参数的来源，例如 `default`、`user`、`cli` �
 
 ## 10. 已确认的 Spec 与 A → B → C 计划
 
-用户确认覆盖全部三个范围，并要求连续完成到 Plan C。本轮交付设计与实施计划，尚未实施产品功能、迁移真实缓存或重跑模型。
+用户确认覆盖全部三个范围，并要求连续完成到 Plan C。Plan A 已通过完整技术验收：533/533 项通过、315 个冻结文件 hash 一致、独立 SPEC PASS / QUALITY APPROVED；已实现参数 schema、快照、warning-aware receipt、owner 参数入口、严格 legacy reuse 和 checkpoint 路线语义校验；完整实现和证据见 [Plan A handoff](../superpowers/handoffs/2026-11-15-plan-a-accepted.md)。Plan B 的模型旁 sidecar/CacheStore 迁移和 Plan C 的输出端口/中间产物决策尚未实施。保留的 IFC/Blender 结果只用于已记录的兼容性验收，不代表本轮重跑了大型模型。
 
 | 文档 | 责任与交接 |
 | --- | --- |
 | [总 Spec](../superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md) | 参数所有权、身份、sidecar、兼容性与验收条件 |
-| [Plan A](../superpowers/plans/2026-11-15-package-owned-parameters.md) | typed 参数、默认值、快照与 receipt、warning 传播；开放可变净空前先保护 checkpoint |
-| [Plan B](../superpowers/plans/2026-11-15-model-side-cache-store-migration.md) | 模型旁所有缓存和运行文件、迁移、认证域、锁、索引、精确删除 |
-| [Plan C](../superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md) | 从实际验收的 A/B 重新 Brainstorm/Grill，决定直接拆分或先修补；默认延期中间产物 |
+| [Plan A](../superpowers/plans/2026-11-15-package-owned-parameters.md) | **已通过本地技术验收**；typed 参数、快照与 receipt、warning 传播、显式 legacy adoption、authenticated lookup 与 checkpoint 绑定 |
+| [Plan B](../superpowers/plans/2026-11-15-model-side-cache-store-migration.md) | **待执行**；模型旁缓存与运行文件、验证后迁移、认证域、锁、索引、列出和精确删除 |
+| [Plan C](../superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md) | A/B 实测验收后重新 Brainstorm/Grill 与计划；决定 output-port 拆分或修补，默认延期中间产物 |
 | [jj 推进与交付记录](../superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md) | 唯一交付工作线、检查点、恢复方式、审查证据和未验收草稿隔离 |
 
 审查补齐的关键限制：
 
 - 现有 IFC capture 含绝对路径。迁移需验证 `SourceBinding` 并保留原 canonical source ID，不能以“路径不参与 identity”的文字替代实际修复。
 - 本轮重构会改变现有 key 所绑定的实现文件 hash。必须使用重构前的真实、小型 receipt 和旧 hash 清单验证受限兼容映射，不能只拿改完代码后生成的 fixture 证明迁移成功。未知算法或数值依赖变化仍然 miss。
-- raw/processed loader 必须向 runner 传递历史计算 contract、warning 和 adoption 来源，不能用当前 contract 与自身比较而伪造 exact 命中。
+- Plan A 已让 raw/processed lookup 将历史计算 contract、warning 状态和 adoption 来源传给 owner runner；Plan B 的迁移和列表路径须保留这些历史事实，不能用当前 contract 与自身比较而伪造 exact 命中。
 - 模型旁目录还包括 UI worker 的 request/result、stdout/stderr 和 terminal diagnostics；固定 Pixi 解释器、模块路径与工作目录继续使用受信任项目根。
 - 删除版本只派生依赖可用性，不修改已认证 receipt，也不隐式级联删除。路径/free-space 版本被删不能使无依赖的 Euclidean modulation 失效。
-- B 的起点是实际验收的 A **实现**提交，C 的起点是实际验收的 B **实现**提交。三份计划文档的存在不代表这些功能已经完成。
+- B 的起点是包含已接受 A **handoff** 的提交，其中须记录最终非空实现提交；`418be9199f73f38443f499549eed4dfcab677933` 当前只是 Task 4 检查点；C 的起点必须是包含已接受 B **handoff** 的提交，其父提交为 B 实现提交。三份计划文档的存在不代表 B/C 功能已经完成。
 
 2026-11-16 对抗复审进一步收紧验收：参数必须改变真实计算结果，迁移必须跨进程保持禁算命中，锁必须覆盖真实 runner，C 必须用可用几何、真实依赖和独立当前 owner/recipe 验证隔离。关键测试不准通过 skip/xfail 或缺 fixture 降低承诺；证据绑定实际文件 SHA。详见交付记录的[共同验收协议](../superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议)与阶段 jj 命令约束。
 
-阶段交接提交包含原样验收实现和其证据记录；B/C 从该交接提交的完整 ID 出发，记录中另列最后实现提交，避免 handoff 自指。root 是唯一 jj 写入者，提交明确文件，失败保留候选后从最近 accepted 提交新建工作区。工作 bookmark、已验收 bookmark 和未验收草稿分开，Git HEAD 不作为这个 jj 工作区的版本依据。
+Task 5 阶段交接应包含原样验收实现和证据记录；root 是唯一 jj 写入者，须明确提交文件并记录完整父链，失败时保留候选并从最近 accepted 提交新建工作区。工作 bookmark、已验收 bookmark 和未验收草稿分开，Git HEAD 不作为这个 jj 工作区的版本依据。

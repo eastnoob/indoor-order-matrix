@@ -1,10 +1,24 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Package parameter implementation — locally verified 2026-11-16
+
+Plan A's final implementation is `92ff7d521415c95d505c2e35eca60781e09b7f96`; the
+[accepted handoff](superpowers/handoffs/2026-11-15-plan-a-accepted.md) records
+533/533 required tests, 315 unchanged frozen file hashes, independent
+SPEC PASS / QUALITY APPROVED and exact evidence. Owner snapshots and raw/
+processed origins remain immutable; historical adoption requires independent
+current context. Checkpoints now revalidate current route graph/access/
+arithmetic/exact geometry before suppressing search and retain rejected bytes.
+B must begin from the separate full accepted A handoff ID, preserving all four
+pre-A fixture families. B/C storage migration/output separation remain pending.
+No push, owner integration, workspace/cache deletion or live model recomputation.
+
+
 ## Parameter/cache planning — user direction 2026-11-15
 
 The user approved the [master design](superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md)
-and continuous planning through A, B and C. This authorization delivers plans,
-not product implementation. Keep package-owned typed parameters, immutable
+and continuous planning through A, B and C. The user subsequently authorized continuous subagent-driven implementation
+through A, B and C with complete acceptance at each gate. Keep package-owned typed parameters, immutable
 upstream refs, identity by computation-affecting effective values, and all
 default cache/run files beside the model. Copy verified existing caches rather
 than recomputing when only the storage locator changes. Preserve authentication,
