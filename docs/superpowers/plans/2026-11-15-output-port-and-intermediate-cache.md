@@ -10,6 +10,28 @@
 
 **Spec:** `docs/superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md`
 
+## Execution entry — 2026-11-16
+
+The user authorized pushing accepted B and then executing C. Accepted B handoff
+`1085b5be3d7602e8a43935b5596dd656e7ee567c` was pushed successfully with
+`jj git push --remote origin --bookmark codex/parameter-cache-b-accepted`; the
+tracked remote bookmark resolves to that exact revision. Its implementation is
+`3b160264c80dbba631fbe90ab02dca48bc348e0d`. C work is isolated in
+`D:/PROJECTS/understandOtherPackage/order_analyzer/.worktrees/parameter-cache-c-implementation`,
+initial change `nltxmuss`, root as sole jj writer. The requested push changes the
+earlier no-push boundary only for accepted B; no merge/main integration is implied.
+
+Task 1 reconciles this forward plan against accepted code before production edits.
+The actual distance owner schema has nested clearance thresholds, and Store
+activation needs a model/temporary locator alongside an explicit cache directory.
+The examples below are corrected accordingly. B's complete fourteen-file gate was
+executed independently in C: 780 initial passes plus the exact six setup-failed
+nodes passing after fixture/environment repair cover all 786 distinct nodes.
+The receipt is `D:/temp/oa-pytest-c/b-baseline-20261116/acceptance-result.json`,
+SHA256 `adb156d30dc26116aa42def5ff427fd1bd08a2aa9d86fdea355846122e9d92e7`.
+This is joint coverage, not a second full 786-pass run. All 712 frozen files
+remained unchanged. Existing A/B formulas and v1 bytes stay fixed.
+
 ## Global Constraints
 
 - Apply the [shared acceptance and jj runbook](../handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议) to every PASS and commit below. Critical nodes need actual execution without skip/xfail, independent evidence and exact byte identity. Missing fixtures cannot silently reduce accepted output independence.
@@ -75,7 +97,7 @@ At each gate inspect `jj --ignore-working-copy diff --summary`, the actual inten
 - Consumes: accepted A `ParameterSnapshot.identity_payload()`/`to_json()` and B `CacheAddress`, `CacheValidationContext`, `CacheStore.get`, `put`, `list`, `delete_exact`, `identity_lock`, `rebuild_index`, `migrate_to`.
 - Produces: an evidence-backed ruling: proceed with these semantic-port tasks, revise them into a smaller repair plan, or document why a safe split is not yet possible. Also records whether a particular completed non-output stage merits a separate intermediate proposal.
 
-- [ ] **Step 1: Authenticate the implementation gate.** Read both handoffs, verify their named revisions/files exist, and run B's exact focused acceptance command. At minimum include:
+- [x] **Step 1: Authenticate the implementation gate.** Read both handoffs, verify their named revisions/files exist, and run B's exact focused acceptance command. At minimum include:
 
 ```powershell
 pixi run pytest test/test_cache_store.py test/test_cache_migration.py test/test_evidence_package_lifecycle.py -q
@@ -85,9 +107,9 @@ rg -n 'parameter_snapshot|identity_payload|payload_fingerprint|raw_payload_finge
 
 Expected: accepted implementations and verifiable receipts. If a handoff is absent, references only a plan commit, or tests expose a prerequisite failure, record that finding and write the prerequisite repair plan; do not execute Tasks 2-6 as if B had passed. This is a document/review gate, so no artificial failing production test is needed here.
 
-- [ ] **Step 2: Inventory real publications.** Use B's read-only `CacheStore.list()` and the explicit sidecar paths in the handoff. Record one receipt per available package/semantic kind/layer, the parameter snapshot, input identity, payload digest, upstream refs, lifecycle state, and validator. Use an existing verified fixture for a missing kind and clearly label fixture evidence. Do not recursively search unrelated drives or invent a receipt.
+- [x] **Step 2: Inventory real publications.** Copy the explicitly named sidecars into task scratch, verify byte-identical hashes, and call B's `CacheStore.list()` on those copies because listing may quarantine invalid entries. Rehash the original sidecars unchanged. Record one receipt per available package/semantic kind/layer, the parameter snapshot, input identity, payload digest, upstream refs, lifecycle state, and validator. Use an existing verified fixture for a missing kind and clearly label fixture evidence. Do not recursively search unrelated drives or invent a receipt.
 
-- [ ] **Step 3: Conduct the fresh Grill, one unresolved decision at a time.** Use `superpowers:brainstorming` and the user's Grill workflow. Record concrete answers to:
+- [x] **Step 3: Conduct the fresh Grill, one unresolved decision at a time.** Use `superpowers:brainstorming` and the user's Grill workflow. Record concrete answers to:
 
 1. Which actual Euclidean source envelope/provenance fields currently include route policy, free-space, grid, or a whole-package identity?
 2. Can a package build a standalone Euclidean raw view with complete geometry/member/plane evidence and no route-only lineage?
@@ -99,7 +121,7 @@ Expected: accepted implementations and verifiable receipts. If a handoff is abse
 
 Do not require an invented count of observed reuse events. Describe the actual stage, expected benefit, invalidation boundary, and evidence. When code can answer a question, inspect it before asking the user.
 
-- [ ] **Step 4: Write the ruling and reconcile the plan.** The review must include accepted implementation revisions, workspace/dirty manifest, receipt table, dependency graph, tests, and one of these outcomes:
+- [x] **Step 4: Write the ruling and reconcile the plan.** The review must include accepted implementation revisions, workspace/dirty manifest, receipt table, dependency graph, tests, and one of these outcomes:
 
 - **Proceed:** the actual B boundary supports the wrapper and independent producers; execute the reviewed Tasks 2-6.
 - **Repair:** the missing prerequisite is named with exact files/test and a small new plan; review and accept that repair before resuming affected tasks.
@@ -107,7 +129,7 @@ Do not require an invented count of observed reuse events. Describe the actual s
 
 Intermediate integration is not required to proceed with output separation. Even when a useful stage is identified, Task 7 first creates a concrete amended plan naming that stage; it does not silently activate conditional production code from this document.
 
-- [ ] **Step 5: Commit the review.**
+- [x] **Step 5: Commit the review.**
 
 ```powershell
 jj commit -m "docs: review accepted cache artifacts for Plan C"
@@ -330,14 +352,17 @@ Expected: PASS. Retain the pinned legacy output identity `75c7c12b6e7e7fad88dbd6
 - Create: `features/group_distance_output_ports.py`
 - Modify: `features/group_distance.py` around `_group_geometry`, the inline Euclidean reading in `_calculate`, and calculation entry points
 - Modify: `features/group_distance_evidence_package.py` to expose/reuse package-owned view construction without changing the old combined runner
+- Modify: `adapters/free_space_distance.py` and `test/test_free_space_distance.py` for an independently bound native owner validator, reusing the existing exact-samples projection
 - Create: `test/test_group_distance_output_ports.py`
 - Modify: `test/test_group_distance_processed_ifc.py` for retained Euclidean/path parity and excluded-input isolation
 - Modify: `docs/software-architecture.md`
 
 **Interfaces:**
 - Consumes: A `ParameterSnapshot`, B `CacheStore`, Task 2 `OutputPortContract`/`RawPortPublication`/`PortRun`.
-- Produces: `distance_port_contracts(bundle, *, parameters, repaired_result=None) -> Mapping[str, OutputPortContract]`; `evaluate_euclidean_port(bundle, *, parameters) -> RawPortPublication`; `evaluate_path_port(bundle, *, parameters, repaired_result=None) -> RawPortPublication`; `run_group_distance_ports(bundle, *, store, parameters, repaired_result=None, legacy_entry=None) -> dict[str, PortRun]`.
-- Produces: `project_verified_distance_ports(entry: CacheEntry, *, bundle, parameters, store, repaired_result=None) -> dict[str, RawPortPublication]`, which reopens the B entry through the original package validator, verifies its complete original receipt/contract/payload before decoding, and never runs either producer. An arbitrary typed raw object is not proof of a verified cached entry.
+- Produces: `distance_port_contracts(bundle, *, parameters, repaired_result=None, free_space_ref=None) -> Mapping[str, OutputPortContract]`; `evaluate_euclidean_port(bundle, *, parameters) -> RawPortPublication`; `evaluate_path_port(bundle, *, parameters, repaired_result=None, store=None, free_space_ref=None, free_space_validator=None) -> RawPortPublication`; `run_group_distance_ports(bundle, *, store, parameters, repaired_result=None, legacy_entry=None, free_space_ref=None, free_space_validator=None) -> dict[str, PortRun]`.
+- Produces: `project_verified_distance_ports(entry: CacheEntry, *, bundle, parameters, store, repaired_result=None, free_space_ref=None, free_space_validator=None) -> dict[str, RawPortPublication]`, which reopens the B entry through the original package validator, verifies its complete original receipt/contract/payload before decoding, and never runs either producer. An arbitrary typed raw object is not proof of a verified cached entry.
+- `free_space_ref` is the exact full `OutputPortRef` of an existing B entry, including its original selected payload digest; it can name a legacy/native combined publication. `free_space_validator` is B's existing `CacheValidator`, independently bound by the owning adapter/controller to the current original document, wire result ref, lattice, query and samples. With saved samples, evaluation, adoption and runner reuse require both plus `store`; open that exact address through `CacheStore.get` and require the referenced bytes before using values. Contract construction records the exact reference and rejects a missing selector but does not claim currentness. Without saved samples neither argument is needed. Euclidean evaluation needs none. The features layer does not import adapter codecs or silently scan history.
+- Adapter entry: `build_distance_free_space_validator(bundle, *, native_request, context) -> CacheValidator`. Reuse `wire.open_analysis_result` with the caller's independent `ResultReadContext` and validate the native request/capture/domain binding. Extract the existing exact-samples mapping construction into a shared private helper, then compare its query/lattice/ref/cells/support/source-table facts with the independently supplied bundle. The callback must not reproject furniture or recalculate routes. Explicit historical retained context remains historical; never manufacture a live-current observation from saved bytes. Keep old adapter outputs/behavior unchanged. `evaluate_euclidean_port` builds only its own contract and never requires the route selector merely because the dual-contract factory does.
 - Kernel produces `EuclideanPairObservation(pair_id, group_ids, reading, geometry_audit)` and `calculate_euclidean_pairs(bundle) -> tuple[EuclideanPairObservation, ...]`; the old combined calculation and new producer share `_euclidean_reading(first_geometry, second_geometry)`. This primitive preserves existing endpoint status, centroid distance and centroid-source refs. A path-only entry skips this primitive while preserving route code.
 
 - [ ] **Step 1: Write the failing policy reuse test with concrete fixtures.**
@@ -420,11 +445,13 @@ def project_port_parameters(snapshot, *, names, schema):
     }}
 ```
 
-Import `ParameterImpact` from accepted A. The Euclidean call selects `names=()` (thus `selected_names=[]`) and `schema="group-distance/euclidean-parameters/1"`; route selects `clearance_mode` plus the three clearance names in constrained mode, or only `clearance_mode` for the preserved `clearance_policy=None` unconstrained mode. Use `schema="group-distance/path-parameters/1"`. Names with warning/metadata impact remain declared without placing their non-recompute values into the projection; the generic layer uses current `selected_names` to limit warning/recompute comparison. Reject disagreement between bundle/repair policy and the resolved owner snapshot. Full snapshot schema/audit stays in the receipt; increment the port projection schema when a selected parameter's meaning changes.
+Import `ParameterImpact` from accepted A. The Euclidean call selects `names=()` (thus `selected_names=[]`) and `schema="group-distance/euclidean-parameters/1"`; route selects the accepted owner keys `grid`, `query_context`, `free_space_result_ref`, `clearance_mode`, and `clearance_policy`. The three metre thresholds are nested inside `clearance_policy`; unconstrained mode keeps that value `None`. Do not introduce a competing owner schema or look up nonexistent top-level threshold names. Use `schema="group-distance/path-parameters/1"`. Names with warning/metadata impact remain declared without placing their non-recompute values into the projection; the generic layer uses current `selected_names` to limit warning/recompute comparison. Reject disagreement between bundle/repair policy and the resolved owner snapshot. Full snapshot schema/audit stays in the receipt; increment the port projection schema when a selected parameter's meaning changes.
 
 Extract the Euclidean reading from `_calculate` into `_euclidean_reading` using its existing `invalid`/`not_available`/`computed` precedence and `math.dist` centroid calculation. Both combined and standalone Euclidean calculation use that primitive; do not introduce different centroid mathematics. Add an explicit `include_euclidean=False` path-only branch to the internal route calculation so a route miss cannot invoke the Euclidean producer or the shared reading primitive. Geometry preparation still needed by route offsets is permitted; recomputing the independent Euclidean observation is not.
 
 Build fresh **projected** source envelopes/channel provenance/lineage for each standalone port. Copying a filtered channel while retaining its old source envelope identity or full provenance would reintroduce route coupling. Euclidean provenance keeps centroid/member/plane evidence; it omits free-space refs, path observations, full query/grid audit, and combined raw identities. The path port never depends on the Euclidean output merely because both share geometry inputs. Keep the old combined runner/serializer unchanged; export the new CacheStore-bound runner as the independent-port API.
+
+Canonical C source identity uses explicit recognized factual forms: `project_global_id` plus `frame` for a project, explicit `id` for a declared fixture, or validated `sha256` plus `bytes` for direct file content. Bind actual sorted group IDs, member/source refs, geometry components and status/explanation as selected input facts. Exclude absolute `path`, capture/session tokens and opaque whole-capture digests. Reject unsupported forms instead of broadly stripping arbitrary keys. Preserve historical `_pair_id` and combined target IDs; semantic C targets derive from the canonical C source. Join semantic parity by sorted group IDs and keep any historical-to-semantic target mapping in external adoption provenance.
 
 `run_group_distance_ports` acquires the accepted B identity lock, validates each existing selected receipt, computes only missing ports, and reports separate `PortRun` values. Its independently resolved owner snapshot is mandatory; a rejected saved declaration is a diagnosed cache miss, retaining the original bytes and computing only that missing port. Probe B's existing combined kind using the exact accepted B adapter before scheduling either producer; use an explicitly supplied `legacy_entry` to select a known entry without scanning ambiguous history. The projector reopens the entry through B's original package validator and checks the original contract, source/target scope, dependencies, original expanded calculated parameter snapshot, supported schema and original payload digest before decoding. It rebuilds selected lineage without numerical evaluation and saves new wrapper receipts with that historical calculated audit. A missing A snapshot is not an exact typed hit: retain it as historical, rather than inventing values from current defaults. Reject mismatched/tampered entries. Loose historical JSON remains historical.
 
@@ -444,7 +471,7 @@ def test_standalone_euclidean_matches_retained_readings(retained_trial):
         assert item.reading["status"] == expected[pair_id].observation["raw_status"]
 
 
-def test_path_only_matches_combined_on_retained_geometry(retained_trial, monkeypatch):
+def test_path_only_matches_combined_on_retained_geometry(retained_trial, retained_free_space_port, monkeypatch):
     """One real retained pair exercises the new path branch without Euclidean work."""
     from dataclasses import replace
     from features import group_distance as kernel
@@ -454,6 +481,7 @@ def test_path_only_matches_combined_on_retained_geometry(retained_trial, monkeyp
     from features.group_distance_output_ports import evaluate_path_port
 
     inputs, retained_raw, _ = retained_trial
+    free_space_store, free_space_ref, current_free_space_validator = retained_free_space_port
     usable = [item for item in retained_raw.outputs if item.channel == "path_distance"
               and item.observation["value"] is not None
               and math.isfinite(item.observation["value"])]
@@ -465,7 +493,7 @@ def test_path_only_matches_combined_on_retained_geometry(retained_trial, monkeyp
     bundle = replace(bundle,
         dependency_fingerprints=kernel.group_distance_input_fingerprints(bundle))
     combined = evaluate_group_distance_package(bundle, repaired_result=None)
-    expected = {item.target["identity"]: item for item in combined.outputs
+    expected = {tuple(sorted(item.observation["group_ids"])): item for item in combined.outputs
                 if item.channel == "path_distance"}
 
     def forbidden(*args, **kwargs):
@@ -474,26 +502,29 @@ def test_path_only_matches_combined_on_retained_geometry(retained_trial, monkeyp
 
     monkeypatch.setattr(kernel, "_euclidean_reading", forbidden)
     selected = evaluate_path_port(bundle,
-        parameters=build_group_distance_parameter_snapshot(bundle), repaired_result=None)
-    actual = {item.target["identity"]: item for item in selected.raw_view.outputs}
+        parameters=build_group_distance_parameter_snapshot(bundle), repaired_result=None,
+        store=free_space_store, free_space_ref=free_space_ref,
+        free_space_validator=current_free_space_validator)
+    actual = {tuple(sorted(item.observation["group_ids"])): item for item in selected.raw_view.outputs}
     assert actual and set(actual) == set(expected)
     assert any(item.observation["value"] is not None
                and math.isfinite(item.observation["value"]) for item in actual.values())
-    for pair_id, item in actual.items():
-        assert item.observation == expected[pair_id].observation
-        assert item.status == expected[pair_id].status
+    for group_ids, item in actual.items():
+        for key in ("value", "raw_status", "units", "distance", "group_ids"):
+            assert item.observation[key] == expected[group_ids].observation[key]
+        assert item.status == expected[group_ids].status
 ```
 
-The path test uses a bounded real pair, keeps all physical/domain/grid facts, and does not re-extract a model. Additionally compare the selected path source's route/witness and uncertainty facts against the same combined reference; allow only the intentional semantic lineage projection. A supplied repair result bypasses the route kernel and cannot substitute for this `repaired_result=None` gate.
+The path test uses a bounded real pair, keeps all physical/domain/grid facts, and does not re-extract a model. Declare `retained_free_space_port` in the retained-IFC test file: first publish the actual retained native free-space bytes through B with the existing owner validator, then return that store, the exact `OutputPortRef`, and the independently current owner callback as `free_space_store`, `free_space_ref`, and `current_free_space_validator`. It may reuse an already verified native B entry. A placeholder document or empty upstream is insufficient. Additionally compare the selected path source's route/witness and uncertainty facts against the same combined reference; allow only the intentional semantic lineage projection. A supplied repair result bypasses the route kernel and cannot substitute for this `repaired_result=None` gate.
 
 Keep the `_bundle`/`_parameters` grid/free-space identity tests, and add `test_real_euclidean_excludes_route_only_inputs` on `retained_trial` with usable geometry. Independently vary valid route grid, free-space ref/samples, occupancy and route query context, rebuilding their actual dependency fingerprints/current handoff while holding source geometry/member/plane/centroids fixed. In Task 3 require identical Euclidean ref/selected bytes and a changed path identity. Task 4 extends this same test with the unchanged processed-key assertion after that API exists. Do not use a malformed bundle or all-unavailable observations as the numerical isolation proof.
 
-For `test_runner_adopts_combined_entry_before_any_semantic_producer`, use accepted B's `run_group_distance_package(_bundle(1.0), cache_directory=tmp_path)` to create the only typed combined entry and obtain that exact `CacheEntry` through B's `list`. Assert there are no semantic receipts, retain the combined bytes/hash, then patch both new producers to `_forbidden`. Directly call `run_group_distance_ports(..., legacy_entry=entry)` with the same bundle/snapshot; do not call the projector first. Assert both ports reuse, `cache_reuse="legacy_adopted"`, preserved historical calculated snapshots and unchanged combined bytes. Keep a separate direct projector test. Rejection cases include wrong original source/parameters, missing original A snapshot and modified payload bytes; none may publish a semantic receipt before validation. These tests use verified A/B receipts, not unreceipted experiment JSON.
+For `test_runner_adopts_combined_entry_before_any_semantic_producer`, use accepted B's `run_group_distance_package(_bundle(1.0), cache_directory=tmp_path, temporary_cache_root=tmp_path)` to create the only typed combined entry and obtain that exact `CacheEntry` through B's `list`. Assert there are no semantic receipts, retain the combined bytes/hash, then patch both new producers to `_forbidden`. Directly call `run_group_distance_ports(..., legacy_entry=entry)` with the same bundle/snapshot; do not call the projector first. Assert both ports reuse, `cache_reuse="legacy_adopted"`, preserved historical calculated snapshots and unchanged combined bytes. Keep a separate direct projector test. Rejection cases include wrong original source/parameters, missing original A snapshot and modified payload bytes; none may publish a semantic receipt before validation. These tests use verified A/B receipts, not unreceipted experiment JSON.
 
 Run:
 
 ```powershell
-pixi run pytest test/test_group_distance_output_ports.py test/test_group_distance.py test/test_group_distance_evidence_package.py test/test_group_distance_processed_ifc.py -q
+pixi run pytest test/test_group_distance_output_ports.py test/test_group_distance.py test/test_group_distance_evidence_package.py test/test_group_distance_processed_ifc.py test/test_free_space_distance.py -q
 ```
 
 Expected: PASS. If the actual retained fixture is absent, record that exact missing artifact and the resulting test limitation; do not replace it with fabricated spatial data or claim real-geometry acceptance.
@@ -655,8 +686,8 @@ def test_route_policy_change_preserves_actual_processed_port(retained_trial, tmp
     assert second.cache_hit is True and second.cache_reuse == "exact_hit"
     assert second.publication.ref == first.publication.ref
     raw_status = second.cache_status["parameter_status"]
-    assert raw_status["calculated_parameters"]["min_total_m"] == 1.0
-    assert raw_status["requested_parameters"]["min_total_m"] == 2.0
+    assert raw_status["calculated_parameters"]["clearance_policy"]["min_total_m"] == 1.0
+    assert raw_status["requested_parameters"]["clearance_policy"]["min_total_m"] == 2.0
     assert raw_status["recompute_required"] is False
 ```
 
@@ -810,6 +841,7 @@ Expected: PASS with retained numeric registration intact. Record any actual miss
 **Interfaces:**
 - Consumes the accepted B `CacheStore.list`, `delete_exact`, `migrate_to`, and authoritative lifecycle/dependency validation. Receipt bytes stay immutable; lifecycle changes belong to B's advisory/derived state.
 - Produces separately listable/deletable versions and migration that returns the same selected refs before any producer is scheduled.
+- Real path/free-space fixtures pass Task 3's explicit `free_space_ref` and independently current `free_space_validator`. Preserve original native/legacy codec ownership in mixed-sidecar validation; `OutputPortRef` does not require every upstream to use the semantic envelope codec. Deletion must remove an actual nonempty owner-validated publication with a matching sampled bundle, not a fabricated placeholder or a receipt with no live descendants.
 
 - [ ] **Step 1: Write the failing independent-version tests.** Use the concrete `_bundle`, `_parameters`, `_forbidden` from Task 3 in `test/test_group_distance_output_ports.py`:
 
@@ -924,7 +956,7 @@ Use `sources/<source-fingerprint>/intermediates/<package-id>/<stage-id>/<identit
 - [ ] **Step 1: Run the focused implemented scope once.** When Tasks 2-6 proceeded, run:
 
 ```powershell
-pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_ports.py test/test_group_distance.py test/test_group_distance_evidence_package.py test/test_group_distance_processed_ifc.py test/test_group_axis_distance_modulation.py test/test_evidence_package_output.py test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_lifecycle.py test/test_cache_store.py test/test_cache_migration.py -q
+pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_ports.py test/test_group_distance.py test/test_group_distance_evidence_package.py test/test_group_distance_processed_ifc.py test/test_free_space_distance.py test/test_group_axis_distance_modulation.py test/test_evidence_package_output.py test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_lifecycle.py test/test_cache_store.py test/test_cache_migration.py -q
 ```
 
 Expected: PASS under the shared protocol, including the new path-only real-value/sentinel, real excluded-input, runner adoption, independent-currentness forwarding, raw selected-warning and nonvacuous deletion nodes above. Collect and retain their exact parameterized node IDs plus outcome logs/XML. Any unavailable mandatory real artifact blocks full implemented-split acceptance. If the fresh ruling deferred the split, instead run the accepted B regression set and record `split deferred`; do not label that an accepted implementation of independent ports. Add an intermediate test file only if its separately accepted adoption plan actually created it.
