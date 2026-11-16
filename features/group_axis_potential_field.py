@@ -28,8 +28,16 @@ from .field_core import (
     fingerprint_evidence_dependency,
 )
 from .evidence_package_parameters import ParameterSchema, ParameterSnapshot, ParameterSpec
-from .evidence_package_storage import (load_raw_output, save_raw_output, processed_cache_key,
-                                      load_processed_output, save_processed_output)
+from .evidence_package_storage import (
+    legacy_candidate_contract,
+    legacy_processed_cache_key,
+    load_processed_entry,
+    load_raw_entry,
+    reconstruct_legacy_processed_snapshot,
+    save_processed_output,
+    save_raw_output,
+    processed_cache_key,
+)
 
 
 PACKAGE_ID = "group-axis-potential"
@@ -1100,12 +1108,45 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
     )
     cache_key = contract["package_identity"]
     path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
-    raw = None if path is None else load_raw_output(path, cache_key=cache_key, contract=contract, package=package)
+    legacy_path = None
+    if path is not None:
+        legacy_key = legacy_candidate_contract(contract)["package_identity"]
+        if legacy_key != cache_key:
+            legacy_path = path.parent / (legacy_key + ".json")
+
+    def adopt_legacy(receipt, wanted):
+        """Rebuild one typed potential contract from the current validated source set."""
+        try:
+            snapshot = build_group_axis_parameter_snapshot(
+                distance_modulation_enabled=distance_modulation is not None,
+                parameter_sources=parameter_sources,
+            )
+            old = receipt["contract"]
+            return build_evidence_package_contract(
+                package_id=old["package_id"], package_schema=old["package_schema"],
+                producer=old["producer"], target_ids=old["target_ids"],
+                dependencies=old["dependencies"], algorithm_version=old["algorithm_version"],
+                schema_version=old["schema_version"], artifacts=old.get("artifacts", {}),
+                parameter_snapshot=snapshot,
+            )
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    lookup = None
+    if path is not None:
+        lookup = load_raw_entry(path, cache_key=cache_key, contract=contract, package=package)
+        if lookup is None and legacy_path is not None:
+            lookup = load_raw_entry(
+                legacy_path, cache_key=legacy_path.stem, contract=contract,
+                package=package, legacy_adopter=adopt_legacy,
+            )
+    raw = None if lookup is None else lookup.raw_output
     # Core canonicalizes retained sources; compare content without changing producer order.
     if raw is not None and _json_value(raw.source_envelopes) != _json_value(
             tuple(sorted(sources, key=lambda source: source.cache_identity["identity"]))):
+        lookup = None
         raw = None
-    hit = raw is not None
+    hit = lookup is not None
     if raw is None:
         raw = package.evaluate(sources, dependencies=dependencies, dependency_graph=graph)
         if path is not None:
@@ -1117,15 +1158,51 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
         output_targets={item.target["identity"] for item in raw.outputs},
         distance_modulation=distance_modulation, parameter_sources=parameter_sources,
     )
-    cache_status = evaluate_evidence_package_freshness(cached_contract=contract if hit else None, current_contract=contract)
+    status_current_contract = contract
+    if lookup is not None:
+        # The saved calculation contract predates publication-only output
+        # target expansion.  Keep the exact saved contract on the cached side,
+        # and compare it with current parameters over its historical scope.
+        saved = lookup.cached_contract
+        current_snapshot = (
+            None if contract.get("parameter_snapshot") is None else
+            ParameterSnapshot.from_json(contract["parameter_snapshot"])
+        )
+        status_current_contract = build_evidence_package_contract(
+            package_id=contract["package_id"], package_schema=contract["package_schema"],
+            producer=contract["producer"], target_ids=saved["target_ids"],
+            dependencies=contract["dependencies"], algorithm_version=contract["algorithm_version"],
+            schema_version=contract["schema_version"], artifacts=contract.get("artifacts", {}),
+            parameter_snapshot=current_snapshot,
+        )
+    cache_status = evaluate_evidence_package_freshness(
+        cached_contract=None if lookup is None else lookup.cached_contract,
+        current_contract=status_current_contract,
+    )
+    if lookup is not None:
+        cache_status["parameter_status"] = dict(lookup.parameter_status)
+        cache_status["reuse_origin"] = dict(lookup.reuse_origin)
     processed_path = (None if path is None or output_processor is None else
                       path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
-    processed = None if processed_path is None else load_processed_output(
-        processed_path, raw_output=raw, processor=output_processor)
-    if processed is None:
+    processed_legacy_path = None
+    if processed_path is not None and output_processor is not None:
+        old_key = legacy_processed_cache_key(raw, output_processor)
+        if old_key != processed_cache_key(raw, output_processor):
+            processed_legacy_path = processed_path.parent / ("processed-" + old_key + ".json")
+    processed_lookup = None if processed_path is None else load_processed_entry(
+        processed_path, raw_output=raw, processor=output_processor,
+        legacy_path=processed_legacy_path,
+        legacy_processed_adopter=reconstruct_legacy_processed_snapshot,
+    )
+    processed = None if processed_lookup is None else processed_lookup.processed_output
+    if processed_lookup is None:
         processed = package.process_output(raw, package_freshness="fresh")
         if processed_path is not None:
             save_processed_output(processed_path, processed)
+    if processed_lookup is not None:
+        cache_status["processed_parameter_status"] = (
+            None if processed_lookup.parameter_status is None else dict(processed_lookup.parameter_status))
+        cache_status["processed_reuse_origin"] = dict(processed_lookup.reuse_origin)
     return {"raw_output": raw, "processed_output": processed, "contract": contract,
             "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
             "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}

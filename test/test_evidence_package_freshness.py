@@ -315,3 +315,25 @@ def test_contract_warning_retains_historical_calculated_values() -> None:
     assert status["parameter_status"]["exact_match"] is False
     assert status["parameter_status"]["calculated_parameters"]["review_m"] == 0.01
     assert status["parameter_status"]["requested_parameters"]["review_m"] == 0.02
+
+
+def test_missing_snapshot_cannot_attest_exact_typed_match() -> None:
+    """Legacy readability does not imply typed parameter provenance."""
+    from features.evidence_package_parameters import ParameterSchema
+
+    legacy = _contract()
+    arguments = {name: legacy[name] for name in (
+        "package_id", "package_schema", "producer", "target_ids",
+        "dependencies", "algorithm_version", "schema_version")}
+    typed = build_evidence_package_contract(
+        **arguments,
+        parameter_snapshot=ParameterSchema(legacy["package_id"], "legacy-check/1", ()).resolve(),
+    )
+    status = evaluate_evidence_package_freshness(
+        cached_contract=legacy, current_contract=typed,
+    )
+    assert status["recompute_required"] is True
+    assert status["parameter_status"]["exact_match"] is False
+    assert "parameter_snapshot_missing" in {
+        item["code"] for item in status["reasons"]
+    }

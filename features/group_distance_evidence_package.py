@@ -34,8 +34,16 @@ from .field_core import (
 )
 from .evidence_package_parameters import ParameterSchema, ParameterSnapshot, ParameterSpec
 from . import group_distance as distance_kernel
-from .evidence_package_storage import (load_raw_output, save_raw_output, processed_cache_key,
-                                      load_processed_output, save_processed_output)
+from .evidence_package_storage import (
+    legacy_candidate_contract,
+    legacy_processed_cache_key,
+    load_processed_entry,
+    load_raw_entry,
+    reconstruct_legacy_processed_snapshot,
+    save_processed_output,
+    save_raw_output,
+    processed_cache_key,
+)
 from .group_distance import (
     GroupDistanceInput,
     GroupDistanceResult,
@@ -1095,6 +1103,29 @@ def _cached_sources_match(raw, bundle, inputs, targets):
     return True
 
 
+def reconstruct_legacy_group_distance_contract(receipt, current_contract, bundle, *, parameter_sources=None):
+    """Rebuild typed distance evidence from the validated current bundle context."""
+    if not isinstance(receipt, Mapping) or not isinstance(current_contract, Mapping):
+        return None
+    try:
+        snapshot = build_group_distance_parameter_snapshot(
+            bundle, parameter_sources=parameter_sources,
+        )
+        return build_evidence_package_contract(
+            package_id=receipt["contract"]["package_id"],
+            package_schema=receipt["contract"]["package_schema"],
+            producer=receipt["contract"]["producer"],
+            target_ids=receipt["contract"]["target_ids"],
+            dependencies=receipt["contract"]["dependencies"],
+            algorithm_version=receipt["contract"]["algorithm_version"],
+            schema_version=receipt["contract"]["schema_version"],
+            artifacts=receipt["contract"].get("artifacts", {}),
+            parameter_snapshot=snapshot,
+        )
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
 def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=None,
                                output_processor=None, parameter_sources=None):
     """Own distance computation and independently cached optional processed results."""
@@ -1104,23 +1135,61 @@ def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=
     )
     cache_key = contract["package_identity"]
     path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
-    raw = None if path is None else load_raw_output(path, cache_key=cache_key, contract=contract, package=package)
+    legacy_path = None
+    if path is not None:
+        legacy_key = legacy_candidate_contract(contract)["package_identity"]
+        if legacy_key != cache_key:
+            legacy_path = path.parent / (legacy_key + ".json")
+    adopter = lambda receipt, wanted: reconstruct_legacy_group_distance_contract(
+        receipt, wanted, bundle, parameter_sources=parameter_sources,
+    )
+    lookup = None
+    if path is not None:
+        lookup = load_raw_entry(
+            path, cache_key=cache_key, contract=contract, package=package,
+        )
+        if lookup is None and legacy_path is not None:
+            lookup = load_raw_entry(
+                legacy_path, cache_key=legacy_path.stem, contract=contract,
+                package=package, legacy_adopter=adopter,
+            )
+    raw = None if lookup is None else lookup.raw_output
     if raw is not None and not _cached_sources_match(raw, bundle, inputs, contract["target_ids"]):
+        lookup = None
         raw = None
-    hit = raw is not None
-    cache_status = evaluate_evidence_package_freshness(cached_contract=contract if hit else None, current_contract=contract)
+    hit = lookup is not None
+    cache_status = evaluate_evidence_package_freshness(
+        cached_contract=None if lookup is None else lookup.cached_contract,
+        current_contract=contract,
+    )
+    if lookup is not None:
+        cache_status["parameter_status"] = dict(lookup.parameter_status)
+        cache_status["reuse_origin"] = dict(lookup.reuse_origin)
     if raw is None:
         raw = evaluate_group_distance_package(bundle, repaired_result=repaired_result)
         if path is not None:
             save_raw_output(path, cache_key=cache_key, contract=contract, raw_output=raw)
     processed_path = (None if path is None or output_processor is None else
                       path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
-    processed = None if processed_path is None else load_processed_output(
-        processed_path, raw_output=raw, processor=output_processor)
-    if processed is None:
+    processed_legacy_path = None
+    if processed_path is not None and output_processor is not None:
+        old_key = legacy_processed_cache_key(raw, output_processor)
+        if old_key != processed_cache_key(raw, output_processor):
+            processed_legacy_path = processed_path.parent / ("processed-" + old_key + ".json")
+    processed_lookup = None if processed_path is None else load_processed_entry(
+        processed_path, raw_output=raw, processor=output_processor,
+        legacy_path=processed_legacy_path,
+        legacy_processed_adopter=reconstruct_legacy_processed_snapshot,
+    )
+    processed = None if processed_lookup is None else processed_lookup.processed_output
+    if processed_lookup is None:
         processed = package.process_output(raw, package_freshness="fresh")
         if processed_path is not None:
             save_processed_output(processed_path, processed)
+    if processed_lookup is not None:
+        cache_status["processed_parameter_status"] = (
+            None if processed_lookup.parameter_status is None else dict(processed_lookup.parameter_status))
+        cache_status["processed_reuse_origin"] = dict(processed_lookup.reuse_origin)
     return {"raw_output": raw, "processed_output": processed, "contract": contract,
             "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
             "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}

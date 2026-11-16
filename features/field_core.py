@@ -1742,18 +1742,23 @@ def evaluate_evidence_package_freshness(
         current_snapshot = current.get("parameter_snapshot")
         if cached_snapshot is not None or current_snapshot is not None:
             if cached_snapshot is None or current_snapshot is None:
-                # A legacy receipt remains readable, but it cannot claim a
-                # typed exact hit without a complete independently validated snapshot.
-                # Missing typed history is an adoption warning, not proof that
-                # the underlying calculation is stale; legacy bytes remain usable.
+                # A typed request cannot trust a receipt that omits its owner
+                # snapshot.  The storage boundary may still adopt that exact
+                # receipt when the package owner reconstructs and verifies it.
                 parameter_status = {
                     "reuse": "missing",
                     "exact_match": False,
-                    "recompute_required": False,
+                    "recompute_required": True,
                     "calculated_parameters": None,
                     "requested_parameters": None,
                     "warnings": [{"code": "parameter_snapshot_missing"}],
                 }
+                reasons.append({
+                    "code": "parameter_snapshot_missing",
+                    "dependency": "parameters",
+                    "cached": cached_snapshot,
+                    "current": current_snapshot,
+                })
             else:
                 comparison = compare_parameter_snapshots(
                     ParameterSnapshot.from_json(cached_snapshot),

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
 import hashlib
 import hmac
 from pathlib import Path
@@ -17,14 +18,42 @@ if "." in (__package__ or ""):
     from ..features import analysis_requests as requests
     from ..features import free_space_evidence_package as package
     from ..features.field_core import (fingerprint_evidence_dependency, evaluate_evidence_package_freshness,
-        serialize_evidence_processed_output, deserialize_evidence_processed_output)
-    from ..features.evidence_package_storage import processed_cache_key
+        serialize_evidence_processed_output, deserialize_evidence_processed_output, _freeze,
+        _validate_evidence_package_contract)
+    from ..features.evidence_package_parameters import compare_parameter_snapshots
+    from ..features.evidence_package_storage import (
+        ProcessedCacheLookup, legacy_processed_cache_key, processed_cache_key,
+        reconstruct_legacy_processed_snapshot, compare_receipt_parameters,
+    )
 else:
     from features import analysis_requests as requests
     from features import free_space_evidence_package as package
     from features.field_core import (fingerprint_evidence_dependency, evaluate_evidence_package_freshness,
-        serialize_evidence_processed_output, deserialize_evidence_processed_output)
-    from features.evidence_package_storage import processed_cache_key
+        serialize_evidence_processed_output, deserialize_evidence_processed_output, _freeze,
+        _validate_evidence_package_contract)
+    from features.evidence_package_parameters import compare_parameter_snapshots
+    from features.evidence_package_storage import (
+        ProcessedCacheLookup, legacy_processed_cache_key, processed_cache_key,
+        reconstruct_legacy_processed_snapshot, compare_receipt_parameters,
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class AuthenticatedFreeSpaceLookup:
+    """Return authenticated free-space bytes with immutable receipt provenance."""
+
+    document: Mapping
+    cached_contract: Mapping
+    parameter_status: Mapping | None
+    reuse_origin: Mapping
+
+    def __post_init__(self):
+        """Freeze the historical wire document and all receipt audit metadata."""
+        object.__setattr__(self, "document", wire.freeze(self.document))
+        object.__setattr__(self, "cached_contract", _freeze(self.cached_contract))
+        object.__setattr__(self, "reuse_origin", _freeze(self.reuse_origin))
+        if self.parameter_status is not None:
+            object.__setattr__(self, "parameter_status", _freeze(self.parameter_status))
 
 CACHE_SCHEMA = "free-space-evidence-cache/v1"
 
@@ -110,28 +139,61 @@ def _receipt_tag(receipt, secret):
     return hmac.new(secret, wire.canonical_json(payload).encode("utf-8"), hashlib.sha256).hexdigest()
 
 
-def _read_cache(path, cache_key, secret):
-    """Treat corrupt, foreign or stale receipts as misses before any output is admitted."""
+def _read_cache_entry(path, cache_key, secret, *, expected_parameter_snapshot=None,
+                      legacy_adopter=None):
+    """Authenticate the complete envelope before any typed parameter comparison."""
     try:
         receipt = wire.load_json(path.read_text(encoding="utf-8"))
         if not hmac.compare_digest(receipt.get("auth_tag", ""), _receipt_tag(receipt, secret)):
             return None
-        if receipt["schema"] != CACHE_SCHEMA or receipt["cache_key"] != cache_key:
+        if (receipt["schema"] != CACHE_SCHEMA or receipt["cache_key"] != cache_key
+                or set(receipt) != {"schema", "cache_key", "publication_key", "document_digest",
+                                   "document", "contract", "auth_tag"}):
             return None
         document = wire.validate_document(receipt["document"])
-        # Keep a receipt-level digest separate from the document's self-reported
-        # digest so rewriting both fields cannot turn altered bytes into a hit.
         if receipt.get("document_digest") != wire.document_digest(document):
             return None
         if document["result_id"] != "free-space:" + receipt.get("publication_key", cache_key):
             return None
-        current = package.build_free_space_package_contract(document)
-        status = evaluate_evidence_package_freshness(cached_contract=receipt["contract"], current_contract=current)
-        if status["freshness"] != "fresh" or receipt["contract"] != current:
-            return None
-        return document
-    except (OSError, ValueError, TypeError, KeyError, IndexError):
+        cached_contract = _validate_evidence_package_contract(receipt["contract"])
+        historical_contract = cached_contract
+        origin = {
+            "mode": "cache_hit",
+            "origin_cache_key": receipt["cache_key"],
+            "origin_contract": cached_contract,
+            "origin_payload_fingerprint": receipt["document_digest"],
+        }
+        # The original bare reader has no current owner request to compare.
+        # Keep that compatibility boundary read-only; the package runner always
+        # supplies a typed snapshot and therefore takes the strict path below.
+        if expected_parameter_snapshot is None and legacy_adopter is None:
+            return AuthenticatedFreeSpaceLookup(document, historical_contract, None, origin)
+        request = document["tables"]["snapshot"]["request"]
+        snapshot = expected_parameter_snapshot or package.build_free_space_parameter_snapshot(request)
+        current = package.build_free_space_package_contract(document, parameter_snapshot=snapshot)
+        status = compare_receipt_parameters(cached_contract, current)
+        if status["recompute_required"]:
+            if legacy_adopter is None:
+                return None
+            adopted = legacy_adopter(receipt, current)
+            if adopted is None:
+                return None
+            historical_contract = _validate_evidence_package_contract(adopted)
+            verified = compare_receipt_parameters(historical_contract, current)
+            if verified["recompute_required"]:
+                return None
+            status = {**verified, "exact_match": False}
+            origin = {**origin, "mode": "adopted_legacy",
+                      "verification_mode": "owner_reconstructed_parameters"}
+        return AuthenticatedFreeSpaceLookup(document, historical_contract, status, origin)
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, IndexError):
         return None
+
+
+def _read_cache(path, cache_key, secret):
+    """Preserve the existing authenticated bare-document API."""
+    entry = _read_cache_entry(path, cache_key, secret)
+    return None if entry is None else wire.plain(entry.document)
 
 
 def _write_cache(path, receipt):
@@ -148,20 +210,77 @@ def _write_cache(path, receipt):
         Path(partial).unlink(missing_ok=True)
 
 
-def _read_processed_cache(path, *, raw_output, processor, secret):
-    """Authenticate processed receipts before admitting even coherently rehashed JSON."""
-    try:
-        receipt = wire.load_json(path.read_text(encoding="utf-8"))
+def _read_processed_cache_entry(path, *, raw_output, processor, secret,
+                                legacy_path=None, legacy_processed_adopter=None):
+    """Authenticate processed receipts before shared parameter-aware reuse."""
+    def read_one(candidate):
+        receipt = wire.load_json(Path(candidate).read_text(encoding="utf-8"))
         expected = processed_cache_key(raw_output, processor)
         if (set(receipt) != {"schema", "processing_identity", "processed_output", "auth_tag"}
                 or receipt["schema"] != "free-space-processed-cache/v1"
-                or receipt["processing_identity"] != expected
                 or not hmac.compare_digest(receipt["auth_tag"], _receipt_tag(receipt, secret))):
             return None
         output = deserialize_evidence_processed_output(receipt["processed_output"], raw_output=raw_output)
-        return output if output.error_code is None and output.processing_identity == expected else None
-    except (OSError, UnicodeError, ValueError, TypeError, KeyError):
+        if output.error_code is not None or output.processor_id != processor.function_id \
+                or output.processor_version != processor.version:
+            return None
+        if output.processing_identity != expected:
+            return None
+        if output.parameter_snapshot is not None and processor.parameter_snapshot is not None:
+            status = compare_parameter_snapshots(output.parameter_snapshot, processor.parameter_snapshot)
+        elif output.parameter_snapshot is None and processor.parameter_snapshot is None:
+            status = None
+        else:
+            return None
+        if status is not None and status["recompute_required"]:
+            return None
+        return ProcessedCacheLookup(output, status, {
+            "mode": "cache_hit",
+            "origin_processing_identity": output.processing_identity,
+            "origin_payload_fingerprint": receipt["processed_output"].get("payload_fingerprint"),
+        })
+
+    try:
+        entry = read_one(path)
+        if entry is not None:
+            return entry
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, IndexError):
+        pass
+    if legacy_path is None or legacy_processed_adopter is None:
         return None
+    try:
+        receipt = wire.load_json(Path(legacy_path).read_text(encoding="utf-8"))
+        if (set(receipt) != {"schema", "processing_identity", "processed_output", "auth_tag"}
+                or receipt["schema"] != "free-space-processed-cache/v1"
+                or not hmac.compare_digest(receipt["auth_tag"], _receipt_tag(receipt, secret))):
+            return None
+        saved = deserialize_evidence_processed_output(receipt["processed_output"], raw_output=raw_output)
+        if saved.error_code is not None:
+            return None
+        snapshot = legacy_processed_adopter(saved, processor)
+        if snapshot is None or processor.parameter_snapshot is None:
+            return None
+        from dataclasses import replace as _replace
+        adopted = _replace(saved, parameter_snapshot=snapshot)
+        if receipt["processing_identity"] != legacy_processed_cache_key(raw_output, processor):
+            return None
+        status = compare_parameter_snapshots(snapshot, processor.parameter_snapshot)
+        if status["recompute_required"]:
+            return None
+        return ProcessedCacheLookup(adopted, {**status, "exact_match": False}, {
+            "mode": "adopted_legacy",
+            "verification_mode": "owner_reconstructed_parameters",
+            "origin_processing_identity": saved.processing_identity,
+            "origin_payload_fingerprint": receipt["processed_output"].get("payload_fingerprint"),
+        })
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, IndexError):
+        return None
+
+
+def _read_processed_cache(path, *, raw_output, processor, secret):
+    """Preserve the existing authenticated bare-output API."""
+    entry = _read_processed_cache_entry(path, raw_output=raw_output, processor=processor, secret=secret)
+    return None if entry is None else entry.processed_output
 
 
 def _write_processed_cache(path, output, secret):
@@ -178,14 +297,34 @@ def evaluate_free_space_package(scene, request, *, cache_directory=None):
     return run_free_space_package(scene, request, cache_directory=cache_directory)["raw_output"]
 
 
+def _reconstruct_legacy_free_space_contract(receipt, current_contract):
+    """Rebuild a typed free-space contract from the authenticated historical request."""
+    try:
+        old = receipt["contract"]
+        request = receipt["document"]["tables"]["snapshot"]["request"]
+        snapshot = package.build_free_space_parameter_snapshot(request)
+        return package.build_free_space_package_contract(
+            receipt["document"], dependency_fingerprints=None,
+            parameter_snapshot=snapshot,
+        )
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
 def run_free_space_package(scene, request, *, cache_directory=None, output_processor=None):
     """Own authenticated occupancy reuse, current publication and optional processed access."""
     cache_key = free_space_cache_key(scene, request)
     directory = None if cache_directory is None else Path(cache_directory)
     path = None if directory is None else directory / (cache_key + ".json")
     secret = None if directory is None else _cache_secret(directory)
-    document = None if path is None else _read_cache(path, cache_key, secret)
-    hit = document is not None
+    requested_snapshot = package.build_free_space_parameter_snapshot(request.to_dict())
+    lookup = None if path is None else _read_cache_entry(
+        path, cache_key, secret,
+        expected_parameter_snapshot=requested_snapshot,
+        legacy_adopter=_reconstruct_legacy_free_space_contract,
+    )
+    document = None if lookup is None else wire.plain(lookup.document)
+    hit = lookup is not None
     publication_key = _publication_cache_key(scene, request) if document is None else document["result_id"].removeprefix("free-space:")
     publication_id = "free-space:" + publication_key
     stable_request = replace(request, request_id=publication_id)
@@ -199,7 +338,9 @@ def run_free_space_package(scene, request, *, cache_directory=None, output_proce
         if path is not None:
             receipt = {"schema": CACHE_SCHEMA, "cache_key": cache_key, "publication_key": publication_key,
                 "document_digest": wire.document_digest(document), "document": document,
-                "contract": package.build_free_space_package_contract(document)}
+                "contract": package.build_free_space_package_contract(
+                    document, parameter_snapshot=requested_snapshot,
+                )}
             receipt["auth_tag"] = _receipt_tag(receipt, secret)
             _write_cache(path, receipt)
     elif document["tables"]["snapshot"]["request"] != wire.plain(stable_request.to_dict()):
@@ -217,16 +358,37 @@ def run_free_space_package(scene, request, *, cache_directory=None, output_proce
     source = package.build_free_space_source_envelope(document, source_freshness="supplied_scene")
     producer = package.build_free_space_evidence_package(output_processor=output_processor)
     raw = producer.evaluate((source,))
-    contract = package.build_free_space_package_contract(document)
-    cache_status = evaluate_evidence_package_freshness(cached_contract=contract if hit else None, current_contract=contract)
+    contract = package.build_free_space_package_contract(
+        document, parameter_snapshot=requested_snapshot,
+    )
+    cache_status = evaluate_evidence_package_freshness(
+        cached_contract=None if lookup is None else lookup.cached_contract,
+        current_contract=contract,
+    )
+    if lookup is not None:
+        cache_status["parameter_status"] = dict(lookup.parameter_status)
+        cache_status["reuse_origin"] = dict(lookup.reuse_origin)
     processed_path = (None if path is None or output_processor is None else
                       path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
-    processed = None if processed_path is None else _read_processed_cache(
-        processed_path, raw_output=raw, processor=output_processor, secret=secret)
-    if processed is None:
+    processed_legacy_path = None
+    if processed_path is not None and output_processor is not None:
+        old_key = legacy_processed_cache_key(raw, output_processor)
+        if old_key != processed_cache_key(raw, output_processor):
+            processed_legacy_path = processed_path.parent / ("processed-" + old_key + ".json")
+    processed_lookup = None if processed_path is None else _read_processed_cache_entry(
+        processed_path, raw_output=raw, processor=output_processor, secret=secret,
+        legacy_path=processed_legacy_path,
+        legacy_processed_adopter=reconstruct_legacy_processed_snapshot,
+    )
+    processed = None if processed_lookup is None else processed_lookup.processed_output
+    if processed_lookup is None:
         processed = producer.process_output(raw, package_freshness="fresh")
         if processed_path is not None:
             _write_processed_cache(processed_path, processed, secret)
+    if processed_lookup is not None:
+        cache_status["processed_parameter_status"] = (
+            None if processed_lookup.parameter_status is None else dict(processed_lookup.parameter_status))
+        cache_status["processed_reuse_origin"] = dict(processed_lookup.reuse_origin)
     return {"raw_output": raw, "processed_output": processed, "contract": contract,
             "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
             "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}

@@ -167,6 +167,97 @@ def test_free_space_plane_publication_name_reuses_with_current_metadata(tmp_path
     assert document["tables"]["snapshot"]["request"]["plane"]["name"] == updated.plane.name
 
 
+def test_parameter_source_change_does_not_recalculate_distance(tmp_path, monkeypatch):
+    """A source label changes audit information while preserving the calculation."""
+    bundle = _missing_bundle()
+    first = distance.run_group_distance_package(bundle, cache_directory=tmp_path)
+    monkeypatch.setattr(distance, "calculate_group_pair_distances", _forbidden)
+    again = distance.run_group_distance_package(
+        bundle, cache_directory=tmp_path,
+        parameter_sources={"clearance_mode": "gui"},
+    )
+    assert again["cache_key"] == first["cache_key"]
+    assert again["cache_hit"] is True
+    assert again["raw_output"] == first["raw_output"]
+
+
+def test_runner_retains_historical_raw_warning_values(tmp_path, monkeypatch):
+    """The runner compares saved and requested warning parameters separately."""
+    from features.evidence_package_parameters import ParameterImpact, ParameterSchema, ParameterSpec
+
+    schema = ParameterSchema(distance.PACKAGE_ID, "contract-warning/1", (
+        ParameterSpec("review_m", float, 0.01, unit="m", impact=ParameterImpact.REUSE_WITH_WARNING),
+    ))
+    monkeypatch.setattr(distance, "build_group_distance_parameter_snapshot",
+                        lambda *args, **kwargs: schema.resolve())
+    first = distance.run_group_distance_package(_missing_bundle(), cache_directory=tmp_path)
+    monkeypatch.setattr(distance, "build_group_distance_parameter_snapshot",
+                        lambda *args, **kwargs: schema.resolve({"review_m": 0.02}))
+    monkeypatch.setattr(distance, "calculate_group_pair_distances", _forbidden)
+    again = distance.run_group_distance_package(_missing_bundle(), cache_directory=tmp_path)
+    status = again["cache_status"]["parameter_status"]
+    assert again["raw_output"] == first["raw_output"] and again["cache_hit"]
+    assert status["calculated_parameters"]["review_m"] == 0.01
+    assert status["requested_parameters"]["review_m"] == 0.02
+    assert status["exact_match"] is False
+    assert [item["parameter"] for item in status["warnings"]] == ["review_m"]
+
+
+def test_potential_raw_warning_uses_historical_contract_status(tmp_path, monkeypatch):
+    """Publication target expansion must not hide a raw warning-only reuse."""
+    from features.evidence_package_parameters import ParameterImpact, ParameterSchema, ParameterSpec
+
+    schema = ParameterSchema(potential.PACKAGE_ID, "raw-warning/1", (
+        ParameterSpec("review_m", float, 0.01, unit="m", impact=ParameterImpact.REUSE_WITH_WARNING),
+    ))
+    monkeypatch.setattr(potential, "build_group_axis_parameter_snapshot",
+                        lambda *args, **kwargs: schema.resolve())
+    first = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path,
+    )
+    monkeypatch.setattr(potential, "build_group_axis_parameter_snapshot",
+                        lambda *args, **kwargs: schema.resolve({"review_m": 0.02}))
+    monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+    again = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path,
+    )
+    status = again["cache_status"]["parameter_status"]
+    assert again["cache_hit"] is True
+    assert again["cache_status"]["recompute_required"] is False
+    assert status["calculated_parameters"]["review_m"] == 0.01
+    assert status["requested_parameters"]["review_m"] == 0.02
+    assert status["exact_match"] is False and status["warnings"]
+
+
+def test_runner_retains_historical_processed_warning_values(tmp_path, monkeypatch):
+    """Warning reuse preserves transform parameters and skips both callbacks."""
+    from features.evidence_package_parameters import ParameterImpact, ParameterSchema, ParameterSpec
+
+    schema = ParameterSchema(potential.PACKAGE_ID, "processed-warning/1", (
+        ParameterSpec("review_m", float, 0.01, unit="m", impact=ParameterImpact.REUSE_WITH_WARNING),
+    ))
+    base = _processor()
+    old = field_core.EvidenceOutputProcessor(
+        base.function_id, base.version, base.function, parameter_schema=schema,
+    )
+    first = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path, output_processor=old,
+    )
+    current = field_core.EvidenceOutputProcessor(
+        base.function_id, base.version, _forbidden, {"review_m": 0.02},
+        parameter_schema=schema,
+    )
+    monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+    again = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path, output_processor=current,
+    )
+    status = again["cache_status"]["processed_parameter_status"]
+    assert again["processed_output"] == first["processed_output"]
+    assert status["calculated_parameters"]["review_m"] == 0.01
+    assert status["requested_parameters"]["review_m"] == 0.02
+    assert status["exact_match"] is False and status["warnings"]
+
+
 def _processor(version="1", function=None, core=field_core):
     """Configure one explicit transform with independently hand-checked scalar output."""
     def transform(raw, parameters):
@@ -197,6 +288,137 @@ def test_processed_receipt_skips_callback_and_recipe_change_reuses_raw(tmp_path,
     assert changed["cache_hit"] is True
     assert changed["cache_key"] == first["cache_key"]
     assert changed["processed_output"].processing_identity != first["processed_output"].processing_identity
+
+
+def test_processed_versions_restore_independently_after_parameter_round_trip(tmp_path, monkeypatch):
+    """Each processed recipe version remains addressable after switching away and back."""
+    sources = _potential_sources()
+    first = potential.run_group_axis_potential_package(
+        sources, cache_directory=tmp_path, output_processor=_processor("1"),
+    )
+    second = potential.run_group_axis_potential_package(
+        sources, cache_directory=tmp_path, output_processor=_processor("2"),
+    )
+    assert first["processed_output"].processing_identity != second["processed_output"].processing_identity
+    monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+    restored = potential.run_group_axis_potential_package(
+        sources, cache_directory=tmp_path, output_processor=_processor("1", function=_forbidden),
+    )
+    assert restored["processed_output"] == first["processed_output"]
+    assert restored["cache_status"]["processed_reuse_origin"]["mode"] == "cache_hit"
+
+
+def test_free_space_grid_versions_restore_without_recalculation(tmp_path, monkeypatch):
+    """Changing lattice spacing creates a separate raw version and restores the first one."""
+    scene = _scene(_object("chair"))
+    request_one = _request(scene)
+    request_two = replace(request_one, sampling=replace(request_one.sampling, spacing=2.0))
+    first = free_space.run_free_space_package(scene, request_one, cache_directory=tmp_path)
+    second = free_space.run_free_space_package(scene, request_two, cache_directory=tmp_path)
+    assert first["cache_key"] != second["cache_key"]
+    monkeypatch.setattr(free_space.requests, "execute_analysis_request", _forbidden)
+    restored = free_space.run_free_space_package(scene, request_one, cache_directory=tmp_path)
+    assert restored["cache_hit"] is True
+    assert restored["cache_key"] == first["cache_key"]
+    assert restored["raw_output"] == first["raw_output"]
+
+
+def test_free_space_receipt_persists_typed_parameter_snapshot(tmp_path, monkeypatch):
+    """New authenticated receipts compare typed parameters without legacy adoption."""
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    first = free_space.run_free_space_package(scene, request, cache_directory=tmp_path)
+    path = tmp_path / (first["cache_key"] + ".json")
+    receipt = json.loads(path.read_text(encoding="utf-8"))
+    assert "parameter_snapshot" in receipt["contract"]
+    monkeypatch.setattr(free_space.requests, "execute_analysis_request", _forbidden)
+    again = free_space.run_free_space_package(scene, request, cache_directory=tmp_path)
+    assert again["cache_status"]["reuse_origin"]["mode"] == "cache_hit"
+    assert again["cache_status"]["parameter_status"]["exact_match"] is True
+
+
+def test_distance_legacy_raw_receipt_requires_owner_adoption_and_preserves_bytes(tmp_path, monkeypatch):
+    """A known legacy filename is adopted only after the distance owner rebuilds parameters."""
+    from features import evidence_package_storage as storage
+
+    bundle = _missing_bundle()
+    first = distance.run_group_distance_package(bundle)
+    legacy_contract = storage.legacy_candidate_contract(first["contract"])
+    legacy_key = legacy_contract["package_identity"]
+    legacy_path = tmp_path / (legacy_key + ".json")
+    storage.save_raw_output(
+        legacy_path, cache_key=legacy_key, contract=legacy_contract,
+        raw_output=first["raw_output"],
+    )
+    original_bytes = legacy_path.read_bytes()
+    monkeypatch.setattr(distance, "calculate_group_pair_distances", _forbidden)
+    adopted = distance.run_group_distance_package(bundle, cache_directory=tmp_path)
+    assert adopted["cache_hit"] is True
+    assert adopted["raw_output"] == first["raw_output"]
+    assert adopted["cache_status"]["reuse_origin"]["mode"] == "adopted_legacy"
+    assert legacy_path.read_bytes() == original_bytes
+
+
+def test_potential_legacy_processed_receipt_is_owner_verified(tmp_path, monkeypatch):
+    """A schema-less processed receipt is reopened only after parameter reconstruction."""
+    from features import evidence_package_storage as storage
+    from features.evidence_package_parameters import ParameterSchema, ParameterSpec
+
+    schema = ParameterSchema(potential.PACKAGE_ID, "legacy-processed/1", (
+        ParameterSpec("review_m", float, 0.01, unit="m"),
+    ))
+    base = _processor()
+    typed_processor = field_core.EvidenceOutputProcessor(
+        base.function_id, base.version, base.function, {"review_m": 0.01},
+        parameter_schema=schema,
+    )
+    first = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path, output_processor=typed_processor,
+    )
+    raw = first["raw_output"]
+    legacy_output = replace(first["processed_output"], parameter_snapshot=None)
+    legacy_key = storage.legacy_processed_cache_key(raw, typed_processor)
+    legacy_path = tmp_path / ("processed-" + legacy_key + ".json")
+    storage.save_processed_output(legacy_path, legacy_output)
+    typed_path = tmp_path / ("processed-" + storage.processed_cache_key(raw, typed_processor) + ".json")
+    typed_path.unlink()
+    monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+    adopted = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path,
+        output_processor=replace(typed_processor, function=_forbidden),
+    )
+    assert adopted["processed_output"].outputs == first["processed_output"].outputs
+    assert adopted["cache_status"]["processed_reuse_origin"]["mode"] == "adopted_legacy"
+    assert adopted["cache_status"]["processed_parameter_status"]["exact_match"] is False
+
+
+def test_legacy_processed_parameter_mismatch_is_a_miss(tmp_path):
+    """An old processed identity for a different effective value cannot inherit defaults."""
+    from features import evidence_package_storage as storage
+    from features.evidence_package_parameters import ParameterSchema, ParameterSpec
+
+    schema = ParameterSchema(potential.PACKAGE_ID, "legacy-processed/2", (
+        ParameterSpec("review_m", float, 0.01, unit="m"),
+    ))
+    base = _processor()
+    old_processor = field_core.EvidenceOutputProcessor(
+        base.function_id, base.version, base.function, {"review_m": 0.01},
+        parameter_schema=schema,
+    )
+    current_processor = field_core.EvidenceOutputProcessor(
+        base.function_id, base.version, base.function, {"review_m": 0.02},
+        parameter_schema=schema,
+    )
+    first = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path, output_processor=old_processor,
+    )
+    legacy_output = replace(first["processed_output"], parameter_snapshot=None)
+    wrong_path = tmp_path / ("processed-" + storage.legacy_processed_cache_key(first["raw_output"], current_processor) + ".json")
+    storage.save_processed_output(wrong_path, legacy_output)
+    result = potential.run_group_axis_potential_package(
+        _potential_sources(), cache_directory=tmp_path, output_processor=current_processor,
+    )
+    assert result["processed_output"].processing_identity != first["processed_output"].processing_identity
 
 
 @pytest.mark.parametrize("damage", ["json", "binding", "output"])
