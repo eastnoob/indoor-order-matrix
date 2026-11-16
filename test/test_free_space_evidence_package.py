@@ -28,6 +28,58 @@ def _open(document):
     return wire.open_analysis_result([document], result_ref=ref, context=_read_context(document))
 
 
+@pytest.mark.parametrize("change", ["same", "geometry", "backend"])
+def test_flat_cache_adoption_binds_independent_current_facts(tmp_path, monkeypatch, change):
+    """Locator-aware adoption reuses the same facts and misses foreign geometry or backends."""
+    _, adapter = _modules()
+    scene = _scene(_object("chair"))
+    first = adapter.run_free_space_package(scene, _request(scene), cache_directory=tmp_path)
+    path = tmp_path / (first["cache_key"] + ".json")
+    original = path.read_bytes()
+    if change == "geometry":
+        scene = _scene(_object("chair", (2, 2, 0, 3, 3, 3)))
+    elif change == "backend":
+        versions = adapter.requests._backend_versions()
+        versions["packages"]["numpy"] = "unknown-adoption-backend"
+        monkeypatch.setattr(adapter.requests, "_backend_versions", lambda: versions)
+
+    def forbidden(*args, **kwargs):
+        """Expose a genuine miss at the numerical executor boundary."""
+        raise AssertionError("adoption calculation sentinel")
+
+    monkeypatch.setattr(adapter.requests, "execute_analysis_request", forbidden)
+    if change == "same":
+        adopted = adapter.run_free_space_package(scene, _request(scene), temporary_cache_root=tmp_path)
+        assert adopted["cache_hit"] is True
+        assert adopted["cache_reuse"] == "legacy_adopted"
+    else:
+        with pytest.raises(AssertionError, match="adoption calculation sentinel"):
+            adapter.run_free_space_package(scene, _request(scene), temporary_cache_root=tmp_path)
+    assert path.read_bytes() == original
+
+
+def test_legacy_cache_secret_concurrent_creation_keeps_winner(tmp_path, monkeypatch):
+    """Racing legacy writers return the same retained HMAC key without replacing it."""
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    _, adapter = _modules()
+    barrier = Barrier(2)
+    token_bytes = adapter.secrets.token_bytes
+
+    def synchronized_secret(size):
+        """Make both callers pass the absent-key check before either publishes."""
+        secret = token_bytes(size)
+        barrier.wait(timeout=5)
+        return secret
+
+    monkeypatch.setattr(adapter.secrets, "token_bytes", synchronized_secret)
+    with ThreadPoolExecutor(max_workers=2) as workers:
+        results = tuple(workers.map(adapter._cache_secret, (tmp_path, tmp_path)))
+    assert results[0] == results[1] == (tmp_path / ".free_space_cache_key").read_bytes()
+    assert not list(tmp_path.glob("*.partial"))
+
+
 def _document(result):
     """Read the one compact source document through the promised package path."""
     return result.source_envelopes[0].value["channels"][0].observation["document"]
@@ -159,6 +211,62 @@ def test_real_compute_and_hit_skip_executor_and_ignore_request_job_id(tmp_path, 
     assert serialize_evidence_package_output(first) == serialize_evidence_package_output(second)
     assert scene.to_dict() == before
     assert len(list(tmp_path.glob("*.json"))) == 1
+
+
+def test_model_locator_uses_sidecar_and_preserves_source_namespace(tmp_path, monkeypatch):
+    """A saved model locator selects its sidecar while keeping calculation identity stable."""
+    _, adapter = _modules()
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    model = tmp_path / "layout.ifc"
+    first = adapter.run_free_space_package(scene, request, model_path=model)
+    def forbidden(*args, **kwargs):
+        """Ensure the second request reuses the sidecar publication."""
+        pytest.fail("model-side cache hit reached occupancy executor")
+    monkeypatch.setattr(adapter.requests, "execute_analysis_request", forbidden)
+    second = adapter.run_free_space_package(scene, replace(request, request_id="relocated-job"), model_path=model)
+    assert first["cache_reuse"] == "computed"
+    assert second["cache_reuse"] == "exact_hit"
+    assert second["cache_location"] == str(model.with_suffix(".order_analyzer"))
+    assert first["source_fingerprint"] == second["source_fingerprint"]
+
+
+def test_model_sidecar_relocation_preserves_free_space_identity(tmp_path, monkeypatch):
+    """Moving a model together with its sidecar preserves the validated source namespace."""
+    _, adapter = _modules()
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    old_model = tmp_path / "old.ifc"
+    new_model = tmp_path / "renamed.ifc"
+    first = adapter.run_free_space_package(scene, request, model_path=old_model)
+    old_model.with_suffix(".order_analyzer").rename(new_model.with_suffix(".order_analyzer"))
+    monkeypatch.setattr(adapter.requests, "execute_analysis_request",
+                        lambda *args, **kwargs: pytest.fail("relocated sidecar reached occupancy executor"))
+    second = adapter.run_free_space_package(
+        scene, replace(request, request_id="relocated"), model_path=new_model,
+    )
+    assert second["cache_key"] == first["cache_key"]
+    assert second["source_fingerprint"] == first["source_fingerprint"]
+    assert second["cache_reuse"] == "exact_hit"
+
+
+def test_model_locator_adopts_legacy_flat_raw_receipt(tmp_path, monkeypatch):
+    """A validated flat receipt is adopted into the namespaced sidecar without recomputation."""
+    _, adapter = _modules()
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    model = tmp_path / "layout.ifc"
+    sidecar = model.with_suffix(".order_analyzer")
+    first = adapter.run_free_space_package(scene, request, cache_directory=sidecar)
+    monkeypatch.setattr(adapter.requests, "execute_analysis_request",
+                        lambda *args, **kwargs: pytest.fail("legacy adoption reached occupancy executor"))
+    second = adapter.run_free_space_package(
+        scene, replace(request, request_id="legacy-adopted"), model_path=model,
+    )
+    assert first["cache_hit"] is False
+    assert second["cache_hit"] is True
+    assert second["cache_reuse"] == "legacy_adopted"
+    assert list(sidecar.rglob("payload.json"))
 
 
 @pytest.mark.parametrize("change", ["geometry", "query", "grid", "plane", "rules", "scope", "uncertainty", "backend", "version"])

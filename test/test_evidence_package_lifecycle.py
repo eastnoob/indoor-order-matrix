@@ -94,6 +94,44 @@ def test_package_entry_owns_real_calculation_and_hit(tmp_path, monkeypatch, prod
     assert again["raw_output"] == first["raw_output"]
 
 
+@pytest.mark.parametrize("producer", ["distance", "potential"])
+@pytest.mark.parametrize("location", ["model", "model_override", "temporary_override"])
+def test_model_locator_uses_sidecar_store_and_reports_reuse(tmp_path, monkeypatch, producer, location):
+    """Locator-aware calls use the selected Store root, including explicit overrides."""
+    model = tmp_path / "layout.ifc"
+    model.write_bytes(b"model locator")
+    sidecar = model.with_suffix(".order_analyzer")
+    locator = {"model_path": model}
+    if location == "model_override":
+        sidecar = tmp_path / "chosen"
+        locator["cache_directory"] = sidecar
+    elif location == "temporary_override":
+        sidecar = tmp_path / "chosen"
+        locator = {"temporary_cache_root": tmp_path / "temporary", "cache_directory": sidecar}
+    if producer == "distance":
+        run = distance.run_group_distance_package
+        arguments = (_missing_bundle(),)
+        owner, boundary = distance, "calculate_group_pair_distances"
+    else:
+        run = potential.run_group_axis_potential_package
+        arguments = (_potential_sources(),)
+        owner, boundary = potential, "aggregate_group_axis_potential_outputs"
+    first = run(*arguments, **locator)
+    assert first["cache_reuse"] == "computed"
+    assert first["cache_location"] == str(sidecar.resolve())
+    assert tuple(sidecar.glob("sources/*/outputs/*/combined/raw/*/receipt.json"))
+    for compatibility in sidecar.glob("*.json"):
+        compatibility.unlink()
+    monkeypatch.setattr(owner, boundary, _forbidden)
+    second = run(*arguments, **locator)
+    assert second["cache_hit"] is True
+    assert second["cache_reuse"] == "exact_hit"
+    assert second["raw_output"] == first["raw_output"]
+    if location != "model":
+        assert not model.with_suffix(".order_analyzer").exists()
+        assert not (tmp_path / "temporary").exists()
+
+
 @pytest.mark.parametrize("producer", ["distance", "potential", "free_space"])
 def test_content_edit_misses_and_restoring_content_hits(tmp_path, monkeypatch, producer):
     """A key based only on prior source IDs would incorrectly reuse edited input."""

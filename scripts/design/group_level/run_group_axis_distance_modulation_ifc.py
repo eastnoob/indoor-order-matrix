@@ -28,11 +28,12 @@ from features.group_distance_evidence_package import (
     build_group_distance_evidence_package,
 )
 from features.evidence_package_storage import processed_cache_key
+from features.cache_paths import create_run_directory, run_journal
 from scripts.design.group_level import run_group_distance_decay_ifc as retained
 from scripts.design.group_level.replay_evidence_package_readback import (
     consume_saved_evidence_package, load_saved_evidence_package,
 )
-from scripts.design.group_level.run_group_axis_potential_ifc_replay import _load_envelope
+from scripts.design.group_level.run_group_axis_potential_ifc_replay import _load_envelope, _verified_model_locator
 
 
 AXIS_REPLAY = Path(
@@ -119,7 +120,7 @@ def _compatibility_binding(envelopes, raw, report: dict[str, Any]) -> dict[str, 
     }
 
 
-def load_modulation_inputs():
+def load_modulation_inputs(*, scratch_directory: Path | None = None):
     """Authenticate both retained packages and current processed recipe context."""
     if _sha(COMPATIBILITY) != COMPATIBILITY_SHA256:
         raise ValueError("retained distance/axis compatibility report hash mismatch")
@@ -141,7 +142,7 @@ def load_modulation_inputs():
         raise ValueError("current symmetric-reciprocal processor did not produce its expected current recipe")
     cached_contract = inputs.cached_contract
     current_contract = inputs.current_contract
-    with tempfile.TemporaryDirectory(prefix="distance-potential-processed-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="distance-potential-processed-", dir=scratch_directory) as temporary:
         path = Path(temporary) / "processed.json"
         path.write_text(json.dumps(serialize_evidence_processed_output(fresh_processed), sort_keys=True), encoding="utf-8")
         selected = consume_saved_evidence_package(
@@ -334,23 +335,43 @@ def _write_outputs(output_dir, rows, inputs, raw, processed, result, modulation,
     return manifest
 
 
-def run(output_root: Path = OUTPUT) -> Path:
+def run(output_root: Path | None = None, *, model_path: Path | None = None,
+        temporary_cache_root: Path | None = None) -> Path:
     """Build the explicitly opted-in diagnostic from authenticated retained inputs."""
-    inputs, envelopes, raw, processed, modulation, report = load_modulation_inputs()
-    result = run_group_axis_potential_package(envelopes, distance_modulation=modulation)["raw_output"]
-    rows = _rows(raw, processed, result)
-    run_dir = Path(output_root) / "run_20261115_symmetric_reciprocal"
-    run_dir.mkdir(parents=True, exist_ok=False)
-    _write_outputs(run_dir, rows, inputs, raw, processed, result, modulation, report)
-    return run_dir
+    if output_root is None and model_path is None and temporary_cache_root is None:
+        if _sha(AXIS_REPLAY / "source_manifest.json") != AXIS_HASHES["source_manifest.json"]:
+            raise ValueError("retained axis replay source manifest hash mismatch")
+        model_path = _verified_model_locator(_read(AXIS_REPLAY / "source_manifest.json"))
+    run_dir = create_run_directory(
+        root=output_root, model_path=model_path, temporary_root=temporary_cache_root,
+        prefix="distance-modulation",
+    )
+    with run_journal(run_dir):
+        scratch = run_dir / "scratch"
+        scratch.mkdir()
+        inputs, envelopes, raw, processed, modulation, report = load_modulation_inputs(scratch_directory=scratch)
+        result = run_group_axis_potential_package(
+            envelopes, distance_modulation=modulation, model_path=model_path,
+            temporary_cache_root=temporary_cache_root,
+        )["raw_output"]
+        rows = _rows(raw, processed, result)
+        _write_outputs(run_dir, rows, inputs, raw, processed, result, modulation, report)
+        return run_dir
 
 
-def main() -> None:
+def main(argv=None) -> None:
     """Expose one bounded real-IFC diagnostic replay command."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output-root", type=Path, default=OUTPUT)
-    args = parser.parse_args()
-    print(json.dumps({"status": "complete", "run_dir": str(run(args.output_root).resolve())}, sort_keys=True))
+    parser.add_argument("--output-root", type=Path, default=None)
+    parser.add_argument("--model-path", type=Path, default=None)
+    parser.add_argument("--temporary-cache-root", type=Path, default=None)
+    args = parser.parse_args(argv)
+    print(json.dumps({"status": "complete", "run_dir": str(run(
+        args.output_root,
+        model_path=None if args.model_path is None else args.model_path.resolve(),
+        temporary_cache_root=(None if args.temporary_cache_root is None
+                              else args.temporary_cache_root.resolve()),
+    ).resolve())}, sort_keys=True))
 
 
 if __name__ == "__main__":

@@ -209,7 +209,8 @@ def test_start_job_preserves_authored_domain_identity_in_free_space_binding(runt
     }
     payload = {"kind": "free_space_run", "request": {"domain": {"id": "space-domain"}},
                "domain_geometries": ()}
-    runtime.start_job(repo_root=root, bpy_context=SimpleNamespace(scene=object()), payload=payload)
+    runtime.start_job(repo_root=root, bpy_context=SimpleNamespace(scene=object()), payload=payload,
+                      model_path=tmp_path / "model.blend")
     assert runtime.STATE.job.payload["job_binding"]["domain_source_id"] == "space-guid"
     assert runtime.STATE.job.payload["job_binding"]["storey_ref"] == "ifc-object:storey-guid"
     assert runtime.STATE.job.payload["job_binding"]["support_source_id"] == "floor-guid"
@@ -312,7 +313,8 @@ def test_failed_publication_retains_previous_result(runtime):
     assert runtime.STATE.current_result is old
 
 
-def _native_job(runtime, monkeypatch, tmp_path, *, running=False, auto_publish=False):
+def _native_job(runtime, monkeypatch, tmp_path, *, running=False, auto_publish=False,
+                kind="domain_session", locator=None):
     """Use real capture and wire/CLI execution with explicit synthetic native/process edges."""
     from .test_blender_analysis_capture import runtime as native_fixture
     from .test_b3_live_scene_capture import unknown_quality
@@ -321,8 +323,10 @@ def _native_job(runtime, monkeypatch, tmp_path, *, running=False, auto_publish=F
     from .test_analysis_requests import _plane
     import shutil
     context, entities, evaluated = native_fixture(monkeypatch)
+    context.view_layer = SimpleNamespace(update=lambda: None)
     bpy = sys.modules["bpy"]
     bpy.context = context
+    bpy.data.filepath = str(tmp_path / "fixture.blend")
     sys.modules["bonsai.bim.ifc"].IfcStore.last_transaction = "txn-one"
     monkeypatch.setattr(runtime.capture, "topology_quality", unknown_quality)
     root = tmp_path / "root"
@@ -344,9 +348,7 @@ def _native_job(runtime, monkeypatch, tmp_path, *, running=False, auto_publish=F
             self.args, self.kwargs = args, kwargs
             self.returncode = None if running else 0
             self.terminated = self.killed = False
-            payload = runtime.wire.load_json(Path(args[-2]).read_text(encoding="utf-8"))
-            document = service._execute_workflow_payload(payload)
-            runtime.wire.write_result_atomic(document, path=Path(args[-1]))
+            service.main(args[3:])
             children.append(self)
         def poll(self):
             """Return an OS-like nonblocking exit observation."""
@@ -361,7 +363,34 @@ def _native_job(runtime, monkeypatch, tmp_path, *, running=False, auto_publish=F
     runtime.STATE.observation_hooks_active = True
     payload = {"kind": "domain_session", "context": StructuralContext.from_plane(_plane()).to_dict(),
                "prior": None, "action": None}
-    runtime.start_job(repo_root=root, bpy_context=context, payload=payload, auto_publish=auto_publish)
+    if kind == "free_space_run":
+        from .test_analysis_requests import _request, _scene
+        from ..adapters.bonsai_live import load_bonsai_capture
+        from ..adapters.blender_analysis_capture import CanonicalCaptureInput
+
+        # Independently capture the structural facts to bind the retained consent.
+        structural = StructuralContext.from_plane(_plane())
+        preview = runtime.capture.begin_analysis_capture(bpy_context=context, scene_token="consent")
+        while not runtime.capture.capture_next_batch(preview).complete:
+            pass
+        canonical = runtime.capture.finalize_capture(preview)
+        normalized = runtime._canonical_capture_for_request(canonical)
+        live = load_bonsai_capture(CanonicalCaptureInput(**normalized), plane=_plane())
+        preview_facts = service.structural_source_facts(service.structural_b4_view(live.scene, context=structural))
+        consent = {"source_revision": service.digest(preview_facts),
+            "frame_id": structural.structural_frame_key}
+        scene = _scene()
+        runtime.STATE.domain_context = structural.to_dict()
+        runtime.STATE.domain_session = {"domain_request_identity": "fixture-domain", "session_revision": 1,
+            "confirmation_binding": consent, "analysis_domain": scene.analysis_domain.to_dict(),
+            "domain_geometries": [scene.geometries[0].to_dict()], "current": {"status": "active"}}
+        payload = {"kind": kind, "request": _request(scene).to_dict(),
+                   "domain_geometries": [scene.geometries[0].to_dict()]}
+        # GPU/native display creation is separate from the storage and currentness contract.
+        monkeypatch.setattr(runtime, "_replace_native_board", lambda *args, **kwargs: (None, None))
+    locator = {"model_path": tmp_path / "fixture.blend"} if locator is None else locator
+    runtime.start_job(repo_root=root, bpy_context=context, payload=payload, auto_publish=auto_publish,
+                      **locator)
     return root, context, children
 
 
@@ -603,21 +632,99 @@ def test_operator_style_auto_commit_updates_addon_runtime_state(runtime, monkeyp
 
 
 def test_child_launch_uses_validated_root_for_job_and_module_resolution(runtime, monkeypatch, tmp_path):
-    """Installed-module location cannot redirect job output or child imports."""
+    """Model-side job artifacts leave trusted executable, cwd and module resolution intact."""
     monkeypatch.setattr(runtime, "__file__", str(tmp_path / "installed" / "runtime.py"))
     root, context, children = _native_job(runtime, monkeypatch, tmp_path, running=True)
     job = _pump_until(runtime, "process")
     child = children[0]
     assert job.root == root.resolve()
-    assert job.directory.is_relative_to(root / "outputs" / "blender_analysis" / "jobs")
+    assert job.directory.parent == tmp_path / "fixture.order_analyzer" / "runs"
+    assert not (root / "outputs").exists()
     assert child.kwargs["cwd"] == str(root)
     assert child.kwargs["env"]["PYTHONPATH"].split(os.pathsep)[0] == str(root)
     assert Path(child.args[0]).resolve().is_relative_to(root)
-    assert Path(child.args[-2]).is_relative_to(job.directory)
-    assert Path(child.args[-1]).is_relative_to(job.directory)
+    assert Path(child.args[3]).is_relative_to(job.directory)
+    assert Path(child.args[4]).is_relative_to(job.directory)
+    assert child.args[5:] == ["--model-path", str(tmp_path / "fixture.blend")]
     children[0].returncode = -9
     runtime.cancel_job()
     runtime.poll_job()
+
+
+@pytest.mark.parametrize("kind", ["domain_session", "free_space_run"])
+@pytest.mark.parametrize("location", ["saved", "ifc", "override", "temporary"])
+def test_native_job_artifacts_and_worker_flags_follow_locator(runtime, monkeypatch, tmp_path, kind, location):
+    """The real request-file CLI keeps every native artifact in the selected sidecar."""
+    model = tmp_path / "model.blend"
+    if location == "temporary":
+        locator = {"temporary_cache_root": tmp_path / "temporary" / "session-one"}
+        cache_root = locator["temporary_cache_root"]
+    elif location == "override":
+        locator = {"model_path": model, "cache_directory": tmp_path / "explicit"}
+        cache_root = locator["cache_directory"]
+    else:
+        model = model.with_suffix(".ifc") if location == "ifc" else model
+        locator = {"model_path": model}
+        cache_root = model.with_suffix(".order_analyzer")
+    root, _, children = _native_job(runtime, monkeypatch, tmp_path, kind=kind, locator=locator)
+    job = runtime.STATE.job
+    assert job.directory.parent == cache_root / "runs"
+    assert runtime.wire.load_json((job.directory / "run.json").read_text()) == {
+        "schema": "cache-run/v1", "state": "running"}
+    _pump_until(runtime, "awaiting_publication")
+    assert job.error is None and job.candidate is not None
+    runtime.commit_publication(job.candidate, native_artifacts={})
+    artifacts = {path.name for path in job.directory.iterdir()}
+    assert {"request.json", "result.json", "stdout.log", "stderr.log",
+            "terminal_diagnostics.json", "run.json"} <= artifacts
+    assert all(runtime._artifact_path(job, name).is_relative_to(cache_root) for name in artifacts)
+    assert not (root / "outputs").exists()
+    child = children[0]
+    assert child.kwargs["cwd"] == str(root)
+    assert child.kwargs["env"]["PYTHONPATH"].split(os.pathsep)[0] == str(root)
+    assert Path(child.args[0]) == root / ".pixi/envs/default/python.exe"
+    flags = dict(zip(child.args[5::2], child.args[6::2]))
+    assert flags == {"--" + key.replace("_", "-"): str(path) for key, path in locator.items()}
+    request = runtime.wire.load_json((job.directory / "request.json").read_text())
+    assert not set(locator).intersection(request)
+    assert not set(locator).intersection(request.get("request", {}))
+    journal = runtime.wire.load_json((job.directory / "run.json").read_text())
+    assert journal["state"] == "complete"
+    if kind == "free_space_run":
+        content_cache = job.candidate.document["content_cache"]
+        assert content_cache["cache_location"] == str(cache_root)
+        assert journal["source_fingerprint"] == content_cache["source_fingerprint"]
+
+
+def test_runtime_derives_saved_native_anchor_without_repository_fallback(runtime, monkeypatch, tmp_path):
+    """Direct native callers inherit the actual saved file when they omit locator kwargs."""
+    _native_job(runtime, monkeypatch, tmp_path, locator={})
+    job = runtime.STATE.job
+    assert job.directory.parent == tmp_path / "fixture.order_analyzer" / "runs"
+    assert job.locator_args == ("--model-path", str(tmp_path / "fixture.blend"))
+
+
+def test_native_save_changes_only_the_next_run_locator(runtime, monkeypatch, tmp_path):
+    """A native file switch preserves the active run and places later work beside the new file."""
+    root, context, _ = _native_job(runtime, monkeypatch, tmp_path)
+    previous = runtime.STATE.job
+    directory = previous.directory
+    sys.modules["bpy"].data.filepath = str(tmp_path / "saved.blend")
+    runtime.poll_job()
+    assert runtime.STATE.job is None and previous.directory == directory and directory.is_dir()
+    runtime.start_job(repo_root=root, bpy_context=context, payload={"kind": "domain_session"})
+    assert runtime.STATE.job.directory.parent == tmp_path / "saved.order_analyzer" / "runs"
+    assert previous.directory == directory and (directory / "run.json").is_file()
+
+
+def test_unsaved_runtime_requires_supplied_temporary_root(runtime, monkeypatch, tmp_path):
+    """An unsaved native request fails before creating any repository output files."""
+    monkeypatch.setattr(runtime, "_paths", lambda _root: (tmp_path, tmp_path / "python.exe"))
+    monkeypatch.setattr(runtime, "_scene_file_token", lambda _context: "unsaved")
+    monkeypatch.setitem(sys.modules, "bpy", SimpleNamespace(data=SimpleNamespace(filepath="")))
+    with pytest.raises(ValueError, match="unsaved model requires"):
+        runtime.start_job(repo_root=tmp_path, bpy_context=object(), payload={"kind": "domain_session"})
+    assert not list(tmp_path.iterdir())
 
 
 def test_child_environment_loads_fixed_pixi_python_from_stripped_environment(runtime):

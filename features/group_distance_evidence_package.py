@@ -9,7 +9,9 @@ distance or turn free-space provenance into a third evidence channel.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from contextlib import nullcontext
 from itertools import combinations, pairwise
+import json
 import math
 from pathlib import Path
 from typing import Any
@@ -35,15 +37,23 @@ from .field_core import (
 from .evidence_package_parameters import ParameterSchema, ParameterSnapshot, ParameterSpec
 from . import group_distance as distance_kernel
 from .evidence_package_storage import (
+    adopt_legacy_store_payload,
     legacy_candidate_contract,
     legacy_processed_cache_key,
     load_processed_entry,
+    load_processed_bytes,
     load_raw_entry,
+    load_raw_bytes,
+    load_bound_store_entry,
     reconstruct_legacy_processed_snapshot,
     save_processed_output,
     save_raw_output,
+    serialize_processed_output_bytes,
+    serialize_raw_output_bytes,
     processed_cache_key,
 )
+from .cache_paths import CacheAddress, SourceBinding, resolve_sidecar_path
+from .cache_store import CacheStore
 from .group_distance import (
     GroupDistanceInput,
     GroupDistanceResult,
@@ -1126,7 +1136,79 @@ def reconstruct_legacy_group_distance_contract(receipt, current_contract, bundle
         return None
 
 
+def _distance_cache_root(cache_directory, model_path, temporary_cache_root):
+    """Resolve explicit, model-side, or temporary storage without changing identities."""
+    if cache_directory is not None:
+        return Path(cache_directory)
+    if model_path is not None:
+        return resolve_sidecar_path(Path(model_path))
+    if temporary_cache_root is not None:
+        return Path(temporary_cache_root)
+    return None
+
+
+def _distance_store_lock(store, address):
+    """Use the shared identity lock when the optional model-side store is active."""
+    if store is None:
+        return nullcontext()
+    lock = getattr(store, "identity_lock", None)
+    return nullcontext() if lock is None else lock(address)
+
+
+def _distance_dependency_fingerprint(contract, name):
+    """Read one normalized dependency fingerprint from the package contract."""
+    for dependency in contract["dependencies"]:
+        if dependency["name"] == name:
+            return dependency["fingerprint"]
+    raise KeyError(f"missing package dependency: {name}")
+
+
+def _distance_bind_source(store, contract, *, model_path, cache_root):
+    """Record the verified source namespace while allowing its display locator to move."""
+    if store is None:
+        return
+    source_fingerprint = _distance_source_fingerprint(contract)
+    locator = str(Path(model_path).resolve()) if model_path is not None else str(Path(cache_root).resolve())
+    store.put_source_binding(SourceBinding(
+        source_fingerprint=source_fingerprint,
+        canonical_source_identity=f"evidence-source:{source_fingerprint}",
+        content_fingerprint=source_fingerprint,
+        external_dependencies={},
+        current_locator=locator,
+    ))
+
+
+def _distance_source_fingerprint(contract):
+    """Keep request parameters out of the factual scene and group namespace."""
+    # The historical `source` contract dependency also includes query and repair inputs.
+    return fingerprint_evidence_dependency({
+        name: _distance_dependency_fingerprint(contract, name) for name in ("scene", "model")
+    })
+
+
+def _distance_raw_validator(package, contract, legacy_adopter=None):
+    """Validate Store payloads through the unchanged package receipt codec."""
+    def validate(payload, context):
+        """Reject bytes that do not pass current package and parameter admission."""
+        if load_raw_bytes(payload, cache_key=context.address.identity, contract=contract,
+                          package=package, legacy_adopter=legacy_adopter) is None:
+            raise ValueError("stored distance receipt is not a current package hit")
+    return validate
+
+
+def _distance_processed_validator(raw, processor):
+    """Validate processed Store payloads against the current raw and processor identity."""
+    def validate(payload, _context):
+        """Reject stale, malformed, or processor-mismatched bytes."""
+        if load_processed_bytes(payload, raw_output=raw, processor=processor,
+                                legacy_processed_adopter=reconstruct_legacy_processed_snapshot) is None:
+            raise ValueError("stored processed distance receipt is not a current hit")
+    return validate
+
+
 def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=None,
+                               model_path: Path | None = None,
+                               temporary_cache_root: Path | None = None,
                                output_processor=None, parameter_sources=None):
     """Own distance computation and independently cached optional processed results."""
     package = build_group_distance_evidence_package(output_processor=output_processor)
@@ -1134,7 +1216,12 @@ def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=
         bundle, repaired_result, parameter_sources=parameter_sources,
     )
     cache_key = contract["package_identity"]
-    path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
+    cache_root = _distance_cache_root(cache_directory, model_path, temporary_cache_root)
+    # Locator context opts into Store semantics even when the caller overrides its root.
+    store_enabled = model_path is not None or temporary_cache_root is not None
+    store = None if cache_root is None or not store_enabled else CacheStore(cache_root)
+    _distance_bind_source(store, contract, model_path=model_path, cache_root=cache_root)
+    path = None if cache_root is None else cache_root / (cache_key + ".json")
     legacy_path = None
     if path is not None:
         legacy_key = legacy_candidate_contract(contract)["package_identity"]
@@ -1143,56 +1230,151 @@ def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=
     adopter = lambda receipt, wanted: reconstruct_legacy_group_distance_contract(
         receipt, wanted, bundle, parameter_sources=parameter_sources,
     )
-    lookup = None
-    if path is not None:
-        lookup = load_raw_entry(
-            path, cache_key=cache_key, contract=contract, package=package,
-        )
-        if lookup is None and legacy_path is not None:
-            lookup = load_raw_entry(
-                legacy_path, cache_key=legacy_path.stem, contract=contract,
-                package=package, legacy_adopter=adopter,
-            )
-    raw = None if lookup is None else lookup.raw_output
-    if raw is not None and not _cached_sources_match(raw, bundle, inputs, contract["target_ids"]):
+    raw_address = None if store is None else CacheAddress(
+        _distance_source_fingerprint(contract), PACKAGE_ID,
+        "combined", "raw", cache_key,
+    )
+    with _distance_store_lock(store, raw_address) if raw_address is not None else nullcontext():
         lookup = None
-        raw = None
-    hit = lookup is not None
-    cache_status = evaluate_evidence_package_freshness(
-        cached_contract=None if lookup is None else lookup.cached_contract,
-        current_contract=contract,
-    )
-    if lookup is not None:
-        cache_status["parameter_status"] = dict(lookup.parameter_status)
-        cache_status["reuse_origin"] = dict(lookup.reuse_origin)
-    if raw is None:
-        raw = evaluate_group_distance_package(bundle, repaired_result=repaired_result)
+        store_reuse_origin = None
+        loaded_path = None
+        raw_storage_address = raw_address
         if path is not None:
-            save_raw_output(path, cache_key=cache_key, contract=contract, raw_output=raw)
-    processed_path = (None if path is None or output_processor is None else
-                      path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
-    processed_legacy_path = None
-    if processed_path is not None and output_processor is not None:
-        old_key = legacy_processed_cache_key(raw, output_processor)
-        if old_key != processed_cache_key(raw, output_processor):
-            processed_legacy_path = processed_path.parent / ("processed-" + old_key + ".json")
-    processed_lookup = None if processed_path is None else load_processed_entry(
-        processed_path, raw_output=raw, processor=output_processor,
-        legacy_path=processed_legacy_path,
-        legacy_processed_adopter=reconstruct_legacy_processed_snapshot,
-    )
-    processed = None if processed_lookup is None else processed_lookup.processed_output
-    if processed_lookup is None:
-        processed = package.process_output(raw, package_freshness="fresh")
-        if processed_path is not None:
-            save_processed_output(processed_path, processed)
-    if processed_lookup is not None:
-        cache_status["processed_parameter_status"] = (
-            None if processed_lookup.parameter_status is None else dict(processed_lookup.parameter_status))
-        cache_status["processed_reuse_origin"] = dict(processed_lookup.reuse_origin)
-    return {"raw_output": raw, "processed_output": processed, "contract": contract,
-            "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
-            "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}
+            # Prefer a valid old flat receipt when present for compatibility callers.
+            lookup = load_raw_entry(path, cache_key=cache_key, contract=contract, package=package)
+            if lookup is not None:
+                loaded_path = path
+            if lookup is None and legacy_path is not None:
+                lookup = load_raw_entry(
+                    legacy_path, cache_key=legacy_path.stem, contract=contract,
+                    package=package, legacy_adopter=adopter,
+                )
+                if lookup is not None:
+                    loaded_path = legacy_path
+            if lookup is None and store is not None:
+                entry = load_bound_store_entry(
+                    store, raw_address, validator=_distance_raw_validator(package, contract, adopter),
+                    profile="evidence-package-raw/v1",
+                )
+                if entry is not None:
+                    store_reuse_origin = entry.reuse_origin
+                    raw_storage_address = entry.address
+                    lookup = load_raw_bytes(
+                        entry.payload_paths[0].read_bytes(), cache_key=entry.address.identity,
+                        contract=contract, package=package, legacy_adopter=adopter,
+                    )
+        raw = None if lookup is None else lookup.raw_output
+        if raw is not None and not _cached_sources_match(raw, bundle, inputs, contract["target_ids"]):
+            lookup = None
+            raw = None
+        if lookup is not None and store is not None and loaded_path is not None:
+            entry = adopt_legacy_store_payload(
+                store, raw_address, original_identity=loaded_path.stem,
+                payload=loaded_path.read_bytes(), contract=lookup.cached_contract,
+                payload_format="evidence-package-cache/v1",
+                validator=_distance_raw_validator(package, contract, adopter),
+                profile="evidence-package-raw/v1",
+            )
+            raw_storage_address = entry.address
+            store_reuse_origin = entry.reuse_origin
+        hit = lookup is not None
+        cache_status = evaluate_evidence_package_freshness(
+            cached_contract=None if lookup is None else lookup.cached_contract,
+            current_contract=contract,
+        )
+        if lookup is not None:
+            cache_status["parameter_status"] = dict(lookup.parameter_status)
+            cache_status["reuse_origin"] = dict(lookup.reuse_origin)
+        cache_reuse = "exact_hit" if hit else "computed"
+        if store_reuse_origin == "migrated":
+            cache_reuse = "migrated_reuse"
+        if store_reuse_origin != "migrated" and (store_reuse_origin == "legacy_adopted"
+                or lookup is not None and lookup.reuse_origin.get("mode") == "adopted_legacy"):
+            cache_reuse = "legacy_adopted"
+        if raw is None:
+            raw = evaluate_group_distance_package(bundle, repaired_result=repaired_result)
+            if path is not None:
+                payload = serialize_raw_output_bytes(
+                    cache_key=cache_key, contract=contract, raw_output=raw,
+                )
+                if store is not None:
+                    store.put(raw_address, contract=contract, payload=payload,
+                              payload_format="evidence-package-cache/v1",
+                              validator=_distance_raw_validator(package, contract))
+                if not store_enabled:
+                    save_raw_output(path, cache_key=cache_key, contract=contract, raw_output=raw)
+        processed_path = (None if path is None or output_processor is None else
+                          path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
+        processed_legacy_path = None
+        processed_identity = None
+        processed_address = None
+        if processed_path is not None and output_processor is not None:
+            processed_identity = processed_cache_key(raw, output_processor)
+            old_key = legacy_processed_cache_key(raw, output_processor)
+            if old_key != processed_identity:
+                processed_legacy_path = processed_path.parent / ("processed-" + old_key + ".json")
+            if store is not None:
+                processed_address = CacheAddress(
+                    _distance_source_fingerprint(contract), PACKAGE_ID,
+                    "combined", "processed",
+                    processed_identity,
+                )
+        processed_lookup = None if processed_path is None else load_processed_entry(
+            processed_path, raw_output=raw, processor=output_processor,
+            legacy_path=processed_legacy_path,
+            legacy_processed_adopter=reconstruct_legacy_processed_snapshot,
+        )
+        if processed_lookup is not None and processed_address is not None:
+            saved_path = processed_path if processed_path.exists() else processed_legacy_path
+            payload = saved_path.read_bytes()
+            adopt_legacy_store_payload(
+                store, processed_address, original_identity=json.loads(payload)["processing_identity"],
+                payload=payload, contract={"processing_identity": processed_identity},
+                payload_format="evidence-package-processed/v1",
+                validator=_distance_processed_validator(raw, output_processor),
+                profile="evidence-package-processed/v1", upstream_refs=(raw_storage_address,),
+            )
+        if processed_lookup is None and processed_address is not None:
+            entry = load_bound_store_entry(
+                store, processed_address,
+                validator=_distance_processed_validator(raw, output_processor),
+                profile="evidence-package-processed/v1",
+            )
+            if entry is not None:
+                processed_lookup = load_processed_bytes(
+                    entry.payload_paths[0].read_bytes(), raw_output=raw,
+                    processor=output_processor,
+                    legacy_processed_adopter=reconstruct_legacy_processed_snapshot,
+                )
+        processed = None if processed_lookup is None else processed_lookup.processed_output
+        if processed_lookup is None:
+            processed = package.process_output(raw, package_freshness="fresh")
+            if processed_path is not None:
+                payload = serialize_processed_output_bytes(processed)
+                if payload is not None:
+                    if store is not None:
+                        store.put(
+                            processed_address,
+                            contract={"raw_output_identity": raw.output_identity,
+                                      "processing_identity": processed_identity,
+                                      "processor_id": output_processor.function_id,
+                                      "processor_version": output_processor.version},
+                            payload=payload, payload_format="evidence-package-processed/v1",
+                            validator=_distance_processed_validator(raw, output_processor),
+                            upstream_refs=(raw_storage_address,),
+                        )
+                    if not store_enabled:
+                        save_processed_output(processed_path, processed)
+        if processed_lookup is not None:
+            cache_status["processed_parameter_status"] = (
+                None if processed_lookup.parameter_status is None else dict(processed_lookup.parameter_status))
+            cache_status["processed_reuse_origin"] = dict(processed_lookup.reuse_origin)
+        result = {"raw_output": raw, "processed_output": processed, "contract": contract,
+                  "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
+                  "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}
+        if store_enabled:
+            result.update(cache_reuse=cache_reuse, cache_location=str(Path(cache_root).resolve()))
+        return result
 
 
 def serialize_group_distance_package_output(result: EvidencePackageOutput) -> dict[str, Any]:

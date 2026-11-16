@@ -295,6 +295,7 @@ class CaptureJob:
     callback_seconds: float = 0.
     max_object_seconds: float = 0.
     started_monotonic: float = field(default_factory=perf_counter)
+    source_binding: object = None
 
     @property
     def capture_id(self):
@@ -447,7 +448,8 @@ def extract_evaluated_mesh(obj, depsgraph, scale, *, quality_reader=None):
         evaluated.to_mesh_clear()
 
 
-def begin_analysis_capture(*, bpy_context, scene_token, batch_size=5):
+def begin_analysis_capture(*, bpy_context, scene_token, batch_size=5,
+                           source_binding=None, external_dependencies=None):
     """Inventory current IFC products through authoritative Bonsai bindings."""
     _main_thread()
     bpy = importlib.import_module("bpy")
@@ -485,11 +487,61 @@ def begin_analysis_capture(*, bpy_context, scene_token, batch_size=5):
     identity = {"project_global_id": projects[0].GlobalId, "ifc_source_identity": str(Path(store.path).resolve()) if store.path else "unsaved:" + projects[0].GlobalId,
                 "schema": model.schema, "capture_version": CAPTURE_VERSION,
                 "authored_groups": [group.to_dict() for group in _native_group_records(model)]}
+    dependencies = dict(external_dependencies or {})
+    if store.path and Path(store.path).is_file():
+        dependencies["linked_ifc"] = sha256(Path(store.path).read_bytes()).hexdigest()
+    if any(type(key) is not str or not key or type(value) is not str or not value
+           for key, value in dependencies.items()):
+        raise ValueError("external dependencies require named content fingerprints")
+    identity["external_dependencies"] = dependencies
     observation = {"scene_token": scene_token, "blend_path": bpy.data.filepath, "scene": bpy_context.scene.name,
                    "frame": bpy_context.scene.frame_current, "subframe": bpy_context.scene.frame_subframe,
                    "blender_world_to_m": scale}
     return CaptureJob(bpy_context, tool, model, entities, links, identity, observation, batch_size,
-                      bpy_context.evaluated_depsgraph_get(), diagnostics=diagnostics)
+                      bpy_context.evaluated_depsgraph_get(), diagnostics=diagnostics,
+                      source_binding=source_binding)
+
+
+def capture_source_fingerprint(identity, records, diagnostics, observation):
+    """Bind evaluated source facts while excluding declared display/session locators."""
+    # Native histograms and their wire record lists must bind to the same source.
+    steps = normalized_capture_steps({"records": records})
+    while True:
+        try:
+            next(steps)
+        except StopIteration as done:
+            records = done.value["records"]
+            break
+    identity = {key: value for key, value in identity.items()
+                if key not in {"ifc_source_identity", "canonical_source_identity", "model_path", "source_path", "locator"}}
+    observation = {key: value for key, value in observation.items()
+                   if key not in {"scene_token", "session_token", "capture_id", "locator", "blend_path", "scene"}}
+
+    def factual(value):
+        """Keep the same declared display exclusions as the analysis request identity."""
+        if isinstance(value, Mapping):
+            return {key: factual(item) for key, item in value.items()
+                    if key not in {"display", "display_name", "color", "colour", "legend", "camera_scale", "to_mesh_seconds"}}
+        if isinstance(value, (list, tuple)):
+            return [factual(item) for item in value]
+        return value
+
+    return digest(factual({"identity": identity, "records": records,
+                           "diagnostics": diagnostics, "observation": observation}))
+
+
+def _bind_final_capture(job, records):
+    """Accept a portable or historical source ID only after complete factual verification."""
+    current = capture_source_fingerprint(job.identity, records, job.diagnostics, job.observation)
+    binding = job.source_binding
+    if binding is not None:
+        if (binding.content_fingerprint != current or binding.source_fingerprint != current
+                or dict(binding.external_dependencies) != job.identity["external_dependencies"]):
+            raise ValueError("source binding differs from current captured facts")
+        job.identity["ifc_source_identity"] = binding.canonical_source_identity
+    else:
+        job.identity["ifc_source_identity"] = f"blender:{job.identity['project_global_id']}:{current}"
+    job.identity["canonical_source_identity"] = job.identity["ifc_source_identity"]
 
 
 def capture_next_batch(job, *, max_seconds=.050):
@@ -606,6 +658,12 @@ def _check_final_capture(job, records):
     if job.stage != "complete":
         raise ValueError("capture inventory is incomplete")
     _check_observation(job)
+    dependencies = job.identity.get("external_dependencies", {})
+    if "linked_ifc" in dependencies:
+        store = importlib.import_module("bonsai.bim.ifc").IfcStore
+        if (not store.path or not Path(store.path).is_file()
+                or sha256(Path(store.path).read_bytes()).hexdigest() != dependencies["linked_ifc"]):
+            raise ValueError("linked IFC bytes changed during capture")
     from .ifc_bonsai import _native_group_records
     if [group.to_dict() for group in _native_group_records(job.model)] != plain(job.identity.get("authored_groups", [])):
         job.stage = "invalidated"
@@ -625,6 +683,7 @@ def _check_final_capture(job, records):
                     or job.tool.Ifc.get_object(entity) is not obj):
                 job.stage = "invalidated"
                 raise ValueError("Bonsai binding changed during capture")
+    _bind_final_capture(job, records)
 
 
 def finalize_capture(job):

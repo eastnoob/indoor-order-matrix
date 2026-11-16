@@ -23,6 +23,7 @@ import uuid
 
 from adapters import blender_analysis_capture as capture
 from adapters import blender_analysis_result_wire as wire
+from features.cache_paths import SidecarLocator, contained_cache_path, ensure_cache_directory
 
 BUDGET_SECONDS = .050
 LOG_LIMIT = 1024 * 1024
@@ -52,6 +53,8 @@ class RuntimeJob:
     epoch: int
     runtime_session: str
     scene_file_token: str
+    cache_root: Path | None = None
+    locator_args: tuple[str, ...] = ()
     lifecycle: str = "capturing"
     stage: str = "capture"
     capture_job: object = None
@@ -336,7 +339,8 @@ def _check_job(job):
 
 
 def start_job(*, repo_root: Path, bpy_context: object, payload: Mapping[str, object],
-              auto_publish: bool = False) -> str:
+              auto_publish: bool = False, model_path: Path | None = None,
+              temporary_cache_root: Path | None = None, cache_directory: Path | None = None) -> str:
     """Freeze one concrete workflow and begin main-thread capture without spawning yet."""
     _main_thread()
     if STATE.job is not None:
@@ -380,30 +384,61 @@ def start_job(*, repo_root: Path, bpy_context: object, payload: Mapping[str, obj
         payload["job_binding"] = {**supplied, **frozen_domain}
     root, _ = _paths(repo_root)
     token = _scene_file_token(bpy_context)
+    if model_path is None and temporary_cache_root is None and cache_directory is None:
+        filepath = str(importlib.import_module("bpy").data.filepath or "")
+        model_path = Path(filepath) if filepath else None
+    locator = SidecarLocator(model_path=model_path, explicit_directory=cache_directory,
+                             temporary_root=temporary_cache_root)
+    cache_root = locator.resolve()
+    cache_root = contained_cache_path(cache_root, cache_root)
     job_id = uuid.uuid4().hex
-    directory = root / "outputs" / "blender_analysis" / "jobs" / job_id
-    directory = directory.resolve()
-    if not directory.is_relative_to(root):
-        raise ValueError("owned job directory escaped root")
-    directory.mkdir(parents=True, exist_ok=False)
+    # Capture has no verified source fingerprint yet; keep this run stable after save or rename.
+    directory = ensure_cache_directory(cache_root, cache_root / "runs" / job_id)
+    locator_args = tuple(value for flag, path in (
+        ("--cache-directory", cache_directory), ("--model-path", model_path),
+        ("--temporary-cache-root", temporary_cache_root)) if path is not None
+        for value in (flag, str(Path(path).absolute())))
     job = RuntimeJob(job_id, root, bpy_context, wire.plain(payload), directory,
                      STATE.observation_epoch, STATE.runtime_session, token,
+                     cache_root=cache_root, locator_args=locator_args,
                      auto_publish=auto_publish)
     job.binding = {**wire.plain(payload.get("job_binding", {})), "job_id": job_id,
         "runtime_session": job.runtime_session, "scene_file_token": token, "observation_epoch": job.epoch,
         "created_at": datetime.now(timezone.utc).isoformat(), "root": str(root)}
+    _write_run_journal(job, "running")
     try:
         started = perf_counter()
         job.capture_job = capture.begin_analysis_capture(bpy_context=bpy_context, scene_token=job.runtime_session)
         job.metrics["atomic_seconds"]["begin_capture"] = perf_counter() - started
     except Exception:
         # Directory is newly owned but may contain useful native failure evidence; never recurse-delete it.
+        _write_run_journal(job, "failed")
         STATE.freshness = "unverified"
         raise
     job.stage, job.iterator = "observe_start", _native_observation_steps(job)
     STATE.job, STATE.lifecycle = job, job.lifecycle
     STATE.current_observation = None
     return job_id
+
+
+def _artifact_path(job, name):
+    """Recheck owned artifact containment before reading or writing native job files."""
+    return contained_cache_path(job.cache_root or job.directory, job.directory / name)
+
+
+def _write_run_journal(job, state):
+    """Publish terminal state atomically so migration never copies an active run."""
+    document = {"schema": "cache-run/v1", "state": state}
+    if job.candidate is not None:
+        source = job.candidate.document.get("content_cache", {}).get("source_fingerprint")
+        if source is not None:
+            document["source_fingerprint"] = source
+    partial = _artifact_path(job, "run.json.partial")
+    with partial.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(wire.canonical_json(document))
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(partial, _artifact_path(job, "run.json"))
 
 
 def _write_request_steps(job):
@@ -419,7 +454,7 @@ def _write_request_steps(job):
     job.stage = "write"
     yield None
     encoder = json.JSONEncoder(ensure_ascii=False, allow_nan=False, separators=(",", ":"), sort_keys=True)
-    with (job.directory / "request.json").open("w", encoding="utf-8", newline="\n") as stream:
+    with _artifact_path(job, "request.json").open("w", encoding="utf-8", newline="\n") as stream:
         for chunk in encoder.iterencode(job.payload):
             stream.write(chunk)
             job.metrics["json_bytes"] += len(chunk.encode("utf-8"))
@@ -488,10 +523,11 @@ def _launch(job):
     """Spawn only the validated fixed interpreter/module with owned, consumed logs."""
     root, python = _paths(job.root)
     argv = (str(python), "-m", "adapters.blender_analysis_session",
-            str(job.directory / "request.json"), str(job.directory / "result.json"))
+            str(_artifact_path(job, "request.json")), str(_artifact_path(job, "result.json")),
+            *job.locator_args)
     job.launch_argv, job.launch_cwd = argv, str(root)
     environment = _child_environment(root, os.environ)
-    logs = [(job.directory / name).open("wb") for name in ("stdout.log", "stderr.log")]
+    logs = [_artifact_path(job, name).open("wb") for name in ("stdout.log", "stderr.log")]
     job.logs = logs
     try:
         job.process = subprocess.Popen(list(argv), cwd=str(root), env=environment, shell=False,
@@ -542,7 +578,7 @@ def _write_terminal_diagnostics(job, *, returncode):
     """Persist complete child launch/terminal evidence in the owned job directory."""
     def read_log(name):
         """Read one bounded child log without hiding a missing artifact."""
-        path = job.directory / name
+        path = _artifact_path(job, name)
         try:
             return path.read_bytes()[-LOG_LIMIT:].decode("utf-8", "replace")
         except FileNotFoundError:
@@ -553,7 +589,7 @@ def _write_terminal_diagnostics(job, *, returncode):
         "stdout": read_log("stdout.log"), "stderr": read_log("stderr.log"),
         "metrics": wire.plain(job.metrics)}
     job.terminal_diagnostics = diagnostics
-    (job.directory / "terminal_diagnostics.json").write_text(
+    _artifact_path(job, "terminal_diagnostics.json").write_text(
         wire.canonical_json(diagnostics), encoding="utf-8", newline="\n")
     return diagnostics
 
@@ -568,7 +604,7 @@ def _terminal_error(diagnostics):
 def _read_result_steps(job):
     """Read result bytes in bounded chunks; report indivisible parse/validation honestly."""
     chunks = []
-    with (job.directory / "result.json").open("rb") as stream:
+    with _artifact_path(job, "result.json").open("rb") as stream:
         while chunk := stream.read(65536):
             chunks.append(chunk)
             yield None
@@ -590,6 +626,7 @@ def _finish(job, lifecycle, error=None):
     for log in job.logs:
         log.close()
     job.metrics["elapsed_seconds"] = monotonic() - job.started
+    _write_run_journal(job, lifecycle)
     STATE.lifecycle, STATE.last_job = lifecycle, job
     STATE.job = None
     if lifecycle != "complete":
@@ -704,7 +741,7 @@ def poll_job() -> RuntimeJob | None:
                 _check_job(job)
                 _launch(job)
         elif job.stage == "process":
-            if any((job.directory / name).stat().st_size > LOG_LIMIT for name in ("stdout.log", "stderr.log")):
+            if any(_artifact_path(job, name).stat().st_size > LOG_LIMIT for name in ("stdout.log", "stderr.log")):
                 job.error = "child exceeded owned log budget"
                 cancel_job()
             elif job.process.poll() is not None:
@@ -863,7 +900,7 @@ def commit_publication(candidate: wire.ValidatedAnalysisResult, *, native_artifa
     if candidate.document["kind"] == "free_space_run":
         try:
             board_object, overlay_object = _replace_native_board(
-                candidate, result_path=job.directory / "result.json")
+                candidate, result_path=_artifact_path(job, "result.json"))
         except ValueError as error:
             if "explicit selected slab datum" not in str(error):
                 raise

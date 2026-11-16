@@ -362,6 +362,87 @@ def test_cooperative_capture_preserves_canonical_scene_fingerprints(monkeypatch)
     assert actual.capture_fingerprint == original.capture_fingerprint
 
 
+@pytest.mark.parametrize("cooperative", [False, True])
+def test_capture_session_relocation_preserves_result_and_rejects_changed_ifc_bytes(tmp_path, monkeypatch, cooperative):
+    """Real capture handoff reuses moved model bytes and invalidates edited IFC content."""
+    from ..adapters import blender_analysis_session as service
+    from ..features.cache_store import CacheStore
+    from .test_blender_analysis_session import _cache_payload
+
+    context, _, _ = runtime(monkeypatch)
+    old_directory = tmp_path / "original"
+    old_directory.mkdir()
+    model = old_directory / "layout.ifc"
+    model.write_bytes(b"retained IFC content")
+    native_store = sys.modules["bonsai.bim.ifc"].IfcStore
+    native_store.path = str(model)
+    sys.modules["bpy"].data.filepath = str(model.with_suffix(".blend"))
+
+    def current_capture(source_binding=None):
+        """Capture current native facts through the selected complete finalization seam."""
+        job = capture.begin_analysis_capture(
+            bpy_context=context, scene_token="relocation-session", source_binding=source_binding,
+        )
+        capture.capture_next_batch(job)
+        return (_consume_steps(capture.finalize_capture_steps(job))[0] if cooperative
+                else capture.finalize_capture(job))
+
+    captured = current_capture()
+    payload = _cache_payload()
+    payload["canonical_capture"] = captured.to_dict()
+    first = service._execute_workflow_payload(payload, model_path=model)
+    assert first["content_cache"]["hit"] is False
+    original_ref = service.list_analysis_results([first])[0].ref
+    source = first["content_cache"]["source_fingerprint"]
+    sidecar = model.with_suffix(".order_analyzer")
+    store = CacheStore(sidecar)
+    binding = store.get_source_binding(source)
+    entry, = store.list(package_id="blender-analysis")
+    receipt_bytes, payload_bytes = entry.receipt_path.read_bytes(), entry.payload_paths[0].read_bytes()
+
+    moved_directory = tmp_path / "renamed"
+    moved_directory.mkdir()
+    moved_model = moved_directory / "moved.ifc"
+    model.rename(moved_model)
+    moved_sidecar = moved_model.with_suffix(".order_analyzer")
+    sidecar.rename(moved_sidecar)
+    native_store.path = str(moved_model)
+    sys.modules["bpy"].data.filepath = str(moved_model.with_suffix(".blend"))
+    context.scene.name = "renamed display scene"
+    moved_capture = current_capture(binding)
+    assert moved_capture.identity["ifc_source_identity"] == captured.identity["ifc_source_identity"]
+    payload["canonical_capture"] = moved_capture.to_dict()
+    payload["job_binding"]["job_id"] = "relocated-hit"
+
+    def forbidden(*_args, **_kwargs):
+        """A relocated hit must retain its original calculation without invoking the producer."""
+        pytest.fail("relocated capture reached the analysis executor")
+
+    with monkeypatch.context() as cached:
+        cached.setattr(service.requests, "execute_analysis_request", forbidden)
+        reused = service._execute_workflow_payload(payload, model_path=moved_model)
+    assert reused["content_cache"]["hit"] is True
+    assert reused["content_cache"]["content_key"] == first["content_cache"]["content_key"]
+    assert reused["content_cache"]["origin_result_ref"] == {
+        "kind": original_ref.kind, "result_id": original_ref.result_id, "digest": original_ref.digest,
+    }
+    moved_store = CacheStore(moved_sidecar)
+    assert moved_store.get_source_binding(source).current_locator == str(moved_model.resolve())
+
+    moved_model.write_bytes(b"changed IFC content at the same locator")
+    with pytest.raises(ValueError, match="source binding differs"):
+        current_capture(binding)
+    payload["canonical_capture"] = current_capture().to_dict()
+    payload["job_binding"]["job_id"] = "changed-ifc-miss"
+    changed = service._execute_workflow_payload(payload, model_path=moved_model)
+    assert changed["content_cache"]["hit"] is False
+    assert changed["content_cache"]["content_key"] != first["content_cache"]["content_key"]
+    assert changed["content_cache"]["source_fingerprint"] != source
+    original_entry = next(item for item in moved_store.list() if item.address == entry.address)
+    assert original_entry.receipt_path.read_bytes() == receipt_bytes
+    assert original_entry.payload_paths[0].read_bytes() == payload_bytes
+
+
 def test_native_group_capture_refuses_membership_drift(monkeypatch):
     """Only explicit IFC assignments enter capture, and an edit during extraction invalidates it."""
     context, entities, _evaluated = runtime(monkeypatch)

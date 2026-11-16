@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 import os
 from pathlib import Path
 import re
 import stat
+import tempfile
 from typing import Literal
 
 from .evidence_package_parameters import _freeze
+from .evidence_package_storage import write_receipt
 
 
 _COMPONENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]*")
@@ -97,6 +100,46 @@ def resolve_sidecar_path(model_path: Path) -> Path:
     return model_path.with_suffix(".order_analyzer")
 
 
+@dataclass(frozen=True, slots=True)
+class SidecarLocator:
+    """Resolve a model-local cache directory without changing cache identity."""
+
+    model_path: Path | None
+    explicit_directory: Path | None = None
+    temporary_root: Path | None = None
+
+    def resolve(self) -> Path:
+        """Return an explicit, saved-model, or caller-owned temporary location."""
+        if self.explicit_directory is not None:
+            return Path(self.explicit_directory)
+        if self.model_path is not None:
+            model = Path(self.model_path)
+            if model.is_dir():
+                raise ValueError("a model directory cannot be a cache source; provide explicit_directory")
+            return resolve_sidecar_path(model)
+        if self.temporary_root is None:
+            raise ValueError("an unsaved model requires temporary_root or explicit_directory")
+        return Path(self.temporary_root)
+
+    def source_root(self, source_fingerprint: str) -> Path:
+        """Return the source namespace below the resolved sidecar."""
+        validate_cache_component(source_fingerprint)
+        return self.resolve() / "sources" / source_fingerprint
+
+
+def sidecar_layout(root: Path) -> dict[str, Path]:
+    """Describe stable sidecar locations without creating any directories."""
+    root = Path(root)
+    return {
+        "root": root,
+        "sources": root / "sources",
+        "index": root / "index.json",
+        "manifest": root / "manifest.json",
+        "locks": root / "locks",
+        "quarantine": root / "quarantine",
+    }
+
+
 def _unlinked_stat(path: Path):
     """Inspect one path without following symlinks, junctions or reparse points."""
     try:
@@ -110,6 +153,16 @@ def _unlinked_stat(path: Path):
     ):
         raise CachePathError(f"cache paths cannot traverse links or reparse points: {path}")
     return information
+
+
+def _comparison_path(path: Path) -> str:
+    """Normalize Windows extended-path spelling before comparing resolved boundaries."""
+    value = os.path.normcase(os.path.normpath(os.fspath(path)))
+    if value.startswith("\\\\?\\UNC\\"):
+        return "\\\\" + value[8:]
+    if value.startswith("\\\\?\\"):
+        return value[4:]
+    return value
 
 
 def contained_cache_path(root: Path, path: Path) -> Path:
@@ -127,8 +180,20 @@ def contained_cache_path(root: Path, path: Path) -> Path:
             and not stat.S_ISDIR(information.st_mode)
         ):
             raise CachePathError(f"cache directory ancestor is not a directory: {candidate}")
-    if not path.resolve(strict=False).is_relative_to(root.resolve(strict=False)):
-        raise CachePathError("resolved cache path is outside its configured root")
+    resolved_path = path.resolve(strict=False)
+    resolved_root = root.resolve(strict=False)
+    path_text = _comparison_path(resolved_path)
+    root_text = _comparison_path(resolved_root)
+    try:
+        contained = os.path.commonpath((path_text, root_text)) == root_text
+    except ValueError:
+        contained = False
+    if not contained:
+        raise CachePathError(
+            f"resolved cache path is outside its configured root: "
+            f"root={root!s} path={path!s} resolved_root={resolved_root!s} "
+            f"resolved_path={resolved_path!s}"
+        )
     return path
 
 
@@ -141,3 +206,31 @@ def ensure_cache_directory(root: Path, directory: Path) -> Path:
     if not stat.S_ISDIR(information.st_mode):
         raise CachePathError("cache directory is not a directory")
     return directory
+
+
+def create_run_directory(*, model_path=None, temporary_root=None, root=None, prefix="run") -> Path:
+    """Allocate a unique run beside the model or below an explicitly chosen export parent."""
+    validate_cache_component(prefix)
+    boundary = (Path(root) if root is not None else SidecarLocator(
+        model_path=model_path, temporary_root=temporary_root).resolve())
+    parent = boundary if root is not None else boundary / "runs"
+    parent = ensure_cache_directory(boundary, parent)
+    return contained_cache_path(boundary, Path(tempfile.mkdtemp(prefix=prefix + "_", dir=parent)))
+
+
+@contextmanager
+def run_journal(directory: Path):
+    """Mark one publication active until it completes or fails without hiding its error."""
+    directory = ensure_cache_directory(directory, directory)
+    path = contained_cache_path(directory, directory / "run.json")
+    write_receipt(path, {"schema": "cache-run/v1", "state": "running"})
+    try:
+        yield
+    except BaseException as error:
+        try:
+            write_receipt(path, {"schema": "cache-run/v1", "state": "failed"})
+        except OSError as journal_error:
+            error.add_note(f"Failed to record run state: {journal_error}")
+        raise
+    else:
+        write_receipt(path, {"schema": "cache-run/v1", "state": "complete"})

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
@@ -12,6 +11,7 @@ from urllib.parse import quote
 
 from features.field_core import evaluate_evidence_package_freshness, serialize_evidence_package_output
 from features.group_axis_potential_field import run_group_axis_potential_package
+from features.cache_paths import SidecarLocator, create_run_directory, run_journal
 from scripts.design.group_level.run_group_axis_potential_ifc import (
     _aggregate_svg,
     _artifacts_readable,
@@ -19,7 +19,7 @@ from scripts.design.group_level.run_group_axis_potential_ifc import (
     _field_svg,
     _package_contract,
 )
-from scripts.design.group_level.run_group_axis_potential_ifc_replay import _load_envelope
+from scripts.design.group_level.run_group_axis_potential_ifc_replay import _load_envelope, _verified_model_locator
 from scripts.design.group_level.run_group_trend_alignment_field_ifc import _plain
 
 
@@ -138,213 +138,240 @@ def _target_index(result: Any, field_indexes: dict[str, int], family_views: dict
     return rows
 
 
-def run(retained_run: Path, output_root: Path) -> Path:
+def run(retained_run: Path, output_root: Path | None = None, *, model_path: Path | None = None,
+        temporary_cache_root: Path | None = None) -> Path:
     """Replay retained envelopes into a new hierarchy directory without loading IFC."""
+    journal_root = None
+    if output_root is None:
+        if model_path is None and temporary_cache_root is None:
+            model_path = _verified_model_locator(_read(retained_run / "source_manifest.json"))
+        boundary = SidecarLocator(model_path=model_path, temporary_root=temporary_cache_root).resolve()
+        if boundary.resolve().is_relative_to(retained_run.resolve()):
+            raise ValueError("output root must be outside the retained source run")
+        # The unique run owns the exact hierarchy child, which must remain absent.
+        journal_root = create_run_directory(
+            model_path=model_path, temporary_root=temporary_cache_root, prefix="hierarchy",
+        )
+        output_root = journal_root / "hierarchy"
     if output_root.exists():
         raise FileExistsError(f"output root already exists: {output_root}")
     retained_abs, output_abs = retained_run.resolve(), output_root.resolve()
     if output_abs.is_relative_to(retained_abs):
         raise ValueError("output root must be outside the retained source run")
-    required = (
-        "source_manifest.json",
-        "description.json",
-        "envelopes.json",
-        "axis_potential_output.json",
-        "field_matrix.json",
-        "field_profiles.json",
-        "field_directions.json",
-        "field_view_manifest.json",
-        "view_manifest.json",
-        "source_reuse.json",
-    )
-    if any(not (retained_run / name).is_file() for name in required):
-        raise FileNotFoundError("retained axis replay is missing a required artifact")
-    source_manifest = _read(retained_run / "source_manifest.json")
-    source = source_manifest["source"]
-    if source["sha256"] != PINNED_SHA256 or source_manifest["source_after"]["sha256"] != PINNED_SHA256:
-        raise RuntimeError("retained artifact does not match the pinned IFC fingerprint")
-    if not source_manifest.get("project_global_id"):
-        raise RuntimeError("retained source manifest has no top-level project_global_id")
-    if source_manifest["analysis_plane"].get("name") != "ifc-world-plan":
-        raise RuntimeError("retained artifact uses an unexpected analysis plane")
-    before = _tree_hashes(retained_run)
-    envelope_payload = _read(retained_run / "envelopes.json")
-    if envelope_payload.get("schema") != "group-trend-alignment-envelopes/v1":
-        raise RuntimeError("retained envelope schema is not the verified IFC trend schema")
-    envelopes = tuple(_load_envelope(item) for item in envelope_payload["envelopes"])
-    namespace = f"ifc-project:{source_manifest['project_global_id']}"
-    # Preserve original producer order for historical per-group audit lists.
-    result = run_group_axis_potential_package(envelopes, scene_namespace=namespace)["raw_output"]
-    description = _read(retained_run / "description.json")
-    original_output = _read(retained_run / "axis_potential_output.json")
-    original_matrix = _read(retained_run / "field_matrix.json")
-    original_profiles = _read(retained_run / "field_profiles.json")
-    original_directions = _read(retained_run / "field_directions.json")
-    original_field_manifest = _read(retained_run / "field_view_manifest.json")
-    original_view_manifest = _read(retained_run / "view_manifest.json")
-    original_reuse = _read(retained_run / "source_reuse.json")
-    plane = source_manifest["analysis_plane"]
-    if original_reuse["source"]["sha256"] != PINNED_SHA256 or original_reuse["analysis_plane"] != plane:
-        raise RuntimeError("retained source-reuse metadata does not match the pinned source and plane")
-    if original_view_manifest["source"]["sha256"] != PINNED_SHA256 or original_view_manifest["analysis_plane"] != plane:
-        raise RuntimeError("retained aggregate view does not match the pinned source and plane")
-    if original_field_manifest["source"]["sha256"] != PINNED_SHA256 or original_field_manifest["analysis_plane"] != plane:
-        raise RuntimeError("retained field views do not match the pinned source and plane")
-    group_ids = {item["target_id"] for item in description.get("group_geometry", ())}
-    if len(envelopes) != 37 or len(group_ids) != 37 or description.get("analysis_frame") is None:
-        raise RuntimeError("retained description and envelopes do not contain the complete 37-group scope")
-    if any(_plain(envelope.query.plane) != plane or envelope.query.frame != description["analysis_frame"]["plane"] for envelope in envelopes):
-        raise RuntimeError("retained envelopes do not share the description analysis frame and plane")
-    if {cell["target_group_id"] for field in original_matrix["fields"].values() for cell in field["cells"]} != group_ids:
-        raise RuntimeError("retained leaf matrix and geometry do not have the same full scope")
-    original_ids = {item["cache_identity"]["identity"] for item in original_output["source_envelopes"]}
-    if original_ids != {envelope.cache_identity["identity"] for envelope in envelopes}:
-        raise RuntimeError("retained package output does not preserve the envelope identities")
-    serialized_result = serialize_evidence_package_output(result)
-    original_rows = {(item["target"]["identity"], item["channel"]): item for item in original_output["outputs"]}
-    replayed_rows = {(item["target"]["identity"], item["channel"]): item for item in serialized_result["outputs"]}
-    if any(replayed_rows.get(key) != value for key, value in original_rows.items()):
-        raise RuntimeError("hierarchy mode changed a retained legacy output")
-    field_matrix, field_profiles, field_directions = _field_metadata(result)
-    if field_matrix != original_matrix or field_profiles != original_profiles or field_directions != original_directions:
-        raise RuntimeError("hierarchy mode changed a retained leaf matrix, profile, or direction")
-    hierarchy, family_matrix, family_profiles, family_directions, family_view_manifest = _family_artifacts(result, description)
-    output_root.mkdir(parents=True, exist_ok=False)
-    (output_root / "source_manifest.json").write_bytes((retained_run / "source_manifest.json").read_bytes())
-    (output_root / "description.json").write_bytes((retained_run / "description.json").read_bytes())
-    (output_root / "envelopes.json").write_bytes((retained_run / "envelopes.json").read_bytes())
-    _write(output_root / "axis_potential_output.json", serialized_result)
-    _write(output_root / "hierarchy.json", hierarchy)
-    _write(output_root / "family_matrix.json", family_matrix)
-    _write(output_root / "family_profiles.json", {"schema": "group-axis-potential-family-profiles/v1", "profiles": family_profiles})
-    _write(output_root / "family_directions.json", {"schema": "group-axis-potential-family-directions/v1", "directions": family_directions})
+    if journal_root is None:
+        output_root.mkdir(parents=True, exist_ok=False)
+    with run_journal(output_root if journal_root is None else journal_root):
+        required = (
+            "source_manifest.json",
+            "description.json",
+            "envelopes.json",
+            "axis_potential_output.json",
+            "field_matrix.json",
+            "field_profiles.json",
+            "field_directions.json",
+            "field_view_manifest.json",
+            "view_manifest.json",
+            "source_reuse.json",
+        )
+        if any(not (retained_run / name).is_file() for name in required):
+            raise FileNotFoundError("retained axis replay is missing a required artifact")
+        source_manifest = _read(retained_run / "source_manifest.json")
+        source = source_manifest["source"]
+        if source["sha256"] != PINNED_SHA256 or source_manifest["source_after"]["sha256"] != PINNED_SHA256:
+            raise RuntimeError("retained artifact does not match the pinned IFC fingerprint")
+        if not source_manifest.get("project_global_id"):
+            raise RuntimeError("retained source manifest has no top-level project_global_id")
+        if source_manifest["analysis_plane"].get("name") != "ifc-world-plan":
+            raise RuntimeError("retained artifact uses an unexpected analysis plane")
+        before = _tree_hashes(retained_run)
+        envelope_payload = _read(retained_run / "envelopes.json")
+        if envelope_payload.get("schema") != "group-trend-alignment-envelopes/v1":
+            raise RuntimeError("retained envelope schema is not the verified IFC trend schema")
+        envelopes = tuple(_load_envelope(item) for item in envelope_payload["envelopes"])
+        namespace = f"ifc-project:{source_manifest['project_global_id']}"
+        # Preserve original producer order for historical per-group audit lists.
+        result = run_group_axis_potential_package(
+            envelopes, scene_namespace=namespace, model_path=model_path,
+            temporary_cache_root=temporary_cache_root,
+        )["raw_output"]
+        description = _read(retained_run / "description.json")
+        original_output = _read(retained_run / "axis_potential_output.json")
+        original_matrix = _read(retained_run / "field_matrix.json")
+        original_profiles = _read(retained_run / "field_profiles.json")
+        original_directions = _read(retained_run / "field_directions.json")
+        original_field_manifest = _read(retained_run / "field_view_manifest.json")
+        original_view_manifest = _read(retained_run / "view_manifest.json")
+        original_reuse = _read(retained_run / "source_reuse.json")
+        plane = source_manifest["analysis_plane"]
+        if original_reuse["source"]["sha256"] != PINNED_SHA256 or original_reuse["analysis_plane"] != plane:
+            raise RuntimeError("retained source-reuse metadata does not match the pinned source and plane")
+        if original_view_manifest["source"]["sha256"] != PINNED_SHA256 or original_view_manifest["analysis_plane"] != plane:
+            raise RuntimeError("retained aggregate view does not match the pinned source and plane")
+        if original_field_manifest["source"]["sha256"] != PINNED_SHA256 or original_field_manifest["analysis_plane"] != plane:
+            raise RuntimeError("retained field views do not match the pinned source and plane")
+        group_ids = {item["target_id"] for item in description.get("group_geometry", ())}
+        if len(envelopes) != 37 or len(group_ids) != 37 or description.get("analysis_frame") is None:
+            raise RuntimeError("retained description and envelopes do not contain the complete 37-group scope")
+        if any(_plain(envelope.query.plane) != plane or envelope.query.frame != description["analysis_frame"]["plane"] for envelope in envelopes):
+            raise RuntimeError("retained envelopes do not share the description analysis frame and plane")
+        if {cell["target_group_id"] for field in original_matrix["fields"].values() for cell in field["cells"]} != group_ids:
+            raise RuntimeError("retained leaf matrix and geometry do not have the same full scope")
+        original_ids = {item["cache_identity"]["identity"] for item in original_output["source_envelopes"]}
+        if original_ids != {envelope.cache_identity["identity"] for envelope in envelopes}:
+            raise RuntimeError("retained package output does not preserve the envelope identities")
+        serialized_result = serialize_evidence_package_output(result)
+        original_rows = {(item["target"]["identity"], item["channel"]): item for item in original_output["outputs"]}
+        replayed_rows = {(item["target"]["identity"], item["channel"]): item for item in serialized_result["outputs"]}
+        if any(replayed_rows.get(key) != value for key, value in original_rows.items()):
+            raise RuntimeError("hierarchy mode changed a retained legacy output")
+        field_matrix, field_profiles, field_directions = _field_metadata(result)
+        if field_matrix != original_matrix or field_profiles != original_profiles or field_directions != original_directions:
+            raise RuntimeError("hierarchy mode changed a retained leaf matrix, profile, or direction")
+        hierarchy, family_matrix, family_profiles, family_directions, family_view_manifest = _family_artifacts(result, description)
+        if journal_root is not None:
+            output_root.mkdir(parents=True, exist_ok=False)
+        (output_root / "source_manifest.json").write_bytes((retained_run / "source_manifest.json").read_bytes())
+        (output_root / "description.json").write_bytes((retained_run / "description.json").read_bytes())
+        (output_root / "envelopes.json").write_bytes((retained_run / "envelopes.json").read_bytes())
+        _write(output_root / "axis_potential_output.json", serialized_result)
+        _write(output_root / "hierarchy.json", hierarchy)
+        _write(output_root / "family_matrix.json", family_matrix)
+        _write(output_root / "family_profiles.json", {"schema": "group-axis-potential-family-profiles/v1", "profiles": family_profiles})
+        _write(output_root / "family_directions.json", {"schema": "group-axis-potential-family-directions/v1", "directions": family_directions})
 
-    aggregate = next(output for output in result.outputs if output.channel == "aggregate_direction")
-    aggregate_path = output_root / "aggregate_axis.svg"
-    aggregate_path.write_text(_aggregate_svg(description, aggregate.observation.get("angle"), source, plane), encoding="utf-8")
-    field_views = output_root / "field_views"
-    field_views.mkdir()
-    field_entries = []
-    for index, (field_id, payload) in enumerate(sorted(field_matrix["fields"].items())):
-        path = field_views / f"field_{index:03d}.svg"
-        path.write_text(_field_svg(description, field_id, tuple(payload["cells"]), source, plane), encoding="utf-8")
-        field_entries.append({"field_id": field_id, "path": str(path.resolve()), "anchor_group_id": payload["anchor_group_id"], "cell_count": len(payload["cells"])})
-    family_entries = family_view_manifest["families"]
-    _write(output_root / "field_matrix.json", field_matrix)
-    _write(output_root / "field_profiles.json", field_profiles)
-    _write(output_root / "field_directions.json", field_directions)
-    _write(output_root / "field_view_manifest.json", {"schema": "group-axis-potential-field-view-manifest/v1", "source": source, "analysis_plane": plane, "fields": field_entries})
-    _write(output_root / "family_view_manifest.json", {**family_view_manifest, "source": source, "analysis_plane": plane, "families": family_entries})
+        aggregate = next(output for output in result.outputs if output.channel == "aggregate_direction")
+        aggregate_path = output_root / "aggregate_axis.svg"
+        aggregate_path.write_text(_aggregate_svg(description, aggregate.observation.get("angle"), source, plane), encoding="utf-8")
+        field_views = output_root / "field_views"
+        field_views.mkdir()
+        field_entries = []
+        for index, (field_id, payload) in enumerate(sorted(field_matrix["fields"].items())):
+            path = field_views / f"field_{index:03d}.svg"
+            path.write_text(_field_svg(description, field_id, tuple(payload["cells"]), source, plane), encoding="utf-8")
+            field_entries.append({"field_id": field_id, "path": str(path.resolve()), "anchor_group_id": payload["anchor_group_id"], "cell_count": len(payload["cells"])})
+        family_entries = family_view_manifest["families"]
+        _write(output_root / "field_matrix.json", field_matrix)
+        _write(output_root / "field_profiles.json", field_profiles)
+        _write(output_root / "field_directions.json", field_directions)
+        _write(output_root / "field_view_manifest.json", {"schema": "group-axis-potential-field-view-manifest/v1", "source": source, "analysis_plane": plane, "fields": field_entries})
+        _write(output_root / "family_view_manifest.json", {**family_view_manifest, "source": source, "analysis_plane": plane, "families": family_entries})
 
-    targets = []
-    for entry in field_entries:
-        targets.append({"kind": "leaf", "id": entry["field_id"], "path": entry["path"], "cell_count": entry["cell_count"]})
-    for entry in family_entries:
-        targets.append({"kind": "family", "id": entry["family_id"], "family_index": entry["family_index"], "view_id": entry["view_id"], "view_ref": entry["view_ref"], "cell_count": entry["cell_count"]})
-    field_indexes = {entry["field_id"]: index for index, entry in enumerate(field_entries)}
-    family_by_id = {entry["family_id"]: entry for entry in family_entries}
-    target_index = _target_index(result, field_indexes, family_by_id)
-    view_manifest = {
-        "schema": "group-axis-field-hierarchy-view-manifest/v1",
-        "source": source,
-        "analysis_plane": plane,
-        "scene_namespace": namespace,
-        "targets": targets,
-        "target_index": target_index,
-        "leaf_count": len(field_entries),
-        "family_count": len(family_entries),
-        "cell_count": sum(item["cell_count"] for item in field_entries) + sum(item["cell_count"] for item in family_entries),
-        "artifacts": ["aggregate_axis.svg", "field_views", "index.html"],
-    }
-    _write(output_root / "view_manifest.json", view_manifest)
-    _write(output_root / "source_reuse.json", {
-        "schema": "group-axis-field-hierarchy-source-reuse/v1",
-        "mode": "retained-replay",
-        "retained_run": str(retained_run.resolve()),
-        "project_global_id": source_manifest["project_global_id"],
-        "source": source,
-        "analysis_plane": plane,
-        "scene_namespace": namespace,
-        "retained_inputs": [{"path": name, "sha256": digest} for name, digest in sorted(before.items())],
-        "retained_source_reuse": original_reuse,
-        "ifc_extraction_rerun": False,
-        "synthetic_input": False,
-    })
-    report = {
-        "schema": SCHEMA,
-        "retained_run": str(retained_run.resolve()),
-        "project_global_id": source_manifest["project_global_id"],
-        "source": source,
-        "source_after": source_manifest["source_after"],
-        "analysis_plane": plane,
-        "scene_namespace": namespace,
-        "source_scope_count": len(envelopes),
-        "leaf_field_count": len(field_entries),
-        "leaf_cell_count": sum(item["cell_count"] for item in field_entries),
-        "legacy_output_count": len(original_output["outputs"]),
-        "derived_output_count": len(result.outputs),
-        "family_count": len(family_entries),
-        "family_cell_count": sum(len(item["cells"]) for item in family_matrix["families"].values()),
-        "hierarchy_output_count": len(result.outputs) - len(original_output["outputs"]),
-        "axis_direction_class_count": len(hierarchy["direction_aliases"]),
-        "residual_edge_count": len(hierarchy["residuals"]),
-        "scope_diagnostics_count": len(hierarchy["scope"]),
-        "output_channels": sorted({output.channel for output in result.outputs}),
-        "ifc_extraction_rerun": False,
-        "synthetic_input": False,
-        "real_world_cluster_validity": False,
-        "live_ui": False,
-        "observed_status_counts": {
-            channel: {
-                status: sum(output.channel == channel and output.status.value == status for output in result.outputs)
-                for status in ("computed", "partial", "not_available", "invalid", "ambiguous")
-            }
-            for channel in sorted({output.channel for output in result.outputs})
-        },
-        "exact_event_pairs": sorted({tuple(row[key]) for row in hierarchy["families"] for key in ("birth_exact", "death_exact")}),
-        "uncovered_scenarios": ["unseen singleton/two-anchor shapes, missing or invalid source axes, zero clarity, direction cancellation, exact event ties, and other analysis planes require separate observed data or algebraic tests"],
-        "target_index_count": len(target_index),
-        "package_contract": "package_contract.json",
-        "package_status": "package_status.json",
-    }
-    _write(output_root / "report.json", report)
-    visualizations = tuple(
-        ["aggregate_axis.svg"]
-        + [str(Path(item["path"]).relative_to(output_root.resolve())) for item in field_entries]
-    )
-    contract = _package_contract(description, envelopes, envelopes[0].query, plane, source["sha256"], visualizations, result, scene_namespace=namespace)
-    contract["artifacts"].update({
-        "source_reuse": "source_reuse.json",
-        "hierarchy": "hierarchy.json",
-        "family_matrix": "family_matrix.json",
-        "family_profiles": "family_profiles.json",
-        "family_directions": "family_directions.json",
-        "family_view_manifest": "family_view_manifest.json",
-    })
-    _write(output_root / "package_contract.json", contract)
-    artifact_paths = [
-        path
-        for value in contract["artifacts"].values()
-        for path in ([value] if isinstance(value, str) else value if isinstance(value, list) else ())
-        if isinstance(path, str)
-    ] + ["package_contract.json"]
-    _write(output_root / "package_status.json", evaluate_evidence_package_freshness(
-        cached_contract=contract,
-        current_contract=contract,
-        artifacts_available=_artifacts_readable(output_root, artifact_paths),
-    ))
-    if _sha(retained_run / "source_manifest.json") != before["source_manifest.json"]:
-        raise RuntimeError("retained source changed during hierarchy replay")
-    return output_root
+        targets = []
+        for entry in field_entries:
+            targets.append({"kind": "leaf", "id": entry["field_id"], "path": entry["path"], "cell_count": entry["cell_count"]})
+        for entry in family_entries:
+            targets.append({"kind": "family", "id": entry["family_id"], "family_index": entry["family_index"], "view_id": entry["view_id"], "view_ref": entry["view_ref"], "cell_count": entry["cell_count"]})
+        field_indexes = {entry["field_id"]: index for index, entry in enumerate(field_entries)}
+        family_by_id = {entry["family_id"]: entry for entry in family_entries}
+        target_index = _target_index(result, field_indexes, family_by_id)
+        view_manifest = {
+            "schema": "group-axis-field-hierarchy-view-manifest/v1",
+            "source": source,
+            "analysis_plane": plane,
+            "scene_namespace": namespace,
+            "targets": targets,
+            "target_index": target_index,
+            "leaf_count": len(field_entries),
+            "family_count": len(family_entries),
+            "cell_count": sum(item["cell_count"] for item in field_entries) + sum(item["cell_count"] for item in family_entries),
+            "artifacts": ["aggregate_axis.svg", "field_views", "index.html"],
+        }
+        _write(output_root / "view_manifest.json", view_manifest)
+        _write(output_root / "source_reuse.json", {
+            "schema": "group-axis-field-hierarchy-source-reuse/v1",
+            "mode": "retained-replay",
+            "retained_run": str(retained_run.resolve()),
+            "project_global_id": source_manifest["project_global_id"],
+            "source": source,
+            "analysis_plane": plane,
+            "scene_namespace": namespace,
+            "retained_inputs": [{"path": name, "sha256": digest} for name, digest in sorted(before.items())],
+            "retained_source_reuse": original_reuse,
+            "ifc_extraction_rerun": False,
+            "synthetic_input": False,
+        })
+        report = {
+            "schema": SCHEMA,
+            "retained_run": str(retained_run.resolve()),
+            "project_global_id": source_manifest["project_global_id"],
+            "source": source,
+            "source_after": source_manifest["source_after"],
+            "analysis_plane": plane,
+            "scene_namespace": namespace,
+            "source_scope_count": len(envelopes),
+            "leaf_field_count": len(field_entries),
+            "leaf_cell_count": sum(item["cell_count"] for item in field_entries),
+            "legacy_output_count": len(original_output["outputs"]),
+            "derived_output_count": len(result.outputs),
+            "family_count": len(family_entries),
+            "family_cell_count": sum(len(item["cells"]) for item in family_matrix["families"].values()),
+            "hierarchy_output_count": len(result.outputs) - len(original_output["outputs"]),
+            "axis_direction_class_count": len(hierarchy["direction_aliases"]),
+            "residual_edge_count": len(hierarchy["residuals"]),
+            "scope_diagnostics_count": len(hierarchy["scope"]),
+            "output_channels": sorted({output.channel for output in result.outputs}),
+            "ifc_extraction_rerun": False,
+            "synthetic_input": False,
+            "real_world_cluster_validity": False,
+            "live_ui": False,
+            "observed_status_counts": {
+                channel: {
+                    status: sum(output.channel == channel and output.status.value == status for output in result.outputs)
+                    for status in ("computed", "partial", "not_available", "invalid", "ambiguous")
+                }
+                for channel in sorted({output.channel for output in result.outputs})
+            },
+            "exact_event_pairs": sorted({tuple(row[key]) for row in hierarchy["families"] for key in ("birth_exact", "death_exact")}),
+            "uncovered_scenarios": ["unseen singleton/two-anchor shapes, missing or invalid source axes, zero clarity, direction cancellation, exact event ties, and other analysis planes require separate observed data or algebraic tests"],
+            "target_index_count": len(target_index),
+            "package_contract": "package_contract.json",
+            "package_status": "package_status.json",
+        }
+        _write(output_root / "report.json", report)
+        visualizations = tuple(
+            ["aggregate_axis.svg"]
+            + [str(Path(item["path"]).relative_to(output_root.resolve())) for item in field_entries]
+        )
+        contract = _package_contract(description, envelopes, envelopes[0].query, plane, source["sha256"], visualizations, result, scene_namespace=namespace)
+        contract["artifacts"].update({
+            "source_reuse": "source_reuse.json",
+            "hierarchy": "hierarchy.json",
+            "family_matrix": "family_matrix.json",
+            "family_profiles": "family_profiles.json",
+            "family_directions": "family_directions.json",
+            "family_view_manifest": "family_view_manifest.json",
+        })
+        _write(output_root / "package_contract.json", contract)
+        artifact_paths = [
+            path
+            for value in contract["artifacts"].values()
+            for path in ([value] if isinstance(value, str) else value if isinstance(value, list) else ())
+            if isinstance(path, str)
+        ] + ["package_contract.json"]
+        _write(output_root / "package_status.json", evaluate_evidence_package_freshness(
+            cached_contract=contract,
+            current_contract=contract,
+            artifacts_available=_artifacts_readable(output_root, artifact_paths),
+        ))
+        if _sha(retained_run / "source_manifest.json") != before["source_manifest.json"]:
+            raise RuntimeError("retained source changed during hierarchy replay")
+        return output_root
 
 
-def main() -> None:
+def main(argv=None) -> None:
     """Run the retained hierarchy replay and print its exact output directory."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--retained-run", type=Path, default=RETAINED_RUN)
-    parser.add_argument("--output-root", type=Path, required=True)
-    args = parser.parse_args()
-    print(json.dumps({"status": "pass", "output": str(run(args.retained_run.resolve(), args.output_root.resolve()))}, sort_keys=True))
+    parser.add_argument("--output-root", type=Path, default=None)
+    parser.add_argument("--model-path", type=Path, default=None)
+    parser.add_argument("--temporary-cache-root", type=Path, default=None)
+    args = parser.parse_args(argv)
+    print(json.dumps({"status": "pass", "output": str(run(
+        args.retained_run.resolve(), None if args.output_root is None else args.output_root.resolve(),
+        model_path=None if args.model_path is None else args.model_path.resolve(),
+        temporary_cache_root=(None if args.temporary_cache_root is None
+                              else args.temporary_cache_root.resolve()),
+    ))}, sort_keys=True))
 
 
 if __name__ == "__main__":

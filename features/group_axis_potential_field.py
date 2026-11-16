@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from contextlib import nullcontext
 from dataclasses import dataclass
 import json
 from pathlib import Path
@@ -29,15 +30,23 @@ from .field_core import (
 )
 from .evidence_package_parameters import ParameterSchema, ParameterSnapshot, ParameterSpec
 from .evidence_package_storage import (
+    adopt_legacy_store_payload,
     legacy_candidate_contract,
     legacy_processed_cache_key,
     load_processed_entry,
+    load_processed_bytes,
     load_raw_entry,
+    load_raw_bytes,
+    load_bound_store_entry,
     reconstruct_legacy_processed_snapshot,
     save_processed_output,
     save_raw_output,
+    serialize_processed_output_bytes,
+    serialize_raw_output_bytes,
     processed_cache_key,
 )
+from .cache_paths import CacheAddress, SourceBinding, resolve_sidecar_path
+from .cache_store import CacheStore
 
 
 PACKAGE_ID = "group-axis-potential"
@@ -1090,8 +1099,72 @@ def build_group_axis_potential_package_contract(
         parameter_snapshot=parameter_snapshot)
 
 
+def _potential_cache_root(cache_directory, model_path, temporary_cache_root):
+    """Resolve explicit, model-side, or temporary storage without changing identities."""
+    if cache_directory is not None:
+        return Path(cache_directory)
+    if model_path is not None:
+        return resolve_sidecar_path(Path(model_path))
+    if temporary_cache_root is not None:
+        return Path(temporary_cache_root)
+    return None
+
+
+def _potential_store_lock(store, address):
+    """Use the shared identity lock when the optional model-side store is active."""
+    if store is None:
+        return nullcontext()
+    lock = getattr(store, "identity_lock", None)
+    return nullcontext() if lock is None else lock(address)
+
+
+def _potential_dependency_fingerprint(contract, name):
+    """Read one normalized dependency fingerprint from the package contract."""
+    for dependency in contract["dependencies"]:
+        if dependency["name"] == name:
+            return dependency["fingerprint"]
+    raise KeyError(f"missing package dependency: {name}")
+
+
+def _potential_bind_source(store, contract, *, model_path, cache_root):
+    """Record the verified source namespace while allowing its display locator to move."""
+    if store is None:
+        return
+    source_fingerprint = _potential_dependency_fingerprint(contract, "source")
+    locator = str(Path(model_path).resolve()) if model_path is not None else str(Path(cache_root).resolve())
+    store.put_source_binding(SourceBinding(
+        source_fingerprint=source_fingerprint,
+        canonical_source_identity=f"evidence-source:{source_fingerprint}",
+        content_fingerprint=source_fingerprint,
+        external_dependencies={},
+        current_locator=locator,
+    ))
+
+
+def _potential_raw_validator(package, contract, legacy_adopter=None):
+    """Validate Store payloads through the unchanged package receipt codec."""
+    def validate(payload, context):
+        """Reject bytes that do not pass current package and parameter admission."""
+        if load_raw_bytes(payload, cache_key=context.address.identity, contract=contract,
+                          package=package, legacy_adopter=legacy_adopter) is None:
+            raise ValueError("stored potential receipt is not a current package hit")
+    return validate
+
+
+def _potential_processed_validator(raw, processor):
+    """Validate processed Store payloads against the current raw and processor identity."""
+    def validate(payload, _context):
+        """Reject stale, malformed, or processor-mismatched bytes."""
+        if load_processed_bytes(payload, raw_output=raw, processor=processor,
+                                legacy_processed_adopter=reconstruct_legacy_processed_snapshot) is None:
+            raise ValueError("stored processed potential receipt is not a current hit")
+    return validate
+
+
 def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
-                                     cache_directory=None, output_processor=None,
+                                     cache_directory=None, model_path: Path | None = None,
+                                     temporary_cache_root: Path | None = None,
+                                     output_processor=None,
                                      distance_modulation: DistanceModulationInput | None = None,
                                      parameter_sources: Mapping[str, str] | None = None):
     """Own potential calculation reuse and its separately configured processed publication."""
@@ -1107,7 +1180,12 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
         parameter_sources=parameter_sources,
     )
     cache_key = contract["package_identity"]
-    path = None if cache_directory is None else Path(cache_directory) / (cache_key + ".json")
+    cache_root = _potential_cache_root(cache_directory, model_path, temporary_cache_root)
+    # Locator context opts into Store semantics even when the caller overrides its root.
+    store_enabled = model_path is not None or temporary_cache_root is not None
+    store = None if cache_root is None or not store_enabled else CacheStore(cache_root)
+    _potential_bind_source(store, contract, model_path=model_path, cache_root=cache_root)
+    path = None if cache_root is None else cache_root / (cache_key + ".json")
     legacy_path = None
     if path is not None:
         legacy_key = legacy_candidate_contract(contract)["package_identity"]
@@ -1132,25 +1210,68 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
         except (KeyError, TypeError, ValueError):
             return None
 
-    lookup = None
-    if path is not None:
-        lookup = load_raw_entry(path, cache_key=cache_key, contract=contract, package=package)
-        if lookup is None and legacy_path is not None:
-            lookup = load_raw_entry(
-                legacy_path, cache_key=legacy_path.stem, contract=contract,
-                package=package, legacy_adopter=adopt_legacy,
-            )
-    raw = None if lookup is None else lookup.raw_output
-    # Core canonicalizes retained sources; compare content without changing producer order.
-    if raw is not None and _json_value(raw.source_envelopes) != _json_value(
-            tuple(sorted(sources, key=lambda source: source.cache_identity["identity"]))):
+    raw_address = None if store is None else CacheAddress(
+        _potential_dependency_fingerprint(contract, "source"), PACKAGE_ID,
+        "combined", "raw", cache_key,
+    )
+    with _potential_store_lock(store, raw_address) if raw_address is not None else nullcontext():
         lookup = None
-        raw = None
-    hit = lookup is not None
-    if raw is None:
-        raw = package.evaluate(sources, dependencies=dependencies, dependency_graph=graph)
+        store_reuse_origin = None
+        loaded_path = None
+        raw_storage_address = raw_address
         if path is not None:
-            save_raw_output(path, cache_key=cache_key, contract=contract, raw_output=raw)
+            # Prefer a valid old flat receipt when present for compatibility callers.
+            lookup = load_raw_entry(path, cache_key=cache_key, contract=contract, package=package)
+            if lookup is not None:
+                loaded_path = path
+            if lookup is None and legacy_path is not None:
+                lookup = load_raw_entry(
+                    legacy_path, cache_key=legacy_path.stem, contract=contract,
+                    package=package, legacy_adopter=adopt_legacy,
+                )
+                if lookup is not None:
+                    loaded_path = legacy_path
+            if lookup is None and store is not None:
+                entry = load_bound_store_entry(
+                    store, raw_address, validator=_potential_raw_validator(package, contract, adopt_legacy),
+                    profile="evidence-package-raw/v1",
+                )
+                if entry is not None:
+                    store_reuse_origin = entry.reuse_origin
+                    raw_storage_address = entry.address
+                    lookup = load_raw_bytes(
+                        entry.payload_paths[0].read_bytes(), cache_key=entry.address.identity,
+                        contract=contract, package=package, legacy_adopter=adopt_legacy,
+                    )
+        raw = None if lookup is None else lookup.raw_output
+        # Core canonicalizes retained sources; compare content without changing producer order.
+        if raw is not None and _json_value(raw.source_envelopes) != _json_value(
+                tuple(sorted(sources, key=lambda source: source.cache_identity["identity"]))):
+            lookup = None
+            raw = None
+        if lookup is not None and store is not None and loaded_path is not None:
+            entry = adopt_legacy_store_payload(
+                store, raw_address, original_identity=loaded_path.stem,
+                payload=loaded_path.read_bytes(), contract=lookup.cached_contract,
+                payload_format="evidence-package-cache/v1",
+                validator=_potential_raw_validator(package, contract, adopt_legacy),
+                profile="evidence-package-raw/v1",
+            )
+            raw_storage_address = entry.address
+            store_reuse_origin = entry.reuse_origin
+        hit = lookup is not None
+        if raw is None:
+            raw = package.evaluate(sources, dependencies=dependencies, dependency_graph=graph)
+            if path is not None:
+                payload = serialize_raw_output_bytes(
+                    cache_key=cache_key, contract=contract, raw_output=raw,
+                )
+                if store is not None:
+                    store.put(raw_address, contract=contract, payload=payload,
+                              payload_format="evidence-package-cache/v1",
+                              validator=_potential_raw_validator(package, contract))
+                if not store_enabled:
+                    save_raw_output(path, cache_key=cache_key, contract=contract, raw_output=raw)
     # Receipt identity describes calculation inputs; publication freshness names
     # actual output targets, including hierarchy addresses available only afterward.
     contract = build_group_axis_potential_package_contract(
@@ -1182,30 +1303,83 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
     if lookup is not None:
         cache_status["parameter_status"] = dict(lookup.parameter_status)
         cache_status["reuse_origin"] = dict(lookup.reuse_origin)
+    cache_reuse = "exact_hit" if hit else "computed"
+    if store_reuse_origin == "migrated":
+        cache_reuse = "migrated_reuse"
+    if store_reuse_origin != "migrated" and (store_reuse_origin == "legacy_adopted"
+            or lookup is not None and lookup.reuse_origin.get("mode") == "adopted_legacy"):
+        cache_reuse = "legacy_adopted"
     processed_path = (None if path is None or output_processor is None else
                       path.parent / ("processed-" + processed_cache_key(raw, output_processor) + ".json"))
     processed_legacy_path = None
+    processed_identity = None
+    processed_address = None
     if processed_path is not None and output_processor is not None:
+        processed_identity = processed_cache_key(raw, output_processor)
         old_key = legacy_processed_cache_key(raw, output_processor)
-        if old_key != processed_cache_key(raw, output_processor):
+        if old_key != processed_identity:
             processed_legacy_path = processed_path.parent / ("processed-" + old_key + ".json")
+        if store is not None:
+            processed_address = CacheAddress(
+                _potential_dependency_fingerprint(contract, "source"), PACKAGE_ID,
+                "combined", "processed",
+                processed_identity,
+            )
     processed_lookup = None if processed_path is None else load_processed_entry(
         processed_path, raw_output=raw, processor=output_processor,
         legacy_path=processed_legacy_path,
         legacy_processed_adopter=reconstruct_legacy_processed_snapshot,
     )
+    if processed_lookup is not None and processed_address is not None:
+        saved_path = processed_path if processed_path.exists() else processed_legacy_path
+        payload = saved_path.read_bytes()
+        adopt_legacy_store_payload(
+            store, processed_address, original_identity=json.loads(payload)["processing_identity"],
+            payload=payload, contract={"processing_identity": processed_identity},
+            payload_format="evidence-package-processed/v1",
+            validator=_potential_processed_validator(raw, output_processor),
+            profile="evidence-package-processed/v1", upstream_refs=(raw_storage_address,),
+        )
+    if processed_lookup is None and processed_address is not None:
+        entry = load_bound_store_entry(
+            store, processed_address,
+            validator=_potential_processed_validator(raw, output_processor),
+            profile="evidence-package-processed/v1",
+        )
+        if entry is not None:
+            processed_lookup = load_processed_bytes(
+                entry.payload_paths[0].read_bytes(), raw_output=raw,
+                processor=output_processor,
+                legacy_processed_adopter=reconstruct_legacy_processed_snapshot,
+            )
     processed = None if processed_lookup is None else processed_lookup.processed_output
     if processed_lookup is None:
         processed = package.process_output(raw, package_freshness="fresh")
         if processed_path is not None:
-            save_processed_output(processed_path, processed)
+            payload = serialize_processed_output_bytes(processed)
+            if payload is not None and store is not None:
+                store.put(
+                    processed_address,
+                    contract={"raw_output_identity": raw.output_identity,
+                              "processing_identity": processed_identity,
+                              "processor_id": output_processor.function_id,
+                              "processor_version": output_processor.version},
+                    payload=payload, payload_format="evidence-package-processed/v1",
+                    validator=_potential_processed_validator(raw, output_processor),
+                    upstream_refs=(raw_storage_address,),
+                )
+            if not store_enabled:
+                save_processed_output(processed_path, processed)
     if processed_lookup is not None:
         cache_status["processed_parameter_status"] = (
             None if processed_lookup.parameter_status is None else dict(processed_lookup.parameter_status))
         cache_status["processed_reuse_origin"] = dict(processed_lookup.reuse_origin)
-    return {"raw_output": raw, "processed_output": processed, "contract": contract,
-            "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
-            "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}
+    result = {"raw_output": raw, "processed_output": processed, "contract": contract,
+              "status": evaluate_evidence_package_freshness(cached_contract=contract, current_contract=contract),
+              "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}
+    if store_enabled:
+        result.update(cache_reuse=cache_reuse, cache_location=str(Path(cache_root).resolve()))
+    return result
 
 
 __all__ = [

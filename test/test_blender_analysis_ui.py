@@ -13,6 +13,26 @@ import blender_addon.order_analyzer_ui as addon
 from blender_addon.order_analyzer_ui import _configured_repo_root, _request_binding_payload
 
 
+def _operator_bpy(**kwargs):
+    """Supply a saved native file when tests exercise operators without Blender."""
+    kwargs.setdefault("data", SimpleNamespace(filepath=str(Path.cwd() / "fixture.blend")))
+    return SimpleNamespace(**kwargs)
+
+
+def test_job_locator_prefers_saved_blend_and_requires_host_temporary_root(tmp_path):
+    """Unsaved analysis uses only the supplied host root and one runtime session."""
+    runtime = SimpleNamespace(STATE=SimpleNamespace(runtime_session="session-one"))
+    bpy = SimpleNamespace(data=SimpleNamespace(filepath=str(tmp_path / "model.blend")),
+                          app=SimpleNamespace(tempdir=str(tmp_path / "temporary")))
+    assert addon._job_locator(bpy, runtime) == {"model_path": tmp_path / "model.blend"}
+    bpy.data.filepath = ""
+    assert addon._job_locator(bpy, runtime) == {
+        "temporary_cache_root": tmp_path / "temporary" / "session-one"}
+    bpy.app.tempdir = ""
+    with pytest.raises(ValueError, match="session temporary directory"):
+        addon._job_locator(bpy, runtime)
+
+
 def _camera_ui_fixture(monkeypatch, *, elevation=2.5):
     """Provide an independently observed native camera at the addon boundary."""
     from adapters import bonsai_analysis_plane as cameras
@@ -201,7 +221,7 @@ def test_five_panels_are_siblings_and_same_category():
     class Panel:
         """Fake Blender panel base."""
 
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Panel=Panel))
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Panel=Panel))
     classes = addon._panel_classes(fake_bpy)
     assert [cls.__name__ for cls in classes] == [
         "OM_ANALYSIS_PT_plane", "OM_ANALYSIS_PT_region", "OM_ANALYSIS_PT_free_space",
@@ -225,7 +245,7 @@ def test_register_unregister_keeps_one_runtime_and_reverses_panel_lifecycle(monk
         """Fake Blender scene type."""
 
     registered = []
-    fake_bpy = SimpleNamespace(
+    fake_bpy = _operator_bpy(
         types=SimpleNamespace(Operator=Operator, Panel=Panel, Scene=Scene, AddonPreferences=Operator),
         context=SimpleNamespace(preferences=SimpleNamespace(addons={})),
         data=SimpleNamespace(texts=[]),
@@ -270,7 +290,7 @@ def test_configured_repo_root_uses_registered_addon_key(monkeypatch, tmp_path):
     (tmp_path / "pixi.toml").write_text("[workspace]\n", encoding="utf-8")
     preferences = SimpleNamespace(addons={"order_analyzer_ui": SimpleNamespace(
         preferences=SimpleNamespace(repo_root=str(tmp_path)))})
-    fake_bpy = SimpleNamespace(context=SimpleNamespace(preferences=preferences))
+    fake_bpy = _operator_bpy(context=SimpleNamespace(preferences=preferences))
     monkeypatch.setattr(addon, "_bpy", lambda: fake_bpy)
     assert _configured_repo_root() == tmp_path.resolve()
 
@@ -348,7 +368,7 @@ def test_analyze_spaces_operator_preserves_scope_and_entrypoint(monkeypatch, tmp
         invalidate_domain_session=lambda reason: events.append(reason),
         start_job=lambda **kwargs: captured.update(kwargs),
     )
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                 context=SimpleNamespace(preferences=SimpleNamespace(addons={})))
     monkeypatch.setattr(addon, "_bpy", lambda: fake_bpy)
     monkeypatch.setattr(addon, "_configured_repo_root", lambda context=None: tmp_path)
@@ -402,7 +422,7 @@ def test_analyze_spaces_refuses_missing_storey_datum_before_starting_job(monkeyp
         """Fake Blender operator base."""
 
     runtime = SimpleNamespace(STATE=SimpleNamespace(domain_session=None))
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator))
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator))
     monkeypatch.setattr(addon, "_action_runtime", lambda context=None: runtime)
     monkeypatch.setattr(addon, "_selected_storey_datum_z_m",
                         lambda _ref: (_ for _ in ()).throw(ValueError(
@@ -542,7 +562,7 @@ def test_register_persists_load_handler_and_restores_open_file_regions(monkeypat
 
     scene = SimpleNamespace(get=lambda key, default=None: {
         "om_analysis_scene_token": "scene-token"}.get(key, default))
-    fake_bpy = SimpleNamespace(
+    fake_bpy = _operator_bpy(
         types=SimpleNamespace(Operator=Operator, Panel=Panel, Scene=Scene, AddonPreferences=Operator),
         context=SimpleNamespace(scene=scene, preferences=SimpleNamespace(addons={})),
         data=SimpleNamespace(texts=[]),
@@ -620,7 +640,7 @@ def test_register_skips_overlay_restore_without_scene_context(monkeypatch):
         """Fake Blender scene type."""
 
     registered = []
-    fake_bpy = SimpleNamespace(
+    fake_bpy = _operator_bpy(
         types=SimpleNamespace(Operator=Operator, Panel=Panel, Scene=Scene, AddonPreferences=Operator),
         context=SimpleNamespace(preferences=SimpleNamespace(addons={})),
         data=SimpleNamespace(texts=[]),
@@ -652,7 +672,7 @@ def test_start_accepts_immutable_active_domain_and_rejects_plain_invalid_object(
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(
+    fake_bpy = _operator_bpy(
         types=SimpleNamespace(Operator=Operator),
         props=SimpleNamespace(StringProperty=lambda **kwargs: ""),
     )
@@ -687,7 +707,7 @@ def test_selected_wall_start_requires_current_structural_context(monkeypatch, tm
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     refs = ("ifc-object:wall-a", "ifc-object:wall-b")
     retained = StructuralContext.from_plane(
@@ -734,7 +754,7 @@ def test_inspect_reads_current_free_space_cell_and_refuses_stale_result(monkeypa
     """Inspect delegates to the authoritative helper and rejects unavailable truth."""
     class Operator:
         """Fake Blender operator base."""
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     import blender_addon.order_analyzer_ui.overlay as overlay
     result = SimpleNamespace(document={"kind": "free_space_run"})
@@ -1005,7 +1025,7 @@ def test_select_writes_ui_state_without_submitting_a_job(monkeypatch):
     """Candidate row selection is UI-only and leaves the retained session untouched."""
     class Operator:
         """Fake Blender operator base."""
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     calls = []
     runtime = SimpleNamespace(STATE=SimpleNamespace(domain_session={}),
@@ -1031,7 +1051,7 @@ def test_select_and_confirm_keep_candidate_within_analyzed_storey(monkeypatch, t
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     candidate = {"version_id": "candidate-1", "identity": "identity-1",
                  "storey_ref": "ifc-object:S7"}
@@ -1082,7 +1102,7 @@ def test_create_space_operator_is_explicit_and_invalidates_capture(monkeypatch):
     class Operator:
         """Fake Blender operator base."""
     calls = []
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""),
                                ops=SimpleNamespace(om_analysis=SimpleNamespace(
                                    create_space_from_candidate=lambda: calls.append("exact_candidate") or {"FINISHED"})))
@@ -1271,7 +1291,7 @@ def test_analyze_selected_walls_freezes_native_scope_before_capture(monkeypatch,
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     events, calls = [], []
     runtime = SimpleNamespace(
@@ -1310,7 +1330,7 @@ def test_selected_wall_confirm_rebuilds_current_context_with_frozen_refs(monkeyp
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     refs = ("ifc-object:wall-a", "ifc-object:wall-b")
     candidate = {"version_id": "candidate", "identity": "identity", "storey_ref": "ifc-object:S7",
@@ -1340,7 +1360,7 @@ def test_use_selected_ifcspace_requires_explicit_identity_and_no_fallback(monkey
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(
+    fake_bpy = _operator_bpy(
         types=SimpleNamespace(Operator=Operator),
         props=SimpleNamespace(StringProperty=lambda **_kwargs: ""),
     )
@@ -1395,6 +1415,7 @@ def test_use_selected_ifcspace_requires_explicit_identity_and_no_fallback(monkey
         {"invalidated": "analysis Space selection changed"},
         {"repo_root": tmp_path, "bpy_context": SimpleNamespace(scene=scene),
          "auto_publish": True,
+         "model_path": Path(fake_bpy.data.filepath),
          "payload": {"kind": "domain_session", "context": {"frame": "authored"},
                      "prior": None, "action": None,
                      "domain_source_id": "space-guid", "storey_ref": "ifc-object:storey-guid"}},
@@ -1406,7 +1427,7 @@ def test_use_selected_ifcspace_rejects_missing_storey(monkeypatch):
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(
+    fake_bpy = _operator_bpy(
         types=SimpleNamespace(Operator=Operator),
         props=SimpleNamespace(StringProperty=lambda **_kwargs: ""),
     )
@@ -1426,7 +1447,7 @@ def test_use_selected_ifcspace_native_sync_failure_cannot_start(monkeypatch, tmp
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(
+    fake_bpy = _operator_bpy(
         types=SimpleNamespace(Operator=Operator),
         props=SimpleNamespace(StringProperty=lambda **_kwargs: ""),
     )
@@ -1462,7 +1483,7 @@ def test_refresh_for_selected_native_space_keeps_structural_b4_route(monkeypatch
     """Refresh keeps B4 structural even when an authored Space is selected."""
     class Operator:
         """Fake Blender operator base."""
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     calls = []
     runtime = SimpleNamespace(STATE=SimpleNamespace(domain_session=None),
@@ -1489,7 +1510,7 @@ def test_refresh_with_retained_authored_session_keeps_structural_b4_route(monkey
     """Refresh does not derive authored identity from a retained Domain session."""
     class Operator:
         """Fake Blender operator base."""
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     calls = []
     runtime = SimpleNamespace(STATE=SimpleNamespace(domain_session={"authored_domain": {"source_id": "space-guid"}}),
@@ -1513,7 +1534,7 @@ def test_recheck_submits_persisted_authored_identity(monkeypatch, tmp_path):
     """Recheck launches a new Domain request from saved identity facts."""
     class Operator:
         """Fake Blender operator base."""
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     record = {"region_id": "space-guid", "name": "Room", "storey_ref": "ifc-object:storey-guid",
               "plane_uuid": "plane", "plane_revision": 1,
@@ -1569,7 +1590,7 @@ def test_recheck_submits_persisted_selected_wall_scope(monkeypatch, tmp_path):
     """An inferred Region rechecks through B4 with its frozen wall set and no authored Space identity."""
     class Operator:
         """Fake Blender operator base."""
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     refs = ("ifc-object:wall-a", "ifc-object:wall-b")
     record = {"region_id": "inferred", "name": "Room", "storey_ref": "ifc-object:S7",
@@ -1604,7 +1625,7 @@ def test_region_select_aligns_visible_storey_and_support_to_saved_row(monkeypatc
     """Selecting history updates selectors before any later explicit confirmation."""
     class Operator:
         """Fake Blender operator base."""
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     record = {"region_id": "space-guid", "storey_ref": "ifc-object:storey-guid",
               "support_source_id": "floor-guid"}
@@ -1731,7 +1752,7 @@ def test_select_storey_operator_keeps_existing_validation_and_invalidation(monke
     class Operator:
         """Fake Blender operator base."""
 
-    fake_bpy = SimpleNamespace(types=SimpleNamespace(Operator=Operator),
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
                                props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
     invalidated = []
     monkeypatch.setattr(addon, "_sync_bonsai_default_container", lambda context, tool: None)

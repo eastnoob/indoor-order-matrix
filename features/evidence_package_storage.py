@@ -2,6 +2,7 @@
 
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -133,6 +134,31 @@ def _load_receipt(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def _decode_receipt_bytes(payload):
+    """Decode one in-store receipt while preserving the existing JSON contract."""
+    if type(payload) is not bytes:
+        raise TypeError("receipt payload must be bytes")
+    return json.loads(payload.decode("utf-8"))
+
+
+def serialize_raw_output_bytes(*, cache_key, contract, raw_output):
+    """Serialize the unchanged raw receipt format for a CacheStore payload."""
+    receipt = {"schema": "evidence-package-cache/v1", "cache_key": cache_key,
+               "contract": contract, "raw_output": serialize_evidence_package_output(raw_output)}
+    receipt["receipt_fingerprint"] = fingerprint_evidence_dependency(receipt)
+    return json.dumps(receipt, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+
+
+def serialize_processed_output_bytes(output):
+    """Serialize a successful processed receipt for a CacheStore payload."""
+    if output.error_code is not None:
+        return None
+    return json.dumps(
+        serialize_evidence_processed_output(output), sort_keys=True,
+        separators=(",", ":"), allow_nan=False,
+    ).encode("utf-8")
+
+
 def write_receipt(path, receipt):
     """Publish complete JSON atomically, retaining prior bytes on replacement failure."""
     path = Path(path)
@@ -150,58 +176,74 @@ def write_receipt(path, receipt):
 
 def save_raw_output(path, *, cache_key, contract, raw_output):
     """Save typed output with its complete input and current producer contract binding."""
-    receipt = {"schema": "evidence-package-cache/v1", "cache_key": cache_key,
-               "contract": contract, "raw_output": serialize_evidence_package_output(raw_output)}
-    receipt["receipt_fingerprint"] = fingerprint_evidence_dependency(receipt)
-    write_receipt(path, receipt)
+    write_receipt(path, _decode_receipt_bytes(serialize_raw_output_bytes(
+        cache_key=cache_key, contract=contract, raw_output=raw_output,
+    )))
+
+
+def _load_raw_receipt(receipt, *, cache_key, contract, package, legacy_adopter=None):
+    """Validate one decoded raw receipt using the existing owner rules."""
+    if (type(receipt) is not dict
+            or set(receipt) != {"schema", "cache_key", "contract", "raw_output", "receipt_fingerprint"}
+            or receipt["schema"] != "evidence-package-cache/v1"
+            or receipt["cache_key"] != cache_key
+            or receipt["receipt_fingerprint"] != fingerprint_evidence_dependency({
+                key: value for key, value in receipt.items() if key != "receipt_fingerprint"})):
+        return None
+    cached_contract = _validate_evidence_package_contract(receipt["contract"])
+    if cached_contract["package_identity"] != cache_key:
+        return None
+    output = deserialize_evidence_package_output(receipt["raw_output"])
+    if (output.package_id != package.package_id or output.output_function != package.output_function_id
+            or output.output_function_version != package.output_function_version):
+        return None
+    current_identity = contract["package_identity"]
+    legacy_identity = legacy_candidate_contract(contract)["package_identity"]
+    if cached_contract["package_identity"] not in {current_identity, legacy_identity}:
+        return None
+    parameter_status = compare_receipt_parameters(cached_contract, contract)
+    historical_contract = cached_contract
+    origin = {
+        "mode": "cache_hit",
+        "origin_cache_key": receipt["cache_key"],
+        "origin_contract": cached_contract,
+        "origin_payload_fingerprint": receipt["raw_output"]["payload_fingerprint"],
+    }
+    if parameter_status["recompute_required"]:
+        if legacy_adopter is None:
+            return None
+        adopted = legacy_adopter(receipt, contract)
+        if adopted is None:
+            return None
+        adopted = _validate_evidence_package_contract(adopted)
+        verified_status = compare_receipt_parameters(adopted, contract)
+        if verified_status["recompute_required"]:
+            return None
+        historical_contract = adopted
+        parameter_status = {**verified_status, "exact_match": False}
+        origin = {**origin, "mode": "adopted_legacy",
+                  "verification_mode": "owner_reconstructed_parameters"}
+    return RawCacheLookup(output, historical_contract, parameter_status, origin)
+
+
+def load_raw_bytes(payload, *, cache_key, contract, package, legacy_adopter=None):
+    """Validate an in-memory raw receipt using the same path-based codec."""
+    try:
+        return _load_raw_receipt(
+            _decode_receipt_bytes(payload), cache_key=cache_key, contract=contract,
+            package=package, legacy_adopter=legacy_adopter,
+        )
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, IndexError):
+        return None
 
 
 def load_raw_entry(path, *, cache_key, contract, package, legacy_adopter=None):
     """Return a validated raw result together with historical parameter evidence."""
     try:
-        receipt = _load_receipt(path)
-        if (type(receipt) is not dict
-                or set(receipt) != {"schema", "cache_key", "contract", "raw_output", "receipt_fingerprint"}
-                or receipt["schema"] != "evidence-package-cache/v1"
-                or receipt["cache_key"] != cache_key
-                or receipt["receipt_fingerprint"] != fingerprint_evidence_dependency({
-                    key: value for key, value in receipt.items() if key != "receipt_fingerprint"})):
-            return None
-        cached_contract = _validate_evidence_package_contract(receipt["contract"])
-        if cached_contract["package_identity"] != cache_key:
-            return None
-        output = deserialize_evidence_package_output(receipt["raw_output"])
-        if (output.package_id != package.package_id or output.output_function != package.output_function_id
-                or output.output_function_version != package.output_function_version):
-            return None
-        # A legacy filename remains eligible only when all non-parameter identity inputs agree.
-        current_identity = contract["package_identity"]
-        legacy_identity = legacy_candidate_contract(contract)["package_identity"]
-        if cached_contract["package_identity"] not in {current_identity, legacy_identity}:
-            return None
-        parameter_status = compare_receipt_parameters(cached_contract, contract)
-        historical_contract = cached_contract
-        origin = {
-            "mode": "cache_hit",
-            "origin_cache_key": receipt["cache_key"],
-            "origin_contract": cached_contract,
-            "origin_payload_fingerprint": receipt["raw_output"]["payload_fingerprint"],
-        }
-        if parameter_status["recompute_required"]:
-            if legacy_adopter is None:
-                return None
-            adopted = legacy_adopter(receipt, contract)
-            if adopted is None:
-                return None
-            adopted = _validate_evidence_package_contract(adopted)
-            verified_status = compare_receipt_parameters(adopted, contract)
-            if verified_status["recompute_required"]:
-                return None
-            historical_contract = adopted
-            parameter_status = {**verified_status, "exact_match": False}
-            origin = {**origin, "mode": "adopted_legacy",
-                      "verification_mode": "owner_reconstructed_parameters"}
-        return RawCacheLookup(output, historical_contract, parameter_status, origin)
+        return _load_raw_receipt(
+            _load_receipt(path), cache_key=cache_key, contract=contract,
+            package=package, legacy_adopter=legacy_adopter,
+        )
     except (OSError, UnicodeError, ValueError, TypeError, KeyError, IndexError):
         return None
 
@@ -223,7 +265,13 @@ def processed_cache_key(raw_output, processor):
 
 def _read_processed_entry(path, *, raw_output, processor):
     """Read one processed receipt and preserve its exact serialized identity."""
-    payload = _load_receipt(path)
+    return _read_processed_payload(
+        _load_receipt(path), raw_output=raw_output, processor=processor,
+    )
+
+
+def _read_processed_payload(payload, *, raw_output, processor):
+    """Validate one decoded processed receipt without changing its wire fields."""
     output = deserialize_evidence_processed_output(payload, raw_output=raw_output)
     if output.error_code is not None:
         return None
@@ -261,7 +309,17 @@ def load_processed_entry(path, *, raw_output, processor, legacy_path=None,
     if legacy_path is None or legacy_processed_adopter is None:
         return None
     try:
-        payload = _load_receipt(legacy_path)
+        return _load_legacy_processed_payload(
+            _load_receipt(legacy_path), raw_output=raw_output, processor=processor,
+            legacy_processed_adopter=legacy_processed_adopter,
+        )
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, IndexError):
+        return None
+
+
+def _load_legacy_processed_payload(payload, *, raw_output, processor, legacy_processed_adopter):
+    """Reconstruct typed provenance while retaining the historical processing identity."""
+    try:
         saved = deserialize_evidence_processed_output(payload, raw_output=raw_output)
         if (saved.error_code is not None or saved.parameter_snapshot is not None
                 or saved.processor_id != processor.function_id
@@ -300,5 +358,61 @@ def load_processed_output(path, *, raw_output, processor):
 
 def save_processed_output(path, output):
     """Persist configured successful transforms; processing errors are never cache hits."""
-    if output.error_code is None:
-        write_receipt(path, serialize_evidence_processed_output(output))
+    payload = serialize_processed_output_bytes(output)
+    if payload is not None:
+        write_receipt(path, _decode_receipt_bytes(payload))
+
+
+def load_processed_bytes(payload, *, raw_output, processor, legacy_processed_adopter=None):
+    """Validate an in-memory processed receipt with the existing wire decoder."""
+    try:
+        receipt = _decode_receipt_bytes(payload)
+        result = _read_processed_payload(receipt, raw_output=raw_output, processor=processor)
+        if result is not None or legacy_processed_adopter is None:
+            return result
+        return _load_legacy_processed_payload(
+            receipt, raw_output=raw_output, processor=processor,
+            legacy_processed_adopter=legacy_processed_adopter,
+        )
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, IndexError):
+        return None
+
+
+def load_bound_store_entry(store, address, *, validator, profile):
+    """Resolve a durable owner attestation and revalidate its original immutable payload."""
+    try:
+        binding = store.get_lookup_binding(address)
+        target = address
+        if binding is not None:
+            target = replace(address, **dict(binding["legacy_address"]))
+            attestation = binding["attestation"]
+            if (attestation.get("profile") != profile
+                    or attestation.get("requested_identity") != address.identity
+                    or (target.source_fingerprint, target.package_id, target.output_port, target.layer)
+                    != (address.source_fingerprint, address.package_id, address.output_port, address.layer)):
+                return None
+        entry = store.get(target, validator=validator)
+        if (entry is not None and binding is not None
+                and hashlib.sha256(entry.payload_paths[0].read_bytes()).hexdigest()
+                != attestation.get("payload_sha256")):
+            return None
+        return entry
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, IndexError):
+        return None
+
+
+def adopt_legacy_store_payload(store, address, *, original_identity, payload, contract,
+                               payload_format, validator, profile, upstream_refs=(),
+                               auth_key_id=None):
+    """Wrap validated historical bytes and persist their current-to-original lookup binding."""
+    original = replace(address, identity=original_identity)
+    entry = store.put(
+        original, contract=contract, payload=payload, payload_format=payload_format,
+        validator=validator, upstream_refs=upstream_refs, auth_key_id=auth_key_id,
+    )
+    store.record_reuse_origin(original, "legacy_adopted")
+    store.record_lookup_binding(address, original, attestation={
+        "profile": profile, "requested_identity": address.identity,
+        "payload_sha256": hashlib.sha256(payload).hexdigest(),
+    })
+    return entry

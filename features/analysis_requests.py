@@ -218,6 +218,49 @@ def _backend_versions() -> dict[str, object]:
     return {"executor": REQUEST_VERSION, "packages": packages, "implementations": implementations}
 
 
+def _legacy_cache_compatibility_profile():
+    """Read the single reviewed storage-only profile without trusting cache metadata."""
+    try:
+        profile = json.loads(Path(__file__).with_name("legacy_cache_compatibility.json").read_text(
+            encoding="utf-8"))
+        if (type(profile) is not dict
+                or profile.get("schema") != "legacy-cache-compatibility/v1"
+                or profile.get("profile_id") != "pre-parameter-sidecar-storage/1"
+                or set(profile) != {"schema", "profile_id", "original_content_implementations",
+                                    "current_content_implementations", "original_backend_versions",
+                                    "current_backend_versions"}):
+            return None
+        return profile
+    except (OSError, UnicodeError, ValueError, TypeError):
+        return None
+
+
+def legacy_backend_compatibility(saved_versions, current_versions=None):
+    """Admit only the reviewed pre-parameter implementation and unchanged numerical stack."""
+    profile = _legacy_cache_compatibility_profile()
+    if profile is None:
+        return None
+    try:
+        actual = _backend_versions()
+        current = actual if current_versions is None else current_versions
+        original = profile["original_backend_versions"]
+        if (saved_versions != original or current != profile["current_backend_versions"]
+                or current != actual or current["executor"] != original["executor"]
+                or current["packages"] != original["packages"]):
+            return None
+        root = Path(__file__).resolve().parents[1]
+        # A backend file or adapter outside the reviewed exact hashes is a miss,
+        # even when it retains the same declared numerical version string.
+        for relative, expected in profile["current_content_implementations"].items():
+            path = root / relative
+            if (path.resolve().is_relative_to(root) is False
+                    or sha256(path.read_bytes()).hexdigest() != expected):
+                return None
+        return profile["profile_id"]
+    except (OSError, KeyError, TypeError, ValueError):
+        return None
+
+
 def _domain_identity(domain: AnalysisDomain | None) -> object:
     """Retain exact selected topology refs and membership, excluding display/audit labels."""
     if domain is None:

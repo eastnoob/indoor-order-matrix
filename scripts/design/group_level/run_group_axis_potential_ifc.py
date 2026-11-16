@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import json
 import math
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +23,7 @@ from features.group_axis_potential_field import (
     run_group_axis_potential_package,
 )
 from features.group_self_description import describe_group_relations
+from features.cache_paths import create_run_directory, run_journal
 
 from .run_group_trend_alignment_field_ifc import (
     DEFAULT_IFC,
@@ -252,116 +252,135 @@ def _field_svg(
     return f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}"><title>source-axis furniture-group field</title><rect width="100%" height="100%" fill="white"/>{"".join(markup)}<line x1="0" y1="{height-footer}" x2="{width}" y2="{height-footer}" stroke="#bbb"/>{text}</svg>'
 
 
-def run(source_path: Path, output_root: Path, *, group_limit: int | None = None) -> Path:
+def run(source_path: Path, output_root: Path | None = None, *, group_limit: int | None = None,
+        model_path: Path | None = None, temporary_cache_root: Path | None = None) -> Path:
     """Extract trend envelopes from the pinned IFC and emit additive potential evidence."""
-    before = _fingerprint(source_path)
-    scene, metadata, authored = _build_scene(source_path, group_limit=group_limit)
-    description = describe_group_relations(scene)
-    query = FieldQuery(
-        frame=scene.context.analysis_plane.name,
-        plane=scene.context.analysis_plane,
-        tolerance=scene.context.geometry_tolerance,
-        revision="group-axis-potential-v1",
+    if output_root is None and model_path is None and temporary_cache_root is None:
+        model_path = source_path
+    run_dir = create_run_directory(
+        root=output_root, model_path=model_path, temporary_root=temporary_cache_root,
+        prefix="axis-potential",
     )
-    envelopes = build_group_trend_alignment_envelopes(
-        scene,
-        query=query,
-        input_fingerprint=before["sha256"],
-        source_fingerprint=before["sha256"],
-        recipe_fingerprint="group-axis-potential-axis-only-v1",
-        algorithm_version="group-axis-potential-v1",
-        schema_version="group-axis-potential-source-envelope/v1",
-    )
-    # Preserve original producer order for historical per-group audit lists.
-    result = run_group_axis_potential_package(envelopes)["raw_output"]
-    after = _fingerprint(source_path)
-    if before != after:
-        raise RuntimeError("pinned IFC changed during axis-potential extraction")
-    run_dir = output_root / datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
-    run_dir.mkdir(parents=True, exist_ok=False)
-    plane = _plain(scene.context.analysis_plane)
-    _write(run_dir / "source_manifest.json", {"schema": "group-axis-potential-source-manifest/v1", **metadata, "source_after": after, "analysis_plane": plane})
-    _write(run_dir / "description.json", description)
-    _write(run_dir / "envelopes.json", {"schema": "group-trend-alignment-envelopes/v2", "query": query, "envelopes": envelopes})
-    _write(run_dir / "axis_potential_output.json", serialize_evidence_package_output(result))
-    aggregate = next(output for output in result.outputs if output.channel == "aggregate_direction")
-    svg_path = run_dir / "aggregate_axis.svg"
-    svg_path.write_text(_aggregate_svg(description, aggregate.observation.get("angle"), before, plane), encoding="utf-8")
-    _write(run_dir / "view_manifest.json", {"schema": "group-axis-potential-view-manifest/v1", "source": before, "analysis_plane": plane, "artifacts": [str(svg_path.resolve())], "channel": "aggregate_direction"})
-    field_views_dir = run_dir / "field_views"
-    field_views_dir.mkdir()
-    field_cells: dict[str, list[dict[str, Any]]] = {}
-    for output in result.outputs:
-        if output.target["kind"] != "furniture_group_axis_field_cell":
-            continue
-        field_cells.setdefault(output.observation["field_id"], []).append(dict(output.observation))
-    field_artifacts = []
-    for index, (field_id, cells) in enumerate(sorted(field_cells.items())):
-        field_path = field_views_dir / f"field_{index:03d}.svg"
-        field_path.write_text(_field_svg(description, field_id, tuple(cells), before, plane), encoding="utf-8")
-        field_artifacts.append({"field_id": field_id, "path": str(field_path.resolve()), "anchor_group_id": cells[0]["anchor_group_id"]})
-    fields_by_id = {item["field_id"]: item for item in field_artifacts}
-    for field_id, items in field_cells.items():
-        fields_by_id[field_id].update({
-            "cell_count": len(items),
-            "status_counts": {
-                status: sum(item["status"] == status for item in items)
-                for status in ("computed", "partial", "not_available", "invalid", "ambiguous")
-            },
-        })
-    field_manifest = {"schema": "group-axis-potential-field-view-manifest/v1", "source": before, "analysis_plane": plane, "fields": [fields_by_id[key] for key in sorted(fields_by_id)]}
-    _write(run_dir / "field_view_manifest.json", field_manifest)
-    matrix, profiles, directions = _field_metadata(result)
-    _write(run_dir / "field_matrix.json", matrix)
-    _write(run_dir / "field_profiles.json", profiles)
-    _write(run_dir / "field_directions.json", directions)
-    report = {
-        "schema": SCHEMA,
-        "source": before,
-        "source_after": after,
-        "eligible_authored_groups": len(authored),
-        "source_envelopes": len(envelopes),
-        "derived_outputs": len(result.outputs),
-        "output_channels": [output.channel for output in result.outputs],
-        "aggregate_direction_status": _plain(aggregate.status),
-        "aggregate_direction": aggregate.observation.get("angle"),
-        "coverage": next(output.observation for output in result.outputs if output.channel == "coverage"),
-        "visualization": str(svg_path.resolve()),
-        "field_view_count": len(field_artifacts),
-        "field_view_manifest": str((run_dir / "field_view_manifest.json").resolve()),
-        "field_cell_count": len(field_cells) * len(envelopes),
-        "field_matrix": "field_matrix.json",
-        "field_profiles": "field_profiles.json",
-        "field_directions": "field_directions.json",
-        "synthetic_input": False,
-        "layout_axis_used": False,
-        "package_contract": "package_contract.json",
-        "package_status": "package_status.json",
-    }
-    _write(run_dir / "report.json", report)
-    visualization_paths = tuple(sorted(
-        str(Path(item["path"]).relative_to(run_dir.resolve())) for item in field_artifacts
-    ))
-    artifact_paths = ("source_manifest.json", "description.json", "envelopes.json", "axis_potential_output.json", "report.json", "view_manifest.json", "field_view_manifest.json", "field_matrix.json", "field_profiles.json", "field_directions.json", *visualization_paths, "aggregate_axis.svg")
-    contract = _package_contract(description, envelopes, query, plane, str(before["sha256"]), visualization_paths + ("aggregate_axis.svg",), result)
-    _write(run_dir / "package_contract.json", contract)
-    package_status = evaluate_evidence_package_freshness(
-        cached_contract=contract,
-        current_contract=contract,
-        artifacts_available=_artifacts_readable(run_dir, (*artifact_paths, "package_contract.json")),
-    )
-    _write(run_dir / "package_status.json", package_status)
-    return run_dir
+    with run_journal(run_dir):
+        before = _fingerprint(source_path)
+        scene, metadata, authored = _build_scene(source_path, group_limit=group_limit)
+        description = describe_group_relations(scene)
+        query = FieldQuery(
+            frame=scene.context.analysis_plane.name,
+            plane=scene.context.analysis_plane,
+            tolerance=scene.context.geometry_tolerance,
+            revision="group-axis-potential-v1",
+        )
+        envelopes = build_group_trend_alignment_envelopes(
+            scene,
+            query=query,
+            input_fingerprint=before["sha256"],
+            source_fingerprint=before["sha256"],
+            recipe_fingerprint="group-axis-potential-axis-only-v1",
+            algorithm_version="group-axis-potential-v1",
+            schema_version="group-axis-potential-source-envelope/v1",
+        )
+        # Preserve original producer order for historical per-group audit lists.
+        result = run_group_axis_potential_package(
+            envelopes, model_path=model_path, temporary_cache_root=temporary_cache_root,
+        )["raw_output"]
+        after = _fingerprint(source_path)
+        if before != after:
+            raise RuntimeError("pinned IFC changed during axis-potential extraction")
+        plane = _plain(scene.context.analysis_plane)
+        _write(run_dir / "source_manifest.json", {"schema": "group-axis-potential-source-manifest/v1", **metadata, "source_after": after, "analysis_plane": plane})
+        _write(run_dir / "description.json", description)
+        _write(run_dir / "envelopes.json", {"schema": "group-trend-alignment-envelopes/v2", "query": query, "envelopes": envelopes})
+        _write(run_dir / "axis_potential_output.json", serialize_evidence_package_output(result))
+        aggregate = next(output for output in result.outputs if output.channel == "aggregate_direction")
+        svg_path = run_dir / "aggregate_axis.svg"
+        svg_path.write_text(_aggregate_svg(description, aggregate.observation.get("angle"), before, plane), encoding="utf-8")
+        _write(run_dir / "view_manifest.json", {"schema": "group-axis-potential-view-manifest/v1", "source": before, "analysis_plane": plane, "artifacts": [str(svg_path.resolve())], "channel": "aggregate_direction"})
+        field_views_dir = run_dir / "field_views"
+        field_views_dir.mkdir()
+        field_cells: dict[str, list[dict[str, Any]]] = {}
+        for output in result.outputs:
+            if output.target["kind"] != "furniture_group_axis_field_cell":
+                continue
+            field_cells.setdefault(output.observation["field_id"], []).append(dict(output.observation))
+        field_artifacts = []
+        for index, (field_id, cells) in enumerate(sorted(field_cells.items())):
+            field_path = field_views_dir / f"field_{index:03d}.svg"
+            field_path.write_text(_field_svg(description, field_id, tuple(cells), before, plane), encoding="utf-8")
+            field_artifacts.append({"field_id": field_id, "path": str(field_path.resolve()), "anchor_group_id": cells[0]["anchor_group_id"]})
+        fields_by_id = {item["field_id"]: item for item in field_artifacts}
+        for field_id, items in field_cells.items():
+            fields_by_id[field_id].update({
+                "cell_count": len(items),
+                "status_counts": {
+                    status: sum(item["status"] == status for item in items)
+                    for status in ("computed", "partial", "not_available", "invalid", "ambiguous")
+                },
+            })
+        field_manifest = {"schema": "group-axis-potential-field-view-manifest/v1", "source": before, "analysis_plane": plane, "fields": [fields_by_id[key] for key in sorted(fields_by_id)]}
+        _write(run_dir / "field_view_manifest.json", field_manifest)
+        matrix, profiles, directions = _field_metadata(result)
+        _write(run_dir / "field_matrix.json", matrix)
+        _write(run_dir / "field_profiles.json", profiles)
+        _write(run_dir / "field_directions.json", directions)
+        report = {
+            "schema": SCHEMA,
+            "source": before,
+            "source_after": after,
+            "eligible_authored_groups": len(authored),
+            "source_envelopes": len(envelopes),
+            "derived_outputs": len(result.outputs),
+            "output_channels": [output.channel for output in result.outputs],
+            "aggregate_direction_status": _plain(aggregate.status),
+            "aggregate_direction": aggregate.observation.get("angle"),
+            "coverage": next(output.observation for output in result.outputs if output.channel == "coverage"),
+            "visualization": str(svg_path.resolve()),
+            "field_view_count": len(field_artifacts),
+            "field_view_manifest": str((run_dir / "field_view_manifest.json").resolve()),
+            "field_cell_count": len(field_cells) * len(envelopes),
+            "field_matrix": "field_matrix.json",
+            "field_profiles": "field_profiles.json",
+            "field_directions": "field_directions.json",
+            "synthetic_input": False,
+            "layout_axis_used": False,
+            "package_contract": "package_contract.json",
+            "package_status": "package_status.json",
+        }
+        _write(run_dir / "report.json", report)
+        visualization_paths = tuple(sorted(
+            str(Path(item["path"]).relative_to(run_dir.resolve())) for item in field_artifacts
+        ))
+        artifact_paths = ("source_manifest.json", "description.json", "envelopes.json", "axis_potential_output.json", "report.json", "view_manifest.json", "field_view_manifest.json", "field_matrix.json", "field_profiles.json", "field_directions.json", *visualization_paths, "aggregate_axis.svg")
+        contract = _package_contract(description, envelopes, query, plane, str(before["sha256"]), visualization_paths + ("aggregate_axis.svg",), result)
+        _write(run_dir / "package_contract.json", contract)
+        package_status = evaluate_evidence_package_freshness(
+            cached_contract=contract,
+            current_contract=contract,
+            artifacts_available=_artifacts_readable(run_dir, (*artifact_paths, "package_contract.json")),
+        )
+        _write(run_dir / "package_status.json", package_status)
+        return run_dir
 
 
-def main() -> None:
+def main(argv=None) -> None:
     """Run the pinned-IFC axis-potential extraction and print its artifact path."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--ifc", type=Path, default=DEFAULT_IFC)
-    parser.add_argument("--output-root", type=Path, default=ROOT / "outputs/design/group_axis_potential_ifc")
+    parser.add_argument("--output-root", type=Path, default=None)
     parser.add_argument("--group-limit", type=int, default=None)
-    args = parser.parse_args()
-    run_dir = run(args.ifc.resolve(), args.output_root.resolve(), group_limit=args.group_limit)
+    parser.add_argument("--model-path", type=Path, default=None)
+    parser.add_argument("--temporary-cache-root", type=Path, default=None)
+    args = parser.parse_args(argv)
+    model_path = args.model_path
+    if model_path is None and args.temporary_cache_root is None:
+        model_path = args.ifc
+    run_dir = run(
+        args.ifc.resolve(), None if args.output_root is None else args.output_root.resolve(),
+        group_limit=args.group_limit,
+        model_path=None if model_path is None else model_path.resolve(),
+        temporary_cache_root=(None if args.temporary_cache_root is None
+                              else args.temporary_cache_root.resolve()),
+    )
     print(json.dumps({"status": "pass", "run_dir": str(run_dir), "source": _fingerprint(args.ifc.resolve())}, sort_keys=True))
 
 

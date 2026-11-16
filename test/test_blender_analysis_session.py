@@ -43,6 +43,38 @@ def _cache_payload():
         "domain_geometries": [scene.geometries[0].to_dict()], "support_binding": None, "legacy_bindings": []}
 
 
+@pytest.mark.parametrize("change", ["same", "geometry", "backend"])
+def test_flat_cache_adoption_binds_current_capture_and_backend(tmp_path, monkeypatch, change):
+    """A flat receipt cannot authorize reuse after capture geometry or numerical versions change."""
+    from ..adapters import blender_analysis_session as service
+
+    payload = _cache_payload()
+    first = service._execute_workflow_payload(payload, cache_directory=tmp_path)
+    path = tmp_path / (first["content_cache"]["content_key"] + ".json")
+    original = path.read_bytes()
+    payload["job_binding"]["job_id"] = "adoption-current"
+    if change == "geometry":
+        payload["canonical_capture"]["records"][0]["mesh"]["vertices"][0][0] += .01
+    elif change == "backend":
+        versions = service.requests._backend_versions()
+        versions["packages"]["numpy"] = "unknown-adoption-backend"
+        monkeypatch.setattr(service.requests, "_backend_versions", lambda: versions)
+
+    def forbidden(*args, **kwargs):
+        """Expose a genuine miss at the numerical executor boundary."""
+        raise AssertionError("adoption calculation sentinel")
+
+    monkeypatch.setattr(service.requests, "execute_analysis_request", forbidden)
+    if change == "same":
+        adopted = service._execute_workflow_payload(payload, temporary_cache_root=tmp_path)
+        assert adopted["content_cache"]["hit"] is True
+        assert adopted["content_cache"]["cache_reuse"] == "legacy_adopted"
+    else:
+        with pytest.raises(AssertionError, match="adoption calculation sentinel"):
+            service._execute_workflow_payload(payload, temporary_cache_root=tmp_path)
+    assert path.read_bytes() == original
+
+
 def test_disk_cache_hit_skips_all_generators_and_republishes_current_revision(tmp_path, monkeypatch):
     """A fresh call restores disk content before projection and refreshes current identity."""
     from ..adapters import blender_analysis_session as service
@@ -119,6 +151,58 @@ def test_disk_cache_restored_plane_pose_hits_after_an_intermediate_miss(tmp_path
     assert restored["content_cache"]["hit"] is True
     assert restored["content_cache"]["content_key"] == first["content_cache"]["content_key"]
     assert len(list(tmp_path.glob("*.json"))) == 2
+
+
+def test_model_locator_uses_sidecar_cache_and_reports_reuse(tmp_path, monkeypatch):
+    """A saved Blender model selects its sibling sidecar for validated content reuse."""
+    from ..adapters import blender_analysis_session as service
+    payload = _cache_payload()
+    model = tmp_path / "layout.blend"
+    first = service._execute_workflow_payload(payload, model_path=model)
+    def forbidden(*_args, **_kwargs):
+        """Ensure the sidecar hit does not reactivate the numerical executor."""
+        pytest.fail("model-side cache hit reached analysis executor")
+    monkeypatch.setattr(service.requests, "execute_analysis_request", forbidden)
+    payload["job_binding"]["job_id"] = "sidecar-hit"
+    second = service._execute_workflow_payload(payload, model_path=model)
+    assert first["content_cache"]["cache_reuse"] == "computed"
+    assert second["content_cache"]["cache_reuse"] == "exact_hit"
+    assert second["content_cache"]["cache_location"] == str(model.with_suffix(".order_analyzer"))
+
+
+def test_blend_display_locator_does_not_change_source_binding(tmp_path):
+    """Moving the display file and renaming its scene preserve captured source facts."""
+    from ..adapters import blender_analysis_capture as capture_module
+    from ..adapters import blender_analysis_session as service
+    payload = _cache_payload()
+    original = capture_module.CanonicalCaptureInput(**payload["canonical_capture"])
+    moved_data = dict(payload["canonical_capture"])
+    moved_observation = dict(moved_data["observation"])
+    moved_observation["blend_path"] = str(tmp_path / "moved.blend")
+    moved_observation["scene"] = "Renamed display scene"
+    moved_data["observation"] = moved_observation
+    moved = capture_module.CanonicalCaptureInput(**moved_data)
+    first = service._portable_capture_binding(original, model_path=tmp_path / "first.blend", root=tmp_path)
+    second = service._portable_capture_binding(moved, model_path=tmp_path / "moved.blend", root=tmp_path)
+    assert first.source_fingerprint == second.source_fingerprint
+    assert first.canonical_source_identity == second.canonical_source_identity
+
+
+def test_model_locator_adopts_legacy_flat_wire_receipt(tmp_path, monkeypatch):
+    """A validated flat Blender receipt is adopted without activating the executor."""
+    from ..adapters import blender_analysis_session as service
+    payload = _cache_payload()
+    model = tmp_path / "layout.blend"
+    sidecar = model.with_suffix(".order_analyzer")
+    first = service._execute_workflow_payload(payload, cache_directory=sidecar)
+    monkeypatch.setattr(service.requests, "execute_analysis_request",
+                        lambda *args, **kwargs: pytest.fail("legacy adoption reached analysis executor"))
+    payload["job_binding"]["job_id"] = "legacy-adopted"
+    second = service._execute_workflow_payload(payload, model_path=model)
+    assert first["content_cache"]["hit"] is False
+    assert second["content_cache"]["hit"] is True
+    assert second["content_cache"]["cache_reuse"] == "legacy_adopted"
+    assert list(sidecar.rglob("payload.json"))
 
 
 @pytest.mark.parametrize("damage", ["missing", "json", "digest", "version", "content", "backend"])
@@ -244,7 +328,7 @@ def test_disk_cache_display_and_publication_metadata_reuse(tmp_path):
 
 
 def test_fixed_cli_uses_persistent_cache_in_a_fresh_process(tmp_path):
-    """Separate interpreter jobs use the fixed module's stable cache, outside job paths."""
+    """Separate interpreter jobs reuse an explicitly selected persistent cache."""
     import subprocess
     import sys
     from pathlib import Path
@@ -255,11 +339,13 @@ def test_fixed_cli_uses_persistent_cache_in_a_fresh_process(tmp_path):
     request_path, first_path, current_path = (tmp_path / name for name in ("request.json", "first.json", "current.json"))
     request_path.write_text(service.wire.canonical_json(payload), encoding="utf-8")
     root = Path(__file__).resolve().parents[1]
-    first_child = subprocess.run([sys.executable, "-m", "adapters.blender_analysis_session", str(request_path), str(first_path)],
+    cache_directory = tmp_path / "cache"
+    first_child = subprocess.run([sys.executable, "-m", "adapters.blender_analysis_session", str(request_path), str(first_path),
+                                  "--cache-directory", str(cache_directory)],
                                 cwd=root, capture_output=True, text=True)
     assert first_child.returncode == 0, first_child.stderr
     first = service.wire.load_json(first_path.read_text(encoding="utf-8"))
-    cache_path = service.CONTENT_CACHE_DIRECTORY / (first["content_cache"]["content_key"] + ".json")
+    cache_path = cache_directory / (first["content_cache"]["content_key"] + ".json")
     try:
         assert cache_path.is_file() and cache_path.parent != first_path.parent
         payload["job_binding"]["job_id"] = "fresh-process-hit"
@@ -277,7 +363,8 @@ analysis_requests.execute_analysis_request = geometry_views.plan_projection = fo
 free_space_field.FreeSpaceField = forbidden
 session.main(sys.argv[1:])
 '''
-        child = subprocess.run([sys.executable, "-c", code, str(request_path), str(current_path)],
+        child = subprocess.run([sys.executable, "-c", code, str(request_path), str(current_path),
+                                "--cache-directory", str(cache_directory)],
                                cwd=root, capture_output=True, text=True)
         assert child.returncode == 0, child.stderr
         result = service.wire.load_json(current_path.read_text(encoding="utf-8"))
@@ -376,11 +463,10 @@ def test_cache_and_cli_failures_preserve_previous_valid_files(tmp_path, monkeypa
     from ..adapters import blender_analysis_session as service
     from ..features import analysis_requests
     cache_directory = tmp_path / "cache"
-    monkeypatch.setattr(service, "CONTENT_CACHE_DIRECTORY", cache_directory)
     payload = _cache_payload()
     request_path, public_path = tmp_path / "request.json", tmp_path / "result.json"
     request_path.write_text(service.wire.canonical_json(payload), encoding="utf-8")
-    service.main([str(request_path), str(public_path)])
+    service.main([str(request_path), str(public_path), "--cache-directory", str(cache_directory)])
     cache_path, = cache_directory.glob("*.json")
     cache_before, public_before = cache_path.read_bytes(), public_path.read_bytes()
     payload["job_binding"]["job_id"] = "failed-job"
@@ -402,7 +488,7 @@ def test_cache_and_cli_failures_preserve_previous_valid_files(tmp_path, monkeypa
         monkeypatch.setattr(service.wire.os, "replace", fail_replace)
     request_path.write_text(service.wire.canonical_json(payload), encoding="utf-8")
     with pytest.raises((RuntimeError, OSError), match="failed"):
-        service.main([str(request_path), str(public_path)])
+        service.main([str(request_path), str(public_path), "--cache-directory", str(cache_directory)])
     assert cache_path.read_bytes() == cache_before and public_path.read_bytes() == public_before
     assert not list(cache_directory.glob("*.partial")) and not list(tmp_path.glob("*.partial"))
 

@@ -1,6 +1,13 @@
 # 软件架构
 
-## Model-side cache — Plan B Task 1, acceptance pending
+## Model-side cache — Plan B locally verified 2026-11-16
+
+Distance, potential, free-space and Blender worker entries now select the
+model-side store through `SidecarLocator` and the package locator helpers. An explicit cache directory wins;
+saved IFC/Blend files use the shared model-stem `.order_analyzer` directory;
+unsaved callers supply a session-specific temporary root. A failed location
+never silently falls back to repository outputs. Existing calls without any
+locator retain their established nonpersistent or explicit legacy-flat behavior.
 
 `features/cache_paths.py` owns the model-stem sidecar locator, validated
 `CacheAddress`, filesystem containment and immutable `SourceBinding`.
@@ -20,7 +27,7 @@ An existing or competing publication is reused only after full wrapper,
 exact payload-byte and package-validator checks. Conflicts preserve existing
 bytes; interrupted or losing stages remain outside the addressable namespace.
 The existing `evidence_package_storage.write_receipt` supplies atomic JSON
-replacement and receipt fsync without modification.
+replacement and receipt fsync.
 
 Storage receipts use `cache-receipt/v1`, bind the full address and opaque
 package contract, and record payload format, byte length, SHA256, upstream
@@ -38,15 +45,58 @@ facts; it does not inspect model geometry. First publication creates the file
 without replacement, and later publications require unchanged canonical
 identity, content fingerprint and external fingerprints before updating only
 the locator. Neither locators nor storage paths become calculation inputs.
+Distance storage projects the existing factual scene/group dependencies into
+its source namespace; the historical calculation contract still binds all
+query and repair inputs. Clearance versions therefore share a source directory
+while retaining different calculation identities.
 
-Task 1 preserves public authentication/context fields but explicitly rejects
-non-null authentication key IDs until Task 2. Authentication, shared locks,
-catalogs, lifecycle operations, migration and provenance remain Task 2 work.
-Task 1 tests cover namespace round trips, nested immutability, strict receipt
-admission, validator failure, publication races/failures and mandatory directory
-link containment, including a Windows junction fallback. Root execution and
-acceptance remain pending; this section records the implementation boundary,
-not a completed acceptance claim.
+Identity locks cover lookup, calculation and publication. Reentrant process
+locks coordinate Store instances, and OS locks release after process exit;
+timeouts have a typed exception. Catalog/authentication changes use a separate
+short lock. `list` and `rebuild_index` derive storage validity and upstream
+availability from receipts; they cannot authorize current numerical reuse.
+Exact deletion uses the complete five-part address. Missing upstream entries
+make downstream entries orphaned without rewriting their signed payloads.
+
+Authentication keys are create-once files under `auth/<SHA256(secret)>/`.
+Every entry names its own key domain; `.default_auth_key.json` preserves the
+destination default for new publications when migration adds source domains.
+Secrets are excluded from public receipts and representations. Migration copies
+validated receipt/payload bytes, source bindings and key domains; source entry
+locks are released before destination publication locks. Durable lookup
+attestations and migration provenance remain separate from immutable payloads
+and the disposable index. The narrow `legacy_cache_compatibility.json` profile
+pins the reviewed original/current implementation hashes and unchanged
+numerical dependencies. Unknown implementations or numerical versions miss.
+Legacy candidates use only keys rebuilt from independent current facts; adapters
+do not scan arbitrary JSON or accept a receipt's own key as factual evidence.
+`manifest.json` records format/producer versions, persisted source bindings and
+migration history. It is metadata and cannot authorize numerical reuse.
+
+Closed run logs/checkpoints and settings migrate with their original bytes;
+active runs and scratch remain at their current location. Conflicting settings
+are retained in an imported profile. Checkpoint consumers still enforce the
+accepted route, input, parameter and algorithm bindings before resumption.
+
+All eight Blender UI launch sites pass a model/temporary locator into runtime
+jobs. Request/result/log/diagnostic files and terminal journals live beside the
+model while Pixi, imports and child working directories use the trusted project
+root. Capture verifies portable scene content and external IFC fingerprints
+before reusing a canonical source identity; elapsed timing is audit data only.
+Relocation changes the display locator while unchanged capture content retains
+calculation keys and original result references.
+
+The five group-level CLIs use model-side run/cache locations by default and
+validate source-manifest locators against current bytes. Explicit output
+contracts remain caller-specific: distance and hierarchy use exact directories,
+potential live/replay use parent roots, and modulation allocates a unique run.
+Hierarchy retains its complete 37-group input guard and output containment checks.
+Each CLI wraps its publication in `run_journal`, recording `running` followed
+by `complete` or `failed`; default model-side hierarchy outputs keep that journal
+at their unique run parent, while explicit output roots keep it at the exact root.
+The B handoff records 786/786 required tests (807.82 seconds), 712 unchanged
+frozen file hashes, SPEC PASS / QUALITY APPROVED and exact evidence.
+Semantic output splitting and reusable intermediate stages remain Plan C work.
 
 ## Package parameters and model-side cache — Plan A locally verified 2026-11-16
 
@@ -59,8 +109,8 @@ Plan A Tasks 1–4 have accepted checkpoints in commits `bba814f87fda68f1778e5c4
 `7f521c903c688885454359f446b260f89505a4d1`, and
 `418be9199f73f38443f499549eed4dfcab677933`, after the preflight fixture
 checkpoint `9d39d27032752a61ac98c73a1015152d4f48c614`. Final A implementation `92ff7d521415c95d505c2e35eca60781e09b7f96`
-passes 533/533 required tests and independent SPEC/QUALITY review; it implements the typed parameter/receipt layer described below; Plan B
-and Plan C remain planned work. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
+passes 533/533 required tests and independent SPEC/QUALITY review; it implements the typed parameter/receipt layer described below. Plan B's implementation
+is described above; Plan C remains planned work. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
 owns workline identities, review evidence, recovery and scope limits.
 Its 2026-11-16 acceptance audit also fixes required-node/outcome evidence,
 real-runner numerical/concurrency checks, fresh-process migration and immutable
@@ -103,16 +153,15 @@ inputs is protected by the accepted fail-closed checkpoint guard. A does not
 provide the model-side CacheStore, sidecar migration, locking, output-port
 split, or intermediate persistence.
 
-B proposes `features/cache_paths.py` and `features/cache_store.py` as storage
+B implements `features/cache_paths.py` and `features/cache_store.py` as storage
 infrastructure, below package semantics. The model-side root holds namespaced
 source/package/semantic-port/raw-or-processed/identity entries, rebuildable
 catalogs and separate authentication key domains. Package validators retain
 control of contracts, algorithms and freshness. UI run request/result/log files
-would move beside the model while trusted Pixi/module execution stays rooted in
-the repository. Current capture still embeds an absolute IFC locator; current
-content keys also hash implementation files that A/B would modify. Portable
-source binding and narrowly verified legacy lookup compatibility must address
-both facts before any no-recalculation migration claim.
+live beside the model while trusted Pixi/module execution stays rooted in
+the repository. Portable source binding and narrowly verified legacy lookup
+compatibility address the historical absolute IFC locator and implementation
+hash coupling; the retained pre-A bytes and restart gates establish reuse.
 
 C starts with a fresh review of actual accepted A/B implementations. Its
 proposed semantic publications project inputs, parameters, payloads, processors

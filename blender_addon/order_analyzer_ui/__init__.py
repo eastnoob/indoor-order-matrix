@@ -95,6 +95,17 @@ def _action_runtime(context=None):
     return runtime
 
 
+def _job_locator(bpy, runtime):
+    """Use the saved native model or the host's explicit session temporary directory."""
+    filepath = str(getattr(getattr(bpy, "data", None), "filepath", "") or "")
+    if filepath:
+        return {"model_path": Path(filepath)}
+    temporary_root = str(getattr(getattr(bpy, "app", None), "tempdir", "") or "")
+    if not temporary_root:
+        raise ValueError("Unsaved analysis requires Blender's session temporary directory")
+    return {"temporary_cache_root": Path(temporary_root) / runtime.STATE.runtime_session}
+
+
 def _domain_action(kind: str, version_id: str | None = None, *, source_id: str | None = None,
                    storey_ref: str | None = None, support_source_id: str | None = None) -> dict[str, object]:
     """Build one reducer action without creating a second B4 state."""
@@ -1339,7 +1350,7 @@ def _operator_classes(bpy):
             """Start an independent Domain job using the retained reducer prior."""
             try:
                 runtime = _action_runtime(context)
-                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True,
+                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                                   payload={"kind": "domain_session", "context": _structural_context_payload(context.scene),
                                            "prior": runtime.STATE.domain_session, "action": None})
             except Exception as exc:
@@ -1370,7 +1381,7 @@ def _operator_classes(bpy):
                 runtime.invalidate_domain_session("whole-storey analysis requested")
                 structural = _structural_context_payload(scene)
                 runtime.start_job(
-                    repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True,
+                    repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                     payload={"kind": "domain_session", "entrypoint": "analyze_spaces",
                              "job_binding": {"authoring_parameters": _authoring_form(scene)},
                              "context": structural,
@@ -1400,7 +1411,7 @@ def _operator_classes(bpy):
                 runtime.invalidate_domain_session("selected-wall analysis requested")
                 structural = _structural_context_payload(scene)
                 runtime.start_job(
-                    repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True,
+                    repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                     payload={"kind": "domain_session", "entrypoint": "analyze_selected_walls",
                              "job_binding": {"authoring_parameters": _authoring_form(scene)},
                              "context": structural, "prior": None, "action": None,
@@ -1506,7 +1517,7 @@ def _operator_classes(bpy):
                                       if candidate.get("domain_kind") == "authored_ifcspace" else
                                       _structural_context_payload(context.scene, selected_wall_refs=frozen_refs)
                                       if frozen_refs else _structural_context_payload(context.scene))
-                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True,
+                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                                   payload={"kind": "domain_session", "context": structural_context,
                                            "prior": result, "action": action,
                                            "job_binding": ({"space_binding": result["space_binding"]}
@@ -1542,7 +1553,7 @@ def _operator_classes(bpy):
                 # Settle these native Scene writes before freezing the first job epoch.
                 runtime._flush_native_view_layer()
                 runtime.invalidate_domain_session("analysis Space selection changed")
-                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True,
+                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                                   payload={"kind": "domain_session", "context": context_payload,
                                            "prior": None, "action": None, **identity})
             except Exception as exc:
@@ -1597,7 +1608,7 @@ def _operator_classes(bpy):
                 scene.om_analysis_selected_version_id = ""
                 runtime.invalidate_domain_session("native Space created; explicit domain confirmation required")
                 runtime._flush_native_view_layer()
-                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True,
+                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                     payload={"kind": "domain_session", "context": _space_context_payload(scene, storey_ref=datum["storey_ref"]),
                              "domain_source_id": created["guid"], "storey_ref": datum["storey_ref"],
                              "job_binding": {"space_binding": created["space_binding"]}, "prior": None, "action": None})
@@ -1843,7 +1854,7 @@ def _operator_classes(bpy):
                 structural_context = (_space_context_payload(context.scene, storey_ref=storey_ref) if source_id else
                                       _structural_context_payload(context.scene, selected_wall_refs=selected_refs)
                                       if selected_refs else _structural_context_payload(context.scene))
-                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True,
+                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                                   payload={"kind": "domain_session", "context": structural_context,
                                            "job_binding": ({"space_binding": record["space_binding"]}
                                                            if record.get("space_binding") else {}),
@@ -1903,7 +1914,7 @@ def _operator_classes(bpy):
                 request = _make_analysis_request(context.scene, domain["analysis_domain"],
                                                  domain.get("domain_geometries", ()))
                 bindings = _request_binding_payload(domain)
-                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True,
+                runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                                   payload={"kind": "free_space_run", "request": request.to_dict(),
                                            "domain_geometries": domain["domain_geometries"],
                                            "job_binding": {"plane_binding": _stored_camera_plane(context.scene)[0]},
