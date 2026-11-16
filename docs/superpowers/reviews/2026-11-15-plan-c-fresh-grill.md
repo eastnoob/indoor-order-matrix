@@ -98,3 +98,18 @@ in the same evidence directory. No production edits preceded this gate.
 Visuals are omitted because exact bytes, real numerical parity, callback
 sentinels, currentness and nonempty deletion chains establish the required
 behavior. No new Blender launch or large-model geometry extraction is needed.
+
+## Intermediate adoption decision — Task 7
+
+The [explicit intermediate contract](../designs/2026-11-15-explicit-intermediate-contract.md)
+records the complete future stage identity, expanded A snapshot, serializer,
+storage/lifecycle and checkpoint boundary. Runtime adoption remains deferred:
+no concrete completed stage needs separate persistence for the current output
+reuse requirement. B's current address has no intermediate namespace; a later
+adoption requires its own reviewed extension, rather than a second backend.
+
+Independent reviewer `c_intermediate_review`: **SPEC PASS / QUALITY APPROVED**.
+The document's JSON example, eight snapshot fields, relative links, fences and
+whitespace passed the Pixi document check. Reviewed SHA256:
+`4fe4c73e508c88b8c2d0113077874b27cbd669de3ff0ef0f39124ec9c6558462`.
+This is design acceptance only; no intermediate runtime or test suite is claimed.

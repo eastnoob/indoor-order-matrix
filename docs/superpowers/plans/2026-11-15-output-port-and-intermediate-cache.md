@@ -198,7 +198,7 @@ Set `cache_reuse="computed"` after calculation. On a hit map the actual B `Cache
 
 Produce `bind_raw_port(contract, raw_view, *, parameter_snapshot=None)`, `serialize_raw_port_publication(publication) -> bytes`, `validate_port_payload(payload: bytes, context: CacheValidationContext) -> None`, `save_raw_port(store, publication)`, and `load_raw_port(store, contract, *, requested_parameters: ParameterSnapshot | None) -> RawPortPublication | None`. The requested keyword has no default: typed callers pass an independently resolved current owner snapshot; explicit `None` declares a schema-less layer. Never substitute the saved snapshot for current owner declarations. Consume B's `CacheStore(root: Path)`, `put(address, *, contract, payload, payload_format, upstream_refs, validator, auth_key_id=None)` and `get(address, *, validator)`. Do not add a semantic field to every existing `EvidenceOutputChannel`.
 
-- [ ] **Step 1: Write the failing tests.** The following helpers are local to the new test file; the imported `_raw()` is the existing tiny valid publication, not a retained IFC dependency.
+- [x] **Step 1: Write the failing tests.** The following helpers are local to the new test file; the imported `_raw()` is the existing tiny valid publication, not a retained IFC dependency.
 
 ```python
 from dataclasses import FrozenInstanceError, replace
@@ -240,13 +240,13 @@ def test_wrong_selected_channel_scope_is_rejected():
             (item.target["identity"], "foreign") for item in raw.outputs)), raw)
 ```
 
-- [ ] **Step 2: Verify the new tests fail.**
+- [x] **Step 2: Verify the new tests fail.**
 
 Run: `pixi run pytest test/test_output_port_cache.py -q`
 
 Expected: collection fails because the wrapper module does not exist; existing legacy tests are unchanged.
 
-- [ ] **Step 3: Implement immutable contracts, exact binding, and B storage.** Use the existing `_freeze`, `_json_value`, `_canonical_json`, serializer/deserializer, and `fingerprint_evidence_dependency`; do not create another canonicalization scheme. Implement the identity and payload distinction explicitly:
+- [x] **Step 3: Implement immutable contracts, exact binding, and B storage.** Use the existing `_freeze`, `_json_value`, `_canonical_json`, serializer/deserializer, and `fingerprint_evidence_dependency`; do not create another canonicalization scheme. Implement the identity and payload distinction explicitly:
 
 ```python
 def selected_raw_bytes(raw_view: EvidencePackageOutput) -> bytes:
@@ -289,7 +289,7 @@ Call this within `store.identity_lock(publication.ref.address)` over lookup → 
 
 On a hit, preserve the calculated snapshot in that immutable receipt. Validate the full snapshot's declarations against the independent current owner snapshot, but decide freshness only from the fixed port projection. Every projection contains sorted distinct `selected_names` for all selected parameters, including warning/metadata names; only recompute-required selected values/contracts enter `values`/`value_contracts`. Generic comparison uses the independent current contract's `selected_names`, never all fields or a cached list alone. A full-snapshot difference in route clearance must not make Euclidean miss; a modulation-switch difference must not make pure-axis miss. Use A's `compare_parameter_snapshots` for audit and selected warning parameters, without applying unrelated recompute decisions to this port. Current `requested_parameters` is comparison status, not a persisted mutation of old snapshots. Surface `reuse_with_warning` without rewriting bytes merely to display current source labels. `_json_value` currently serializes legacy raw channel references with four fields; adding wrapper fields must not change that serializer branch or pinned v1 bytes.
 
-- [ ] **Step 4: Verify selected persistence and legacy compatibility.** Add a schema-less round-trip with `load_raw_port(store, contract, requested_parameters=None)` using `CacheStore(tmp_path)`, corrupt one payload byte and assert `None`. Add the independent-owner guards below:
+- [x] **Step 4: Verify selected persistence and legacy compatibility.** Add a schema-less round-trip with `load_raw_port(store, contract, requested_parameters=None)` using `CacheStore(tmp_path)`, corrupt one payload byte and assert `None`. Add the independent-owner guards below:
 
 ```python
 def test_typed_load_requires_independent_requested_snapshot(tmp_path):
@@ -344,7 +344,7 @@ pixi run pytest test/test_output_port_cache.py test/test_evidence_package_output
 
 Expected: PASS. Retain the pinned legacy output identity `75c7c12b6e7e7fad88dbd692d919b240bb90c05bbf3f149774bc619a21652dd2` and whole-JSON digest `d3b4784491d6b6dbfac8531f63e926d6429a0d065682540ced547dbd230b837b`. Historical readers must check the original serialized digest before dataclass construction/default expansion; the wrapper does not normalize old bytes before that check.
 
-- [ ] **Step 5: Commit.** `jj commit -m "feat: add independent semantic output publications"`
+- [x] **Step 5: Commit.** `jj commit -m "feat: add independent semantic output publications"`
 
 ### Task 3: Give distance ports explicit projections and independent producers
 
@@ -359,6 +359,7 @@ Expected: PASS. Retain the pinned legacy output identity `75c7c12b6e7e7fad88dbd6
 
 **Interfaces:**
 - Consumes: A `ParameterSnapshot`, B `CacheStore`, Task 2 `OutputPortContract`/`RawPortPublication`/`PortRun`.
+- Produces: `euclidean_port_contract(bundle, *, parameters) -> OutputPortContract`, building the independently current Euclidean declaration without numerical evaluation or any route selector, even when the bundle contains saved free-space samples. Reuse the same single-port builder in Euclidean evaluation and the dual-contract factory.
 - Produces: `distance_port_contracts(bundle, *, parameters, repaired_result=None, free_space_ref=None) -> Mapping[str, OutputPortContract]`; `evaluate_euclidean_port(bundle, *, parameters) -> RawPortPublication`; `evaluate_path_port(bundle, *, parameters, repaired_result=None, store=None, free_space_ref=None, free_space_validator=None) -> RawPortPublication`; `run_group_distance_ports(bundle, *, store, parameters, repaired_result=None, legacy_entry=None, free_space_ref=None, free_space_validator=None) -> dict[str, PortRun]`.
 - Produces: `project_verified_distance_ports(entry: CacheEntry, *, bundle, parameters, store, repaired_result=None, free_space_ref=None, free_space_validator=None) -> dict[str, RawPortPublication]`, which reopens the B entry through the original package validator, verifies its complete original receipt/contract/payload before decoding, and never runs either producer. An arbitrary typed raw object is not proof of a verified cached entry.
 - `free_space_ref` is the exact full `OutputPortRef` of an existing B entry, including its original selected payload digest; it can name a legacy/native combined publication. `free_space_validator` is B's existing `CacheValidator`, independently bound by the owning adapter/controller to the current original document, wire result ref, lattice, query and samples. With saved samples, evaluation, adoption and runner reuse require both plus `store`; open that exact address through `CacheStore.get` and require the referenced bytes before using values. Contract construction records the exact reference and rejects a missing selector but does not claim currentness. Without saved samples neither argument is needed. Euclidean evaluation needs none. The features layer does not import adapter codecs or silently scan history.
@@ -642,7 +643,7 @@ def test_route_policy_change_preserves_actual_processed_port(retained_trial, tmp
     """Real Euclidean proximity reuses selected bytes when only route policy changes."""
     from dataclasses import replace
     from features.cache_store import CacheStore
-    from features.group_distance_output_ports import distance_port_contracts, evaluate_euclidean_port
+    from features.group_distance_output_ports import euclidean_port_contract, evaluate_euclidean_port
     from features.group_distance_evidence_package import (
         build_group_distance_evidence_package, build_group_distance_parameter_snapshot,
         build_euclidean_median_proximity_processor,
@@ -654,7 +655,7 @@ def test_route_policy_change_preserves_actual_processed_port(retained_trial, tmp
         "min_left_m": 0.225, "min_right_m": 0.225, "min_total_m": 1.0,
     })
     first_parameters = build_group_distance_parameter_snapshot(first_bundle)
-    first_contract = distance_port_contracts(first_bundle, parameters=first_parameters)["euclidean_distance"]
+    first_contract = euclidean_port_contract(first_bundle, parameters=first_parameters)
     first_raw = evaluate_euclidean_port(first_bundle, parameters=first_parameters)
     store = CacheStore(tmp_path)
     save_raw_port(store, first_raw)
@@ -671,7 +672,7 @@ def test_route_policy_change_preserves_actual_processed_port(retained_trial, tmp
         "min_left_m": 0.225, "min_right_m": 0.225, "min_total_m": 2.0,
     })
     second_parameters = build_group_distance_parameter_snapshot(second_bundle)
-    second_contract = distance_port_contracts(second_bundle, parameters=second_parameters)["euclidean_distance"]
+    second_contract = euclidean_port_contract(second_bundle, parameters=second_parameters)
     second_raw = load_raw_port(store, second_contract, requested_parameters=second_parameters)
     assert second_raw is not None and second_raw.ref == first_raw.ref
 
@@ -759,7 +760,7 @@ def test_port_modulation_rejects_route_ref_and_freezes_upstream(actual_inputs, t
     """The downstream adapter cannot substitute a route result for Euclidean evidence."""
     from dataclasses import FrozenInstanceError
     from features.cache_store import CacheStore
-    from features.group_distance_output_ports import distance_port_contracts, evaluate_euclidean_port
+    from features.group_distance_output_ports import euclidean_port_contract, evaluate_euclidean_port
     from features.group_axis_output_ports import bind_port_distance_modulation, run_group_axis_output_ports
     from features.output_port_cache import run_port_processor, save_raw_port
     from features.group_distance_evidence_package import (
@@ -771,7 +772,7 @@ def test_port_modulation_rejects_route_ref_and_freezes_upstream(actual_inputs, t
     inputs, _, _ = load_trial()
     bundle = inputs.bundle
     parameters = build_group_distance_parameter_snapshot(bundle)
-    current_contract = distance_port_contracts(bundle, parameters=parameters)["euclidean_distance"]
+    current_contract = euclidean_port_contract(bundle, parameters=parameters)
     store = CacheStore(tmp_path)
     euclidean = evaluate_euclidean_port(bundle, parameters=parameters)
     save_raw_port(store, euclidean)
@@ -911,7 +912,7 @@ Expected: PASS, including multi-version listing, exact deletion, selected-byte v
 - Consumes: the actual stage inventory from Task 1, A snapshots, B storage/lifecycle, and C immutable semantic references.
 - Produces a complete long-term design. A later opt-in implementation would expose frozen `IntermediateRef(source_fingerprint, package_id, stage_id, identity, payload_fingerprint, serializer_id, serializer_version)` and a receipt with explicit stage dependencies; this task does not pretend those Python symbols already exist. Its future address includes source/package/stage/identity and a distinct intermediate kind; do not squeeze it into B's output-only raw/processed address without the separate adoption plan's reviewed API extension.
 
-- [ ] **Step 1: Write the concrete storage/identity design.** Include this example and the explicit field meanings:
+- [x] **Step 1: Write the concrete storage/identity design.** Include this example and the explicit field meanings:
 
 ```json
 {
@@ -934,13 +935,13 @@ The example is illustrative, not an accepted cache fixture. The owning package d
 
 Use `sources/<source-fingerprint>/intermediates/<package-id>/<stage-id>/<identity>/` beside the model. Reuse B's path safety, per-identity and catalog locks, staged atomic publication, payload verification, exact deletion, derived orphaning, index rebuild and migration; extend its explicit `kind="intermediate"` namespace only in a separately reviewed adoption plan. No second storage backend or automatic decorator is required. JSON is the first choice for small structured records; arrays or geometry use a declared stable binary/structured serializer plus a verified payload file. SQLite remains a possible future advisory catalog when demonstrated query/scale needs warrant it.
 
-- [ ] **Step 2: State the checkpoint boundary.** A resumable job checkpoint remains under `runs/<run-id>/checkpoints/`, may be mutable/incomplete, and must bind exact inputs/policy/upstream/algorithm before resume. It is never indexed or returned as a complete intermediate or semantic output. Promotion requires a package-declared complete stage, validated receipt, immutable payload, and explicit new publication; renaming a checkpoint is insufficient.
+- [x] **Step 2: State the checkpoint boundary.** A resumable job checkpoint remains under `runs/<run-id>/checkpoints/`, may be mutable/incomplete, and must bind exact inputs/policy/upstream/algorithm before resume. It is never indexed or returned as a complete intermediate or semantic output. Promotion requires a package-declared complete stage, validated receipt, immutable payload, and explicit new publication; renaming a checkpoint is insufficient.
 
-- [ ] **Step 3: Record adoption or deferral.** If Task 1 found no warranted stage, state that output-port reuse meets the current requirement and leave production intermediate persistence unimplemented. If a real stage warrants it, write a new small Superpowers plan naming the actual producer function, serializer, dependencies, cache API extension, restart/changed-input/corruption tests, and jj gates; Grill that plan before execution. Evidence and engineering judgment determine the decision, not a fixed number of reuse events.
+- [x] **Step 3: Record adoption or deferral.** If Task 1 found no warranted stage, state that output-port reuse meets the current requirement and leave production intermediate persistence unimplemented. If a real stage warrants it, write a new small Superpowers plan naming the actual producer function, serializer, dependencies, cache API extension, restart/changed-input/corruption tests, and jj gates; Grill that plan before execution. Evidence and engineering judgment determine the decision, not a fixed number of reuse events.
 
-- [ ] **Step 4: Validate the document against actual A/B/C names.** Review the stage identity, complete snapshot fields, storage namespace, serializer compatibility, deletion graph, relocation and checkpoint rules. Record which parts exist and which are design only; do not run a nonexistent `test_intermediate_receipts.py` or claim intermediate code passed tests.
+- [x] **Step 4: Validate the document against actual A/B/C names.** Review the stage identity, complete snapshot fields, storage namespace, serializer compatibility, deletion graph, relocation and checkpoint rules. Record which parts exist and which are design only; do not run a nonexistent `test_intermediate_receipts.py` or claim intermediate code passed tests.
 
-- [ ] **Step 5: Commit.** `jj commit -m "docs: define explicit intermediate cache adoption boundary"`
+- [x] **Step 5: Commit.** `jj commit -m "docs: define explicit intermediate cache adoption boundary"`
 
 ### Task 8: Verify and publish the Plan C handoff
 
