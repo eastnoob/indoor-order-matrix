@@ -1,4 +1,4 @@
-"""Immutable semantic raw publications stored through the shared CacheStore."""
+"""Immutable semantic publications stored through the shared CacheStore."""
 
 from __future__ import annotations
 
@@ -17,9 +17,11 @@ from .evidence_package_parameters import (
     ParameterImpact, ParameterSnapshot, compare_parameter_snapshots,
 )
 from .field_core import (
-    EvidencePackageOutput, _canonical_json, _freeze, _json_value, _snapshot_record,
-    _validate_snapshot_json, deserialize_evidence_package_output,
+    EvidenceOutputProcessor, EvidencePackage, EvidencePackageOutput, EvidenceProcessedOutput,
+    _canonical_json, _freeze, _json_value, _snapshot_record, _validate_snapshot_json,
+    deserialize_evidence_package_output, deserialize_evidence_processed_output,
     fingerprint_evidence_dependency, serialize_evidence_package_output,
+    serialize_evidence_processed_output,
 )
 
 
@@ -311,9 +313,12 @@ def _validated_raw_port(payload, context):
     return publication
 
 
-def validate_port_payload(payload: bytes, context: CacheValidationContext) -> None:
+def validate_port_payload(payload: bytes, context: CacheValidationContext, *, raw_publication=None) -> None:
     """Validate saved structure/integrity without treating history as current intent."""
-    _validated_raw_port(payload, context)
+    if context.address.layer == "raw":
+        _validated_raw_port(payload, context)
+    else:
+        _validated_processed_port(payload, context, raw_publication)
 
 
 def save_raw_port(store: CacheStore, publication: RawPortPublication):
@@ -354,7 +359,7 @@ def _parameter_status(calculated, requested, selected_names):
             "reuse": "recompute_required" if recompute else "reuse_with_warning" if warnings else "exact"}
 
 
-def _validate_upstream_payload(payload, context, reference):
+def _validate_upstream_payload(payload, context, reference, *, store):
     """Verify exact referenced bytes without imposing a semantic codec on native entries."""
     try:
         document = json.loads(payload)
@@ -362,7 +367,15 @@ def _validate_upstream_payload(payload, context, reference):
         document = None
     schema = document.get("schema") if isinstance(document, dict) else None
     if isinstance(schema, str) and schema.startswith("semantic-output-receipt/"):
-        if _validated_raw_port(payload, context).ref != reference:
+        if reference.layer == "raw":
+            publication = _validated_raw_port(payload, context)
+        else:
+            raw_ref = _decode_ref(document.get("raw_ref"))
+            raw = _load_referenced_raw(store, raw_ref)
+            if raw is None:
+                raise ValueError("processed upstream raw publication is unavailable")
+            publication = _validated_processed_port(payload, context, raw)
+        if publication.ref != reference:
             raise ValueError("upstream semantic ref does not match selected payload")
     elif hashlib.sha256(payload).hexdigest() != reference.payload_fingerprint:
         raise ValueError("upstream payload fingerprint does not match referenced bytes")
@@ -400,7 +413,7 @@ def load_raw_port(store: CacheStore, contract: OutputPortContract, *,
     for reference in contract.upstream_refs:
         def validate_upstream(payload, context):
             """Bind this exact upstream ref; numerical currentness stays with its owner."""
-            _validate_upstream_payload(payload, context, reference)
+            _validate_upstream_payload(payload, context, reference, store=store)
 
         try:
             upstream = store.get(reference.address, validator=validate_upstream)
@@ -409,3 +422,243 @@ def load_raw_port(store: CacheStore, contract: OutputPortContract, *,
         if upstream is None:
             return None
     return None if status is not None and status["recompute_required"] else publication
+
+
+def _processing_contract(raw_ref, processor_id, processor_version, parameters, snapshot):
+    """Keep semantic recipe identity independent of processor audit-only values."""
+    return {"schema": "semantic-output-processing/1", "raw_ref": _json_value(raw_ref),
+            "processor_id": processor_id, "processor_version": processor_version,
+            "parameters": parameters if snapshot is None else snapshot.identity_payload()}
+
+
+def processed_port_key(raw: RawPortPublication, processor: EvidenceOutputProcessor) -> str:
+    """Bind semantic address, exact selected raw bytes and effective processor recipe."""
+    if not isinstance(raw, RawPortPublication) or not isinstance(processor, EvidenceOutputProcessor):
+        raise TypeError("processed_port_key requires a raw publication and processor")
+    return fingerprint_evidence_dependency(_processing_contract(
+        raw.ref, processor.function_id, processor.version,
+        processor.parameters, processor.parameter_snapshot))
+
+
+def selected_processed_bytes(processed_output: EvidenceProcessedOutput) -> bytes:
+    """Retain the existing processed serializer and its distinct inner digest."""
+    return _canonical_json(serialize_evidence_processed_output(processed_output)).encode("utf-8")
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessedPortPublication:
+    """Bind one explicit transformation to its immutable selected raw reference."""
+
+    raw_ref: OutputPortRef
+    processed_output: EvidenceProcessedOutput
+    identity: str
+
+    def __post_init__(self):
+        """Require an exact recipe identity while preserving the core processing identity."""
+        if not isinstance(self.raw_ref, OutputPortRef) or self.raw_ref.layer != "raw":
+            raise ValueError("processed publication requires a raw reference")
+        if not isinstance(self.processed_output, EvidenceProcessedOutput):
+            raise TypeError("processed_output must be an EvidenceProcessedOutput")
+        if self.processed_output.package_id != self.raw_ref.package_id:
+            raise ValueError("processed package does not match raw reference")
+        if self.identity != fingerprint_evidence_dependency(_processed_storage_contract(self)):
+            raise ValueError("processed semantic identity does not match recipe")
+
+    @property
+    def ref(self) -> OutputPortRef:
+        """Expose the semantic processed address and unchanged inner processing identity."""
+        raw = self.raw_ref
+        return OutputPortRef(raw.source_fingerprint, raw.package_id, raw.output_port,
+            self.identity, "processed", hashlib.sha256(selected_processed_bytes(
+                self.processed_output)).hexdigest(), self.processed_output.processing_identity)
+
+
+def _processed_storage_contract(publication):
+    """Rebuild the canonical recipe from the historical processed publication."""
+    output = publication.processed_output
+    return _processing_contract(publication.raw_ref, output.processor_id,
+        output.processor_version, output.parameters, output.parameter_snapshot)
+
+
+def serialize_processed_port_publication(publication: ProcessedPortPublication) -> bytes:
+    """Wrap the existing processed wire format without copying raw geometry."""
+    if not isinstance(publication, ProcessedPortPublication):
+        raise TypeError("publication must be a ProcessedPortPublication")
+    return _canonical_json({"schema": "semantic-output-receipt/v1", "layer": "processed",
+        "raw_ref": publication.raw_ref, "ref": publication.ref,
+        "processed_view": serialize_evidence_processed_output(publication.processed_output),
+    }).encode("utf-8")
+
+
+def _validated_processed_port(payload, context, raw):
+    """Decode original processed bytes against an independently reopened raw publication."""
+    if not isinstance(raw, RawPortPublication):
+        raise TypeError("processed validation requires a verified raw publication")
+    if type(payload) is not bytes:
+        raise TypeError("semantic payload must be bytes")
+    document = json.loads(payload, object_pairs_hook=_unique_object, parse_constant=_reject_constant)
+    _validate_snapshot_json(document)
+    if type(document) is not dict or set(document) != {
+            "schema", "layer", "raw_ref", "ref", "processed_view"}:
+        raise ValueError("processed semantic envelope fields do not match")
+    if document["schema"] != "semantic-output-receipt/v1":
+        raise ValueError("schema must be semantic-output-receipt/v1")
+    if document["layer"] != "processed":
+        raise ValueError("semantic envelope layer must be processed")
+    if _decode_ref(document["raw_ref"]) != raw.ref:
+        raise ValueError("processed raw ref does not match selected raw publication")
+    output = deserialize_evidence_processed_output(document["processed_view"], raw_output=raw.raw_view)
+    raw_targets = set(raw.contract.target_ids)
+    if any(item.target["identity"] not in raw_targets for item in output.outputs):
+        raise ValueError("processed target address is outside the selected raw scope")
+    contract = _processing_contract(raw.ref, output.processor_id, output.processor_version,
+                                   output.parameters, output.parameter_snapshot)
+    publication = ProcessedPortPublication(raw.ref, output, fingerprint_evidence_dependency(contract))
+    if _decode_ref(document["ref"]) != publication.ref:
+        raise ValueError("processed ref does not match recipe or selected bytes")
+    if context.address != publication.ref.address:
+        raise ValueError("processed address does not match storage address")
+    if fingerprint_evidence_dependency(context.contract) != fingerprint_evidence_dependency(contract):
+        raise ValueError("processed storage contract does not match recipe")
+    return publication
+
+
+def _load_referenced_raw(store, reference):
+    """Resolve raw bytes for integrity validation; currentness stays with the caller's owner."""
+    publication = None
+
+    def validate(payload, context):
+        """Retain exactly the raw bytes validated by B for this immutable reference."""
+        nonlocal publication
+        publication = _validated_raw_port(payload, context)
+        if publication.ref != reference:
+            raise ValueError("processed upstream raw ref does not match stored selected bytes")
+
+    entry = store.get(reference.address, validator=validate)
+    return None if entry is None else publication
+
+
+def _current_raw(store, contract, requested, *, expected_ref=None):
+    """Require independent current owner intent before processed reads or callbacks."""
+    raw = load_raw_port(store, contract, requested_parameters=requested)
+    if raw is None or (expected_ref is not None and raw.ref != expected_ref):
+        raise ValueError("selected publication does not match the current raw contract")
+    return raw
+
+
+def _processor_status(output, processor):
+    """Reuse A's complete processor comparison without treating saved intent as current."""
+    saved, requested = output.parameter_snapshot, processor.parameter_snapshot
+    if saved is None and requested is None:
+        return None
+    if saved is None or requested is None:
+        raise ValueError("processed parameter owner schema declarations do not match")
+    return compare_parameter_snapshots(saved, requested)
+
+
+def _load_processed_port(store, raw, processor, *, reference=None, quarantine_invalid=False):
+    """Read an exact selected recipe with zero producer or processor execution."""
+    identity = processed_port_key(raw, processor)
+    address = CacheAddress(raw.ref.source_fingerprint, raw.ref.package_id,
+                           raw.ref.output_port, "processed", identity)
+    if reference is not None and reference.address != address:
+        return None, None
+    publication = None
+
+    def validate(payload, context):
+        """Use the verified selected raw view for the existing strict inner decoder."""
+        nonlocal publication
+        publication = _validated_processed_port(payload, context, raw)
+
+    try:
+        entry = store.get(address, validator=validate)
+    except CacheValidationError as exc:
+        if quarantine_invalid:
+            # Retain rejected bytes before allowing the owning runner to replace this version.
+            store.quarantine(address, reason=str(exc))
+        return None, None
+    if entry is None:
+        return None, None
+    if reference is not None and publication.ref != reference:
+        return None, None
+    if _canonical_json(entry.receipt["upstream_refs"]) != _canonical_json((raw.ref.address,)):
+        raise ValueError("processed storage upstream refs do not match selected raw address")
+    output = publication.processed_output
+    if (publication.identity != identity or output.processor_id != processor.function_id
+            or output.processor_version != processor.version):
+        return None, None
+    status = _processor_status(output, processor)
+    if output.error_code is not None or (status is not None and status["recompute_required"]):
+        return None, None
+    return publication, entry
+
+
+def load_processed_port(store: CacheStore, reference: OutputPortRef, *,
+                        current_raw_contract: OutputPortContract,
+                        requested_raw_parameters: ParameterSnapshot | None,
+                        processor: EvidenceOutputProcessor) -> ProcessedPortPublication | None:
+    """Reopen one selected processed reference without ever calculating a missing result."""
+    if not isinstance(reference, OutputPortRef) or reference.layer != "processed":
+        raise ValueError("a processed reference is required")
+    raw = _current_raw(store, current_raw_contract, requested_raw_parameters)
+    publication, _ = _load_processed_port(store, raw, processor, reference=reference)
+    return publication
+
+
+def _processed_run(publication, entry, raw, requested_raw, processor, *, hit):
+    """Report full historical/current audits separately from immutable result bytes."""
+    raw_status = _parameter_status(raw.parameter_snapshot, requested_raw,
+                                  raw.contract.parameter_projection["selected_names"])
+    processed_status = None if processor is None else _processor_status(publication.processed_output, processor)
+    error = publication.processed_output.error_code
+    exact = all(item is None or item["exact_match"] for item in (raw_status, processed_status))
+    status = {"freshness": "fresh", "recompute_required": error is not None,
+              "exact_match": exact and error is None, "reasons": (), "affected_targets": (),
+              "parameter_status": raw_status, "processed_parameter_status": processed_status}
+    reuse = "computed" if not hit else {
+        "local": "exact_hit", "migrated": "migrated_reuse", "legacy_adopted": "legacy_adopted"}[entry.reuse_origin]
+    return PortRun(publication, hit, "fresh" if error is None else "unavailable", status,
+                   reuse, None if entry is None else str(entry.payload_paths[0].parent))
+
+
+def run_port_processor(raw, package: EvidencePackage, *, store: CacheStore,
+                       current_raw_contract: OutputPortContract,
+                       requested_raw_parameters: ParameterSnapshot | None) -> PortRun:
+    """Process verified current selected bytes only after an exact processed-cache miss."""
+    if not isinstance(raw, RawPortPublication) or not isinstance(package, EvidencePackage):
+        raise TypeError("run_port_processor requires a raw publication and package")
+    verified = _current_raw(store, current_raw_contract, requested_raw_parameters, expected_ref=raw.ref)
+    processor = package.output_processor
+    if (verified.raw_view.package_id != package.package_id.strip()
+            or verified.raw_view.output_function != package.output_function_id.strip()
+            or verified.raw_view.output_function_version != package.output_function_version.strip()):
+        raise ValueError("selected raw producer must match the processing package")
+    if (processor is not None and processor.parameter_snapshot is not None
+            and processor.parameter_snapshot.package_id != verified.raw_view.package_id):
+        raise ValueError("processor parameter snapshot must belong to the selected raw package")
+    if processor is None:
+        output = package.process_output(verified.raw_view, package_freshness="fresh")
+        identity = fingerprint_evidence_dependency(_processing_contract(verified.ref,
+            output.processor_id, output.processor_version, output.parameters, output.parameter_snapshot))
+        return _processed_run(ProcessedPortPublication(verified.ref, output, identity), None,
+                              verified, requested_raw_parameters, None, hit=False)
+    identity = processed_port_key(verified, processor)
+    address = CacheAddress(verified.ref.source_fingerprint, verified.ref.package_id,
+                           verified.ref.output_port, "processed", identity)
+    with store.identity_lock(address):
+        publication, entry = _load_processed_port(store, verified, processor, quarantine_invalid=True)
+        if publication is not None:
+            return _processed_run(publication, entry, verified, requested_raw_parameters, processor, hit=True)
+        output = package.process_output(verified.raw_view, package_freshness="fresh")
+        publication = ProcessedPortPublication(verified.ref, output, identity)
+        if output.error_code is not None:
+            return _processed_run(publication, None, verified, requested_raw_parameters, processor, hit=False)
+
+        def validate(payload, context):
+            """Bind B publication and competing writers to this exact selected raw view."""
+            _validated_processed_port(payload, context, verified)
+
+        entry = store.put(address, contract=_processed_storage_contract(publication),
+            payload=serialize_processed_port_publication(publication), payload_format="json",
+            upstream_refs=(verified.ref.address,), validator=validate)
+        return _processed_run(publication, entry, verified, requested_raw_parameters, processor, hit=False)

@@ -13,14 +13,16 @@ from features.evidence_package_parameters import (
 )
 from features.evidence_package_storage import write_receipt
 from features.field_core import (
-    _canonical_json, _json_value, fingerprint_evidence_dependency,
-    serialize_evidence_package_output,
+    EvidenceOutputProcessor, _canonical_json, _json_value, fingerprint_evidence_dependency,
+    serialize_evidence_package_output, serialize_evidence_processed_output,
 )
 from features.output_port_cache import (
     OutputPortContract, OutputPortRef, PortRun, bind_raw_port, load_raw_port,
-    save_raw_port, selected_raw_bytes, serialize_raw_port_publication, validate_port_payload,
+    load_processed_port, processed_port_key, run_port_processor, save_raw_port,
+    selected_processed_bytes, selected_raw_bytes, serialize_raw_port_publication,
+    validate_port_payload,
 )
-from .test_evidence_package_processing import _raw
+from .test_evidence_package_processing import _package, _process, _raw
 
 
 def _contract(raw, output_port="reading"):
@@ -492,3 +494,395 @@ def test_upstream_reference_digest_must_match_actual_selected_bytes(tmp_path, se
     save_raw_port(store, bind_raw_port(contract, raw))
     with pytest.raises(ValueError, match="upstream.*(fingerprint|ref)"):
         load_raw_port(store, contract, requested_parameters=None)
+
+
+def _forbidden_processor(view, parameters):
+    """Detect any callback invocation on a read-only or reusable selected result."""
+    pytest.fail("the selected processor ran unexpectedly")
+
+
+def test_selected_processing_hits_without_reinvoking_callback(tmp_path):
+    """A persisted processor binds selected raw bytes and preserves all three digests."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    calls = []
+
+    def process(view, parameters):
+        """Record exactly which selected view reaches the existing processor."""
+        calls.append(view)
+        return _process(view, parameters)
+
+    processor = EvidenceOutputProcessor("selected-process", "1", process, {"value": 0.75})
+    first = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    second = run_port_processor(selected, _package(replace(processor, function=_forbidden_processor)),
+        store=store, current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    assert not first.cache_hit and second.cache_hit
+    assert calls == [selected.raw_view]
+    assert first.publication == second.publication
+    assert first.publication.raw_ref == selected.ref
+    assert second.publication.ref.output_port == "reading"
+    assert second.publication.ref.layer == "processed"
+    assert first.cache_reuse == "computed" and second.cache_reuse == "exact_hit"
+    assert second.cache_status["freshness"] == "fresh"
+    assert second.cache_status["recompute_required"] is False
+    assert second.publication.identity == processed_port_key(selected, processor)
+    inner = serialize_evidence_processed_output(second.publication.processed_output)
+    assert second.publication.ref.processing_identity == inner["processing_identity"]
+    assert second.publication.identity != inner["processing_identity"]
+    entry = next(item for item in store.list() if item.address.layer == "processed")
+    assert _canonical_json(entry.receipt["upstream_refs"]) == _canonical_json((selected.ref.address,))
+    digests = {inner["payload_fingerprint"], second.publication.ref.payload_fingerprint,
+               entry.receipt["payload"]["sha256"]}
+    assert len(digests) == 3
+    assert second.publication.ref.payload_fingerprint == hashlib.sha256(
+        selected_processed_bytes(second.publication.processed_output)).hexdigest()
+    assert second.cache_location == str(entry.payload_paths[0].parent)
+
+
+@pytest.mark.parametrize("change", ["version", "value", "raw-observation"])
+def test_selected_processing_key_changes_for_actual_recipe_or_selected_bytes(tmp_path, change):
+    """Recipe computation changes and selected raw readings each require a distinct result."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    processor = EvidenceOutputProcessor("selected-process", "1", _process, {"value": 0.75})
+    first = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    if change == "version":
+        processor = replace(processor, version="2")
+    elif change == "value":
+        processor = replace(processor, parameters={"value": 0.5})
+    else:
+        changed_raw = replace(raw, outputs=(replace(raw.outputs[0], observation=0.4),))
+        selected = bind_raw_port(replace(_contract(changed_raw),
+            input_fingerprints={"source": "d" * 64}), changed_raw)
+        save_raw_port(store, selected)
+    second = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=selected.contract, requested_raw_parameters=None)
+    assert second.cache_hit is False
+    assert second.publication.identity != first.publication.identity
+
+
+@pytest.mark.parametrize("change", ["contract", "missing", "deleted", "supplied-ref"])
+def test_processing_requires_independent_current_raw_before_callback(tmp_path, change):
+    """Saved typed objects cannot bypass changed, absent or deleted current raw entries."""
+    raw = _raw()
+    contract = _contract(raw)
+    selected = bind_raw_port(contract, raw)
+    store = CacheStore(tmp_path)
+    if change != "missing":
+        save_raw_port(store, selected)
+    if change == "contract":
+        contract = replace(contract, input_fingerprints={"source": "d" * 64})
+    elif change == "deleted":
+        assert store.delete_exact(selected.ref.address)
+    elif change == "supplied-ref":
+        selected = bind_raw_port(replace(contract, output_port="foreign"), raw)
+    processor = EvidenceOutputProcessor("selected-process", "1", _forbidden_processor)
+    with pytest.raises(ValueError, match="current raw contract"):
+        run_port_processor(selected, _package(processor), store=store,
+            current_raw_contract=contract, requested_raw_parameters=None)
+    assert not any(entry.address.layer == "processed" for entry in store.list())
+
+
+@pytest.mark.parametrize("drift", ["schema", "fields", "type", "unit", "nullable", "impact", "none"])
+def test_processing_forwards_independent_raw_owner_context(tmp_path, drift):
+    """The processing adapter retains all independent owner declaration checks."""
+    raw = _raw()
+    owner = _owner()
+    original = owner.specs[0]
+    changed = {
+        "schema": replace(owner, schema_version="typed-owner/2"),
+        "fields": replace(owner, specs=owner.specs + (ParameterSpec("extra", bool, False),)),
+        "type": replace(owner, specs=(replace(original, value_type=int, default=1),)),
+        "unit": replace(owner, specs=(replace(original, unit="rad"),)),
+        "nullable": replace(owner, specs=(replace(original, nullable=True),)),
+        "impact": replace(owner, specs=(replace(original, impact=ParameterImpact.METADATA_ONLY),)),
+        "none": None,
+    }[drift]
+    selected = bind_raw_port(_contract(raw), raw, parameter_snapshot=owner.resolve())
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    processor = EvidenceOutputProcessor("selected-process", "1", _forbidden_processor)
+    with pytest.raises(ValueError, match="(owner schema|requested_parameters)"):
+        run_port_processor(selected, _package(processor), store=store,
+            current_raw_contract=_contract(raw),
+            requested_raw_parameters=None if changed is None else changed.resolve())
+    assert not any(entry.address.layer == "processed" for entry in store.list())
+
+
+def test_processing_rejects_schemaless_history_for_current_typed_owner(tmp_path):
+    """Schema-less historical bytes cannot substitute for a newly declared raw owner."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    processor = EvidenceOutputProcessor("selected-process", "1", _forbidden_processor)
+    with pytest.raises(ValueError, match="owner schema"):
+        run_port_processor(selected, _package(processor), store=store,
+            current_raw_contract=_contract(raw), requested_raw_parameters=_owner().resolve())
+    assert not any(entry.address.layer == "processed" for entry in store.list())
+
+
+@pytest.mark.parametrize("layer", ["raw", "processed"])
+def test_processed_envelope_rejects_unknown_schema_with_valid_digests(tmp_path, layer):
+    """Refreshed outer storage hashes never authorize an unsupported semantic schema."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    processor = EvidenceOutputProcessor("selected-process", "1", _process)
+    first = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    entry = next(item for item in store.list() if item.address.layer == layer)
+    document = json.loads(entry.payload_paths[0].read_bytes())
+    document["schema"] = "semantic-output-receipt/v99"
+    _rewrite(entry, document)
+    before = entry.payload_paths[0].read_bytes()
+    blocked = replace(processor, function=_forbidden_processor)
+    with pytest.raises(ValueError, match="schema"):
+        run_port_processor(selected, _package(blocked), store=store,
+            current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    assert entry.payload_paths[0].read_bytes() == before
+    if layer == "processed":
+        with pytest.raises(ValueError, match="schema"):
+            load_processed_port(store, first.publication.ref,
+                current_raw_contract=_contract(raw), requested_raw_parameters=None, processor=blocked)
+
+
+@pytest.mark.parametrize("changes,warning", [
+    ({"review": 2.0}, "review"),
+    ({"other": 2.0}, None),
+    ({"other_review": 2.0}, None),
+    ({"note": "new"}, None),
+])
+def test_raw_warning_comparison_uses_current_selected_names(tmp_path, changes, warning):
+    """Only selected raw knobs affect reuse while complete requested audit stays visible."""
+    raw = _raw()
+    owner = ParameterSchema(raw.package_id, "selected-processing/1", (
+        ParameterSpec("compute", float, 1.0),
+        ParameterSpec("review", float, 1.0, impact=ParameterImpact.REUSE_WITH_WARNING),
+        ParameterSpec("other", float, 1.0),
+        ParameterSpec("other_review", float, 1.0, impact=ParameterImpact.REUSE_WITH_WARNING),
+        ParameterSpec("note", str, "old", impact=ParameterImpact.METADATA_ONLY),
+    ))
+    calculated = owner.resolve()
+    contract = replace(_contract(raw), parameter_projection=_projection(calculated, ["compute", "review"]))
+    selected = bind_raw_port(contract, raw, parameter_snapshot=calculated)
+    store = CacheStore(tmp_path)
+    entry = save_raw_port(store, selected)
+    before = entry.payload_paths[0].read_bytes()
+    processor = EvidenceOutputProcessor("selected-process", "1", _process)
+    first = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=contract, requested_raw_parameters=calculated)
+    requested = owner.resolve(changes)
+    current = replace(contract, parameter_projection=_projection(requested, ["compute", "review"]))
+    second = run_port_processor(selected, _package(replace(processor, function=_forbidden_processor)),
+        store=store, current_raw_contract=current, requested_raw_parameters=requested)
+    assert second.cache_hit and second.publication.ref == first.publication.ref
+    status = second.cache_status["parameter_status"]
+    assert status["recompute_required"] is False
+    assert status["exact_match"] is (warning is None)
+    assert [item["parameter"] for item in status["warnings"]] == ([] if warning is None else [warning])
+    assert _json_value(status["calculated_parameters"]) == calculated.to_json()["calculated_parameters"]
+    assert _json_value(status["requested_parameters"]) == requested.to_json()["effective_parameters"]
+    assert entry.payload_paths[0].read_bytes() == before
+    changed = owner.resolve({"compute": 2.0})
+    newer = replace(contract, parameter_projection=_projection(changed, ["compute", "review"]))
+    assert load_raw_port(store, newer, requested_parameters=changed) is None
+    with pytest.raises(ValueError, match="current raw contract"):
+        run_port_processor(selected, _package(replace(processor, function=_forbidden_processor)),
+            store=store, current_raw_contract=newer, requested_raw_parameters=changed)
+
+
+@pytest.mark.parametrize("change", ["warning", "metadata"])
+def test_processed_warning_hit_reports_historical_and_requested_values(tmp_path, change):
+    """Warning and metadata edits reuse historical bytes with a separate current audit."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    schema = ParameterSchema(raw.package_id, "warning-process/1", (
+        ParameterSpec("value", float, 0.75),
+        ParameterSpec("review_m", float, 0.01, unit="m", impact=ParameterImpact.REUSE_WITH_WARNING),
+        ParameterSpec("note", str, "old", impact=ParameterImpact.METADATA_ONLY),
+    ))
+    processor = EvidenceOutputProcessor("warning-process", "1", _process, parameter_schema=schema)
+    first = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    edits = {"review_m": 0.02} if change == "warning" else {"note": "new"}
+    requested = replace(processor, function=_forbidden_processor,
+                        parameters={**processor.parameters, **edits})
+    second = run_port_processor(selected, _package(requested), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    assert second.cache_hit and second.publication.ref == first.publication.ref
+    assert second.publication.processed_output.parameter_snapshot == processor.parameter_snapshot
+    assert selected_processed_bytes(second.publication.processed_output) == selected_processed_bytes(
+        first.publication.processed_output)
+    status = second.cache_status["processed_parameter_status"]
+    assert status["reuse"] == ("reuse_with_warning" if change == "warning" else "exact")
+    assert status["exact_match"] is (change != "warning")
+    assert [item["parameter"] for item in status["warnings"]] == (["review_m"] if change == "warning" else [])
+    for name, value in edits.items():
+        assert status["calculated_parameters"][name] == processor.parameters[name]
+        assert status["requested_parameters"][name] == value
+
+
+@pytest.mark.parametrize("case", ["present", "missing", "deleted", "wrong-recipe", "raw-deleted"])
+def test_read_only_processed_loader_never_calculates_missing_selection(tmp_path, case):
+    """Saved selection reads stay inert for hits, absent versions and deleted dependencies."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    processor = EvidenceOutputProcessor("selected-process", "1", _process)
+    first = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    reference = first.publication.ref
+    if case == "missing":
+        reference = replace(reference, identity="absent-version")
+    elif case == "deleted":
+        assert store.delete_exact(reference.address)
+    elif case == "raw-deleted":
+        assert store.delete_exact(selected.ref.address)
+    requested = replace(processor, function=_forbidden_processor,
+                        version="2" if case == "wrong-recipe" else "1")
+    if case == "raw-deleted":
+        with pytest.raises(ValueError, match="current raw contract"):
+            load_processed_port(store, reference, current_raw_contract=_contract(raw),
+                requested_raw_parameters=None, processor=requested)
+    else:
+        actual = load_processed_port(store, reference, current_raw_contract=_contract(raw),
+            requested_raw_parameters=None, processor=requested)
+        assert actual == (first.publication if case == "present" else None)
+
+
+@pytest.mark.parametrize("configured", [True, False])
+def test_failed_processing_is_explicit_and_never_published(tmp_path, configured):
+    """Missing or failed processors keep empty core failure outcomes without cache hits."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+
+    def failed(view, parameters):
+        """Exercise the existing callback-failure result instead of raw fallback."""
+        raise RuntimeError("expected processing failure")
+
+    processor = EvidenceOutputProcessor("failed", "1", failed) if configured else None
+    result = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    assert result.cache_hit is False and result.status == "unavailable"
+    assert result.publication.processed_output.outputs == ()
+    assert result.publication.processed_output.error_code == (
+        "OUTPUT_PROCESSING_FAILED" if configured else "OUTPUT_FUNCTION_NOT_CONFIGURED")
+    assert result.cache_location is None
+    assert not any(entry.address.layer == "processed" for entry in store.list())
+
+
+@pytest.mark.parametrize("field,value", [
+    ("package_id", "other-package"),
+    ("output_function_id", "other-producer"),
+    ("output_function_version", "2"),
+])
+def test_processed_hit_still_requires_matching_package_producer(tmp_path, field, value):
+    """An existing processed entry cannot bypass the core producer ownership contract."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    processor = EvidenceOutputProcessor("selected-process", "1", _process)
+    run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    changed = replace(_package(replace(processor, function=_forbidden_processor)), **{field: value})
+    with pytest.raises(ValueError, match="producer"):
+        run_port_processor(selected, changed, store=store,
+            current_raw_contract=_contract(raw), requested_raw_parameters=None)
+
+
+def test_semantic_processed_dependency_is_reopened_without_recalculation(tmp_path):
+    """A downstream raw entry validates selected processed bytes and the live raw chain."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    processor = EvidenceOutputProcessor("selected-process", "1", _process)
+    processed = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None).publication
+    dependent = bind_raw_port(replace(_contract(raw, "modulation"), upstream_refs=(processed.ref,)), raw)
+    save_raw_port(store, dependent)
+    assert load_raw_port(store, dependent.contract, requested_parameters=None) == dependent
+    assert store.delete_exact(selected.ref.address)
+    assert load_raw_port(store, dependent.contract, requested_parameters=None) is None
+
+
+@pytest.mark.parametrize("mutation", ["semantic-kind", "raw-ref", "inner-digest", "inner-identity", "target"])
+def test_selected_processed_wrapper_validates_exact_bindings(tmp_path, mutation):
+    """Valid outer storage bytes cannot conceal broken semantic or inner bindings."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    processor = EvidenceOutputProcessor("selected-process", "1", _process)
+    publication = run_port_processor(selected, _package(processor), store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None).publication
+    entry = next(item for item in store.list() if item.address.layer == "processed")
+    document = json.loads(entry.payload_paths[0].read_bytes())
+    if mutation == "semantic-kind":
+        document["ref"]["output_port"] = "path_distance"
+    elif mutation == "raw-ref":
+        document["raw_ref"]["payload_fingerprint"] = "a" * 64
+    elif mutation == "inner-digest":
+        document["processed_view"]["outputs"][0]["observation"] = 0.4
+    elif mutation == "inner-identity":
+        document["processed_view"]["processing_identity"] = "a" * 64
+    else:
+        output = publication.processed_output
+        changed = replace(output, outputs=(replace(output.outputs[0],
+            target={"kind": "contract_target", "id": "foreign", "identity": "foreign"}),))
+        document["processed_view"] = serialize_evidence_processed_output(changed)
+        document["ref"]["payload_fingerprint"] = hashlib.sha256(selected_processed_bytes(changed)).hexdigest()
+    _rewrite(entry, document)
+    with pytest.raises(ValueError):
+        load_processed_port(store, publication.ref, current_raw_contract=_contract(raw),
+            requested_raw_parameters=None, processor=replace(processor, function=_forbidden_processor))
+
+
+def test_corrupt_processed_entry_is_read_only_then_preserved_before_recalculation(tmp_path):
+    """Only the owning processing runner may retain and rebuild corrupt selected bytes."""
+    raw = _raw()
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    raw_entry = save_raw_port(store, selected)
+    raw_before = raw_entry.payload_paths[0].read_bytes()
+    calls = []
+
+    def process(view, parameters):
+        """Count only the transformation that owns the corrupted processed address."""
+        calls.append(view)
+        return _process(view, parameters)
+
+    def forbidden_producer(sources):
+        """Detect re-running unrelated raw calculation while repairing processed storage."""
+        pytest.fail("processed repair invoked the raw producer")
+
+    processor = EvidenceOutputProcessor("selected-process", "1", process)
+    package = replace(_package(processor), output_function=forbidden_producer)
+    first = run_port_processor(selected, package, store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    entry = next(item for item in store.list() if item.address.layer == "processed")
+    corrupted = entry.payload_paths[0].read_bytes() + b" "
+    entry.payload_paths[0].write_bytes(corrupted)
+    assert load_processed_port(store, first.publication.ref, current_raw_contract=_contract(raw),
+        requested_raw_parameters=None, processor=replace(processor, function=_forbidden_processor)) is None
+    assert entry.payload_paths[0].read_bytes() == corrupted
+    assert not (tmp_path / "quarantine").exists()
+    repaired = run_port_processor(selected, package, store=store,
+        current_raw_contract=_contract(raw), requested_raw_parameters=None)
+    assert repaired.cache_hit is False and repaired.publication.ref == first.publication.ref
+    assert len(calls) == 2 and raw_entry.payload_paths[0].read_bytes() == raw_before
+    assert [path.read_bytes() for path in (tmp_path / "quarantine").rglob("payload.json")] == [corrupted]

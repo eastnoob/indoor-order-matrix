@@ -30,6 +30,49 @@ def _forbidden(*args, **kwargs):
     pytest.fail("an independently cached producer ran again")
 
 
+def test_euclidean_processing_controller_does_not_request_route_work(tmp_path, monkeypatch):
+    """The optional selected processing entry can operate without any route selector."""
+    store = CacheStore(tmp_path)
+    bundle = _bundle()
+    monkeypatch.setattr(ports, "evaluate_path_port", _forbidden)
+    monkeypatch.setattr(ports, "distance_port_contracts", _forbidden)
+    first = ports.run_euclidean_processed_port(bundle, store=store,
+        parameters=_parameters(bundle), processor=None)
+    assert first.publication.raw_ref.output_port == "euclidean_distance"
+    assert first.publication.processed_output.error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED"
+    monkeypatch.setattr(ports, "evaluate_euclidean_port", _forbidden)
+    second = ports.run_euclidean_processed_port(bundle, store=store,
+        parameters=_parameters(bundle), processor=None)
+    assert second.publication.raw_ref == first.publication.raw_ref
+    assert len(store.list()) == 1
+
+
+def test_euclidean_processing_controller_preserves_corrupt_raw_before_rebuild(tmp_path, monkeypatch):
+    """A selected centroid storage failure rebuilds that item and retains rejected bytes."""
+    store = CacheStore(tmp_path)
+    bundle = _bundle()
+    first = ports.run_euclidean_processed_port(bundle, store=store,
+        parameters=_parameters(bundle), processor=None)
+    entry = store.list()[0]
+    corrupted = entry.payload_paths[0].read_bytes() + b" "
+    entry.payload_paths[0].write_bytes(corrupted)
+    monkeypatch.setattr(ports, "evaluate_path_port", _forbidden)
+    monkeypatch.setattr(ports, "distance_port_contracts", _forbidden)
+    original = ports.evaluate_euclidean_port
+    calls = []
+
+    def evaluate(*args, **kwargs):
+        """Count the one producer responsible for the corrupted selected raw address."""
+        calls.append(args[0])
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(ports, "evaluate_euclidean_port", evaluate)
+    repaired = ports.run_euclidean_processed_port(bundle, store=store,
+        parameters=_parameters(bundle), processor=None)
+    assert repaired.publication.raw_ref == first.publication.raw_ref and calls == [bundle]
+    assert [path.read_bytes() for path in (tmp_path / "quarantine").rglob("payload.json")] == [corrupted]
+
+
 def test_policy_one_two_one_reuses_euclidean_and_restores_path(tmp_path, monkeypatch):
     """Only path versions depend on clearance policy and restoring values restores reuse."""
     store = CacheStore(tmp_path)

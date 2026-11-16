@@ -366,7 +366,7 @@ Expected: PASS. Retain the pinned legacy output identity `75c7c12b6e7e7fad88dbd6
 - Adapter entry: `build_distance_free_space_validator(bundle, *, native_request, context) -> CacheValidator`. Reuse `wire.open_analysis_result` with the caller's independent `ResultReadContext` and validate the native request/capture/domain binding. Extract the existing exact-samples mapping construction into a shared private helper, then compare its query/lattice/ref/cells/support/source-table facts with the independently supplied bundle. The callback must not reproject furniture or recalculate routes. Explicit historical retained context remains historical; never manufacture a live-current observation from saved bytes. Keep old adapter outputs/behavior unchanged. `evaluate_euclidean_port` builds only its own contract and never requires the route selector merely because the dual-contract factory does.
 - Kernel produces `EuclideanPairObservation(pair_id, group_ids, reading, geometry_audit)` and `calculate_euclidean_pairs(bundle) -> tuple[EuclideanPairObservation, ...]`; the old combined calculation and new producer share `_euclidean_reading(first_geometry, second_geometry)`. This primitive preserves existing endpoint status, centroid distance and centroid-source refs. A path-only entry skips this primitive while preserving route code.
 
-- [ ] **Step 1: Write the failing policy reuse test with concrete fixtures.**
+- [x] **Step 1: Write the failing policy reuse test with concrete fixtures.**
 
 ```python
 from dataclasses import replace
@@ -418,9 +418,9 @@ def test_policy_one_two_one_reuses_euclidean_and_restores_path(tmp_path, monkeyp
 
 This fixture proves identity, status, and callback isolation, not valid route geometry. It consumes the exact owner snapshot builder introduced by A and does not register a competing schema.
 
-- [ ] **Step 2: Verify the new tests fail.** Run `pixi run pytest test/test_group_distance_output_ports.py -q`; expect the missing runner/module to fail.
+- [x] **Step 2: Verify the new tests fail.** Run `pixi run pytest test/test_group_distance_output_ports.py -q`; expect the missing runner/module to fail.
 
-- [ ] **Step 3: Implement package-owned projections and selective evaluation.** Use this reviewed dependency table, with exact projected fields covered by tests:
+- [x] **Step 3: Implement package-owned projections and selective evaluation.** Use this reviewed dependency table, with exact projected fields covered by tests:
 
 | Semantic port | Identity and selected payload facts | Excluded facts |
 | --- | --- | --- |
@@ -456,7 +456,7 @@ Canonical C source identity uses explicit recognized factual forms: `project_glo
 
 `run_group_distance_ports` acquires the accepted B identity lock, validates each existing selected receipt, computes only missing ports, and reports separate `PortRun` values. Its independently resolved owner snapshot is mandatory; a rejected saved declaration is a diagnosed cache miss, retaining the original bytes and computing only that missing port. After the first selected miss, probe B's existing combined kind using the exact accepted B adapter before scheduling a producer; a corrupt automatic fallback remains historical and cannot block valid independent hits. Use an explicitly supplied `legacy_entry` to select a known entry without scanning ambiguous history; explicit selection retains strict rejection. The projector reopens the entry through B's original package validator and checks the original contract, source/target scope, dependencies, original expanded calculated parameter snapshot, supported schema and original payload digest before decoding. It rebuilds selected lineage without numerical evaluation and saves new wrapper receipts with that historical calculated audit. A missing A snapshot is not an exact typed hit: retain it as historical, rather than inventing values from current defaults. Reject mismatched/tampered entries. Loose historical JSON remains historical.
 
-- [ ] **Step 4: Verify both identity isolation and real Euclidean parity.** Add the following concrete test to the existing retained-IFC file (its `retained_trial` fixture already returns `(inputs, raw, processed)`):
+- [x] **Step 4: Verify both identity isolation and real Euclidean parity.** Add the following concrete test to the existing retained-IFC file (its `retained_trial` fixture already returns `(inputs, raw, processed)`):
 
 ```python
 def test_standalone_euclidean_matches_retained_readings(retained_trial):
@@ -532,7 +532,7 @@ Expected: PASS. If the actual retained fixture is absent, record that exact miss
 
 Both retained numerical nodes and route-only isolation are mandatory for C's implemented-split acceptance. A missing fixture or no usable real path blocks that claim under the shared protocol.
 
-- [ ] **Step 5: Commit.** `jj commit -m "feat: cache Euclidean and route outputs independently"`
+- [x] **Step 5: Commit.** `jj commit -m "feat: cache Euclidean and route outputs independently"`
 
 ### Task 4: Bind processing to selected-port bytes and recipe
 

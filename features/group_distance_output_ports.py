@@ -20,7 +20,7 @@ from .field_core import (
 )
 from .output_port_cache import (
     OutputPortContract, OutputPortRef, PortRun, _parameter_status,
-    bind_raw_port, load_raw_port, save_raw_port, validate_port_payload,
+    bind_raw_port, load_raw_port, run_port_processor, save_raw_port, validate_port_payload,
 )
 
 _PORTS = {"euclidean_distance": "center_to_center_euclidean", "path_distance": "centroid_free_space_hybrid"}
@@ -338,3 +338,20 @@ def run_group_distance_ports(bundle, *, store, parameters, repaired_result=None,
             result[port] = _run_result(publication, entry, hit=legacy_entry is not None, parameters=parameters,
                                        reuse="legacy_adopted" if legacy_entry is not None else "computed")
     return result
+
+
+def run_euclidean_processed_port(bundle, *, store, parameters, processor):
+    """Process the independent centroid port without requesting route inputs or work."""
+    contract = euclidean_port_contract(bundle, parameters=parameters)
+    address = CacheAddress(contract.source_fingerprint, contract.package_id,
+                           contract.output_port, "raw", contract.identity)
+    with store.identity_lock(address):
+        raw = load_raw_port(store, contract, requested_parameters=parameters)
+        if raw is None:
+            # Keep a rejected publication before rebuilding only this centroid version.
+            store.quarantine(address, reason="selected Euclidean raw publication is unavailable")
+            raw = evaluate_euclidean_port(bundle, parameters=parameters)
+            save_raw_port(store, raw)
+    package = owner.build_group_distance_evidence_package(output_processor=processor)
+    return run_port_processor(raw, package, store=store,
+        current_raw_contract=contract, requested_raw_parameters=parameters)

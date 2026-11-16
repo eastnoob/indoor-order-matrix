@@ -96,8 +96,8 @@ by `complete` or `failed`; default model-side hierarchy outputs keep that journa
 at their unique run parent, while explicit output roots keep it at the exact root.
 The B handoff records 786/786 required tests (807.82 seconds), 712 unchanged
 frozen file hashes, SPEC PASS / QUALITY APPROVED and exact evidence.
-Plan C's semantic publication and distance producers are described below;
-selected processing and potential consumers remain in progress.
+Plan C's semantic publication, distance producers and selected processing are
+described below; potential consumers remain in progress.
 
 ## Package parameters and model-side cache — Plan A locally verified 2026-11-16
 
@@ -202,10 +202,25 @@ features never guess a B address from a wire ResultRef. The adapter shares its
 sample handoff without reprojecting furniture. A successful check is reused
 only for identical payload bytes within the same immutable validator context.
 
-Selected processing and potential producers remain subsequent C tasks at this
-checkpoint. Euclidean output and its modulation exclude route/free-space
-dependencies. The explicit intermediate contract remains design only; no
-concrete stage warrants runtime adoption or a second storage backend.
+`ProcessedPortPublication`, `processed_port_key`, `run_port_processor` and the
+read-only `load_processed_port` in `features/output_port_cache.py` bind the
+selected raw reference and exact selected bytes to the existing processor's
+effective recipe. The independent current raw contract and owner snapshot are
+required before lookup or processing. Existing core processed serialization
+validates the inner raw identity, selected payload fingerprint and channel
+lineage; the semantic envelope does not duplicate raw geometry. A processed
+entry has an exact B dependency on its raw address. Public readers calculate
+nothing and retain damaged bytes; the owning runner quarantines a damaged
+version before recalculating it. Raw and processed warning comparisons retain
+the complete historical/requested audit while only declared selected raw
+parameters affect reuse. Failed processing publishes no complete cache entry.
+
+`run_euclidean_processed_port` builds the independent Euclidean contract,
+reuses or calculates only that raw port, and invokes the existing distance
+package processor. It never requests route inputs or path work. Potential
+consumers remain the next C task. Euclidean output and its modulation exclude
+route/free-space dependencies. The explicit intermediate contract remains
+design only; no concrete stage warrants runtime adoption or another backend.
 
 ## Package-owned lifecycle — locally verified 2026-11-12
 

@@ -82,7 +82,9 @@ def test_real_euclidean_excludes_route_only_inputs(retained_trial, stored_distan
     from features.cache_paths import CacheAddress
     from features import group_distance as kernel
     from features import group_distance_output_ports as ports
-    from features.output_port_cache import OutputPortRef, load_raw_port, save_raw_port, selected_raw_bytes
+    from features.output_port_cache import (
+        OutputPortRef, load_raw_port, processed_port_key, save_raw_port, selected_raw_bytes,
+    )
     from scripts.design.group_level.run_group_distance_free_space import load_json, retained_read_context
     from .test_free_space_distance import RECEIPT, SOURCE
     inputs, _, _ = retained_trial
@@ -136,6 +138,53 @@ def test_real_euclidean_excludes_route_only_inputs(retained_trial, stored_distan
     assert reused is not None and reused.ref == baseline.ref
     assert selected_raw_bytes(reused.raw_view) == original_bytes
     assert entry.payload_paths[0].read_bytes() == original_payload
+    processor = build_euclidean_median_proximity_processor(expected_target_ids=baseline.contract.target_ids)
+    assert processed_port_key(reused, processor) == processed_port_key(baseline, processor)
+
+
+def test_route_policy_change_preserves_actual_processed_port(retained_trial, tmp_path, monkeypatch):
+    """All 666 actual proximity readings reuse selected bytes after a route-only edit."""
+    from features.cache_store import CacheStore
+    from features import group_distance_output_ports as ports
+    from features.output_port_cache import load_raw_port, run_port_processor, selected_processed_bytes
+    inputs, _, _ = retained_trial
+    first_bundle = replace(inputs.bundle, clearance_policy={
+        "min_left_m": 0.225, "min_right_m": 0.225, "min_total_m": 1.0,
+    })
+    first_parameters = distance_package.build_group_distance_parameter_snapshot(first_bundle)
+    first_contract = ports.euclidean_port_contract(first_bundle, parameters=first_parameters)
+    processor = build_euclidean_median_proximity_processor(expected_target_ids=first_contract.target_ids)
+    store = CacheStore(tmp_path)
+
+    def forbidden(view, parameters):
+        """Detect any calculation of route outputs or an already cached processed result."""
+        pytest.fail("route policy change reran selected Euclidean processing")
+
+    monkeypatch.setattr(ports, "distance_port_contracts", forbidden)
+    monkeypatch.setattr(ports, "evaluate_path_port", forbidden)
+    first = ports.run_euclidean_processed_port(first_bundle, store=store,
+        parameters=first_parameters, processor=processor)
+    assert first.publication.processed_output.error_code is None
+    assert len(first.publication.processed_output.outputs) == 666
+    assert all(item.observation is not None for item in first.publication.processed_output.outputs)
+    before = selected_processed_bytes(first.publication.processed_output)
+    second_bundle = replace(first_bundle, clearance_policy={
+        "min_left_m": 0.225, "min_right_m": 0.225, "min_total_m": 2.0,
+    })
+    second_parameters = distance_package.build_group_distance_parameter_snapshot(second_bundle)
+    second_contract = ports.euclidean_port_contract(second_bundle, parameters=second_parameters)
+    second_raw = load_raw_port(store, second_contract, requested_parameters=second_parameters)
+    assert second_raw is not None and second_raw.ref == first.publication.raw_ref
+    second = run_port_processor(second_raw,
+        build_group_distance_evidence_package(output_processor=replace(processor, function=forbidden)),
+        store=store, current_raw_contract=second_contract, requested_raw_parameters=second_parameters)
+    assert second.cache_hit and second.cache_reuse == "exact_hit"
+    assert second.publication.ref == first.publication.ref
+    assert selected_processed_bytes(second.publication.processed_output) == before
+    status = second.cache_status["parameter_status"]
+    assert status["calculated_parameters"]["clearance_policy"]["min_total_m"] == 1.0
+    assert status["requested_parameters"]["clearance_policy"]["min_total_m"] == 2.0
+    assert status["recompute_required"] is False and status["warnings"] == ()
 
 
 @pytest.fixture(scope="module")
