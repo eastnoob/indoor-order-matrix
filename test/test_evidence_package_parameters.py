@@ -100,6 +100,17 @@ def test_required_nullable_context_has_stable_schema_and_roundtrip():
         ParameterSnapshot.from_json(malformed)
 
 
+def test_downstream_cannot_mutate_historical_parameters():
+    """Consumers can inspect an owner snapshot without changing its values."""
+    snapshot = _schema().resolve()
+    before = snapshot.to_json()
+    with pytest.raises(TypeError):
+        snapshot.calculated_parameters["width_m"] = 2.0
+    with pytest.raises(TypeError):
+        snapshot.parameter_sources["width_m"] = "downstream"
+    assert snapshot.to_json() == before
+
+
 def test_capture_calculated_never_fills_a_missing_saved_default():
     """Historical capture requires every field even when today's schema has defaults."""
     with pytest.raises(ValueError, match="missing"):

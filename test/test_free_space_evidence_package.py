@@ -280,19 +280,34 @@ def test_atomic_cache_failure_preserves_prior_final_and_cleans_partial(tmp_path,
     _, adapter = _modules()
     scene = _scene(_object("chair"))
     request = _request(scene)
+    calculations = []
+    original = adapter.requests.execute_analysis_request
+
+    def counted(*args, **kwargs):
+        """Prove both the cold publication and forced rewrite execute real occupancy."""
+        calculations.append(True)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(adapter.requests, "execute_analysis_request", counted)
     adapter.evaluate_free_space_package(scene, request, cache_directory=tmp_path)
+    assert calculations == [True]
     path, = tmp_path.glob("*.json")
     prior = path.read_bytes()
+    replacements = []
+
     def refused(*args, **kwargs):
         """Force the final atomic publication boundary to fail."""
+        replacements.append(args)
         raise OSError("atomic replacement refused")
     monkeypatch.setattr(adapter.os, "replace", refused)
     def force_recompute(*args, **kwargs):
         """Exercise replacement of the same existing final file rather than a new key."""
         return None
-    monkeypatch.setattr(adapter, "_read_cache", force_recompute)
+    monkeypatch.setattr(adapter, "_read_cache_entry", force_recompute)
     with pytest.raises(OSError, match="atomic replacement refused"):
         adapter.evaluate_free_space_package(scene, request, cache_directory=tmp_path)
+    assert calculations == [True, True]
+    assert len(replacements) == 1 and replacements[0][1] == path
     assert path.read_bytes() == prior
     assert list(tmp_path.glob("*.partial")) == []
 

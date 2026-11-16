@@ -139,14 +139,15 @@ def load_modulation_inputs():
     )
     if fresh_processed.error_code is not None or fresh_processed.processing_identity != processed_cache_key(raw, processor):
         raise ValueError("current symmetric-reciprocal processor did not produce its expected current recipe")
-    contract = _read(retained.PACKAGE_PATH.parent / "package_contract.json")
+    cached_contract = inputs.cached_contract
+    current_contract = inputs.current_contract
     with tempfile.TemporaryDirectory(prefix="distance-potential-processed-") as temporary:
         path = Path(temporary) / "processed.json"
         path.write_text(json.dumps(serialize_evidence_processed_output(fresh_processed), sort_keys=True), encoding="utf-8")
         selected = consume_saved_evidence_package(
             retained.PACKAGE_PATH, expected_sha256=retained.EXPECTED_HASHES["package"],
-            cached_contract=contract, current_contract=contract,
-            current_source_envelopes=raw.source_envelopes,
+            cached_contract=cached_contract, current_contract=current_contract,
+            current_source_envelopes=inputs.current_source_envelopes,
             selections=tuple((identity, "euclidean_distance") for identity in scope),
             dependency_graph={"evidence-package-channel-readback": (raw.package_id,), raw.package_id: ()},
             processed_path=path, expected_processed_sha256=_sha(path),

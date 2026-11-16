@@ -19,7 +19,9 @@ from features.group_distance_evidence_package import (
     SOURCE_CHANNEL,
     build_group_distance_package_contract,
     build_group_distance_source_envelopes,
+    reconstruct_legacy_group_distance_contract,
 )
+from features.evidence_package_storage import compare_receipt_parameters, legacy_candidate_contract
 from features.group_self_description import _polygon_moments
 from scripts.design.group_level import replay_evidence_package_readback as readback
 from scripts.design.group_level.run_group_distance_ifc import file_hash, retained_input
@@ -110,6 +112,9 @@ class ExperimentInputs:
     package_freshness: str
     input_hashes: Mapping[str, str]
     source_binding: Mapping[str, Any]
+    cached_contract: Mapping[str, Any]
+    current_contract: Mapping[str, Any]
+    current_source_envelopes: tuple[Any, ...]
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -345,13 +350,37 @@ def load_experiment_inputs(
         bundle,
         visualization_manifest=cached_contract["artifacts"]["visualization_manifest"],
     )
+    legacy_contract = legacy_candidate_contract(current_contract)
+    # Only this exact pinned pre-A contract can acquire owner-attested parameters.
+    if cached_contract != legacy_contract:
+        raise ValueError("saved package cannot be safely adopted: legacy contract drift")
+    adopted_contract = reconstruct_legacy_group_distance_contract(
+        {"contract": cached_contract},
+        current_contract,
+        bundle,
+        parameter_sources={
+            name: "authenticated-retained-bundle"
+            for name in current_contract["parameter_snapshot"]["effective_parameters"]
+        },
+    )
+    if adopted_contract is None:
+        raise ValueError("saved package cannot be safely adopted: owner reconstruction failed")
+    parameter_status = compare_receipt_parameters(adopted_contract, current_contract)
+    if parameter_status["recompute_required"]:
+        raise ValueError("saved package cannot be safely adopted: historical parameters differ")
+    adoption_status = {
+        "mode": "adopted_legacy",
+        "verification_mode": "owner_reconstructed_parameters",
+        "origin_contract": cached_contract,
+        "parameter_status": {**parameter_status, "exact_match": False},
+    }
     selections = tuple((source.target["identity"], "euclidean_distance") for source in current_sources)
     if len(bundle.groups) != 37 or len(current_sources) != 666 or len(selections) != 666:
         raise ValueError("retained experiment must contain 37 groups and all 666 unordered pairs")
     saved = readback.consume_saved_evidence_package(
         package_path,
         expected_sha256=EXPECTED_HASHES["package"],
-        cached_contract=cached_contract,
+        cached_contract=adopted_contract,
         current_contract=current_contract,
         current_source_envelopes=current_sources,
         selections=selections,
@@ -379,7 +408,10 @@ def load_experiment_inputs(
         output_identity=saved.output_identity,
         package_freshness=saved.dependencies[0].package_freshness,
         input_hashes=dict(hashes),
-        source_binding=source_binding,
+        source_binding={**source_binding, "distance_package_reuse": adoption_status},
+        cached_contract=adopted_contract,
+        current_contract=current_contract,
+        current_source_envelopes=tuple(current_sources),
     )
 
 

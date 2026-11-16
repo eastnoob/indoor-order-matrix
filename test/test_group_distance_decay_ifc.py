@@ -44,6 +44,61 @@ def experiment_inputs():
     return load_experiment_inputs(bundle_path=BUNDLE, package_path=PACKAGE)
 
 
+def test_retained_legacy_contract_adoption_preserves_historical_context():
+    """An authenticated pre-A publication gains typed attestation, never new bytes."""
+    inputs = load_experiment_inputs(bundle_path=BUNDLE, package_path=PACKAGE)
+    historical = json.loads((PACKAGE.parent / 'package_contract.json').read_text(encoding='utf-8'))
+    reuse = inputs.source_binding['distance_package_reuse']
+    assert inputs.package_freshness == 'fresh' and len(inputs.outputs) == 666
+    assert reuse['mode'] == 'adopted_legacy'
+    assert reuse['verification_mode'] == 'owner_reconstructed_parameters'
+    assert reuse['origin_contract'] == historical
+    assert reuse['parameter_status']['exact_match'] is False
+    snapshot = inputs.cached_contract['parameter_snapshot']
+    assert snapshot['calculated_parameters'] == snapshot['effective_parameters']
+    assert set(snapshot['parameter_sources'].values()) == {'authenticated-retained-bundle'}
+    assert reuse['parameter_status']['calculated_parameters'] == snapshot['calculated_parameters']
+    assert reuse['parameter_status']['requested_parameters'] == inputs.current_contract['parameter_snapshot']['effective_parameters']
+    assert inputs.cached_contract is not inputs.current_contract
+    # The second reader must receive rebuilt source context, not certify saved objects.
+    assert len(inputs.current_source_envelopes) == len(inputs.source_envelopes) == 666
+    assert all(current is not saved for current, saved in zip(
+        inputs.current_source_envelopes, inputs.source_envelopes))
+    assert readback._source_context_fingerprint(inputs.current_source_envelopes) == (
+        readback._source_context_fingerprint(inputs.source_envelopes))
+    assert 'parameter_snapshot' not in historical
+    assert hashlib.sha256(PACKAGE.read_bytes()).hexdigest() == EXPECTED_HASHES['package']
+    assert hashlib.sha256((PACKAGE.parent / 'package_contract.json').read_bytes()).hexdigest() == EXPECTED_HASHES['package_contract']
+
+
+@pytest.mark.parametrize('drift', ('query', 'algorithm'))
+def test_retained_legacy_adoption_rejects_nonparameter_drift(monkeypatch, drift):
+    """Typed current context cannot adopt different historical computation inputs."""
+    original = decay.build_group_distance_package_contract
+
+    def changed_contract(*args, **kwargs):
+        """Model independently observed drift after retained-byte authentication."""
+        contract = original(*args, **kwargs)
+        arguments = {key: contract[key] for key in (
+            'package_id', 'package_schema', 'producer', 'target_ids', 'dependencies',
+            'algorithm_version', 'schema_version', 'artifacts',
+        )}
+        if drift == 'query':
+            arguments['dependencies'] = [
+                {**item, 'fingerprint': '0' * 64} if item['name'] == 'query' else item
+                for item in contract['dependencies']
+            ]
+        else:
+            arguments['algorithm_version'] = 'independently-changed-algorithm/1'
+        from features.evidence_package_parameters import ParameterSnapshot
+        return build_evidence_package_contract(
+            **arguments, parameter_snapshot=ParameterSnapshot.from_json(contract['parameter_snapshot']))
+
+    monkeypatch.setattr(decay, 'build_group_distance_package_contract', changed_contract)
+    with pytest.raises(ValueError, match='legacy.*contract'):
+        load_experiment_inputs(bundle_path=BUNDLE, package_path=PACKAGE)
+
+
 @pytest.fixture(scope="module")
 def decay_rows(experiment_inputs):
     """Build the complete retained Euclidean response rows once."""

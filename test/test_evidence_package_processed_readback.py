@@ -3,6 +3,7 @@
 from dataclasses import replace
 import hashlib
 import json
+from pathlib import Path
 
 import pytest
 
@@ -72,6 +73,94 @@ def test_legacy_processed_receipt_keeps_legacy_attestation():
     restored = core.deserialize_evidence_processed_output(old, raw_output=raw)
     assert restored.parameter_snapshot is None
     assert core.serialize_evidence_processed_output(restored) == old
+
+
+@pytest.mark.parametrize("variant,expected", [
+    ("foreign-owner", "parameter snapshot must belong to this package"),
+    ("effective-values", "parameter snapshot effective values must match parameters"),
+])
+def test_resigned_typed_snapshot_still_requires_semantic_validation(variant, expected):
+    """A valid outer digest cannot admit an independently valid but incompatible snapshot."""
+    from features.evidence_package_parameters import ParameterSchema, ParameterSpec, ParameterSnapshot
+
+    raw = _raw()
+    schema = ParameterSchema(
+        "contract-package",
+        "processor-parameters/1",
+        (ParameterSpec("value", float, 0.25, minimum=0.0, maximum=1.0),),
+    )
+    processor = core.EvidenceOutputProcessor(
+        "typed-process", "1", _process, {"value": 0.25}, parameter_schema=schema,
+    )
+    processed = _package(processor).process_output(raw, package_freshness="fresh")
+    saved = core.serialize_evidence_processed_output(processed)
+    snapshot_schema = replace(schema, package_id="foreign-package") if variant == "foreign-owner" else schema
+    snapshot = snapshot_schema.resolve({"value": 0.75 if variant == "effective-values" else 0.25})
+    saved["parameter_snapshot"] = ParameterSnapshot.from_json(snapshot.to_json()).to_json()
+    _resign(saved)
+
+    with pytest.raises(ValueError, match=expected):
+        core.deserialize_evidence_processed_output(saved, raw_output=raw)
+
+
+def test_pre_a_processed_fixture_roundtrips_legacy_bytes():
+    """Public readers preserve independently retained PRE-A raw and processed publications."""
+    fixture = (
+        Path(__file__).parent / "fixtures" / "cache_migration" / "pre_parameter_sidecar"
+        / "raw_processed"
+        / "processed-9bfb2a3d1e34c71025b174bc673547fbf2353b5a76de32e3eecf634f4a651b26.json"
+    )
+    original_bytes = fixture.read_bytes()
+    assert hashlib.sha256(original_bytes).hexdigest() == \
+        "90bd3740b0bcfc745ce0c3f3f52737fb75e808ebb86cb2c01b7293d38646eeab"
+    original = json.loads(original_bytes)
+
+    raw_originals = []
+    for path in fixture.parent.glob("*.json"):
+        receipt = json.loads(path.read_bytes())
+        if (
+            receipt.get("schema") == "evidence-package-cache/v1"
+            and receipt.get("cache_key") ==
+            "12a42760a9d8c2a9e021ba17505ba11fa4d816f2ef92c20339cd0d0b1260a283"
+        ):
+            raw_originals.append(receipt["raw_output"])
+    assert len(raw_originals) == 1, (
+        "A unique retained PRE-A raw receipt is required for "
+        f"{original['raw_output_identity']} / {original['raw_payload_fingerprint']}; "
+        "raw bytes must not be reconstructed."
+    )
+    raw_original = raw_originals[0]
+    assert raw_original["package_id"] == original["package_id"]
+    assert raw_original["output_identity"] == original["raw_output_identity"]
+    assert raw_original["payload_fingerprint"] == original["raw_payload_fingerprint"], (
+        "The retained raw receipt belongs to another publication; the matching raw fixture is missing."
+    )
+    raw_original_bytes = json.dumps(
+        raw_original, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+    ).encode("utf-8")
+    assert _resign(json.loads(raw_original_bytes)) == raw_original, (
+        "The retained raw content does not match its declared digest; "
+        "the matching PRE-A raw fixture is required."
+    )
+
+    # Decode separate copies so reader mutation cannot alter either retained oracle.
+    raw = core.deserialize_evidence_package_output(json.loads(raw_original_bytes))
+    raw_saved = core.serialize_evidence_package_output(raw)
+    assert raw_saved == raw_original
+    assert json.dumps(
+        raw_saved, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+    ).encode("utf-8") == raw_original_bytes
+
+    restored = core.deserialize_evidence_processed_output(
+        json.loads(original_bytes), raw_output=raw,
+    )
+    assert "parameter_snapshot" not in original
+    assert restored.parameter_snapshot is None
+    legacy = core.serialize_evidence_processed_output(restored)
+    assert legacy == original
+    assert json.dumps(
+        legacy, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+    ).encode("utf-8") == original_bytes
 
 
 @pytest.mark.parametrize("state", ["unconfigured", "stale", "failure"])
