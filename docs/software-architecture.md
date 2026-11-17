@@ -96,8 +96,8 @@ by `complete` or `failed`; default model-side hierarchy outputs keep that journa
 at their unique run parent, while explicit output roots keep it at the exact root.
 The B handoff records 786/786 required tests (807.82 seconds), 712 unchanged
 frozen file hashes, SPEC PASS / QUALITY APPROVED and exact evidence.
-Plan C's semantic publication, distance producers and selected processing are
-described below; potential consumers remain in progress.
+Plan C's semantic publication, distance producers, selected processing and
+potential consumers are described below; lifecycle acceptance remains in progress.
 
 ## Package parameters and model-side cache — Plan A locally verified 2026-11-16
 
@@ -217,10 +217,31 @@ parameters affect reuse. Failed processing publishes no complete cache entry.
 
 `run_euclidean_processed_port` builds the independent Euclidean contract,
 reuses or calculates only that raw port, and invokes the existing distance
-package processor. It never requests route inputs or path work. Potential
-consumers remain the next C task. Euclidean output and its modulation exclude
-route/free-space dependencies. The explicit intermediate contract remains
-design only; no concrete stage warrants runtime adoption or another backend.
+package processor. It never requests route inputs or path work.
+
+`features/group_axis_output_ports.py` supplies `bind_port_distance_modulation`
+and `run_group_axis_output_ports`. The binder reopens exact raw and processed
+Euclidean references using independently supplied current raw-owner and
+processor intent. Geometry/member/plane registration excludes route-only
+queries only for the known standalone Euclidean schema; the historical
+combined consumer keeps its complete query check. The existing numerical
+modulation helper consumes the verified processed view and cached pure-axis
+outputs, preserving the support-times-proximity formula.
+
+The pure `axis_potential` port selects no modulation-switch values or distance
+dependencies. Expected addresses are enumerated through existing target helpers
+without invoking the base evaluator. Optional `distance_modulated_axis_support`
+selects the enable switch and depends on the exact pure-axis raw and processed
+Euclidean B addresses. These same-package storage edges do not change the
+historical package-level graph. Missing/deleted Euclidean dependencies use the
+existing channel redaction to return unavailable nonself values and never save
+a complete replacement; independent pure-axis results remain usable. Owning
+runners retain corrupt versions through B quarantine before rebuilding only
+the affected port.
+
+Euclidean output and its modulation exclude route/free-space dependencies. The
+explicit intermediate contract remains design only; no concrete stage warrants
+runtime adoption or another backend.
 
 ## Package-owned lifecycle — locally verified 2026-11-12
 

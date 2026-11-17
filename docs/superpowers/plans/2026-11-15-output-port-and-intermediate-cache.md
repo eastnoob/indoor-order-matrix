@@ -549,7 +549,7 @@ Both retained numerical nodes and route-only isolation are mandatory for C's imp
 - Produces `processed_port_key(raw: RawPortPublication, processor: EvidenceOutputProcessor) -> str` and `run_port_processor(raw, package: EvidencePackage, *, store: CacheStore, current_raw_contract: OutputPortContract, requested_raw_parameters: ParameterSnapshot | None) -> PortRun`. Both currentness keywords are required with no defaults. A controller independently builds the current upstream contract and current owner snapshot; explicit `None` declares schema-less raw. Historical raw metadata never substitutes for current intent. Processed intent always comes from the current processor, never from the cached processor receipt.
 - Existing `processed_cache_key(raw_output, processor)` remains the historical whole-publication path; callers must explicitly select the new API for independent-port processing.
 
-- [ ] **Step 1: Write the failing selected processing cache test.** Add to `test/test_output_port_cache.py`; `_contract` is defined in Task 2 and `_package`/`_process` are existing concrete fixture helpers.
+- [x] **Step 1: Write the failing selected processing cache test.** Add to `test/test_output_port_cache.py`; `_contract` is defined in Task 2 and `_package`/`_process` are existing concrete fixture helpers.
 
 ```python
 from features.cache_store import CacheStore
@@ -608,9 +608,9 @@ def test_processing_rejects_changed_independent_current_contract(tmp_path):
 
 Add `test_processing_forwards_independent_raw_owner_context` using Task 2's valid typed `_raw`/owner/store setup and an explicit processor. Hold `current_raw_contract` fixed; parameterize `requested_raw_parameters` over independently resolved incompatible owner schema ID/fields/type/unit/nullable/impact and explicit None. `run_port_processor` must reject before callback and publish no processed entry; patch the callback to fail to detect substitution of `raw.parameter_snapshot` for the supplied current owner. Repeat saved schema-less/current typed, and the schema-less changed-input case above. These adapter assertions are required even though the direct loader and A comparison helper have their own tests.
 
-- [ ] **Step 2: Verify failure.** Run `pixi run pytest test/test_output_port_cache.py -q`; expect the new processor API to be absent.
+- [x] **Step 2: Verify failure.** Run `pixi run pytest test/test_output_port_cache.py -q`; expect the new processor API to be absent.
 
-- [ ] **Step 3: Implement selected processing using the existing typed processor.** The key must contain the selected raw ref and bytes:
+- [x] **Step 3: Implement selected processing using the existing typed processor.** The key must contain the selected raw ref and bytes:
 
 ```python
 def processed_port_key(raw, processor):
@@ -632,7 +632,7 @@ After loading a processed entry, return its unchanged historical snapshot and co
 
 Store processed publications under the same source/package/semantic `output_port`, their distinct `processed_port_key` identity, and explicit `layer="processed"` in a full B `CacheAddress`. Require that `store.get(raw.ref.address, validator=validate_port_payload)` currently resolves to a complete verified entry before processing or accepting a processed hit. Publish with `store.put(processed.ref.address, contract=recipe_contract, payload=serialized_processed_envelope, payload_format="json", upstream_refs=(raw.ref.address,), validator=validate_port_payload)`; `recipe_contract` is the canonical raw ref plus processor id/version/effective parameter identity used by `processed_port_key`, and `serialized_processed_envelope` includes the same raw ref and inner processed serialization. B deletion can then orphan it. On load verify semantic kind, raw ref, selected bytes, processor recipe/identity, output addresses and serializer-internal digest. A path port may not satisfy a Euclidean processed request even when target ids overlap. Failed/stale processing is an explicit non-hit with no raw-value fallback.
 
-- [ ] **Step 4: Verify independent processing with valid actual Euclidean values.** Keep Task 3's missing-geometry fixture limited to structural/status reuse. Add this test to the existing `test/test_group_distance_processed_ifc.py`, whose `retained_trial` fixture supplies authenticated actual geometry. It changes route policy without running a route calculation:
+- [x] **Step 4: Verify independent processing with valid actual Euclidean values.** Keep Task 3's missing-geometry fixture limited to structural/status reuse. Add this test to the existing `test/test_group_distance_processed_ifc.py`, whose `retained_trial` fixture supplies authenticated actual geometry. It changes route policy without running a route calculation:
 
 Now that the processed envelope and runner exist, also add `test_processed_envelope_rejects_unknown_schema_with_valid_digests` using the same self-consistent outer-digest mutation as Task 2, and `test_raw_warning_comparison_uses_current_selected_names` using `_raw`, `_contract`, `bind_raw_port`, `save_raw_port`, `load_raw_port` and `run_port_processor`. Build a typed owner with a selected recompute field, selected warning field and unselected recompute/warning/metadata fields. Replace `_contract(raw).parameter_projection` with schema, `selected_names`, and the selected recompute values/value contracts only. Changing the selected warning must reuse the original raw ref/bytes, keep historical calculated values, and report `exact_match=False` with exactly that warning in `PortRun.cache_status["parameter_status"]`. Changing only unselected values must hit without warnings; changing the selected recompute value must miss under a newly built current projection. This traverses the C loader/runner; an A helper or processed-owner warning alone is insufficient.
 
@@ -738,7 +738,7 @@ pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_p
 
 Expected: PASS, including unchanged legacy raw/processed reference semantics and tamper rejection.
 
-- [ ] **Step 5: Commit.** `jj commit -m "feat: process exact selected output-port payloads"`
+- [x] **Step 5: Commit.** `jj commit -m "feat: process exact selected output-port payloads"`
 
 ### Task 5: Bind potential to immutable Euclidean references
 
@@ -880,7 +880,7 @@ def test_move_port_cache_reuses_without_producers(tmp_path, monkeypatch):
     }
 ```
 
-- [ ] **Step 2: Verify failure before fixing registration.** Run `pixi run pytest test/test_group_distance_output_ports.py -q`; a registration/migration defect must fail in the new assertion rather than being hidden by recalculation.
+- [ ] **Step 2: Execute the new lifecycle assertions before any registration repair.** Run the seven new Task 6 nodes first; a registration/migration defect must fail in the assertion rather than being hidden by recalculation. Existing accepted Tasks 2–5 may already provide the required registration, so a first-run PASS is valid evidence and requires no artificial production failure.
 
 - [ ] **Step 3: Register true refs with B.** Put exact semantic upstream refs in each wrapper receipt and use B's package-validator dispatch for `semantic-output-receipt/v1`. Processed Euclidean depends only on its exact Euclidean raw ref; optional axis modulation depends on its pure-axis ref and processed Euclidean ref. A path receipt includes its actual free-space result ref when used. Do not add path/free-space edges to Euclidean or modulation. Use accepted B's full-source dependency scan and locks; do not rewrite signed upstream receipts to mark them orphaned.
 
@@ -897,6 +897,15 @@ pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_p
 ```
 
 Expected: PASS, including multi-version listing, exact deletion, selected-byte verification, relocation reuse, and downstream unavailability.
+
+The independent Task 8 thirteen-file command below contains every Task 6 file.
+After the Task 6 author checks and final byte freeze, execute that superset once
+and record its exact five-file subset outcomes as the Task 6 gate. The full run
+also supplies Task 8 regression evidence on those same frozen bytes. Retain
+complete collection/XML/node records for both scopes; do not rerun the same
+expensive real fixtures merely to give the evidence a second directory name.
+Task 6 acceptance and its explicit commit still require the independent review
+and the matching frozen hashes before advancing to final delivery.
 
 - [ ] **Step 5: Commit.** `jj commit -m "test: verify independent port deletion and migration reuse"`
 

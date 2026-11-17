@@ -43,7 +43,7 @@
     "features/free_space_field.py": "88ec099c80b001ce4614e2bb3ad00d32124e91e9d6ef5a4f51b52dbf14ef07ea",
     "features/geometry_substitutes.py": "7480e9eb2c4176d2c75662d2734adc05e7edf77c84df5ad489b5b3ac90a26eb0",
     "features/geometry_views.py": "1ef672652fd86156fb6d4c0124990d060b9fa1e51f78597c4b614d354bf9c7cb",
-    "features/group_axis_potential_field.py": "420e312c98ee5fc5e72813ef236a693f70e329e4e7d47ee2c73701987d576f35",
+    "features/group_axis_potential_field.py": "f64835b17ce3358eed89bc3baee6f73ba961d80b12942ba42a6d93c793ee350d",
     "features/group_distance_evidence_package.py": "473233efc6a7ff942aadedd42b9c49786bd272f58a3f098ad0a6ecf2c3e311d8",
     "features/neutral_scene_views.py": "620fb5f36bbed9254912323e8305be446623369d6eb5ba8935b82f37cb8f9149",
     "features/scene_contract.py": "621a8ffc54d7639743acc3f4f3bb117358f35b67b763e010842403760b736e2d",

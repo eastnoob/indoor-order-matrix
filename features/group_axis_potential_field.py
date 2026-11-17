@@ -114,19 +114,48 @@ class DistanceModulationInput:
             raise TypeError("dependency_graph must be a mapping")
 
 
+def project_distance_geometry_registration(compatibility: Mapping[str, Any]) -> dict[str, Any]:
+    """Select authenticated geometry facts while excluding route-only query/free-space state.
+
+    Named plane coordinates match the independent Euclidean producer's registration
+    projection. Human-readable plane names and path sampling never affect centroids.
+    """
+    if not isinstance(compatibility, Mapping):
+        raise TypeError("compatibility must be a geometry registration mapping")
+    names = (
+        "schema", "axis_source_sha256", "original_source_sha256", "group_ids",
+        "axis_member_refs", "distance_member_refs", "axis_plane", "distance_plane",
+        "in_plane_origin_delta_m", "coordinate_mapping", "registration_tolerance_m",
+        "mutual_body_coverage_count", "geometry_estimands_distinct", "source_registration",
+        "distance_geometry_registration",
+    )
+    facts = {name: _json_value(compatibility[name]) for name in names if name in compatibility}
+    plane = facts.get("distance_plane")
+    if plane is not None:
+        if not isinstance(plane, Mapping):
+            raise ValueError("distance_plane must be a mapping or None")
+        facts["distance_plane"] = {name: plane[name] for name in (
+            "identity", "frame", "frame_id", "basis", "normal", "origin", "revision", "units") if name in plane}
+    return facts
+
+
 def _validate_distance_modulation(
     source_envelopes: tuple[FieldResultEnvelope, ...], modulation: DistanceModulationInput,
 ) -> tuple[EvidencePackageChannelReference, ...]:
     """Bind every declared processed pair to the current axis group and recipe facts."""
     groups = tuple(sorted(str(source.target["id"]) for source in source_envelopes))
-    facts = modulation.compatibility
+    raw = modulation.dependency.source_output
+    semantic = all(item.channel == "euclidean_distance"
+                   and item.provenance.get("schema_version") == "group-distance-semantic/v1"
+                   and "geometry_registration" in item.provenance for item in raw.outputs)
+    facts = (project_distance_geometry_registration(modulation.compatibility)
+             if semantic else modulation.compatibility)
     if tuple(sorted(facts.get("group_ids", ()))) != groups:
         raise ValueError("distance compatibility group scope differs from axis source scope")
     if facts.get("axis_source_sha256") != facts.get("original_source_sha256"):
         raise ValueError("distance compatibility must bind the original axis source")
-    if facts.get("in_plane_origin_delta_m") != (0.0, 0.0):
+    if tuple(facts.get("in_plane_origin_delta_m", ())) != (0.0, 0.0):
         raise ValueError("distance compatibility requires zero in-plane origin shift")
-    raw = modulation.dependency.source_output
     processed = modulation.dependency.source_processed_output
     expected = tuple(sorted(modulation.dependency.channels, key=lambda item: item.target_identity))
     raw_by_target = {(item.target["identity"], item.channel): item for item in raw.outputs}
@@ -165,10 +194,19 @@ def _validate_distance_modulation(
         group_ids = tuple(raw_channel.observation.get("group_ids", ())) if isinstance(raw_channel.observation, Mapping) else ()
         if len(group_ids) != 2 or any(group_id not in groups for group_id in group_ids):
             raise ValueError("distance modulation reference lacks two valid group identities")
-        if raw_channel.provenance.get("analysis_plane") != facts.get("distance_plane"):
-            raise ValueError("distance projection plane differs from compatibility binding")
-        if raw_channel.provenance.get("query_context") != facts.get("distance_query"):
-            raise ValueError("distance query differs from compatibility binding")
+        if semantic:
+            registration = raw_channel.provenance["geometry_registration"]
+            if _json_value(registration) != facts.get("distance_geometry_registration"):
+                raise ValueError("distance geometry registration differs from compatibility binding")
+            projected = project_distance_geometry_registration({
+                "distance_plane": raw_channel.provenance.get("analysis_plane")})
+            if projected["distance_plane"] != facts.get("distance_plane"):
+                raise ValueError("distance projection plane differs from compatibility binding")
+        else:
+            if raw_channel.provenance.get("analysis_plane") != facts.get("distance_plane"):
+                raise ValueError("distance projection plane differs from compatibility binding")
+            if raw_channel.provenance.get("query_context") != facts.get("distance_query"):
+                raise ValueError("distance query differs from compatibility binding")
         source = raw_sources.get(reference.target_identity)
         if source is None:
             raise ValueError("distance source envelope is missing for the referenced pair")
@@ -177,6 +215,10 @@ def _validate_distance_modulation(
             source_record = next((record for record in source.value["channels"]
                                   if isinstance(record.observation, Mapping)
                                   and "geometry_audit" in record.observation), None)
+        if semantic and (source.provenance.get("geometry_registration") != registration
+                         or source_record is None
+                         or source_record.provenance.get("geometry_registration") != registration):
+            raise ValueError("distance source registration differs from its selected channel")
         audit_map = source_record.observation.get("geometry_audit", {}) if source_record else {}
         for group_id in group_ids:
             audit = audit_map.get(group_id, {})
