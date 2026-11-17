@@ -32,6 +32,32 @@ SHA256 `adb156d30dc26116aa42def5ff427fd1bd08a2aa9d86fdea355846122e9d92e7`.
 This is joint coverage, not a second full 786-pass run. All 712 frozen files
 remained unchanged. Existing A/B formulas and v1 bytes stay fixed.
 
+### Final gate consolidation — 2026-11-17
+
+Task 5's preserved candidate `85d48527d918aac507f704015005127929963c5a`
+completed its independent three-file diagnostic: 62 exact collected/executed
+nodes, 54 passed and eight potential-field setup failures for one absent retained
+trend-envelope file. All 23 modulation and 19 distance-port nodes passed, but
+static review also found that a warm modulation hit bypassed graph admission.
+This candidate is not accepted. The missing fixture was copied byte-for-byte
+from accepted B; the source remains unchanged. The same repair wave also adds
+the omitted Shapely version to the existing path recipe.
+
+Task 6 adds seven test-only lifecycle nodes to the existing implementation.
+Its author checks scope, syntax and exact collection; the final independent
+fourteen-file execution below runs their numerical assertions once. That run
+contains the complete Task 5 three-file gate, Task 6 five-file gate and original
+Task 8 thirteen-file gate. The verifier must reconcile each scope's exact
+collection/XML node set, prohibit exclusions and compare all frozen bytes.
+No mandatory case is removed or replaced by an author/static result.
+
+Tasks 5/6 and these two review repairs share one explicit, nonempty accepted C
+completion commit after that final gate and specification/quality review. This
+joint commit replaces their separate Step 5 commands; it keeps one tested byte
+state while preserving the rejected diagnostic checkpoint. Task 8 still writes
+a separate handoff commit naming the real implementation revision. This avoids
+duplicate expensive fixture runs; a collection/subset mismatch blocks acceptance.
+
 ## Global Constraints
 
 - Apply the [shared acceptance and jj runbook](../handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议) to every PASS and commit below. Critical nodes need actual execution without skip/xfail, independent evidence and exact byte identity. Missing fixtures cannot silently reduce accepted output independence.
@@ -880,7 +906,7 @@ def test_move_port_cache_reuses_without_producers(tmp_path, monkeypatch):
     }
 ```
 
-- [ ] **Step 2: Execute the new lifecycle assertions before any registration repair.** Run the seven new Task 6 nodes first; a registration/migration defect must fail in the assertion rather than being hidden by recalculation. Existing accepted Tasks 2–5 may already provide the required registration, so a first-run PASS is valid evidence and requires no artificial production failure.
+- [ ] **Step 2: Collect the new lifecycle assertions before any registration repair.** The test-only author checks syntax, scope and all seven exact new nodes. The final independent superset executes them with producers forbidden where specified; a registration/migration defect must fail in the assertion rather than being hidden by recalculation. Existing Tasks 2–5 may already provide the required registration, so a first numerical PASS is valid evidence and requires no artificial production failure. Any demonstrated registration repair then needs its affected numerical re-verification.
 
 - [ ] **Step 3: Register true refs with B.** Put exact semantic upstream refs in each wrapper receipt and use B's package-validator dispatch for `semantic-output-receipt/v1`. Processed Euclidean depends only on its exact Euclidean raw ref; optional axis modulation depends on its pure-axis ref and processed Euclidean ref. A path receipt includes its actual free-space result ref when used. Do not add path/free-space edges to Euclidean or modulation. Use accepted B's full-source dependency scan and locks; do not rewrite signed upstream receipts to mark them orphaned.
 
@@ -898,7 +924,7 @@ pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_p
 
 Expected: PASS, including multi-version listing, exact deletion, selected-byte verification, relocation reuse, and downstream unavailability.
 
-The independent Task 8 thirteen-file command below contains every Task 6 file.
+The independent Task 8 fourteen-file command below contains every Task 5/6 file.
 After the Task 6 author checks and final byte freeze, execute that superset once
 and record its exact five-file subset outcomes as the Task 6 gate. The full run
 also supplies Task 8 regression evidence on those same frozen bytes. Retain
@@ -966,7 +992,7 @@ Use `sources/<source-fingerprint>/intermediates/<package-id>/<stage-id>/<identit
 - [ ] **Step 1: Run the focused implemented scope once.** When Tasks 2-6 proceeded, run:
 
 ```powershell
-pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_ports.py test/test_group_distance.py test/test_group_distance_evidence_package.py test/test_group_distance_processed_ifc.py test/test_free_space_distance.py test/test_group_axis_distance_modulation.py test/test_evidence_package_output.py test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_lifecycle.py test/test_cache_store.py test/test_cache_migration.py -q
+pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_ports.py test/test_group_distance.py test/test_group_distance_evidence_package.py test/test_group_distance_processed_ifc.py test/test_free_space_distance.py test/test_group_axis_distance_modulation.py test/test_group_axis_potential_field.py test/test_evidence_package_output.py test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_lifecycle.py test/test_cache_store.py test/test_cache_migration.py -q
 ```
 
 Expected: PASS under the shared protocol, including the new path-only real-value/sentinel, real excluded-input, runner adoption, independent-currentness forwarding, raw selected-warning and nonvacuous deletion nodes above. Collect and retain their exact parameterized node IDs plus outcome logs/XML. Any unavailable mandatory real artifact blocks full implemented-split acceptance. If the fresh ruling deferred the split, instead run the accepted B regression set and record `split deferred`; do not label that an accepted implementation of independent ports. Add an intermediate test file only if its separately accepted adoption plan actually created it.

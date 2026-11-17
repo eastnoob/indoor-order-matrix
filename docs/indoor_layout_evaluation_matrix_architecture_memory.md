@@ -1,5 +1,25 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Independent output ports — Plan C final acceptance pending 2026-11-17
+
+C is isolated in `parameter-cache-c-implementation` above accepted B handoff
+`1085b5be3d7602e8a43935b5596dd656e7ee567c`. The user-authorized B push is
+complete; C push, owner/main integration and cleanup remain outside this work.
+Tasks 1–4 and Task 7's design-only boundary are locally accepted. The implemented
+opt-in semantic APIs split Euclidean/path and pure-axis/modulation publications,
+bind processing to selected bytes and reuse B's storage/lifecycle/migration.
+Historical combined APIs, numerical formulas and original payloads remain intact.
+
+Continue the [C plan](superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md)
+at its coordinated review repair, seven test-only lifecycle assertions and final
+fourteen-file independent gate. Task 5's preserved `85d48527d918aac507f704015005127929963c5a`
+diagnostic had 54 passes and eight missing-fixture setup failures; its graph
+admission finding prevents acceptance despite all 23 modulation nodes passing.
+The missing retained file is now copied from byte-verified B. Path Shapely recipe
+invalidation and warm-hit graph admission must pass the final gate before Tasks
+5/6 are accepted. Intermediate runtime remains deferred; no new backend is needed.
+The ignored task ledger holds recovery details, not current feature authority.
+
 ## Model-side cache — Plan B locally verified 2026-11-16
 
 Final B implementation: `3b160264c80dbba631fbe90ab02dca48bc348e0d`, descending from
@@ -20,10 +40,11 @@ logs/settings/bound checkpoints copy without overwriting destination profiles;
 active runs and scratch remain source-local. Historical compatibility is limited
 to the reviewed original/current hashes and unchanged numerical dependencies.
 
-Next entry: C Task 1 fresh Superpowers/Grill on these actual accepted A/B
-artifacts. Semantic output splitting and reusable intermediate stages are not
-implemented by B. No push, owner integration, workspace/cache deletion, live
-Blender launch or large model geometry recomputation occurred. The accepted
+C Task 1 has completed the fresh review of these accepted A/B artifacts; current
+C execution is recorded above. B itself does not implement semantic output
+splitting or reusable intermediate stages. Accepted B was subsequently pushed by
+explicit user authorization. No owner integration, workspace/cache deletion,
+live Blender launch or large model geometry recomputation occurred. The accepted
 bookmark names the separate handoff commit, whose ID is recorded externally.
 
 ## Package parameter implementation — locally verified 2026-11-16
@@ -37,7 +58,7 @@ current context. Checkpoints now revalidate current route graph/access/
 arithmetic/exact geometry before suppressing search and retain rejected bytes.
 B must begin from the separate full accepted A handoff ID, preserving all four
 pre-A fixture families. B storage migration is now locally verified above; C
-output separation remains pending.
+output separation is implemented with final acceptance pending above.
 No push, owner integration, workspace/cache deletion or live model recomputation.
 
 

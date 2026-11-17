@@ -194,6 +194,8 @@ that missing port is recalculated. Explicit combined selection remains strict.
 `calculate_euclidean_pairs`; its explicit route-only branch skips that reading
 while retaining route/witness/uncertainty calculations. Path receipts bind the
 full native free-space address when saved samples are used.
+Its recipe binds the existing NetworkX and Shapely numerical versions; restoring
+the same recipe selects the original saved version.
 The independent path entry also requires repair policy to match the current
 bundle and owner snapshot; historical combined readers keep their old behavior.
 `adapters/free_space_distance.py::build_distance_free_space_validator` owns
@@ -227,6 +229,10 @@ queries only for the known standalone Euclidean schema; the historical
 combined consumer keeps its complete query check. The existing numerical
 modulation helper consumes the verified processed view and cached pure-axis
 outputs, preserving the support-times-proximity formula.
+Before cache lookup, the binder materializes adjacency iterables and reuses the
+core graph closure/cycle checks plus current/upstream declared-edge checks.
+It passes that normalized graph to evaluation, preserving the same admission
+on misses and hits without consuming one-shot adjacency twice.
 
 The pure `axis_potential` port selects no modulation-switch values or distance
 dependencies. Expected addresses are enumerated through existing target helpers

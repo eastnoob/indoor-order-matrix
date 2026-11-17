@@ -11,7 +11,8 @@ from .evidence_package_parameters import REQUIRED, ParameterSnapshot
 from .evidence_package_storage import processed_cache_key
 from .field_core import (
     EvidencePackage, EvidencePackageChannelReference, EvidencePackageDependency,
-    FieldResultEnvelope, _canonical_json, fingerprint_evidence_dependency,
+    FieldResultEnvelope, _canonical_json, _normalize_evidence_package_dependency_graph,
+    _validate_evidence_package_dependency_cycles, fingerprint_evidence_dependency,
 )
 from .group_distance_output_ports import project_port_parameters
 from .output_port_cache import (
@@ -43,6 +44,17 @@ def bind_port_distance_modulation(
         raise TypeError("current_raw_contract must be an OutputPortContract")
     if _canonical_json(current_raw_contract) != _canonical_json(raw_port.contract):
         raise ValueError("selected publication does not match the current raw contract")
+    # Cache hits require the same graph admission as evaluation; retain one-shot edges.
+    graph = _normalize_evidence_package_dependency_graph(dependency_graph)
+    _validate_evidence_package_dependency_cycles(graph)
+    if potential.PACKAGE_ID not in graph:
+        raise ValueError("dependency graph must contain the current package")
+    if set(graph[potential.PACKAGE_ID]) != {raw_port.raw_view.package_id}:
+        raise ValueError("current package graph edges must match declared dependencies")
+    if set(graph[raw_port.raw_view.package_id]) != {
+        item.package_id for item in raw_port.raw_view.dependencies
+    }:
+        raise ValueError("upstream graph edges must match declared dependencies")
     # Owner declarations are independent even when their selected value set is empty.
     _parameter_status(raw_port.parameter_snapshot, requested_raw_parameters,
                       raw_port.contract.parameter_projection["selected_names"])
@@ -101,7 +113,7 @@ def bind_port_distance_modulation(
         references, raw, "fresh" if saved_processed is not None else "unavailable",
         source_processed_output=processed)
     return potential.DistanceModulationInput(dependency, processed.processing_identity,
-                                              facts, dependency_graph)
+                                              facts, graph)
 
 
 def _axis_addresses(sources):

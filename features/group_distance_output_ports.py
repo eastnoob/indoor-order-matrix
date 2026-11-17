@@ -134,7 +134,8 @@ def _contract(bundle, parameters, port, *, repaired_result=None, free_space_ref=
         names = _PATH_PARAMETERS
         version = {"algorithm": kernel.CLEARANCE_ALGORITHM_VERSION if bundle.clearance_policy is not None else kernel.ALGORITHM_VERSION,
                    "edge": kernel.CLEARANCE_EDGE_SUPPORT_VERSION if bundle.clearance_policy is not None else kernel.EDGE_SUPPORT_VERSION,
-                   "arithmetic": kernel.ARITHMETIC_VERSION, "networkx": kernel.nx.__version__}
+                   "arithmetic": kernel.ARITHMETIC_VERSION, "networkx": kernel.nx.__version__,
+                   "shapely": kernel.shapely.__version__}
         if repaired_result is not None:
             owner._run_contract(bundle, repaired_result)
             pairs = {tuple(row["group_ids"]) for row in owner._result_observations(repaired_result)}

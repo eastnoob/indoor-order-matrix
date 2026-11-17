@@ -90,6 +90,29 @@ def test_policy_one_two_one_reuses_euclidean_and_restores_path(tmp_path, monkeyp
     assert restored["path_distance"].publication.ref == first["path_distance"].publication.ref
 
 
+def test_shapely_version_invalidates_path_and_restores_cached_refs(tmp_path, monkeypatch):
+    """A numerical dependency change misses; restoring it reuses the original saved bytes."""
+    store = CacheStore(tmp_path)
+    bundle = _bundle()
+    parameters = _parameters(bundle)
+    first = ports.run_group_distance_ports(bundle, store=store, parameters=parameters)
+    original_bytes = {entry.address: entry.payload_paths[0].read_bytes() for entry in store.list()}
+    version = ports.kernel.shapely.__version__
+    monkeypatch.setattr(ports.kernel.shapely, "__version__", version + "-changed")
+    changed = ports.run_group_distance_ports(bundle, store=store, parameters=parameters)
+    assert all(not result.cache_hit for result in changed.values())
+    assert changed["path_distance"].publication.ref != first["path_distance"].publication.ref
+    monkeypatch.setattr(ports.kernel.shapely, "__version__", version)
+    monkeypatch.setattr(ports, "evaluate_euclidean_port", _forbidden)
+    monkeypatch.setattr(ports, "evaluate_path_port", _forbidden)
+    restored = ports.run_group_distance_ports(bundle, store=store, parameters=parameters)
+    assert all(result.cache_hit for result in restored.values())
+    assert {port: result.publication.ref for port, result in restored.items()} == {
+        port: result.publication.ref for port, result in first.items()}
+    assert {entry.address: entry.payload_paths[0].read_bytes() for entry in store.list()
+            if entry.address in original_bytes} == original_bytes
+
+
 def test_runner_adopts_combined_entry_before_any_semantic_producer(tmp_path, monkeypatch):
     """Reopen an original B receipt before projecting either standalone view."""
     bundle = _bundle()
@@ -268,3 +291,60 @@ def test_partial_saved_repair_is_rejected_before_any_semantic_publication(tmp_pa
     with pytest.raises(ValueError, match="complete.*pair scope"):
         ports.run_group_distance_ports(bundle, store=store, parameters=_parameters(bundle), repaired_result=repair)
     assert not store.list()
+
+
+def test_delete_path_version_preserves_euclidean_and_other_path(tmp_path, monkeypatch):
+    """Exact deletion preserves neighboring complete addresses and original selected bytes."""
+    from features.output_port_cache import load_raw_port
+
+    store = CacheStore(tmp_path)
+    first_bundle, second_bundle = _bundle(), _bundle(2.0)
+    first = ports.run_group_distance_ports(first_bundle, store=store, parameters=_parameters(first_bundle))
+    second = ports.run_group_distance_ports(second_bundle, store=store, parameters=_parameters(second_bundle))
+    removed = first["path_distance"].publication.ref
+    expected = {item.publication.ref.address for item in (*first.values(), *second.values())}
+    before = {entry.address: (entry.receipt_path.read_bytes(), entry.payload_paths[0].read_bytes())
+              for entry in store.list()}
+    listed = store.list(source_fingerprint=removed.source_fingerprint, package_id=removed.package_id)
+    assert {item.address for item in listed if item.status == "complete"} == expected
+    assert len(expected) == 3
+
+    monkeypatch.setattr(ports, "evaluate_euclidean_port", _forbidden)
+    monkeypatch.setattr(ports, "evaluate_path_port", _forbidden)
+    assert store.delete_exact(removed.address) is True
+    remaining = {entry.address: entry for entry in store.list()}
+    assert set(remaining) == expected - {removed.address}
+    assert all(entry.status == "complete" for entry in remaining.values())
+    assert load_raw_port(store, first["path_distance"].publication.contract,
+                         requested_parameters=_parameters(first_bundle)) is None
+    restored = ports.run_group_distance_ports(second_bundle, store=store, parameters=_parameters(second_bundle))
+    assert all(item.cache_hit for item in restored.values())
+    assert {name: item.publication.ref for name, item in restored.items()} == {
+        name: item.publication.ref for name, item in second.items()}
+    assert {address: (entry.receipt_path.read_bytes(), entry.payload_paths[0].read_bytes())
+            for address, entry in remaining.items()} == {
+        address: content for address, content in before.items() if address != removed.address}
+
+
+def test_move_port_cache_reuses_without_producers(tmp_path, monkeypatch):
+    """The existing migration API preserves exact refs and bytes before any calculation."""
+    from features.output_port_cache import validate_port_payload
+
+    source = CacheStore(tmp_path / "old")
+    bundle = _bundle()
+    original = ports.run_group_distance_ports(bundle, store=source, parameters=_parameters(bundle))
+    before = {entry.address: (entry.receipt_path.read_bytes(), entry.payload_paths[0].read_bytes())
+              for entry in source.list()}
+    monkeypatch.setattr(ports, "evaluate_euclidean_port", _forbidden)
+    monkeypatch.setattr(ports, "evaluate_path_port", _forbidden)
+    report = source.migrate_to(tmp_path / "new", validators={"group-walk-distance:raw": validate_port_payload})
+    assert report.failed == () and set(report.copied) == set(before)
+    assert report.old_directory_retained is True
+    destination = CacheStore(tmp_path / "new")
+    moved = ports.run_group_distance_ports(bundle, store=destination, parameters=_parameters(bundle))
+    assert all(item.cache_hit and item.cache_reuse == "migrated_reuse" for item in moved.values())
+    assert {name: item.publication.ref for name, item in moved.items()} == {
+        name: item.publication.ref for name, item in original.items()}
+    for store in (source, destination):
+        assert {entry.address: (entry.receipt_path.read_bytes(), entry.payload_paths[0].read_bytes())
+                for entry in store.list()} == before

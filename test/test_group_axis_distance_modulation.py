@@ -205,7 +205,7 @@ def test_modulation_requires_current_distance_owner_before_loading(semantic_dist
 def test_semantic_modulation_preserves_all_real_values_and_reuses_pure_switch(
     actual_inputs, semantic_distance_inputs, tmp_path, monkeypatch,
 ):
-    """All 1,332 nonself products survive exact binding and switch changes reuse pure bytes."""
+    """Preserve all real products, validate graphs before reuse, and retain pure switch hits."""
     from features import group_axis_output_ports as ports
     from features.output_port_cache import selected_raw_bytes
     saved = semantic_distance_inputs
@@ -213,7 +213,31 @@ def test_semantic_modulation_preserves_all_real_values_and_reuses_pure_switch(
     kwargs = _port_kwargs(saved, store=store)
     on = potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True)
     off = potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=False)
-    first = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs)
+    graph = dict(saved["dependency_graph"])
+    upstream = saved["raw"].raw_view.package_id
+    invalid_graphs = (
+        ({**graph, upstream: (potential.PACKAGE_ID,)}, "dependency cycle"),
+        ({package: edges for package, edges in graph.items() if package != potential.PACKAGE_ID},
+         "contain the current package"),
+        ({**graph, potential.PACKAGE_ID: ()}, "current package graph edges"),
+        ({**graph, upstream: ("foreign-upstream",), "foreign-upstream": ()}, "upstream graph edges"),
+    )
+
+    def reject_invalid_graphs():
+        """Require identical graph rejection on cold and warm caches before any producer."""
+        with monkeypatch.context() as blocked:
+            blocked.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+            blocked.setattr(potential, "_distance_modulated_outputs", _forbidden)
+            for invalid, message in invalid_graphs:
+                with pytest.raises(ValueError, match=message):
+                    ports.run_group_axis_output_ports(saved["envelopes"], parameters=on,
+                        **{**kwargs, "dependency_graph": invalid})
+
+    reject_invalid_graphs()
+    # A miss must retain normalized edges for the later EvidencePackage evaluation.
+    first = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on,
+        **{**kwargs, "dependency_graph": {package: (edge for edge in edges)
+                                        for package, edges in graph.items()}})
     pure = first["axis_potential"].publication
     diagnostic = first["distance_modulated_axis_support"].publication
     old_raw = actual_inputs[2]
@@ -243,8 +267,12 @@ def test_semantic_modulation_preserves_all_real_values_and_reuses_pure_switch(
     assert (computed, self_count) == (1_332, 37)
     before = selected_raw_bytes(pure.raw_view)
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+    monkeypatch.setattr(potential, "_distance_modulated_outputs", _forbidden)
+    reject_invalid_graphs()
     disabled = ports.run_group_axis_output_ports(saved["envelopes"], store=store, parameters=off)
-    enabled = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs)
+    enabled = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on,
+        **{**kwargs, "dependency_graph": {package: (edge for edge in edges)
+                                        for package, edges in graph.items()}})
     assert set(disabled) == {"axis_potential"}
     assert disabled["axis_potential"].cache_hit and enabled["axis_potential"].cache_hit
     assert enabled["distance_modulated_axis_support"].cache_hit
@@ -412,3 +440,224 @@ def test_corrupt_axis_port_retains_bytes_and_recomputes_only_its_producer(
     again = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs)
     assert all(run.cache_hit for run in again.values())
     assert calls == {name: int(name == damaged_port) for name in calls}
+
+
+from .test_free_space_distance import actual_publication, actual_bundle, stored_distance_free_space
+
+
+def _lifecycle_bytes(store):
+    """Snapshot immutable addressed bytes while leaving advisory lifecycle state separate."""
+    return {entry.address: (entry.receipt_path.read_bytes(), entry.payload_paths[0].read_bytes())
+            for entry in store.list()}
+
+
+@pytest.fixture(scope="module")
+def lifecycle_graph(actual_inputs, semantic_distance_inputs, stored_distance_free_space, tmp_path_factory):
+    """Build one real nonempty dependency graph and preserve its independent source stores."""
+    import json
+    from features.cache_paths import CacheAddress
+    from features import group_distance as kernel, group_distance_evidence_package as distance
+    from features import group_distance_output_ports as distance_ports, group_axis_output_ports as axis_ports
+    from features.evidence_package_storage import serialize_raw_output_bytes
+    from features.output_port_cache import run_port_processor, save_raw_port, validate_port_payload
+
+    saved = semantic_distance_inputs
+    store = _copied_port_store(saved, tmp_path_factory.mktemp("lifecycle-seed"))
+    native_store, native_ref, native_validator = stored_distance_free_space
+    native = native_store.get(native_ref.address, validator=native_validator)
+    assert native is not None
+    native_payload = native.payload_paths[0].read_bytes()
+    assert len(json.loads(native_payload)["cells"]) == 24_442
+    store.put(native_ref.address, contract=native.receipt["contract"], payload=native_payload,
+              payload_format="json", validator=native_validator)
+
+    bundle = actual_inputs[0].bundle
+    usable = next(item for item in actual_inputs[2].outputs if item.channel == "path_distance"
+                  and item.observation["value"] is not None)
+    group_ids = set(usable.observation["group_ids"])
+    path_bundle = replace(bundle, groups=tuple(group for group in bundle.groups if group.group_id in group_ids),
+                          dependency_fingerprints={})
+    path_bundle = replace(path_bundle, dependency_fingerprints=kernel.group_distance_input_fingerprints(path_bundle))
+    path_parameters = distance.build_group_distance_parameter_snapshot(path_bundle)
+    path = distance_ports.evaluate_path_port(path_bundle, parameters=path_parameters, store=store,
+        free_space_ref=native_ref, free_space_validator=native_validator)
+    assert path.raw_view.outputs and any(item.observation["value"] is not None for item in path.raw_view.outputs)
+    save_raw_port(store, path)
+
+    on = potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True)
+    axis = axis_ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **_port_kwargs(saved, store=store))
+    pure, modulation = axis["axis_potential"].publication, axis["distance_modulated_axis_support"].publication
+    assert sum(item.status is FieldResultStatus.COMPUTED for item in modulation.raw_view.outputs) == 1_332
+
+    sibling_bundle = replace(bundle, groups=tuple(sorted(bundle.groups, key=lambda item: item.group_id)[:3]),
+                             dependency_fingerprints={})
+    sibling_bundle = replace(sibling_bundle, dependency_fingerprints=kernel.group_distance_input_fingerprints(sibling_bundle))
+    sibling_parameters = distance.build_group_distance_parameter_snapshot(sibling_bundle)
+    sibling = distance_ports.evaluate_euclidean_port(sibling_bundle, parameters=sibling_parameters)
+    save_raw_port(store, sibling)
+    sibling_processor = potential_processor_for_port(sibling)
+    sibling_processed = run_port_processor(sibling, distance.build_group_distance_evidence_package(
+        output_processor=sibling_processor), store=store, current_raw_contract=sibling.contract,
+        requested_raw_parameters=sibling_parameters).publication
+    assert len(sibling.raw_view.outputs) == 3 and sibling.ref != saved["raw"].ref
+
+    # Preserve the existing combined codec in the same owner family as semantic raw entries.
+    legacy_contract = potential.build_group_axis_potential_package_contract(saved["envelopes"])
+    legacy_address = CacheAddress(potential._potential_dependency_fingerprint(legacy_contract, "source"),
+        potential.PACKAGE_ID, "combined", "raw", legacy_contract["package_identity"])
+    legacy_validator = potential._potential_raw_validator(potential.build_group_axis_potential_package(), legacy_contract)
+    store.put(legacy_address, contract=legacy_contract, payload=serialize_raw_output_bytes(
+        cache_key=legacy_address.identity, contract=legacy_contract, raw_output=pure.raw_view),
+        payload_format="evidence-package-cache/v1", validator=legacy_validator)
+    potential._potential_bind_source(store, legacy_contract, model_path=None, cache_root=store.root)
+
+    processed_by_address = {item.ref.address: item for item in (saved["processed"], sibling_processed)}
+    raw_by_ref = {item.ref: item for item in (saved["raw"], sibling)}
+
+    def validate_processed(payload, context):
+        """Bind copied processed bytes to an independently known actual raw publication."""
+        expected = processed_by_address.get(context.address)
+        if expected is None:
+            raise ValueError("unknown lifecycle processed address")
+        validate_port_payload(payload, context, raw_publication=raw_by_ref[expected.raw_ref])
+
+    def validate_axis(payload, context):
+        """Dispatch only the explicit supported semantic and unchanged combined codecs."""
+        schema = json.loads(payload).get("schema")
+        if schema == "semantic-output-receipt/v1":
+            validate_port_payload(payload, context)
+        elif schema == "evidence-package-cache/v1":
+            legacy_validator(payload, context)
+        else:
+            raise ValueError("unsupported lifecycle axis schema")
+
+    validators = {"blender-analysis:raw": native_validator, "group-walk-distance:raw": validate_port_payload,
+        "group-walk-distance:processed": validate_processed, "group-axis-potential:raw": validate_axis}
+    refs = {"free_space": native_ref, "path": path.ref, "euclidean_raw": saved["raw"].ref,
+        "euclidean_processed": saved["processed"].ref, "pure_axis": pure.ref, "modulation": modulation.ref,
+        "sibling_raw": sibling.ref, "sibling_processed": sibling_processed.ref}
+    entries = {entry.address: entry for entry in store.list()}
+    assert len(entries) == 9 and all(entry.status == "complete" for entry in entries.values())
+    for entry in entries.values():
+        assert store.get(entry.address, validator=validators[f"{entry.address.package_id}:{entry.address.layer}"]) is not None
+    edges = {address: {CacheAddress(**dict(item)) for item in entry.receipt["upstream_refs"]}
+             for address, entry in entries.items()}
+    assert edges[path.ref.address] == {native_ref.address}
+    assert edges[saved["raw"].ref.address] == set()
+    assert edges[saved["processed"].ref.address] == {saved["raw"].ref.address}
+    assert edges[pure.ref.address] == set()
+    assert edges[modulation.ref.address] == {pure.ref.address, saved["processed"].ref.address}
+    return {**saved, "root": store.root, "store": store, "refs": refs, "validators": validators,
+        "axis_parameters": on, "axis": axis, "path": path, "path_parameters": path_parameters,
+        "bundle": bundle, "sibling_bundle": sibling_bundle, "sibling": sibling,
+        "sibling_parameters": sibling_parameters, "sibling_processor": sibling_processor,
+        "sibling_processed": sibling_processed, "legacy_address": legacy_address,
+        "native_store": native_store, "native_before": _lifecycle_bytes(native_store),
+        "before": _lifecycle_bytes(store)}
+
+
+@pytest.mark.parametrize("deleted", ["path", "free_space", "euclidean_raw", "euclidean_processed"])
+def test_real_dependency_deletion_preserves_only_independent_ports(lifecycle_graph, tmp_path, monkeypatch, deleted):
+    """Real exact deletion invalidates true descendants and preserves independent numeric versions."""
+    from features import field_core, group_axis_output_ports as axis_ports, group_distance_output_ports as distance_ports
+    from features.output_port_cache import load_processed_port, load_raw_port
+
+    graph = lifecycle_graph
+    store = _copied_port_store(graph, tmp_path)
+    refs = graph["refs"]
+    assert all(entry.status == "complete" for entry in store.list())
+    euclidean_versions = store.list(package_id="group-walk-distance", output_port="euclidean_distance")
+    assert {entry.address for entry in euclidean_versions} == {
+        refs[name].address for name in ("euclidean_raw", "euclidean_processed", "sibling_raw", "sibling_processed")}
+    monkeypatch.setattr(distance_ports, "evaluate_euclidean_port", _forbidden)
+    monkeypatch.setattr(distance_ports, "evaluate_path_port", _forbidden)
+    monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+    if deleted in {"path", "free_space"}:
+        monkeypatch.setattr(potential, "_distance_modulated_outputs", _forbidden)
+    monkeypatch.setattr(field_core.EvidencePackage, "process_output", _forbidden)
+    assert store.delete_exact(refs[deleted].address) is True
+
+    descendants = ({"path"} if deleted == "free_space" else
+                   {"euclidean_processed", "modulation"} if deleted == "euclidean_raw" else
+                   {"modulation"} if deleted == "euclidean_processed" else set())
+    after = {entry.address: entry for entry in store.list()}
+    assert set(after) == set(graph["before"]) - {refs[deleted].address}
+    assert {address for address, entry in after.items() if entry.status == "orphaned"} == {
+        refs[name].address for name in descendants}
+    path = load_raw_port(store, graph["path"].contract, requested_parameters=graph["path_parameters"])
+    assert (path is None) == (deleted in {"path", "free_space"})
+    if path is not None:
+        assert path.ref == refs["path"]
+    if deleted != "euclidean_raw":
+        assert load_raw_port(store, graph["contract"], requested_parameters=graph["parameters"]).ref == refs["euclidean_raw"]
+        processed = load_processed_port(store, refs["euclidean_processed"], current_raw_contract=graph["contract"],
+            requested_raw_parameters=graph["parameters"], processor=graph["processor"])
+        assert (processed is None) == (deleted == "euclidean_processed")
+    else:
+        assert load_raw_port(store, graph["contract"], requested_parameters=graph["parameters"]) is None
+        with pytest.raises(ValueError, match="current raw contract"):
+            load_processed_port(store, refs["euclidean_processed"], current_raw_contract=graph["contract"],
+                requested_raw_parameters=graph["parameters"], processor=graph["processor"])
+    sibling = load_processed_port(store, refs["sibling_processed"], current_raw_contract=graph["sibling"].contract,
+        requested_raw_parameters=graph["sibling_parameters"], processor=graph["sibling_processor"])
+    assert sibling.ref == refs["sibling_processed"]
+
+    result = axis_ports.run_group_axis_output_ports(graph["envelopes"], parameters=graph["axis_parameters"],
+        **_port_kwargs(graph, store=store))
+    assert result["axis_potential"].cache_hit
+    assert result["axis_potential"].publication.ref == refs["pure_axis"]
+    modulation = result["distance_modulated_axis_support"]
+    nonself = [item for item in modulation.publication.raw_view.outputs if item.explanation != "distance_self_not_applicable"]
+    assert len(nonself) == 1_332
+    if deleted in {"euclidean_raw", "euclidean_processed"}:
+        assert modulation.status == "unavailable" and modulation.cache_hit is False
+        assert all(item.observation is None and item.status is FieldResultStatus.NOT_AVAILABLE for item in nonself)
+        assert load_raw_port(store, graph["axis"]["distance_modulated_axis_support"].publication.contract,
+                             requested_parameters=graph["axis_parameters"]) is None
+    else:
+        assert modulation.cache_hit and modulation.publication.ref == refs["modulation"]
+        assert all(item.observation is not None and item.status is FieldResultStatus.COMPUTED for item in nonself)
+    assert _lifecycle_bytes(store) == {address: content for address, content in graph["before"].items()
+                                     if address != refs[deleted].address}
+    assert _lifecycle_bytes(graph["store"]) == graph["before"]
+    assert _lifecycle_bytes(graph["native_store"]) == graph["native_before"]
+
+
+def test_mixed_port_cache_migrates_original_owner_codecs_without_producers(lifecycle_graph, tmp_path, monkeypatch):
+    """One existing B migration retains native, legacy and semantic refs with zero producers."""
+    from features.cache_store import CacheStore
+    from features import field_core, group_axis_output_ports as axis_ports, group_distance_output_ports as distance_ports
+    from features.output_port_cache import load_raw_port
+
+    graph = lifecycle_graph
+    monkeypatch.setattr(distance_ports, "evaluate_euclidean_port", _forbidden)
+    monkeypatch.setattr(distance_ports, "evaluate_path_port", _forbidden)
+    monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
+    monkeypatch.setattr(potential, "_distance_modulated_outputs", _forbidden)
+    monkeypatch.setattr(field_core.EvidencePackage, "process_output", _forbidden)
+    report = graph["store"].migrate_to(tmp_path / "moved", validators=graph["validators"])
+    assert report.failed == () and set(report.copied) == set(graph["before"])
+    assert report.old_directory_retained and report.index_rebuilt
+    store = CacheStore(tmp_path / "moved")
+    assert all(entry.status == "complete" for entry in store.list())
+    for entry in store.list():
+        validated = store.get(entry.address, validator=graph["validators"][f"{entry.address.package_id}:{entry.address.layer}"])
+        assert validated is not None and validated.reuse_origin == "migrated"
+    assert load_raw_port(store, graph["path"].contract, requested_parameters=graph["path_parameters"]).ref == graph["refs"]["path"]
+    for bundle, parameters, processor, reference in (
+        (graph["bundle"], graph["parameters"], graph["processor"], graph["refs"]["euclidean_processed"]),
+        (graph["sibling_bundle"], graph["sibling_parameters"], graph["sibling_processor"], graph["refs"]["sibling_processed"]),
+    ):
+        moved = distance_ports.run_euclidean_processed_port(bundle, store=store, parameters=parameters, processor=processor)
+        assert moved.cache_hit and moved.cache_reuse == "migrated_reuse" and moved.publication.ref == reference
+    result = axis_ports.run_group_axis_output_ports(graph["envelopes"], parameters=graph["axis_parameters"],
+        **_port_kwargs(graph, store=store))
+    assert all(item.cache_hit and item.cache_reuse == "migrated_reuse" for item in result.values())
+    assert {name: item.publication.ref for name, item in result.items()} == {
+        name: item.publication.ref for name, item in graph["axis"].items()}
+    source_id = graph["legacy_address"].source_fingerprint
+    assert store.get_source_binding(source_id) == graph["store"].get_source_binding(source_id)
+    legacy = potential.run_group_axis_potential_package(graph["envelopes"], temporary_cache_root=store.root)
+    assert legacy["cache_hit"] and legacy["cache_reuse"] == "migrated_reuse"
+    assert _lifecycle_bytes(store) == _lifecycle_bytes(graph["store"]) == graph["before"]
+    assert _lifecycle_bytes(graph["native_store"]) == graph["native_before"]
