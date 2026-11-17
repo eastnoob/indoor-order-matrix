@@ -24,6 +24,7 @@ from features.group_axis_potential_field import (
 )
 from features.group_self_description import describe_group_relations
 from features.cache_paths import create_run_directory, run_journal
+from features.package_analysis_context import PackageAnalysisContext
 
 from .run_group_trend_alignment_field_ifc import (
     DEFAULT_IFC,
@@ -283,6 +284,7 @@ def run(source_path: Path, output_root: Path | None = None, *, group_limit: int 
         # Preserve original producer order for historical per-group audit lists.
         result = run_group_axis_potential_package(
             envelopes, model_path=model_path, temporary_cache_root=temporary_cache_root,
+            analysis_context=PackageAnalysisContext((scene.context.analysis_plane,)),
         )["raw_output"]
         after = _fingerprint(source_path)
         if before != after:

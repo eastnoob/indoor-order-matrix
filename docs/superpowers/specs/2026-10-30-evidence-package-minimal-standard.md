@@ -13,12 +13,25 @@
 | 边界 | 当前职责 |
 | --- | --- |
 | 包的 entry / builder | 准备并绑定输入、参数与算法；`run_*` 负责复用/计算和存储编排。未来 UI 对接业务入口。 |
-| `evaluate(source_envelopes, *, dependencies=(), dependency_graph=None)` | 接收准备好的来源和显式依赖，发布 `EvidencePackageOutput`。 |
-| `process_output(raw_output, *, package_freshness=...)` | 读取现有 raw，通过已配置处理器返回独立 `EvidenceProcessedOutput`。 |
+| `evaluate(source_envelopes, *, analysis_context=..., dependencies=(), dependency_graph=None)` | 接收准备好的来源、必需平面上下文和显式依赖，发布 `EvidencePackageOutput`。 |
+| `process_output(raw_output, *, analysis_context=..., package_freshness=...)` | 接收必需平面上下文，读取现有 raw，通过已配置处理器返回独立 `EvidenceProcessedOutput`。 |
 | 算法、参数、加工与存储模块 | 各自承担数值计算、参数校验/快照、加工配方和保存复用，复用已有函数与类型。 |
 
 类本体只有上述两个业务方法；包的 facade、builder、存储函数与语义出口不计入此数量。
 参数在外围入口或构建时解析/绑定；`parameters=`、`parameter_schema=` 不是 `EvidencePackage.evaluate()` 或 `EvidencePackage` 构造器的现有参数。
+
+### 分析平面输入（2026-11-17 用户确认）
+
+每次调用必须接收非空、冻结的 `PackageAnalysisContext(planes)`，包括底层
+`evaluate()` / `process_output()` 与命中缓存的入口。算法可以完全不用它；传入不会触发
+投影、网格或模型读取，也不增加 `uses_plane` 开关。坐标事实继续使用 `AnalysisPlane`。
+场景默认与包覆盖由外围设置解析，在启动时冻结；不放入公共模板的模型/缓存管理职责。
+默认单平面；多平面需包声明 `supports_multiple_planes=True` 且调用显式
+`allow_multiple_planes=True`。当前单平面算法没有因此获得多平面计算能力。
+
+省略显式上下文时，仅兼容从来源 query 中唯一、完整的平面事实推导；缺失或部分事实
+不能猜测默认坐标。旧回放脚本可显式声明其场景上下文，保留历史来源原字节。
+未使用的上下文不写进原 raw/processed JSON、数值 query 或缓存键；实际依赖与配准仍由包校验。
 
 ## 可选处理出口（2026-11-12 用户确认）
 
@@ -37,7 +50,7 @@
 ## 包内内聚与结果保留（2026-11-01 用户确认）
 
 - 包拥有解释其目标关系所需的计算与逻辑，包括适用的几何计算；不以其他证据包必须启用为前置条件。可以复用普通函数和有效缓存，不新增公共测量层或包间调度框架。
-- 旧调用继续使用 `evaluate(source_envelopes)`。需要跨包结果的包可额外声明 `dependencies=`，并通过带上下文的输出函数读取已发布渠道；旧输出函数保持兼容。这不表示允许直接传入 scene/polygon。
+- 旧调用只有在来源能唯一、完整地提供平面上下文时，继续使用 `evaluate(source_envelopes)`。其余调用显式传 `analysis_context=`。需要跨包结果的包可额外声明 `dependencies=`，并通过带上下文的输出函数读取已发布渠道；旧输出函数保持兼容。这不表示允许直接传入 scene/polygon。
 - 当前纯轴支持保留。现有 opt-in 距离调制及其他距离条件势或联合场只能追加具名结果，不能覆盖原始渠道或擅自改写原结果的含义；场景变化仍按真实依赖检查失效、重算。
 - 保留渠道不等于增加独立票数；联合输出已使用的方向、距离不能默认再各计一票。
 
@@ -131,7 +144,7 @@ requested = PARAMETERS.resolve({"min_total_m": 0.60})
 当前共享执行模板的计算函数接收不可变的 `FieldResultEnvelope` 序列。query、scope、
 分析平面和版本必须从这些 envelope 的 `FieldQuery`/provenance 及包 contract 中取得；
 不得读取未声明的全局状态、世界轴、其他包的私有对象或旧缓存。包特有的 target
-枚举与依赖声明属于包 contract。现有 `evaluate(source_envelopes)` 调用保持兼容；需要外部渠道的包才显式提供 `dependencies=`，并选择接收上下文的输出函数。
+枚举与依赖声明属于包 contract。`analysis_context` 始终必需，省略参数只适用上述完整来源兼容路径；需要外部渠道的包才显式提供 `dependencies=`，并选择接收上下文的输出函数。
 
 调用者按声明 scope 准备输入；包不被要求读入整个模型，也没有自动抓取模型子集的共享路由。外围 facade 可以接收它自己的 bundle/context，再组织共享模板需要的证据。完整保留来源指本次实际传入的来源。
 scope 可以是局部或全房间，但须保留算法必要上下文：局部路径仍需相关障碍和 domain，依赖完整 scope 的加工不得任意删减成员。

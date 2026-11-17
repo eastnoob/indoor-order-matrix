@@ -29,6 +29,7 @@ from features.field_core import (
     _validate_processed_binding,
     read_evidence_package_channel,
 )
+from features.package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
 
 
 PACKAGE_ID = "evidence-package-channel-readback"
@@ -74,6 +75,8 @@ def consume_saved_evidence_package(
     expected_processed_sha256: str | None = None,
     current_processing_identity: str | None = None,
     processed_selections: Iterable[tuple[str, str, str]] = (),
+    analysis_context: PackageAnalysisContext | None = None,
+    allow_multiple_planes: bool = False,
 ) -> EvidencePackageOutput:
     """Copy explicitly selected channels with contract-gated usable observations.
 
@@ -93,6 +96,11 @@ def consume_saved_evidence_package(
     processed observations; their identity is never inferred from saved metadata.
     """
     source = load_saved_evidence_package(path, expected_sha256=expected_sha256)
+    # Call context is required even when this faithful channel reader never uses its plane.
+    analysis_context = resolve_package_analysis_context(
+        source.source_envelopes, analysis_context=analysis_context,
+        allow_multiple_planes=allow_multiple_planes,
+    )
     if not isinstance(dependency_graph, Mapping):
         raise TypeError("dependency_graph must be an explicit complete graph mapping")
     for contract in (cached_contract, current_contract):
@@ -199,4 +207,5 @@ def consume_saved_evidence_package(
     )
     return package.evaluate(
         source.source_envelopes, dependencies=tuple(dependencies), dependency_graph=dependency_graph,
+        analysis_context=analysis_context, allow_multiple_planes=allow_multiple_planes,
     )

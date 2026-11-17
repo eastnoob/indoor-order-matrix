@@ -52,15 +52,17 @@ def test_aba_during_capture_never_publishes_current(runtime):
         runtime.prepare_publication({"freshness": "current"})
 
 
-@pytest.mark.parametrize("reason", ["load", "undo", "file switch", "unregister"])
+@pytest.mark.parametrize("reason", ["load", "undo", "redo", "file switch", "unregister"])
 def test_file_undo_unregister_invalidate_job(runtime, reason):
     """Lifecycle events detach result currentness and invalidate the old session."""
     before = runtime.STATE.runtime_session
     old = object()
     runtime.STATE.current_result = old
+    runtime.STATE.reviewed_planes.add(("project-A", "camera-A", "a" * 64, 1))
     runtime.invalidate_runtime(reason, new_session=True)
     assert runtime.STATE.runtime_session != before
     assert runtime.STATE.current_result is old
+    assert runtime.STATE.reviewed_planes == set()
     assert runtime.STATE.freshness in {"stale", "unverified"}
 
 
@@ -84,8 +86,8 @@ def test_display_change_keeps_semantic_key(runtime):
 def test_cache_request_and_publication_resources_remain_observed(runtime, monkeypatch, tmp_path):
     """Cache/request implementation drift remains a native runtime freshness failure."""
     required = {"adapters/blender_analysis_session.py", "adapters/blender_analysis_result_wire.py",
-        "features/analysis_requests.py", "blender_addon/order_analyzer_ui/runtime.py",
-        "blender_addon/order_analyzer_ui/__init__.py"}
+        "features/analysis_requests.py", "features/package_analysis_context.py", "blender_addon/order_analyzer_ui/runtime.py",
+        "blender_addon/order_analyzer_ui/__init__.py", "blender_addon/order_analyzer_ui/plane_settings.py"}
     assert required <= set(runtime.RESOURCE_PATHS)
     for relative in required:
         target = tmp_path / relative
@@ -936,7 +938,7 @@ def test_addon_register_unregister_reuses_exact_class_objects(monkeypatch):
         app=SimpleNamespace(timers=SimpleNamespace(register=lambda *args, **kwargs: None,
                                                    is_registered=lambda timer: True,
                                                    unregister=lambda timer: None),
-                            handlers=SimpleNamespace(load_post=[], undo_post=[], depsgraph_update_post=[])),
+                            handlers=SimpleNamespace(load_post=[], undo_post=[], redo_post=[], depsgraph_update_post=[])),
     )
     monkeypatch.setitem(sys.modules, "bpy", fake_bpy)
     monkeypatch.setattr(addon, "_configured_repo_root",

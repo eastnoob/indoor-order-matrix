@@ -530,6 +530,29 @@ def capture_source_fingerprint(identity, records, diagnostics, observation):
                            "diagnostics": diagnostics, "observation": observation}))
 
 
+def numeric_capture_source_fingerprint(identity, records, diagnostics, observation):
+    """Hash only evaluated physical capture facts consumed by numerical analysis.
+
+    The complete capture fingerprint remains the authentication and consent
+    identity.  Native drawing-camera rows are deliberately omitted here because
+    they are display metadata for the current numerical producers; all physical
+    rows, meshes, diagnostics, units, and external source facts remain bound.
+    """
+    steps = normalized_capture_steps({"records": records})
+    while True:
+        try:
+            next(steps)
+        except StopIteration as done:
+            normalized = done.value["records"]
+            break
+    physical = []
+    for row in normalized:
+        if row.get("ifc_class") == "IfcAnnotation" and row.get("native_camera") is not None:
+            continue
+        physical.append(row)
+    return capture_source_fingerprint(identity, physical, diagnostics, observation)
+
+
 def _bind_final_capture(job, records):
     """Accept a portable or historical source ID only after complete factual verification."""
     current = capture_source_fingerprint(job.identity, records, job.diagnostics, job.observation)

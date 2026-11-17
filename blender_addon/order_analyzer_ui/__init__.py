@@ -691,80 +691,109 @@ def _selected_storey_datum_z_m(storey_ref):
     return resolve_storey_datum(tool.Ifc.get(), storey_ref)["datum_z_m"]
 
 
-def _stored_camera_plane(scene):
-    """Read the thin persisted observation without treating it as current native truth."""
-    from adapters.blender_analysis_result_wire import validate_compositions
+def _native_plane_settings(scene):
+    """Read the native directory, adapting a legacy binding without rewriting history."""
+    from .plane_settings import NativePlaneSettings
+    return NativePlaneSettings.from_json(getattr(scene, "om_analysis_plane_settings_json", ""),
+        legacy_binding=getattr(scene, "om_analysis_plane_binding_json", ""))
+
+
+def _plane_review_token(record):
+    """Bind session review to one exact native author and observation."""
+    return (record["project_global_id"], record["camera_guid"],
+            record["observation_digest"], record["plane_revision"])
+
+
+def _stored_camera_plane(scene, *, package_id=None):
+    """Resolve persisted choices without treating their observation as current native truth."""
     from features.scene_contract import AnalysisPlane
-    encoded = getattr(scene, "om_analysis_plane_binding_json", "")
-    if not encoded:
-        raise ValueError("create or adopt a native drawing camera first")
-    record = json.loads(encoded)
-    if not isinstance(record, Mapping):
-        raise ValueError("stored drawing camera observation is invalid")
-    validate_compositions({"plane_binding": record}, {
-        "project_source_identity": {"project_global_id": record.get("project_global_id")},
-        "plane_uuid": record.get("plane_uuid"), "plane_revision": record.get("plane_revision")})
+    from adapters.blender_analysis_result_wire import plain
+    record = plain(_native_plane_settings(scene).resolve(package_id))
     plane = AnalysisPlane(name="Analysis plane", identity=record["plane_uuid"],
         revision=record["plane_revision"], origin=record["origin"], basis=record["basis"])
     return record, plane
 
 
-def _analysis_plane(scene):
-    """Require reviewed native identity and pose before constructing an analysis request."""
+def _analysis_plane_pair(scene, *, package_id=None):
+    """Verify one resolved native observation for both the request and its publication binding."""
     from adapters.bonsai_analysis_plane import camera_composition, refresh_camera_plane, resolve_camera_binding
-    record, plane = _stored_camera_plane(scene)
-    if not getattr(scene, "om_analysis_plane_reviewed", False):
+    from . import runtime
+    record, plane = _stored_camera_plane(scene, package_id=package_id)
+    if (_plane_review_token(record) not in runtime.STATE.reviewed_planes
+            or (plane.identity == _native_plane_settings(scene).default_plane_id
+                and not getattr(scene, "om_analysis_plane_reviewed", False))):
         raise ValueError("refresh the native drawing camera to review this session")
     binding = resolve_camera_binding(project_global_id=record["project_global_id"], camera_guid=record["camera_guid"])
     updated = refresh_camera_plane(plane, binding, query_kind=scene.om_analysis_query_kind,
                                    project_global_id=record["project_global_id"])
     if updated is not plane or camera_composition(binding, plane) != record:
         raise ValueError("native drawing changed; refresh the plane and confirm the Domain again")
-    return plane
+    return plane, record
 
 
-def _set_camera_plane(context, action):
-    """Handle explicit native creation, adoption or refresh while preserving result history."""
-    from adapters.bonsai_analysis_plane import (camera_composition, ensure_native_analysis_plane, plane_from_camera,
+def _analysis_plane(scene, *, package_id=None):
+    """Return the exact reviewed plane selected by this package or the scene default."""
+    return _analysis_plane_pair(scene, package_id=package_id)[0]
+
+
+def _set_camera_plane(context, action, *, plane_id=None, package_id=None):
+    """Create or select independent native authors while preserving per-author revisions."""
+    from adapters.bonsai_analysis_plane import (camera_composition, create_native_drawing, plane_from_camera,
                                               read_camera_binding, refresh_camera_plane, resolve_camera_binding)
+    from adapters.blender_analysis_result_wire import plain
+    from features.scene_contract import AnalysisPlane
     scene = context.scene
     runtime = _action_runtime(context)
     if runtime.STATE.job is not None:
         raise ValueError("finish or cancel the analysis before changing its camera")
-    if action == "refresh":
-        record, plane = _stored_camera_plane(scene)
+    settings = _native_plane_settings(scene)
+    if action in {"refresh", "default", "override"}:
+        record = plain(settings.records[plane_id] if plane_id is not None else
+                       settings.resolve(None if action == "override" else package_id))
+        plane = AnalysisPlane(name="Analysis plane", identity=record["plane_uuid"],
+            revision=record["plane_revision"], origin=record["origin"], basis=record["basis"])
         binding = resolve_camera_binding(project_global_id=record["project_global_id"], camera_guid=record["camera_guid"])
         plane = refresh_camera_plane(plane, binding, query_kind=scene.om_analysis_query_kind,
                                      project_global_id=record["project_global_id"])
     elif action in {"adopt", "new"}:
-        camera = (ensure_native_analysis_plane(elevation_m=scene.om_analysis_plane_origin_z,
+        camera = (create_native_drawing(elevation_m=scene.om_analysis_plane_origin_z, managed=True,
                     storey_ref=getattr(scene, "om_analysis_storey_ref", "") or None,
                     query_kind=scene.om_analysis_query_kind)
                   if action == "new" else context.active_object)
         binding = read_camera_binding(camera, role="geometry_author")
-        previous = _stored_camera_plane(scene) if getattr(scene, "om_analysis_plane_binding_json", "") else None
-        if (previous and previous[0]["camera_guid"] == binding.provenance["source_ifc_global_id"]
-                and previous[0]["project_global_id"] == binding.provenance["project_global_id"]):
-            plane = refresh_camera_plane(previous[1], binding, query_kind=scene.om_analysis_query_kind,
-                                         project_global_id=previous[0]["project_global_id"])
+        identity = "bonsai-camera:" + binding.camera_id
+        previous = settings.records.get(identity)
+        if previous is not None:
+            old_plane = AnalysisPlane(name="Analysis plane", identity=identity, revision=previous["plane_revision"],
+                origin=previous["origin"], basis=previous["basis"])
+            plane = refresh_camera_plane(old_plane, binding, query_kind=scene.om_analysis_query_kind,
+                                         project_global_id=previous["project_global_id"])
         else:
             plane = plane_from_camera(binding, name="Analysis plane", query_kind=scene.om_analysis_query_kind)
     else:
         raise ValueError("unsupported camera action")
-    scene.om_analysis_plane_binding_json = json.dumps(camera_composition(binding, plane), sort_keys=True)
-    scene.om_analysis_plane_uuid = plane.identity
-    scene.om_analysis_plane_revision = plane.revision
-    scene.om_analysis_plane_origin_z = plane.origin[2]
-    scene.om_analysis_plane_reviewed = True
+    observation = camera_composition(binding, plane)
+    settings = settings.with_observation(observation, make_default=action in {"new", "adopt", "default"})
+    if action == "override":
+        settings = settings.with_package_override(package_id, plane.identity if plane_id is not None else None)
+    # The old fields remain the default-plane mirror for B4, Space sketches and saved Regions.
+    default = settings.resolve()
+    scene.om_analysis_plane_settings_json = json.dumps(settings.to_dict(), sort_keys=True)
+    scene.om_analysis_plane_binding_json = json.dumps(plain(default), sort_keys=True)
+    scene.om_analysis_plane_uuid = default["plane_uuid"]
+    scene.om_analysis_plane_revision = default["plane_revision"]
+    scene.om_analysis_plane_origin_z = default["origin"][2]
+    runtime.STATE.reviewed_planes.add(_plane_review_token(observation))
+    scene.om_analysis_plane_reviewed = _plane_review_token(default) in runtime.STATE.reviewed_planes
     scene.om_analysis_selected_version_id = ""
     runtime.invalidate_domain_session("native drawing camera explicitly " + action)
 
 
-def _make_analysis_request(scene, domain, domain_geometries=()):
+def _make_analysis_request(scene, domain, domain_geometries=(), *, plane=None):
     """Build a confirmed-domain request with the selected native slab floor datum."""
     from features.analysis_requests import AnalysisRequest, GeometryQuery, GridSampling
     from features.scene_contract import AnalysisDomain
-    plane = _analysis_plane(scene)
+    plane = _analysis_plane(scene, package_id="free-space") if plane is None else plane
     kind = scene.om_analysis_query_kind
     datum = None
     if kind == "ground_to_analysis_plane_band":
@@ -1046,10 +1075,19 @@ def _draw_domain(layout, scene, runtime, context=None):
 
 def _draw_plane(layout, scene, runtime):
     """Render projection-plane setup and explicit authored IfcSpace selection."""
-    layout.operator("om_analysis.setup_plane", text="New drawing camera", icon="OUTLINER_OB_CAMERA")
-    layout.operator("om_analysis.adopt_camera", text="Use selected drawing camera")
-    layout.operator("om_analysis.refresh_camera", text="Refresh camera plane")
+    controls = layout.column()
+    controls.enabled = runtime.STATE.job is None
+    controls.prop(scene, "om_analysis_plane_origin_z", text="New plane world Z")
+    controls.operator("om_analysis.setup_plane", text="New drawing camera", icon="OUTLINER_OB_CAMERA")
+    controls.operator("om_analysis.adopt_camera", text="Use selected drawing camera")
+    controls.operator("om_analysis.refresh_camera", text="Refresh camera plane")
     try:
+        settings = _native_plane_settings(scene)
+        for identity, record in settings.records.items():
+            row = controls.row(align=True)
+            row.label(text=f"{record['camera_guid']} · Z {record['origin'][2]:g} m")
+            button = row.operator("om_analysis.select_plane", text="Default" if identity == settings.default_plane_id else "Set default")
+            button.plane_id = identity
         record, plane = _stored_camera_plane(scene)
         layout.label(text=f"Drawing: {record['camera_guid']}")
         layout.label(text=f"World Z: {plane.origin[2]:.4f} m · Revision {plane.revision}")
@@ -1077,7 +1115,17 @@ def _draw_plane(layout, scene, runtime):
 def _draw_free_space(layout, scene, runtime):
     """Render free-space controls and lifecycle without exposing implementation details."""
     try:
-        plane = _analysis_plane(scene)
+        settings = _native_plane_settings(scene)
+        choices = layout.column()
+        choices.enabled = runtime.STATE.job is None
+        button = choices.operator("om_analysis.select_plane", text="Follow scene default")
+        button.package_id = "free-space"
+        for identity, record in settings.records.items():
+            button = choices.operator("om_analysis.select_plane", text=f"Use {record['camera_guid']}")
+            button.plane_id, button.package_id = identity, "free-space"
+        mode = "Specified" if "free-space" in settings.package_overrides else "Following scene"
+        layout.label(text=mode)
+        plane = _analysis_plane(scene, package_id="free-space")
         layout.label(text=f"Plane: {plane.name}; revision {plane.revision}; Z {plane.origin[2]:g} m")
     except ValueError as exc:
         layout.label(text=str(exc), icon="ERROR")
@@ -1097,7 +1145,8 @@ def _draw_free_space(layout, scene, runtime):
                           if item.get("version_id") == getattr(scene, "om_analysis_selected_version_id", "")), None)
         if candidate is not None:
             try:
-                coverage = _grid_coverage(scene, candidate, domain.get("domain_geometries", ()), plane=_analysis_plane(scene))
+                coverage = _grid_coverage(scene, candidate, domain.get("domain_geometries", ()),
+                                          plane=_analysis_plane(scene, package_id="free-space"))
             except ValueError as exc:
                 layout.label(text=str(exc), icon="ERROR")
             else:
@@ -1725,6 +1774,24 @@ def _operator_classes(bpy):
                 return {"CANCELLED"}
             return {"FINISHED"}
 
+    class SelectPlane(bpy.types.Operator):
+        """Set the shared default or one package override after native review."""
+        bl_idname = "om_analysis.select_plane"
+        bl_label = "Select analysis plane"
+        plane_id: bpy.props.StringProperty(default="")
+        package_id: bpy.props.StringProperty(default="")
+        bl_options = {"REGISTER", "UNDO"}
+
+        def execute(self, context):
+            """Resolve a saved identity explicitly without altering native camera geometry."""
+            try:
+                _set_camera_plane(context, "override" if self.package_id else "default",
+                                  plane_id=self.plane_id or None, package_id=self.package_id or None)
+            except Exception as error:
+                self.report({"ERROR"}, str(error)[:240])
+                return {"CANCELLED"}
+            return {"FINISHED"}
+
     class CaptureRegion(bpy.types.Operator):
         """Persist the explicitly confirmed current Domain candidate as a region row."""
         bl_idname = "om_analysis.region_capture"
@@ -1911,13 +1978,14 @@ def _operator_classes(bpy):
             try:
                 _require_current_selected_wall_context(
                     context.scene, getattr(runtime.STATE, "domain_context", None))
+                plane, plane_binding = _analysis_plane_pair(context.scene, package_id="free-space")
                 request = _make_analysis_request(context.scene, domain["analysis_domain"],
-                                                 domain.get("domain_geometries", ()))
+                                                 domain.get("domain_geometries", ()), plane=plane)
                 bindings = _request_binding_payload(domain)
                 runtime.start_job(repo_root=_configured_repo_root(context), bpy_context=context, auto_publish=True, **_job_locator(bpy, runtime),
                                   payload={"kind": "free_space_run", "request": request.to_dict(),
                                            "domain_geometries": domain["domain_geometries"],
-                                           "job_binding": {"plane_binding": _stored_camera_plane(context.scene)[0]},
+                                           "job_binding": {"plane_binding": plane_binding},
                                            **bindings})
             except Exception as exc:
                 self.report({"ERROR"}, str(exc)[:240])
@@ -2034,7 +2102,7 @@ def _operator_classes(bpy):
                 return {"CANCELLED"}
             return {"FINISHED"}
 
-    return (Refresh, AnalyzeSpaces, AnalyzeSelectedWalls, Select, CandidateEye, Confirm, UseSelectedIfcSpace, CreateSpace, CreateSpaceFromCandidate, SelectDatumSlab, SelectStorey, SelectSupport, SetupPlane, AdoptCamera, RefreshCamera, CaptureRegion, RegionSelect,
+    return (Refresh, AnalyzeSpaces, AnalyzeSelectedWalls, Select, CandidateEye, Confirm, UseSelectedIfcSpace, CreateSpace, CreateSpaceFromCandidate, SelectDatumSlab, SelectStorey, SelectSupport, SetupPlane, AdoptCamera, RefreshCamera, SelectPlane, CaptureRegion, RegionSelect,
             RegionRecheck, RegionRemove, Start, ReassignPlane, Cancel, Inspect, BoardSelectResult, SaveCopy)
 
 
@@ -2072,6 +2140,7 @@ def register() -> None:
     bpy.types.Scene.om_b4_tolerance_mm2 = bpy.props.FloatProperty(default=10.0, min=0.0, update=_analysis_input_update)
     bpy.types.Scene.om_analysis_plane_uuid = bpy.props.StringProperty(default="", update=_analysis_input_update)
     bpy.types.Scene.om_analysis_plane_binding_json = bpy.props.StringProperty(default="")
+    bpy.types.Scene.om_analysis_plane_settings_json = bpy.props.StringProperty(default="")
     bpy.types.Scene.om_analysis_plane_reviewed = bpy.props.BoolProperty(default=False, options={"SKIP_SAVE"})
     bpy.types.Scene.om_analysis_query_kind = bpy.props.EnumProperty(items=[
         ("whole_height_projection", "Whole height", ""),
@@ -2155,6 +2224,16 @@ def register() -> None:
         except ValueError:
             pass
 
+    def invalidate_redo(*_):
+        """Recheck restored choices and native observations after a redo."""
+        try:
+            runtime = _runtime()
+            bpy.context.scene.om_analysis_plane_reviewed = False
+            runtime.invalidate_domain_session("redo")
+            runtime.invalidate_runtime("redo", new_session=True)
+        except ValueError:
+            pass
+
     def invalidate_scene(*_):
         """Invalidate runtime state after a native scene change."""
         try:
@@ -2188,6 +2267,7 @@ def register() -> None:
 
     for collection, handler in ((bpy.app.handlers.load_post, _persistent(invalidate_load)),
                                 (bpy.app.handlers.undo_post, _persistent(invalidate_undo)),
+                                (bpy.app.handlers.redo_post, _persistent(invalidate_redo)),
                                 (bpy.app.handlers.depsgraph_update_post, _persistent(invalidate_scene))):
         collection.append(handler)
         _HANDLERS.append((collection, handler))
@@ -2229,7 +2309,7 @@ def unregister() -> None:
     for name in ("om_analysis_domain_expanded", "om_analysis_regions_expanded", "om_analysis_free_space_expanded", "om_b4_tolerance_mm2",
                  "om_analysis_plane_uuid", "om_analysis_query_kind", "om_analysis_grid_spacing",
                  "om_analysis_plane_origin_z", "om_analysis_plane_revision", "om_analysis_plane_uuids",
-                 "om_analysis_plane_binding_json", "om_analysis_plane_reviewed",
+                 "om_analysis_plane_binding_json", "om_analysis_plane_settings_json", "om_analysis_plane_reviewed",
                  "om_analysis_grid_rows", "om_analysis_grid_columns",
                  "om_analysis_selected_version_id", "om_analysis_selected_wall_refs_json", "om_analysis_space_source_id", "om_analysis_storey_ref", "om_analysis_support_source_id",
                  "om_analysis_datum_mode", "om_analysis_datum_slab_ref", "om_analysis_b4_cut_offset",

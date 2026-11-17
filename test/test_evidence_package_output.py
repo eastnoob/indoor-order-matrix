@@ -29,6 +29,16 @@ from features.field_core import (
     serialize_evidence_package_output,
     validate_evidence_package_dependency_graph,
 )
+from features.package_analysis_context import PackageAnalysisContext
+from features.scene_contract import AnalysisPlane
+
+
+def _package_context() -> PackageAnalysisContext:
+    """Supply a non-spatial sentinel plane without changing pinned envelope bytes."""
+    return PackageAnalysisContext((AnalysisPlane(
+        name="test-plane", identity="plane:test", origin=(0.0, 0.0, 0.0),
+        basis=((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)),
+    ),))
 
 
 def _source_envelope(*, source_fingerprint: str = "source-1") -> FieldResultEnvelope:
@@ -143,7 +153,7 @@ def test_package_template_requires_callable_and_validates_output_shape() -> None
         output_function=_package_output_function,
     )
 
-    output = package.evaluate((evidence,))
+    output = package.evaluate((evidence,), analysis_context=_package_context())
     assert output.output_function == "contract-output"
     assert output.source_envelopes == (evidence,)
     assert output.source_envelopes[0].channel_set == ("source_a", "source_b")
@@ -163,7 +173,7 @@ def test_package_template_requires_callable_and_validates_output_shape() -> None
             output_function_id="contract-output",
             output_function_version="1",
             output_function=lambda _sources: None,
-        ).evaluate((evidence,))
+        ).evaluate((evidence,), analysis_context=_package_context())
 
     with pytest.raises(ValueError, match="EvidenceOutputChannel"):
         EvidencePackage(
@@ -171,7 +181,7 @@ def test_package_template_requires_callable_and_validates_output_shape() -> None
             output_function_id="contract-output",
             output_function_version="1",
             output_function=lambda _sources: (object(),),
-        ).evaluate((evidence,))
+        ).evaluate((evidence,), analysis_context=_package_context())
 
 
 def test_package_template_rejects_function_output_that_breaks_lineage() -> None:
@@ -198,7 +208,7 @@ def test_package_template_rejects_function_output_that_breaks_lineage() -> None:
         output_function=malformed_output,
     )
     with pytest.raises(ValueError, match="lineage"):
-        package.evaluate((evidence,))
+        package.evaluate((evidence,), analysis_context=_package_context())
 
 
 def test_output_keeps_every_source_channel_and_serializes_the_additive_result() -> None:
@@ -413,7 +423,7 @@ def test_package_evaluate_accepts_keyword_only_dependencies() -> None:
         )
 
     package = EvidencePackage("contract-package", "contract-output", "1", produce)
-    result = package.evaluate((evidence,), dependencies=(dependency,))
+    result = package.evaluate((evidence,), dependencies=(dependency,), analysis_context=_package_context())
     assert result.dependencies == (dependency,)
 
 
@@ -471,10 +481,10 @@ def test_context_consumer_reads_fresh_channel_and_gates_stale_channel() -> None:
         )
 
     package = EvidencePackage("consumer", "consumer-output", "1", None, consume)
-    result = package.evaluate((evidence,), dependencies=(fresh_dependency,))
+    result = package.evaluate((evidence,), dependencies=(fresh_dependency,), analysis_context=_package_context())
     assert seen[0].resolved_dependencies[0].channel.observation == {"score": 7}
     assert seen[0].resolved_dependencies[0].effective_status is FieldResultStatus.PARTIAL
-    stale = package.evaluate((evidence,), dependencies=(stale_dependency,))
+    stale = package.evaluate((evidence,), dependencies=(stale_dependency,), analysis_context=_package_context())
     assert seen[1].resolved_dependencies[0].channel is None
     assert seen[1].resolved_dependencies[0].audit_channel.observation is None
     assert seen[1].resolved_dependencies[0].channel_status is FieldResultStatus.PARTIAL
@@ -486,7 +496,7 @@ def test_context_consumer_reads_fresh_channel_and_gates_stale_channel() -> None:
     unavailable_dependency = EvidencePackageDependency(
         "upstream", upstream.output_identity, (reference,), package_freshness="unavailable"
     )
-    package.evaluate((evidence,), dependencies=(unavailable_dependency,))
+    package.evaluate((evidence,), dependencies=(unavailable_dependency,), analysis_context=_package_context())
     assert seen[2].resolved_dependencies[0].effective_status is FieldResultStatus.NOT_AVAILABLE
 
 
@@ -666,6 +676,7 @@ def test_evaluate_validates_explicit_dependency_graph_before_callback() -> None:
         package.evaluate(
             (evidence,),
             dependency_graph={" a ": (" b ",), "b": ("a",)},
+            analysis_context=_package_context(),
         )
     assert called is False
 
@@ -888,7 +899,7 @@ def test_evaluate_rejects_incomplete_or_inconsistent_graph_before_callback(graph
 
     package = EvidencePackage("consumer", "consumer-output", "1", produce)
     with pytest.raises(ValueError, match=match):
-        package.evaluate((evidence,), dependencies=(dependency,), dependency_graph=graph)
+        package.evaluate((evidence,), dependencies=(dependency,), dependency_graph=graph, analysis_context=_package_context())
     assert called is False
 
 
@@ -902,7 +913,7 @@ def test_evaluate_normalizes_complete_graph_once_and_accepts_matching_edges() ->
 
     result = package.evaluate((evidence,), dependencies=(dependency,), dependency_graph={
         " consumer ": iter((" upstream ",)), " upstream ": iter(()),
-    })
+    }, analysis_context=_package_context())
 
     assert result.package_id == "consumer"
     assert result.dependencies[0].package_id == "upstream"

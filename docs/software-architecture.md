@@ -1,5 +1,38 @@
 # 软件架构
 
+## Analysis-plane call context — locally verified 2026-11-17
+
+The [shared-context design](superpowers/specs/2026-11-17-analysis-plane-shared-context-design.md)
+adds a pure frozen `PackageAnalysisContext` containing ordered `AnalysisPlane`
+values. It is required at the `EvidencePackage.evaluate()` and
+`process_output()` boundary, with a narrow compatibility resolver for one
+complete source query plane. `EvidencePackageInput` carries it to context
+callbacks; algorithms may ignore it without preparing a model view or grid.
+
+`AnalysisPlaneCatalog` resolves scene defaults and package overrides.
+`blender_addon/order_analyzer_ui/plane_settings.py` persists native authors and
+their separate observation revisions. Start freezes the plane and binding
+together; load/undo/redo invalidate session review and active jobs lock selection.
+Native New creates a distinct drawing, while explicit GUID ensure updates or
+restores that author. Existing singular `AnalysisContext`/`AnalysisRequest` and
+package-owned numerical/cache boundaries remain intact.
+
+The selected-but-unused context is not added to old query or wire identities.
+Capture/session adapters preserve full authentication and current support
+consent before projecting verified physical facts into numerical cache identity.
+Unused native-camera edits can reuse results after necessary reconfirmation;
+external dependencies, including saved IFC SHA, remain exact dependencies.
+Changed saved IFC bytes conservatively miss because no camera-private IFC
+dependency proof is implemented. Historical cache adoption retains its complete
+old key and exact reviewed compatibility hashes.
+
+The [verification record](project/evidence/analysis-plane-shared-context-verification-2026-11-17.md)
+records independent tests, specification/quality reviews and a successful
+portable-Blender native lifecycle check against an unchanged real IFC copy.
+Live UI interaction, `.blend` restart and full physical geometry recomputation
+were not checked. The [implementation plan](superpowers/plans/2026-11-17-analysis-plane-shared-context.md)
+records scope and verification; no delivery commit or push is claimed.
+
 ## Model-side cache — Plan B locally verified 2026-11-16
 
 Distance, potential, free-space and Blender worker entries now select the

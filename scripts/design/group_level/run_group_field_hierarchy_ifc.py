@@ -12,6 +12,8 @@ from urllib.parse import quote
 from features.field_core import evaluate_evidence_package_freshness, serialize_evidence_package_output
 from features.group_axis_potential_field import run_group_axis_potential_package
 from features.cache_paths import SidecarLocator, create_run_directory, run_journal
+from features.package_analysis_context import PackageAnalysisContext
+from features.scene_contract import AnalysisPlane
 from scripts.design.group_level.run_group_axis_potential_ifc import (
     _aggregate_svg,
     _artifacts_readable,
@@ -189,10 +191,13 @@ def run(retained_run: Path, output_root: Path | None = None, *, model_path: Path
             raise RuntimeError("retained envelope schema is not the verified IFC trend schema")
         envelopes = tuple(_load_envelope(item) for item in envelope_payload["envelopes"])
         namespace = f"ifc-project:{source_manifest['project_global_id']}"
+        # Use the retained scenario default without relabelling its immutable source queries.
+        analysis_context = PackageAnalysisContext((AnalysisPlane.from_dict(source_manifest["analysis_plane"]),))
         # Preserve original producer order for historical per-group audit lists.
         result = run_group_axis_potential_package(
             envelopes, scene_namespace=namespace, model_path=model_path,
             temporary_cache_root=temporary_cache_root,
+            analysis_context=analysis_context,
         )["raw_output"]
         description = _read(retained_run / "description.json")
         original_output = _read(retained_run / "axis_potential_output.json")

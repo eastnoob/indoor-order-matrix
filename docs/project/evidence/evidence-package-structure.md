@@ -31,6 +31,24 @@ no automatic whole-model/subset input router.
 Composition is the current design. This responsibility map is not a full
 repository coupling/quality audit and does not call for an OOP rewrite.
 
+### Required analysis-plane call context — 2026-11-17
+
+Every evaluation and processing call receives a nonempty frozen
+`PackageAnalysisContext` from `features/package_analysis_context.py`. Algorithms
+may ignore it; passing a context does not project geometry, extract a model or
+construct a grid. `AnalysisPlane` remains a coordinate fact. The shared template
+validates selection while package-owned guards retain actual geometric dependencies.
+
+Scene settings own an `AnalysisPlaneCatalog` default and package overrides;
+native UI settings persist author observations and freeze one selection at Start.
+By default a package accepts one plane. Multiple planes require both
+`supports_multiple_planes=True` and `allow_multiple_planes=True` for that call.
+An omitted context can be derived only from one complete source query plane;
+partial or absent historical plane facts require an explicit scenario context.
+`EvidencePackageInput.analysis_context` makes that context available to context
+callbacks without changing legacy callback signatures or raw/processed v1 bytes.
+Unused context is not a new numerical input or cache dependency.
+
 ### Parameters and the `exposed` convention
 
 Reuse `features/evidence_package_parameters.py`: `ParameterSpec` declares name,

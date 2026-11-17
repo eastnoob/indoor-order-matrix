@@ -25,12 +25,13 @@ from features.free_space_evidence_package import build_free_space_evidence_packa
 from features.group_axis_potential_field import build_group_axis_potential_package
 from features.group_distance_evidence_package import build_group_distance_evidence_package
 from .test_evidence_package_output import _package_output_function, _source_envelope
+from .test_evidence_package_output import _package_context
 
 
 def _raw() -> EvidencePackageOutput:
     """Build the existing contract publication without retained spatial fixtures."""
     return EvidencePackage("contract-package", "contract-output", "1", _package_output_function).evaluate(
-        (_source_envelope(),)
+        (_source_envelope(),), analysis_context=_package_context()
     )
 
 
@@ -54,6 +55,11 @@ def _process(raw: EvidencePackageOutput, parameters: Mapping[str, Any]) -> tuple
     return (_channel(raw, observation=parameters.get("value", 0.25)),)
 
 
+def _processed(package: EvidencePackage, raw: EvidencePackageOutput, **kwargs: Any):
+    """Call the processor with the explicit non-spatial package context."""
+    return package.process_output(raw, analysis_context=_package_context(), **kwargs)
+
+
 def _package(processor: Any = None) -> EvidencePackage:
     """Keep the historical producer fixed while varying only optional processing."""
     return EvidencePackage(
@@ -66,9 +72,9 @@ def _package(processor: Any = None) -> EvidencePackage:
 def test_unconfigured_processing_is_explicit_and_has_no_raw_fallback(freshness: str) -> None:
     """A package without a processor must expose no processed observations."""
     package = EvidencePackage("contract-package", "contract-output", "1", _package_output_function)
-    raw = package.evaluate((_source_envelope(),))
+    raw = package.evaluate((_source_envelope(),), analysis_context=_package_context())
 
-    result = package.process_output(raw, package_freshness=freshness)
+    result = package.process_output(raw, package_freshness=freshness, analysis_context=_package_context())
 
     assert result.error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED"
     assert result.outputs == ()
@@ -96,9 +102,9 @@ def test_processing_reads_exact_raw_once_without_repeating_the_producer() -> Non
 
     processor = core.EvidenceOutputProcessor("test-process", "1", process, {"value": 0.75})
     package = EvidencePackage("contract-package", "contract-output", "1", produce, output_processor=processor)
-    raw = package.evaluate((_source_envelope(),))
+    raw = package.evaluate((_source_envelope(),), analysis_context=_package_context())
     before = serialize_evidence_package_output(raw)
-    result = package.process_output(raw, package_freshness="fresh")
+    result = _processed(package, raw, package_freshness="fresh")
 
     assert isinstance(result, core.EvidenceProcessedOutput)
     assert result.error_code is None
@@ -125,7 +131,7 @@ def test_unconfirmed_source_skips_processing(freshness: str | None) -> None:
 
     package = _package(core.EvidenceOutputProcessor("test-process", "1", process))
     arguments = {} if freshness is None else {"package_freshness": freshness}
-    result = package.process_output(_raw(), **arguments)
+    result = package.process_output(_raw(), analysis_context=_package_context(), **arguments)
 
     assert result.error_code == "OUTPUT_SOURCE_NOT_FRESH"
     assert result.outputs == () and result.explanation
@@ -154,7 +160,7 @@ def test_invalid_processing_arguments_raise_before_callback(change: str) -> None
     package = _package(core.EvidenceOutputProcessor("test-process", "1", process))
 
     with pytest.raises((TypeError, ValueError)):
-        package.process_output(raw, package_freshness="unknown" if change == "freshness" else "fresh")
+        _processed(package, raw, package_freshness="unknown" if change == "freshness" else "fresh")
     assert calls == []
 
 
@@ -206,7 +212,7 @@ def test_callback_failure_and_invalid_channels_have_no_raw_fallback(kind: str) -
 
         return broken_generator()
 
-    result = _package(core.EvidenceOutputProcessor("test-process", "1", process)).process_output(
+    result = _processed(_package(core.EvidenceOutputProcessor("test-process", "1", process)),
         _raw(), package_freshness="fresh"
     )
 
@@ -243,7 +249,7 @@ def test_processing_preserves_missing_and_partial_source_limits(
         return (_channel(source, observation=output_value, status=output_status,
                          explanation="processing status reason"),)
 
-    result = _package(core.EvidenceOutputProcessor("test-process", "1", process)).process_output(
+    result = _processed(_package(core.EvidenceOutputProcessor("test-process", "1", process)),
         raw, package_freshness="fresh"
     )
 
@@ -259,7 +265,7 @@ def test_declared_scalar_ranges_allow_units_outside_the_unit_interval() -> None:
             "distance", units="m", value_range=(0, 100), endpoint_meanings=("origin", "limit")
         )),)
 
-    result = _package(core.EvidenceOutputProcessor("distance", "1", process)).process_output(
+    result = _processed(_package(core.EvidenceOutputProcessor("distance", "1", process)),
         _raw(), package_freshness="fresh"
     )
 
@@ -273,8 +279,8 @@ def test_packages_can_choose_different_callbacks_for_the_same_raw_publication() 
         return (_channel(raw, channel="alternative", observation=0.9),)
 
     raw = _raw()
-    first = _package(core.EvidenceOutputProcessor("first", "1", _process)).process_output(raw, package_freshness="fresh")
-    second = _package(core.EvidenceOutputProcessor("second", "1", alternative)).process_output(raw, package_freshness="fresh")
+    first = _processed(_package(core.EvidenceOutputProcessor("first", "1", _process)), raw, package_freshness="fresh")
+    second = _processed(_package(core.EvidenceOutputProcessor("second", "1", alternative)), raw, package_freshness="fresh")
 
     assert (first.outputs[0].channel, first.outputs[0].observation) == ("processed", 0.25)
     assert (second.outputs[0].channel, second.outputs[0].observation) == ("alternative", 0.9)
@@ -295,7 +301,7 @@ def test_processing_resolves_same_channel_name_at_distinct_raw_targets() -> None
                                                     "target-2", source.outputs[0].channel)
         return (_channel(source, derived_from=(reference,)),)
 
-    result = _package(core.EvidenceOutputProcessor("test-process", "1", process)).process_output(
+    result = _processed(_package(core.EvidenceOutputProcessor("test-process", "1", process)),
         raw, package_freshness="fresh"
     )
 
@@ -317,18 +323,19 @@ def test_processor_parameters_are_frozen_and_recipe_changes_processing_identity_
     assert processor.parameters["details"]["items"] == (1, 2)
     assert processor.function_id == "test-process" and processor.version == "1"
     raw = _raw()
-    result = _package(processor).process_output(raw, package_freshness="fresh")
+    result = _processed(_package(processor), raw, package_freshness="fresh")
     variants = (
         replace(processor, function_id="other-process"),
         replace(processor, version="2"),
         replace(processor, parameters={"value": 0.75}),
     )
-    results = [result] + [_package(item).process_output(raw, package_freshness="fresh") for item in variants]
+    results = [result] + [_processed(_package(item), raw, package_freshness="fresh") for item in variants]
 
     assert len({item.processing_identity for item in results}) == 4
     assert result.parameters is processor.parameters or result.parameters == processor.parameters
     assert {item.raw_output_identity for item in results} == {raw.output_identity}
-    assert serialize_evidence_package_output(_package(processor).evaluate(raw.source_envelopes)) == serialize_evidence_package_output(raw)
+    assert serialize_evidence_package_output(_package(processor).evaluate(
+        raw.source_envelopes, analysis_context=_package_context())) == serialize_evidence_package_output(raw)
     assert result.outputs[0].observation == 0.5
 
 
@@ -344,8 +351,8 @@ def test_typed_processor_sources_identity_and_roundtrip() -> None:
         "typed-process", "1", _process, {"value": 0.25},
         parameter_schema=schema, parameter_sources={"value": "cli"})
     raw = _raw()
-    first = _package(first_processor).process_output(raw, package_freshness="fresh")
-    cli = _package(cli_processor).process_output(raw, package_freshness="fresh")
+    first = _processed(_package(first_processor), raw, package_freshness="fresh")
+    cli = _processed(_package(cli_processor), raw, package_freshness="fresh")
     assert first.processing_identity == cli.processing_identity
     assert first.parameter_snapshot.parameter_sources != cli.parameter_snapshot.parameter_sources
     saved = core.serialize_evidence_processed_output(cli)
@@ -365,7 +372,7 @@ def test_processed_cache_key_matches_identity_without_invoking_callback() -> Non
 
     raw = _raw()
     processor = core.EvidenceOutputProcessor("typed-process", "1", forbidden, {"value": 0.25})
-    result = _package(processor).process_output(raw, package_freshness="stale")
+    result = _processed(_package(processor), raw, package_freshness="stale")
     assert processed_cache_key(raw, processor) == result.processing_identity
 
 
@@ -375,7 +382,7 @@ def test_processing_identity_binds_full_raw_readings_and_audit_content() -> None
     processor = core.EvidenceOutputProcessor("test-process", "1", _process)
     revised = replace(raw, outputs=(replace(raw.outputs[0], observation={"derived": "changed"}),))
     audited = replace(raw, outputs=(replace(raw.outputs[0], provenance={"audit": "changed"}),))
-    results = [_package(processor).process_output(item, package_freshness="fresh") for item in (raw, revised, audited)]
+    results = [_processed(_package(processor), item, package_freshness="fresh") for item in (raw, revised, audited)]
 
     assert len({item.raw_output_identity for item in results}) == 1
     assert len({item.raw_payload_fingerprint for item in results}) == 3
@@ -407,7 +414,7 @@ def test_legacy_context_callback_and_positional_construction_remain_compatible()
         return _package_output_function(context.source_envelopes)
 
     package = EvidencePackage("contract-package", "contract-output", "1", None, context_output)
-    assert serialize_evidence_package_output(package.evaluate((_source_envelope(),))) == serialize_evidence_package_output(_raw())
+    assert serialize_evidence_package_output(package.evaluate((_source_envelope(),), analysis_context=_package_context())) == serialize_evidence_package_output(_raw())
     with pytest.raises(TypeError):
         EvidencePackage("contract-package", "contract-output", "1", None, context_output, None)
     with pytest.raises(TypeError):
@@ -428,8 +435,8 @@ def test_factories_forward_optional_configuration_and_default_to_disabled(factor
     raw = replace(_raw(), package_id=default.package_id, output_function=default.output_function_id,
                   output_function_version=default.output_function_version)
 
-    assert default.process_output(raw, package_freshness="fresh").error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED"
-    result = configured.process_output(raw, package_freshness="fresh")
+    assert _processed(default, raw, package_freshness="fresh").error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED"
+    result = _processed(configured, raw, package_freshness="fresh")
     assert result.error_code is None and result.outputs[0].observation == 0.25
     assert configured.output_processor is processor
     assert default.output_function_id == configured.output_function_id

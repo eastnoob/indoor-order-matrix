@@ -28,6 +28,7 @@ from .field_core import (
     evaluate_evidence_package_freshness,
     fingerprint_evidence_dependency,
 )
+from .package_analysis_context import resolve_package_analysis_context
 from .evidence_package_parameters import ParameterSchema, ParameterSnapshot, ParameterSpec
 from .evidence_package_storage import (
     adopt_legacy_store_payload,
@@ -1208,9 +1209,13 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
                                      temporary_cache_root: Path | None = None,
                                      output_processor=None,
                                      distance_modulation: DistanceModulationInput | None = None,
-                                     parameter_sources: Mapping[str, str] | None = None):
+                                     parameter_sources: Mapping[str, str] | None = None,
+                                     analysis_context=None, allow_multiple_planes=False):
     """Own potential calculation reuse and its separately configured processed publication."""
     sources = tuple(source_envelopes)
+    # Validate the required package context before cache reads can bypass the producer.
+    analysis_context = resolve_package_analysis_context(sources, analysis_context=analysis_context,
+                                                       allow_multiple_planes=allow_multiple_planes)
     package = build_group_axis_potential_package(
         scene_namespace=scene_namespace, output_processor=output_processor,
         distance_modulation=distance_modulation,
@@ -1303,7 +1308,8 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
             store_reuse_origin = entry.reuse_origin
         hit = lookup is not None
         if raw is None:
-            raw = package.evaluate(sources, dependencies=dependencies, dependency_graph=graph)
+            raw = package.evaluate(sources, dependencies=dependencies, dependency_graph=graph,
+                                   analysis_context=analysis_context)
             if path is not None:
                 payload = serialize_raw_output_bytes(
                     cache_key=cache_key, contract=contract, raw_output=raw,
@@ -1396,7 +1402,8 @@ def run_group_axis_potential_package(source_envelopes, *, scene_namespace=None,
             )
     processed = None if processed_lookup is None else processed_lookup.processed_output
     if processed_lookup is None:
-        processed = package.process_output(raw, package_freshness="fresh")
+        processed = package.process_output(raw, package_freshness="fresh",
+                                           analysis_context=analysis_context)
         if processed_path is not None:
             payload = serialize_processed_output_bytes(processed)
             if payload is not None and store is not None:

@@ -22,7 +22,8 @@ from .blender_analysis_result_wire import (ResultRef, ResultMetadata, ResultRead
 
 from .blender_analysis_capture import digest, freeze, plain
 from .bonsai_live import (authored_space_domain, structural_b4_view, validate_support_binding,
-                          source_capture_fingerprint, validate_legacy_applicability, geometry_digest)
+                          source_capture_fingerprint, numeric_source_facts,
+                          validate_legacy_applicability, geometry_digest)
 try:
     from ..features.cache_paths import CacheAddress, SidecarLocator, SourceBinding
     from ..features.cache_store import CacheStore
@@ -602,27 +603,53 @@ CONTENT_IMPLEMENTATIONS = ("adapters/blender_analysis_session.py", "adapters/ble
 
 
 def _content_cache_key(scene, request, binding, support_binding, *, versions=None,
-                       implementation_hashes=None):
+                       implementation_hashes=None, numeric_projection=True):
     """Hash complete preactivation facts separately from current publication tokens."""
     # The old executor fingerprint omits pending legacy and containment/scope facts.
     # Use the full capture recipe before activation can hide any of those inputs.
-    facts = {"identity": scene.context.to_dict(),
-        "sources": [source.to_dict() for source in scene.source_objects],
-        "geometries": [mesh.to_dict() for mesh in scene.geometries],
-        "openings": [opening.to_dict() for opening in scene.openings],
+    projected = numeric_source_facts(scene) if numeric_projection else None
+    support_facts = None if support_binding is None else dict(support_binding.__dict__)
+    domain_facts = None if request.domain is None else request.domain.to_dict()
+    confirmation = binding.get("confirmation_binding") or {}
+    confirmation_facts = {key: value for key, value in confirmation.items() if key != "request_id"}
+    if numeric_projection:
+        # Current support consent is validated before this key is reachable.
+        # Its audit token may change after reconfirmation without changing the
+        # exact selected floor, mesh or request-local boundary membership.
+        if support_facts is not None:
+            for key in ("capture_fingerprint", "confirmation_id"):
+                support_facts.pop(key, None)
+        if domain_facts is not None:
+            audit = domain_facts.get("provenance", {}).get("support_binding_audit")
+            if isinstance(audit, Mapping):
+                domain_facts["provenance"]["support_binding_audit"] = {
+                    key: value for key, value in audit.items() if key != "confirmation_id"}
+        if confirmation:
+            # The exact domain facts carry the selected topology.  These full
+            # capture/reducer receipt hashes are checked before lookup, then
+            # retain their role as consent audit rather than numerical inputs.
+            confirmation_facts = {"selected": True,
+                "acknowledged_conflicts": confirmation.get("acknowledged_conflicts", ())}
+    facts = {"identity": (scene.context.to_dict() if projected is None else projected["context"]),
+        "sources": ([source.to_dict() for source in scene.source_objects]
+                    if projected is None else projected["sources"]),
+        "geometries": ([mesh.to_dict() for mesh in scene.geometries]
+                       if projected is None else projected["geometries"]),
+        "openings": ([opening.to_dict() for opening in scene.openings]
+                     if projected is None else projected["openings"]),
         "authored_groups": [group.to_dict() for group in scene.authored_groups],
-        "domain": None if request.domain is None else request.domain.to_dict(),
-        "support_binding": None if support_binding is None else support_binding.__dict__,
-        "confirmation_selection": {key: value for key, value in (binding.get("confirmation_binding") or {}).items()
-                                   if key != "request_id"},
+        "domain": domain_facts,
+        "support_binding": support_facts,
+        "confirmation_selection": confirmation_facts,
         "domain_source_id": binding.get("domain_source_id"), "storey_ref": binding.get("storey_ref")}
     del facts["identity"]["analysis_plane"]
-    pending = [source.factual_properties["pending_legacy_occupancy"] for source in scene.source_objects
-               if isinstance(source.factual_properties.get("pending_legacy_occupancy"), Mapping)]
+    source_rows = facts["sources"]
+    pending = [source["factual_properties"]["pending_legacy_occupancy"] for source in source_rows
+               if isinstance(source.get("factual_properties", {}).get("pending_legacy_occupancy"), Mapping)]
     if pending:
         # These exact digest/equality receipts affect activation even when nested keys look presentational.
         facts["legacy_validation_digest"] = digest({"pending": pending,
-            "identity": scene.context.world_coordinate_system, "meshes": facts["geometries"]})
+            "identity": facts["identity"]["world_coordinate_system"], "meshes": facts["geometries"]})
     versions = requests._backend_versions() if versions is None else versions
     root = Path(__file__).resolve().parents[1]
     implementations = ({path: sha256((root / path).read_bytes()).hexdigest()
@@ -647,7 +674,8 @@ def _legacy_content_cache_key(scene, request, binding, support_binding):
     except (KeyError, TypeError):
         return None
     return _content_cache_key(scene, request, binding, support_binding,
-        versions=profile["original_backend_versions"], implementation_hashes=implementations)
+        versions=profile["original_backend_versions"], implementation_hashes=implementations,
+        numeric_projection=False)
 
 
 def _load_cached_result(path, *, content_key, versions, accepted_content_keys=None):
@@ -687,6 +715,23 @@ def _portable_capture_binding(capture_input, *, model_path, root):
     return SourceBinding(content, canonical, content, identity.get("external_dependencies", {}), locator)
 
 
+def _numeric_capture_binding(capture_input, *, model_path, root):
+    """Bind the numerical source projection independently of full capture authentication."""
+    from .blender_analysis_capture import capture_source_fingerprint, numeric_capture_source_fingerprint
+    content = numeric_capture_source_fingerprint(capture_input.identity, capture_input.records,
+        capture_input.diagnostics, capture_input.observation)
+    project = capture_input.identity.get("project_global_id", "unknown-project")
+    canonical = f"blender:{project}:{content}"
+    declared = capture_input.identity.get("canonical_source_identity")
+    full = capture_source_fingerprint(capture_input.identity, capture_input.records,
+        capture_input.diagnostics, capture_input.observation)
+    if declared is not None and declared != f"blender:{project}:{full}":
+        canonical = declared
+    locator = str(Path(model_path).resolve()) if model_path is not None else str(Path(root).resolve())
+    return SourceBinding(content, canonical, content,
+                         capture_input.identity.get("external_dependencies", {}), locator)
+
+
 def _resolve_content_store(capture_input, *, cache_directory, model_path, temporary_cache_root):
     """Resolve a model-side CacheStore only for locator-aware worker calls."""
     if model_path is None and temporary_cache_root is None:
@@ -697,8 +742,13 @@ def _resolve_content_store(capture_input, *, cache_directory, model_path, tempor
         temporary_root=None if temporary_cache_root is None else Path(temporary_cache_root),
     ).resolve()
     store = CacheStore(root)
-    binding = _portable_capture_binding(capture_input, model_path=model_path, root=root)
-    store.put_source_binding(binding)
+    full_binding = _portable_capture_binding(capture_input, model_path=model_path, root=root)
+    store.put_source_binding(full_binding)
+    binding = _numeric_capture_binding(capture_input, model_path=model_path, root=root)
+    if binding.source_fingerprint != full_binding.source_fingerprint:
+        store.put_source_binding(binding)
+    else:
+        binding = full_binding
     return store, binding
 
 

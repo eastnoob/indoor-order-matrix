@@ -362,6 +362,35 @@ def test_cooperative_capture_preserves_canonical_scene_fingerprints(monkeypatch)
     assert actual.capture_fingerprint == original.capture_fingerprint
 
 
+def test_numeric_camera_projection_does_not_weaken_full_capture_binding(tmp_path):
+    """A numerical camera omission never authorizes the old full capture binding."""
+    from ..adapters import blender_analysis_session as service
+    from .test_blender_analysis_session import _cache_payload, _unused_native_camera_record
+    data = _cache_payload()["canonical_capture"]
+    data["identity"]["external_dependencies"] = {"linked_ifc": "unchanged-ifc-bytes"}
+    original = capture.CanonicalCaptureInput(**data)
+    binding = service._portable_capture_binding(original, model_path=None, root=tmp_path)
+    data["records"].append(_unused_native_camera_record())
+    changed = capture.CanonicalCaptureInput(**data)
+    full = capture.capture_source_fingerprint
+    numeric = capture.numeric_capture_source_fingerprint
+    assert numeric(original.identity, original.records, original.diagnostics, original.observation) == numeric(
+        changed.identity, changed.records, changed.diagnostics, changed.observation)
+    assert full(original.identity, original.records, original.diagnostics, original.observation) != full(
+        changed.identity, changed.records, changed.diagnostics, changed.observation)
+    job = SimpleNamespace(identity=data["identity"], records=data["records"], diagnostics=data["diagnostics"],
+                          observation=data["observation"], source_binding=binding)
+    with pytest.raises(ValueError, match="source binding differs"):
+        capture._bind_final_capture(job, data["records"])
+    data["identity"]["external_dependencies"]["linked_ifc"] = "changed-ifc-bytes"
+    assert numeric(original.identity, original.records, original.diagnostics, original.observation) != numeric(
+        data["identity"], data["records"], data["diagnostics"], data["observation"])
+    data["identity"]["external_dependencies"]["linked_ifc"] = "unchanged-ifc-bytes"
+    data["records"][0]["mesh"]["vertices"][0][0] += .01
+    assert numeric(original.identity, original.records, original.diagnostics, original.observation) != numeric(
+        data["identity"], data["records"], data["diagnostics"], data["observation"])
+
+
 @pytest.mark.parametrize("cooperative", [False, True])
 def test_capture_session_relocation_preserves_result_and_rejects_changed_ifc_bytes(tmp_path, monkeypatch, cooperative):
     """Real capture handoff reuses moved model bytes and invalidates edited IFC content."""

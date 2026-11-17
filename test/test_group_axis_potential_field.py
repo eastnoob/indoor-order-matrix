@@ -11,6 +11,8 @@ from pathlib import Path
 
 import pytest
 
+from test.test_evidence_package_output import _package_context
+
 from features.field_core import FieldResultStatus, serialize_evidence_package_output
 from features.group_axis_potential_field import (
     _soft_view_result,
@@ -132,7 +134,7 @@ def test_envelope_operator_excludes_invalid_clarity_from_real_ifc_envelope(inval
         records.append(replace(record, observation={**record.observation, "descriptor": descriptor}))
     corrupted = replace(envelope, value={"channels": tuple(records)})
 
-    result = build_group_axis_potential_package().evaluate((corrupted,))
+    result = build_group_axis_potential_package().evaluate((corrupted,), analysis_context=_package_context())
     diagnostics = next(output for output in result.outputs if output.channel == "excluded_axis_diagnostics")
     assert diagnostics.observation["excluded"][0]["reason"] == "invalid_clarity"
     assert diagnostics.observation["excluded"][0]["clarity"] == invalid_clarity
@@ -154,7 +156,7 @@ def test_scalar_operator_rejects_non_mapping_observations():
 def test_package_adds_four_independent_relation_channels_for_every_pair():
     """The active package emits 666 pair addresses while retaining all source channels."""
     envelopes = _retained_envelopes()
-    result = build_group_axis_potential_package().evaluate(envelopes)
+    result = build_group_axis_potential_package().evaluate(envelopes, analysis_context=_package_context())
     relation_outputs = [
         output for output in result.outputs if output.target["kind"] == "furniture_group_pair"
     ]
@@ -187,7 +189,7 @@ def test_package_adds_four_independent_relation_channels_for_every_pair():
 def test_source_axis_fields_keep_full_scope_and_self_exclusion():
     """Every real source axis becomes one overlapping field view over the full scope."""
     envelopes = _retained_envelopes()
-    result = build_group_axis_potential_package().evaluate(envelopes)
+    result = build_group_axis_potential_package().evaluate(envelopes, analysis_context=_package_context())
     cells = [output for output in result.outputs if output.target["kind"] == "furniture_group_axis_field_cell"]
     assert len(cells) == 37 * 37
     assert len({output.observation["field_id"] for output in cells}) == 37
@@ -222,7 +224,7 @@ def test_nonempty_scope_without_usable_axis_emits_source_axis_diagnostic():
             records.append(record)
         envelopes.append(replace(envelope, value={"channels": tuple(records)}))
 
-    result = build_group_axis_potential_package().evaluate(tuple(envelopes))
+    result = build_group_axis_potential_package().evaluate(tuple(envelopes), analysis_context=_package_context())
     diagnostic = next(
         output for output in result.outputs if output.channel == "source_axis_scope_diagnostics"
     )
@@ -234,7 +236,7 @@ def test_nonempty_scope_without_usable_axis_emits_source_axis_diagnostic():
 
 def test_singleton_nonself_profile_is_unavailable_but_view_direction_is_anchor_only():
     """A retained singleton has no non-self coverage and only a self-supported view."""
-    result = build_group_axis_potential_package().evaluate(_retained_envelopes(1))
+    result = build_group_axis_potential_package().evaluate(_retained_envelopes(1), analysis_context=_package_context())
     profile = next(output for output in result.outputs if output.channel == "non_self_profile")
     direction = next(output for output in result.outputs if output.channel == "soft_view_direction")
     assert profile.status is FieldResultStatus.NOT_AVAILABLE
@@ -267,8 +269,8 @@ def test_package_output_identity_is_deterministic_for_retained_content():
     """Restoring the same retained source content restores its output cache identity."""
     envelopes = _retained_envelopes()
     package = build_group_axis_potential_package()
-    assert package.evaluate(envelopes).output_identity == package.evaluate(envelopes).output_identity
-    assert package.evaluate(envelopes).output_identity == package.evaluate(tuple(reversed(envelopes))).output_identity
+    assert package.evaluate(envelopes, analysis_context=_package_context()).output_identity == package.evaluate(envelopes, analysis_context=_package_context()).output_identity
+    assert package.evaluate(envelopes, analysis_context=_package_context()).output_identity == package.evaluate(tuple(reversed(envelopes)), analysis_context=_package_context()).output_identity
 
 
 def test_relation_status_keeps_clarity_when_direction_is_unavailable():
@@ -291,7 +293,7 @@ def test_relation_status_keeps_clarity_when_direction_is_unavailable():
         )
     envelopes[0] = replace(first, value={"channels": tuple(records)})
 
-    result = build_group_axis_potential_package().evaluate(tuple(envelopes))
+    result = build_group_axis_potential_package().evaluate(tuple(envelopes), analysis_context=_package_context())
     relation_outputs = {
         output.channel: output
         for output in result.outputs

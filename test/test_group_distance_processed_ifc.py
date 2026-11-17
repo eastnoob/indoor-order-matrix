@@ -9,6 +9,8 @@ import statistics
 
 import pytest
 
+from test.test_evidence_package_output import _package_context
+
 from features.field_core import EvidencePackageChannelReference, FieldResultStatus
 from features import group_distance_evidence_package as distance_package
 from features.group_distance_evidence_package import (
@@ -48,14 +50,14 @@ def test_path_only_matches_combined_on_retained_geometry(retained_trial, stored_
     ids = set(usable[0].observation["group_ids"])
     bundle = replace(inputs.bundle, groups=tuple(group for group in inputs.bundle.groups if group.group_id in ids), dependency_fingerprints={})
     bundle = replace(bundle, dependency_fingerprints=kernel.group_distance_input_fingerprints(bundle))
-    combined = distance_package.evaluate_group_distance_package(bundle)
+    combined = distance_package.evaluate_group_distance_package(bundle, analysis_context=_package_context())
     expected = {tuple(item.observation["group_ids"]): item for item in combined.outputs if item.channel == "path_distance"}
     def forbidden(*args, **kwargs):
         """Detect calculating the independent Euclidean reading inside route evaluation."""
         pytest.fail("path-only producer called the Euclidean primitive")
     monkeypatch.setattr(kernel, "_euclidean_reading", forbidden)
     selected = ports.evaluate_path_port(bundle, parameters=distance_package.build_group_distance_parameter_snapshot(bundle),
-        store=store, free_space_ref=reference, free_space_validator=validator)
+        store=store, free_space_ref=reference, free_space_validator=validator, analysis_context=_package_context())
     actual = {tuple(item.observation["group_ids"]): item for item in selected.raw_view.outputs}
     assert actual and set(actual) == set(expected)
     assert any(item.observation["value"] is not None for item in actual.values())
@@ -91,13 +93,13 @@ def test_real_euclidean_excludes_route_only_inputs(retained_trial, stored_distan
     store, reference, original_validator = stored_distance_free_space
     bundle = inputs.bundle
     parameters = distance_package.build_group_distance_parameter_snapshot(bundle)
-    baseline = ports.evaluate_euclidean_port(bundle, parameters=parameters)
+    baseline = ports.evaluate_euclidean_port(bundle, parameters=parameters, analysis_context=_package_context())
     assert all(item.observation["value"] is not None for item in baseline.raw_view.outputs)
     assert ports.euclidean_port_contract(bundle, parameters=parameters) == baseline.contract
     original_bytes = selected_raw_bytes(baseline.raw_view)
     assert b"free_space" not in original_bytes and b"clearance" not in original_bytes
     reordered = replace(bundle, groups=tuple(replace(group, source_refs=tuple(reversed(group.source_refs))) for group in reversed(bundle.groups)))
-    assert ports.evaluate_euclidean_port(reordered, parameters=parameters).ref == baseline.ref
+    assert ports.evaluate_euclidean_port(reordered, parameters=parameters, analysis_context=_package_context()).ref == baseline.ref
     path = ports.distance_port_contracts(bundle, parameters=parameters, free_space_ref=reference)["path_distance"]
     entry = save_raw_port(store, baseline)
     original_payload = entry.payload_paths[0].read_bytes()
@@ -163,7 +165,7 @@ def test_route_policy_change_preserves_actual_processed_port(retained_trial, tmp
     monkeypatch.setattr(ports, "distance_port_contracts", forbidden)
     monkeypatch.setattr(ports, "evaluate_path_port", forbidden)
     first = ports.run_euclidean_processed_port(first_bundle, store=store,
-        parameters=first_parameters, processor=processor)
+        parameters=first_parameters, processor=processor, analysis_context=_package_context())
     assert first.publication.processed_output.error_code is None
     assert len(first.publication.processed_output.outputs) == 666
     assert all(item.observation is not None for item in first.publication.processed_output.outputs)
@@ -177,7 +179,7 @@ def test_route_policy_change_preserves_actual_processed_port(retained_trial, tmp
     assert second_raw is not None and second_raw.ref == first.publication.raw_ref
     second = run_port_processor(second_raw,
         build_group_distance_evidence_package(output_processor=replace(processor, function=forbidden)),
-        store=store, current_raw_contract=second_contract, requested_raw_parameters=second_parameters)
+        store=store, current_raw_contract=second_contract, requested_raw_parameters=second_parameters, analysis_context=_package_context())
     assert second.cache_hit and second.cache_reuse == "exact_hit"
     assert second.publication.ref == first.publication.ref
     assert selected_processed_bytes(second.publication.processed_output) == before
@@ -203,7 +205,7 @@ def symmetric_output(retained_trial):
     _, raw, _ = retained_trial
     processor = distance_package.build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=
         [item.target["identity"] for item in raw.outputs if item.channel == "euclidean_distance"])
-    return build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh")
+    return build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
 
 
 def _configured(raw):
@@ -253,7 +255,7 @@ def test_linear_full_scope_uses_actual_distances_floor_and_complete_lineage(reta
     originals = {item.target["identity"]: item for item in raw.outputs if item.channel == "euclidean_distance"}
     before = distance_package.serialize_evidence_package_output(raw)
     processor = factory(expected_target_ids=tuple(originals))
-    result = build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh")
+    result = build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     assert result.error_code is None and len(result.outputs) == 666
     d_min = min(item.observation["value"] for item in originals.values())
     d_max = max(item.observation["value"] for item in originals.values())
@@ -316,7 +318,7 @@ def test_linear_and_symmetric_unusable_scope_fails_closed(small_raw, fault, fact
                           "missing-value": ("value", None), "negative": ("value", -1), "boolean": ("value", True)}[fault]
             observation[key] = value
         changed = replace(small_raw, outputs=(replace(original, observation=observation, **changes), *small_raw.outputs[1:]))
-    result = package.process_output(changed, package_freshness="fresh")
+    result = package.process_output(changed, package_freshness="fresh", analysis_context=_package_context())
     assert result.error_code == "OUTPUT_PROCESSING_FAILED" and result.outputs == ()
 
 
@@ -329,12 +331,12 @@ def test_linear_equal_values_zero_median_and_zero_span(small_raw):
                              ([0, 0, 1e308], [1, 1, 0.01])):
         changed = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
                                                   for item, value in zip(small_raw.outputs, values)))
-        result = package.process_output(changed, package_freshness="fresh")
+        result = package.process_output(changed, package_freshness="fresh", analysis_context=_package_context())
         assert result.error_code is None and [item.observation for item in result.outputs] == expected
     for value in (0, 4):
         changed = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
                                                   for item in small_raw.outputs))
-        failed = package.process_output(changed, package_freshness="fresh")
+        failed = package.process_output(changed, package_freshness="fresh", analysis_context=_package_context())
         assert failed.error_code == "OUTPUT_PROCESSING_FAILED" and failed.outputs == ()
         assert "no distance gradient" in failed.explanation
 
@@ -344,12 +346,12 @@ def test_linear_freshness_and_recipe_identity(small_raw):
     processor = distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=
         [item.target["identity"] for item in small_raw.outputs])
     package = build_group_distance_evidence_package(output_processor=processor)
-    first = package.process_output(small_raw, package_freshness="fresh")
+    first = package.process_output(small_raw, package_freshness="fresh", analysis_context=_package_context())
     for freshness in ("stale", "unavailable"):
-        failed = package.process_output(small_raw, package_freshness=freshness)
+        failed = package.process_output(small_raw, package_freshness=freshness, analysis_context=_package_context())
         assert failed.error_code == "OUTPUT_SOURCE_NOT_FRESH" and failed.outputs == ()
     changed_version = replace(package, output_processor=replace(processor, version="contract-fault-version"))
-    assert changed_version.process_output(small_raw, package_freshness="fresh").processing_identity != first.processing_identity
+    assert changed_version.process_output(small_raw, package_freshness="fresh", analysis_context=_package_context()).processing_identity != first.processing_identity
     changed_floor = replace(first, parameters={**first.parameters, "floor": 0.02})
     assert changed_floor.processing_identity != first.processing_identity
 
@@ -362,7 +364,7 @@ def test_linear_comparison_renderer_consumes_supplied_values(retained_trial, tmp
     inputs, raw, reciprocal = retained_trial
     processor = distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=
         [item.target["identity"] for item in raw.outputs if item.channel == "euclidean_distance"])
-    linear = build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh")
+    linear = build_group_distance_evidence_package(output_processor=processor).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     rows = comparison.build_comparison_rows(raw, reciprocal, linear)
     with pytest.raises(ValueError, match="same raw"):
         comparison.build_comparison_rows(raw, reciprocal, replace(linear, raw_payload_fingerprint="foreign"))
@@ -434,13 +436,13 @@ def test_symmetric_ties_and_arithmetic_failure_gates(small_raw):
     for values, expected in (([0, 4, 8], [0.99, 0.255, 0.01]), ([0, 4, 4], [0.99, 0.01, 0.01])):
         injected = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
                                                     for item, value in zip(small_raw.outputs, values)))
-        result = package.process_output(injected, package_freshness="fresh")
+        result = package.process_output(injected, package_freshness="fresh", analysis_context=_package_context())
         assert result.error_code is None and [item.observation for item in result.outputs] == expected
     for values in ([0, 0, 0], [4, 4, 4], [0, 0, 8], [1e308, 1.1e308, 1.2e308],
                    [math.nextafter(1, 0), 1, 1e308]):
         injected = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
                                                     for item, value in zip(small_raw.outputs, values)))
-        result = package.process_output(injected, package_freshness="fresh")
+        result = package.process_output(injected, package_freshness="fresh", analysis_context=_package_context())
         assert result.error_code == "OUTPUT_PROCESSING_FAILED" and result.outputs == ()
 
 
@@ -449,27 +451,27 @@ def test_symmetric_freshness_identity_and_scope_reprocessing(small_raw):
     factory = distance_package.build_euclidean_symmetric_reciprocal_proximity_processor
     processor = factory(expected_target_ids=[item.target["identity"] for item in small_raw.outputs])
     package = build_group_distance_evidence_package(output_processor=processor)
-    first = package.process_output(small_raw, package_freshness="fresh")
+    first = package.process_output(small_raw, package_freshness="fresh", analysis_context=_package_context())
     assert first.error_code is None
     for freshness in ("stale", "unavailable"):
-        result = package.process_output(small_raw, package_freshness=freshness)
+        result = package.process_output(small_raw, package_freshness=freshness, analysis_context=_package_context())
         assert result.error_code == "OUTPUT_SOURCE_NOT_FRESH" and result.outputs == ()
     changed_version = replace(package, output_processor=replace(processor, version="contract-fault-version"))
-    assert changed_version.process_output(small_raw, package_freshness="fresh").processing_identity != first.processing_identity
+    assert changed_version.process_output(small_raw, package_freshness="fresh", analysis_context=_package_context()).processing_identity != first.processing_identity
     assert replace(first, parameters={**first.parameters, "epsilon": 0.02}).processing_identity != first.processing_identity
     assert factory(expected_target_ids=reversed(processor.parameters["expected_target_ids"])).parameters == processor.parameters
     original = small_raw.outputs[0]
     changed = replace(small_raw, outputs=(replace(original, observation={**original.observation,
                       "value": original.observation["value"] * 2}), *small_raw.outputs[1:]))
-    second = package.process_output(changed, package_freshness="fresh")
+    second = package.process_output(changed, package_freshness="fresh", analysis_context=_package_context())
     assert second.error_code is None and second.raw_output_identity == first.raw_output_identity
     assert second.processing_identity != first.processing_identity and second.raw_payload_fingerprint != first.raw_payload_fingerprint
     subset = replace(small_raw, outputs=small_raw.outputs[:2])
     narrowed = build_group_distance_evidence_package(output_processor=factory(expected_target_ids=
-        [item.target["identity"] for item in subset.outputs])).process_output(subset, package_freshness="fresh")
+        [item.target["identity"] for item in subset.outputs])).process_output(subset, package_freshness="fresh", analysis_context=_package_context())
     assert narrowed.error_code is None and narrowed.processing_identity != first.processing_identity
     assert all(len(item.derived_from) == 2 for item in narrowed.outputs)
-    assert package.process_output(subset, package_freshness="fresh").error_code == "OUTPUT_PROCESSING_FAILED"
+    assert package.process_output(subset, package_freshness="fresh", analysis_context=_package_context()).error_code == "OUTPUT_PROCESSING_FAILED"
 
 
 def test_symmetric_comparison_renderer_consumes_supplied_values(retained_trial, symmetric_output, tmp_path, monkeypatch):
@@ -480,7 +482,7 @@ def test_symmetric_comparison_renderer_consumes_supplied_values(retained_trial, 
     inputs, raw, reciprocal = retained_trial
     linear = build_group_distance_evidence_package(output_processor=
         distance_package.build_euclidean_linear_proximity_processor(expected_target_ids=
-            symmetric_output.parameters["expected_target_ids"])).process_output(raw, package_freshness="fresh")
+            symmetric_output.parameters["expected_target_ids"])).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     rows = comparison.build_comparison_rows(raw, reciprocal, linear, symmetric_output)
     assert all(row["symmetric_reciprocal_proximity"] == item.observation for row, item in zip(rows, symmetric_output.outputs))
     with pytest.raises(ValueError, match="same raw"):
@@ -520,7 +522,7 @@ def test_bad_scope_has_no_numeric_output(small_raw, change):
     scope = scope[:-1] if change == "missing" else [*scope, "foreign"] if change == "extra" else [*scope[:-1], "foreign"]
     package = build_group_distance_evidence_package(output_processor=
         build_euclidean_median_proximity_processor(expected_target_ids=scope))
-    result = package.process_output(small_raw, package_freshness="fresh")
+    result = package.process_output(small_raw, package_freshness="fresh", analysis_context=_package_context())
     assert result.error_code == "OUTPUT_PROCESSING_FAILED" and result.outputs == ()
 
 
@@ -542,7 +544,7 @@ def test_unusable_member_fails_entire_scope(small_raw, fault):
         observation["value"] = {"missing-value": None, "negative": -1, "boolean": True}[fault]
     changed = replace(original, observation=observation, **changes)
     injected = replace(small_raw, outputs=(changed, *small_raw.outputs[1:]))
-    result = _configured(small_raw).process_output(injected, package_freshness="fresh")
+    result = _configured(small_raw).process_output(injected, package_freshness="fresh", analysis_context=_package_context())
     assert result.error_code == "OUTPUT_PROCESSING_FAILED" and result.outputs == ()
 
 
@@ -565,7 +567,7 @@ def test_large_finite_contract_values_keep_the_reciprocal_ratio(small_raw):
     """Contract fault injection checks finite distances whose naive sum would overflow."""
     injected = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": 1e308})
                                                for item in small_raw.outputs))
-    result = _configured(small_raw).process_output(injected, package_freshness="fresh")
+    result = _configured(small_raw).process_output(injected, package_freshness="fresh", analysis_context=_package_context())
     assert result.error_code is None
     assert all(item.observation == 0.5 for item in result.outputs)
 
@@ -575,31 +577,31 @@ def test_zero_and_median_boundaries_and_nonpositive_scope(small_raw):
     values = [0, 4, 8]
     injected = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": value})
                                                for item, value in zip(small_raw.outputs, values)))
-    result = _configured(small_raw).process_output(injected, package_freshness="fresh")
+    result = _configured(small_raw).process_output(injected, package_freshness="fresh", analysis_context=_package_context())
     assert [item.observation for item in result.outputs] == [1, 0.5, 1 / 3]
     zeros = replace(small_raw, outputs=tuple(replace(item, observation={**item.observation, "value": 0})
                                             for item in small_raw.outputs))
-    failed = _configured(small_raw).process_output(zeros, package_freshness="fresh")
+    failed = _configured(small_raw).process_output(zeros, package_freshness="fresh", analysis_context=_package_context())
     assert failed.error_code == "OUTPUT_PROCESSING_FAILED" and failed.outputs == ()
 
 
 def test_disabled_and_nonfresh_ports_stay_empty(small_raw):
     """Configured freshness and disabled configuration retain their separate empty errors."""
-    disabled = build_group_distance_evidence_package().process_output(small_raw, package_freshness="fresh")
+    disabled = build_group_distance_evidence_package().process_output(small_raw, package_freshness="fresh", analysis_context=_package_context())
     assert disabled.error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED" and disabled.outputs == ()
     for freshness in ("stale", "unavailable"):
-        result = _configured(small_raw).process_output(small_raw, package_freshness=freshness)
+        result = _configured(small_raw).process_output(small_raw, package_freshness=freshness, analysis_context=_package_context())
         assert result.error_code == "OUTPUT_SOURCE_NOT_FRESH" and result.outputs == ()
 
 
 def test_processing_identity_binds_recipe_and_raw_content(small_raw):
     """Actual retained records preserve raw identity while processed identity binds value bytes."""
     package = _configured(small_raw)
-    first = package.process_output(small_raw, package_freshness="fresh")
+    first = package.process_output(small_raw, package_freshness="fresh", analysis_context=_package_context())
     original = small_raw.outputs[0]
     changed = replace(small_raw, outputs=(replace(original, observation={**original.observation,
                       "value": original.observation["value"] * 2}), *small_raw.outputs[1:]))
-    second = package.process_output(changed, package_freshness="fresh")
+    second = package.process_output(changed, package_freshness="fresh", analysis_context=_package_context())
     assert first.raw_output_identity == second.raw_output_identity
     assert first.processing_identity != second.processing_identity
     assert first.raw_payload_fingerprint != second.raw_payload_fingerprint
@@ -608,7 +610,7 @@ def test_processing_identity_binds_recipe_and_raw_content(small_raw):
     with pytest.raises(ValueError, match="belong to the supplied raw producer"):
         trial.build_processed_rows(small_raw, replace(first, package_id="foreign-package"))
     revised = replace(package, output_processor=replace(package.output_processor, version="contract-fault-version"))
-    assert revised.process_output(small_raw, package_freshness="fresh").processing_identity != first.processing_identity
+    assert revised.process_output(small_raw, package_freshness="fresh", analysis_context=_package_context()).processing_identity != first.processing_identity
     reversed_scope = build_euclidean_median_proximity_processor(expected_target_ids=
         reversed(package.output_processor.parameters["expected_target_ids"]))
     assert reversed_scope.parameters == package.output_processor.parameters

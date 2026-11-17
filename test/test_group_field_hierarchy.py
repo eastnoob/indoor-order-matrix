@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pytest
 
+from test.test_evidence_package_output import _package_context
+
 from features.field_core import evaluate_evidence_package_freshness
 from features.group_axis_potential_field import build_group_axis_potential_package
 from scripts.design.group_level.run_group_axis_potential_ifc import _package_contract
@@ -46,8 +48,8 @@ def test_retained_manifest_and_exact_unwrap_boundary():
 def test_hierarchy_outputs_cover_real_scope_and_preserve_legacy_outputs():
     """Hierarchy mode adds family records while preserving every legacy output."""
     sources = _retained_envelopes()
-    legacy = build_group_axis_potential_package().evaluate(sources)
-    expanded = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(sources)
+    legacy = build_group_axis_potential_package().evaluate(sources, analysis_context=_package_context())
+    expanded = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(sources, analysis_context=_package_context())
     original = {(item.target["identity"], item.channel): item for item in legacy.outputs}
     actual = {(item.target["identity"], item.channel): item for item in expanded.outputs}
     assert all(actual[key] == value for key, value in original.items())
@@ -74,8 +76,8 @@ def test_hierarchy_is_order_deterministic_and_family_support_is_max_union():
     """Retained outputs preserve exact topology and the frozen support formulas."""
     sources = _retained_envelopes()
     package = build_group_axis_potential_package(scene_namespace=NAMESPACE)
-    forward = package.evaluate(sources)
-    reverse = package.evaluate(tuple(reversed(sources)))
+    forward = package.evaluate(sources, analysis_context=_package_context())
+    reverse = package.evaluate(tuple(reversed(sources)), analysis_context=_package_context())
     assert forward.output_identity == reverse.output_identity
     definitions = {item.observation["family_id"]: item.observation for item in forward.outputs if item.channel == "axis_family_definition"}
     leaf_values = {
@@ -136,7 +138,7 @@ def test_hierarchy_is_order_deterministic_and_family_support_is_max_union():
 
 def test_profiles_use_full_and_non_anchor_domains():
     """Profile denominators follow the family anchor set instead of N minus one."""
-    result = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(_retained_envelopes())
+    result = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(_retained_envelopes(), analysis_context=_package_context())
     profile = next(item for item in result.outputs if item.channel == "axis_family_profile")
     definition = next(item for item in result.outputs if item.channel == "axis_family_definition" and item.target["identity"] == profile.target["identity"])
     domains = profile.observation["domains"]
@@ -148,7 +150,7 @@ def test_profiles_use_full_and_non_anchor_domains():
 @pytest.mark.parametrize("limit", (1, None))
 def test_family_direction_reports_actual_anchor_contributions(limit):
     """Real retained rows and their singleton subset expose the direction's weights."""
-    result = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(_retained_envelopes(limit))
+    result = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(_retained_envelopes(limit), analysis_context=_package_context())
     support_rows = {}
     for item in result.outputs:
         if item.channel == "axis_family_support":
@@ -180,8 +182,8 @@ def test_namespace_and_freshness_are_explicit_and_independent():
     description = json.loads((AXIS_RUN / "description.json").read_text(encoding="utf-8"))
     manifest = json.loads((AXIS_RUN / "source_manifest.json").read_text(encoding="utf-8"))
     plane = manifest["analysis_plane"]
-    full_result = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(sources)
-    subset_result = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(sources[:2])
+    full_result = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(sources, analysis_context=_package_context())
+    subset_result = build_group_axis_potential_package(scene_namespace=NAMESPACE).evaluate(sources[:2], analysis_context=_package_context())
     full_contract = _package_contract(description, sources, sources[0].query, plane, manifest["source"]["sha256"], (), full_result, scene_namespace=NAMESPACE)
     subset_contract = _package_contract(description, sources[:2], sources[0].query, plane, manifest["source"]["sha256"], (), subset_result, scene_namespace=NAMESPACE)
     stale = evaluate_evidence_package_freshness(cached_contract=subset_contract, current_contract=full_contract, artifacts_available=True)

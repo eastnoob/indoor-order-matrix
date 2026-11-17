@@ -22,6 +22,7 @@ from .output_port_cache import (
     OutputPortContract, OutputPortRef, PortRun, _parameter_status,
     bind_raw_port, load_raw_port, run_port_processor, save_raw_port, validate_port_payload,
 )
+from .package_analysis_context import resolve_package_analysis_context
 
 _PORTS = {"euclidean_distance": "center_to_center_euclidean", "path_distance": "centroid_free_space_hybrid"}
 _PATH_PARAMETERS = ("grid", "query_context", "free_space_result_ref", "clearance_mode", "clearance_policy")
@@ -232,8 +233,10 @@ def _selected_publication(bundle, parameters, contract, rows):
     return bind_raw_port(contract, view, parameter_snapshot=parameters)
 
 
-def evaluate_euclidean_port(bundle, *, parameters):
+def evaluate_euclidean_port(bundle, *, parameters, analysis_context=None, allow_multiple_planes=False):
     """Measure only group centroids and publish no route-dependent facts."""
+    resolve_package_analysis_context((bundle,), analysis_context=analysis_context,
+        allow_multiple_planes=allow_multiple_planes)
     contract = euclidean_port_contract(bundle, parameters=parameters)
     rows = tuple({"group_ids": item.group_ids, "center_to_center_euclidean": item.reading,
                   "geometry_audit": item.geometry_audit} for item in kernel.calculate_euclidean_pairs(bundle))
@@ -241,8 +244,11 @@ def evaluate_euclidean_port(bundle, *, parameters):
 
 
 def evaluate_path_port(bundle, *, parameters, repaired_result=None, store=None,
-                       free_space_ref=None, free_space_validator=None):
+                       free_space_ref=None, free_space_validator=None,
+                       analysis_context=None, allow_multiple_planes=False):
     """Evaluate only route readings, preserving selected witness and uncertainty evidence."""
+    resolve_package_analysis_context((bundle,), analysis_context=analysis_context,
+        allow_multiple_planes=allow_multiple_planes)
     contract = _contract(bundle, parameters, "path_distance", repaired_result=repaired_result, free_space_ref=free_space_ref)
     _verify_free_space(bundle, store, free_space_ref, free_space_validator)
     if repaired_result is None:
@@ -255,8 +261,11 @@ def evaluate_path_port(bundle, *, parameters, repaired_result=None, store=None,
 
 
 def project_verified_distance_ports(entry: CacheEntry, *, bundle, parameters, store,
-                                    repaired_result=None, free_space_ref=None, free_space_validator=None):
+                                    repaired_result=None, free_space_ref=None, free_space_validator=None,
+                                    analysis_context=None, allow_multiple_planes=False):
     """Reopen an original typed B publication before projecting it without calculation."""
+    resolve_package_analysis_context((bundle,), analysis_context=analysis_context,
+        allow_multiple_planes=allow_multiple_planes)
     contracts = distance_port_contracts(bundle, parameters=parameters, repaired_result=repaired_result, free_space_ref=free_space_ref)
     _verify_free_space(bundle, store, free_space_ref, free_space_validator)
     contract, inputs = owner._run_contract(bundle, repaired_result)
@@ -289,8 +298,11 @@ def _run_result(publication, entry, *, hit, parameters, reuse=None):
 
 
 def run_group_distance_ports(bundle, *, store, parameters, repaired_result=None, legacy_entry=None,
-                             free_space_ref=None, free_space_validator=None):
+                             free_space_ref=None, free_space_validator=None,
+                             analysis_context=None, allow_multiple_planes=False):
     """Reuse and calculate each independent port under its existing B identity lock."""
+    analysis_context = resolve_package_analysis_context((bundle,), analysis_context=analysis_context,
+        allow_multiple_planes=allow_multiple_planes)
     contracts = distance_port_contracts(bundle, parameters=parameters, repaired_result=repaired_result, free_space_ref=free_space_ref)
     _verify_free_space(bundle, store, free_space_ref, free_space_validator)
     legacy_checked = legacy_entry is not None
@@ -317,18 +329,22 @@ def run_group_distance_ports(bundle, *, store, parameters, repaired_result=None,
                     legacy_entry = store.get(old_address, validator=owner._distance_raw_validator(owner.build_group_distance_evidence_package(), original))
                     if legacy_entry is not None:
                         adopted = project_verified_distance_ports(legacy_entry, bundle=bundle, parameters=parameters, store=store,
-                            repaired_result=repaired_result, free_space_ref=free_space_ref, free_space_validator=free_space_validator)
+                            repaired_result=repaired_result, free_space_ref=free_space_ref,
+                            free_space_validator=free_space_validator, analysis_context=analysis_context)
                 except (ValueError, TypeError):
                     legacy_entry = None
             if legacy_entry is not None:
                 if adopted is None:
                     adopted = project_verified_distance_ports(legacy_entry, bundle=bundle, parameters=parameters, store=store,
-                        repaired_result=repaired_result, free_space_ref=free_space_ref, free_space_validator=free_space_validator)
+                        repaired_result=repaired_result, free_space_ref=free_space_ref,
+                        free_space_validator=free_space_validator, analysis_context=analysis_context)
                 publication = adopted[port]
             else:
-                publication = (evaluate_euclidean_port(bundle, parameters=parameters) if port == "euclidean_distance" else
+                publication = (evaluate_euclidean_port(bundle, parameters=parameters,
+                                                       analysis_context=analysis_context) if port == "euclidean_distance" else
                     evaluate_path_port(bundle, parameters=parameters, repaired_result=repaired_result, store=store,
-                                       free_space_ref=free_space_ref, free_space_validator=free_space_validator))
+                                       free_space_ref=free_space_ref, free_space_validator=free_space_validator,
+                                       analysis_context=analysis_context))
             entry = save_raw_port(store, publication)
             if legacy_entry is not None:
                 store.record_reuse_origin(address, "legacy_adopted")
@@ -341,8 +357,11 @@ def run_group_distance_ports(bundle, *, store, parameters, repaired_result=None,
     return result
 
 
-def run_euclidean_processed_port(bundle, *, store, parameters, processor):
+def run_euclidean_processed_port(bundle, *, store, parameters, processor,
+                                 analysis_context=None, allow_multiple_planes=False):
     """Process the independent centroid port without requesting route inputs or work."""
+    analysis_context = resolve_package_analysis_context((bundle,), analysis_context=analysis_context,
+        allow_multiple_planes=allow_multiple_planes)
     contract = euclidean_port_contract(bundle, parameters=parameters)
     address = CacheAddress(contract.source_fingerprint, contract.package_id,
                            contract.output_port, "raw", contract.identity)
@@ -351,8 +370,9 @@ def run_euclidean_processed_port(bundle, *, store, parameters, processor):
         if raw is None:
             # Keep a rejected publication before rebuilding only this centroid version.
             store.quarantine(address, reason="selected Euclidean raw publication is unavailable")
-            raw = evaluate_euclidean_port(bundle, parameters=parameters)
+            raw = evaluate_euclidean_port(bundle, parameters=parameters, analysis_context=analysis_context)
             save_raw_port(store, raw)
     package = owner.build_group_distance_evidence_package(output_processor=processor)
     return run_port_processor(raw, package, store=store,
-        current_raw_contract=contract, requested_raw_parameters=parameters)
+        current_raw_contract=contract, requested_raw_parameters=parameters,
+        analysis_context=analysis_context)

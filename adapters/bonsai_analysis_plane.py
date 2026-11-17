@@ -584,7 +584,7 @@ def _managed_camera_binding(camera, entity) -> CameraBinding:
 def ensure_native_analysis_plane(*, elevation_m: float, project_global_id: str | None = None,
                                  camera_guid: str | None = None, storey_ref: str | None = None,
                                  query_kind: str = "whole_height_projection"):
-    """Find, restore or create the uniquely owned native plane at an explicit world-metre elevation."""
+    """Restore or update an exact native plane, retaining unambiguous legacy discovery."""
     from types import SimpleNamespace
 
     bpy = importlib.import_module("bpy")
@@ -610,10 +610,13 @@ def ensure_native_analysis_plane(*, elevation_m: float, project_global_id: str |
             if any(marker.get(name) != value for name, value in MANAGED_PLANE_MARKER.items()) or marker.get("ProjectGlobalId") != project:
                 raise ValueError("managed analysis plane ownership metadata or project is inconsistent")
             candidates.append(entity)
-    if len(candidates) > 1:
-        raise ValueError("more than one managed analysis plane exists")
-    if camera_guid is not None and (not candidates or candidates[0].GlobalId != camera_guid):
-        raise ValueError("native drawing identity is not the managed analysis plane")
+    # Explicit identity selects one author without treating other valid planes as duplicates.
+    if camera_guid is not None:
+        candidates = [entity for entity in candidates if entity.GlobalId == camera_guid]
+        if len(candidates) != 1:
+            raise ValueError("native drawing identity is not the managed analysis plane")
+    elif len(candidates) > 1:
+        raise ValueError("more than one managed analysis plane exists; select its explicit identity")
     if not candidates:
         return create_native_drawing(storey_ref=storey_ref, elevation_m=elevation_m, managed=True, query_kind=query_kind)
     drawing = candidates[0]

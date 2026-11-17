@@ -15,6 +15,7 @@ import time
 from typing import Any
 
 from features.field_core import evaluate_evidence_package_freshness
+from features.package_analysis_context import PackageAnalysisContext
 from features.cache_paths import create_run_directory, run_journal
 from features.group_distance_evidence_package import (
     build_group_distance_package_contract,
@@ -72,6 +73,8 @@ def publish_saved_repair_result(
     pair_view_index: Path | None = None,
     model_path: Path | None = None,
     temporary_cache_root: Path | None = None,
+    analysis_context: PackageAnalysisContext | None = None,
+    allow_multiple_planes: bool = False,
 ) -> dict[str, Any]:
     """Adapt one saved repair run and write package, contract, status, and manifest."""
     started = time.perf_counter()
@@ -91,6 +94,7 @@ def publish_saved_repair_result(
         package = run_group_distance_package(
             bundle, repaired_result=repair, model_path=model_path,
             temporary_cache_root=temporary_cache_root,
+            analysis_context=analysis_context, allow_multiple_planes=allow_multiple_planes,
         )["raw_output"]
         serialized = serialize_group_distance_package_output(package)
         output_dir.mkdir(parents=True, exist_ok=True)

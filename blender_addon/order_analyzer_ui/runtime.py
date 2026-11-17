@@ -30,11 +30,12 @@ LOG_LIMIT = 1024 * 1024
 CANCEL_GRACE_SECONDS = 2.0
 RESOURCE_PATHS = ("pixi.toml", "pixi.lock", "adapters/blender_analysis_session.py",
     "blender_addon/order_analyzer_ui/runtime.py", "blender_addon/order_analyzer_ui/__init__.py",
+    "blender_addon/order_analyzer_ui/plane_settings.py",
     "blender_addon/order_analyzer_ui/board.py", "blender_addon/order_analyzer_ui/palettes.py",
     "blender_addon/order_analyzer_ui/overlay.py",
     "adapters/bonsai_analysis_plane.py", "adapters/bonsai_space_authoring.py", "adapters/ifc_bonsai.py",
     "adapters/blender_analysis_result_wire.py", "adapters/blender_analysis_capture.py", "adapters/bonsai_live.py",
-    "features/analysis_requests.py", "features/field_core.py", "features/free_space_field.py",
+    "features/analysis_requests.py", "features/package_analysis_context.py", "features/field_core.py", "features/free_space_field.py",
     "features/_analysis_domain_handoff.py", "features/scene_contract.py", "features/section_views.py",
     "features/geometry_substitutes.py", "features/geometry_views.py", "features/neutral_scene_views.py",
     "features/analysis_substitute_discovery.py", "features/substitute_contract.py",
@@ -100,6 +101,7 @@ class RuntimeState:
     board_object: object = None
     inspection: object = None
     native_scale: float | None = None
+    reviewed_planes: set = field(default_factory=set)
 
 
 STATE = RuntimeState()
@@ -665,6 +667,7 @@ def invalidate_runtime(reason: str, *, new_session: bool = False) -> None:
     if new_session:
         STATE.runtime_session = uuid.uuid4().hex
         STATE.observation_hooks_active = False
+        STATE.reviewed_planes.clear()
     if STATE.job is not None:
         STATE.job.error = str(reason)[:1200]
         cancel_job()

@@ -15,6 +15,8 @@ from features.field_core import (
 )
 from features.group_axis_potential_field import run_group_axis_potential_package
 from features.cache_paths import create_run_directory, run_journal
+from features.package_analysis_context import PackageAnalysisContext
+from features.scene_contract import AnalysisPlane
 from scripts.design.group_level.run_group_axis_potential_ifc import (
     _aggregate_svg,
     _artifacts_readable,
@@ -83,9 +85,12 @@ def run(retained_run: Path, output_root: Path | None = None, *, model_path: Path
         if envelopes_payload.get("schema") != "group-trend-alignment-envelopes/v1":
             raise RuntimeError("retained envelope schema is not the verified IFC trend schema")
         envelopes = tuple(_load_envelope(item) for item in envelopes_payload["envelopes"])
+        # This retained scenario declares name/revision-one defaults; source queries remain historical.
+        analysis_context = PackageAnalysisContext((AnalysisPlane.from_dict(source_manifest["analysis_plane"]),))
         # Preserve original producer order for historical per-group audit lists.
         result = run_group_axis_potential_package(
             envelopes, model_path=model_path, temporary_cache_root=temporary_cache_root,
+            analysis_context=analysis_context,
         )["raw_output"]
         cell_outputs = [
             output for output in result.outputs if output.target["kind"] == "furniture_group_axis_field_cell"

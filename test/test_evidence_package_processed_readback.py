@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 import features.field_core as core
+from .test_evidence_package_output import _package_context
 from .test_evidence_package_output import _snapshot_output, _source_envelope
 from .test_evidence_package_processing import _channel, _package, _process, _raw
 
@@ -21,7 +22,7 @@ def _processed(raw=None):
         return (_channel(source, channel=source.outputs[0].channel, observation=0.75),)
 
     return _package(core.EvidenceOutputProcessor("saved-process", "1", process,
-                    {"nested": {"items": [1, 2]}})).process_output(raw, package_freshness="fresh")
+                    {"nested": {"items": [1, 2]}})).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
 
 
 def _reference(raw, processed):
@@ -92,7 +93,7 @@ def test_resigned_typed_snapshot_still_requires_semantic_validation(variant, exp
     processor = core.EvidenceOutputProcessor(
         "typed-process", "1", _process, {"value": 0.25}, parameter_schema=schema,
     )
-    processed = _package(processor).process_output(raw, package_freshness="fresh")
+    processed = _package(processor).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     saved = core.serialize_evidence_processed_output(processed)
     snapshot_schema = replace(schema, package_id="foreign-package") if variant == "foreign-owner" else schema
     snapshot = snapshot_schema.resolve({"value": 0.75 if variant == "effective-values" else 0.25})
@@ -174,7 +175,7 @@ def test_empty_processing_errors_roundtrip_without_raw_fallback(state):
 
     processor = None if state == "unconfigured" else core.EvidenceOutputProcessor(
         "saved-process", "1", fail if state == "failure" else _process)
-    result = _package(processor).process_output(raw, package_freshness="stale" if state == "stale" else "fresh")
+    result = _package(processor).process_output(raw, package_freshness="stale" if state == "stale" else "fresh", analysis_context=_package_context())
     restored = core.deserialize_evidence_processed_output(core.serialize_evidence_processed_output(result), raw_output=raw)
     assert restored == result and restored.outputs == ()
     assert restored.error_code == {"unconfigured": "OUTPUT_FUNCTION_NOT_CONFIGURED",
@@ -281,7 +282,7 @@ def test_processed_dependencies_consume_both_ports_and_strip_runtime_handles():
         return (replace(resolved.channel, derived_from=(reference, raw_ref)),)
 
     result = core.EvidencePackage("consumer", "consume", "1", None, consume).evaluate(
-        (_source_envelope(),), dependencies=(dependency,), dependency_graph={"consumer": (raw.package_id,), raw.package_id: ()})
+        (_source_envelope(),), dependencies=(dependency,), dependency_graph={"consumer": (raw.package_id,), raw.package_id: ()}, analysis_context=_package_context())
     assert result.outputs[0].observation == 0.75
     assert result.dependencies[0].source_output is None and result.dependencies[0].source_processed_output is None
     saved = core.serialize_evidence_package_output(result)
@@ -304,7 +305,7 @@ def test_dependency_resolver_validates_raw_binding_once_and_matches_single_reads
                      for index in range(12))
 
     processor = core.EvidenceOutputProcessor("many-addresses", "1", produce_many)
-    processed = _package(processor).process_output(raw, package_freshness="fresh")
+    processed = _package(processor).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     references = tuple(core.EvidencePackageChannelReference(
         raw.package_id,
         raw.output_identity,
@@ -427,7 +428,7 @@ def test_runtime_processing_rejects_a_processed_port_as_its_raw_lineage():
         """Cite the prior processed recipe instead of the supplied raw publication."""
         return (_channel(source, derived_from=(_reference(source, existing),)),)
 
-    result = _package(core.EvidenceOutputProcessor("next", "1", process)).process_output(raw, package_freshness="fresh")
+    result = _package(core.EvidenceOutputProcessor("next", "1", process)).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     assert result.error_code == "OUTPUT_PROCESSING_FAILED" and result.outputs == ()
 
 
@@ -474,7 +475,7 @@ def test_processed_dependency_graph_checks_raw_upstream_declarations_before_call
     package = core.EvidencePackage("consumer", "consume", "1", None, consume)
     with pytest.raises(ValueError, match="upstream.*declared dependencies"):
         package.evaluate((_source_envelope(),), dependencies=(dependency,), dependency_graph={
-            "consumer": (raw.package_id,), raw.package_id: (), "ancestor": ()})
+            "consumer": (raw.package_id,), raw.package_id: (), "ancestor": ()}, analysis_context=_package_context())
     assert called == []
 
 
@@ -514,7 +515,7 @@ def test_processed_parameters_cannot_hide_nested_boolean_numeric_mismatch(bounda
         "saved-process", "1", _process,
         {"context": {"nested": [{"x": 1}]}}, parameter_schema=schema,
     )
-    processed = _package(processor).process_output(raw, package_freshness="fresh")
+    processed = _package(processor).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     assert processed.error_code is None
     changed = {"context": {"nested": [{"x": True}]}}
     assert json.dumps(changed, sort_keys=True) != json.dumps(
@@ -541,7 +542,7 @@ def test_processed_float_parameters_allow_declared_integer_normalization():
     ))
     processed = _package(core.EvidenceOutputProcessor(
         "saved-process", "1", _process, parameter_schema=schema,
-    )).process_output(raw, package_freshness="fresh")
+    )).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     payload = core.serialize_evidence_processed_output(processed)
     payload["parameters"]["value"] = 1
     restored = core.deserialize_evidence_processed_output(
@@ -560,7 +561,7 @@ def test_explicit_legacy_processed_warning_path_uses_saved_origin_parameters(tmp
     raw = _raw()
     saved = _package(core.EvidenceOutputProcessor(
         "saved-process", "1", _process, {"review_m": 0.01},
-    )).process_output(raw, package_freshness="fresh")
+    )).process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     old_path = tmp_path / "explicit-historical-warning.json"
     storage.save_processed_output(old_path, saved)
     retained = old_path.read_bytes()

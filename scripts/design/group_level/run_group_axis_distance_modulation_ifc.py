@@ -29,6 +29,8 @@ from features.group_distance_evidence_package import (
 )
 from features.evidence_package_storage import processed_cache_key
 from features.cache_paths import create_run_directory, run_journal
+from features.package_analysis_context import PackageAnalysisContext
+from features.scene_contract import AnalysisPlane
 from scripts.design.group_level import run_group_distance_decay_ifc as retained
 from scripts.design.group_level.replay_evidence_package_readback import (
     consume_saved_evidence_package, load_saved_evidence_package,
@@ -350,9 +352,14 @@ def run(output_root: Path | None = None, *, model_path: Path | None = None,
         scratch = run_dir / "scratch"
         scratch.mkdir()
         inputs, envelopes, raw, processed, modulation, report = load_modulation_inputs(scratch_directory=scratch)
+        # The loader authenticates this manifest; keep its scenario context separate from registration.
+        analysis_context = PackageAnalysisContext((
+            AnalysisPlane.from_dict(_read(AXIS_REPLAY / "source_manifest.json")["analysis_plane"]),
+        ))
         result = run_group_axis_potential_package(
             envelopes, distance_modulation=modulation, model_path=model_path,
             temporary_cache_root=temporary_cache_root,
+            analysis_context=analysis_context,
         )["raw_output"]
         rows = _rows(raw, processed, result)
         _write_outputs(run_dir, rows, inputs, raw, processed, result, modulation, report)

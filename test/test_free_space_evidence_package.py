@@ -58,6 +58,74 @@ def test_flat_cache_adoption_binds_independent_current_facts(tmp_path, monkeypat
     assert path.read_bytes() == original
 
 
+@pytest.mark.parametrize("model_sidecar", [False, True])
+def test_unused_package_context_preserves_raw_query_and_warm_cache(tmp_path, monkeypatch, model_sidecar):
+    """Selection metadata may be unused while raw content keeps its real P1 query."""
+    from ..features.package_analysis_context import PackageAnalysisContext
+    _, adapter = _modules()
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    options = {"temporary_cache_root": tmp_path} if model_sidecar else {"cache_directory": tmp_path}
+    first = adapter.run_free_space_package(scene, request, **options)
+    context = PackageAnalysisContext((_plane(origin=(3, 4, 5), identity="unused-P2"),))
+
+    def forbidden(*_args, **_kwargs):
+        """A supplied unused context must not regenerate the actual request result."""
+        pytest.fail("unused package context repeated numerical analysis")
+
+    monkeypatch.setattr(adapter.requests, "execute_analysis_request", forbidden)
+    current = adapter.run_free_space_package(scene, request, analysis_context=context, **options)
+    assert current["cache_hit"] is True and current["cache_key"] == first["cache_key"]
+    assert current["raw_output"].source_envelopes[0].query.plane == first["raw_output"].source_envelopes[0].query.plane
+    assert wire.plain(_document(current["raw_output"])["tables"]["snapshot"]["request"]["plane"]) == request.plane.to_dict()
+
+
+@pytest.mark.parametrize("allow_multiple_planes", [False, True])
+def test_free_space_context_gate_precedes_warm_lookup(tmp_path, monkeypatch, allow_multiple_planes):
+    """Unsupported multi-plane context is rejected before a retained receipt can be read."""
+    from ..features.package_analysis_context import PackageAnalysisContext
+    _, adapter = _modules()
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    adapter.run_free_space_package(scene, request, cache_directory=tmp_path)
+    context = PackageAnalysisContext((request.plane, _plane(identity="second-plane")))
+
+    def forbidden(*_args, **_kwargs):
+        """Invalid call metadata must not reach a cache seam."""
+        pytest.fail("multi-plane context reached cache lookup")
+
+    monkeypatch.setattr(adapter, "_read_cache_entry", forbidden)
+    with pytest.raises(ValueError, match="multiple planes"):
+        adapter.run_free_space_package(scene, request, cache_directory=tmp_path,
+            analysis_context=context, allow_multiple_planes=allow_multiple_planes)
+
+
+def test_free_space_native_camera_projection_preserves_numeric_source_and_content(tmp_path, monkeypatch):
+    """A camera source can enter the full scene without invalidating physical free space."""
+    from ..adapters.blender_analysis_capture import CanonicalCaptureInput
+    from ..adapters.bonsai_live import load_bonsai_capture
+    from .test_blender_analysis_session import _unused_native_camera_record
+    from .test_bonsai_live import capture
+    _, adapter = _modules()
+    scene = _scene(_object("chair"))
+    request = _request(scene)
+    first = adapter.run_free_space_package(scene, request, temporary_cache_root=tmp_path)
+    data = capture("furniture").to_dict()
+    data["records"] = [_unused_native_camera_record()]
+    camera = load_bonsai_capture(CanonicalCaptureInput(**data), plane=request.plane).scene.source_objects[0]
+    changed = replace(scene, source_objects=scene.source_objects + (camera,))
+
+    def forbidden(*_args, **_kwargs):
+        """The numerical projection must reuse the original physical computation."""
+        pytest.fail("native camera repeated free-space calculation")
+
+    monkeypatch.setattr(adapter.requests, "execute_analysis_request", forbidden)
+    current = adapter.run_free_space_package(changed, request, temporary_cache_root=tmp_path)
+    assert current["cache_hit"] is True
+    assert current["cache_key"] == first["cache_key"]
+    assert current["source_fingerprint"] == first["source_fingerprint"]
+
+
 def test_legacy_cache_secret_concurrent_creation_keeps_winner(tmp_path, monkeypatch):
     """Racing legacy writers return the same retained HMAC key without replacing it."""
     from concurrent.futures import ThreadPoolExecutor

@@ -34,6 +34,7 @@ from .field_core import (
     evaluate_evidence_package_freshness,
     serialize_evidence_package_output,
 )
+from .package_analysis_context import resolve_package_analysis_context
 from .evidence_package_parameters import ParameterSchema, ParameterSnapshot, ParameterSpec
 from . import group_distance as distance_kernel
 from .evidence_package_storage import (
@@ -1021,6 +1022,7 @@ def evaluate_group_distance_package(
     bundle: GroupDistanceInput,
     *,
     repaired_result: Mapping[str, Any] | None = None,
+    analysis_context=None, allow_multiple_planes=False,
 ) -> EvidencePackageOutput:
     """Evaluate ordinary distances or adapt a saved global repair result.
 
@@ -1030,6 +1032,8 @@ def evaluate_group_distance_package(
     """
     if not isinstance(bundle, GroupDistanceInput):
         raise TypeError("bundle must be a GroupDistanceInput")
+    analysis_context = resolve_package_analysis_context((bundle,), analysis_context=analysis_context,
+                                                       allow_multiple_planes=allow_multiple_planes)
     if repaired_result is None:
         result: GroupDistanceResult | Mapping[str, Any] = calculate_group_pair_distances(bundle)
     elif not isinstance(repaired_result, Mapping):
@@ -1043,7 +1047,7 @@ def evaluate_group_distance_package(
     )
     if not sources:
         sources = (_empty_scope_source_envelope(result, bundle),)
-    return build_group_distance_evidence_package().evaluate(sources)
+    return build_group_distance_evidence_package().evaluate(sources, analysis_context=analysis_context)
 
 
 def _run_contract(bundle, repaired_result, *, parameter_sources=None):
@@ -1209,9 +1213,12 @@ def _distance_processed_validator(raw, processor):
 def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=None,
                                model_path: Path | None = None,
                                temporary_cache_root: Path | None = None,
-                               output_processor=None, parameter_sources=None):
+                               output_processor=None, parameter_sources=None,
+                               analysis_context=None, allow_multiple_planes=False):
     """Own distance computation and independently cached optional processed results."""
     package = build_group_distance_evidence_package(output_processor=output_processor)
+    analysis_context = resolve_package_analysis_context((bundle,), analysis_context=analysis_context,
+                                                       allow_multiple_planes=allow_multiple_planes)
     contract, inputs = _run_contract(
         bundle, repaired_result, parameter_sources=parameter_sources,
     )
@@ -1292,7 +1299,8 @@ def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=
                 or lookup is not None and lookup.reuse_origin.get("mode") == "adopted_legacy"):
             cache_reuse = "legacy_adopted"
         if raw is None:
-            raw = evaluate_group_distance_package(bundle, repaired_result=repaired_result)
+            raw = evaluate_group_distance_package(bundle, repaired_result=repaired_result,
+                                                  analysis_context=analysis_context)
             if path is not None:
                 payload = serialize_raw_output_bytes(
                     cache_key=cache_key, contract=contract, raw_output=raw,
@@ -1348,7 +1356,8 @@ def run_group_distance_package(bundle, *, repaired_result=None, cache_directory=
                 )
         processed = None if processed_lookup is None else processed_lookup.processed_output
         if processed_lookup is None:
-            processed = package.process_output(raw, package_freshness="fresh")
+            processed = package.process_output(raw, package_freshness="fresh",
+                                               analysis_context=analysis_context)
             if processed_path is not None:
                 payload = serialize_processed_output_bytes(processed)
                 if payload is not None:

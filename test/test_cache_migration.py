@@ -14,6 +14,8 @@ from types import ModuleType
 
 import pytest
 
+from test.test_evidence_package_output import _package_context
+
 from features.cache_paths import CacheAddress, SourceBinding
 from features.cache_store import CacheStore
 
@@ -291,7 +293,7 @@ def _migration_request(family, root, value, modules, *, forbidden=False, origina
                      None if original else _migration_processor(value, forbidden=forbidden))
         return potential.run_group_axis_potential_package(
             _potential_sources(), temporary_cache_root=root, output_processor=processor,
-        )
+         analysis_context=_package_context())
     if family == "auth_free_space":
         scene = fixtures._scene(fixtures._object("chair"))
         request = fixtures._request(scene)

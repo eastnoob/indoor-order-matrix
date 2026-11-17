@@ -4,6 +4,8 @@ from dataclasses import replace
 
 import pytest
 
+from test.test_evidence_package_output import _package_context
+
 from features import group_axis_potential_field as potential
 from features.group_axis_output_ports import bind_port_distance_modulation
 from features.field_core import FieldResultStatus
@@ -24,8 +26,8 @@ def _by_key(outputs):
 def test_actual_full_scope_preserves_axis_and_adds_1369_addressed_cells(actual_inputs):
     """All 1,332 directional values use exact processed pairs and preserve pure-axis outputs."""
     _, envelopes, raw, processed, modulation, _ = actual_inputs
-    baseline = potential.run_group_axis_potential_package(envelopes)["raw_output"]
-    opted = potential.run_group_axis_potential_package(envelopes, distance_modulation=modulation)["raw_output"]
+    baseline = potential.run_group_axis_potential_package(envelopes, analysis_context=_package_context())["raw_output"]
+    opted = potential.run_group_axis_potential_package(envelopes, distance_modulation=modulation, analysis_context=_package_context())["raw_output"]
     base_channels = _by_key(baseline.outputs)
     opted_channels = _by_key(opted.outputs)
     assert all(opted_channels[key] == value for key, value in base_channels.items())
@@ -63,15 +65,15 @@ def test_current_cache_reuses_and_stale_dependency_redacts_values(actual_inputs,
     """A full typed hit is reusable, while stale processed input has no numeric fallback."""
     _, envelopes, _, _, modulation, _ = actual_inputs
     first = potential.run_group_axis_potential_package(envelopes, cache_directory=tmp_path,
-                                                        distance_modulation=modulation)
+                                                        distance_modulation=modulation, analysis_context=_package_context())
     second = potential.run_group_axis_potential_package(envelopes, cache_directory=tmp_path,
-                                                         distance_modulation=modulation)
+                                                         distance_modulation=modulation, analysis_context=_package_context())
     assert first["cache_hit"] is False and second["cache_hit"] is True
     assert first["raw_output"] == second["raw_output"]
     stale_dependency = replace(modulation.dependency, package_freshness="stale")
     stale = replace(modulation, dependency=stale_dependency)
     stale_result = potential.run_group_axis_potential_package(envelopes, cache_directory=tmp_path,
-                                                               distance_modulation=stale)["raw_output"]
+                                                               distance_modulation=stale, analysis_context=_package_context())["raw_output"]
     unavailable = [item for item in stale_result.outputs
                    if item.channel == "distance_modulated_axis_support"
                    and item.explanation != "distance_self_not_applicable"]
@@ -87,10 +89,10 @@ def test_compatibility_or_recipe_drift_cannot_use_prior_values(actual_inputs):
     changed_refs[group] = ("foreign-member",)
     invalid = replace(modulation, compatibility={**modulation.compatibility, "distance_member_refs": changed_refs})
     with pytest.raises(ValueError, match="member refs"):
-        potential.run_group_axis_potential_package(envelopes, distance_modulation=invalid)
+        potential.run_group_axis_potential_package(envelopes, distance_modulation=invalid, analysis_context=_package_context())
     wrong_recipe = replace(modulation, current_processing_identity="foreign-current-recipe")
     with pytest.raises(ValueError, match="does not match"):
-        potential.run_group_axis_potential_package(envelopes, distance_modulation=wrong_recipe)
+        potential.run_group_axis_potential_package(envelopes, distance_modulation=wrong_recipe, analysis_context=_package_context())
 
 
 def test_missing_processed_address_does_not_fall_back(actual_inputs):
@@ -99,7 +101,7 @@ def test_missing_processed_address_does_not_fall_back(actual_inputs):
     dependency = replace(modulation.dependency, channels=modulation.dependency.channels[:-1])
     invalid = replace(modulation, dependency=dependency)
     with pytest.raises(ValueError, match="one processed reference"):
-        potential.run_group_axis_potential_package(envelopes, distance_modulation=invalid)
+        potential.run_group_axis_potential_package(envelopes, distance_modulation=invalid, analysis_context=_package_context())
 
 
 def potential_processor_for_port(publication):
@@ -131,7 +133,7 @@ def semantic_distance_inputs(actual_inputs, tmp_path_factory):
     save_raw_port(store, raw)
     processor = potential_processor_for_port(raw)
     processed = run_port_processor(raw, build_group_distance_evidence_package(output_processor=processor),
-        store=store, current_raw_contract=contract, requested_raw_parameters=parameters).publication
+        store=store, current_raw_contract=contract, requested_raw_parameters=parameters, analysis_context=_package_context()).publication
     return {"root": root, "store": store, "envelopes": envelopes, "raw": raw,
         "processed": processed, "processor": processor, "contract": contract,
         "parameters": parameters, "compatibility": modulation.compatibility,
@@ -199,7 +201,7 @@ def test_modulation_requires_current_distance_owner_before_loading(semantic_dist
     monkeypatch.setattr(ports, "bind_port_distance_modulation", _forbidden)
     with pytest.raises(ValueError, match="requested_distance_parameters"):
         ports.run_group_axis_output_ports(saved["envelopes"], parameters=
-            potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True), **kwargs)
+            potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True), **kwargs, analysis_context=_package_context())
 
 
 def test_semantic_modulation_preserves_all_real_values_and_reuses_pure_switch(
@@ -231,13 +233,13 @@ def test_semantic_modulation_preserves_all_real_values_and_reuses_pure_switch(
             for invalid, message in invalid_graphs:
                 with pytest.raises(ValueError, match=message):
                     ports.run_group_axis_output_ports(saved["envelopes"], parameters=on,
-                        **{**kwargs, "dependency_graph": invalid})
+                        **{**kwargs, "dependency_graph": invalid}, analysis_context=_package_context())
 
     reject_invalid_graphs()
     # A miss must retain normalized edges for the later EvidencePackage evaluation.
     first = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on,
         **{**kwargs, "dependency_graph": {package: (edge for edge in edges)
-                                        for package, edges in graph.items()}})
+                                        for package, edges in graph.items()}}, analysis_context=_package_context())
     pure = first["axis_potential"].publication
     diagnostic = first["distance_modulated_axis_support"].publication
     old_raw = actual_inputs[2]
@@ -269,10 +271,10 @@ def test_semantic_modulation_preserves_all_real_values_and_reuses_pure_switch(
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
     monkeypatch.setattr(potential, "_distance_modulated_outputs", _forbidden)
     reject_invalid_graphs()
-    disabled = ports.run_group_axis_output_ports(saved["envelopes"], store=store, parameters=off)
+    disabled = ports.run_group_axis_output_ports(saved["envelopes"], store=store, parameters=off, analysis_context=_package_context())
     enabled = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on,
         **{**kwargs, "dependency_graph": {package: (edge for edge in edges)
-                                        for package, edges in graph.items()}})
+                                        for package, edges in graph.items()}}, analysis_context=_package_context())
     assert set(disabled) == {"axis_potential"}
     assert disabled["axis_potential"].cache_hit and enabled["axis_potential"].cache_hit
     assert enabled["distance_modulated_axis_support"].cache_hit
@@ -333,7 +335,7 @@ def test_modulation_forwards_current_owner_and_recipe(
     monkeypatch.setattr(potential, "_distance_modulated_outputs", _forbidden)
     with pytest.raises(ValueError, match="(owner schema|requested_parameters|current raw contract|current processor)"):
         ports.run_group_axis_output_ports(saved["envelopes"], parameters=
-            potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True), **kwargs)
+            potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True), **kwargs, analysis_context=_package_context())
     assert {(item.address, item.status) for item in saved["store"].list()} == before
     assert not saved["store"].list(package_id=potential.PACKAGE_ID,
                                    output_port="distance_modulated_axis_support")
@@ -349,11 +351,11 @@ def test_semantic_modulation_missing_upstream_redacts_nonself(
     store = _copied_port_store(saved, tmp_path)
     kwargs = _port_kwargs(saved, store=store)
     on = potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True)
-    first = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs)
+    first = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs, analysis_context=_package_context())
     reference = saved["raw"].ref if layer == "raw" else saved["processed"].ref
     assert store.delete_exact(reference.address)
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
-    again = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs)
+    again = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs, analysis_context=_package_context())
     assert again["axis_potential"].cache_hit
     assert again["axis_potential"].publication.ref == first["axis_potential"].publication.ref
     missing = again["distance_modulated_axis_support"]
@@ -385,7 +387,7 @@ def test_modulation_rejects_unknown_semantic_schema_before_numeric_use(
     with pytest.raises(ValueError, match="schema"):
         ports.run_group_axis_output_ports(saved["envelopes"], parameters=
             potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True),
-            **_port_kwargs(saved, store=store))
+            **_port_kwargs(saved, store=store), analysis_context=_package_context())
     assert entry.payload_paths[0].read_bytes() == before
     assert not store.list(package_id=potential.PACKAGE_ID,
                            output_port="distance_modulated_axis_support")
@@ -403,7 +405,7 @@ def test_corrupt_axis_port_retains_bytes_and_recomputes_only_its_producer(
     store = _copied_port_store(saved, tmp_path)
     kwargs = _port_kwargs(saved, store=store)
     on = potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True)
-    first = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs)
+    first = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs, analysis_context=_package_context())
     reference = first[damaged_port].publication.ref
     entry = store.get(reference.address, validator=validate_port_payload)
     corrupted = entry.payload_paths[0].read_bytes() + b" "
@@ -429,7 +431,7 @@ def test_corrupt_axis_port_retains_bytes_and_recomputes_only_its_producer(
     monkeypatch.setattr(distance_ports, "evaluate_euclidean_port", _forbidden)
     monkeypatch.setattr(distance_ports, "evaluate_path_port", _forbidden)
     kwargs["distance_processor"] = replace(saved["processor"], function=_forbidden)
-    rebuilt = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs)
+    rebuilt = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs, analysis_context=_package_context())
     assert calls == {name: int(name == damaged_port) for name in calls}
     assert not rebuilt[damaged_port].cache_hit
     intact_port = next(name for name in calls if name != damaged_port)
@@ -437,7 +439,7 @@ def test_corrupt_axis_port_retains_bytes_and_recomputes_only_its_producer(
     assert {name: run.publication.ref for name, run in rebuilt.items()} == {
         name: run.publication.ref for name, run in first.items()}
     assert [path.read_bytes() for path in (tmp_path / "cache" / "quarantine").rglob("payload.json")] == [corrupted]
-    again = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs)
+    again = ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **kwargs, analysis_context=_package_context())
     assert all(run.cache_hit for run in again.values())
     assert calls == {name: int(name == damaged_port) for name in calls}
 
@@ -485,7 +487,7 @@ def lifecycle_graph(actual_inputs, semantic_distance_inputs, stored_distance_fre
     save_raw_port(store, path)
 
     on = potential.build_group_axis_parameter_snapshot(distance_modulation_enabled=True)
-    axis = axis_ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **_port_kwargs(saved, store=store))
+    axis = axis_ports.run_group_axis_output_ports(saved["envelopes"], parameters=on, **_port_kwargs(saved, store=store), analysis_context=_package_context())
     pure, modulation = axis["axis_potential"].publication, axis["distance_modulated_axis_support"].publication
     assert sum(item.status is FieldResultStatus.COMPUTED for item in modulation.raw_view.outputs) == 1_332
 
@@ -498,7 +500,7 @@ def lifecycle_graph(actual_inputs, semantic_distance_inputs, stored_distance_fre
     sibling_processor = potential_processor_for_port(sibling)
     sibling_processed = run_port_processor(sibling, distance.build_group_distance_evidence_package(
         output_processor=sibling_processor), store=store, current_raw_contract=sibling.contract,
-        requested_raw_parameters=sibling_parameters).publication
+        requested_raw_parameters=sibling_parameters, analysis_context=_package_context()).publication
     assert len(sibling.raw_view.outputs) == 3 and sibling.ref != saved["raw"].ref
 
     # Preserve the existing combined codec in the same owner family as semantic raw entries.
@@ -603,7 +605,7 @@ def test_real_dependency_deletion_preserves_only_independent_ports(lifecycle_gra
     assert sibling.ref == refs["sibling_processed"]
 
     result = axis_ports.run_group_axis_output_ports(graph["envelopes"], parameters=graph["axis_parameters"],
-        **_port_kwargs(graph, store=store))
+        **_port_kwargs(graph, store=store), analysis_context=_package_context())
     assert result["axis_potential"].cache_hit
     assert result["axis_potential"].publication.ref == refs["pure_axis"]
     modulation = result["distance_modulated_axis_support"]
@@ -652,7 +654,7 @@ def test_mixed_port_cache_migrates_original_owner_codecs_without_producers(lifec
         moved = distance_ports.run_euclidean_processed_port(bundle, store=store, parameters=parameters, processor=processor)
         assert moved.cache_hit and moved.cache_reuse == "migrated_reuse" and moved.publication.ref == reference
     result = axis_ports.run_group_axis_output_ports(graph["envelopes"], parameters=graph["axis_parameters"],
-        **_port_kwargs(graph, store=store))
+        **_port_kwargs(graph, store=store), analysis_context=_package_context())
     assert all(item.cache_hit and item.cache_reuse == "migrated_reuse" for item in result.values())
     assert {name: item.publication.ref for name, item in result.items()} == {
         name: item.publication.ref for name, item in graph["axis"].items()}
@@ -660,15 +662,16 @@ def test_mixed_port_cache_migrates_original_owner_codecs_without_producers(lifec
     assert store.get_source_binding(source_id) == graph["store"].get_source_binding(source_id)
     legacy_facade_calls = []
 
-    def process_unconfigured(package, raw, *, package_freshness):
+    def process_unconfigured(package, raw, *, package_freshness, analysis_context):
         """Allow only the legacy empty status facade while numerical processing stays forbidden."""
         assert package.output_processor is None
         legacy_facade_calls.append(package_freshness)
-        return original_process_output(package, raw, package_freshness=package_freshness)
+        return original_process_output(package, raw, package_freshness=package_freshness,
+            analysis_context=analysis_context)
 
     with monkeypatch.context() as legacy_patch:
         legacy_patch.setattr(field_core.EvidencePackage, "process_output", process_unconfigured)
-        legacy = potential.run_group_axis_potential_package(graph["envelopes"], temporary_cache_root=store.root)
+        legacy = potential.run_group_axis_potential_package(graph["envelopes"], temporary_cache_root=store.root, analysis_context=_package_context())
     assert legacy_facade_calls == ["fresh"]
     assert legacy["cache_hit"] and legacy["cache_reuse"] == "migrated_reuse"
     assert legacy["processed_output"].error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED"

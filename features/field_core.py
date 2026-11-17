@@ -17,6 +17,7 @@ from .evidence_package_parameters import (
     ParameterSnapshot,
     compare_parameter_snapshots,
 )
+from .package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
 
 
 Target = TypeVar("Target")
@@ -525,10 +526,13 @@ class EvidencePackageInput:
 
     source_envelopes: tuple[FieldResultEnvelope, ...]
     resolved_dependencies: tuple[EvidencePackageResolvedDependency, ...] = ()
+    analysis_context: PackageAnalysisContext = field(kw_only=True)
 
     def __post_init__(self) -> None:
         """Keep package callback context immutable and contract-typed."""
         sources = tuple(self.source_envelopes)
+        if not isinstance(self.analysis_context, PackageAnalysisContext):
+            raise TypeError("analysis_context must be a PackageAnalysisContext")
         resolved = tuple(self.resolved_dependencies)
         if any(not isinstance(item, FieldResultEnvelope) for item in sources):
             raise TypeError("source_envelopes must contain FieldResultEnvelope values")
@@ -966,6 +970,7 @@ class EvidencePackage:
     output_function: Callable[[tuple[FieldResultEnvelope, ...]], Iterable[EvidenceOutputChannel]] | None
     context_output_function: Callable[[EvidencePackageInput], Iterable[EvidenceOutputChannel]] | None = None
     output_processor: EvidenceOutputProcessor | None = field(default=None, kw_only=True)
+    supports_multiple_planes: bool = field(default=False, kw_only=True)
 
     def __post_init__(self) -> None:
         """Validate stable function metadata before a package can run."""
@@ -981,12 +986,16 @@ class EvidencePackage:
             raise TypeError("context_output_function must be callable")
         if self.output_processor is not None and not isinstance(self.output_processor, EvidenceOutputProcessor):
             raise TypeError("output_processor must be an EvidenceOutputProcessor or None")
+        if type(self.supports_multiple_planes) is not bool:
+            raise TypeError("supports_multiple_planes must be boolean")
 
     def process_output(
         self,
         raw_output: EvidencePackageOutput,
         *,
         package_freshness: str = "unavailable",
+        analysis_context: PackageAnalysisContext | None = None,
+        allow_multiple_planes: bool = False,
     ) -> EvidenceProcessedOutput:
         """Process a matching fresh raw publication without invoking its producer again."""
         if not isinstance(raw_output, EvidencePackageOutput):
@@ -998,6 +1007,8 @@ class EvidencePackage:
             raise ValueError("raw_output producer function and version must match the package")
         if package_freshness not in {"fresh", "stale", "unavailable"}:
             raise ValueError("package_freshness must be fresh, stale, or unavailable")
+        resolve_package_analysis_context(raw_output.source_envelopes, analysis_context=analysis_context,
+            supports_multiple_planes=self.supports_multiple_planes, allow_multiple_planes=allow_multiple_planes)
 
         # Full content integrity is separate from the historical calculation identity.
         serialized = serialize_evidence_package_output(raw_output)
@@ -1040,11 +1051,15 @@ class EvidencePackage:
         *,
         dependencies: Iterable[EvidencePackageDependency] = (),
         dependency_graph: Mapping[str, Iterable[str]] | None = None,
+        analysis_context: PackageAnalysisContext | None = None,
+        allow_multiple_planes: bool = False,
     ) -> EvidencePackageOutput:
         """Run additive output validation; a complete graph guarantee requires an explicit graph."""
         envelopes = tuple(source_envelopes)
         if not envelopes or any(not isinstance(item, FieldResultEnvelope) for item in envelopes):
             raise TypeError("source_envelopes must contain FieldResultEnvelope values")
+        analysis_context = resolve_package_analysis_context(envelopes, analysis_context=analysis_context,
+            supports_multiple_planes=self.supports_multiple_planes, allow_multiple_planes=allow_multiple_planes)
 
         dependencies = tuple(dependencies)
         if any(not isinstance(item, EvidencePackageDependency) for item in dependencies):
@@ -1066,7 +1081,8 @@ class EvidencePackage:
                     item.package_id for item in upstream.dependencies
                 }:
                     raise ValueError("upstream graph edges must match declared dependencies")
-        context = EvidencePackageInput(envelopes, _resolve_package_dependencies(dependencies))
+        context = EvidencePackageInput(envelopes, _resolve_package_dependencies(dependencies),
+                                       analysis_context=analysis_context)
         if self.context_output_function is not None:
             produced = self.context_output_function(context)
         else:

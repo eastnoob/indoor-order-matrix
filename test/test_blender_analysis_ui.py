@@ -41,23 +41,42 @@ def _camera_ui_fixture(monkeypatch, *, elevation=2.5):
         origin=(4.0, 6.0, elevation), basis=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
         display={"name": "Drawing A"}, provenance={"project_global_id": "project-A",
         "source_ifc_global_id": "camera-A", "geometry_author_qualified": True})
-    current = {"observation": observation}
+    current = {"observation": observation, "observations": {"camera-A": observation}}
     camera = SimpleNamespace(type="CAMERA")
     scene = SimpleNamespace(om_analysis_plane_binding_json="", om_analysis_plane_reviewed=False,
         om_analysis_plane_uuid="", om_analysis_plane_revision=1, om_analysis_plane_origin_z=1.6,
         om_analysis_query_kind="whole_height_projection", om_analysis_storey_ref="",
         om_analysis_selected_version_id="old-selection", om_analysis_grid_spacing=0.25)
     context = SimpleNamespace(scene=scene, active_object=camera)
-    monkeypatch.setattr(cameras, "read_camera_binding", lambda obj, **kwargs: current["observation"])
-    monkeypatch.setattr(cameras, "resolve_camera_binding", lambda **kwargs: current["observation"])
-    def ensure(**kwargs):
-        """Model the managed New action while keeping adoption and refresh observational."""
+    def read(_object, **_kwargs):
+        """Retain the current observed native identity without inventing geometry."""
+        observation = current["observation"]
+        current["observations"][observation.provenance["source_ifc_global_id"]] = observation
+        return observation
+
+    def resolve(**kwargs):
+        """Resolve the exact saved GUID and preserve externally changed live observations."""
+        observation = current["observation"]
+        current["observations"][observation.provenance["source_ifc_global_id"]] = observation
+        try:
+            return current["observations"][kwargs["camera_guid"]]
+        except KeyError as error:
+            raise ValueError("native drawing was deleted or replaced") from error
+
+    monkeypatch.setattr(cameras, "read_camera_binding", read)
+    monkeypatch.setattr(cameras, "resolve_camera_binding", resolve)
+    def create(**kwargs):
+        """Create a distinct nonspatial camera observation at the existing native seam."""
         from dataclasses import replace
-        current["ensure_arguments"] = kwargs
+        current["create_arguments"] = kwargs
+        current["created"] = current.get("created", 0) + 1
+        guid = "created-" + str(current["created"])
         current["observation"] = replace(current["observation"],
+            camera_id="ifc:" + guid,
+            provenance={**current["observation"].provenance, "source_ifc_global_id": guid},
             origin=(*current["observation"].origin[:2], kwargs["elevation_m"]))
         return camera
-    monkeypatch.setattr(cameras, "ensure_native_analysis_plane", ensure)
+    monkeypatch.setattr(cameras, "create_native_drawing", create)
     monkeypatch.setattr(runtime, "STATE", runtime.RuntimeState(current_result=object(),
         documents=[{"history": True}], domain_session={"confirmation_binding": {"action_id": "old"}}))
     monkeypatch.setattr(addon, "_action_runtime", lambda context: runtime)
@@ -78,23 +97,25 @@ def test_native_camera_actions_adopt_exact_pose_and_revoke_consent(monkeypatch, 
     assert context.scene.om_analysis_selected_version_id == ""
     assert current["observation"].origin == plane.origin
     if action == "new":
-        assert current["ensure_arguments"] == {"elevation_m": 1.6, "storey_ref": None,
+        assert current["create_arguments"] == {"elevation_m": 1.6, "storey_ref": None, "managed": True,
                                                 "query_kind": "whole_height_projection"}
 
 
-def test_repeated_new_preserves_native_identity_and_revisions_only_changed_pose(monkeypatch):
-    """The managed entrance uses the entered elevation and retains its previous composition revision."""
+def test_repeated_new_creates_independent_native_identities(monkeypatch):
+    """New creates another author while preserving previous observations in the directory."""
     context, _current, _runtime = _camera_ui_fixture(monkeypatch)
     context.scene.om_analysis_storey_ref = "ifc-object:storey-A"
     addon._set_camera_plane(context, "new")
     first = addon._analysis_plane(context.scene)
     addon._set_camera_plane(context, "new")
-    assert addon._analysis_plane(context.scene) == first
+    second = addon._analysis_plane(context.scene)
+    assert second.identity != first.identity and second.revision == 1
     context.scene.om_analysis_plane_origin_z = 2.1
     addon._set_camera_plane(context, "new")
     updated = addon._analysis_plane(context.scene)
-    assert updated.identity == first.identity and updated.revision == first.revision + 1
+    assert updated.identity not in {first.identity, second.identity} and updated.revision == 1
     assert updated.origin[2] == 2.1
+    assert len(addon._native_plane_settings(context.scene).records) == 3
 
 
 def test_native_camera_refresh_detects_motion_and_keeps_identity(monkeypatch):
@@ -142,6 +163,126 @@ def test_readopting_same_camera_preserves_revision_history(monkeypatch):
     assert addon._analysis_plane(context.scene).revision == updated.revision
 
 
+def test_switching_native_authors_retains_each_revision(monkeypatch):
+    """P1 to P2 to P1 restores P1's previous revision instead of resetting it."""
+    from dataclasses import replace
+
+    context, current, _runtime = _camera_ui_fixture(monkeypatch)
+    addon._set_camera_plane(context, "adopt")
+    first = addon._analysis_plane(context.scene)
+    current["observation"] = replace(current["observation"], origin=(4.0, 6.0, 3.5))
+    addon._set_camera_plane(context, "refresh")
+    assert addon._analysis_plane(context.scene).revision == 2
+    addon._set_camera_plane(context, "new")
+    second = addon._analysis_plane(context.scene)
+    addon._set_camera_plane(context, "default", plane_id=first.identity)
+    restored = addon._analysis_plane(context.scene)
+    assert restored.identity == first.identity and restored.revision == 2
+    assert second.identity != restored.identity
+    assert addon._native_plane_settings(context.scene).records[second.identity]["plane_revision"] == 1
+
+
+def test_package_override_and_follow_default_preserve_default_mirror(monkeypatch):
+    """Explicit package references survive default changes; follow mode tracks the shared default."""
+    context, _current, _runtime = _camera_ui_fixture(monkeypatch)
+    addon._set_camera_plane(context, "adopt")
+    first = addon._analysis_plane(context.scene)
+    addon._set_camera_plane(context, "new")
+    second = addon._analysis_plane(context.scene)
+    addon._set_camera_plane(context, "default", plane_id=first.identity)
+    addon._set_camera_plane(context, "override", package_id="free-space", plane_id=second.identity)
+    assert addon._analysis_plane(context.scene, package_id="free-space").identity == second.identity
+    assert context.scene.om_analysis_plane_uuid == first.identity
+    addon._set_camera_plane(context, "default", plane_id=second.identity)
+    assert addon._analysis_plane(context.scene, package_id="free-space").identity == second.identity
+    addon._set_camera_plane(context, "override", package_id="free-space")
+    assert "free-space" not in addon._native_plane_settings(context.scene).package_overrides
+    addon._set_camera_plane(context, "default", plane_id=first.identity)
+    assert addon._analysis_plane(context.scene, package_id="free-space").identity == first.identity
+
+
+@pytest.mark.parametrize("action,arguments", [
+    ("new", {}), ("adopt", {}), ("refresh", {}),
+    ("default", {"plane_id": "bonsai-camera:ifc:camera-A"}),
+    ("override", {"package_id": "free-space", "plane_id": "bonsai-camera:ifc:camera-A"}),
+])
+def test_owned_job_blocks_plane_changes_before_native_access(monkeypatch, action, arguments):
+    """One active runtime job forbids every plane choice and native authoring entrance."""
+    context, current, runtime = _camera_ui_fixture(monkeypatch)
+    addon._set_camera_plane(context, "adopt")
+    before = context.scene.om_analysis_plane_settings_json
+    observed = current["observation"]
+    runtime.STATE.job = object()
+    with pytest.raises(ValueError, match="finish or cancel"):
+        addon._set_camera_plane(context, action, **arguments)
+    assert context.scene.om_analysis_plane_settings_json == before
+    assert current["observation"] is observed and "create_arguments" not in current
+
+
+def test_package_review_is_per_observation_and_missing_reference_never_falls_back(monkeypatch):
+    """A reviewed default cannot authorize another author or a deleted explicit package reference."""
+    context, current, runtime = _camera_ui_fixture(monkeypatch)
+    addon._set_camera_plane(context, "adopt")
+    first_record, first = addon._stored_camera_plane(context.scene)
+    addon._set_camera_plane(context, "new")
+    second_record, second = addon._stored_camera_plane(context.scene)
+    addon._set_camera_plane(context, "default", plane_id=first.identity)
+    addon._set_camera_plane(context, "override", package_id="free-space", plane_id=second.identity)
+    runtime.STATE.reviewed_planes.remove(addon._plane_review_token(second_record))
+    with pytest.raises(ValueError, match="review"):
+        addon._analysis_plane(context.scene, package_id="free-space")
+    assert addon._analysis_plane(context.scene).identity == first.identity
+    runtime.STATE.reviewed_planes.add(addon._plane_review_token(second_record))
+    current["observation"] = current["observations"][first_record["camera_guid"]]
+    del current["observations"][second_record["camera_guid"]]
+    history = runtime.STATE.current_result
+    with pytest.raises(ValueError, match="deleted"):
+        addon._analysis_plane(context.scene, package_id="free-space")
+    assert runtime.STATE.current_result is history
+    assert addon._native_plane_settings(context.scene).package_overrides["free-space"] == second.identity
+
+
+def test_start_resolves_package_plane_once_for_request_and_binding(monkeypatch):
+    """The numeric request and publication binding share one reviewed explicit observation."""
+    class Operator:
+        """Fake Blender operator base."""
+
+    context, _current, runtime = _camera_ui_fixture(monkeypatch)
+    addon._set_camera_plane(context, "adopt")
+    default = addon._analysis_plane(context.scene)
+    addon._set_camera_plane(context, "new")
+    selected = addon._analysis_plane(context.scene)
+    addon._set_camera_plane(context, "default", plane_id=default.identity)
+    addon._set_camera_plane(context, "override", package_id="free-space", plane_id=selected.identity)
+    runtime.STATE.domain_session = {"current": {"status": "active"}, "domain_geometries": (),
+        "analysis_domain": {"id": "domain", "geometry_refs": (), "source_id": None,
+            "selection_method": "test", "provenance": {}, "uncertainties": ()}}
+    calls, resolutions = [], []
+    monkeypatch.setattr(runtime, "start_job", lambda **kwargs: calls.append(kwargs))
+    monkeypatch.setattr(addon, "_configured_repo_root", lambda context=None: Path.cwd())
+    monkeypatch.setattr(addon, "_grid_coverage", lambda *args, **kwargs: ((0.0, 0.0), 1, 1))
+    original = addon._analysis_plane_pair
+
+    def resolve(scene, *, package_id=None):
+        """Record the one boundary resolution before forwarding native validation."""
+        resolutions.append(package_id)
+        return original(scene, package_id=package_id)
+
+    monkeypatch.setattr(addon, "_analysis_plane_pair", resolve)
+    fake_bpy = _operator_bpy(types=SimpleNamespace(Operator=Operator),
+                             props=SimpleNamespace(StringProperty=lambda **kwargs: ""))
+    operator = next(cls for cls in addon._operator_classes(fake_bpy) if cls.bl_idname == "om_analysis.start")()
+    errors = []
+    operator.report = lambda _kind, message: errors.append(message)
+    assert operator.execute(context) == {"FINISHED"}, errors
+    payload = calls[0]["payload"]
+    assert resolutions == ["free-space"]
+    assert payload["request"]["plane"]["identity"] == selected.identity
+    assert payload["job_binding"]["plane_binding"]["plane_uuid"] == selected.identity
+    assert payload["job_binding"]["plane_binding"]["plane_revision"] == selected.revision
+    assert context.scene.om_analysis_plane_uuid == default.identity
+
+
 def test_free_space_panel_displays_exact_plane_space_and_authored_targets(monkeypatch):
     """Users see captured group membership and query without inferring groups from labels."""
     context, _current, runtime = _camera_ui_fixture(monkeypatch)
@@ -151,8 +292,9 @@ def test_free_space_panel_displays_exact_plane_space_and_authored_targets(monkey
         {"id": "ifc-group:G", "member_refs": ["ifc-object:A", "ifc-object:B"]}]}})
     labels, properties = [], []
     layout = SimpleNamespace(label=lambda **kw: labels.append(kw["text"]),
-        prop=lambda _scene, name, **kw: properties.append(name), operator=lambda *a, **kw: None)
+        prop=lambda _scene, name, **kw: properties.append(name), operator=lambda *a, **kw: SimpleNamespace())
     layout.row = lambda **kw: layout
+    layout.column = lambda **kw: layout
     addon._draw_free_space(layout, context.scene, runtime)
     assert "Space: space-A" in labels
     assert "Group ifc-group:G: ifc-object:A, ifc-object:B" in labels
@@ -255,7 +397,7 @@ def test_register_unregister_keeps_one_runtime_and_reverses_panel_lifecycle(monk
         utils=SimpleNamespace(register_class=lambda cls: registered.append(cls), unregister_class=lambda cls: registered.remove(cls)),
         app=SimpleNamespace(timers=SimpleNamespace(register=lambda *a, **kw: None, is_registered=lambda _t: True,
                                                     unregister=lambda _t: None),
-                            handlers=SimpleNamespace(load_post=[], undo_post=[], depsgraph_update_post=[])),
+                            handlers=SimpleNamespace(load_post=[], undo_post=[], redo_post=[], depsgraph_update_post=[])),
     )
     runtime = SimpleNamespace(STATE=SimpleNamespace(observation_hooks_active=False),
                               invalidate_runtime=lambda *a, **kw: None, reap_owned_job=lambda: None)
@@ -576,18 +718,26 @@ def test_register_persists_load_handler_and_restores_open_file_regions(monkeypat
         app=SimpleNamespace(timers=SimpleNamespace(register=lambda *args, **kwargs: timer_calls.append((args, kwargs)),
                                                    is_registered=lambda timer: True,
                                                    unregister=lambda timer: None),
-                            handlers=SimpleNamespace(load_post=[], undo_post=[], depsgraph_update_post=[],
+                            handlers=SimpleNamespace(load_post=[], undo_post=[], redo_post=[], depsgraph_update_post=[],
                                                       persistent=persistent)),
     )
     def invalidate_domain_session(_reason):
         """Drop the retained session when the native file changes."""
         runtime.STATE.domain_session = None
 
-    runtime = SimpleNamespace(STATE=SimpleNamespace(domain_session={"retained": True}),
+    invalidations = []
+
+    def invalidate_runtime(reason, *, new_session=False):
+        """Record session boundaries and mirror runtime review-token invalidation."""
+        invalidations.append((reason, new_session))
+        if new_session:
+            runtime.STATE.reviewed_planes.clear()
+
+    runtime = SimpleNamespace(STATE=SimpleNamespace(domain_session={"retained": True}, reviewed_planes=set()),
                               find_region_manifest=lambda **kwargs: {"records": ({"region_id": "r1"},),
                                                                      "active_region_id": "r1"},
                               invalidate_domain_session=invalidate_domain_session,
-                              invalidate_runtime=lambda *args, **kwargs: None,
+                              invalidate_runtime=invalidate_runtime,
                               reap_owned_job=lambda: None)
     restored = []
     from blender_addon.order_analyzer_ui import region_overlay
@@ -599,18 +749,29 @@ def test_register_persists_load_handler_and_restores_open_file_regions(monkeypat
                         lambda records, selected_id=None: restored.append((tuple(records), selected_id)))
 
     addon.register()
-    assert len(persistent_calls) == 3
+    assert len(persistent_calls) == 4
     assert timer_calls and timer_calls[0][1]["persistent"] is True
     assert fake_bpy.app.handlers.load_post[0].original is persistent_calls[0]
     assert fake_bpy.app.handlers.undo_post[0].original is persistent_calls[1]
-    assert fake_bpy.app.handlers.depsgraph_update_post[0].original is persistent_calls[2]
+    assert fake_bpy.app.handlers.redo_post[0].original is persistent_calls[2]
+    assert fake_bpy.app.handlers.depsgraph_update_post[0].original is persistent_calls[3]
     assert restored == [(({"region_id": "r1"},), "r1")]
     assert runtime.STATE.domain_session == {"retained": True}
-    fake_bpy.app.handlers.load_post[0]()
-    assert runtime.STATE.domain_session is None
+    for reason, collection in (("undo", fake_bpy.app.handlers.undo_post),
+                               ("redo", fake_bpy.app.handlers.redo_post),
+                               ("load", fake_bpy.app.handlers.load_post)):
+        runtime.STATE.domain_session = {"retained": True}
+        runtime.STATE.reviewed_planes.add("one-reviewed-observation")
+        scene.om_analysis_plane_reviewed = True
+        collection[0]()
+        assert runtime.STATE.domain_session is None
+        assert runtime.STATE.reviewed_planes == set()
+        assert scene.om_analysis_plane_reviewed is False
+        assert invalidations[-1] == (reason, True)
     addon.unregister()
     assert fake_bpy.app.handlers.load_post == []
     assert fake_bpy.app.handlers.undo_post == []
+    assert fake_bpy.app.handlers.redo_post == []
     assert fake_bpy.app.handlers.depsgraph_update_post == []
 
 
@@ -654,7 +815,7 @@ def test_register_skips_overlay_restore_without_scene_context(monkeypatch):
         app=SimpleNamespace(timers=SimpleNamespace(register=lambda *args, **kwargs: None,
                                                    is_registered=lambda timer: True,
                                                    unregister=lambda timer: None),
-                            handlers=SimpleNamespace(load_post=[], undo_post=[], depsgraph_update_post=[])),
+                            handlers=SimpleNamespace(load_post=[], undo_post=[], redo_post=[], depsgraph_update_post=[])),
     )
     runtime = Runtime()
     monkeypatch.setattr(addon, "_bpy", lambda: fake_bpy)
@@ -679,9 +840,10 @@ def test_start_accepts_immutable_active_domain_and_rejects_plain_invalid_object(
     runtime = SimpleNamespace(STATE=SimpleNamespace(domain_session=None), start_job=lambda **kwargs: None)
     monkeypatch.setattr(addon, "_action_runtime", lambda context: runtime)
     monkeypatch.setattr(addon, "_configured_repo_root", lambda context=None: Path.cwd())
+    monkeypatch.setattr(addon, "_analysis_plane_pair",
+                        lambda scene, package_id=None: (SimpleNamespace(identity="plane"), {"plane_uuid": "plane"}))
     monkeypatch.setattr(addon, "_make_analysis_request",
-                        lambda scene, domain, domain_geometries=(): SimpleNamespace(to_dict=lambda: {"domain": domain}))
-    monkeypatch.setattr(addon, "_stored_camera_plane", lambda scene: ({"camera_guid": "fixture"}, None))
+                        lambda scene, domain, domain_geometries=(), *, plane=None: SimpleNamespace(to_dict=lambda: {"domain": domain, "plane": plane}))
     start_class = next(cls for cls in addon._operator_classes(fake_bpy)
                        if getattr(cls, "bl_idname", "") == "om_analysis.start")
     calls = []
@@ -724,9 +886,10 @@ def test_selected_wall_start_requires_current_structural_context(monkeypatch, tm
         start_job=lambda **kwargs: calls.append(kwargs))
     monkeypatch.setattr(addon, "_action_runtime", lambda context: runtime)
     monkeypatch.setattr(addon, "_configured_repo_root", lambda context=None: tmp_path)
+    monkeypatch.setattr(addon, "_analysis_plane_pair",
+                        lambda scene, package_id=None: (SimpleNamespace(identity="plane"), {"plane_uuid": "plane"}))
     monkeypatch.setattr(addon, "_make_analysis_request",
-                        lambda scene, value, domain_geometries=(): SimpleNamespace(to_dict=lambda: {"domain": value}))
-    monkeypatch.setattr(addon, "_stored_camera_plane", lambda scene: ({"camera_guid": "fixture"}, None))
+                        lambda scene, value, domain_geometries=(), *, plane=None: SimpleNamespace(to_dict=lambda: {"domain": value, "plane": plane}))
     monkeypatch.setattr(addon, "_structural_context_payload", lambda scene: StructuralContext.from_plane(
         _plane(), storey_ref=scene.storey_ref, selected_wall_refs=scene.selected_wall_refs,
         b4_parameters={"tolerance_mm2": scene.tolerance_mm2, "contact_distance_m": 1e-6,

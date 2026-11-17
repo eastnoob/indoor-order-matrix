@@ -585,6 +585,31 @@ def test_managed_plane_ensure_is_idempotent_and_native_placement_uses_world_metr
     assert runtime.state.calls.count("sync") == 2 and len(runtime.store.history) == 2
 
 
+def test_multiple_managed_planes_require_explicit_identity_and_update_only_selected(monkeypatch, tmp_path):
+    """Multiple native authors are preserved, while explicit refresh targets one IFC GUID."""
+    from ifcopenshell.util.placement import get_local_placement
+
+    runtime = _authoring_runtime(monkeypatch, tmp_path)
+    adapter = runtime.adapter
+    first = adapter.create_native_drawing(elevation_m=1.6, managed=True)
+    second = adapter.create_native_drawing(elevation_m=4.2, managed=True)
+    first_entity = runtime.tool.Ifc.get_entity(first)
+    second_entity = runtime.tool.Ifc.get_entity(second)
+    first_guid, second_guid = first_entity.GlobalId, second_entity.GlobalId
+    before = get_local_placement(second_entity.ObjectPlacement).copy()
+    calls, history = list(runtime.state.calls), list(runtime.store.history)
+    with pytest.raises(ValueError, match="more than one"):
+        adapter.ensure_native_analysis_plane(elevation_m=2.3)
+    assert runtime.state.calls == calls and runtime.store.history == history
+    selected = adapter.ensure_native_analysis_plane(elevation_m=2.3,
+        project_global_id=runtime.project.GlobalId, camera_guid=first_guid)
+    assert runtime.tool.Ifc.get_entity(selected).GlobalId == first_guid
+    assert get_local_placement(first_entity.ObjectPlacement)[2, 3] == pytest.approx(2.3)
+    assert get_local_placement(second_entity.ObjectPlacement).tolist() == before.tolist()
+    assert adapter.ensure_native_analysis_plane(elevation_m=4.2,
+        project_global_id=runtime.project.GlobalId, camera_guid=second_guid) is second
+
+
 def test_direct_creation_default_and_storey_hint_remain_compatible(monkeypatch, tmp_path):
     """Ordinary direct creation retains native elevation and does not acquire managed ownership."""
     import ifcopenshell.api
@@ -636,6 +661,30 @@ def _reopened_authoring_runtime(monkeypatch, tmp_path, *, unit_scale=1.):
     reopened = ifcopenshell.file.from_string(source.model.to_string())
     runtime = _authoring_runtime(monkeypatch, tmp_path, unit_scale=unit_scale, model=reopened)
     return runtime, guid
+
+
+def test_explicit_plane_restore_selects_exact_guid_among_multiple_saved_drawings(monkeypatch, tmp_path):
+    """IFC-only reopen restores the chosen native author without importing or moving its peer."""
+    import ifcopenshell
+    from ifcopenshell.util.placement import get_local_placement
+
+    source = _authoring_runtime(monkeypatch, tmp_path)
+    first = source.adapter.create_native_drawing(elevation_m=1.6, managed=True)
+    second = source.adapter.create_native_drawing(elevation_m=4.2, managed=True)
+    first_guid = source.tool.Ifc.get_entity(first).GlobalId
+    second_guid = source.tool.Ifc.get_entity(second).GlobalId
+    reopened = ifcopenshell.file.from_string(source.model.to_string())
+    runtime = _authoring_runtime(monkeypatch, tmp_path, model=reopened)
+    first_before = get_local_placement(reopened.by_guid(first_guid).ObjectPlacement).copy()
+    restored = runtime.adapter.ensure_native_analysis_plane(elevation_m=5.0,
+        project_global_id=runtime.project.GlobalId, camera_guid=second_guid)
+    assert runtime.tool.Ifc.get_entity(restored).GlobalId == second_guid
+    assert len(runtime.bpy.data.objects) == 1
+    assert len(runtime.model.by_type("IfcAnnotation")) == 2
+    assert get_local_placement(reopened.by_guid(first_guid).ObjectPlacement).tolist() == first_before.tolist()
+    assert get_local_placement(reopened.by_guid(second_guid).ObjectPlacement)[2, 3] == pytest.approx(5.0)
+    assert runtime.state.calls.count(("import", reopened.by_guid(second_guid).id())) == 1
+    assert ("import", reopened.by_guid(first_guid).id()) not in runtime.state.calls
 
 
 @pytest.mark.parametrize("unit_scale", [1., .001, 2.])

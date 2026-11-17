@@ -14,6 +14,7 @@ import tempfile
 from . import blender_analysis_result_wire as wire
 from . import blender_analysis_session as session
 from .blender_analysis_session import serialize_analysis_result, _content_cache_key, _cached_run
+from .bonsai_live import numeric_source_facts
 
 if "." in (__package__ or ""):
     from ..features import analysis_requests as requests
@@ -24,6 +25,7 @@ if "." in (__package__ or ""):
     from ..features.evidence_package_parameters import compare_parameter_snapshots
     from ..features.cache_paths import CacheAddress, SidecarLocator, SourceBinding
     from ..features.cache_store import CacheStore
+    from ..features.package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
     from ..features.evidence_package_storage import (
         ProcessedCacheLookup, legacy_processed_cache_key, processed_cache_key,
         reconstruct_legacy_processed_snapshot, compare_receipt_parameters,
@@ -39,6 +41,7 @@ else:
     from features.evidence_package_parameters import compare_parameter_snapshots
     from features.cache_paths import CacheAddress, SidecarLocator, SourceBinding
     from features.cache_store import CacheStore
+    from features.package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
     from features.evidence_package_storage import (
         ProcessedCacheLookup, legacy_processed_cache_key, processed_cache_key,
         reconstruct_legacy_processed_snapshot, compare_receipt_parameters,
@@ -96,7 +99,7 @@ def free_space_cache_key(scene, request):
     # The legacy key also binds registry bytes and numerical backends, but omits
     # scope/uncertainty facts. Complete scene data closes that cache boundary.
     return fingerprint_evidence_dependency({
-        "scene": normalized_scene.to_dict(), "request": request_data,
+        "scene": _numeric_scene_facts(normalized_scene), "request": request_data,
         "executor_key": _content_cache_key(normalized_scene, normalized_request, {}, None)[0],
         "package": {"id": package.PACKAGE_ID, "schema": package.PACKAGE_SCHEMA,
                     "algorithm_version": package.ALGORITHM_VERSION,
@@ -127,7 +130,7 @@ def _legacy_free_space_cache_key(scene, request):
 
 def _portable_source_facts(scene):
     """Return source facts with display-only model locators removed."""
-    facts = scene.to_dict()
+    facts = _numeric_scene_facts(scene)
     context = dict(facts.get("context", {}))
     world = dict(context.get("world_coordinate_system", {}))
     for key in ("ifc_source_identity", "model_path", "source_path", "locator"):
@@ -140,6 +143,18 @@ def _portable_source_facts(scene):
     return facts
 
 
+def _numeric_scene_facts(scene):
+    """Retain complete numerical scene data while omitting unused native cameras."""
+    facts = scene.to_dict()
+    projected = numeric_source_facts(scene)
+    facts["context"] = projected["context"]
+    facts["source_objects"] = projected["sources"]
+    facts["geometries"] = projected["geometries"]
+    facts["openings"] = projected["openings"]
+    facts["authored_groups"] = projected["authored_groups"]
+    return facts
+
+
 def _free_space_source_binding(scene, *, model_path, root):
     """Build a durable source binding while keeping the current locator diagnostic."""
     facts = _portable_source_facts(scene)
@@ -148,7 +163,8 @@ def _free_space_source_binding(scene, *, model_path, root):
     project = world.get("project_global_id", "unknown-project")
     canonical = f"free-space:{project}:{fingerprint}"
     locator = str(Path(model_path).resolve()) if model_path is not None else str(Path(root).resolve())
-    return SourceBinding(fingerprint, canonical, fingerprint, {}, locator)
+    return SourceBinding(fingerprint, canonical, fingerprint,
+                         world.get("external_dependencies", {}), locator)
 
 
 def _resolve_free_space_store(scene, *, cache_directory, model_path, temporary_cache_root):
@@ -166,7 +182,7 @@ def _resolve_free_space_store(scene, *, cache_directory, model_path, temporary_c
     return store, binding
 
 
-def evaluate_saved_free_space_package(snapshot):
+def evaluate_saved_free_space_package(snapshot, *, analysis_context=None, allow_multiple_planes=False):
     """Adapt an already exact-opened authenticated snapshot and retain its freshness state."""
     if not isinstance(snapshot, wire.ReadOnlyResultSnapshot) or snapshot.ref.kind != "free_space_run":
         raise TypeError("an opened free-space ReadOnlyResultSnapshot is required")
@@ -177,7 +193,10 @@ def evaluate_saved_free_space_package(snapshot):
     if snapshot.freshness not in {"historical", "current"}:
         raise ValueError("saved snapshot has unsupported freshness state")
     source = package.build_free_space_source_envelope(snapshot.payload, source_freshness=snapshot.freshness)
-    return package.build_free_space_evidence_package().evaluate((source,))
+    context = resolve_package_analysis_context((source,), analysis_context=analysis_context,
+                                              allow_multiple_planes=allow_multiple_planes)
+    return package.build_free_space_evidence_package().evaluate((source,), analysis_context=context,
+        allow_multiple_planes=allow_multiple_planes)
 
 
 def _cache_secret(directory):
@@ -424,11 +443,12 @@ def _write_processed_cache(path, output, secret):
 
 
 def evaluate_free_space_package(scene, request, *, cache_directory=None, model_path=None,
-                                temporary_cache_root=None):
+                                temporary_cache_root=None, analysis_context=None, allow_multiple_planes=False):
     """Compute or reuse occupancy for supplied immutable facts, then project the one package channel."""
     return run_free_space_package(
         scene, request, cache_directory=cache_directory, model_path=model_path,
-        temporary_cache_root=temporary_cache_root,
+        temporary_cache_root=temporary_cache_root, analysis_context=analysis_context,
+        allow_multiple_planes=allow_multiple_planes,
     )["raw_output"]
 
 
@@ -461,7 +481,8 @@ def _reconstruct_legacy_free_space_contract(receipt, current_contract):
         return None
 
 
-def _run_free_space_package_legacy(scene, request, *, cache_directory=None, output_processor=None):
+def _run_free_space_package_legacy(scene, request, *, cache_directory=None, output_processor=None,
+                                   analysis_context=None, allow_multiple_planes=False):
     """Own authenticated occupancy reuse, current publication and optional processed access."""
     cache_key = free_space_cache_key(scene, request)
     directory = None if cache_directory is None else Path(cache_directory)
@@ -507,7 +528,8 @@ def _run_free_space_package_legacy(scene, request, *, cache_directory=None, outp
         wire.validate_document(document)
     source = package.build_free_space_source_envelope(document, source_freshness="supplied_scene")
     producer = package.build_free_space_evidence_package(output_processor=output_processor)
-    raw = producer.evaluate((source,))
+    raw = producer.evaluate((source,), analysis_context=analysis_context,
+                            allow_multiple_planes=allow_multiple_planes)
     contract = package.build_free_space_package_contract(
         document, parameter_snapshot=requested_snapshot,
     )
@@ -532,7 +554,8 @@ def _run_free_space_package_legacy(scene, request, *, cache_directory=None, outp
     )
     processed = None if processed_lookup is None else processed_lookup.processed_output
     if processed_lookup is None:
-        processed = producer.process_output(raw, package_freshness="fresh")
+        processed = producer.process_output(raw, package_freshness="fresh", analysis_context=analysis_context,
+                                             allow_multiple_planes=allow_multiple_planes)
         if processed_path is not None:
             _write_processed_cache(processed_path, processed, secret)
     if processed_lookup is not None:
@@ -544,7 +567,8 @@ def _run_free_space_package_legacy(scene, request, *, cache_directory=None, outp
             "cache_key": cache_key, "cache_hit": hit, "cache_status": cache_status}
 
 
-def _run_free_space_package_store(scene, request, *, store, binding, output_processor=None):
+def _run_free_space_package_store(scene, request, *, store, binding, output_processor=None,
+                                  analysis_context=None, allow_multiple_planes=False):
     """Run the authenticated package through one model-side CacheStore namespace."""
     # A model locator is provenance only; the portable source identity keeps relocation
     # from changing the existing calculation key or creating a second source namespace.
@@ -672,7 +696,8 @@ def _run_free_space_package_store(scene, request, *, store, binding, output_proc
             wire.validate_document(document)
         source = package.build_free_space_source_envelope(document, source_freshness="supplied_scene")
         producer = package.build_free_space_evidence_package(output_processor=output_processor)
-        raw = producer.evaluate((source,))
+        raw = producer.evaluate((source,), analysis_context=analysis_context,
+                                allow_multiple_planes=allow_multiple_planes)
         contract = package.build_free_space_package_contract(document, parameter_snapshot=requested_snapshot)
         cache_status = evaluate_evidence_package_freshness(
             cached_contract=None if lookup is None else lookup.cached_contract,
@@ -728,7 +753,8 @@ def _run_free_space_package_store(scene, request, *, store, binding, output_proc
                 if processed_lookup is not None:
                     processed = processed_lookup.processed_output
                 else:
-                    processed = producer.process_output(raw, package_freshness="fresh")
+                    processed = producer.process_output(raw, package_freshness="fresh", analysis_context=analysis_context,
+                                                         allow_multiple_planes=allow_multiple_planes)
                     if processed.error_code is None:
                         receipt = {"schema": "free-space-processed-cache/v1",
                                    "processing_identity": processed.processing_identity,
@@ -751,11 +777,20 @@ def _run_free_space_package_store(scene, request, *, store, binding, output_proc
 
 
 def run_free_space_package(scene, request, *, cache_directory=None, output_processor=None,
-                           model_path=None, temporary_cache_root=None):
+                           model_path=None, temporary_cache_root=None, analysis_context=None,
+                           allow_multiple_planes=False):
     """Preserve legacy flat caches while enabling model-side storage for locator-aware calls."""
+    if not isinstance(request, requests.AnalysisRequest):
+        raise TypeError("free-space computation requires AnalysisRequest")
+    # Selection is mandatory call metadata, and must be valid before any warm
+    # lookup; an explicit unused selection never rewrites the actual request.
+    context = resolve_package_analysis_context((), analysis_context=(
+        PackageAnalysisContext((request.plane,)) if analysis_context is None else analysis_context),
+        allow_multiple_planes=allow_multiple_planes)
     if model_path is None and temporary_cache_root is None:
         return _run_free_space_package_legacy(
             scene, request, cache_directory=cache_directory, output_processor=output_processor,
+            analysis_context=context, allow_multiple_planes=allow_multiple_planes,
         )
     resolved = _resolve_free_space_store(
         scene, cache_directory=cache_directory, model_path=model_path,
@@ -763,4 +798,5 @@ def run_free_space_package(scene, request, *, cache_directory=None, output_proce
     )
     store, binding = resolved
     return _run_free_space_package_store(scene, request, store=store, binding=binding,
-                                         output_processor=output_processor)
+                                         output_processor=output_processor, analysis_context=context,
+                                         allow_multiple_planes=allow_multiple_planes)

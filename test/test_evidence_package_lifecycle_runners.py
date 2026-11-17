@@ -8,6 +8,8 @@ from types import SimpleNamespace
 
 import pytest
 
+from test.test_evidence_package_output import _package_context
+
 from features.field_core import _json_value, deserialize_evidence_package_output, serialize_evidence_package_output
 from features.group_axis_potential_field import build_group_axis_potential_package
 from features.group_distance import calculate_group_pair_distances, group_distance_input_fingerprints
@@ -86,9 +88,10 @@ def test_saved_distance_runner_uses_owned_entry_and_preserves_raw_bytes(tmp_path
     _write(repair_path, repair)
     repair["retained_result_ref"] = {"path": str(repair_path.resolve()),
         "sha256": distance_runner.file_hash(repair_path), "observation_lookup": "observations[*].pair_id"}
-    expected = serialize_evidence_package_output(evaluate_group_distance_package(bundle, repaired_result=repair))
+    expected = serialize_evidence_package_output(evaluate_group_distance_package(bundle, repaired_result=repair, analysis_context=_package_context()))
     monkeypatch.setattr(distance_runner, "evaluate_group_distance_package", _forbidden_shortcut, raising=False)
-    receipt = distance_runner.publish_saved_repair_result(input_path, repair_path, tmp_path / "published")
+    receipt = distance_runner.publish_saved_repair_result(input_path, repair_path, tmp_path / "published",
+        analysis_context=_package_context())
     assert _read(Path(receipt["output"])) == expected
     assert receipt["distance_recomputed"] is False
     assert receipt["pair_count"] == 3 and receipt["channel_count"] == 6
@@ -97,7 +100,7 @@ def test_saved_distance_runner_uses_owned_entry_and_preserves_raw_bytes(tmp_path
 def test_retained_potential_runner_uses_owned_entry_with_original_source_order(tmp_path, monkeypatch):
     """The replay's published raw channels must remain byte-equivalent to original-order evaluation."""
     source, envelopes = _retained_subset(tmp_path)
-    expected = serialize_evidence_package_output(build_group_axis_potential_package().evaluate(envelopes))
+    expected = serialize_evidence_package_output(build_group_axis_potential_package().evaluate(envelopes, analysis_context=_package_context()))
     monkeypatch.setattr(replay_runner, "build_group_axis_potential_package", _forbidden_shortcut, raising=False)
     output = replay_runner.run(source, tmp_path / "replayed")
     assert _read(output / "axis_potential_output.json") == expected
@@ -132,7 +135,7 @@ def test_extraction_potential_runner_hands_retained_envelopes_to_owned_entry(tmp
     monkeypatch.setattr(potential_runner, "build_group_axis_potential_package", _forbidden_shortcut, raising=False)
     source_path = tmp_path / "retained-source-marker"
     source_path.write_bytes(b"retained extraction handoff")
-    expected = serialize_evidence_package_output(build_group_axis_potential_package().evaluate(envelopes))
+    expected = serialize_evidence_package_output(build_group_axis_potential_package().evaluate(envelopes, analysis_context=_package_context()))
     output = potential_runner.run(source_path, tmp_path / "extracted")
     assert _read(output / "axis_potential_output.json") == expected
     assert _read(output / "package_contract.json")["producer"] == (
@@ -225,8 +228,15 @@ def test_replay_cli_temporary_root_is_session_local(tmp_path, capsys):
     assert output.parent == temporary / "runs"
 
 
-def test_distance_cli_default_and_explicit_exact_outputs(tmp_path, capsys):
+def test_distance_cli_default_and_explicit_exact_outputs(tmp_path, monkeypatch, capsys):
     """Saved distance publication parses a model default while keeping exact exports."""
+    run_package = distance_runner.run_group_distance_package
+
+    def run_contract_package(*args, **kwargs):
+        """Supply call selection for this nonspatial fixture at the CLI package handoff."""
+        return run_package(*args, **{**kwargs, "analysis_context": _package_context()})
+
+    monkeypatch.setattr(distance_runner, "run_group_distance_package", run_contract_package)
     bundle = _missing_bundle()
     fingerprints = group_distance_input_fingerprints(bundle)
     bundle = replace(bundle, grid=replace(bundle.grid, domain_fingerprint=fingerprints["domain"],
@@ -343,7 +353,7 @@ def _journal_cli_case(tmp_path, monkeypatch, kind, failure):
         _write(input_path, _json_value(bundle))
         repair = _unresolved_repair(calculate_group_pair_distances(bundle))
         _write(repair_path, repair)
-        result = evaluate_group_distance_package(bundle, repaired_result=repair)
+        result = evaluate_group_distance_package(bundle, repaired_result=repair, analysis_context=_package_context())
         monkeypatch.setattr(distance_runner, "run_group_distance_package", enter_package)
         return distance_runner, ["--input-bundle", str(input_path), "--repair-result", str(repair_path)], root
 
@@ -355,7 +365,7 @@ def _journal_cli_case(tmp_path, monkeypatch, kind, failure):
         return hierarchy_runner, ["--retained-run", str(source)], root
 
     source, envelopes = _retained_subset(tmp_path)
-    result = build_group_axis_potential_package().evaluate(envelopes)
+    result = build_group_axis_potential_package().evaluate(envelopes, analysis_context=_package_context())
     runner = {"live": potential_runner, "replay": replay_runner, "modulation": modulation_runner}[kind]
     monkeypatch.setattr(runner, "run_group_axis_potential_package", enter_package)
     if kind == "replay":

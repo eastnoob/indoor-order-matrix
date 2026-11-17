@@ -15,6 +15,7 @@ from features.field_core import (
 from scripts.design.group_level import replay_evidence_package_readback as adapter
 from .test_evidence_package_freshness import _contract
 from .test_evidence_package_readback import _saved
+from .test_evidence_package_output import _package_context
 
 
 def _save(path, payload):
@@ -37,12 +38,13 @@ def _saved_processed(tmp_path):
     processor = EvidenceOutputProcessor("saved-consumer-trial", "1", process, {"scope": "two-targets"})
     package = EvidencePackage(raw.package_id, raw.output_function, raw.output_function_version,
                               process, output_processor=processor)
-    processed = package.process_output(raw, package_freshness="fresh")
+    processed = package.process_output(raw, package_freshness="fresh", analysis_context=_package_context())
     assert processed.error_code is None
     processed_path = tmp_path / "processed.json"
     processed_digest = _save(processed_path, serialize_evidence_processed_output(processed))
     contract = _contract(package_id=raw.package_id, target_ids=("target-0", "target-1"))
     arguments = dict(
+        analysis_context=_package_context(),
         expected_sha256=digest, cached_contract=contract, current_contract=contract,
         current_source_envelopes=raw.source_envelopes, selections=(),
         dependency_graph={adapter.PACKAGE_ID: (raw.package_id,), raw.package_id: ()},

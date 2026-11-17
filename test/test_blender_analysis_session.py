@@ -43,6 +43,103 @@ def _cache_payload():
         "domain_geometries": [scene.geometries[0].to_dict()], "support_binding": None, "legacy_bindings": []}
 
 
+def _unused_native_camera_record(*, origin=(0, 0, 1.6)):
+    """Reuse a verified camera transport row without adding physical test geometry."""
+    from ..adapters.bonsai_analysis_plane import CameraBinding
+    row = capture("furniture").to_dict()["records"][0]
+    row.update(id="ifc-object:unused-camera", global_id="unused-camera", step_id=100,
+        ifc_class="IfcAnnotation", mesh=None, status="native_drawing_camera",
+        native_camera=CameraBinding(camera_id="ifc:unused-camera", role="geometry_author", origin=origin,
+            basis=_plane().basis, display={}, provenance={"project_global_id": "project",
+                "source_ifc_global_id": "unused-camera", "geometry_author_qualified": True}).to_dict())
+    return row
+
+
+@pytest.mark.parametrize("model_sidecar", [False, True])
+@pytest.mark.parametrize("native_identity", [False, True])
+def test_unused_native_camera_edits_reuse_physical_cache_with_full_current_audit(tmp_path, monkeypatch, model_sidecar,
+                                                                             native_identity):
+    """Adding and moving P2 cameras preserves P1 content after current capture validation."""
+    from ..adapters import blender_analysis_session as service
+    from ..adapters.blender_analysis_capture import capture_source_fingerprint
+    from ..features.cache_store import CacheStore
+    payload = _cache_payload()
+
+    def refresh_native_identity():
+        """Apply the existing full-capture canonical ID recipe used by native finalization."""
+        if native_identity:
+            data = payload["canonical_capture"]
+            full = capture_source_fingerprint(data["identity"], data["records"], data["diagnostics"], data["observation"])
+            canonical = "blender:project:" + full
+            data["identity"].update(ifc_source_identity=canonical, canonical_source_identity=canonical)
+
+    refresh_native_identity()
+    options = {"model_path": tmp_path / "layout.blend"} if model_sidecar else {"cache_directory": tmp_path}
+    first = service._execute_workflow_payload(payload, **options)
+    if model_sidecar:
+        entry, = CacheStore(tmp_path / "layout.order_analyzer").list(package_id="blender-analysis")
+        path = entry.payload_paths[0]
+    else:
+        path = tmp_path / (first["content_cache"]["content_key"] + ".json")
+    original = path.read_bytes()
+
+    def forbidden(*_args, **_kwargs):
+        """Fail if an unused native camera sends a warm numerical result to its producer."""
+        pytest.fail("unused camera repeated numerical analysis")
+
+    monkeypatch.setattr(service.requests, "execute_analysis_request", forbidden)
+    for index, origin in enumerate(((0, 0, 1.6), (4, 5, 3.2)), 1):
+        payload["canonical_capture"]["records"] = [payload["canonical_capture"]["records"][0],
+            _unused_native_camera_record(origin=origin)]
+        refresh_native_identity()
+        payload["job_binding"]["job_id"] = "unused-camera-" + str(index)
+        current = service._execute_workflow_payload(payload, **options)
+        assert current["content_cache"]["hit"] is True
+        assert current["content_cache"]["content_key"] == first["content_cache"]["content_key"]
+        if model_sidecar:
+            assert current["content_cache"]["source_fingerprint"] == first["content_cache"]["source_fingerprint"]
+        assert current["binding"]["canonical_full_fingerprint"] != first["binding"]["canonical_full_fingerprint"]
+        assert current["binding"]["capture_digest"] != first["binding"]["capture_digest"]
+        assert path.read_bytes() == original
+
+
+def test_unused_native_camera_requires_new_support_consent_then_reuses_numerical_content(tmp_path, monkeypatch):
+    """Full capture consent remains current-only while valid reconfirmation recovers old numbers."""
+    from ..adapters import blender_analysis_session as service
+    from ..adapters.blender_analysis_capture import CanonicalCaptureInput
+    from ..adapters.bonsai_live import SupportBinding, geometry_digest
+    payload = _cache_payload()
+    payload["canonical_capture"] = capture("slab").to_dict()
+
+    def current_support(confirmation_id):
+        """Bind the exact existing slab to the complete current capture."""
+        live = load_bonsai_capture(CanonicalCaptureInput(**payload["canonical_capture"]), plane=_plane())
+        source = live.scene.source_objects[0]
+        return SupportBinding(source.id, "project", "IfcSlab", source.geometry_refs,
+            geometry_digest(live.scene, source), live.capture_fingerprint, confirmation_id)
+
+    payload["support_binding"] = service.wire.plain(current_support("original-consent").__dict__)
+    first = service._execute_workflow_payload(payload, model_path=tmp_path / "layout.blend")
+    assert service.reconstruct_field_sample(first, row=0, column=0).value is False
+    payload["canonical_capture"]["records"].append(_unused_native_camera_record())
+    payload["job_binding"]["job_id"] = "stale-support"
+    stale = service._execute_workflow_payload(payload, model_path=tmp_path / "layout.blend")
+    assert stale["content_cache"]["hit"] is False
+    assert service.reconstruct_field_sample(stale, row=0, column=0).value is True
+    payload["support_binding"] = service.wire.plain(current_support("reconfirmed-consent").__dict__)
+    payload["job_binding"]["job_id"] = "reconfirmed-support"
+
+    def forbidden(*_args, **_kwargs):
+        """A valid new consent must recover the original supported calculation."""
+        pytest.fail("valid support reconfirmation repeated numerical analysis")
+
+    monkeypatch.setattr(service.requests, "execute_analysis_request", forbidden)
+    current = service._execute_workflow_payload(payload, model_path=tmp_path / "layout.blend")
+    assert current["content_cache"]["hit"] is True
+    assert current["content_cache"]["content_key"] == first["content_cache"]["content_key"]
+    assert service.reconstruct_field_sample(current, row=0, column=0).value is False
+
+
 @pytest.mark.parametrize("change", ["same", "geometry", "backend"])
 def test_flat_cache_adoption_binds_current_capture_and_backend(tmp_path, monkeypatch, change):
     """A flat receipt cannot authorize reuse after capture geometry or numerical versions change."""

@@ -8,6 +8,8 @@ from dataclasses import replace
 
 import pytest
 
+from test.test_evidence_package_output import _package_context
+
 from .test_group_distance import _missing_bundle
 from features.field_core import serialize_evidence_package_output
 from features.group_distance import calculate_group_pair_distances, group_distance_input_fingerprints
@@ -28,7 +30,7 @@ def test_distance_package_emits_only_two_additive_channels() -> None:
     bundle = _missing_bundle()
     result = calculate_group_pair_distances(bundle)
     sources = build_group_distance_source_envelopes(result, bundle)
-    output = build_group_distance_evidence_package().evaluate(sources)
+    output = build_group_distance_evidence_package().evaluate(sources, analysis_context=_package_context())
 
     assert len(sources) == len(result.observations) == 3
     assert all(envelope.channel_set == (SOURCE_CHANNEL,) for envelope in sources)
@@ -46,7 +48,7 @@ def test_free_space_is_dependency_metadata_and_output_serializes() -> None:
     result = calculate_group_pair_distances(bundle)
     output = build_group_distance_evidence_package().evaluate(
         build_group_distance_source_envelopes(result, bundle)
-    )
+    , analysis_context=_package_context())
     serialized = serialize_evidence_package_output(output)
     json.dumps(serialized, allow_nan=False)
 
@@ -79,7 +81,7 @@ def test_visualization_manifest_references_existing_artifacts_without_recompute(
     result = calculate_group_pair_distances(bundle)
     output = build_group_distance_evidence_package().evaluate(
         build_group_distance_source_envelopes(result, bundle)
-    )
+    , analysis_context=_package_context())
     manifest = build_group_distance_visualization_manifest(
         output,
         overview="overview.html",
@@ -103,7 +105,7 @@ def test_output_only_runner_writes_manifest_from_saved_package(tmp_path: Path) -
     result = calculate_group_pair_distances(bundle)
     output = build_group_distance_evidence_package().evaluate(
         build_group_distance_source_envelopes(result, bundle)
-    )
+    , analysis_context=_package_context())
     saved = json.loads(json.dumps(serialize_evidence_package_output(output), allow_nan=False))
     path = tmp_path / "package_visualization_manifest.json"
     manifest = write_visualization_manifest(saved, path, overview="overview.html")
@@ -131,13 +133,13 @@ def test_saved_global_repair_result_is_adapted_without_recomputing(monkeypatch) 
 
     monkeypatch.setattr(package_module, "calculate_group_pair_distances", forbidden)
     with pytest.raises(ValueError, match="route cells and both endpoint offsets"):
-        package_module.evaluate_group_distance_package(bundle, repaired_result=baseline)
+        package_module.evaluate_group_distance_package(bundle, repaired_result=baseline, analysis_context=_package_context())
 
 
 def test_empty_scope_is_explicitly_unavailable() -> None:
     """No target pairs produce one unavailable scope record instead of fake emptiness."""
     bundle = replace(_missing_bundle(), groups=())
-    output = package_module.evaluate_group_distance_package(bundle)
+    output = package_module.evaluate_group_distance_package(bundle, analysis_context=_package_context())
 
     assert len(output.outputs) == 2
     assert {item.status.value for item in output.outputs} == {"not_available"}
@@ -161,7 +163,7 @@ def test_typed_result_accepts_matching_repair_scope_and_preserves_unknown() -> N
     bundle = _missing_bundle()
     result = calculate_group_pair_distances(bundle)
     sources = build_group_distance_source_envelopes(result, bundle, repaired_result=_unresolved_repair(result))
-    output = build_group_distance_evidence_package().evaluate(sources)
+    output = build_group_distance_evidence_package().evaluate(sources, analysis_context=_package_context())
     paths = [item for item in output.outputs if item.channel == "path_distance"]
     assert len(paths) == len(result.observations)
     assert all(item.status.value == "partial" for item in paths)

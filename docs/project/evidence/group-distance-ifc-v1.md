@@ -693,3 +693,15 @@ Limits: saved exact geometry witnesses are checked rather than regenerated;
 global shortestness is not established; retained-publication freshness does
 not assert live-scene currentness. The repository-wide test suite and
 main-workspace integration are outside this increment.
+
+## User visual acceptance — 2026-11-17
+
+The owner displayed the existing `distance-evidence-overview.png` (P336,
+G11–G32) and `distance-evidence-focus.png` (P655, G32–G36) from the above
+publication's `native_preview/`. The user replied “无问题”. This accepts the
+displayed analysis region and the blue Euclidean line, orange free-space route
+and green centroid-access offsets, closing `.18.10`, `.18.C4` and parent `.18`.
+No geometry extraction, route calculation or image regeneration occurred.
+The acceptance does not cover all interactive native selections, global
+shortestness or live-scene currentness. Prior open-gate statements remain
+historical evidence at their recorded dates.

@@ -17,6 +17,7 @@ from features.field_core import (
 from features.group_axis_potential_field import build_group_axis_potential_package
 from test.test_evidence_package_freshness import _contract
 from test.test_evidence_package_output import _output, _source_envelope
+from test.test_evidence_package_output import _package_context
 
 
 MODULE = "scripts.design.group_level.replay_evidence_package_readback"
@@ -62,7 +63,7 @@ def _consume(tmp_path, *, statuses=(FieldResultStatus.COMPUTED,), current_change
         dependency_graph=graph if graph is not None else {
             adapter.PACKAGE_ID: (original.package_id,), original.package_id: (),
         },
-    )
+     analysis_context=_package_context())
     return result, original, path, digest
 
 
@@ -126,7 +127,7 @@ def test_unknown_domain_status_remains_partial_without_a_numeric_value(tmp_path)
         current_contract=contract, selections=(("target-0", "path_distance"),),
         current_source_envelopes=unknown.source_envelopes,
         dependency_graph={adapter.PACKAGE_ID: (unknown.package_id,), unknown.package_id: ()},
-    )
+     analysis_context=_package_context())
     assert result.outputs[0].status is FieldResultStatus.PARTIAL
     assert dict(result.outputs[0].observation) == {"raw_status": "unknown", "value": None}
 
@@ -146,13 +147,13 @@ def test_unused_stale_dependency_preserves_independent_potential_outputs():
     dependency = EvidencePackageDependency(upstream.package_id, upstream.output_identity, (reference,),
                                            source_output=upstream, package_freshness="stale")
     package = build_group_axis_potential_package()
-    baseline = package.evaluate((envelope,))
+    baseline = package.evaluate((envelope,), analysis_context=_package_context())
     strength = next(item for item in baseline.outputs if item.channel == "resultant_strength")
     assert strength.status is FieldResultStatus.COMPUTED
     assert strength.observation["value"] == pytest.approx(0.5)
     optional = package.evaluate((envelope,), dependencies=(dependency,), dependency_graph={
         package.package_id: (upstream.package_id,), upstream.package_id: (),
-    })
+    }, analysis_context=_package_context())
     assert optional.outputs == baseline.outputs
     assert optional.source_envelopes == baseline.source_envelopes
 
@@ -168,7 +169,7 @@ def test_sha_mismatch_rejects_bytes_before_decode(tmp_path):
             current_source_envelopes=None,
             selections=(("target-0", "path_distance"),),
             dependency_graph={adapter.PACKAGE_ID: ()},
-        )
+         analysis_context=_package_context())
 
 
 @pytest.mark.parametrize("graph", [
@@ -193,11 +194,11 @@ def test_missing_selection_and_wrong_contract_package_are_rejected(tmp_path):
                      selections=(("absent-target", "path_distance"),),
                      dependency_graph={adapter.PACKAGE_ID: (original.package_id,), original.package_id: ()})
     with pytest.raises(ValueError, match="channel|target|reference"):
-        adapter.consume_saved_evidence_package(path, **arguments)
+        adapter.consume_saved_evidence_package(path, **arguments, analysis_context=_package_context())
     arguments.update(cached_contract=_contract(package_id="wrong-package"),
                      selections=(("target-0", "path_distance"),))
     with pytest.raises(ValueError, match="contract.*package|package.*contract"):
-        adapter.consume_saved_evidence_package(path, **arguments)
+        adapter.consume_saved_evidence_package(path, **arguments, analysis_context=_package_context())
 
 
 @pytest.mark.parametrize("change", ["query", "plane", "source", "value", "status", "channel_status", "scope"])
@@ -228,7 +229,7 @@ def test_current_source_mismatch_cannot_be_enabled_by_equal_contracts(tmp_path, 
             path, expected_sha256=digest, cached_contract=contract, current_contract=contract,
             current_source_envelopes=(current,), selections=(("target-0", "path_distance"),),
             dependency_graph={adapter.PACKAGE_ID: (original.package_id,), original.package_id: ()},
-        )
+         analysis_context=_package_context())
 
 
 def test_missing_current_sources_redacts_even_matching_contracts(tmp_path):
@@ -240,7 +241,7 @@ def test_missing_current_sources_redacts_even_matching_contracts(tmp_path):
         path, expected_sha256=digest, cached_contract=contract, current_contract=contract,
         current_source_envelopes=None, selections=(("target-0", "path_distance"),),
         dependency_graph={adapter.PACKAGE_ID: (original.package_id,), original.package_id: ()},
-    )
+     analysis_context=_package_context())
     assert result.outputs[0].status is FieldResultStatus.NOT_AVAILABLE
     assert result.outputs[0].observation is None
     assert "current_source_context_missing" in result.outputs[0].explanation
@@ -258,7 +259,7 @@ def test_current_source_audit_labels_do_not_change_observation_reuse(tmp_path):
         path, expected_sha256=digest, cached_contract=contract, current_contract=contract,
         current_source_envelopes=(current,), selections=(("target-0", "path_distance"),),
         dependency_graph={adapter.PACKAGE_ID: (original.package_id,), original.package_id: ()},
-    )
+     analysis_context=_package_context())
     assert result.outputs[0].status is FieldResultStatus.COMPUTED
     assert result.outputs[0].observation == 2.5
     assert result.source_envelopes == original.source_envelopes
@@ -274,4 +275,4 @@ def test_unrelated_cached_contract_target_scope_is_rejected(tmp_path):
             path, expected_sha256=digest, cached_contract=unrelated, current_contract=unrelated,
             current_source_envelopes=original.source_envelopes, selections=(("target-0", "path_distance"),),
             dependency_graph={adapter.PACKAGE_ID: (original.package_id,), original.package_id: ()},
-        )
+         analysis_context=_package_context())

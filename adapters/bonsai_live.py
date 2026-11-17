@@ -289,6 +289,52 @@ def source_capture_fingerprint(scene):
                    "geometries": [mesh.to_dict() for mesh in sorted(scene.geometries, key=lambda mesh: mesh.id)]})
 
 
+def numeric_source_facts(scene):
+    """Return physical source facts used by numerical occupancy and domain producers.
+
+    Drawing-camera source rows remain in the complete capture fingerprint for
+    authentication and audit, but their native camera metadata must not change a
+    numerical cache identity when the current package does not consume it.
+    """
+    sources = []
+    for source in sorted(scene.source_objects, key=lambda item: item.id):
+        if source.source_role == "drawing_camera":
+            continue
+        data = source.to_dict()
+        provenance = dict(data.get("provenance", {}))
+        provenance.pop("ifc_source_identity", None)
+        data["provenance"] = provenance
+        facts = data.get("factual_properties", {})
+        if isinstance(facts, Mapping):
+            data["factual_properties"] = dict(facts)
+            pending = data["factual_properties"].get("pending_legacy_occupancy")
+            if isinstance(pending, Mapping):
+                pending = dict(pending)
+                identity = dict(pending.get("capture_identity", {}))
+                identity.pop("ifc_source_identity", None)
+                pending["capture_identity"] = identity
+                data["factual_properties"]["pending_legacy_occupancy"] = pending
+        sources.append(data)
+    context = scene.context.to_dict()
+    world = dict(context["world_coordinate_system"])
+    # Canonical capture IDs can contain the full camera digest.  Physical facts
+    # and explicit external dependencies, rather than that derived audit ID,
+    # establish the numerical source identity.
+    world.pop("ifc_source_identity", None)
+    context["world_coordinate_system"] = world
+    return {"context": context,
+            "identity": world,
+            "authored_groups": [group.to_dict() for group in sorted(scene.authored_groups, key=lambda group: group.id)],
+            "sources": sources,
+            "openings": [opening.to_dict() for opening in sorted(scene.openings, key=lambda opening: opening.id)],
+            "geometries": [mesh.to_dict() for mesh in sorted(scene.geometries, key=lambda mesh: mesh.id)]}
+
+
+def numeric_source_capture_fingerprint(scene):
+    """Hash the physical source projection while preserving full capture identity separately."""
+    return digest(numeric_source_facts(scene))
+
+
 def validate_support_binding(scene, binding, *, capture_fingerprint):
     """Reject ambiguous, stale or class-wide floor exclusions without excluding any mass."""
     audit = {"source_id": None, "source_object_id": None, "status": "unbound"}
@@ -551,7 +597,9 @@ def load_bonsai_capture(capture, *, plane, support_binding=None, legacy_bindings
     context = AnalysisContext(contract_version=NEUTRAL_SCENE_V2, source_schema=identity.get("schema", "IFC"),
         adapter_version="bonsai-live/1", source_length_unit="m", analysis_length_unit="m",
         world_coordinate_system={"frame": "world", "project_global_id": project,
-                                 "ifc_source_identity": source_identity}, level_references=(),
+                                 "ifc_source_identity": source_identity,
+                                 **({"external_dependencies": plain(identity["external_dependencies"])}
+                                    if "external_dependencies" in identity else {})}, level_references=(),
         analysis_plane=plane, geometry_tolerance=1e-6, topology_tolerance=1e-6,
         walking_body_profiles=(), visual_height_bands=(), capability_flags={"has_3d_geometry": bool(meshes)},
         input_mode="ifc")

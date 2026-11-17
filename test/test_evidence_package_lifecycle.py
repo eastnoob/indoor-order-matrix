@@ -9,6 +9,8 @@ from types import ModuleType
 
 import pytest
 
+from test.test_evidence_package_output import _package_context
+
 from features import field_core, group_axis_potential_field as potential
 from features import group_distance_evidence_package as distance
 from .test_group_distance import _missing_bundle
@@ -25,6 +27,11 @@ free_space = importlib.import_module("lifecycle_workspace.adapters.free_space_ev
 
 
 RESULT_KEYS = {"raw_output", "processed_output", "contract", "status", "cache_key", "cache_hit", "cache_status"}
+
+
+def _context_options(producer):
+    """Supply explicit nonspatial selections only to the contract-only package fixtures."""
+    return {} if producer == "free_space" else {"analysis_context": _package_context()}
 
 
 def _potential_sources():
@@ -75,7 +82,7 @@ def test_package_entry_owns_real_calculation_and_hit(tmp_path, monkeypatch, prod
                  (_potential_sources(),) if producer == "potential" else
                  (lambda scene: (scene, _request(scene)))(_scene(_object("chair"))))
     run = getattr(module, name)
-    first = run(*arguments, cache_directory=tmp_path)
+    first = run(*arguments, cache_directory=tmp_path, **_context_options(producer))
     _check_publication(first, hit=False)
     if producer == "distance":
         assert len(first["raw_output"].outputs) == 6
@@ -88,7 +95,7 @@ def test_package_entry_owns_real_calculation_and_hit(tmp_path, monkeypatch, prod
         values = {item.observation["cell_locator"]["cell_index"]: item.observation["value"] for item in first["raw_output"].outputs}
         assert values[0] is False and values[10] is True
         monkeypatch.setattr(free_space.requests, "execute_analysis_request", _forbidden)
-    again = run(*arguments, cache_directory=tmp_path)
+    again = run(*arguments, cache_directory=tmp_path, **_context_options(producer))
     _check_publication(again, hit=True)
     assert again["cache_key"] == first["cache_key"]
     assert again["raw_output"] == first["raw_output"]
@@ -116,14 +123,14 @@ def test_model_locator_uses_sidecar_store_and_reports_reuse(tmp_path, monkeypatc
         run = potential.run_group_axis_potential_package
         arguments = (_potential_sources(),)
         owner, boundary = potential, "aggregate_group_axis_potential_outputs"
-    first = run(*arguments, **locator)
+    first = run(*arguments, **locator, **_context_options(producer))
     assert first["cache_reuse"] == "computed"
     assert first["cache_location"] == str(sidecar.resolve())
     assert tuple(sidecar.glob("sources/*/outputs/*/combined/raw/*/receipt.json"))
     for compatibility in sidecar.glob("*.json"):
         compatibility.unlink()
     monkeypatch.setattr(owner, boundary, _forbidden)
-    second = run(*arguments, **locator)
+    second = run(*arguments, **locator, **_context_options(producer))
     assert second["cache_hit"] is True
     assert second["cache_reuse"] == "exact_hit"
     assert second["raw_output"] == first["raw_output"]
@@ -151,12 +158,12 @@ def test_content_edit_misses_and_restoring_content_hits(tmp_path, monkeypatch, p
         run, original = free_space.run_free_space_package, (scene, _request(scene))
         changed = (_scene(_object("chair", (0, 0, 0, 2, 1, 3))), original[1])
         boundary, owner = "execute_analysis_request", free_space.requests
-    first = run(*original, cache_directory=tmp_path)
-    edited = run(*changed, cache_directory=tmp_path)
+    first = run(*original, cache_directory=tmp_path, **_context_options(producer))
+    edited = run(*changed, cache_directory=tmp_path, **_context_options(producer))
     _check_publication(edited, hit=False)
     assert edited["cache_key"] != first["cache_key"]
     monkeypatch.setattr(owner, boundary, _forbidden)
-    restored = run(*original, cache_directory=tmp_path)
+    restored = run(*original, cache_directory=tmp_path, **_context_options(producer))
     _check_publication(restored, hit=True)
     assert restored["raw_output"] == first["raw_output"]
 
@@ -208,12 +215,12 @@ def test_free_space_plane_publication_name_reuses_with_current_metadata(tmp_path
 def test_parameter_source_change_does_not_recalculate_distance(tmp_path, monkeypatch):
     """A source label changes audit information while preserving the calculation."""
     bundle = _missing_bundle()
-    first = distance.run_group_distance_package(bundle, cache_directory=tmp_path)
+    first = distance.run_group_distance_package(bundle, cache_directory=tmp_path, analysis_context=_package_context())
     monkeypatch.setattr(distance, "calculate_group_pair_distances", _forbidden)
     again = distance.run_group_distance_package(
         bundle, cache_directory=tmp_path,
         parameter_sources={"clearance_mode": "gui"},
-    )
+     analysis_context=_package_context())
     assert again["cache_key"] == first["cache_key"]
     assert again["cache_hit"] is True
     assert again["raw_output"] == first["raw_output"]
@@ -228,11 +235,11 @@ def test_runner_retains_historical_raw_warning_values(tmp_path, monkeypatch):
     ))
     monkeypatch.setattr(distance, "build_group_distance_parameter_snapshot",
                         lambda *args, **kwargs: schema.resolve())
-    first = distance.run_group_distance_package(_missing_bundle(), cache_directory=tmp_path)
+    first = distance.run_group_distance_package(_missing_bundle(), cache_directory=tmp_path, analysis_context=_package_context())
     monkeypatch.setattr(distance, "build_group_distance_parameter_snapshot",
                         lambda *args, **kwargs: schema.resolve({"review_m": 0.02}))
     monkeypatch.setattr(distance, "calculate_group_pair_distances", _forbidden)
-    again = distance.run_group_distance_package(_missing_bundle(), cache_directory=tmp_path)
+    again = distance.run_group_distance_package(_missing_bundle(), cache_directory=tmp_path, analysis_context=_package_context())
     status = again["cache_status"]["parameter_status"]
     assert again["raw_output"] == first["raw_output"] and again["cache_hit"]
     assert status["calculated_parameters"]["review_m"] == 0.01
@@ -252,13 +259,13 @@ def test_potential_raw_warning_uses_historical_contract_status(tmp_path, monkeyp
                         lambda *args, **kwargs: schema.resolve())
     first = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path,
-    )
+     analysis_context=_package_context())
     monkeypatch.setattr(potential, "build_group_axis_parameter_snapshot",
                         lambda *args, **kwargs: schema.resolve({"review_m": 0.02}))
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
     again = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path,
-    )
+     analysis_context=_package_context())
     status = again["cache_status"]["parameter_status"]
     assert again["cache_hit"] is True
     assert again["cache_status"]["recompute_required"] is False
@@ -280,7 +287,7 @@ def test_runner_retains_historical_processed_warning_values(tmp_path, monkeypatc
     )
     first = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path, output_processor=old,
-    )
+     analysis_context=_package_context())
     current = field_core.EvidenceOutputProcessor(
         base.function_id, base.version, _forbidden, {"review_m": 0.02},
         parameter_schema=schema,
@@ -288,7 +295,7 @@ def test_runner_retains_historical_processed_warning_values(tmp_path, monkeypatc
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
     again = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path, output_processor=current,
-    )
+     analysis_context=_package_context())
     status = again["cache_status"]["processed_parameter_status"]
     assert again["processed_output"] == first["processed_output"]
     assert status["calculated_parameters"]["review_m"] == 0.01
@@ -316,13 +323,13 @@ def test_processed_receipt_skips_callback_and_recipe_change_reuses_raw(tmp_path,
     """Running a cached callback or using an obsolete recipe would change visible output."""
     assert hasattr(potential, "run_group_axis_potential_package"), "package-owned entry is missing"
     sources = _potential_sources()
-    first = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor())
+    first = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor(), analysis_context=_package_context())
     assert first["processed_output"].error_code is None
     assert first["processed_output"].outputs[0].observation == 0.25
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
-    second = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor(function=_forbidden))
+    second = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor(function=_forbidden), analysis_context=_package_context())
     assert second["processed_output"] == first["processed_output"]
-    changed = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor("2"))
+    changed = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor("2"), analysis_context=_package_context())
     assert changed["cache_hit"] is True
     assert changed["cache_key"] == first["cache_key"]
     assert changed["processed_output"].processing_identity != first["processed_output"].processing_identity
@@ -333,15 +340,15 @@ def test_processed_versions_restore_independently_after_parameter_round_trip(tmp
     sources = _potential_sources()
     first = potential.run_group_axis_potential_package(
         sources, cache_directory=tmp_path, output_processor=_processor("1"),
-    )
+     analysis_context=_package_context())
     second = potential.run_group_axis_potential_package(
         sources, cache_directory=tmp_path, output_processor=_processor("2"),
-    )
+     analysis_context=_package_context())
     assert first["processed_output"].processing_identity != second["processed_output"].processing_identity
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
     restored = potential.run_group_axis_potential_package(
         sources, cache_directory=tmp_path, output_processor=_processor("1", function=_forbidden),
-    )
+     analysis_context=_package_context())
     assert restored["processed_output"] == first["processed_output"]
     assert restored["cache_status"]["processed_reuse_origin"]["mode"] == "cache_hit"
 
@@ -380,7 +387,7 @@ def test_distance_legacy_raw_receipt_requires_owner_adoption_and_preserves_bytes
     from features import evidence_package_storage as storage
 
     bundle = _missing_bundle()
-    first = distance.run_group_distance_package(bundle)
+    first = distance.run_group_distance_package(bundle, analysis_context=_package_context())
     legacy_contract = storage.legacy_candidate_contract(first["contract"])
     legacy_key = legacy_contract["package_identity"]
     legacy_path = tmp_path / (legacy_key + ".json")
@@ -390,7 +397,7 @@ def test_distance_legacy_raw_receipt_requires_owner_adoption_and_preserves_bytes
     )
     original_bytes = legacy_path.read_bytes()
     monkeypatch.setattr(distance, "calculate_group_pair_distances", _forbidden)
-    adopted = distance.run_group_distance_package(bundle, cache_directory=tmp_path)
+    adopted = distance.run_group_distance_package(bundle, cache_directory=tmp_path, analysis_context=_package_context())
     assert adopted["cache_hit"] is True
     assert adopted["raw_output"] == first["raw_output"]
     assert adopted["cache_status"]["reuse_origin"]["mode"] == "adopted_legacy"
@@ -412,7 +419,7 @@ def test_potential_legacy_processed_receipt_is_owner_verified(tmp_path, monkeypa
     )
     first = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path, output_processor=typed_processor,
-    )
+     analysis_context=_package_context())
     raw = first["raw_output"]
     legacy_output = replace(first["processed_output"], parameter_snapshot=None)
     legacy_key = storage.legacy_processed_cache_key(raw, typed_processor)
@@ -424,7 +431,7 @@ def test_potential_legacy_processed_receipt_is_owner_verified(tmp_path, monkeypa
     adopted = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path,
         output_processor=replace(typed_processor, function=_forbidden),
-    )
+     analysis_context=_package_context())
     assert adopted["processed_output"].outputs == first["processed_output"].outputs
     assert adopted["cache_status"]["processed_reuse_origin"]["mode"] == "adopted_legacy"
     assert adopted["cache_status"]["processed_parameter_status"]["exact_match"] is False
@@ -449,13 +456,13 @@ def test_legacy_processed_parameter_mismatch_is_a_miss(tmp_path):
     )
     first = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path, output_processor=old_processor,
-    )
+     analysis_context=_package_context())
     legacy_output = replace(first["processed_output"], parameter_snapshot=None)
     wrong_path = tmp_path / ("processed-" + storage.legacy_processed_cache_key(first["raw_output"], current_processor) + ".json")
     storage.save_processed_output(wrong_path, legacy_output)
     result = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path, output_processor=current_processor,
-    )
+     analysis_context=_package_context())
     assert result["processed_output"].processing_identity != first["processed_output"].processing_identity
 
 
@@ -463,7 +470,7 @@ def test_legacy_processed_parameter_mismatch_is_a_miss(tmp_path):
 def test_raw_receipt_corruption_forces_real_recomputation(tmp_path, monkeypatch, damage):
     """Corrupt bytes or a mismatched input binding must never become a typed hit."""
     assert hasattr(potential, "run_group_axis_potential_package"), "package-owned entry is missing"
-    first = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path)
+    first = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path, analysis_context=_package_context())
     path = tmp_path / (first["cache_key"] + ".json")
     receipt = json.loads(path.read_text(encoding="utf-8"))
     if damage == "json":
@@ -474,7 +481,7 @@ def test_raw_receipt_corruption_forces_real_recomputation(tmp_path, monkeypatch,
         else:
             receipt["raw_output"]["package_id"] = "foreign"
         path.write_text(json.dumps(receipt), encoding="utf-8")
-    again = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path)
+    again = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path, analysis_context=_package_context())
     assert again["cache_hit"] is False
     assert again["raw_output"] == first["raw_output"]
 
@@ -482,16 +489,16 @@ def test_raw_receipt_corruption_forces_real_recomputation(tmp_path, monkeypatch,
 def test_potential_value_and_order_changes_invalidate_actual_output(tmp_path):
     """Reusing old IDs alone would hide edited axis values or producer audit order."""
     sources = _potential_sources()
-    first = potential.run_group_axis_potential_package(iter(sources), cache_directory=tmp_path)
+    first = potential.run_group_axis_potential_package(iter(sources), cache_directory=tmp_path, analysis_context=_package_context())
     record = sources[0].value["channels"][0]
     changed_record = replace(record, observation={"descriptor": {"angle": 90., "strength": .5, "direction_status": "defined"}})
     edited_sources = (replace(sources[0], value={"channels": (changed_record,)}), sources[1])
-    edited = potential.run_group_axis_potential_package(edited_sources, cache_directory=tmp_path)
+    edited = potential.run_group_axis_potential_package(edited_sources, cache_directory=tmp_path, analysis_context=_package_context())
     assert edited["cache_hit"] is False
     assert edited["cache_key"] != first["cache_key"]
     coherence = next(item for item in edited["raw_output"].outputs if item.channel == "direction_coherence")
     assert coherence.observation["value"] == pytest.approx(0, abs=1e-15)
-    reordered = potential.run_group_axis_potential_package(tuple(reversed(sources)), cache_directory=tmp_path)
+    reordered = potential.run_group_axis_potential_package(tuple(reversed(sources)), cache_directory=tmp_path, analysis_context=_package_context())
     assert reordered["cache_hit"] is False
     assert reordered["cache_key"] != first["cache_key"]
 
@@ -503,12 +510,12 @@ def test_distance_full_repair_content_changes_key_without_running_kernel(tmp_pat
     bundle = _missing_bundle()
     saved = _unresolved_repair(calculate_group_pair_distances(bundle))
     monkeypatch.setattr(distance, "calculate_group_pair_distances", _forbidden)
-    first = distance.run_group_distance_package(bundle, repaired_result=saved, cache_directory=tmp_path)
+    first = distance.run_group_distance_package(bundle, repaired_result=saved, cache_directory=tmp_path, analysis_context=_package_context())
     edited_saved = {**saved, "audit_note": "complete supplied repair input changed"}
-    edited = distance.run_group_distance_package(bundle, repaired_result=edited_saved, cache_directory=tmp_path)
+    edited = distance.run_group_distance_package(bundle, repaired_result=edited_saved, cache_directory=tmp_path, analysis_context=_package_context())
     assert edited["cache_hit"] is False
     assert edited["cache_key"] != first["cache_key"]
-    assert distance.run_group_distance_package(bundle, repaired_result=saved, cache_directory=tmp_path)["cache_hit"] is True
+    assert distance.run_group_distance_package(bundle, repaired_result=saved, cache_directory=tmp_path, analysis_context=_package_context())["cache_hit"] is True
 
 
 @pytest.mark.parametrize("producer", ["distance", "potential"])
@@ -516,9 +523,9 @@ def test_package_algorithm_version_invalidates_cache(tmp_path, monkeypatch, prod
     """A producer version change must not reuse a prior typed raw publication."""
     module, run, arguments = ((distance, distance.run_group_distance_package, (_missing_bundle(),))
         if producer == "distance" else (potential, potential.run_group_axis_potential_package, (_potential_sources(),)))
-    first = run(*arguments, cache_directory=tmp_path)
+    first = run(*arguments, cache_directory=tmp_path, **_context_options(producer))
     monkeypatch.setattr(module, "OUTPUT_FUNCTION_VERSION", module.OUTPUT_FUNCTION_VERSION + "-changed")
-    second = run(*arguments, cache_directory=tmp_path)
+    second = run(*arguments, cache_directory=tmp_path, **_context_options(producer))
     assert second["cache_hit"] is False
     assert second["cache_key"] != first["cache_key"]
 
@@ -527,7 +534,7 @@ def test_package_algorithm_version_invalidates_cache(tmp_path, monkeypatch, prod
 def test_processed_receipt_rejects_corrupt_or_foreign_content(tmp_path, monkeypatch, damage):
     """A processed file needs exact raw content and independently current recipe binding."""
     sources = _potential_sources()
-    first = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor())
+    first = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor(), analysis_context=_package_context())
     path, = tmp_path.glob("processed-*.json")
     if damage == "corrupt":
         path.write_text("{", encoding="utf-8")
@@ -536,7 +543,7 @@ def test_processed_receipt_rejects_corrupt_or_foreign_content(tmp_path, monkeypa
                    replace(first["processed_output"], raw_payload_fingerprint="foreign"))
         path.write_text(json.dumps(field_core.serialize_evidence_processed_output(foreign)), encoding="utf-8")
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
-    result = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor())
+    result = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, output_processor=_processor(), analysis_context=_package_context())
     assert result["cache_hit"] is True
     assert result["processed_output"] == first["processed_output"]
     assert json.loads(path.read_text(encoding="utf-8"))["raw_payload_fingerprint"] == first["processed_output"].raw_payload_fingerprint
@@ -548,11 +555,11 @@ def test_processing_error_is_empty_and_not_cached(tmp_path):
         """Model a real configured transformation failure."""
         raise ValueError("failed transformation")
     first = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path,
-        output_processor=_processor(function=broken))
+        output_processor=_processor(function=broken), analysis_context=_package_context())
     assert first["processed_output"].error_code == "OUTPUT_PROCESSING_FAILED"
     assert first["processed_output"].outputs == ()
     assert not list(tmp_path.glob("processed-*.json"))
-    second = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path, output_processor=_processor())
+    second = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path, output_processor=_processor(), analysis_context=_package_context())
     assert second["cache_hit"] is True
     assert second["processed_output"].outputs[0].observation == .25
 
@@ -560,7 +567,7 @@ def test_processing_error_is_empty_and_not_cached(tmp_path):
 def test_atomic_raw_replacement_failure_preserves_final_bytes(tmp_path, monkeypatch):
     """A failed shared storage replacement cannot destroy a previously valid receipt."""
     from features import evidence_package_storage as storage
-    first = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path)
+    first = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path, analysis_context=_package_context())
     path = tmp_path / (first["cache_key"] + ".json")
     prior = path.read_bytes()
     def refused(*args, **kwargs):
@@ -576,31 +583,31 @@ def test_atomic_raw_replacement_failure_preserves_final_bytes(tmp_path, monkeypa
 def test_foreign_typed_raw_content_cannot_use_current_contract(tmp_path):
     """A coherent receipt still cannot attach foreign raw sources to current inputs."""
     from features import evidence_package_storage as storage
-    first = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path)
+    first = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path, analysis_context=_package_context())
     foreign_sources = (replace(_potential_sources()[0], support={"foreign": True}), _potential_sources()[1])
-    foreign = potential.run_group_axis_potential_package(foreign_sources)
+    foreign = potential.run_group_axis_potential_package(foreign_sources, analysis_context=_package_context())
     storage.save_raw_output(tmp_path / (first["cache_key"] + ".json"), cache_key=first["cache_key"],
         contract=first["contract"], raw_output=foreign["raw_output"])
-    restored = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path)
+    restored = potential.run_group_axis_potential_package(_potential_sources(), cache_directory=tmp_path, analysis_context=_package_context())
     assert restored["cache_hit"] is False
     assert restored["raw_output"] == first["raw_output"]
 
 
 def test_distance_empty_contract_targets_match_returned_publication(tmp_path):
     """A diagnostic target must use the same dependency recipe as its source envelope."""
-    result = distance.run_group_distance_package(replace(_missing_bundle(), groups=()), cache_directory=tmp_path)
+    result = distance.run_group_distance_package(replace(_missing_bundle(), groups=()), cache_directory=tmp_path, analysis_context=_package_context())
     assert result["contract"]["target_ids"] == sorted({item.target["identity"] for item in result["raw_output"].outputs})
 
 
 @pytest.mark.parametrize("namespace", [None, "lifecycle-scene"])
 def test_potential_publication_status_names_actual_outputs(tmp_path, monkeypatch, namespace):
     """UI invalidation must name field/family addresses rather than input group IDs."""
-    result = potential.run_group_axis_potential_package(_potential_sources(), scene_namespace=namespace, cache_directory=tmp_path)
+    result = potential.run_group_axis_potential_package(_potential_sources(), scene_namespace=namespace, cache_directory=tmp_path, analysis_context=_package_context())
     targets = sorted({item.target["identity"] for item in result["raw_output"].outputs})
     assert result["contract"]["target_ids"] == targets
     assert result["cache_status"]["affected_targets"] == targets
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
-    again = potential.run_group_axis_potential_package(_potential_sources(), scene_namespace=namespace, cache_directory=tmp_path)
+    again = potential.run_group_axis_potential_package(_potential_sources(), scene_namespace=namespace, cache_directory=tmp_path, analysis_context=_package_context())
     assert again["cache_hit"] is True
     assert again["contract"] == result["contract"]
 
@@ -630,11 +637,11 @@ def test_distance_foreign_raw_cannot_be_rebound_to_current_bundle(tmp_path):
     """Saved output queries and source dependency bindings must match the supplied bundle."""
     from features import evidence_package_storage as storage
     bundle = _missing_bundle()
-    first = distance.run_group_distance_package(bundle, cache_directory=tmp_path)
-    foreign = distance.run_group_distance_package(replace(bundle, query=replace(bundle.query, revision="foreign")))
+    first = distance.run_group_distance_package(bundle, cache_directory=tmp_path, analysis_context=_package_context())
+    foreign = distance.run_group_distance_package(replace(bundle, query=replace(bundle.query, revision="foreign")), analysis_context=_package_context())
     storage.save_raw_output(tmp_path / (first["cache_key"] + ".json"), cache_key=first["cache_key"],
         contract=first["contract"], raw_output=foreign["raw_output"])
-    restored = distance.run_group_distance_package(bundle, cache_directory=tmp_path)
+    restored = distance.run_group_distance_package(bundle, cache_directory=tmp_path, analysis_context=_package_context())
     assert restored["cache_hit"] is False
     assert restored["raw_output"] == first["raw_output"]
 
@@ -666,9 +673,9 @@ def test_distance_saved_subset_scope_matches_publication_and_reuses_cache(tmp_pa
     saved["observations"] = saved["observations"][:observation_count]
     saved["manifest"]["expected_pair_ids"] = [row["pair_id"] for row in saved["observations"]]
     saved["manifest"]["expected_pair_count"] = observation_count
-    legacy = distance.evaluate_group_distance_package(bundle, repaired_result=saved)
+    legacy = distance.evaluate_group_distance_package(bundle, repaired_result=saved, analysis_context=_package_context())
     monkeypatch.setattr(distance, "calculate_group_pair_distances", _forbidden)
-    first = distance.run_group_distance_package(bundle, repaired_result=saved, cache_directory=tmp_path)
+    first = distance.run_group_distance_package(bundle, repaired_result=saved, cache_directory=tmp_path, analysis_context=_package_context())
     targets = sorted({item.target["identity"] for item in legacy.outputs})
     assert len(legacy.outputs) == 2
     assert first["raw_output"] == legacy
@@ -676,7 +683,7 @@ def test_distance_saved_subset_scope_matches_publication_and_reuses_cache(tmp_pa
     assert first["cache_status"]["affected_targets"] == targets
     assert first["cache_status"]["recompute_required"] is True
     monkeypatch.setattr(distance, "evaluate_group_distance_package", _forbidden)
-    again = distance.run_group_distance_package(bundle, repaired_result=saved, cache_directory=tmp_path)
+    again = distance.run_group_distance_package(bundle, repaired_result=saved, cache_directory=tmp_path, analysis_context=_package_context())
     assert again["cache_hit"] is True
     assert again["cache_status"]["recompute_required"] is False
     assert again["raw_output"] == legacy
@@ -687,14 +694,14 @@ def test_potential_reverse_producer_order_reuses_cache_and_retains_audit_order(t
     """Canonical saved source order must not invalidate the original producer-order receipt."""
     sources = _potential_sources()
     reversed_sources = tuple(reversed(sources))
-    first = potential.run_group_axis_potential_package(reversed_sources, cache_directory=tmp_path)
+    first = potential.run_group_axis_potential_package(reversed_sources, cache_directory=tmp_path, analysis_context=_package_context())
     aggregate = next(item for item in first["raw_output"].outputs if item.channel == "aggregate_direction")
     assert tuple(item["group_id"] for item in aggregate.observation["per_group"]) == ("b", "a")
-    forward = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path)
+    forward = potential.run_group_axis_potential_package(sources, cache_directory=tmp_path, analysis_context=_package_context())
     assert forward["cache_key"] != first["cache_key"]
     assert field_core.serialize_evidence_package_output(forward["raw_output"]) != field_core.serialize_evidence_package_output(first["raw_output"])
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
-    again = potential.run_group_axis_potential_package(reversed_sources, cache_directory=tmp_path)
+    again = potential.run_group_axis_potential_package(reversed_sources, cache_directory=tmp_path, analysis_context=_package_context())
     assert again["cache_hit"] is True
     assert again["cache_key"] == first["cache_key"]
     assert again["raw_output"] == first["raw_output"]
@@ -725,11 +732,11 @@ def test_typed_effective_values_one_two_one_route_values_and_callback_counts(tmp
 
     first = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path,
-        output_processor=configured(1, scaled))
+        output_processor=configured(1, scaled), analysis_context=_package_context())
     monkeypatch.setattr(potential, "aggregate_group_axis_potential_outputs", _forbidden)
     second = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path,
-        output_processor=configured(2, scaled))
+        output_processor=configured(2, scaled), analysis_context=_package_context())
     assert first["processed_output"].error_code is None
     assert second["processed_output"].error_code is None
     assert first["processed_output"].processor_version == second["processed_output"].processor_version
@@ -743,7 +750,7 @@ def test_typed_effective_values_one_two_one_route_values_and_callback_counts(tmp
     retained = retained_path.read_bytes()
     restored = potential.run_group_axis_potential_package(
         _potential_sources(), cache_directory=tmp_path,
-        output_processor=configured(1, _forbidden))
+        output_processor=configured(1, _forbidden), analysis_context=_package_context())
     assert restored["processed_output"] == first["processed_output"]
     assert restored["processed_output"].outputs[0].observation == 0.25
     assert calls == [1.0, 2.0]

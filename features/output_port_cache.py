@@ -23,6 +23,7 @@ from .field_core import (
     fingerprint_evidence_dependency, serialize_evidence_package_output,
     serialize_evidence_processed_output,
 )
+from .package_analysis_context import resolve_package_analysis_context
 
 
 def _nonblank(value, name):
@@ -623,10 +624,15 @@ def _processed_run(publication, entry, raw, requested_raw, processor, *, hit):
 
 def run_port_processor(raw, package: EvidencePackage, *, store: CacheStore,
                        current_raw_contract: OutputPortContract,
-                       requested_raw_parameters: ParameterSnapshot | None) -> PortRun:
+                       requested_raw_parameters: ParameterSnapshot | None,
+                       analysis_context=None, allow_multiple_planes=False) -> PortRun:
     """Process verified current selected bytes only after an exact processed-cache miss."""
     if not isinstance(raw, RawPortPublication) or not isinstance(package, EvidencePackage):
         raise TypeError("run_port_processor requires a raw publication and package")
+    # A stored processed result still requires the same call selection as a cache miss.
+    analysis_context = resolve_package_analysis_context(raw.raw_view.source_envelopes,
+        analysis_context=analysis_context, supports_multiple_planes=package.supports_multiple_planes,
+        allow_multiple_planes=allow_multiple_planes)
     verified = _current_raw(store, current_raw_contract, requested_raw_parameters, expected_ref=raw.ref)
     processor = package.output_processor
     if (verified.raw_view.package_id != package.package_id.strip()
@@ -637,7 +643,8 @@ def run_port_processor(raw, package: EvidencePackage, *, store: CacheStore,
             and processor.parameter_snapshot.package_id != verified.raw_view.package_id):
         raise ValueError("processor parameter snapshot must belong to the selected raw package")
     if processor is None:
-        output = package.process_output(verified.raw_view, package_freshness="fresh")
+        output = package.process_output(verified.raw_view, package_freshness="fresh",
+            analysis_context=analysis_context, allow_multiple_planes=allow_multiple_planes)
         identity = fingerprint_evidence_dependency(_processing_contract(verified.ref,
             output.processor_id, output.processor_version, output.parameters, output.parameter_snapshot))
         return _processed_run(ProcessedPortPublication(verified.ref, output, identity), None,
@@ -649,7 +656,8 @@ def run_port_processor(raw, package: EvidencePackage, *, store: CacheStore,
         publication, entry = _load_processed_port(store, verified, processor, quarantine_invalid=True)
         if publication is not None:
             return _processed_run(publication, entry, verified, requested_raw_parameters, processor, hit=True)
-        output = package.process_output(verified.raw_view, package_freshness="fresh")
+        output = package.process_output(verified.raw_view, package_freshness="fresh",
+            analysis_context=analysis_context, allow_multiple_planes=allow_multiple_planes)
         publication = ProcessedPortPublication(verified.ref, output, identity)
         if output.error_code is not None:
             return _processed_run(publication, None, verified, requested_raw_parameters, processor, hit=False)

@@ -1,5 +1,24 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Required package plane context — locally verified 2026-11-17
+
+Every evidence-package evaluation/processing entry requires a nonempty frozen
+`PackageAnalysisContext`; omission is compatible only with one complete trusted
+source query plane. Algorithms may ignore context without projection or model
+extraction. `AnalysisPlaneCatalog` resolves scene defaults/package overrides;
+native settings persist independent author revisions and freeze request/binding
+at Start. Packages still compose existing functions and the shared template.
+
+Full capture authentication and support consent remain mandatory. Numerical
+source projection excludes verified unused cameras and their derived audit IDs;
+saved external IFC SHA changes remain conservative misses. Historical raw/
+processed bytes and strict legacy adoption are retained. See the
+[verification record](project/evidence/analysis-plane-shared-context-verification-2026-11-17.md)
+for independent tests, review and the real portable-Blender camera lifecycle
+check. Live UI, `.blend` restart and physical-model recomputation are unverified.
+No accepted task commit or push is claimed; the record preserves the accidental
+read-only-flag omission snapshot separately.
+
 ## Evidence-package development boundary — user clarification 2026-11-17
 
 Use the maintained [structure guide](project/evidence/evidence-package-structure.md)
