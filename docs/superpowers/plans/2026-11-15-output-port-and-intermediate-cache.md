@@ -78,14 +78,30 @@ through migration/semantic reads, then permit exactly one guarded None-only
 legacy facade call and assert its empty diagnostic. All producer, legacy-hit,
 source/destination-byte and native-byte assertions remain mandatory.
 
-Final acceptance reuses the 619 valid original outcomes and independently runs
-the entire corrected node once with fresh scratch and the same environment.
-The verifier must prove every production/fixture/other-test byte unchanged,
-compare the target module outside that function, and reconcile the complete
-620-node union plus 70/211/600 subsets. This is not a second full 620-test run.
-The corrected candidate descends from the preserved failed candidate; its
-explicit completion fileset contains only the target test and necessary plan/
-memory updates. No product-code repair or duplicate fourteen-file run is needed.
+Final acceptance now uses the 619 valid original PASS outcomes plus one
+independent execution of the complete corrected node: 1 collected/executed,
+1 PASS, exit 0, 768.234 seconds. The original run took 3590.063 seconds and
+remains failed. Together they cover exactly 620 distinct required nodes in 621
+testcase executions; Task 5/Task 6/original Task 8 subsets are 70/211/600 PASS.
+This is not a second full 620-test run. All 723 frozen paths and 41 fixtures
+matched before/after/post-review; all 23 original evidence files stayed sealed.
+Production, all other tests and target-module bytes outside the failed function
+are unchanged. Receipt:
+`D:/temp/oa-pytest-c/final-repair-20261117/independent/verified-union.json`.
+
+### Accepted implementation — 2026-11-17
+
+Tasks 5/6 and the scoped review repairs share accepted cumulative implementation
+`4edfdb504f48f88612375471f5e9bcc68dcc45ae`, **SPEC PASS / QUALITY APPROVED**.
+Its explicit final completion fileset is the target test plus this plan and
+architecture memory; the implementation/repair delta is inherited from the
+preserved parent. Root rehashed all 723 actual paths before committing, and the
+accepted tree equals corrected candidate
+`c4917bc7340cb7c21276e9a43448b1f62e66cb13`. Both failed candidates remain
+ancestors. Task 6 required seven test-only nodes and no new production repair.
+The separate [C handoff](../handoffs/2026-11-15-plan-c-complete.md) records the
+actual APIs, versions, evidence and limits. C remains local and opt-in; Task 7
+is design only, with intermediate runtime deferred.
 
 ## Global Constraints
 
@@ -808,7 +824,7 @@ Expected: PASS, including unchanged legacy raw/processed reference semantics and
 - Produces `run_group_axis_output_ports(envelopes, *, store, parameters, distance_raw=None, distance_processed=None, distance_processor=None, current_distance_contract=None, requested_distance_parameters=REQUIRED, compatibility=None, dependency_graph=None) -> dict[str, PortRun]`. Reuse A's `REQUIRED` sentinel. Enabling modulation requires explicit raw/processed/processor arguments plus the independently built current distance contract and current distance-owner snapshot (explicit `None` only when that owner is schema-less), and compatible registration facts. Reject the unchanged sentinel before loading or processing anything; omission must not silently declare a schema-less upstream. Forward those separate distance currentness inputs to the binding gate; potential's own `parameters` cannot stand in for upstream distance declarations. When disabled, no distance inputs are needed.
 - Pure semantic `axis_potential` has no Euclidean/route dependency or modulation-switch parameter. Optional `distance_modulated_axis_support` binds the potential package's own effective enable switch, exact pure-axis ref, and exact processed Euclidean ref. Raw/processed are still layers of each kind.
 
-- [ ] **Step 1: Write the failing reference validation test using real existing helpers.** Add to the existing module, which owns `actual_inputs()`; use A's owner resolver on the actual retained bundle.
+- [x] **Step 1: Write the failing reference validation test using real existing helpers.** Add to the existing module, which owns `actual_inputs()`; use A's owner resolver on the actual retained bundle.
 
 ```python
 def test_port_modulation_rejects_route_ref_and_freezes_upstream(actual_inputs, tmp_path):
@@ -863,15 +879,15 @@ def potential_processor_for_port(publication):
 
 The existing builder's exact exported name is `build_euclidean_symmetric_reciprocal_proximity_processor`. The retained `load_trial()` returns experiment inputs whose `.bundle` supplies the actual `GroupDistanceInput`; do not pass the experiment-input wrapper to the geometry kernel or invent clearance defaults for it.
 
-- [ ] **Step 2: Verify failure.** Run `pixi run pytest test/test_group_axis_distance_modulation.py -q`; expect missing semantic adapter APIs.
+- [x] **Step 2: Verify failure.** Run `pixi run pytest test/test_group_axis_distance_modulation.py -q`; expect missing semantic adapter APIs.
 
-- [ ] **Step 3: Implement port registration and independent potential publication.** The binding adapter requires package `group-walk-distance`, semantic `euclidean_distance`, raw layer plus matching processed layer, selected payload digests, exact raw ref, complete pair scope, current processing identity, source/member registration, canonical plane/origin compatibility, and acyclic semantic dependencies. Before recipe validation or numeric use, call `load_raw_port(store, current_raw_contract, requested_parameters=requested_raw_parameters)` and require its verified selected publication/ref to match the supplied raw; use Task 4's fail-closed currentness errors. Then recompute `processed_port_key(raw_port, processor)` from the caller's explicit current recipe and require equality with the selected processed identity; reject a stale/wrong processor version before using values. It resolves both refs through the accepted B store immediately before numeric use; a caller-provided typed object alone cannot override a deleted/unavailable receipt. `compatibility` proves source/member/plane registration; it does not replace independently current input or owner declarations.
+- [x] **Step 3: Implement port registration and independent potential publication.** The binding adapter requires package `group-walk-distance`, semantic `euclidean_distance`, raw layer plus matching processed layer, selected payload digests, exact raw ref, complete pair scope, current processing identity, source/member registration, canonical plane/origin compatibility, and acyclic semantic dependencies. Before recipe validation or numeric use, call `load_raw_port(store, current_raw_contract, requested_parameters=requested_raw_parameters)` and require its verified selected publication/ref to match the supplied raw; use Task 4's fail-closed currentness errors. Then recompute `processed_port_key(raw_port, processor)` from the caller's explicit current recipe and require equality with the selected processed identity; reject a stale/wrong processor version before using values. It resolves both refs through the accepted B store immediately before numeric use; a caller-provided typed object alone cannot override a deleted/unavailable receipt. `compatibility` proves source/member/plane registration; it does not replace independently current input or owner declarations.
 
 Project compatibility facts to the geometry/member/plane facts actually required by Euclidean registration. Do not keep route-only `distance_query`/free-space fields in the new Euclidean view merely to satisfy the old full-query comparison. Add one documented geometry-registration projection used by both the adapter and validator; preserve the full historical comparison for historical combined inputs. Bind the standalone typed `EvidencePackageOutput`/`EvidenceProcessedOutput` to the existing immutable `DistanceModulationInput` internally, then reuse current cycle, membership, status, and formula checks.
 
 The pure-axis port reuses the existing base evaluator. The optional modulation producer consumes cached pure-axis channels and the exact processed Euclidean view via existing `_distance_modulated_outputs`; it must not recalculate pure-axis output on a modulation-only change. A raw combined publication remains available through the historical API; changing the new wrapper's semantic kind must not mutate it.
 
-- [ ] **Step 4: Verify numeric behavior and immutability.** Extend the actual-input test to bind the valid Euclidean raw/processed pair and compare all available nonself modulation values with the existing `axis_field_support * processed proximity` behavior. Toggle the potential package's own switch using its accepted A schema and assert the pure-axis identity/ref remains unchanged. For a stale/missing Euclidean dependency assert nonself values are `None` and effective status unavailable/orphaned. Retain all original 1,369-cell/1,332-nonself assertions.
+- [x] **Step 4: Verify numeric behavior and immutability.** Extend the actual-input test to bind the valid Euclidean raw/processed pair and compare all available nonself modulation values with the existing `axis_field_support * processed proximity` behavior. Toggle the potential package's own switch using its accepted A schema and assert the pure-axis identity/ref remains unchanged. For a stale/missing Euclidean dependency assert nonself values are `None` and effective status unavailable/orphaned. Retain all original 1,369-cell/1,332-nonself assertions.
 
 After the first valid pure-axis publication, patch its actual base evaluator to `_forbidden` before toggling the modulation switch; require a pure-axis cache hit and zero base-evaluator calls, not merely equal refs after a hidden recalculation.
 
@@ -883,7 +899,7 @@ pixi run pytest test/test_group_axis_distance_modulation.py test/test_group_axis
 
 Expected: PASS with retained numeric registration intact. Record any actual missing retained fixture without claiming full real-data acceptance.
 
-- [ ] **Step 5: Commit.** `jj commit -m "feat: consume exact Euclidean ports in axis modulation"`
+- [x] **Step 5: Commit.** Joint Tasks 5/6/review-repair completion: `4edfdb504f48f88612375471f5e9bcc68dcc45ae`, under the final gate/targeted-correction rule above; no separate duplicate feature commit.
 
 ### Task 6: Prove exact deletion and relocation isolation
 
@@ -899,7 +915,7 @@ Expected: PASS with retained numeric registration intact. Record any actual miss
 - Produces separately listable/deletable versions and migration that returns the same selected refs before any producer is scheduled.
 - Real path/free-space fixtures pass Task 3's explicit `free_space_ref` and independently current `free_space_validator`. Preserve original native/legacy codec ownership in mixed-sidecar validation; `OutputPortRef` does not require every upstream to use the semantic envelope codec. Deletion must remove an actual nonempty owner-validated publication with a matching sampled bundle, not a fabricated placeholder or a receipt with no live descendants.
 
-- [ ] **Step 1: Write the failing independent-version tests.** Use the concrete `_bundle`, `_parameters`, `_forbidden` from Task 3 in `test/test_group_distance_output_ports.py`:
+- [x] **Step 1: Write the failing independent-version tests.** Use the concrete `_bundle`, `_parameters`, `_forbidden` from Task 3 in `test/test_group_distance_output_ports.py`:
 
 ```python
 def test_delete_path_version_preserves_euclidean_and_other_path(tmp_path):
@@ -935,13 +951,13 @@ def test_move_port_cache_reuses_without_producers(tmp_path, monkeypatch):
     }
 ```
 
-- [ ] **Step 2: Collect the new lifecycle assertions before any registration repair.** The test-only author checks syntax, scope and all seven exact new nodes. The final independent superset executes them with producers forbidden where specified; a registration/migration defect must fail in the assertion rather than being hidden by recalculation. Existing Tasks 2–5 may already provide the required registration, so a first numerical PASS is valid evidence and requires no artificial production failure. Any demonstrated registration repair then needs its affected numerical re-verification.
+- [x] **Step 2: Collect the new lifecycle assertions before any registration repair.** The test-only author checks syntax, scope and all seven exact new nodes. The final independent superset executes them with producers forbidden where specified; a registration/migration defect must fail in the assertion rather than being hidden by recalculation. Existing Tasks 2–5 may already provide the required registration, so a first numerical PASS is valid evidence and requires no artificial production failure. Any demonstrated registration repair then needs its affected numerical re-verification.
 
-- [ ] **Step 3: Register true refs with B.** Put exact semantic upstream refs in each wrapper receipt and use B's package-validator dispatch for `semantic-output-receipt/v1`. Processed Euclidean depends only on its exact Euclidean raw ref; optional axis modulation depends on its pure-axis ref and processed Euclidean ref. A path receipt includes its actual free-space result ref when used. Do not add path/free-space edges to Euclidean or modulation. Use accepted B's full-source dependency scan and locks; do not rewrite signed upstream receipts to mark them orphaned.
+- [x] **Step 3: Register true refs with B.** Put exact semantic upstream refs in each wrapper receipt and use B's package-validator dispatch for `semantic-output-receipt/v1`. Processed Euclidean depends only on its exact Euclidean raw ref; optional axis modulation depends on its pure-axis ref and processed Euclidean ref. A path receipt includes its actual free-space result ref when used. Do not add path/free-space edges to Euclidean or modulation. Use accepted B's full-source dependency scan and locks; do not rewrite signed upstream receipts to mark them orphaned.
 
 The migration test passes Task 2's concrete `validate_port_payload` through B's `validators` mapping keyed by package plus layer. For a mixed sidecar, extend each existing package validator callback to recognize its explicit known semantic-envelope schema and dispatch to this validator while preserving its legacy-codec branch. Include free-space/Blender callbacks in the mapping for their own families. Never import a validator named by untrusted file data or apply a semantic-only predicate to all entries. B resolves each authenticated entry's own `auth_key_id` through `CacheValidationContext`; this plan neither overwrites keys nor passes secrets through contracts. Preserve `migrated_reuse` reporting; the test asserts hit/ref equivalence, not that every move looks like a never-moved current receipt.
 
-- [ ] **Step 4: Verify dependency deletion on actual modulation.** Add `test_real_dependency_deletion_preserves_only_independent_ports` in the existing `actual_inputs` module, parameterized over path/free-space/Euclidean-raw/Euclidean-processed deletion with a fresh store for each case. Extend Task 5's selected setup with an actual validated B free-space entry and a path publication that references its exact full `CacheAddress`; the Euclidean-only setup by itself is insufficient. Before deletion require all involved entries complete, a nonempty usable modulation result, and actual receipt edges `path → free-space`, `processed Euclidean → raw Euclidean`, `modulation → processed Euclidean` and `modulation → pure-axis`. Save original refs/bytes and another version for independence assertions.
+- [x] **Step 4: Verify dependency deletion on actual modulation.** Add `test_real_dependency_deletion_preserves_only_independent_ports` in the existing `actual_inputs` module, parameterized over path/free-space/Euclidean-raw/Euclidean-processed deletion with a fresh store for each case. Extend Task 5's selected setup with an actual validated B free-space entry and a path publication that references its exact full `CacheAddress`; the Euclidean-only setup by itself is insufficient. Before deletion require all involved entries complete, a nonempty usable modulation result, and actual receipt edges `path → free-space`, `processed Euclidean → raw Euclidean`, `modulation → processed Euclidean` and `modulation → pure-axis`. Save original refs/bytes and another version for independence assertions.
 
 Every case must assert `delete_exact(selected_address) is True`. Deleting path preserves Euclidean raw/processed and modulation. Deleting free-space must make the existing path descendant orphaned/unavailable as a positive control that dependency validation runs, while Euclidean raw/processed/modulation retain their original refs/bytes and remain usable. Separately deleting Euclidean raw or processed must make its true descendants unavailable with no nonself numeric values, while pure-axis and independent versions still hit. Patch unnecessary producers to `_forbidden`; equal identities after hidden recomputation are insufficient. Never waive the free-space case with "where present": a missing dependency chain blocks that acceptance item rather than yielding a vacuous pass.
 
@@ -959,10 +975,13 @@ and record its exact five-file subset outcomes as the Task 6 gate. The full run
 also supplies Task 8 regression evidence on those same frozen bytes. Retain
 complete collection/XML/node records for both scopes; do not rerun the same
 expensive real fixtures merely to give the evidence a second directory name.
-Task 6 acceptance and its explicit commit still require the independent review
-and the matching frozen hashes before advancing to final delivery.
+The complete gate initially exposed one test-only sentinel error. The retained
+619+1 acceptance above reconciles every required node with no exclusions;
+Task 6 is accepted under the joint completion commit and independent review.
+The strict numerical sentinels remain, with only the final unconfigured legacy
+facade permitted once and its empty diagnostic asserted.
 
-- [ ] **Step 5: Commit.** `jj commit -m "test: verify independent port deletion and migration reuse"`
+- [x] **Step 5: Commit.** Joint Tasks 5/6/review-repair completion: `4edfdb504f48f88612375471f5e9bcc68dcc45ae`, sharing the same accepted bytes and explicit evidence union above.
 
 ### Task 7: Record the opt-in intermediate boundary and adoption decision
 
@@ -1018,7 +1037,7 @@ Use `sources/<source-fingerprint>/intermediates/<package-id>/<stage-id>/<identit
 - Consumes: accepted B implementation revision, the fresh ruling, completed task commits/tests, and any separately reviewed repair/intermediate plan.
 - Produces: a verifiable delivery record that distinguishes implementation, compatible historical APIs, deferred work, and fixture limitations.
 
-- [ ] **Step 1: Run the focused implemented scope once.** When Tasks 2-6 proceeded, run:
+- [x] **Step 1: Run the focused implemented scope once.** When Tasks 2-6 proceeded, run:
 
 ```powershell
 pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_ports.py test/test_group_distance.py test/test_group_distance_evidence_package.py test/test_group_distance_processed_ifc.py test/test_free_space_distance.py test/test_group_axis_distance_modulation.py test/test_group_axis_potential_field.py test/test_evidence_package_output.py test/test_evidence_package_processing.py test/test_evidence_package_processed_readback.py test/test_evidence_package_lifecycle.py test/test_cache_store.py test/test_cache_migration.py -q
@@ -1026,11 +1045,19 @@ pixi run pytest test/test_output_port_cache.py test/test_group_distance_output_p
 
 Expected: PASS under the shared protocol, including the new path-only real-value/sentinel, real excluded-input, runner adoption, independent-currentness forwarding, raw selected-warning and nonvacuous deletion nodes above. Collect and retain their exact parameterized node IDs plus outcome logs/XML. Any unavailable mandatory real artifact blocks full implemented-split acceptance. If the fresh ruling deferred the split, instead run the accepted B regression set and record `split deferred`; do not label that an accepted implementation of independent ports. Add an intermediate test file only if its separately accepted adoption plan actually created it.
 
-- [ ] **Step 2: Check files and compatibility.** Use installed jj inspection commands; `jj diff --check` is not supported by the current installation. Check whitespace directly with the existing Pixi Python runtime, using the intended changed-file list from each gate, and inspect `jj --ignore-working-copy diff --summary` plus the relevant diff. Scan this plan for vague executable placeholders and fix them before its implementation. Recheck pinned legacy digests, digest-before-default ordering, selected source/parameter projection, processing exact-byte binding, and absence of route/free-space edges on Euclidean modulation.
+- [x] **Step 2: Check files and compatibility.** Use installed jj inspection commands; `jj diff --check` is not supported by the current installation. Check whitespace directly with the existing Pixi Python runtime, using the intended changed-file list from each gate, and inspect `jj --ignore-working-copy diff --summary` plus the relevant diff. Scan this plan for vague executable placeholders and fix them before its implementation. Recheck pinned legacy digests, digest-before-default ordering, selected source/parameter projection, processing exact-byte binding, and absence of route/free-space edges on Euclidean modulation.
 
-- [ ] **Step 3: Write the handoff.** Include accepted A/B implementation revisions, C task commit ids, actual workspace, modified files, new public entry points, semantic kind versus raw/processed layer, per-port parameter/dependency table, verified combined-result adoption, `1 → 2 → 1` evidence, selected processing hits, exact deletion, model-side relocation, orphan behavior, intermediate adoption/deferral, commands/results, and remaining limitations. A safe-split deferral is an explicit result; it must not be labeled an implemented split.
+- [x] **Step 3: Write the handoff.** Include accepted A/B implementation revisions, C task commit ids, actual workspace, modified files, new public entry points, semantic kind versus raw/processed layer, per-port parameter/dependency table, verified combined-result adoption, `1 → 2 → 1` evidence, selected processing hits, exact deletion, model-side relocation, orphan behavior, intermediate adoption/deferral, commands/results, and remaining limitations. A safe-split deferral is an explicit result; it must not be labeled an implemented split.
 
-- [ ] **Step 4: Commit.** `jj commit -m "docs: record Plan C acceptance and remaining boundaries"`
+- [x] **Step 4: Commit.** Separate documentation-only handoff commit: `jj commit -m "docs: record Plan C acceptance and remaining boundaries"`. Its actual revision is recorded externally by local bookmark `codex/parameter-cache-c-accepted`; the handoff contains no self-ID.
+
+Actual acceptance: the preserved fourteen-file execution plus the complete
+corrected-node execution cover 620 distinct required nodes (619+1), including
+the original thirteen-file Task 8 subset of 600. Exact commands/runtime and
+all node IDs are in the final receipt above. Whitespace and final newlines
+were checked on C's added lines with existing Pixi Python; compatibility and
+production/test source reviews are approved. The document-only handoff phase
+does not alter the numerically accepted source/tests or require another run.
 
 ## Plan C Self-Review
 
@@ -1038,4 +1065,4 @@ Spec coverage: Task 1 enforces a fresh review of implemented B and supports a re
 
 Type consistency: `OutputPortRef.output_port` is semantic and `layer` is raw/processed; the old channel reference's `port` keeps its existing meaning. `ParameterSnapshot` comes only from A, persistence/migration only from B, and selected numerical views only from their owning packages. Internal legacy serializer digests, selected byte digests, and input/processor identities are separately named and verified.
 
-Implementation precondition: this file is a forward plan, not proof that A, B, C, or an intermediate stage has been implemented. Its first gate must reconcile signatures with accepted artifacts before production edits.
+Execution status: this plan retains the original task instructions and acceptance criteria; the accepted implementation section and linked handoff record their completion. Intermediate runtime is explicitly unimplemented; Task 7 acceptance covers its design and deferral only.

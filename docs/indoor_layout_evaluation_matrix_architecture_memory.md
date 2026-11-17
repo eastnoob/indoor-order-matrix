@@ -1,33 +1,48 @@
 # Indoor Layout Matrix Architecture Memory
 
-## Independent output ports — Plan C final acceptance pending 2026-11-17
+## Independent output ports — Plan C locally verified 2026-11-17
 
-C is isolated in `parameter-cache-c-implementation` above accepted B handoff
-`1085b5be3d7602e8a43935b5596dd656e7ee567c`. The user-authorized B push is
-complete; C push, owner/main integration and cleanup remain outside this work.
-Tasks 1–4 and Task 7's design-only boundary are locally accepted. The implemented
-opt-in semantic APIs split Euclidean/path and pure-axis/modulation publications,
-bind processing to selected bytes and reuse B's storage/lifecycle/migration.
-Historical combined APIs, numerical formulas and original payloads remain intact.
+C implementation is locally accepted at
+`4edfdb504f48f88612375471f5e9bcc68dcc45ae` in
+`D:/PROJECTS/understandOtherPackage/order_analyzer/.worktrees/parameter-cache-c-implementation`,
+above accepted B handoff `1085b5be3d7602e8a43935b5596dd656e7ee567c`.
+The [C handoff](superpowers/handoffs/2026-11-15-plan-c-complete.md) records the
+accepted task revisions, APIs, dependencies, evidence and limits. B's authorized
+push is complete. C remains local; no C push, owner/main integration or cleanup.
 
-Continue the [C plan](superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md)
-at its final targeted test correction. The single fourteen-file gate on
-`0b1789dbbb923595c8b8a763653cfd63e3f32ca6` completed with 619 passes and one
-mixed-migration test failure: its global sentinel rejects the legacy runner's
-empty, unconfigured processing facade, which invokes no numerical callback.
-All 723 frozen paths and 41 fixture files stayed unchanged. Preserve that run;
-independently run the corrected full node and explicitly reconcile the 619+1
-union, with all products, fixtures and other tests unchanged. Do not repeat the
-fourteen-file numerical gate or describe the union as a second full run.
+Tasks 1–6 are complete and accepted; Task 7 is accepted **design only**.
+Opt-in semantic APIs separate Euclidean/path and pure-axis/modulation results,
+bind processing to selected bytes, and reuse B storage/lifecycle/migration.
+Changing route policy or sampling reuses Euclidean raw/processed results;
+toggling modulation reuses pure-axis; restoring old parameters restores old
+versions. Exact deletion affects true descendants, and mixed native/legacy/
+semantic migration preserves refs and bytes without numerical producers.
+Historical combined APIs, formulas and original payloads remain compatible.
 
-Task 5's preserved `85d48527d918aac507f704015005127929963c5a`
-diagnostic had 54 passes and eight missing-fixture setup failures; its graph
-admission finding prevents acceptance despite all 23 modulation nodes passing.
-The missing retained file is now copied from byte-verified B. Path Shapely recipe
-invalidation and warm-hit graph admission passed the fourteen-file run. Tasks
-5/6 still require the corrected migration node and final delivery review before
-acceptance. Intermediate runtime remains deferred; no new backend is needed.
-The ignored task ledger holds recovery details, not current feature authority.
+Final numerical acceptance covers **620 distinct required nodes** as an explicit
+**619 original PASS + one corrected-node PASS** union, with 621 testcase
+executions across the two runs. Task 5/Task 6/original Task 8 subsets are
+70/211/600 PASS. Receipt:
+`D:/temp/oa-pytest-c/final-repair-20261117/independent/verified-union.json`.
+All 723 frozen paths, 41 fixtures and 23 sealed original evidence files matched;
+implementation review is **SPEC PASS / QUALITY APPROVED**. Root rechecked the
+723 actual hashes before the explicit three-path completion commit; its tree
+matches candidate `c4917bc7340cb7c21276e9a43448b1f62e66cb13` exactly.
+
+Preserve both failed candidates and receipts: Task 5 diagnostic
+`85d48527d918aac507f704015005127929963c5a` (54 PASS/eight missing-fixture setup
+failures), then `0b1789dbbb923595c8b8a763653cfd63e3f32ca6` (619 PASS/one
+over-broad test sentinel failure). The retained fixture was copied byte-for-byte
+from B; Shapely path-version and warm-hit graph-admission repairs passed the
+fourteen-file run. The final correction changes only the failing test function:
+it permits one guarded legacy `output_processor=None` facade call, asserts
+empty `OUTPUT_FUNCTION_NOT_CONFIGURED`, and retains every producer/ref/byte
+assertion. The original failed run stays failed; the union is not a second full
+620-node execution. Final documentation changes require no repeated numerics.
+
+Intermediate runtime remains deferred; no stage backend, automatic decorator
+or intermediate test suite was introduced. The ignored task ledger is recovery
+history; the accepted handoff and actual code are current feature authority.
 
 ## Model-side cache — Plan B locally verified 2026-11-16
 
@@ -67,7 +82,7 @@ current context. Checkpoints now revalidate current route graph/access/
 arithmetic/exact geometry before suppressing search and retain rejected bytes.
 B must begin from the separate full accepted A handoff ID, preserving all four
 pre-A fixture families. B storage migration is now locally verified above; C
-output separation is implemented with final acceptance pending above.
+output separation is now locally accepted as recorded above.
 No push, owner integration, workspace/cache deletion or live model recomputation.
 
 

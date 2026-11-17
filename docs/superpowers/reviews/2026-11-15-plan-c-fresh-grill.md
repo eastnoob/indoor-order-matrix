@@ -113,3 +113,53 @@ The document's JSON example, eight snapshot fields, relative links, fences and
 whitespace passed the Pixi document check. Reviewed SHA256:
 `4fe4c73e508c88b8c2d0113077874b27cbd669de3ff0ef0f39124ec9c6558462`.
 This is design acceptance only; no intermediate runtime or test suite is claimed.
+
+## Final C implementation acceptance — 2026-11-17
+
+Accepted cumulative implementation:
+`4edfdb504f48f88612375471f5e9bcc68dcc45ae`, tree-identical to reviewed/tested
+candidate `c4917bc7340cb7c21276e9a43448b1f62e66cb13`.
+Independent whole-implementation reviewer `c_whole_review`:
+**SPEC PASS / QUALITY APPROVED**, no unresolved Critical/Important finding.
+The Task 1 inventory above describes the pre-split entry state; the implemented
+semantic APIs and final dependencies are in the
+[C handoff](../handoffs/2026-11-15-plan-c-complete.md).
+
+Numerical receipt:
+`D:/temp/oa-pytest-c/final-repair-20261117/independent/verified-union.json`.
+The original fourteen-file run on `0b1789dbbb923595c8b8a763653cfd63e3f32ca6`
+was 619 PASS/one FAIL in 3590.063 seconds. A function-local test correction
+preserves strict producer sentinels while permitting only one final legacy
+`output_processor=None` facade call and asserting its empty diagnostic. The
+complete corrected node then independently passed in 768.234 seconds, exit 0.
+All final legacy hit/migrated-reuse and original-byte assertions executed.
+
+Accepted coverage is **620 distinct PASS nodes, 619+1**, with 621 testcase
+executions across the two runs. Task 5/Task 6/original Task 8 subsets are
+70/211/600 PASS, exact collection/XML sets and no excluded outcomes. All seven
+new lifecycle nodes and both production regressions are covered. All 723 frozen
+paths and 41 fixtures matched before/after/post-review; 23 original evidence
+files remain sealed. Root rechecked all actual frozen bytes before committing.
+The original failed gate and earlier 54/62 diagnostic remain unchanged failures
+and preserved ancestors; this is not a second full 620-node run.
+
+The path recipe includes Shapely, and existing graph/declaration admission now
+runs on cold and warm modulation access with one-shot adjacency retained.
+Existing storage/formulas/v1 bytes are unchanged. Real deletion affects true
+descendants; mixed native/legacy/semantic migration retains refs and bytes
+without numerical producers. No additional backend or intermediate runtime.
+
+The full run retained the existing `geometry_views.py:124` topology-retry
+RuntimeWarning and Pixi `SSL_CERT_DIR` warning; the corrected node retained
+only the Pixi warning. Neither warning was hidden. Visuals remain omitted for
+the same byte/numeric/dependency evidence reason as Task 1. B is online; C is
+local, with no owner/main integration, cleanup, live Blender/current-scene or
+user visual acceptance claimed.
+
+Final bounded five-document review by `c_whole_review` is **SPEC PASS / QUALITY
+APPROVED**, with no outstanding Critical/Important finding. Receipt:
+`D:/temp/oa-pytest-c/final-repair-20261117/delivery-review.json`. The five actual
+document hashes, seven referenced evidence hashes and exact fourteen-file scope
+match. Only this approval record and Task 8 completion bookkeeping follow the
+review, in the separate documentation-only handoff commit. Local bookmark
+`codex/parameter-cache-c-accepted` identifies that commit; C remains unpushed.

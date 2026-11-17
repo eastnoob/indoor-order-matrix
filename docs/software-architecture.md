@@ -97,7 +97,12 @@ at their unique run parent, while explicit output roots keep it at the exact roo
 The B handoff records 786/786 required tests (807.82 seconds), 712 unchanged
 frozen file hashes, SPEC PASS / QUALITY APPROVED and exact evidence.
 Plan C's semantic publication, distance producers, selected processing and
-potential consumers are described below; lifecycle acceptance remains in progress.
+potential consumers below are locally accepted at
+`4edfdb504f48f88612375471f5e9bcc68dcc45ae`. The
+[C handoff](superpowers/handoffs/2026-11-15-plan-c-complete.md) records 620
+distinct required PASS nodes as 619 original passes plus one corrected-node
+pass, with exact deletion and mixed-codec relocation verified. C remains opt-in
+and local; intermediate runtime is deferred.
 
 ## Package parameters and model-side cache — Plan A locally verified 2026-11-16
 
