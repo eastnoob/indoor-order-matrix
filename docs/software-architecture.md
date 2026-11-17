@@ -254,6 +254,23 @@ Euclidean output and its modulation exclude route/free-space dependencies. The
 explicit intermediate contract remains design only; no concrete stage warrants
 runtime adoption or another backend.
 
+## Evidence-package authoring boundary — clarified 2026-11-17
+
+A logical package composes its entry, declared inputs/parameters, numerical
+functions, shared publication template, optional processing and existing storage.
+`EvidencePackage` is a frozen configurable template, not a required superclass
+or a model/cache/UI manager. Its two business methods are `evaluate()` and
+`process_output()`; package `run_*` entries own orchestration. Callers prepare
+the declared scope with sufficient algorithm context; complete source retention
+means all supplied evidence, not the whole model. `ParameterSpec.exposed`
+declares eligibility for a future UI adjustment panel; `resolve()` still accepts
+valid programmatic overrides regardless of the flag. Semantic output kinds and
+raw/processed layers remain distinct; intermediate-stage runtime stays deferred.
+The maintained [structure guide](project/evidence/evidence-package-structure.md)
+and [authoring template](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md)
+record these boundaries and current opt-in A/B/C APIs. No UI or new override
+prohibition is introduced by this documentation clarification.
+
 ## Package-owned lifecycle — locally verified 2026-11-12
 
 The dedicated `evidence-package-lifecycle` jj workspace starts from `b8a66a65`

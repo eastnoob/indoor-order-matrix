@@ -1,5 +1,18 @@
 # Indoor Layout Matrix Architecture Memory
 
+## Evidence-package development boundary — user clarification 2026-11-17
+
+Use the maintained [structure guide](project/evidence/evidence-package-structure.md)
+and [minimal authoring template](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md).
+A logical package composes functions/modules; `EvidencePackage` is the shared
+publication/processing template, not a required superclass or model/cache/UI
+manager. Callers supply facts for a declared scope with necessary context.
+`exposed` is the future UI adjustment-panel label, not an override prohibition
+or permission boundary; retain valid programmatic overrides and value validation.
+Do not add a parallel `hyperparameter` field. Keep semantic outputs distinct from
+raw/processed layers. This records development boundaries only; existing opt-in
+C APIs, combined APIs and deferred intermediate runtime remain unchanged.
+
 ## Independent output ports — Plan C locally verified 2026-11-17
 
 C implementation is locally accepted at

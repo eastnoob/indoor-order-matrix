@@ -4,6 +4,77 @@ An evidence package groups related channels for one materialized analysis
 snapshot. Each channel keeps its own meaning, method, inputs, observation,
 status and scale. Grouping channels does not combine them into a score.
 
+## Current development boundary — clarified 2026-11-17
+
+This guide and the [minimal authoring template](../../superpowers/specs/2026-10-30-evidence-package-minimal-standard.md)
+describe the locally accepted A/B/C implementation. The [C handoff](../../superpowers/handoffs/2026-11-15-plan-c-complete.md)
+records acceptance and remaining limits; this does not imply owner/main
+integration or a C push. Earlier dated checkpoints below retain their history.
+
+| Component | Responsibility | Boundary |
+| --- | --- | --- |
+| Package entry / builder | Prepare declared inputs, parameters and algorithms; `run_*` owns reuse/calculation and storage orchestration. | Future UI calls the business entry; no new manager or inheritance tree is required. |
+| Numerical functions / existing adapter | Compute package-specific facts and supply source envelopes. | Model/session access stays in its existing layer; pure features do not import live Blender/session code. |
+| `EvidencePackage` | `evaluate()` validates/publishes source and additive channels; `process_output()` processes an existing raw result. | These are its two business methods, not all package-level APIs. This frozen configurable template is not a required superclass or a model/cache/UI manager. |
+| Parameter schema / snapshot | Declare legal values and impact; record immutable effective values and sources. | Resolve/bind parameters in the package entry or builder; `evaluate()` has no separate parameter-dict argument. |
+| Optional processor | Apply a declared recipe to validated fresh raw. | Publish processed separately; never replace raw or choose a universal normalization. |
+| Existing storage / cache modules | Validate, save and reuse exact results through package-owned contracts. | Reuse existing backends; no per-package cache framework is required. |
+
+Inputs are **caller-prepared facts for the declared analysis scope**, plus
+explicit optional upstream results. A scope may be local or room-wide. Complete
+source retention means all supplied evidence, not the entire model. Keep the
+context the algorithm needs: local paths still require obstacles/domain, and
+complete-scope processing must retain its declared members. The shared callback
+receives `FieldResultEnvelope` records, or `EvidencePackageInput` for the context
+callback; existing outer facades may accept their own bundle/context. There is
+no automatic whole-model/subset input router.
+
+Composition is the current design. This responsibility map is not a full
+repository coupling/quality audit and does not call for an OOP rewrite.
+
+### Parameters and the `exposed` convention
+
+Reuse `features/evidence_package_parameters.py`: `ParameterSpec` declares name,
+type, unit, default/required, legal values and impact. `ParameterSchema.resolve()`
+validates requests, expands defaults and records request/default sources in an
+immutable `ParameterSnapshot`. `capture_calculated()` requires complete
+historical values and explicit sources; it never fills gaps from today's defaults.
+
+`exposed=True` labels a parameter for a future UI adjustment panel;
+`exposed=False` omits that adjustment entry by convention. Current `resolve()`
+accepts otherwise valid programmatic overrides for either value. This is not a
+permission boundary, does not generate a UI and needs no separate `hyperparameter`
+field. Keep type/range/choice validation. Existing schema-less processors remain
+supported; not every numeric constant has become a caller-adjustable parameter.
+
+### Semantic outputs and processing layers
+
+The two core methods below describe **raw and processed layers**. C additionally
+offers independent **semantic kinds**: `euclidean_distance`, `path_distance`,
+`axis_potential` and opt-in `distance_modulated_axis_support`. These are separate
+axes, not a fixed two-result limit for every package.
+
+`features/output_port_cache.py` supplies `OutputPortContract`, `OutputPortRef`
+and publication/run records. Each contract selects exact target/channel
+addresses, parameter names and actual upstream references. Distance entries are
+`run_group_distance_ports` and `run_euclidean_processed_port` in
+`features/group_distance_output_ports.py`; axis/modulation uses
+`run_group_axis_output_ports` in `features/group_axis_output_ports.py`.
+They reuse B's `CacheStore`, addressed by
+`source / package / semantic-output / raw-or-processed / identity`.
+Route-only changes preserve independent Euclidean results; modulation depends
+on processed Euclidean and pure-axis results, not path. Selected parameter names
+control relevant reuse checks while full historical parameter audit is retained.
+
+Existing combined APIs and raw/processed serializers remain compatible. The
+combined runners return the mapping below; semantic cache runners return
+`PortRun` records containing a publication, `cache_hit`, `status`, `cache_status`,
+`cache_reuse` and `cache_location`, by semantic output where applicable. Do not
+assume all entry points have one return type. Pure evaluation and existing
+nonpersistent calls need no persistent store; C cache runners require their
+explicit `CacheStore`. Intermediate-stage runtime remains design-only; no UI
+is implemented here.
+
 ## Package-owned lifecycle — approved 2026-11-12
 
 The user approved implementation of a package-owned execution boundary after
@@ -218,8 +289,10 @@ observation. Original free-space, distance and potential outputs remain intact;
 geometry and trend use the same envelope reader as source adapters, preserving
 their public/audit boundary. This exercises shared readback without defining a
 new metric. The camera-plane free-space/distance snapshots cannot be mixed with
-the retained world-plane potential/trend/geometry snapshots. Distance-to-potential
-business integration remains unimplemented and needs its own agreed meaning.
+the retained world-plane potential/trend/geometry snapshots. That 2026-11-10
+output-only rollout did not implement distance-to-potential business integration.
+The current separately opted-in distance modulation is described above; it does
+not permit mixing incompatible analysis planes.
 
 `consume_saved_evidence_package` keeps its original raw selections and accepts
 `processed_path`, a separate `expected_processed_sha256`, independently supplied
