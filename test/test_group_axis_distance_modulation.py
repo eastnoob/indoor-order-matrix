@@ -629,6 +629,7 @@ def test_mixed_port_cache_migrates_original_owner_codecs_without_producers(lifec
     from features import field_core, group_axis_output_ports as axis_ports, group_distance_output_ports as distance_ports
     from features.output_port_cache import load_raw_port
 
+    original_process_output = field_core.EvidencePackage.process_output
     graph = lifecycle_graph
     monkeypatch.setattr(distance_ports, "evaluate_euclidean_port", _forbidden)
     monkeypatch.setattr(distance_ports, "evaluate_path_port", _forbidden)
@@ -657,7 +658,20 @@ def test_mixed_port_cache_migrates_original_owner_codecs_without_producers(lifec
         name: item.publication.ref for name, item in graph["axis"].items()}
     source_id = graph["legacy_address"].source_fingerprint
     assert store.get_source_binding(source_id) == graph["store"].get_source_binding(source_id)
-    legacy = potential.run_group_axis_potential_package(graph["envelopes"], temporary_cache_root=store.root)
+    legacy_facade_calls = []
+
+    def process_unconfigured(package, raw, *, package_freshness):
+        """Allow only the legacy empty status facade while numerical processing stays forbidden."""
+        assert package.output_processor is None
+        legacy_facade_calls.append(package_freshness)
+        return original_process_output(package, raw, package_freshness=package_freshness)
+
+    with monkeypatch.context() as legacy_patch:
+        legacy_patch.setattr(field_core.EvidencePackage, "process_output", process_unconfigured)
+        legacy = potential.run_group_axis_potential_package(graph["envelopes"], temporary_cache_root=store.root)
+    assert legacy_facade_calls == ["fresh"]
     assert legacy["cache_hit"] and legacy["cache_reuse"] == "migrated_reuse"
+    assert legacy["processed_output"].error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED"
+    assert legacy["processed_output"].outputs == ()
     assert _lifecycle_bytes(store) == _lifecycle_bytes(graph["store"]) == graph["before"]
     assert _lifecycle_bytes(graph["native_store"]) == graph["native_before"]

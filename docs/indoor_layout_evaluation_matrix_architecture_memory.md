@@ -11,13 +11,22 @@ bind processing to selected bytes and reuse B's storage/lifecycle/migration.
 Historical combined APIs, numerical formulas and original payloads remain intact.
 
 Continue the [C plan](superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md)
-at its coordinated review repair, seven test-only lifecycle assertions and final
-fourteen-file independent gate. Task 5's preserved `85d48527d918aac507f704015005127929963c5a`
+at its final targeted test correction. The single fourteen-file gate on
+`0b1789dbbb923595c8b8a763653cfd63e3f32ca6` completed with 619 passes and one
+mixed-migration test failure: its global sentinel rejects the legacy runner's
+empty, unconfigured processing facade, which invokes no numerical callback.
+All 723 frozen paths and 41 fixture files stayed unchanged. Preserve that run;
+independently run the corrected full node and explicitly reconcile the 619+1
+union, with all products, fixtures and other tests unchanged. Do not repeat the
+fourteen-file numerical gate or describe the union as a second full run.
+
+Task 5's preserved `85d48527d918aac507f704015005127929963c5a`
 diagnostic had 54 passes and eight missing-fixture setup failures; its graph
 admission finding prevents acceptance despite all 23 modulation nodes passing.
 The missing retained file is now copied from byte-verified B. Path Shapely recipe
-invalidation and warm-hit graph admission must pass the final gate before Tasks
-5/6 are accepted. Intermediate runtime remains deferred; no new backend is needed.
+invalidation and warm-hit graph admission passed the fourteen-file run. Tasks
+5/6 still require the corrected migration node and final delivery review before
+acceptance. Intermediate runtime remains deferred; no new backend is needed.
 The ignored task ledger holds recovery details, not current feature authority.
 
 ## Model-side cache — Plan B locally verified 2026-11-16

@@ -58,6 +58,35 @@ state while preserving the rejected diagnostic checkpoint. Task 8 still writes
 a separate handoff commit naming the real implementation revision. This avoids
 duplicate expensive fixture runs; a collection/subset mismatch blocks acceptance.
 
+### Retained final gate and targeted test correction — 2026-11-17
+
+The single fourteen-file execution of candidate
+`0b1789dbbb923595c8b8a763653cfd63e3f32ca6` completed in 3590.063 seconds:
+619 passed and one failed, with all 620 collection/XML identities matching.
+Task 5's full subset was 69/70, Task 6's 210/211 and the original Task 8 scope
+599/600. All original Task 5 nodes, the two source repairs and the six other
+new lifecycle nodes passed. All 723 frozen paths and 41 fixed fixture files
+remained unchanged. The failure and original XML remain retained and unaccepted.
+
+The mixed-codec migration test reached the final legacy read after all nine
+entries migrated and every semantic ref/hit assertion passed. Its blanket
+`EvidencePackage.process_output` sentinel then rejected the legacy runner's
+unconfigured processing facade. With `output_processor=None`, the existing core
+returns empty `OUTPUT_FUNCTION_NOT_CONFIGURED` before any numerical callback.
+The correction is confined to that test function: retain the strict sentinel
+through migration/semantic reads, then permit exactly one guarded None-only
+legacy facade call and assert its empty diagnostic. All producer, legacy-hit,
+source/destination-byte and native-byte assertions remain mandatory.
+
+Final acceptance reuses the 619 valid original outcomes and independently runs
+the entire corrected node once with fresh scratch and the same environment.
+The verifier must prove every production/fixture/other-test byte unchanged,
+compare the target module outside that function, and reconcile the complete
+620-node union plus 70/211/600 subsets. This is not a second full 620-test run.
+The corrected candidate descends from the preserved failed candidate; its
+explicit completion fileset contains only the target test and necessary plan/
+memory updates. No product-code repair or duplicate fourteen-file run is needed.
+
 ## Global Constraints
 
 - Apply the [shared acceptance and jj runbook](../handoffs/2026-11-15-parameter-cache-planning-delivery.md#共同验收协议) to every PASS and commit below. Critical nodes need actual execution without skip/xfail, independent evidence and exact byte identity. Missing fixtures cannot silently reduce accepted output independence.
