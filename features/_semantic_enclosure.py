@@ -385,9 +385,14 @@ def semantic_enclosure_diagnostics(scene, request, opening_diagnostics):
                              "scenario": "authorized_default_closed_not_observed", "physical_mass_added": False})
             next(a for a in apertures if a["id"] == ref)["scenario_closed"] = True
     structural = [(row["source_ref"], sources[row["source_ref"]][3]) for row in rows if row["enclosure_support_eligible"]]
+    rows_by_ref = {row["source_ref"]: row for row in rows}
     assembly = unary_union([cut for _, cut in structural] + [aperture_shapes[c["aperture_ref"]] for c in carriers])
     scopes, contours = [], []
     structural_mass = unary_union([cut for _, cut in structural])
+    wall_mass = unary_union([cut for ref, cut in structural if rows_by_ref[ref]["kind"] == "wall"])
+    column_components = _polygons(unary_union([
+        cut for ref, cut in structural if rows_by_ref[ref]["kind"] == "column"
+    ]))
     wall_components = [(component, [row["source_ref"] for row in rows
                                     if row["kind"] == "wall" and row["enclosure_support_eligible"]
                                     and component.intersection(sources[row["source_ref"]][3]).area > 0])
@@ -400,7 +405,11 @@ def semantic_enclosure_diagnostics(scene, request, opening_diagnostics):
             # from the parent before retaining structural islands as holes.
             nested = [Polygon(other.exterior) for other, _ in wall_components
                       if other is not component and polygon.covers(other)]
-            for scope in _polygons(polygon.difference(unary_union(nested)).difference(structural_mass)):
+            # Only columns connected to a supporting shell close that shell; detached columns stay occupancy.
+            supporting_mass = unary_union([wall_mass] + [
+                part for part in column_components if not polygon.boundary.intersection(part).is_empty
+            ])
+            for scope in _polygons(polygon.difference(unary_union(nested)).difference(supporting_mass)):
                 scope_ref = f"S{len(scopes) + 1}"
                 scopes.append({"id": scope_ref, "geometry": _geometry(scope), "supporting_carrier": _geometry(component),
                                "wall_source_refs": walls, "provisional": True, "selected": False, "active": False,

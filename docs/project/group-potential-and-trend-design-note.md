@@ -199,23 +199,23 @@ The scalar `Σc cos²` has only a constant and first doubled-angle harmonic, so 
 
 The group-distance calculation is a separate reusable module, not an existing
 distance evidence package and not a prerequisite for the axis-only potential.
-The current next work is to finish and review its design against the shared
+At that owner-draft stage, the next work was to review its design against the shared
 analysis plane, physical-occupancy resolution and `FreeSpaceField` interface.
 Independent endpoint, algorithm and state reviews have been processed into the
-owner draft; user review and readiness are still pending.
-There is no confirmed `FreeSpaceField` instance/grid yet for the pinned 10500
+owner draft; later implementation and readiness records below supersede that draft status.
+At that draft stage there was no confirmed `FreeSpaceField` instance/grid for the pinned 10500
 IFC; the distance module must not borrow the separate B3 inspection grid.
-Its reusable computation and the eventual same-IFC grid/input adapter are
-future implementation work, not current code.
+The reusable computation and same-IFC grid/input adapter are implemented in the retained distance workline; the design requirements above remain applicable.
 It reports two raw readings independently: fixed-group-centroid Euclidean
 distance and fixed-centroid/free-grid hybrid distance. It does not produce
 support, decay, normalization, membership or a potential result.
 
-Later, the potential package may decide to add a separately named,
-traceable distance-conditioned cohesion reading to express the question “do
-similarly oriented groups still support one another when spatially separated?”
-That would be a package-owned additive calculation: preserve all current pure
-axis, relation, resultant and hierarchy channels; choose which raw distance to
-use and define any monotone transform/combination only in a separate reviewed
-design. This note does not freeze that formula or claim the distance module is
-already implemented.
+The potential package now exposes a separately named, traceable, default-off
+distance-conditioned diagnostic for the question “do similarly oriented groups
+still support one another when spatially separated?” It is a package-owned
+additive calculation: `M_d(g,k)=S(g,k)*p(g,anchor(k))`, where `S` is the
+existing axis support and `p` is the accepted processed Euclidean proximity
+channel. The trial preserves all pure-axis, relation, resultant and hierarchy
+channels, keeps 37 self cells unavailable, and computes 1,332 non-self cells on
+the pinned IFC. This is an experimental feasibility reading, not a frozen
+production attenuation formula, size-weighted model or fusion vote.

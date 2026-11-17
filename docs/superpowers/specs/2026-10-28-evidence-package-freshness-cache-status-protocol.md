@@ -75,7 +75,10 @@ inputs.
 The freshness checker is a read-only comparison between a stored package
 contract and the current dependency declaration. It returns a status payload
 for the UI. It does not load IFC to recompute evidence, update the snapshot,
-choose a target-level subset, or maintain a dependency graph.
+choose a target-level subset. The shared core provides a cycle validator for a
+caller-supplied complete package dependency graph and rejects direct self-deps
+on package outputs; it does not maintain a registry or schedule package
+execution.
 
 ## 4. Package contract
 
@@ -200,6 +203,15 @@ Rules:
    package can contain `partial`, `invalid`, `not_available`, or
    `not_evaluated` target results, and those states remain visible to the UI.
 
+Package freshness and channel status remain separate dimensions. Cross-package
+readback binds a source package output to a target and channel. When the source
+package is stale or unavailable, the readback's effective availability is
+`not_available`; the source channel's original status and observation remain
+attached for historical audit only and cannot be used as current numeric input.
+When package freshness is fresh, the source channel status passes through
+unchanged. Package-specific consumers decide what `partial`, `outside`,
+`ambiguous`, or domain states such as an unreachable route mean.
+
 The UI must receive at least `recompute_required`, `reasons`, and
 `affected_targets`; it must not infer freshness by comparing visual manifests or
 by treating a per-envelope `computed` status as package freshness.
@@ -221,7 +233,9 @@ stable furniture-group targets. Geometry rules remain in
 `group_trend_alignment_field.py`.
 
 This split keeps package-specific facts out of `field_core.py` without adding a
-universal plugin registry, job/result registry, or local dependency graph.
+universal plugin registry, job/result registry, or centrally maintained
+dependency graph. Callers that execute multiple packages supply their graph to
+the shared cycle validator.
 
 ## 8. Out of scope and owner decisions
 
@@ -229,7 +243,7 @@ This protocol does not authorize:
 
 - automatic recomputation or background jobs;
 - cache storage, eviction, or synchronization policy;
-- target-level invalidation or a dependency graph;
+- target-level invalidation or a target-level dependency graph;
 - candidate inference, aggregation, membership, potential, strength, or winner
   selection;
 - changes to `FieldResultEnvelope`, `room_analysis_model`, or factual IFC data;

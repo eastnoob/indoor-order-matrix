@@ -6,9 +6,9 @@ from collections.abc import Iterable, Mapping
 from math import isfinite
 from typing import Any
 
-from shapely.geometry import Polygon, box
+from shapely.geometry import Polygon, box, shape as geojson_shape
 
-from .field_core import Field, FieldQuery, FieldSample, FieldStatus, _freeze
+from .field_core import Field, FieldQuery, FieldSample, FieldStatus, _MetadataOverlay, _freeze
 from .geometry_views import component_shape
 
 
@@ -86,6 +86,47 @@ def _components(value: Any) -> tuple[dict[str, object], ...] | None:
     return tuple(result)
 
 
+def _support_geometry(value: Any):
+    """Decode finite strict 2D GeoJSON support without repairing source topology."""
+    if not isinstance(value, Mapping) or not isinstance(value.get("type"), str):
+        return None
+    kind = value["type"]
+    if kind == "GeometryCollection":
+        if set(value) != {"type", "geometries"} or value["geometries"] not in ([], ()):
+            return None
+        return geojson_shape(value)
+    depth = {"Point": 0, "MultiPoint": 1, "LineString": 1, "MultiLineString": 2,
+             "Polygon": 2, "MultiPolygon": 3}.get(kind)
+    if depth is None or set(value) != {"type", "coordinates"}:
+        return None
+
+    def finite_coordinates(coordinates, level):
+        """Reject omitted, nonfinite, and higher-dimensional coordinate tuples."""
+        if level == 0:
+            return _vector(coordinates, 2)
+        return (isinstance(coordinates, (list, tuple)) and bool(coordinates)
+                and all(finite_coordinates(item, level - 1) for item in coordinates))
+
+    coordinates = value["coordinates"]
+    if not finite_coordinates(coordinates, depth):
+        return None
+    if kind in {"LineString", "MultiLineString"}:
+        lines = (coordinates,) if kind == "LineString" else coordinates
+        if any(len(line) < 2 for line in lines):
+            return None
+    if kind in {"Polygon", "MultiPolygon"}:
+        polygons = (coordinates,) if kind == "Polygon" else coordinates
+        if any(len(ring) < 4 or tuple(ring[0]) != tuple(ring[-1])
+               for polygon in polygons for ring in polygon):
+            return None
+    try:
+        geometry = geojson_shape(value)
+        return geometry if geometry.geom_type == kind and geometry.is_valid and not geometry.is_empty else None
+    except Exception:
+        # Invalid support cannot establish known-empty space.
+        return None
+
+
 class FreeSpaceField(Field[tuple[int, int], bool]):
     """Evaluate exact (row, column) cells in an explicit plan domain.
 
@@ -103,10 +144,11 @@ class FreeSpaceField(Field[tuple[int, int], bool]):
         n_cols: int,
         physical_occupancy: Iterable[Mapping[str, object]] | None,
         unresolved_source_ids: Iterable[str],
+        unresolved_supports: Mapping[str, object] | None = None,
         query_context: Mapping[str, object],
         frame: str,
         origin_offset: tuple[float, float],
-        algorithm_version: str = "free-space-field/1",
+        algorithm_version: str = "free-space-field/2",
         schema_version: str = "free-space-field/1",
     ) -> None:
         """Freeze the explicit handoff and validate all lattice inputs."""
@@ -248,6 +290,43 @@ class FreeSpaceField(Field[tuple[int, int], bool]):
         self._occupancy_shapes = tuple(occupancy_shapes)
         self._unknown_owners = tuple(sorted(unknown_owners))
         self._represented_owners = tuple(sorted(represented_owners))
+        local_supports = []
+        support_audit = {}
+        global_unknown = set(unknown_owners)
+        for owner in self.unresolved_source_ids:
+            raw = unresolved_supports.get(owner) if isinstance(unresolved_supports, Mapping) else None
+            evidence = raw if isinstance(raw, Mapping) and "state" in raw else None
+            geometry_data = evidence.get("geometry") if evidence is not None else raw
+            geometry = _support_geometry(geometry_data)
+            if geometry is None:
+                continue
+            if evidence is not None:
+                owners = evidence.get("selected_owner_ids")
+                identifiers = ("source_object_id", "query_key", "geometry_digest", "helper_algorithm_version")
+                if (evidence.get("coverage_complete") is not True
+                        or not isinstance(owners, (list, tuple)) or owner not in owners
+                        or any(not isinstance(item, str) or not item.strip() for item in owners)
+                        or len(set(owners)) != len(owners)
+                        or any(not isinstance(evidence.get(key), str) or not evidence[key].strip()
+                               for key in identifiers)
+                        or evidence.get("state") not in {"valid_nonempty", "validated_empty"}
+                        or (geometry.is_empty != (evidence["state"] == "validated_empty"))):
+                    continue
+            elif geometry.is_empty:
+                # Empty support requires explicit attestation; bare empty geometry is inconclusive.
+                continue
+            try:
+                audit = _freeze(raw)
+                clipped = geometry.intersection(self._domain_shape) if self._domain_shape is not None else geometry
+            except Exception:
+                continue
+            global_unknown.discard(owner)
+            support_audit[owner] = audit
+            if not clipped.is_empty:
+                local_supports.append((owner, clipped))
+        self.unresolved_supports = _freeze(support_audit)
+        self._global_unknown_owners = tuple(sorted(global_unknown))
+        self._local_unknown_supports = tuple(local_supports)
         provenance = {
             "algorithm_version": algorithm_version,
             "schema_version": schema_version,
@@ -257,14 +336,17 @@ class FreeSpaceField(Field[tuple[int, int], bool]):
             "units": "boolean", "geometry_units": "m", "area_units": "m^2",
             "selected_records": tuple(selected_audit),
             "unknown_source_ids": self._unknown_owners,
+            "unknown_supports": self.unresolved_supports,
+            "global_unknown_source_ids": self._global_unknown_owners,
         }
+        self._sample_metadata = _MetadataOverlay(provenance)
         super().__init__(
             domain=None if domain is None else {"id": self._domain_id, "frame": frame,
                 "components": domain_components or ()},
             frame=frame,
             value_schema="physical_occupancy_bool",
             representation="exact_cell",
-            provenance=provenance,
+            provenance=self._sample_metadata,
         )
         object.__setattr__(self, "_sealed", True)
 
@@ -284,7 +366,7 @@ class FreeSpaceField(Field[tuple[int, int], bool]):
         """Evaluate one exact lattice cell under the frozen whole-height query."""
         if not isinstance(query, FieldQuery):
             raise TypeError("query must be a FieldQuery")
-        base = {**self.provenance, "query_revision": query.revision, "tolerance": query.tolerance,
+        base = {"query_revision": query.revision, "tolerance": query.tolerance,
                 "plane": query.plane, "height_band": query.height_band, "demand": query.demand}
         if self._input_invalid or not isinstance(target, tuple) or len(target) != 2 or any(
             isinstance(value, bool) or not isinstance(value, int) for value in target
@@ -342,8 +424,12 @@ class FreeSpaceField(Field[tuple[int, int], bool]):
             if conditional:
                 explanation = "occupied in a field containing accepted substitute geometry; exact physical envelope is not inferred"
             return self._sample(True, status, query, base, explanation, source_ids)
-        if self._unknown_owners:
-            return self._sample(None, FieldStatus.UNKNOWN, query, base, "unresolved support prevents a known-empty result", self._unknown_owners)
+        unknown_here = set(self._global_unknown_owners)
+        for owner, support in self._local_unknown_supports:
+            if not eligible.intersection(support).is_empty:
+                unknown_here.add(owner)
+        if unknown_here:
+            return self._sample(None, FieldStatus.UNKNOWN, query, base, "unresolved support prevents a known-empty result", unknown_here)
         return self._sample(False, FieldStatus.CONDITIONAL if conditional else FieldStatus.ESTABLISHED, query, base,
                             "empty physical occupancy from accepted substitute geometry; this is not a walkability or clearance claim"
                             if conditional else
@@ -359,6 +445,6 @@ class FreeSpaceField(Field[tuple[int, int], bool]):
             query=query,
             support=provenance.get("support"),
             source_ids=tuple(sorted(source_ids)),
-            provenance=provenance,
+            provenance=_MetadataOverlay(self._sample_metadata, provenance),
             explanation=explanation,
         )

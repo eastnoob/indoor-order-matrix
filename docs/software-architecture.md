@@ -1,8 +1,860 @@
 # 软件架构
 
+## Model-side cache — Plan B locally verified 2026-11-16
+
+Distance, potential, free-space and Blender worker entries now select the
+model-side store through `SidecarLocator` and the package locator helpers. An explicit cache directory wins;
+saved IFC/Blend files use the shared model-stem `.order_analyzer` directory;
+unsaved callers supply a session-specific temporary root. A failed location
+never silently falls back to repository outputs. Existing calls without any
+locator retain their established nonpersistent or explicit legacy-flat behavior.
+
+`features/cache_paths.py` owns the model-stem sidecar locator, validated
+`CacheAddress`, filesystem containment and immutable `SourceBinding`.
+Every address separates source fingerprint, package, output port, raw/processed
+layer and result identity. Existing packages use `output_port="combined"`.
+Path checks reject symlinks, Windows junctions and other reparse points before
+following or creating directory ancestors, and repeat containment checks after
+creation. An explicit store root is used directly without repository fallback.
+
+`features/cache_store.py` persists complete entries at
+`sources/<source>/outputs/<package>/<port>/<layer>/<identity>/`.
+It validates caller-supplied payloads, fsyncs payload and receipt in a sibling
+staging directory, rereads both, then publishes through a directory rename that
+refuses an existing destination. Windows uses `os.rename`; Linux uses
+`renameat2(RENAME_NOREPLACE)`. Unsupported platforms/filesystems fail explicitly.
+An existing or competing publication is reused only after full wrapper,
+exact payload-byte and package-validator checks. Conflicts preserve existing
+bytes; interrupted or losing stages remain outside the addressable namespace.
+The existing `evidence_package_storage.write_receipt` supplies atomic JSON
+replacement and receipt fsync.
+
+Storage receipts use `cache-receipt/v1`, bind the full address and opaque
+package contract, and record payload format, byte length, SHA256, upstream
+addresses, completion status and receipt fingerprint. Reads reject duplicate
+JSON keys, nonfinite JSON, unexpected wrapper fields, mismatched addresses and
+invalid payload integrity. Missing or invalid stored upstreams prevent a hit.
+Current package-owned callbacks authorize payload reuse and receive a frozen
+contract through `CacheValidationContext`; storage never calculates results,
+resolves parameters, imports Blender adapters or selects numerical eligibility.
+`CacheEntry.receipt` and callback contracts are detached and deeply frozen.
+
+Source facts persist independently at `sources/<source>/source.json` under
+`source-binding/v1`. `put_source_binding` consumes independently verified source
+facts; it does not inspect model geometry. First publication creates the file
+without replacement, and later publications require unchanged canonical
+identity, content fingerprint and external fingerprints before updating only
+the locator. Neither locators nor storage paths become calculation inputs.
+Distance storage projects the existing factual scene/group dependencies into
+its source namespace; the historical calculation contract still binds all
+query and repair inputs. Clearance versions therefore share a source directory
+while retaining different calculation identities.
+
+Identity locks cover lookup, calculation and publication. Reentrant process
+locks coordinate Store instances, and OS locks release after process exit;
+timeouts have a typed exception. Catalog/authentication changes use a separate
+short lock. `list` and `rebuild_index` derive storage validity and upstream
+availability from receipts; they cannot authorize current numerical reuse.
+Exact deletion uses the complete five-part address. Missing upstream entries
+make downstream entries orphaned without rewriting their signed payloads.
+
+Authentication keys are create-once files under `auth/<SHA256(secret)>/`.
+Every entry names its own key domain; `.default_auth_key.json` preserves the
+destination default for new publications when migration adds source domains.
+Secrets are excluded from public receipts and representations. Migration copies
+validated receipt/payload bytes, source bindings and key domains; source entry
+locks are released before destination publication locks. Durable lookup
+attestations and migration provenance remain separate from immutable payloads
+and the disposable index. The narrow `legacy_cache_compatibility.json` profile
+pins the reviewed original/current implementation hashes and unchanged
+numerical dependencies. Unknown implementations or numerical versions miss.
+Legacy candidates use only keys rebuilt from independent current facts; adapters
+do not scan arbitrary JSON or accept a receipt's own key as factual evidence.
+`manifest.json` records format/producer versions, persisted source bindings and
+migration history. It is metadata and cannot authorize numerical reuse.
+
+Closed run logs/checkpoints and settings migrate with their original bytes;
+active runs and scratch remain at their current location. Conflicting settings
+are retained in an imported profile. Checkpoint consumers still enforce the
+accepted route, input, parameter and algorithm bindings before resumption.
+
+All eight Blender UI launch sites pass a model/temporary locator into runtime
+jobs. Request/result/log/diagnostic files and terminal journals live beside the
+model while Pixi, imports and child working directories use the trusted project
+root. Capture verifies portable scene content and external IFC fingerprints
+before reusing a canonical source identity; elapsed timing is audit data only.
+Relocation changes the display locator while unchanged capture content retains
+calculation keys and original result references.
+
+The five group-level CLIs use model-side run/cache locations by default and
+validate source-manifest locators against current bytes. Explicit output
+contracts remain caller-specific: distance and hierarchy use exact directories,
+potential live/replay use parent roots, and modulation allocates a unique run.
+Hierarchy retains its complete 37-group input guard and output containment checks.
+Each CLI wraps its publication in `run_journal`, recording `running` followed
+by `complete` or `failed`; default model-side hierarchy outputs keep that journal
+at their unique run parent, while explicit output roots keep it at the exact root.
+The B handoff records 786/786 required tests (807.82 seconds), 712 unchanged
+frozen file hashes, SPEC PASS / QUALITY APPROVED and exact evidence.
+Plan C's semantic publication, distance producers, selected processing and
+potential consumers below are locally accepted at
+`4edfdb504f48f88612375471f5e9bcc68dcc45ae`. The
+[C handoff](superpowers/handoffs/2026-11-15-plan-c-complete.md) records 620
+distinct required PASS nodes as 619 original passes plus one corrected-node
+pass, with exact deletion and mixed-codec relocation verified. C remains opt-in;
+its accepted delivery was pushed at `3f9e6c45`. Intermediate runtime is deferred.
+
+## Package parameters and model-side cache — Plan A locally verified 2026-11-16
+
+The approved [master design](superpowers/specs/2026-11-15-parameter-owned-sidecar-cache-design.md)
+has sequential [Plan A](superpowers/plans/2026-11-15-package-owned-parameters.md),
+[Plan B](superpowers/plans/2026-11-15-model-side-cache-store-migration.md), and
+[Plan C](superpowers/plans/2026-11-15-output-port-and-intermediate-cache.md).
+Plan A Tasks 1–4 have accepted checkpoints in commits `bba814f87fda68f1778e5c43c073b797b0d1e24e`,
+`8ebe4e5b7e2d7eb2fddc95f5330cfa52befbda02`,
+`7f521c903c688885454359f446b260f89505a4d1`, and
+`418be9199f73f38443f499549eed4dfcab677933`, after the preflight fixture
+checkpoint `9d39d27032752a61ac98c73a1015152d4f48c614`. Final A implementation `92ff7d521415c95d505c2e35eca60781e09b7f96`
+passes 533/533 required tests and independent SPEC/QUALITY review; it implements the typed parameter/receipt layer described below. Plan B's implementation
+is described above; Plan C's current implementation is mapped below. The [planning delivery record](superpowers/handoffs/2026-11-15-parameter-cache-planning-delivery.md)
+owns workline identities, review evidence, recovery and scope limits.
+Its 2026-11-16 acceptance audit also fixes required-node/outcome evidence,
+real-runner numerical/concurrency checks, fresh-process migration and immutable
+stage handoffs; these are execution gates, not new runtime components.
+
+### Task 5 acceptance repair — retained distance adoption and axis readback
+
+The retained IFC distance runner now handles the known pre-A publication
+boundary explicitly. It independently rebuilds the legacy untyped contract
+from the current authenticated bundle, requires every non-parameter contract
+field to match byte-pinned history, and then uses
+reconstruct_legacy_group_distance_contract to attest the historical parameter
+values with authenticated-retained-bundle sources. The saved contract remains
+historical; adoption metadata preserves its origin and calculated/requested
+parameter values. A mismatch in query, algorithm, target, source, schema or
+artifact identity remains a miss/error and cannot be made fresh by adoption.
+
+The axis distance-modulation runner receives that adopted historical contract,
+the independently rebuilt current contract, and the independently rebuilt
+source envelopes from the distance loader. Its second saved readback therefore
+retains the strict current-source comparison and does not compare a saved
+contract with itself. The retained package bytes and all fixed source hashes
+are unchanged.
+
+The final A prerequisite also validates saved repair routes against the current
+accepted graph (including diagonal guards), current owner accesses, movement
+headings, exact arithmetic replay and a fresh route-only geometry check.
+Rejected semantic bytes are retained before replacement; retention errors abort
+publication. Valid checkpoints still avoid source search. Final complete acceptance passed 533/533 nodes with all 315 frozen hashes
+unchanged; independent review is SPEC PASS / QUALITY APPROVED. The earlier
+509-node candidate was preserved but not accepted before this repair.
+
+A provides an independent `features/evidence_package_parameters.py` for owner
+schemas, frozen effective/calculated snapshots, computation-impact projection,
+typed raw/processed lookup metadata, and strict explicit legacy adoption.
+The accepted owners are `free_space`, `group-walk-distance`, and
+`group-axis-potential`; authenticated free-space lookup verifies the HMAC and
+document before shared parameter comparison. Opening variable clearance CLI
+inputs is protected by the accepted fail-closed checkpoint guard. A does not
+provide the model-side CacheStore, sidecar migration, locking, output-port
+split, or intermediate persistence.
+
+B implements `features/cache_paths.py` and `features/cache_store.py` as storage
+infrastructure, below package semantics. The model-side root holds namespaced
+source/package/semantic-port/raw-or-processed/identity entries, rebuildable
+catalogs and separate authentication key domains. Package validators retain
+control of contracts, algorithms and freshness. UI run request/result/log files
+live beside the model while trusted Pixi/module execution stays rooted in
+the repository. Portable source binding and narrowly verified legacy lookup
+compatibility address the historical absolute IFC locator and implementation
+hash coupling; the retained pre-A bytes and restart gates establish reuse.
+
+C Task 1 reviewed actual accepted A/B and passed the independent B regression
+gate. `features/output_port_cache.py` now owns frozen `OutputPortContract`,
+`OutputPortRef`, `RawPortPublication` and `PortRun`, exact selected-view binding,
+the `semantic-output-receipt/v1` raw envelope and B-backed raw save/load.
+Semantic kind and raw/processed layer are distinct; the historical channel
+reference `port=raw/processed` and original serializers remain unchanged.
+The contract binds exact target/channel pairs, selected parameter projection
+and full upstream references. Contract input identity, selected inner payload
+digest and outer stored-envelope digest remain separate. Loaders validate the
+original inner bytes before decoding, compare independently supplied current
+owner declarations, and restrict reuse/warnings to declared selected names while
+preserving the full historical audit. Native upstreams retain their owner codec.
+
+`features/group_distance_output_ports.py` supplies the opt-in independent
+distance entry points: `euclidean_port_contract`, `distance_port_contracts`,
+`evaluate_euclidean_port`, `evaluate_path_port`, `run_group_distance_ports` and
+`project_verified_distance_ports`. Its factual source/geometry registration
+and canonical semantic pair IDs exclude locator/session and route-only facts
+from Euclidean views. Historical combined IDs and APIs remain unchanged;
+adoption reopens an exact B entry through its original owner before projecting
+new selected views without producers. Old-to-new target mappings stay in
+external adoption provenance. Automatic combined fallback is checked after a
+selected miss; invalid historical fallback bytes cannot block independent
+hits. Invalid selected entries are retained through B quarantine before only
+that missing port is recalculated. Explicit combined selection remains strict.
+
+`features/group_distance.py` shares the original `_euclidean_reading` with
+`calculate_euclidean_pairs`; its explicit route-only branch skips that reading
+while retaining route/witness/uncertainty calculations. Path receipts bind the
+full native free-space address when saved samples are used.
+Its recipe binds the existing NetworkX and Shapely numerical versions; restoring
+the same recipe selects the original saved version.
+The independent path entry also requires repair policy to match the current
+bundle and owner snapshot; historical combined readers keep their old behavior.
+`adapters/free_space_distance.py::build_distance_free_space_validator` owns
+the independent wire/native-request/context and exact-sample comparison;
+features never guess a B address from a wire ResultRef. The adapter shares its
+sample handoff without reprojecting furniture. A successful check is reused
+only for identical payload bytes within the same immutable validator context.
+
+`ProcessedPortPublication`, `processed_port_key`, `run_port_processor` and the
+read-only `load_processed_port` in `features/output_port_cache.py` bind the
+selected raw reference and exact selected bytes to the existing processor's
+effective recipe. The independent current raw contract and owner snapshot are
+required before lookup or processing. Existing core processed serialization
+validates the inner raw identity, selected payload fingerprint and channel
+lineage; the semantic envelope does not duplicate raw geometry. A processed
+entry has an exact B dependency on its raw address. Public readers calculate
+nothing and retain damaged bytes; the owning runner quarantines a damaged
+version before recalculating it. Raw and processed warning comparisons retain
+the complete historical/requested audit while only declared selected raw
+parameters affect reuse. Failed processing publishes no complete cache entry.
+
+`run_euclidean_processed_port` builds the independent Euclidean contract,
+reuses or calculates only that raw port, and invokes the existing distance
+package processor. It never requests route inputs or path work.
+
+`features/group_axis_output_ports.py` supplies `bind_port_distance_modulation`
+and `run_group_axis_output_ports`. The binder reopens exact raw and processed
+Euclidean references using independently supplied current raw-owner and
+processor intent. Geometry/member/plane registration excludes route-only
+queries only for the known standalone Euclidean schema; the historical
+combined consumer keeps its complete query check. The existing numerical
+modulation helper consumes the verified processed view and cached pure-axis
+outputs, preserving the support-times-proximity formula.
+Before cache lookup, the binder materializes adjacency iterables and reuses the
+core graph closure/cycle checks plus current/upstream declared-edge checks.
+It passes that normalized graph to evaluation, preserving the same admission
+on misses and hits without consuming one-shot adjacency twice.
+
+The pure `axis_potential` port selects no modulation-switch values or distance
+dependencies. Expected addresses are enumerated through existing target helpers
+without invoking the base evaluator. Optional `distance_modulated_axis_support`
+selects the enable switch and depends on the exact pure-axis raw and processed
+Euclidean B addresses. These same-package storage edges do not change the
+historical package-level graph. Missing/deleted Euclidean dependencies use the
+existing channel redaction to return unavailable nonself values and never save
+a complete replacement; independent pure-axis results remain usable. Owning
+runners retain corrupt versions through B quarantine before rebuilding only
+the affected port.
+
+Euclidean output and its modulation exclude route/free-space dependencies. The
+explicit intermediate contract remains design only; no concrete stage warrants
+runtime adoption or another backend.
+
+## Evidence-package authoring boundary — clarified 2026-11-17
+
+A logical package composes its entry, declared inputs/parameters, numerical
+functions, shared publication template, optional processing and existing storage.
+`EvidencePackage` is a frozen configurable template, not a required superclass
+or a model/cache/UI manager. Its two business methods are `evaluate()` and
+`process_output()`; package `run_*` entries own orchestration. Callers prepare
+the declared scope with sufficient algorithm context; complete source retention
+means all supplied evidence, not the whole model. `ParameterSpec.exposed`
+declares eligibility for a future UI adjustment panel; `resolve()` still accepts
+valid programmatic overrides regardless of the flag. Semantic output kinds and
+raw/processed layers remain distinct; intermediate-stage runtime stays deferred.
+The maintained [structure guide](project/evidence/evidence-package-structure.md)
+and [authoring template](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md)
+record these boundaries and current opt-in A/B/C APIs. No UI or new override
+prohibition is introduced by this documentation clarification.
+
+## Package-owned lifecycle — locally verified 2026-11-12
+
+The dedicated `evidence-package-lifecycle` jj workspace starts from `b8a66a65`
+on `codex/evidence-package-lifecycle`; the source distance workline is preserved.
+The [lifecycle plan](superpowers/plans/2026-11-12-evidence-package-lifecycle.md)
+composes package entry functions, existing algorithms and storage adapters with
+the unchanged role of the frozen `EvidencePackage` publication/processing
+template. A storage adapter is inside the logical package capability, while its
+code remains in the appropriate layer. Pure features do not import Blender
+session adapters. `run_free_space_package` in the existing adapter,
+`run_group_distance_package` and `run_group_axis_potential_package` in their
+feature modules own calculation/cache decisions. The small
+`features/evidence_package_storage.py` supplies typed raw/processed receipts and
+atomic storage; the free-space adapter retains authenticated storage and the
+legacy publication identity separately from its revision-normalized content key.
+Returned `status` describes the current publication while `cache_status` keeps
+the precomputation decision, reasons and actual affected output targets. The
+potential input cache key is separate from its output-target publication
+contract. Existing evaluate APIs, producer order, formulas/defaults and raw v1
+remain the compatibility boundary.
+
+`features/field_core.py` provides separate `evidence-processed-output/v1` JSON
+with full payload integrity and exact raw-content binding. Explicit processed
+references add a port and processing identity while historical raw references
+retain four wire fields. Readers/dependencies select one port without fallback;
+decoding does not run callbacks. Saved processed consumption additionally needs
+independent current source/contract and recipe context. Independent final review
+is SPEC PASS / QUALITY PASS: 353 combined tests passed, with one unchanged
+hierarchy test deliberately excluded and covered by the separate 46-pass
+retained-hierarchy run. The plan records scope, commands and local checkpoints.
+
+## Symmetric reciprocal processed trial — 2026-11-12 / locally verified
+
+`build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=...)`
+in `features/group_distance_evidence_package.py` supplies an explicit processor for
+`s=.01+.98*(b-d)/(b-a)*(m+a)/(m+d)`, with complete-scope minimum `a`, maximum `b`
+and median `m`. It preserves reciprocal curvature and gives observed .99/.01
+endpoints with equal margins. Raw publication/caches and older processors/defaults
+remain the existing boundary. Missing/unusable/nonfresh input, constant scope,
+nonpositive median or unrepresentable arithmetic must produce no processed value.
+`scripts/design/group_level/run_group_distance_linear_comparison_ifc.py` adds
+the explicit `--compare-symmetric-reciprocal` mode while preserving its ordinary
+two-curve mode. Its plots consume actual processed values on the same
+authenticated IFC unions; no geometry/routes rebuild or potential integration.
+See the [implementation and acceptance checklist](project/group-distance-decay-development-note.md#对称反比例输出实现与模型测试2026-11-12).
+Implementation, independent verification and local acceptance are recorded there.
+Independent acceptance passed 173 focused tests, all 666 readings/identities,
+312 historical artifact hashes and both actual PNGs: SPEC PASS / QUALITY Approved,
+no findings. Root retains the workline for local acceptance; user visual judgment
+and later potential integration remain separate.
+
+## User-requested linear-floor comparison — 2026-11-12 / locally verified
+
+The bounded distance trial adds an explicit default-off
+`build_euclidean_linear_proximity_processor(expected_target_ids=...)` beside the
+retained reciprocal processor. It uses one complete Euclidean scope and
+`s=.01+.99*(d_max-d)/(d_max-d_min)`: nearest 1, farthest .01, preserving distance-gap
+ratios. Missing/unusable/nonfresh input or a zero span produces no numeric result.
+The floor is a trial convention; extrema/scope changes can alter earlier values.
+Raw channels, reciprocal behavior and all production defaults remain unchanged.
+
+`scripts/design/group_level/run_group_distance_linear_comparison_ifc.py` reuses
+authenticated retained IFC inputs and actual package processing interfaces for
+both curves. It exports all 666 raw/reciprocal/linear readings, standalone curves,
+same-source plan comparisons and a lineage/hash manifest to a fresh directory.
+No geometry/route rebuild, processed persistence or potential integration.
+See the maintained [trial checklist](project/group-distance-decay-development-note.md#线性正底座对照试验2026-11-12)
+for independent verification and owner acceptance; user visual judgment is separate.
+Independent acceptance passed 154 focused tests, all 666 exact formula/raw/
+reciprocal comparisons, both actual PNG views and all 302 historical artifact
+hashes. SPEC PASS / QUALITY Approved; the trial remains explicit and default-off.
+
+## Opt-in pure Euclidean processed-port trial — 2026-11-12
+
+`features/group_distance_evidence_package.py` adds the explicit experimental
+`build_euclidean_median_proximity_processor(expected_target_ids=...)`. It uses
+only the complete declared Euclidean scope and publishes relative proximity
+`n=m/(m+d)` through the existing runtime processed port; `m` is the scope
+median. Unusable/incomplete inputs or a nonpositive median fail closed. Every
+processed channel cites all raw Euclidean channels used by the common ruler.
+The existing raw factory default, two raw channels, caches and JSON stay intact.
+
+`scripts/design/group_level/run_group_distance_processed_ifc.py` reuses the
+authenticated retained IFC loader, processes the actual distance producer, and
+renders supplied processed values beside raw metres. All 37 groups / 666 pairs
+use one ruler; the source selector never recalculates that ruler. New PNG/SVG,
+HTML and compact trial exports do not rebuild geometry or routes. This is
+scope-relative display/consumer normalization, without furniture-size weighting,
+potential integration, physical attenuation or cross-scene calibration.
+Changing scope can change existing pair values. See the bounded
+[trial/checklist](project/group-distance-decay-development-note.md#optional-processed-port-pure-distance-trial2026-11-12)
+for verification and acceptance; implementation alone is not acceptance.
+The bounded candidate independently passed 135 focused tests, full 666-pair
+raw/processed comparison and actual PNG/Edge inspection; specification PASS,
+quality Approved. User visual assessment remains open.
+
+The user confirmed continuing with this reciprocal as the bounded working rule:
+the observed farthest pair need not approach zero; zero is an infinite-distance
+limit. It preserves ordering, compresses distant differences and does not
+preserve distance-gap ratios. Scope-median selection is explicit and can change
+earlier pair values when groups are added. Reuse the unchanged implementation
+and retained visuals; this does not select a production default or implement
+processed cross-package consumption. See the dated working-rule confirmation
+and maintained checklist in the trial note above.
+
+## Evidence-package optional processing — 2026-11-12 / locally verified
+
+The existing `group-distance-decay` jj workline implements the user-confirmed
+two-port template in `features/field_core.py`. `EvidencePackage.evaluate()`
+continues the required legacy calculation/publication callback and returns the
+unchanged raw `EvidencePackageOutput`; its source evidence, cache identities,
+JSON v1 and saved channel readback remain the existing boundary.
+
+An optional keyword-only `output_processor` defaults to `None`.
+`process_output(raw_output, package_freshness="unavailable")` returns a separate
+`EvidenceProcessedOutput`. Missing configuration yields
+`OUTPUT_FUNCTION_NOT_CONFIGURED`; nonfresh input skips processing and yields
+`OUTPUT_SOURCE_NOT_FRESH`; callback/output failure yields
+`OUTPUT_PROCESSING_FAILED`. Each error has no processed channels or usable
+numeric fallback. A configured callback consumes only the already published
+raw result and immutable declared parameters. Raw-channel references, statuses,
+finite data and declared scalar bounds are checked. A separate processing
+identity binds full raw content and processor ID/version/parameters without
+polluting raw computation identity.
+
+Free-space, distance and both potential factory variants only forward this
+optional configuration. At this original optional-processing checkpoint,
+adapters, computation kernels and persistence were unchanged and processed
+results were runtime-only. The lifecycle extension above adds persistence and
+explicit processed dependencies without changing that checkpoint's formulas.
+No normalization
+default, size weighting or exponent 0.6 is configured; the later trial above
+opts in explicitly without changing those defaults.
+See [package structure](project/evidence/evidence-package-structure.md),
+[minimum standard](superpowers/specs/2026-10-30-evidence-package-minimal-standard.md)
+and the [execution/acceptance checklist](superpowers/plans/2026-11-12-evidence-package-optional-processing.md).
+Independent verification passed 58 processing tests, 165 core tests and full raw
+roundtrip/republication of the real free-space, distance and potential caches.
+The accepted implementation checkpoint is `17ab4ec8`; no spatial result changed.
+The checklist records actual verification and parent-owned local acceptance;
+this architecture entry alone does not certify either. Visuals are omitted
+because this change concerns routing/status/identity and leaves spatial results
+unchanged.
+
+## Geometry-scaled Euclidean IFC experiment — 2026-11-11
+
+The isolated `group-distance-decay` workline adds only
+`scripts/design/group_level/run_group_distance_decay_ifc.py` and its focused
+`test/test_group_distance_decay_ifc.py`; no shared contract, public export,
+room-analysis-model layer or production default changes. The output-only runner
+reuses the existing retained-input fingerprint check, group union geometry,
+hole-aware polygon moments, source-envelope/contract builders and secure saved
+channel readback. It selects all 666 Euclidean targets from 37 real IFC groups.
+Pinned original/derived IFC hashes and an ordered STEP-entity comparison bind
+the additive analysis-plane derivative; the added drawing geometry is explicitly
+excluded from physical mass under the existing role policy.
+
+Each computed row checks the canonical group pair, centroid references and
+coordinates, cached distance audit, camera plane/query and complete channel
+address. The experimental formula is
+`rho²=trace(area-uniform covariance of union); ell=sqrt(rho_g²+rho_h²); w=exp(-d_E/ell)`.
+It reads cached Euclidean distance, never path values; whole-package freshness
+still applies. Invalid or unavailable required readings retain status/reason and
+null response. The output preserves original distance, scales, q/w and lineage.
+
+Final artifacts live under
+`outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_v3/`: CSV/JSON,
+selected-source PNG/SVG, an interactive actual-union SVG/HTML with 37 source
+choices and 666 pair anchors, and a hash manifest. All source views use the
+same absolute [0,1] color scale. This remains an uncalibrated, reversible
+experiment; the separate potential trial consumes the processed distance port
+only through an explicit default-off dependency and does not mix world-plane
+and camera-plane caches.
+
+The explicit, default-off `--compare-reciprocal` mode reuses that authenticated
+loader and unchanged `build_decay_rows`. `build_comparison_rows` only appends
+`w_reciprocal=1/(1+q)` and `group-union-rms-rss-reciprocal/1`; original `w`
+remains exponential. Comparison rows/run use distinct
+`group-distance-decay-comparison-rows/1` / `group-distance-decay-comparison-run/1`
+schemas. Required-input failures retain null reciprocal values and original
+status/reason/lineage. The original default schemas and numeric semantics remain.
+Comparison PNG/SVG reuse the same union renderer for side-by-side source plans
+and both-curve q scatter. HTML reuses the same 37-source SVG and 666 pair anchors,
+adding a labelled curve selector (comparison-only default reciprocal), both
+response columns and synchronized formula/legend/tooltips on absolute [0,1].
+No source geometry, scale, query, evidence framework or shared API changes.
+The reciprocal positive tail is an experimental amplitude choice, with no
+universal positive floor or claim of real interaction or objective calibration.
+The comparison run lives at
+`outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_reciprocal_comparison_v1/`;
+the exponential v3 directory remains the unchanged numeric baseline.
+The separate, default-off `--compare-sqrt-reciprocal` flag includes both old
+responses and appends only `w_sqrt_reciprocal=1/sqrt(1+q)` with version
+`group-union-rms-rss-sqrt-reciprocal/1`. Three-curve rows/run use
+`group-distance-decay-three-curve-rows/1` / `group-distance-decay-three-curve-run/1`;
+the flag works alone. Older modes retain their schemas and numeric semantics.
+The same status gate leaves unavailable third responses null. Its PNG/SVG
+compare reciprocal and square-root reciprocal source plans plus all-three q
+scatter; HTML offers all three curves and defaults to square-root reciprocal
+only in this new mode. Actual unions, absolute [0,1] colors, anchors and input
+validation are reused. The new run is
+`outputs/design/group_distance_decay_ifc/run_20261111_rms_rss_sqrt_reciprocal_comparison_v1/`.
+Both historical runs are preserved. Exponent 1/2 is an uncalibrated modeling
+choice, with no fixed floor, interaction proof or production integration.
+The separate, default-off `--compare-power-06` flag works alone and includes
+all three historical responses. It appends only `w_power_06=(1+q)^(-0.6)` and
+`power_06_formula_version=group-union-rms-rss-power-06/1` to each row, retaining
+the same q, scales, status/null gate and lineage. New rows/run use
+`group-distance-decay-four-curve-rows/1` / `group-distance-decay-four-curve-run/1`;
+formula metadata includes the fixed exponent 0.6. Older flags, schemas and
+selected defaults remain unchanged. PNG/SVG compare exponent 0.5 on the left
+and 0.6 in the middle, using identical source unions and absolute [0,1] colors;
+the right q scatter preserves all four responses and uses purple for 0.6.
+HTML defaults to 0.6 only in this mode and retains four response columns,
+37 source choices, 666 pair anchors, filtering, navigation and keyboard focus,
+with synchronized formula/version, legend, readout and tooltips. The fresh run
+is `outputs/design/group_distance_decay_ifc/run_20261111_power_06_comparison_v1/`;
+the three historical six-file runs are preserved. This remains output-only,
+uncalibrated and unintegrated with potential packages; exponent 0.6 is a modeling
+choice rather than evidence of real interaction or objective calibration.
+See the [development note](project/group-distance-decay-development-note.md)
+for input lineage, verification receipts, limitations and pending user review.
+
+## Evidence-package saved readback rollout — 2026-11-10 / locally verified candidate
+
+The isolated `evidence-package-structure-e86` candidate is extending the existing
+v1 envelope/output boundary with fixed-schema JSON readers and a serialized
+`payload_fingerprint`. Existing dataclass validation remains authoritative;
+saved `output_identity` is required, and a content fingerprint is checked when
+present. Legacy publications without dependencies or fingerprints remain
+readable. Computation identity, complete payload integrity, pinned file bytes,
+and freshness against a freshly built current contract are separate checks.
+
+The concrete consumer is an output-only, faithful channel readback package in
+`scripts/design/group_level/replay_evidence_package_readback.py`. It selects
+explicit published channel references, pins artifact SHA-256, compares retained
+contracts with freshly built contracts, and supplies a complete dependency
+graph before execution. The distance-conditioned potential trial uses this
+path as an additive package-owned channel; it does not alter the default
+potential publication or choose a cross-package fusion formula.
+Before numeric readback, independent `current_source_envelopes` must match a
+signature of `target`, `query`, `channel_set`, `cache_identity`, `raw_status`,
+`value`, `support` and `source_ids`; package ID alone is insufficient. Missing
+context yields unavailable; input/query/plane mismatch is rejected. Outer
+`source_freshness`/visualization provenance is audit-only and excluded from
+this input signature. The P1 repair is implemented and passed scoped independent
+review; the retained replay report records zero errors.
+The camera-plane free-space/distance chain and world-plane
+potential/trend/geometry snapshots remain separate. Per-channel algorithm and
+input tracing reuse provenance, package function/version, `derived_from`,
+source cache identities and explicit dependencies; no parallel class tree is
+needed. The focused rollout tests and retained saved-artifact replay passed;
+the existing core checkpoint `51b8c6e7` is a subset, with no mainline merge or push. See the
+[integration plan](superpowers/plans/2026-11-09-evidence-package-integration-cleanup.md)
+and [evidence record](project/evidence/evidence-package-integration-cleanup-2026-11-09.md).
+
+Potential saved roundtrip preserves all 4,112 outputs and 37 sources. Exact
+reexecution uses the pinned original producer `envelopes.json` order: runtime
+source sorting otherwise permutes its historical `per_group` audit list. This
+does not change a formula or version. The final retained report preserves the
+initial ordering failure and the corrected original-producer-order replay.
+
+## Free-space evidence package — 2026-11-07 / implementation and verification in progress
+
+The authorized package reuses the existing `FreeSpaceField` computation through
+`features/analysis_requests.py:execute_analysis_request`. Its shared-contract
+boundary is `features/free_space_evidence_package.py`: the
+`build_free_space_evidence_package` factory returns the existing `EvidencePackage`,
+and `build_free_space_package_contract` declares the existing whole-package
+dependency/freshness contract. `EvidencePackage.evaluate(source_envelopes)`
+returns the same `EvidencePackageOutput` used by potential and distance packages;
+the legacy call remains valid, with optional dependencies available to packages
+that explicitly consume another package's published channel.
+There is one descriptive derived channel, `free_space`, for every lattice cell.
+This does not add a score, clearance channel or room-model field.
+
+One field-scope `FieldResultEnvelope` retains the complete compact
+`free_space_run` document once. Cell outputs carry lineage and
+`observation.cell_locator` with `row`, `column`, `cell_index` and `result_ref`.
+The retained document preserves the original occupied Boolean (`True` means
+occupied), all six `FieldStatus` values and all seven `FieldSample` fields;
+per-cell projection does not duplicate complete calculation provenance. Raw
+sample status and package computation status remain separate.
+
+`adapters/free_space_evidence_package.py:evaluate_free_space_package(scene,
+request, cache_directory=None)` owns reusable computation/cache orchestration.
+A miss calls the existing executor and compact serializer. A valid hit reuses
+the authenticated compact document and package contract, skips geometry/field
+generators, and rebuilds the cheap package output projection. Cache identities
+bind source, query, plane, domain/scope, sampling and implementation/schema
+dependencies. A cache hit preserves its calculation origin; it is not a new
+live native observation. The companion
+`evaluate_saved_free_space_package(snapshot)` accepts an exact opened result.
+The feature module owns evidence semantics; the adapter reuses existing wire
+validation and persistence without moving Blender session concerns into features.
+
+`scripts/design/space_field/run_free_space_evidence_package.py` publishes saved
+evidence, shared output/contract/status and visualization bindings. Saved
+publication compares the retained contract with no independently observed current
+contract, so current freshness is `unavailable` and `read_state` is `historical`.
+Self-comparison is not evidence of live currentness. The native preview consumes
+the same package and manifest and writes PNG/Blend artifacts; it supplies no
+replacement numerical truth. Planned delivery is
+`outputs/design/free_space_evidence_package/run_20261107/`. Implementation,
+tests, timings, native verification, reviews and commit acceptance are tracked in
+the [package evidence ledger](project/evidence/free-space-evidence-package-2026-11-07.md);
+none is certified by this architecture entry. This work is isolated in
+`order_analyzer_free_space_evidence` from base `58fdf846`; prior proxy route-repair
+working files are outside the authorized change.
+
+## Directional group-route repair — 2026-11-06 / active experiment
+
+`features/group_distance_repair.py:global_repair_result` is the constrained
+continuation over the accepted group-distance baseline. It batches one source
+group against all later targets, searches `(cell, incoming_heading)` states on
+the observed lattice, and performs exact edge/turn replay only for selected
+routes. Screen-approved state transitions are cached lazily in the shared
+clearance context and reused across source searches; per-search exact failures
+remain separate blacklists. Checkpoints are source-scoped and fingerprinted by
+input, baseline, policy, group order, and `GLOBAL_METHOD_VERSION`.
+
+Terminal statuses distinguish an exact route (`exact_route_verified`), missing
+access (`proxy_unreachable`), observed topological infeasibility
+(`infeasible_observed`), and a still-possible but unresolved route
+(`unresolved_unknown`). An unresolved status is never promoted to a pass.
+The retained `run_global_full_current_20261106_merged/repair_result.json` now
+contains all 666 unordered pairs of 37 groups, each with an
+`exact_route_verified` selected route under `global-directional-lazy-exact/3`.
+This establishes feasibility of the saved routes under the recorded directional
+policy; the experiment does not establish global shortestness. The original
+baseline readings remain historical inputs rather than the repaired outputs.
+
+`features/group_distance_evidence_package.py` publishes those saved observations
+through the existing `EvidencePackage` / `EvidencePackageOutput` contract. Its
+only derived channels are `euclidean_distance` and `path_distance`, in metres.
+Path distance decomposes into source centroid offset, the selected free-space
+polyline, and target centroid offset; endpoint offsets are metric-only. Free
+space remains an authenticated input dependency and exact ResultRef, without a
+third channel or a duplicate sample field. Source envelopes retain the selected
+witness, raw readings, dependencies, plane/query context and retained-result
+reference. Saved/bundle dependency or pair-scope mismatches are rejected.
+
+`scripts/design/group_level/run_group_distance_evidence_package.py` publishes a
+saved repair without repeating graph construction or search. It writes the
+two-channel output, common package contract/status, input and visual file
+hashes, and a manifest mapping pair identities to native Blender collections,
+objects and timeline frames. Retained-publication freshness does not assert
+live-scene currentness. Per-pair Blender views distinguish Euclidean straight
+lines, selected clearance routes and metric endpoint offsets. This delivery
+lives in sibling jj workspace `clearance-proxy`
+(`order_analyzer_free_space_distance_bridge_proxy`); main-tree integration is
+separate. Acceptance commands, actual candidate hashes, artifact locations and
+known limits are recorded in the existing distance evidence ledger.
+
+## Analysis board workline — 2026-11-04 / core independently accepted
+
+The free-space baseline is now backed up at `codex/free-space-cache@origin`
+(`d08cd0eb`). The approved next increment is the [persistent board design](superpowers/specs/2026-11-04-analysis-board-design.md),
+[implementation checklist](superpowers/plans/2026-11-04-analysis-board.md) and
+[delivery ledger](project/evidence/analysis-board-2026-11-04.md). Task 1 implements
+`blender_addon/order_analyzer_ui/board.py`: a strict saved descriptor on a stable
+Empty, explicit external ResultRefs with independently retained identity/backend
+expectations, historical restoration and unavailable/hidden failure behavior.
+The shared hidden result mesh is built in scene units; a child applies a
+slab-relative Z offset and per-object categorical materials. Exact source reuse
+also requires the stored native scale. `palettes.py` provides sampled cividis,
+viridis and magma plus finite numeric display mapping; its source license is
+retained in `PALETTE_LICENSE.txt`. Shader colors convert sRGB at the native handoff;
+the addon imports no Matplotlib. Overlay retains its API with finite lift and SI
+unit conversion corrected. Task 2 connects runtime publication to
+`board.attach_result`, historical load and explicit saved-result selection to
+`restore_boards`/`select_result`, and the existing Analysis Results panel to
+display-only style controls. Board/source, mesh, material and node ownership roles
+are excluded from physical capture; the depsgraph guard recognizes those roles
+while ordinary source-material edits remain factual updates. Runtime observes
+actual scene scale changes before the neutral Scene-update path, invalidates
+Domain currentness and restores board presentation historically at the new scale.
+Datum-free legacy results retain a hidden result-only display with an explicit
+unavailable-board message. `build_display_fragments` projects meshes through
+`geometry_views._project_to_plane` in the selected plane-local frame, clips there
+and transforms fragments back to world SI, preserving polygon holes and area.
+Focused integration acceptance passes 410 affected tests after independent review
+fixes. The restored-board depsgraph path recognizes owned presentation resources
+without runtime handles, addon re-registration handles missed scale changes, and
+the Boolean free-space panel no longer presents inert numeric range controls;
+saved-result selection is limited to explicit board entries. Portable Blender 5.2
+native acceptance has also passed for actual S3 attachment, hidden-source/shared
+mesh placement, palette/opacity changes, save/reopen restoration and historical
+status. Keep calculation plane, source/cache truth and historical display state
+separate; ordinary source materials remain factual updates.
+
+## Free-space prerequisite workline — 2026-11-04 / independently verified
+
+The independently verified 2026-11-04 baseline used the isolated `free-space-cache`
+jj workspace at `D:/PROJECTS/understandOtherPackage/order_analyzer_free_space_cache`.
+That workline restored the camera/capture/request/session/addon dependency closure;
+the main-tree absence statements below remain historical context. Current owner-root
+availability is recorded by the [integration plan](superpowers/plans/2026-11-17-abc-owner-integration.md)
+and actual source/tests. The independent Task 0 baseline is 507 passed (33.84 s), with one
+installed-dependency warning; it is not new-feature acceptance.
+
+Use [verified-agent-workflow](../skills/verified-agent-workflow/SKILL.md) and the
+[current checklist](superpowers/plans/2026-11-04-free-space-prerequisite-checklist.md).
+Reuse `bonsai_analysis_plane` for native drawing identity, `bonsai_space_authoring`
+for slab datum, `analysis_requests`/`geometry_views` for finite-band projection,
+and the existing result wire/session for persistence and current reads. Slab datum
+wiring and inclusive participation audit are independently accepted (Task 3:
+`3faec84f`). Task 4 adds content lookup in the session after canonical capture,
+binding, datum, domain and support validation but before legacy proxy activation
+or projection. It reuses the complete result wire and serializer for a fresh
+current-job publication; the distance kernel is outside this workline.
+
+Task 4's implementation boundary is `blender_analysis_session`: pure validated
+scene preparation precedes a content-addressed disk lookup, and misses retain
+the existing activation/request/display generation. The fixed CLI supplies a
+persistent workline cache under `outputs/blender_analysis/content_cache/v1`.
+Content excludes job/request IDs, declared display metadata and plane audit
+revision while including physical facts, exact domain/selection, query/datum,
+rules and implementation versions. `analysis_requests` retains its strict
+revision-sensitive semantic identity through a shared pure identity recipe.
+Hits reconstruct current request/query/support/binding metadata through the
+existing sample serializer, preserving calculation provenance and its origin
+ResultRef. Current reads still require independent native observation of the
+new publication. Task 4 is independently accepted at `ea4fe375`: 416 checks
+passed, with additional fresh-process generation-boundary and failure probes.
+Actual native S3 first/repeat publications now independently pass. The repeat
+reuses the exact first content key and calculation origin, and all 24,442 cell
+values/statuses match. A separate fresh-process replay forbids all six generation
+boundaries and produces the same repeat result bytes without changing its cache
+file. This replay proves reuse, not native currentness. The actual 0.2 m variant
+misses a distinct key, and restored ordinary Start at 0.1 m hits the original
+key and first calculation origin. Independent four-run reconciliation preserves
+every stored first/repeat/restored cell value/status. The scene sampling property
+was never changed; the variant uses the supported runtime request API, without
+accepting the separate broad UI sampling callback.
+
+Task 5's 24,442-cell native run exposed a separate codec scaling defect:
+serialization and validation repeatedly traverse large shared provenance for
+each cell. An independent bounded 1,024-point probe counts `4*N+7` shared
+payload visits in serialization and `N+2` per validator. The isolated
+`free-space-wire-scale` workspace (base `ea4fe375`, change `kopsuxvo`, frozen
+revision `662f8814`) supplied the independently accepted session/wire correction,
+now integrated into this checkout at `a19bfc85`. Exact core Field-owned metadata is detached
+once; generic mutable samples retain per-evaluation detachment. Cache rebinding
+owns its document once and reuses core metadata overlays. Strict validation
+uses one normalized document and private shallow sample views while retaining
+every cell/ref/delta/identity/fragment check, defensive public decoding and the
+original successful validator return identity. Wire versions and exports stay
+unchanged. Independent affected regression passed 866 tests with one existing
+skip; separate scale, seven-field/six-state parity, alias and malformed-input
+probes passed, with specification and quality verdicts PASS. Refreshed native
+23-resource evidence passed in `native-codec-scale-preflight.json` and
+`task5-independent-codec-scale-preflight.json`. Actual field and identical-input
+cache acceptance now pass at the retained native publication instants. The original
+native job was cancelled normally after about 41 minutes without a result;
+its request and logs remain historical evidence. No worker stack was sampled,
+so this finding does not identify its active instruction or sole bottleneck.
+Independent correction review reproduced and then verified rejection of
+pair-list provenance coercion and Mapping-subclass provenance/query lookup
+hooks. Their regression coverage is part of the accepted normalized-validation
+correction. Evidence: `task5-wire-scale-scope-probe.json` and the independent
+wire-scale final review under `outputs/design/free_space_prerequisite/verification`.
+
+The actual 0.1 m S3 field has 14,047 established known-empty samples, 7,023
+established occupied samples and 3,372 outside/null samples. Unknown sources and
+geometry failures are empty. The necessary actual source/domain/result plan
+alignment view independently passes and was delivered inline. Thin source
+outlines include above-band context; they do not define occupancy. Known empty
+does not establish walkability or clearance. The exact-result reading guide's
+current and historical blocks pass on the actual repeat publication, including
+all seven sample fields and seven identity/currentness refusals. Conditional,
+unknown, invalid and not-available samples are unobserved in this actual run
+and remain covered by synthetic tests. See the current acceptance summary in
+[the evidence ledger](project/evidence/free-space-prerequisite-2026-11-04.md).
+Actual four-run and final whole-scope specification/quality verdicts are PASS,
+with no product gaps. Local acceptance is `9ff90182` (change `qurnkros`, parent
+`a19bfc85`); Tasks 0–6 are complete in this isolated workline. Current acceptance
+bookkeeping is change `qpslwnyq`. The main and distance workspaces are not
+integrated by this delivery; no push, merge or distance execution is implied.
+
+Task 1's native lifecycle and matrix correction are independently accepted
+(`a951c761`). Native creation/reuse/update, non-unit scenes, recovery and save
+have been observed. Save/reopen retained the managed IFC marker, GUID and SI
+height; ordinary native import omitted the camera object and initially ensure
+rejected that missing link. The bounded managed-restore correction now restores
+the camera through the official importer inside one owned recovery event,
+retaining the same annotation/GUID and creating no duplicate drawing. Independent
+restore acceptance passed at `ca47cb83` (306 passed, one existing skip), including
+audited native same-GUID restoration and partial-import rollback. Restoration is
+separate from cache behavior.
+`adapters/bonsai_analysis_plane.py:ensure_native_analysis_plane(*, elevation_m,
+project_global_id=None, camera_guid=None, storey_ref=None,
+query_kind="whole_height_projection")` finds exactly one native
+`IfcAnnotation(ObjectType="DRAWING")` through `OM_AnalysisPlane` ownership
+(`Owner="order_analyzer"`, `Role="analysis_plane"`, `Version="1"`, matching
+`ProjectGlobalId`), or creates it. Explicit existing GUID/project identity must
+match that owned drawing. The public elevation is world metres; native creation
+places the exact camera before class assignment, and updates retain GUID/object
+identity through `Drawing.sync_object_placement`. Non-unit Blender scenes use a
+camera-scoped SI handoff to the installed metre-based Surveyor before its native
+georeference conversion. Ownership writes and updates use owned native
+transactions and the existing snapshot/recovery boundary, now retaining camera
+pose and Bonsai placement checksums. Duplicate ownership/native links, wrong
+project, invalid/tilted pose and unsupported exact-section orientation reject.
+`create_native_drawing` retains its ordinary defaults, adding optional
+`elevation_m=None`, `managed=False`, and
+`query_kind="whole_height_projection"`. The addon's explicit New action calls
+ensure with its existing elevation property (initial default 1.6 m); adoption
+and refresh keep their observed pose and GUID-based revision behavior. Static
+IFC DRAWING annotations gain the existing `drawing_camera` role so both physical
+inventory paths exclude them, while ordinary annotations and name lookalikes
+retain their existing roles. Live native-camera and owned-helper exclusions stay
+in use. Unit tests cover real IFC transaction/property-set/serialization behavior
+behind synthetic Blender seams. Loaded-byte/resource preflight has passed; the
+combined current S3 datum/domain/field view and actual field/cache acceptance
+remain Task 5 checks. Managed
+native reopening and restoration have already passed the recorded lifecycle gate.
+
+The existing exact result/sample interfaces and current-versus-historical
+observation requirements are documented in
+[Reading an exact free-space result](free_space_result_reading.md).
+
+## Free-space query clarified by the user — 2026-11-03 / existing capabilities audited
+
+Task 2 is independently accepted and committed (`e02d899b`). It wires `ground_to_analysis_plane_band` to
+the selected slab's verified horizontal upper surface, using plane-local bounds
+`(datum_z_m - plane.origin[2], 0)`. `AnalysisRequest.height_band_datum` retains the
+full immutable receipt in request identity and result serialization. The live
+session checks that receipt against the frozen captured project, exact slab and
+storey identities, containment, five-field SI mesh digest and recomputed top
+before any occupancy execution. Generic direct finite bands remain datum-free;
+whole-height and absolute-world-Z section queries remain independent. Numerical
+regressions establish this wiring; actual native datum/plane alignment remains
+Task 5 evidence.
+
+Current task semantics are floor-upper-surface → analysis-plane-height physical
+mass projection, restricted to the projected confirmed domain. Object scope
+includes boundary contact; known occupied cells still require positive-area
+intersection. The exact plane section is a separate retained query interface.
+The recovered UI already offers `ground_to_analysis_plane_band`
+(`blender_addon/order_analyzer_ui/__init__.py:_make_analysis_request`), and
+`features/analysis_requests.py:_occupancy` uses the existing
+`geometry_views.plan_projection(..., height_band=...)` before constructing
+`FreeSpaceField`. At that audit the UI assumed world ground Z=0; Task 2 now uses
+`adapters/bonsai_space_authoring.py:resolve_slab_datum` as its selected floor
+lower bound. Task 3 now passes the existing qualified plane-local domain polygon
+to `_occupancy`, which intersects each selected physical footprint with the exact
+shell and holes. Immutable `projected_domain_participation` provenance classifies
+`inside`, `crossing`, `boundary_contact` and `disjoint`, with exact intersection
+area, selected geometry refs and original-owner/substitute coverage. Each selected
+proxy is audited once for its full represented owner set. Contact participates in
+the source audit with zero occupied area; disjoint and contact-only geometry are
+omitted from the field inputs. Factual `selected_records` and physical source
+inventory remain intact, including accepted-substitute conditionality. Exact
+boundary/support exclusions, nonphysical sources, legal-empty height/section
+queries and unresolved geometry carry explicit reasons with an unevaluated domain
+relation when no qualified footprint exists. Failed geometry remains unknown and
+the existing trusted-support checks remain in force. No buffer or tolerance-based
+area inflation is applied; FreeSpaceField retains its positive-area cell rule.
+The executor's existing backend file hashes now include `analysis_requests.py`,
+so these semantics change the content identity without changing the result wire.
+The historical distance-run S3 input explicitly declares `whole_height_planar_mass_patch`,
+`height_band=null`; that run is not evidence for the clarified query. The earlier
+support-binding diagnosis below is an audit of another supported scope mechanism,
+not the prescribed solution. Eleven existing UI/request/projection/slab/domain/
+section checks passed in Pixi in 5.55s at the original audit. Task 3 independent
+analytic acceptance passed; fresh S3 visual validation remains open; see the
+existing distance checklist.
+
+## 当前任务：选区纠正 — PRIOR S4 SUPERSEDED / INTENDED S3 CONFIRMED / CORRECTED UNREACHABLE RUN RETAINED
+
+**2026-11-03 current intent correction:** 用户红线选择右侧家具大厅和左侧连接通道。原窄 S4 及 `group_distance_ifc/run_v1/` 的 666 outside 仅是历史错误选区结果；其确认执行记录保留，但选区身份不再代表当前意图。worker/reviewer 已由实际源识别候选 S3（207.24092382549588 m²，37/37 组相交），`.18.C1` 完成；原请求因 A22 斜墙 residual 3.4968646007715876 mm² refused；owner 已选择既有 per-request `aperture_residual_tolerance_m2=1e-5`（10 mm²）策略，prepare 后的 fresh confirmation 已 accepted/active，面积及零孔 shell 不变。A22 保留 `above_area_budget=true`、`significant_residual=false`、`scenario_closed=false`，独立 opening budget `1e-6 m²`（1 mm²）不变。依据[既有 residual policy](project/evidence/d6-inner-space-residual-tolerance.md)，无 global/default/schema 改动、几何修复或 closure override；新请求的 manifest/result binding 已于 `domain_correction_inspection/confirmed_domain_manifest.json` / `confirmed_domain_result.json` 冻结，session revision 1 的 `user-red-outline-s3-20261103` action 记录用户明确选区，旧 refusal 保留；`.18.C2–.18.C3` 完成；实际 `run_v2_corrected_domain/` 为 37 centroids inside、666 Euclidean computed / 666 hybrid unreachable/null / 0 routes。343 occupancy 保留 slab，21,064 established occupied + 3,378 outside，graph nodes/edges/searches 0。`run_v2_corrected_domain/preview/index.html` 已交付，`.18.C4/.18.10` user review 和 `.18.8` 有用真实路径验证仍 open。S3 inferred floor support 尚不具备 occupancy exclusion 资格，不得排除 slab 或更改高度策略；本轮 whole-height occupancy 实际阻断所有路线。实施延续见 distance plan `.18.C1–.18.C4`，`.18` 仍 open。
+
+**2026-11-03 historical free-space investigation (before Tasks 1–4):** Existing whole-height inspection explicitly carried the historical `excluded_support_slab` scope into `run_free_space_field_inspection.py`; it did not obtain free cells by choosing a height band. The general seam was `bonsai_live.validate_support_binding` → `blender_analysis_session.execute_live_analysis` → the exact domain-support/member exclusion in `analysis_requests` and `neutral_scene_views`. A validated specific support changed request-local interior occupancy while retaining factual sources and geometry; an absent or stale binding excluded nothing. `evaluate_domain_request` exposed support candidates/binding only for authored IfcSpace, returning `support_status=not_applicable` for inferred wall domains such as S3. Historical B3 identified the same slab GUID, but its IFC hash and domain differed and could not supply a current binding. Full result serialization, atomic writing and exact ResultRef/sample reading existed; content-key cache selection and downstream reuse were not yet connected. Request semantic identity included plane revision. The isolated `free-space-cache` workspace then used parent `9c0b024b`, before the six-file path-band draft. Six existing support/identity/result-reader checks passed under Pixi (3.58s); this was not a new S3 run or user acceptance. Current accepted cache behavior is described above under Task 4; the [distance implementation checklist](superpowers/plans/2026-11-03-group-distance-module-implementation.md) remains a separate workline.
+
+2026-11-02 用户确认所有分析范围来自选定墙体围合区域在选定相机分析平面上的投影。任务工作区 `order_analyzer_group_distance` 已恢复并核验 sibling `order_analyzer_spec008` 的有界实现闭包；原主工作区尚未集成。Spec008 有 2026-10-19/20 disposable 验收，但实际实现文件未包含在其当前 jj revision，恢复已按实际磁盘 bytes/hash 记录，不能按 revision 宣称已恢复。
+
+复用链：native drawing camera → `AnalysisPlane`；选墙 → 原 B4 / `domain_handoff` 显式确认 → shell/holes 的 WORLD SI support mesh → `AnalysisRequest` 在选定 camera plane 投影。指定 IFC 的 S4 墙域确认已在隔离任务工作区的 S4 产物中完成，manifest/result 绑定和源字节已复核；该确认尚未宣称已安装回主树。不要将 support vertices 预变换成 camera-local 后再投影。B4 structural frame 与 camera frame 分别保留来源身份；倾斜按既有能力拒绝。无确认域时，不能用楼板、家具 bbox、旧网格或画布顶替。计划与执行证据见[前置计划](superpowers/plans/2026-11-02-wall-domain-camera-prerequisite.md)。距离 kernel、IFC runner 与 output-only renderer 已在隔离工作区实现；`.17` readiness 已冻结，原 S4 的历史完整结果是 666 Euclidean computed / 666 hybrid outside / 0 routes，`.18` 保留有用真实路径与用户视觉验收。下列 PENDING 描述继续指原主树部署状态。
+
+**Owner integration — 2026-11-17:** The cumulative A/B/C source includes the recovered request, camera, live-capture, session, Space-authoring and addon dependency closure. The [integration plan](superpowers/plans/2026-11-17-abc-owner-integration.md) records verification and owner-root promotion separately. Earlier ABSENT/PENDING descriptions refer to the original root deployment; historical native acceptance remains bound to its recorded workspace and bytes. This integration does not claim fresh native Blender acceptance. Native identity, height, shell/holes and recovery requirements below remain binding.
+
 ## Spec008 Analyzer workflow completion — DESIGN / IMPLEMENTATION PENDING
 
-[Spec008](../specs/008-analyzer-workflow-completion/spec.md) / [plan](../specs/008-analyzer-workflow-completion/plan.md) record the 2026-10-19 workflow completion design. This is planned behavior, not current-tree implementation or native acceptance. The inspected workflow baseline is sibling `order_analyzer_spec004_delivery` (`spec004-delivery@4b332704`, actual file bytes also require verification); the main workspace still lacks its addon/request/live-session dependencies. `workflow007@1a271593` has an unresolved `features/analysis_requests.py` conflict and is not the integration baseline. Implementation must first recover the bounded dependency closure into an isolated jj workspace and reconcile intended changes without overwriting unrelated dirty work.
+[Spec008](../specs/008-analyzer-workflow-completion/spec.md) / [plan](../specs/008-analyzer-workflow-completion/plan.md) record the 2026-10-19 workflow completion design. These are the workflow design requirements; source presence and native acceptance are distinct. The recovered dependency closure is included in the cumulative A/B/C integration, with integrated verification tracked separately. The inspected workflow baseline is sibling `order_analyzer_spec004_delivery` (`spec004-delivery@4b332704`, actual file bytes also require verification); the original pre-integration root lacked its addon/request/live-session dependencies. `workflow007@1a271593` has an unresolved `features/analysis_requests.py` conflict and is not the integration baseline. The owner integration reconciles that recovered closure in an isolated jj workspace without overwriting unrelated work; it does not replace the recorded native correctness gates.
 
 Planned ownership: the addon owns explicit drawing-camera create/adopt/refresh and Space confirmation; `adapters/bonsai_analysis_plane.py` reuses `CameraBinding` and `AnalysisPlane`; `adapters/bonsai_live.py` retains canonical source, storey and structural-context qualification; one narrow planned `adapters/bonsai_space_authoring.py` translates the exact frozen B4 shell/holes into native profiles/extrusion and coordinates transaction recovery. Plane and Space get only thin composition bindings, with native identity/geometry authoritative. Base elevation, B4 cut height and extrusion height remain distinct. Storey height comes from an explicit traceable authored quantity or manual entry; selected slab base is its unique horizontal upper surface. Tilted/multilevel unsupported inputs reject explicitly. Existing B4 service/reducer, both wall modes, candidate UI and diagnostics remain authoritative.
 
@@ -10,7 +862,7 @@ The inspected native `Spatial.set_space_representation_from_polygon` uses only t
 
 ## Spec004 Blender analysis workflow — APPROVED / IMPLEMENTATION IN PROGRESS
 
-[Spec004](../specs/004-blender-analysis-workflow/spec.md) and [plan](../specs/004-blender-analysis-workflow/plan.md) were approved by the user on 2026-10-15 and are **APPROVED / IMPLEMENTATION IN PROGRESS**. They describe the planned lightweight Blender addon, canonical capture, separate B4 structural context, Pixi occupancy/display fragments and persisted results. Current-tree Spec003 request/plane/live-capture dependencies are **CURRENT TREE ABSENT**, while B4/domain handoff files exist; T0 must verify Git checkpoint `23d24a3` and its approved dependency/import closure in isolation, preserving dirty history. Production implementation and acceptance are not yet claimed; historical architecture statements below are not proof that absent files exist in this checkout.
+[Spec004](../specs/004-blender-analysis-workflow/spec.md) and [plan](../specs/004-blender-analysis-workflow/plan.md) were approved by the user on 2026-10-15 and are **APPROVED / IMPLEMENTATION IN PROGRESS**. They describe the planned lightweight Blender addon, canonical capture, separate B4 structural context, Pixi occupancy/display fragments and persisted results. Spec003 request/plane/live-capture dependencies **were absent from the original root** and are present in the cumulative integration source, while B4/domain handoff files exist; T0 must verify Git checkpoint `23d24a3` and its approved dependency/import closure in isolation, preserving dirty history. Production implementation and acceptance are not yet claimed; historical architecture statements below are not proof that absent files exist in this checkout.
 
 The planned deliverable is a unified Analysis workbench: one `N → Analysis` panel with independently collapsible Domain and Free-space sections. Domain preserves complete existing B4 UI/service capabilities independently of free-space execution, including tolerance/closed-aperture assumptions, outlines/holes/area/labels, counts, selection/explicit confirmation, current/attempt/refusal/stale and aperture residual diagnostics. B4 keeps its existing service/reducer; free-space keeps AnalysisRequest/Field and existing operation vocabulary. Shared capture/identity/confirmed-domain/result access lets later operations join incrementally, without a new framework/DSL/job registry; the substitute registry remains representation selection. Planned immutable domain/free-space documents expose manifest-derived metadata list, exact ResultRef open and sample read/reconstruct through one live/embedded entry. Version/identity/freshness mismatch and stale-as-current reject; unknown/conditional/provenance persist, mesh is display only. Headless consumer contracts are planned; no current downstream analysis consumer or future analysis implementation is claimed. B3 remains OPEN.
 
@@ -433,6 +1285,35 @@ and version; the template runs it against immutable source envelopes and
 validates channel shape, status, scale metadata, lineage, duplicate prevention
 and complete source preservation. Derived channels remain separate from raw
 channels, and output-function version participates in the derived identity.
+Channel algorithm tracing uses existing method/algorithm/schema provenance,
+otherwise package function/version scoped to the named channel. Source channels
+may inherit envelope provenance; `derived_from`, source cache fingerprints and
+explicit dependencies identify actual inputs. The runtime output carries source envelopes,
+additive outputs and compact dependencies. Target/query/scope, freshness and
+visualization manifest live in surrounding package contract/status/manifest
+records, not as fields on `EvidencePackageOutput`.
+
+An opted-in package can read a declared upstream package channel. The raw
+reader checks identity only; downstream computation uses the resolver/context,
+which gates the caller-supplied freshness separately from the channel's domain
+status. The resolver does not calculate freshness itself. Stale or unavailable
+channels are available only as audit metadata when a typed source output exists,
+with the observation redacted from computation; outputs derived from those
+dependencies must have `observation=None`, including `partial` outputs. An
+unavailable dependency without a source output has no observation. Published
+outputs store compact dependency references, not nested upstream outputs.
+The saved-readback rollout adds fixed-v1 envelope/output readers that reuse
+validated types and reject unknown structural fields/schema. Saved output
+identity is required; optional full-payload fingerprints detect changed
+observations/statuses that computation identity does not cover. Legacy
+no-dependency/no-fingerprint publications remain readable with pinned file
+bytes and current-contract comparison. Different targets may consume the same
+channel name. Direct self-dependencies are rejected. An explicitly supplied
+graph must cover every referenced node and match current/available typed
+upstream declaration edges before its acyclic callback boundary. The compatible
+no-graph call makes no complete-graph or global-cycle guarantee. No registry or
+scheduler is maintained. The separate readback consumer preserves existing
+channels and does not make potential consume group-distance.
 `features/group_axis_potential_field.py` now adds the reviewed axis-only
 diagnostic package. It consumes only each source envelope's
 `overall_group_axis`, weights the undirected doubled-angle vectors by the
@@ -469,31 +1350,127 @@ normalization, freshness status, and IFC visualization manifest. The shared
 core validates structure and lineage; it does not choose package formulas or
 cross-package fusion.
 
-The package object is documented in
-[`project/evidence/evidence-package-structure.md`](project/evidence/evidence-package-structure.md).
-Each channel owns its calculation and result; the package groups channels under
-one analysis boundary, identity, snapshot, and freshness state. A future
-cross-package consumer may read a named channel from a source package and add a
-derived channel while preserving the source package/channel identity and
-status. This is a design-compatible extension, not current implementation:
-there is no shared package/channel readback resolver, cross-package dependency
-status propagation, or cycle check yet. Existing `EvidencePackage.evaluate()`
-and `EvidencePackageOutput` remain unchanged until that boundary is explicitly
-designed and coordinated.
-
 On 2026-11-01 the user confirmed package cohesion: a package owns the calculations
 needed for its declared relation without requiring another evidence package to
 be enabled. Reuse ordinary functions and valid caches; do not introduce a shared
-measurement layer or package scheduler. Inputs remain declared source envelopes
-through the existing evaluate signature. Pure-axis/source channels stay intact;
-future distance-conditioned or joint results are additional named outputs, not
-automatic extra votes. Real source changes still invalidate dependent results.
-Whole-group distance, scale, conditional formulas and their source adapters remain
-undecided and unimplemented. The reusable group-distance module is now in the
-`.17` owner-draft stage; independent endpoint/algorithm/state review findings
-have been processed, but user review and readiness are pending
-([draft spec](superpowers/specs/2026-11-02-group-distance-module-design.md)). It
-does not add a potential-package channel or alter the accepted `.16` hierarchy.
+measurement layer or package scheduler. Existing source-envelope calls remain
+valid; an opted-in package may declare explicit cross-package dependencies.
+Pure-axis/source channels stay intact; distance-conditioned or joint results are
+additional named outputs, not automatic extra votes. Real source changes still
+invalidate dependent results. The current distance-conditioned axis channel is
+explicitly default-off and experimental.
+The reusable group-distance module is implemented in `features/group_distance.py`,
+with the pinned-IFC runner `scripts/design/group_level/run_group_distance_ifc.py`
+and output-only `render_group_distance_preview.py`. Kernel review is owner accepted;
+13 focused nonspatial checks and 4 runner/renderer delivery checks are recorded.
+The authorized `.18.8b` continuation upgrades route adjacency to corner-safe
+eight-neighbor weighted edges under a
+new v2 algorithm/schema identity; footprint accesses remain four-neighbor shared
+edges. Both orthogonal flank queries are required diagonal support, and exact
+domain coverage still constrains every center segment. Historical v1 readers
+remain supported. The runner reuses authenticated retained v3 input bytes
+without reprojecting geometry or regenerating free-space; v4 outputs are fresh.
+V2 is `group-distance/2` / `group-distance/v2`, with edge support
+`eight-neighbor-two-flank-occurrences/1`. Additive uncertainty occurrence counts
+keep deterministic predecessor recovery compositional; existing path-cell counts
+retain their meaning and distinct support controls state. Guard keys/query refs
+resolve full sample authority through the manifest and exact ResultRef. Failure
+components include edge guard dependencies even without a cardinal connection.
+The actual candidate `run_v4_eight_neighbor/` has all 666 computed routes, equal
+immutable replay, 13,800 nodes/51,293 edges/36 source runs in each graph, and
+14,983 selected diagonals with 29,966 checked guard occurrences. Full pair
+comparison preserves identities/Euclidean/centroids and reports 587 shorter plus
+79 equal hybrid readings; largest reduction is 5.253573574692414 m. The complete
+HTML/CSV preview has all 666 locators. Independent numerical verification passes
+the actual full-scope source/sample/topology/guard/domain/CSV/replay probe and
+affected checks. Independent native reopen verification passes; final specification
+review is PASS and quality is Approved, with no findings. Technical `.18.8b` is
+complete; user visual gates `.18.10`/`.18.C4` remain open. The existing plan/ledger
+holds the evidence; root records the accepted local commit separately.
+The `.18.8a` continuation adds an explicit exact-result sample handoff in
+`adapters/free_space_distance.py`. It opens the existing immutable ResultRef using
+consumer expectations, authenticates its retained native request/capture, projects
+only group/domain geometry in the original plane coordinates, and carries the
+original lattice, bool values, six statuses, query and result lineage into
+`GroupDistanceInput`. The kernel consumes those saved samples without invoking
+`FreeSpaceField`; the existing whole-height constructor route remains unchanged.
+`scripts/design/group_level/run_group_distance_free_space.py` supplies the reusable
+historical-publication CLI. Known-empty samples retain the full source inventory
+through integer references into `free_space_result.source_ids`; shared support
+context is stored once and each cell keeps its local geometry plus an exact
+ResultRef/row/column locator for complete original support and provenance.
+Blender board meshes/materials are display-only. A saved read remains historical
+unless the caller supplies the independently verified native observation.
+The accepted four-neighbor baseline is `outputs/design/group_distance_ifc/run_v3_finite_band_result/`,
+using the accepted 1.6 m finite-band result `fe3243c13b3f45daac8744efc46f3962`.
+It preserves all 24,442 saved samples and projects 37 groups from the authenticated
+producing capture. Both graphs have 13,800 nodes, 26,301 edges and 36 batched source
+searches; all 666 hybrid distances/routes are computed. Implementer checks cover
+48,734 selected nodes, 48,068 edges, access/lineage/arithmetic and equal immutable-
+bundle replay. Independent final specification review is PASS and code quality
+is Approved. Its baseline complete
+preview is `run_v3_finite_band_result/preview/index.html`; the HTML payload retains
+only fields consumed by its viewer, with full numerical evidence in the run.
+User visual acceptance `.18.10`/`.18.C4` remains pending.
+The historical superseded-selection package `outputs/design/group_distance_ifc/run_v1/` has
+37 groups, 666 computed Euclidean readings, 666 `outside` hybrid observations and
+666 indexed status views under `preview/`. Every group union lies outside S4;
+all 5651 in-domain grid cells are occupied by the retained IfcSlab source, with
+36 outside cells, no free/unknown cells and zero graph searches/routes. This is an
+input/domain and whole-height occupancy limit, not evidence of broken Dijkstra.
+Source/hash/pair reconciliation and separate runtime/memory scopes are in the
+[IFC evidence](project/evidence/group-distance-ifc-v1.md) and
+[implementation checklist](superpowers/plans/2026-11-03-group-distance-module-implementation.md).
+The user has corrected the selection to the right furniture hall plus left passage; matching candidate S3 is confirmed and active under the explicit existing 10 mm² residual request policy, retaining A22 diagnostics, unchanged geometry and the separate 1 mm² opening budget. Corrected manifest/result bindings are frozen in `domain_correction_inspection/`. The historical whole-height `run_v2_corrected_domain/` has all 37 centroids inside, 666 Euclidean computed and 666 hybrid unreachable/null with zero routes. After the existing exact boundary-member exclusion, 343 occupancy records remain; every one of 21,064 occupied samples includes the retained slab, with 3,378 outside samples and zero graph nodes/edges/searches. Its historical preview is `run_v2_corrected_domain/preview/index.html`; independent review verified 12 runner/preview hashes, 666 locators, SVG viewer and corrected S3 visuals. Combined kernel/delivery checks passed 19 tests in 14.68s before the metadata-only count correction; focused post-correction delivery checks passed 6 tests in 17.71s. Its occupancy is 343 records, with 353 retained as pre-rebind history; metrics and kernel output are unchanged. The historical outside-only and all-unreachable packages are not current distance inputs. Current v3 technical acceptance is complete; user visual acceptance keeps `.18` open. No
+occupancy exclusion or domain expansion is implied. The frozen numerical contract
+still uses NetworkX 3.6.1 scalar labels, deterministic tight-predecessor recovery
+and explicit binary64 component residual diagnostics.
+Distance-conditioned potential formulas remain undecided; this module does not add
+a potential-package channel or alter the accepted `.16` hierarchy.
+
+The 2026-11-04 continuation adds an opt-in directional-clearance route model in
+the same kernel. `clearance_policy=None` preserves the accepted v4
+`group-distance/2` behavior and historical readers. When enabled, the kernel
+uses `group-distance/3` / `group-distance/v3` with
+`eight-neighbor-two-flank-occurrences-directional-clearance/1`; states are
+`(cell,incoming_heading)`, access candidates retain direction, and every
+positive-length segment plus continuous heading turn is checked against the
+authenticated retained projected physical polygons and exact domain boundary.
+Every eligible center also retains the four shared-edge access headings, even
+when neither adjacent route edge supplies that direction; any outgoing move
+still pays its complete turn check. Access-only seed states obey the same
+center value/status gate as ordinary graph nodes, including endpoint-only routes.
+The policy is `L>=0.225 m`, `R>=0.225 m`, `L+R>=0.55 m` at the same route
+position. Cached lattice samples still own walkability and status support; they
+do not become a subcell route or an isotropic erosion. Endpoint centroid/proxy
+offsets remain metric-only. Constrained route witnesses carry side/turn sample
+refs, physical/domain limiting witnesses, and uncertainty statuses. The design,
+focused checklist, and pending same-S3 old/new visual gate are recorded in
+`superpowers/specs/2026-11-04-group-distance-clearance-design.md` and
+`superpowers/plans/2026-11-04-group-distance-clearance-implementation.md`.
+The 2026-11-05 continuation authenticates the retained 1.6 m S3/v4 bundle before
+binding an explicit clearance policy in both runners. Geometry, saved samples
+and the exact free-space ResultRef remain unchanged. The constrained kernel
+nodes combined physical/domain boundaries once and indexes complete segments.
+Conservative local bounds limit minimum queries; batched ray intersections and
+calculation-local feasibility caches avoid repeated full-scene work. Turn totals
+include the interior stationary minimum of each fixed-segment visibility interval;
+endpoint/midpoint checks alone are insufficient. Vertex events retain their actual
+boundary point as a candidate, avoiding a trigonometric rounding miss without
+buffering ordinary rays. Visibility envelopes exclude occluded turn events while
+retaining collapsed-angle vertex candidates. Rechecks retain the original ray
+origin/direction and complete-index seeds, avoiding diagonal reconstruction drift.
+Full edge/turn first-hit sweeps supply side-cell status dependencies; positive
+area uses the DE-9IM interior dimension-two predicate, while degenerate rays
+retain positive-length support on both adjoining cells. Uncapped witnesses are materialized for selected routes
+and rechecked against the complete boundary index. Route summaries include edges
+and turns. The preview and native comparison readers authenticate policy-only
+input changes and display the saved narrowest cross-section with left/right values.
+Per-edge independent side minima form conservative display bands; their sum is
+never labeled as the same-position minimum total. Constrained HTML retains only
+the summary and display coordinates; full witnesses remain in numerical output.
+Real constrained execution and independent acceptance remain pending in the
+existing distance ledger; historical v4 artifacts remain the accepted baseline.
 This confirmation does not change the .14/.15 order.
 
 The source-axis `g→k` support mapping is implemented and replay-validated against
@@ -505,8 +1482,8 @@ threshold, mode detection or winner is introduced. Parallel references remain
 views/aliases, not extra votes or discovered organization clusters. This is a
 reference-conditioned projection of complete E, not its replacement or final M.
 The proposed fixed producer reads existing source envelopes;
-`EvidencePackage.evaluate(source_envelopes)` stays unchanged, without a new
-proposal-envelope framework. Logical field identity binds scene namespace,
+`EvidencePackage.evaluate(source_envelopes)` remains valid, and the optional
+dependency context does not add a proposal-envelope framework. Logical field identity binds scene namespace,
 immutable anchor group ID, query/plane identity and recipe; canonical content
 fingerprints include normalized scope/query/plane/source axes/envelopes/versions,
 excluding timestamps/revisions so edit/undo can reuse original contents.
@@ -568,8 +1545,9 @@ existing `EvidencePackage`/`FieldResultEnvelope` contracts. The ordinary helper
 is `features/group_field_hierarchy.py:build_axis_field_hierarchy`; the existing
 `build_group_axis_potential_package(*, scene_namespace=None)` factory preserves
 legacy mode and appends hierarchy outputs when a non-empty namespace is given.
-`evaluate(source_envelopes)` and `features/field_core.py` are unchanged. The
-existing runner's `_package_contract(..., scene_namespace=...)` includes the
+the hierarchy implementation used `evaluate(source_envelopes)` without changing
+the then-current shared contracts. The existing runner's
+`_package_contract(..., scene_namespace=...)` includes the
 hierarchy identity and target union. Independent subset/full contract tests
 check stale/fresh comparisons; the runner status is a write-time receipt, not
 evidence of live editing or recomputation.
@@ -646,8 +1624,12 @@ Both group runners now write `package_contract.json` and a stable
 `features/field_core.py`. The status payload is the planned UI handoff: a future
 Analysis consumer reads `freshness`, `recompute_required`, `reasons`, and
 `affected_targets` directly and does not infer freshness from visual manifests or
-per-envelope status. UI implementation, automatic recomputation, cache storage
-policy, and target-level dependency graphs remain deferred.
+per-envelope status. UI implementation, UI-triggered automatic recomputation and
+target-level dependency graphs remain deferred. The package entries above now
+own execution and validated cache reuse; core freshness assessment remains
+read-only. The core does expose
+a caller-supplied package-graph cycle validator; it does not maintain a registry
+or schedule dependency traversal automatically.
 The runner-written status is a write-time receipt comparing the newly created
 contract with itself; a later consumer must compare the saved contract with a
 freshly built current contract. Each runner checks all declared artifact paths

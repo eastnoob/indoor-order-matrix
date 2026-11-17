@@ -1,0 +1,215 @@
+# Reading an exact free-space result
+
+Use the existing result wire and session reader in Pixi. A result document is
+authoritative sample data; the Blender overlay is a display. Reading does not
+capture a scene, project geometry or calculate free space.
+
+The consuming operation supplies these inputs independently of the document it
+is checking:
+
+| Input | Meaning |
+| --- | --- |
+| `result_path` | `pathlib.Path` to a published result JSON, or JSON exported from its embedded Blender Text |
+| `requested_ref` | Exact `kind`, `result_id`, `digest` mapping delivered by the producing operation |
+| `expected_identity` | The consumer's expected project/source, domain, plane and query identity |
+| `expected_backend_versions` | Complete backend mapping accepted by the consumer |
+| `native_observation` | Unmodified observation retained from verified native publication |
+| `row`, `column` | Integer lattice indices selected by the consumer |
+
+For free space, `expected_identity` should include `project_source_identity`,
+`domain_identity`, `plane_uuid`, `plane_revision`, `frame_key` and `query_key`.
+The query is the full `GeometryQuery.to_dict()` mapping, including its height
+band. Include the expected `semantic_key` to bind the remaining request semantics,
+including sampling. Production identities also expose
+`canonical_structural_fingerprint`, `canonical_full_fingerprint`,
+`request_source_fingerprint`, `request_identity`, `domain_request_id`,
+`domain_session_revision` and `operation`; supply them when the consuming
+operation requires those exact identities. The opener checks every supplied
+entry, but does not require a complete identity mapping. Copying expectations
+from the document being checked cannot establish that it is the desired result.
+
+```python
+from adapters.blender_analysis_result_wire import (
+    ResultRef, ResultReadContext, list_analysis_results, load_json,
+    open_analysis_result,
+)
+from adapters.blender_analysis_session import read_analysis_sample
+
+documents = [load_json(result_path.read_text(encoding="utf-8"))]
+result_ref = ResultRef(**requested_ref)
+catalogue = list_analysis_results(documents, kind="free_space_run")
+assert result_ref in tuple(item.ref for item in catalogue)
+
+# Keep consumer expectations and native evidence separate from stored result data.
+context = ResultReadContext(
+    expected=expected_identity,
+    backend_versions=expected_backend_versions,
+    require_confirmed_domain=True,
+    require_current=True,
+    current_observation=native_observation,
+)
+snapshot = open_analysis_result(documents, result_ref=result_ref, context=context)
+sample = read_analysis_sample(snapshot, row=row, column=column)
+assert snapshot.freshness == "current"
+```
+
+The catalogue is discovery metadata, not a latest-result selector. An absent,
+ambiguous or mismatched exact ref raises `ValueError`, as do mismatched expected
+identity/backend versions and a missing confirmed-domain binding. A current
+read additionally requires the observation's digest and complete binding to
+match this exact publication. Do not catch these failures and treat another
+result as current.
+
+`sample` is the immutable `FieldSample`: retain `value`, `status`, `query`,
+`support`, `source_ids`, `provenance` and `explanation`. The value describes
+physical occupancy: `True` means occupied and `False` means known empty, not a
+walkability or clearance claim. `unknown` has `value=None`; `conditional`
+retains its value and representation explanation. Freshness does not upgrade a
+field status. `outside`, `invalid` and `not_available` are also distinct exact
+status names.
+`support` can be `None`; do not assume every state has a support mapping.
+Object boundary contact is a participation-audit relation, not another field
+status and not automatic positive-area cell occupancy.
+
+For a complete-lattice consumer, `iter_analysis_samples(snapshot)` in
+`adapters.blender_analysis_result_wire` yields the same seven public sample fields
+in row-major order as immutable mappings. It shares already authenticated frozen
+metadata instead of copying complete calculation provenance for every cell. The
+iterator does not capture, project, calculate fields or spawn processes. Convert
+an individual sample with `plain` only when a detached JSON copy is needed.
+
+## Receiving the native observation
+
+After successful verified publication, the existing native runtime exposes the
+observation. Use the same registered add-on instance that performed publication.
+The installed add-on is `order_analyzer_ui`, with runtime
+`order_analyzer_ui.runtime`; importing the checkout under
+`blender_addon.order_analyzer_ui` can create a separate idle `STATE`. In the
+producing Blender session, retain the existing value:
+
+```python
+from order_analyzer_ui import runtime
+from adapters.blender_analysis_result_wire import plain
+
+assert runtime.__name__ == "order_analyzer_ui.runtime"
+assert runtime.STATE.lifecycle == "complete"
+assert runtime.STATE.freshness == "current"
+assert runtime.STATE.current_observation is not None
+native_observation = plain(runtime.STATE.current_observation)
+```
+
+Deliver that observation separately with the exact published ref and the
+verification run's source/session identity, time and artifact hashes. Do not
+construct a verified flag or copy a stored document binding into an observation.
+The runtime creates its observation only after the publication's native guards
+pass. A headless reader trusts that external verification; it cannot reobserve
+Blender by reading JSON. A retained observation establishes the recorded
+verification instant, not live currentness after later scene edits.
+
+## Native session cache hits and restored documents
+
+A cache hit publishes a new result with the current job/request/domain-session
+binding and a new exact ref. Use that publication's independently retained
+observation in the same reader example. The public
+`snapshot.payload["content_cache"]` reports `hit`, `content_key` and, on a hit,
+`origin_result_ref`; the origin identifies the reused calculation, not the
+current publication. Sample calculation provenance and any unknown/conditional
+limitations remain intact. The new publication's observation cannot authorize
+its origin ref as current. Use a published sidecar or embedded document, not an
+internal content-cache entry, as the downstream handoff.
+
+Restoring JSON from disk or Blender Text alone is historical. For an explicit
+diagnostic read of the requested ref, use:
+
+```python
+historical = open_analysis_result(
+    documents,
+    result_ref=result_ref,
+    context=ResultReadContext(
+        expected=expected_identity,
+        backend_versions=expected_backend_versions,
+        require_confirmed_domain=True,
+        allow_historical=True,
+    ),
+)
+assert historical.freshness == "historical"
+historical_sample = read_analysis_sample(historical, row=row, column=column)
+```
+
+This read supplies no native observation. Setting `require_current=True` for
+restored bytes without fresh matching evidence must reject. Restored native
+workflows must establish their own current publication before current use.
+
+Existing consumer, cache and complete-sample contracts are in
+`test/test_blender_analysis_session.py`; native publication and edit guards are
+in `test/test_blender_analysis_runtime.py`. Actual-scene acceptance and its
+unobserved branches are recorded separately in the free-space prerequisite
+evidence ledger; this guide does not certify a particular result.
+
+## Reading the free-space evidence package
+
+The package addition is in implementation/verification; see its
+[evidence ledger](project/evidence/free-space-evidence-package-2026-11-07.md)
+for recorded acceptance. Its ordinary reusable entry points are
+`adapters.free_space_evidence_package.evaluate_free_space_package(scene,
+request, cache_directory=None)` and
+`adapters.free_space_evidence_package.evaluate_saved_free_space_package(snapshot)`.
+Both return the shared `EvidencePackageOutput` through the existing
+`EvidencePackage.evaluate(source_envelopes)` path. The saved entry point consumes
+the exact `ReadOnlyResultSnapshot` opened above; opening with independently
+retained expectations remains the authentication boundary.
+
+There is exactly one descriptive output channel, `free_space`, per cell. One
+field-scope source envelope retains the complete compact result document, so
+large shared provenance is stored once. Each output's
+`observation.cell_locator` contains `row`, `column`, `cell_index` and the exact
+`result_ref`; `cell_index = row * n_cols + column`. Resolve that locator against
+the same opened snapshot with `read_analysis_sample`, or use
+`iter_analysis_samples` for the full lattice. Preserve all seven sample fields
+and the original six-state `status`. In the raw sample, `value=True` means
+occupied; the channel name must not be used to reverse this raw meaning.
+
+The package cache stores the validated compact result and package contract.
+On a valid hit it skips projection/occupancy generators and rebuilds the cheap
+evidence-output projection. Source, domain/scope, grid, query, plane and
+implementation/schema dependencies determine reuse. Its origin remains the
+cached calculation's exact ResultRef. Unlike the native session publication
+described above, package cache reuse itself does not issue a new verified native
+publication or relabel the origin as live current.
+
+`build_free_space_package_contract` uses the shared contract builder; freshness
+uses `evaluate_evidence_package_freshness`. A retained-only publication has no
+independently observed current contract: its package status reports
+`freshness="unavailable"` for current comparison and `read_state="historical"`.
+This does not invalidate authenticated historical samples. Comparing a saved
+contract with itself establishes neither current scene identity nor a current
+native observation. The publication runner and native preview consume saved
+package evidence and its manifest; preview colors and meshes are not sample
+authority.
+
+## Group-distance historical replay and topology identity
+
+The distance consumer can reuse a completed authenticated run with
+`run_group_distance_free_space --retained-run-dir RUN --allow-historical`.
+It checks the original producer/result/receipt file hashes and sizes, retained
+artifact hashes, handoff fingerprints and exact source/plane/query/ResultRef
+bindings. The original `input_bundle.json` and `scene_geometry.json` are copied
+byte-for-byte into a fresh output directory. This is historical replay without
+capture projection or free-space generation; it does not observe native currentness.
+
+Historical distance results use `group-distance/1` with `group-distance/v1`
+and four-neighbor routes. The successor uses `group-distance/2`,
+`group-distance/v2` and edge support `eight-neighbor-two-flank-occurrences/1`.
+Its eight-neighbor route edges retain both orthogonal flank cell/query refs;
+both flanks must be traversable in that graph mode. The shared-edge footprint
+access rule remains cardinal. Distinct route support keys resolve original
+statuses, source references, support and explanations through manifest samples
+and exact free-space locators. Conditional/unknown guard support affects route
+state and witnesses even when the path never visits that guard.
+
+Path `conditional_cell_count` / `unknown_cell_count` keep their v1 meaning.
+V2 deterministic ranking uses explicitly named additive support-occurrence
+counts, including repeated guards; full distinct support controls state.
+Readers must use the explicit model/schema identity and reject mixed versions.
+The existing numerical validator and output-only HTML renderer accept both v1
+and v2. These model identities do not change the underlying free-space ResultRef.

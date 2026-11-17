@@ -349,17 +349,23 @@ def _record_tuple(
 
 @dataclass(frozen=True)
 class AnalysisPlane(_Record):
-    """Named analysis plane with a finite origin and orthonormal basis."""
+    """Immutable coordinates with stable identity and a right-handed unit basis."""
 
     __hash__ = None
 
     name: str
     origin: Vector3
     basis: Matrix3
+    identity: str | None = None
+    revision: int = 1
 
     def __post_init__(self) -> None:
-        """Validate the plane origin and reject scale or shear in its basis."""
+        """Validate identity, revision and coordinates without accepting mirrored frames."""
         object.__setattr__(self, "name", _text(self.name, "analysis_plane.name"))
+        object.__setattr__(self, "identity", _stable_id(
+            self.name if self.identity is None else self.identity, "analysis_plane.identity"))
+        if isinstance(self.revision, bool) or not isinstance(self.revision, int) or self.revision < 1:
+            raise ValueError("analysis_plane.revision must be a positive integer")
         object.__setattr__(self, "origin", _vector(self.origin, "analysis_plane.origin"))
         basis = _matrix(self.basis, "analysis_plane.basis", 3)
         for index, axis in enumerate(basis):
@@ -371,6 +377,13 @@ class AnalysisPlane(_Record):
                 dot = sum(basis[first][index] * basis[second][index] for index in range(3))
                 if not math.isclose(dot, 0.0, rel_tol=0.0, abs_tol=1e-9):
                     raise ValueError("analysis_plane.basis must be orthonormal")
+        # Orthonormality also admits reflections; a right-handed frame keeps section axes consistent.
+        x, y, normal = basis
+        determinant = sum(normal[index] * (
+            x[(index + 1) % 3] * y[(index + 2) % 3]
+            - x[(index + 2) % 3] * y[(index + 1) % 3]) for index in range(3))
+        if not math.isclose(determinant, 1.0, rel_tol=0.0, abs_tol=1e-9):
+            raise ValueError("analysis_plane.basis must be right-handed")
         object.__setattr__(self, "basis", basis)
 
     @classmethod

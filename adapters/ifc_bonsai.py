@@ -400,6 +400,8 @@ def _is_authored_affordance_zone(entity: object) -> bool:
 
 def _native_source_role(entity: object) -> str:
     """Normalize factual IFC product roles without assigning analytical meaning."""
+    if entity.is_a("IfcAnnotation") and getattr(entity, "ObjectType", None) == "DRAWING":
+        return "drawing_camera"
     if entity.is_a("IfcFurniture"):
         return "furniture"
     if entity.is_a("IfcOpeningElement"):

@@ -255,3 +255,85 @@ def test_contract_requires_all_dependency_roles() -> None:
             algorithm_version="algorithm/1",
             schema_version="schema/1",
         )
+
+
+def test_distance_modulation_is_the_only_optional_dependency_name() -> None:
+    """The diagnostic contract admits its exact optional dependency while unknown names remain rejected."""
+    base = _contract()
+    dependencies = {
+        item["name"]: item["fingerprint"] for item in base["dependencies"]
+    }
+    dependencies["distance_modulation"] = fingerprint_evidence_dependency({"recipe": "symmetric-reciprocal"})
+    accepted = build_evidence_package_contract(
+        package_id="group-axis-potential",
+        package_schema="group-axis/v1",
+        producer="test-runner",
+        target_ids=("group-a",),
+        dependencies=dependencies,
+        algorithm_version="algorithm/1",
+        schema_version="schema/1",
+    )
+    assert {item["name"] for item in accepted["dependencies"]} >= {"distance_modulation"}
+    dependencies["unexpected"] = "foreign"
+    with pytest.raises(ValueError, match="unsupported evidence package dependency"):
+        build_evidence_package_contract(
+            package_id="group-axis-potential",
+            package_schema="group-axis/v1",
+            producer="test-runner",
+            target_ids=("group-a",),
+            dependencies=dependencies,
+            algorithm_version="algorithm/1",
+            schema_version="schema/1",
+        )
+
+
+def test_contract_warning_retains_historical_calculated_values() -> None:
+    """Usable evidence can warn without claiming exact requested parameters."""
+    from features.evidence_package_parameters import (
+        ParameterImpact, ParameterSchema, ParameterSpec)
+
+    schema = ParameterSchema("group-geometry-relation", "contract-parameters/1", (
+        ParameterSpec("width_m", float, 1.0, unit="m", minimum=0.0),
+        ParameterSpec("review_m", float, 0.01, unit="m", minimum=0.0,
+                      impact=ParameterImpact.REUSE_WITH_WARNING),
+    ))
+    base = _contract()
+    arguments = {name: base[name] for name in (
+        "package_id", "package_schema", "producer", "target_ids",
+        "dependencies", "algorithm_version", "schema_version")}
+    old = build_evidence_package_contract(
+        **arguments, parameter_snapshot=schema.resolve())
+    current = build_evidence_package_contract(
+        **arguments, parameter_snapshot=schema.resolve(
+            {"review_m": 0.02}, sources={"review_m": "gui"}))
+
+    assert old["package_identity"] == current["package_identity"]
+    status = evaluate_evidence_package_freshness(
+        cached_contract=old, current_contract=current)
+    assert status["recompute_required"] is False
+    assert status["parameter_status"]["reuse"] == "reuse_with_warning"
+    assert status["parameter_status"]["exact_match"] is False
+    assert status["parameter_status"]["calculated_parameters"]["review_m"] == 0.01
+    assert status["parameter_status"]["requested_parameters"]["review_m"] == 0.02
+
+
+def test_missing_snapshot_cannot_attest_exact_typed_match() -> None:
+    """Legacy readability does not imply typed parameter provenance."""
+    from features.evidence_package_parameters import ParameterSchema
+
+    legacy = _contract()
+    arguments = {name: legacy[name] for name in (
+        "package_id", "package_schema", "producer", "target_ids",
+        "dependencies", "algorithm_version", "schema_version")}
+    typed = build_evidence_package_contract(
+        **arguments,
+        parameter_snapshot=ParameterSchema(legacy["package_id"], "legacy-check/1", ()).resolve(),
+    )
+    status = evaluate_evidence_package_freshness(
+        cached_contract=legacy, current_contract=typed,
+    )
+    assert status["recompute_required"] is True
+    assert status["parameter_status"]["exact_match"] is False
+    assert "parameter_snapshot_missing" in {
+        item["code"] for item in status["reasons"]
+    }

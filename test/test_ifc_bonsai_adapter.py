@@ -125,6 +125,42 @@ def test_adapter_reads_a_serialized_ifc4_file_after_reopen(tmp_path):
     assert scene.source_objects[0].source_class == "IfcFurniture"
 
 
+def test_static_native_drawings_are_excluded_from_both_physical_inventory_paths(tmp_path):
+    """Native DRAWING semantics exclude geometry after reopen without excluding annotation/name lookalikes."""
+    import ifcopenshell
+    import ifcopenshell.api
+    from ..features.neutral_scene_views import analysis_scene_view, _is_physical_mass_record, _is_original_physical_source
+
+    model = ifcopenshell.file(schema="IFC4")
+    ifcopenshell.api.run("root.create_entity", model, ifc_class="IfcProject")
+    context = ifcopenshell.api.run("context.add_context", model, context_type="Model")
+    body = ifcopenshell.api.run("context.add_context", model, context_type="Model",
+        context_identifier="Body", target_view="MODEL_VIEW", parent=context)
+    vertices = [(0., 0., 0.), (1., 0., 0.), (0., 1., 0.), (1., 1., 0.),
+                (0., 0., 1.), (1., 0., 1.), (0., 1., 1.), (1., 1., 1.)]
+    representation = ifcopenshell.api.run("geometry.add_mesh_representation", model,
+        context=body, vertices=[vertices], faces=[_box_triangles()], unit_scale=1.)
+    drawing = ifcopenshell.api.run("root.create_entity", model, ifc_class="IfcAnnotation", predefined_type="DRAWING")
+    ordinary = ifcopenshell.api.run("root.create_entity", model, ifc_class="IfcAnnotation", predefined_type="TEXT")
+    lookalike = ifcopenshell.api.run("root.create_entity", model, ifc_class="IfcBuildingElementProxy", name="OM_AnalysisPlane DRAWING")
+    for entity in (drawing, ordinary, lookalike):
+        ifcopenshell.api.run("geometry.assign_representation", model, product=entity, representation=representation)
+    path = tmp_path / "native-drawing.ifc"
+    model.write(str(path))
+    scene = load_ifc_neutral_scene(path)
+    sources = {source.source_id: source for source in scene.source_objects}
+    assert sources[drawing.GlobalId].source_role == "drawing_camera"
+    assert sources[ordinary.GlobalId].source_role == sources[lookalike.GlobalId].source_role == "object"
+    assert sources[drawing.GlobalId].geometry_refs
+    assert not _is_original_physical_source(sources[drawing.GlobalId])
+    assert not _is_physical_mass_record({"role": "drawing_camera", "_source_geometry_refs": sources[drawing.GlobalId].geometry_refs})
+    view = analysis_scene_view(scene)
+    inventory = {row["source_object_id"] for row in view["_analysis_view"]["physical_occupancy_sources"]}
+    occupied = {row["id"] for row in view["physical_occupancy"]}
+    assert sources[drawing.GlobalId].id not in inventory | occupied
+    assert {sources[ordinary.GlobalId].id, sources[lookalike.GlobalId].id} <= inventory
+
+
 def test_comprehensive_ifc4_fixture_round_trips_all_gate5_facts(tmp_path):
     """The deterministic IFC4 fixture covers every factual Gate 5 mapping."""
     from .fixtures.ifc4_description_fixture import write_ifc4_description_fixture

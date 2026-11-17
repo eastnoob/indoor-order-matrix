@@ -197,7 +197,9 @@ def connected_shell_audit(mesh, record, world_z_m):
     """Retain source shell orientation and reject ambiguous compound interiors at this plane."""
     components = trimesh.graph.connected_components(mesh.face_adjacency, nodes=np.arange(len(mesh.faces)), min_len=1)
     shells, geometries = [], []
-    for shell_id, face_ids in enumerate(components):
+    for shell_id, raw_face_ids in enumerate(components):
+        # Normalize across Trimesh return types before indexed slicing and audit serialization.
+        face_ids = np.asarray(raw_face_ids, dtype=int)
         faces = mesh.faces[face_ids]
         vertices = mesh.vertices[np.unique(faces)]
         shell = trimesh.Trimesh(vertices=mesh.vertices, faces=faces, process=False, validate=False)

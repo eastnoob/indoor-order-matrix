@@ -1,0 +1,116 @@
+{
+  "baseline_commit": "92350a0ecb010c6b8f43005d705069094afb4b38",
+  "credential_policy": "free-space key is test-only and retained as opaque bytes; no secret value is recorded",
+  "families": [
+    {
+      "family": "raw",
+      "implementation_hashes": {
+        "features/evidence_package_storage.py": "1d785fd94b101a57c9a1d96f2d7a02d9d423240d8d015a6d2e1115eb1135bc0b",
+        "features/field_core.py": "fd477a012a51f759e0f5d351ad1c891c2de1f81b793035a76d47b977d0f466b0",
+        "features/group_axis_potential_field.py": "8a43e6f9e9bc98f0ae4915f41633e02937150881e57151e8780f0e2cac7ffc43"
+      },
+      "key": "12a42760a9d8c2a9e021ba17505ba11fa4d816f2ef92c20339cd0d0b1260a283",
+      "reader": "features.evidence_package_storage.load_raw_output",
+      "relative_path": "test/fixtures/cache_migration/pre_parameter_sidecar/raw_processed/12a42760a9d8c2a9e021ba17505ba11fa4d816f2ef92c20339cd0d0b1260a283.json",
+      "schema": "evidence-package-cache/v1",
+      "sha256": "889765d1d747e73ea661849ccd1e6bbff35a0545dd7fb26bab4fad562f5719a5",
+      "source_bindings": {
+        "contract_fingerprint": "02e6f1715d449803dbbd21c28128997186e76998dd0f8c066bd15a2f715524fc"
+      },
+      "versions": {
+        "output_function": "aggregate_group_axis_potential",
+        "output_function_version": "axis-with-relations-v1",
+        "package_id": "group-axis-potential"
+      }
+    },
+    {
+      "family": "processed",
+      "implementation_hashes": {
+        "features/evidence_package_storage.py": "1d785fd94b101a57c9a1d96f2d7a02d9d423240d8d015a6d2e1115eb1135bc0b",
+        "features/field_core.py": "fd477a012a51f759e0f5d351ad1c891c2de1f81b793035a76d47b977d0f466b0"
+      },
+      "key": "9bfb2a3d1e34c71025b174bc673547fbf2353b5a76de32e3eecf634f4a651b26",
+      "reader": "features.evidence_package_storage.load_processed_output",
+      "relative_path": "test/fixtures/cache_migration/pre_parameter_sidecar/raw_processed/processed-9bfb2a3d1e34c71025b174bc673547fbf2353b5a76de32e3eecf634f4a651b26.json",
+      "schema": "evidence-processed-output/v1",
+      "sha256": "90bd3740b0bcfc745ce0c3f3f52737fb75e808ebb86cb2c01b7293d38646eeab",
+      "source_bindings": {
+        "raw_output_identity": "4f3503e4434e8952c87159fa66a8bac9664171d759557f5e761e41fbb91a7bda",
+        "raw_payload_fingerprint": "460b0f27ad6aeb4c005665715cd031571f18546281e5d23ab356c931c75ae7bb"
+      },
+      "versions": {
+        "processor_id": "lifecycle-test",
+        "processor_version": "1"
+      }
+    },
+    {
+      "family": "authenticated_free_space",
+      "implementation_hashes": {
+        "adapters/blender_analysis_result_wire.py": "53712abcfeb6f77a5c1bb0e4317b05d063fbebdb30aa8395f4f52ffa5af06197",
+        "adapters/blender_analysis_session.py": "88f2a7d89d53c7c75e5ce6f4a30d60895a397bb51ec67395c30a0a7f717fdcd1",
+        "adapters/free_space_evidence_package.py": "0d6430ebe64e512aaf6641f1aeb6a5c4b13553b1ed9ec3762fb0be5b071aff2a",
+        "features/analysis_requests.py": "e8f647a82fc54a3f065f43913d30712e1ec351fa10fe7c304bf08fc045321df2",
+        "features/free_space_evidence_package.py": "604bb4df95cdad5bd1f2f2a7067b4427b62c03a056de00158f2d8b850e2771a3"
+      },
+      "key": "d5da2d121dcccdaffe5f28553f4b09f3de43c855849bc31b39969a264f0075e6",
+      "reader": "adapters.free_space_evidence_package._read_cache",
+      "relative_path": "test/fixtures/cache_migration/pre_parameter_sidecar/authenticated_free_space/d5da2d121dcccdaffe5f28553f4b09f3de43c855849bc31b39969a264f0075e6.json",
+      "schema": "free-space-evidence-cache/v1",
+      "sha256": "3aea9720df2781c722e86d824e7e3b58cb948d54f8fab6a3ac9fdc0b381de0c5",
+      "source_bindings": {
+        "auth_domain": "preflight-test-only-key",
+        "document_digest": "234d38a20d0e528f218657a2f4cdfd9e5633e4aac2cf43a8b83aa8f2dbb12529",
+        "publication_key": "0ef7703544cfad85dff2ef8ffddf775b8a16d76a729ef482efbb6c5d975efc1c"
+      },
+      "versions": {
+        "algorithm": "free-space-boolean-complement/1",
+        "package": "free-space",
+        "schema": "free-space-evidence-package/v1"
+      }
+    },
+    {
+      "family": "blender_wire",
+      "implementation_hashes": {
+        "adapters/blender_analysis_result_wire.py": "53712abcfeb6f77a5c1bb0e4317b05d063fbebdb30aa8395f4f52ffa5af06197",
+        "adapters/blender_analysis_session.py": "88f2a7d89d53c7c75e5ce6f4a30d60895a397bb51ec67395c30a0a7f717fdcd1",
+        "features/analysis_requests.py": "e8f647a82fc54a3f065f43913d30712e1ec351fa10fe7c304bf08fc045321df2"
+      },
+      "key": "88b3ce8b9d39c3ff9488e86893d877654048be74111b81c59afab293016451e7",
+      "reader": "adapters.blender_analysis_session._load_cached_result",
+      "relative_path": "test/fixtures/cache_migration/pre_parameter_sidecar/blender_wire/88b3ce8b9d39c3ff9488e86893d877654048be74111b81c59afab293016451e7.json",
+      "schema": "blender-analysis-result/1",
+      "sha256": "29ec690bdb3741d73ca68c3c94c915ce7e4c9e84ee2e33ed4a80c32ab7e2e122",
+      "source_bindings": {
+        "content_key": "88b3ce8b9d39c3ff9488e86893d877654048be74111b81c59afab293016451e7",
+        "document_digest": "538c0defcd09da9e1de4d68050989fef9b01afb417ee44869baac005738c5764",
+        "result_id": "cache-first"
+      },
+      "versions": {
+        "algorithm": "blender-analysis-compact/1",
+        "backend_versions": {
+          "executor": "planar-analysis-request/2",
+          "implementations": {
+            "_analysis_domain_handoff": "2c775eec61205926bcf0d1b09f09c90c156bbb347469683120ba7fbcacf7b3d0",
+            "analysis_requests": "e8f647a82fc54a3f065f43913d30712e1ec351fa10fe7c304bf08fc045321df2",
+            "analysis_substitute_discovery": "3b0865913dbd66007824cc63d6871d51047f0773d42cc372effba47d036f06f2",
+            "field_core": "fd477a012a51f759e0f5d351ad1c891c2de1f81b793035a76d47b977d0f466b0",
+            "free_space_field": "88ec099c80b001ce4614e2bb3ad00d32124e91e9d6ef5a4f51b52dbf14ef07ea",
+            "geometry_substitutes": "7480e9eb2c4176d2c75662d2734adc05e7edf77c84df5ad489b5b3ac90a26eb0",
+            "geometry_views": "1ef672652fd86156fb6d4c0124990d060b9fa1e51f78597c4b614d354bf9c7cb",
+            "neutral_scene_views": "620fb5f36bbed9254912323e8305be446623369d6eb5ba8935b82f37cb8f9149",
+            "scene_contract": "621a8ffc54d7639743acc3f4f3bb117358f35b67b763e010842403760b736e2d",
+            "section_views": "940704ec6dc1f26b7fcf85122d0a7468184f3f0406a7e983bc9d8fff92204f3c",
+            "substitute_contract": "296400f443e52e759c4eabd8c7c89b6dcbc0ef0503643b9ba0d458e33b7ba590"
+          },
+          "packages": {
+            "numpy": "2.4.3",
+            "shapely": "2.1.2",
+            "trimesh": "5.1.0"
+          }
+        }
+      }
+    }
+  ],
+  "generated_by": "unchanged pre-A implementation on tiny test fixtures",
+  "manifest_version": "pre-parameter-sidecar/v1"
+}

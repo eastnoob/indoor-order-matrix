@@ -4,13 +4,19 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass, fields, is_dataclass, replace
+from dataclasses import MISSING, dataclass, field, fields, is_dataclass, replace
 from enum import Enum
 import hashlib
 import json
 from math import isfinite
 from types import MappingProxyType
 from typing import Any, Callable, Generic, TypeVar
+
+from .evidence_package_parameters import (
+    ParameterSchema,
+    ParameterSnapshot,
+    compare_parameter_snapshots,
+)
 
 
 Target = TypeVar("Target")
@@ -42,6 +48,8 @@ class FieldResultStatus(str, Enum):
 
 def _freeze(value: Any) -> Any:
     """Return a JSON-safe immutable representation of a nested value."""
+    if type(value) is _MetadataOverlay:
+        return value.mapping
     if value is None or isinstance(value, (str, bool, int)):
         return value
     if is_dataclass(value):
@@ -83,10 +91,45 @@ def _freeze(value: Any) -> Any:
     raise TypeError(f"value of type {type(value).__name__} is not JSON-safe")
 
 
+@dataclass(frozen=True, slots=True, init=False)
+class _MetadataOverlay:
+    """Reuse privately validated audit values while freezing only local metadata."""
+
+    mapping: Mapping[str, Any]
+
+    def __init__(self, base: Mapping[str, Any] | _MetadataOverlay,
+                 local: Mapping[str, Any] | _MetadataOverlay | None = None) -> None:
+        """Detach caller mappings; only this private exact type may reuse frozen data."""
+        # An exact private overlay already contains deeply frozen values. Reuse
+        # its immutable mapping directly so shared request audit records retain
+        # identity across per-sample overlays instead of being copied per cell.
+        shared = base.mapping if type(base) is _MetadataOverlay else _freeze(base)
+        changes = (local.mapping if type(local) is _MetadataOverlay else
+                   _freeze({} if local is None else local))
+        if not isinstance(shared, Mapping) or not isinstance(changes, Mapping):
+            raise TypeError("metadata must be a mapping")
+        # Sharing the immutable base avoids copying large per-cell audit payloads.
+        object.__setattr__(self, "mapping", MappingProxyType({**shared, **changes}))
+
+
 def _json_value(value: Any) -> Any:
     """Convert frozen JSON-safe values into deterministic JSON structures."""
     if isinstance(value, Enum):
         return value.value
+    if isinstance(value, EvidencePackageChannelReference):
+        reference = {name: getattr(value, name) for name in
+                     ("package_id", "output_identity", "target_identity", "channel")}
+        # Historical raw addresses must keep their exact serialized identity.
+        if value.port == "processed":
+            reference.update(port=value.port, processing_identity=value.processing_identity)
+        return reference
+    if isinstance(value, EvidencePackageDependency):
+        return {
+            "package_id": value.package_id,
+            "output_identity": value.output_identity,
+            "package_freshness": value.package_freshness,
+            "channels": _json_value(value.channels),
+        }
     if is_dataclass(value):
         return {field.name: _json_value(getattr(value, field.name)) for field in fields(value)}
     if isinstance(value, Mapping):
@@ -166,7 +209,8 @@ class FieldSample(Generic[Value]):
         source_ids = tuple(self.source_ids)
         if any(not isinstance(source_id, str) for source_id in source_ids):
             raise TypeError("source_ids must contain strings")
-        provenance = _freeze(self.provenance)
+        provenance = (self.provenance.mapping if type(self.provenance) is _MetadataOverlay
+                      else _freeze(self.provenance))
         if not isinstance(provenance, Mapping):
             raise TypeError("provenance must be a mapping")
         if "algorithm_version" not in provenance or "schema_version" not in provenance:
@@ -349,6 +393,152 @@ class EvidenceChannelReference:
 
 
 @dataclass(frozen=True, slots=True)
+class EvidencePackageChannelReference:
+    """Identify one channel published by an already evaluated evidence package."""
+
+    package_id: str
+    output_identity: str
+    target_identity: str
+    channel: str
+    port: str = field(default="raw", kw_only=True)
+    processing_identity: str | None = field(default=None, kw_only=True)
+
+    def __post_init__(self) -> None:
+        """Reject incomplete external references before they enter lineage data."""
+        for name in ("package_id", "output_identity", "target_identity", "channel"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+        object.__setattr__(self, "package_id", self.package_id.strip())
+        object.__setattr__(self, "output_identity", self.output_identity.strip())
+        object.__setattr__(self, "target_identity", self.target_identity.strip())
+        object.__setattr__(self, "channel", self.channel.strip())
+        if self.port not in {"raw", "processed"}:
+            raise ValueError("port must be raw or processed")
+        if self.port == "raw" and self.processing_identity is not None:
+            raise ValueError("raw references cannot declare processing_identity")
+        if self.port == "processed":
+            if not isinstance(self.processing_identity, str) or not self.processing_identity.strip():
+                raise ValueError("processed references require processing_identity")
+            object.__setattr__(self, "processing_identity", self.processing_identity.strip())
+
+
+@dataclass(frozen=True, slots=True)
+class EvidencePackageDependency:
+    """Declare the published channels consumed from one upstream package output."""
+
+    package_id: str
+    output_identity: str
+    channels: tuple[EvidencePackageChannelReference, ...]
+    source_output: EvidencePackageOutput | None = None
+    package_freshness: str = "unavailable"
+    source_processed_output: EvidenceProcessedOutput | None = field(default=None, kw_only=True)
+
+    def __post_init__(self) -> None:
+        """Require every declared channel to belong to this package output exactly once."""
+        for name in ("package_id", "output_identity"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+        package_id = self.package_id.strip()
+        output_identity = self.output_identity.strip()
+        channels = tuple(self.channels)
+        if not channels or any(not isinstance(item, EvidencePackageChannelReference) for item in channels):
+            raise ValueError("channels must contain EvidencePackageChannelReference values")
+        if any(item.package_id != package_id for item in channels):
+            raise ValueError("dependency channels must use the same package_id")
+        if any(item.output_identity != output_identity for item in channels):
+            raise ValueError("dependency channels must use the same output_identity")
+        if len(set(channels)) != len(channels):
+            raise ValueError("dependency channels must be unique")
+        if self.package_freshness not in {"fresh", "stale", "unavailable"}:
+            raise ValueError("package_freshness must be fresh, stale, or unavailable")
+        if self.source_output is not None:
+            if not isinstance(self.source_output, EvidencePackageOutput):
+                raise TypeError("source_output must be an EvidencePackageOutput or None")
+            if self.source_output.package_id != package_id or self.source_output.output_identity != output_identity:
+                raise ValueError("source_output identity must match dependency package and output")
+        if self.source_processed_output is not None:
+            if not isinstance(self.source_processed_output, EvidenceProcessedOutput):
+                raise TypeError("source_processed_output must be an EvidenceProcessedOutput or None")
+            if (self.source_processed_output.package_id != package_id
+                    or self.source_processed_output.raw_output_identity != output_identity):
+                raise ValueError("source_processed_output identity must match dependency package and output")
+        object.__setattr__(self, "package_id", package_id)
+        object.__setattr__(self, "output_identity", output_identity)
+        object.__setattr__(self, "channels", tuple(sorted(channels, key=lambda item: (
+            item.target_identity, item.channel, item.port, item.processing_identity or ""))))
+
+
+@dataclass(frozen=True, slots=True)
+class EvidencePackageResolvedDependency:
+    """Separate a freshness-gated channel from its audit-only source record."""
+
+    ref: EvidencePackageChannelReference
+    channel: EvidenceOutputChannel | None
+    audit_channel: EvidenceOutputChannel | None
+    package_freshness: str
+    channel_status: FieldResultStatus | None
+    effective_status: FieldResultStatus
+    explanation: str = ""
+
+    def __post_init__(self) -> None:
+        """Enforce the freshness gate and preserve the published channel status."""
+        if not isinstance(self.ref, EvidencePackageChannelReference):
+            raise TypeError("ref must be an EvidencePackageChannelReference")
+        if self.channel is not None and not isinstance(self.channel, EvidenceOutputChannel):
+            raise TypeError("channel must be an EvidenceOutputChannel or None")
+        if self.audit_channel is not None and not isinstance(self.audit_channel, EvidenceOutputChannel):
+            raise TypeError("audit_channel must be an EvidenceOutputChannel or None")
+        if self.package_freshness not in {"fresh", "stale", "unavailable"}:
+            raise ValueError("package_freshness must be fresh, stale, or unavailable")
+        channel_status = self.channel_status
+        if channel_status is not None:
+            channel_status = channel_status if isinstance(channel_status, FieldResultStatus) else FieldResultStatus(channel_status)
+        effective_status = self.effective_status
+        if not isinstance(effective_status, FieldResultStatus):
+            effective_status = FieldResultStatus(effective_status)
+        if self.audit_channel is None and channel_status is not None:
+            raise ValueError("channel_status requires an audit channel")
+        if self.audit_channel is not None and channel_status is not self.audit_channel.status:
+            raise ValueError("channel_status must preserve the source channel status")
+        if self.package_freshness == "fresh" and self.channel is not self.audit_channel:
+            raise ValueError("fresh dependencies must expose their resolved channel")
+        if self.package_freshness != "fresh" and self.channel is not None:
+            raise ValueError("stale or unavailable dependencies cannot expose a usable channel")
+        expected = (
+            channel_status
+            if self.package_freshness == "fresh" and self.channel is not None
+            else FieldResultStatus.NOT_AVAILABLE
+        )
+        if effective_status is not expected:
+            raise ValueError("effective_status must respect package freshness")
+        if not isinstance(self.explanation, str):
+            raise TypeError("explanation must be a string")
+        object.__setattr__(self, "channel_status", channel_status)
+        object.__setattr__(self, "effective_status", effective_status)
+
+
+@dataclass(frozen=True, slots=True)
+class EvidencePackageInput:
+    """Provide source envelopes and freshness-qualified upstream channels to a package."""
+
+    source_envelopes: tuple[FieldResultEnvelope, ...]
+    resolved_dependencies: tuple[EvidencePackageResolvedDependency, ...] = ()
+
+    def __post_init__(self) -> None:
+        """Keep package callback context immutable and contract-typed."""
+        sources = tuple(self.source_envelopes)
+        resolved = tuple(self.resolved_dependencies)
+        if any(not isinstance(item, FieldResultEnvelope) for item in sources):
+            raise TypeError("source_envelopes must contain FieldResultEnvelope values")
+        if any(not isinstance(item, EvidencePackageResolvedDependency) for item in resolved):
+            raise TypeError("resolved_dependencies must contain EvidencePackageResolvedDependency values")
+        object.__setattr__(self, "source_envelopes", sources)
+        object.__setattr__(self, "resolved_dependencies", resolved)
+
+
+@dataclass(frozen=True, slots=True)
 class EvidenceOutputScale:
     """Describe an output's meaning and any claimed normalization scale."""
 
@@ -402,7 +592,7 @@ class EvidenceOutputChannel:
     observation: Any
     status: FieldResultStatus
     scale: EvidenceOutputScale
-    derived_from: tuple[EvidenceChannelReference, ...]
+    derived_from: tuple[EvidenceChannelReference | EvidencePackageChannelReference, ...]
     source_ids: tuple[str, ...] = ()
     provenance: Mapping[str, Any] = MappingProxyType({})
     explanation: str = ""
@@ -424,8 +614,8 @@ class EvidenceOutputChannel:
         if not isinstance(self.scale, EvidenceOutputScale):
             raise TypeError("scale must be an EvidenceOutputScale")
         lineage = tuple(self.derived_from)
-        if not lineage or any(not isinstance(item, EvidenceChannelReference) for item in lineage):
-            raise ValueError("derived_from must contain at least one EvidenceChannelReference")
+        if not lineage or any(not isinstance(item, (EvidenceChannelReference, EvidencePackageChannelReference)) for item in lineage):
+            raise ValueError("derived_from must contain at least one valid channel reference")
         if len(set(lineage)) != len(lineage):
             raise ValueError("derived_from cannot contain duplicate references")
         source_ids = tuple(self.source_ids)
@@ -442,7 +632,16 @@ class EvidenceOutputChannel:
         object.__setattr__(self, "channel", self.channel.strip())
         object.__setattr__(self, "observation", _freeze(self.observation))
         object.__setattr__(self, "status", status)
-        object.__setattr__(self, "derived_from", tuple(sorted(lineage, key=lambda ref: (ref.result_identity, ref.target_identity, ref.channel))))
+        object.__setattr__(self, "derived_from", tuple(sorted(
+            lineage,
+            key=lambda ref: (
+                getattr(ref, "result_identity", getattr(ref, "output_identity", "")),
+                ref.target_identity,
+                ref.channel,
+                getattr(ref, "port", "raw"),
+                getattr(ref, "processing_identity", None) or "",
+            ),
+        )))
         object.__setattr__(self, "source_ids", source_ids)
         object.__setattr__(self, "provenance", provenance)
 
@@ -456,6 +655,7 @@ class EvidencePackageOutput:
     output_function_version: str
     source_envelopes: tuple[FieldResultEnvelope, ...]
     outputs: tuple[EvidenceOutputChannel, ...]
+    dependencies: tuple[EvidencePackageDependency, ...] = ()
     schema: str = "evidence-package-output/v1"
 
     def __post_init__(self) -> None:
@@ -464,6 +664,7 @@ class EvidencePackageOutput:
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{name} must be a non-empty string")
+        package_id = self.package_id.strip()
         if self.schema != "evidence-package-output/v1":
             raise ValueError("schema must be evidence-package-output/v1")
         envelopes = tuple(self.source_envelopes)
@@ -480,6 +681,19 @@ class EvidencePackageOutput:
         if len(set(output_keys)) != len(output_keys):
             raise ValueError("outputs cannot duplicate target/channel pairs")
 
+        dependencies = tuple(self.dependencies)
+        if any(not isinstance(item, EvidencePackageDependency) for item in dependencies):
+            raise TypeError("dependencies must contain EvidencePackageDependency values")
+        declared_external_refs = {
+            reference
+            for dependency in dependencies
+            for reference in dependency.channels
+        }
+        declared_external_ref_count = sum(len(dependency.channels) for dependency in dependencies)
+        if len(declared_external_refs) != declared_external_ref_count:
+            raise ValueError("dependencies cannot redeclare the same external channel")
+        if any(dependency.package_id == package_id for dependency in dependencies):
+            raise ValueError("evidence package output cannot depend on itself")
         available_refs = {
             (item.cache_identity["identity"], item.target["identity"], channel)
             for item in envelopes
@@ -487,9 +701,20 @@ class EvidencePackageOutput:
         }
         for output in outputs:
             for ref in output.derived_from:
-                key = (ref.result_identity, ref.target_identity, ref.channel)
-                if key not in available_refs:
-                    raise ValueError("output lineage must reference a channel in source_envelopes")
+                if isinstance(ref, EvidencePackageChannelReference):
+                    if ref not in declared_external_refs:
+                        raise ValueError("external output lineage must be declared in dependencies")
+                    dependency = next(
+                        item for item in dependencies if ref in item.channels
+                    )
+                    if dependency.package_freshness != "fresh" and output.observation is not None:
+                        raise ValueError(
+                            "outputs consuming stale or unavailable package channels cannot carry an observation"
+                        )
+                else:
+                    key = (ref.result_identity, ref.target_identity, ref.channel)
+                    if key not in available_refs:
+                        raise ValueError("output lineage must reference a channel in source_envelopes")
             if any(
                 output.target["identity"] == envelope.target["identity"]
                 and output.channel in envelope.channel_set
@@ -498,11 +723,20 @@ class EvidencePackageOutput:
                 raise ValueError("package outputs must not replace source evidence channels")
 
         outputs = tuple(sorted(outputs, key=lambda item: (item.target["identity"], item.channel)))
-        object.__setattr__(self, "package_id", self.package_id.strip())
+        object.__setattr__(self, "package_id", package_id)
         object.__setattr__(self, "output_function", self.output_function.strip())
         object.__setattr__(self, "output_function_version", self.output_function_version.strip())
         object.__setattr__(self, "source_envelopes", envelopes)
         object.__setattr__(self, "outputs", outputs)
+        # Published outputs retain compact references, not the upstream object graph.
+        dependencies = tuple(
+            replace(item, source_output=None, source_processed_output=None)
+            if item.source_output is not None or item.source_processed_output is not None else item
+            for item in dependencies
+        )
+        object.__setattr__(self, "dependencies", tuple(sorted(
+            dependencies, key=lambda item: (item.package_id, item.output_identity)
+        )))
 
     @property
     def output_identity(self) -> str:
@@ -526,17 +760,212 @@ class EvidencePackageOutput:
                 for output in self.outputs
             ),
         }
+        # Historical publications predate cross-package dependencies and keep their IDs.
+        if self.dependencies:
+            payload["dependencies"] = _json_value(self.dependencies)
         return hashlib.sha256(_canonical_json(payload).encode()).hexdigest()
 
 
 @dataclass(frozen=True, slots=True)
+class EvidenceOutputProcessor:
+    """Configure one explicit runtime transformation of an existing raw publication."""
+
+    function_id: str
+    version: str
+    function: Callable[[EvidencePackageOutput, Mapping[str, Any]], Iterable[EvidenceOutputChannel]]
+    parameters: Mapping[str, Any] = MappingProxyType({})
+    parameter_schema: ParameterSchema | None = field(default=None, kw_only=True)
+    parameter_sources: Mapping[str, str] = field(default_factory=dict, kw_only=True)
+    parameter_snapshot: ParameterSnapshot | None = field(default=None, init=False)
+
+    def __post_init__(self) -> None:
+        """Validate recipe metadata and detach nested parameters from caller mutation."""
+        for name in ("function_id", "version"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+            object.__setattr__(self, name, value.strip())
+        if not callable(self.function):
+            raise TypeError("function must be callable")
+        if not isinstance(self.parameters, Mapping):
+            raise TypeError("parameters must be a mapping")
+        if self.parameter_schema is not None and not isinstance(self.parameter_schema, ParameterSchema):
+            raise TypeError("parameter_schema must be a ParameterSchema or None")
+        if not isinstance(self.parameter_sources, Mapping):
+            raise TypeError("parameter_sources must be a mapping")
+        if self.parameter_schema is None:
+            if self.parameter_sources:
+                raise ValueError("parameter_sources require parameter_schema")
+            object.__setattr__(self, "parameters", _freeze(self.parameters))
+            object.__setattr__(self, "parameter_snapshot", None)
+            return
+        # Resolve once so callbacks and receipts share the same complete, immutable values.
+        snapshot = self.parameter_schema.resolve(self.parameters, sources=self.parameter_sources)
+        object.__setattr__(self, "parameters", snapshot.effective_parameters)
+        object.__setattr__(self, "parameter_sources", snapshot.parameter_sources)
+        object.__setattr__(self, "parameter_snapshot", snapshot)
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceProcessedOutput:
+    """Keep optional processed channels separate from the raw publication."""
+
+    package_id: str
+    raw_output_identity: str
+    raw_payload_fingerprint: str
+    processor_id: str | None
+    processor_version: str | None
+    parameters: Mapping[str, Any]
+    outputs: tuple[EvidenceOutputChannel, ...]
+    error_code: str | None
+    explanation: str = ""
+    parameter_snapshot: ParameterSnapshot | None = field(default=None, kw_only=True)
+
+    def __post_init__(self) -> None:
+        """Freeze the recipe and require either valid processed channels or one error marker."""
+        for name in ("package_id", "raw_output_identity", "raw_payload_fingerprint"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must be a non-empty string")
+        for name in ("processor_id", "processor_version"):
+            value = getattr(self, name)
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ValueError(f"{name} must be a non-empty string or None")
+        if (self.processor_id is None) != (self.processor_version is None):
+            raise ValueError("processor_id and processor_version must both be present or absent")
+        if not isinstance(self.parameters, Mapping):
+            raise TypeError("parameters must be a mapping")
+        if self.parameter_snapshot is not None:
+            if not isinstance(self.parameter_snapshot, ParameterSnapshot):
+                raise TypeError("parameter_snapshot must be a ParameterSnapshot or None")
+            if self.parameter_snapshot.package_id != self.package_id:
+                raise ValueError("parameter snapshot must belong to this package")
+            try:
+                # Reuse persisted value-contract validation so scalar float
+                # normalization remains valid without conflating nested JSON types.
+                ParameterSnapshot.from_json({
+                    **self.parameter_snapshot.to_json(),
+                    "calculated_parameters": _json_value(self.parameters),
+                })
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "parameter snapshot effective values must match parameters"
+                ) from exc
+        if self.error_code not in {
+            None, "OUTPUT_FUNCTION_NOT_CONFIGURED", "OUTPUT_SOURCE_NOT_FRESH", "OUTPUT_PROCESSING_FAILED"
+        }:
+            raise ValueError("error_code must be a supported processing outcome")
+        if (self.processor_id is None) != (self.error_code == "OUTPUT_FUNCTION_NOT_CONFIGURED"):
+            raise ValueError("an absent processor requires OUTPUT_FUNCTION_NOT_CONFIGURED")
+        if not isinstance(self.explanation, str):
+            raise TypeError("explanation must be a string")
+        outputs = tuple(self.outputs)
+        if self.error_code is None:
+            if not outputs or any(not isinstance(item, EvidenceOutputChannel) for item in outputs):
+                raise ValueError("successful outputs must contain EvidenceOutputChannel values")
+        elif outputs or not self.explanation.strip():
+            raise ValueError("processing errors require empty outputs and an explanation")
+        keys = [(item.target["identity"], item.channel) for item in outputs]
+        if len(set(keys)) != len(keys):
+            raise ValueError("outputs cannot duplicate target/channel pairs")
+        object.__setattr__(self, "parameters", _freeze(self.parameters))
+        object.__setattr__(self, "outputs", tuple(item[2] for item in sorted(
+            (output.target["identity"], output.channel, output) for output in outputs
+        )))
+
+    @property
+    def processing_identity(self) -> str:
+        """Bind the complete raw content and explicit recipe independently of raw cache IDs."""
+        payload = _processed_identity_payload(
+            self.package_id, self.raw_output_identity, self.raw_payload_fingerprint,
+            self.processor_id, self.processor_version, self.parameters,
+            self.parameter_snapshot)
+        return hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def _processed_identity_payload(
+    package_id: str,
+    raw_output_identity: str,
+    raw_payload_fingerprint: str,
+    processor_id: str | None,
+    processor_version: str | None,
+    parameters: Mapping[str, Any],
+    parameter_snapshot: ParameterSnapshot | None,
+) -> dict[str, Any]:
+    """Build the shared legacy or typed processing identity projection."""
+    payload = {
+        "package_id": package_id,
+        "raw_output_identity": raw_output_identity,
+        "raw_payload_fingerprint": raw_payload_fingerprint,
+        "processor_id": processor_id,
+        "processor_version": processor_version,
+    }
+    # Typed identities exclude source labels and audit-only metadata by design.
+    if parameter_snapshot is not None:
+        payload["parameter_identity"] = parameter_snapshot.identity_payload()
+    else:
+        payload["parameters"] = parameters
+    return payload
+
+
+def _validate_processed_channels(
+    outputs: tuple[EvidenceOutputChannel, ...], raw_output: EvidencePackageOutput,
+) -> None:
+    """Apply the same raw-lineage, status and range rules to callbacks and saved channels."""
+    raw_identity = raw_output.output_identity
+    # Index exact target/channel addresses once; channel names alone are ambiguous.
+    raw_channels = {(item.target["identity"], item.channel): item for item in raw_output.outputs}
+    for output in outputs:
+        if (output.observation is not None
+                and output.status not in {FieldResultStatus.COMPUTED, FieldResultStatus.PARTIAL}):
+            raise ValueError("processed observations require computed or partial status")
+        for reference in output.derived_from:
+            if not isinstance(reference, EvidencePackageChannelReference) or reference.port != "raw":
+                raise ValueError("processed lineage must reference a raw package channel")
+            if (reference.package_id != raw_output.package_id
+                    or reference.output_identity != raw_identity):
+                raise ValueError("processed lineage must match the supplied raw publication")
+            source = raw_channels.get((reference.target_identity, reference.channel))
+            if source is None:
+                raise ValueError("processed lineage target/channel is not published by raw_output")
+            # A transform must retain missing and partial evidence limits.
+            if output.status is FieldResultStatus.COMPUTED and source.status is not FieldResultStatus.COMPUTED:
+                raise ValueError("processing cannot promote a non-computed source to computed")
+            if output.observation is not None and (
+                source.observation is None
+                or source.status not in {FieldResultStatus.COMPUTED, FieldResultStatus.PARTIAL}
+            ):
+                raise ValueError("processing cannot create an observation from an unusable raw channel")
+        if output.scale.value_range is not None and isinstance(output.observation, (int, float)):
+            lower, upper = output.scale.value_range
+            if not lower <= output.observation <= upper:
+                raise ValueError("processed scalar observation is outside its declared range")
+
+
+def _validate_processed_binding(result: EvidenceProcessedOutput, raw_output: EvidencePackageOutput) -> None:
+    """Require exact raw content before admitting a typed processed publication for reading."""
+    if not isinstance(result, EvidenceProcessedOutput):
+        raise TypeError("processed_output must be an EvidenceProcessedOutput")
+    if not isinstance(raw_output, EvidencePackageOutput):
+        raise TypeError("raw_output must be an EvidencePackageOutput")
+    raw = serialize_evidence_package_output(raw_output)
+    if (result.package_id != raw_output.package_id
+            or result.raw_output_identity != raw["output_identity"]
+            or result.raw_payload_fingerprint != raw["payload_fingerprint"]):
+        raise ValueError("processed output must match the exact raw publication content")
+    _validate_processed_channels(result.outputs, raw_output)
+
+
+@dataclass(frozen=True, slots=True)
 class EvidencePackage:
-    """Define the required callable output step for one evidence package."""
+    """Define required raw publication and an optional, separate processing port."""
 
     package_id: str
     output_function_id: str
     output_function_version: str
-    output_function: Callable[[tuple[FieldResultEnvelope, ...]], Iterable[EvidenceOutputChannel]]
+    output_function: Callable[[tuple[FieldResultEnvelope, ...]], Iterable[EvidenceOutputChannel]] | None
+    context_output_function: Callable[[EvidencePackageInput], Iterable[EvidenceOutputChannel]] | None = None
+    output_processor: EvidenceOutputProcessor | None = field(default=None, kw_only=True)
 
     def __post_init__(self) -> None:
         """Validate stable function metadata before a package can run."""
@@ -544,16 +973,104 @@ class EvidencePackage:
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{name} must be a non-empty string")
-        if not callable(self.output_function):
+        if self.output_function is None and self.context_output_function is None:
+            raise TypeError("output_function or context_output_function must be callable")
+        if self.output_function is not None and not callable(self.output_function):
             raise TypeError("output_function must be callable")
+        if self.context_output_function is not None and not callable(self.context_output_function):
+            raise TypeError("context_output_function must be callable")
+        if self.output_processor is not None and not isinstance(self.output_processor, EvidenceOutputProcessor):
+            raise TypeError("output_processor must be an EvidenceOutputProcessor or None")
 
-    def evaluate(self, source_envelopes: Iterable[FieldResultEnvelope]) -> EvidencePackageOutput:
-        """Run the package function and validate its complete additive output."""
+    def process_output(
+        self,
+        raw_output: EvidencePackageOutput,
+        *,
+        package_freshness: str = "unavailable",
+    ) -> EvidenceProcessedOutput:
+        """Process a matching fresh raw publication without invoking its producer again."""
+        if not isinstance(raw_output, EvidencePackageOutput):
+            raise TypeError("raw_output must be an EvidencePackageOutput")
+        if raw_output.package_id != self.package_id.strip():
+            raise ValueError("raw_output package_id must match the package")
+        if (raw_output.output_function != self.output_function_id.strip()
+                or raw_output.output_function_version != self.output_function_version.strip()):
+            raise ValueError("raw_output producer function and version must match the package")
+        if package_freshness not in {"fresh", "stale", "unavailable"}:
+            raise ValueError("package_freshness must be fresh, stale, or unavailable")
+
+        # Full content integrity is separate from the historical calculation identity.
+        serialized = serialize_evidence_package_output(raw_output)
+        processor = self.output_processor
+        if (processor is not None and processor.parameter_snapshot is not None
+                and processor.parameter_snapshot.package_id != self.package_id.strip()):
+            raise ValueError("parameter snapshot must belong to the package")
+        metadata = {
+            "package_id": raw_output.package_id,
+            "raw_output_identity": serialized["output_identity"],
+            "raw_payload_fingerprint": serialized["payload_fingerprint"],
+            "processor_id": None if processor is None else processor.function_id,
+            "processor_version": None if processor is None else processor.version,
+            "parameters": {} if processor is None else processor.parameters,
+            "parameter_snapshot": None if processor is None else processor.parameter_snapshot,
+        }
+        if processor is None:
+            return EvidenceProcessedOutput(**metadata, outputs=(), error_code="OUTPUT_FUNCTION_NOT_CONFIGURED",
+                                           explanation="No output processor is configured for this package.")
+        if package_freshness != "fresh":
+            return EvidenceProcessedOutput(**metadata, outputs=(), error_code="OUTPUT_SOURCE_NOT_FRESH",
+                                           explanation="The raw package has not been confirmed fresh.")
+        try:
+            produced = processor.function(raw_output, processor.parameters)
+            if isinstance(produced, (str, bytes, Mapping)) or not isinstance(produced, Iterable):
+                raise TypeError("processor must return an iterable of EvidenceOutputChannel values")
+            outputs = tuple(produced)
+            if not outputs or any(not isinstance(item, EvidenceOutputChannel) for item in outputs):
+                raise ValueError("outputs must contain EvidenceOutputChannel values")
+            _validate_processed_channels(outputs, raw_output)
+            return EvidenceProcessedOutput(**metadata, outputs=outputs, error_code=None)
+        except Exception as exc:
+            # A failed transform never exposes a partially yielded channel or raw fallback.
+            return EvidenceProcessedOutput(**metadata, outputs=(), error_code="OUTPUT_PROCESSING_FAILED",
+                                           explanation=f"Output processing failed: {exc}")
+
+    def evaluate(
+        self,
+        source_envelopes: Iterable[FieldResultEnvelope],
+        *,
+        dependencies: Iterable[EvidencePackageDependency] = (),
+        dependency_graph: Mapping[str, Iterable[str]] | None = None,
+    ) -> EvidencePackageOutput:
+        """Run additive output validation; a complete graph guarantee requires an explicit graph."""
         envelopes = tuple(source_envelopes)
         if not envelopes or any(not isinstance(item, FieldResultEnvelope) for item in envelopes):
             raise TypeError("source_envelopes must contain FieldResultEnvelope values")
 
-        produced = self.output_function(envelopes)
+        dependencies = tuple(dependencies)
+        if any(not isinstance(item, EvidencePackageDependency) for item in dependencies):
+            raise TypeError("dependencies must contain EvidencePackageDependency values")
+        if any(item.package_freshness == "fresh" and item.source_output is None for item in dependencies):
+            raise ValueError("fresh dependencies require a typed source_output during evaluation")
+        if dependency_graph is not None:
+            # Materialize one-shot adjacency iterables once for both cycle and declaration checks.
+            graph = _normalize_evidence_package_dependency_graph(dependency_graph)
+            _validate_evidence_package_dependency_cycles(graph)
+            package_id = self.package_id.strip()
+            if package_id not in graph:
+                raise ValueError("dependency graph must contain the current package")
+            if set(graph[package_id]) != {item.package_id for item in dependencies}:
+                raise ValueError("current package graph edges must match declared dependencies")
+            for dependency in dependencies:
+                upstream = dependency.source_output
+                if upstream is not None and set(graph[dependency.package_id]) != {
+                    item.package_id for item in upstream.dependencies
+                }:
+                    raise ValueError("upstream graph edges must match declared dependencies")
+        context = EvidencePackageInput(envelopes, _resolve_package_dependencies(dependencies))
+        if self.context_output_function is not None:
+            produced = self.context_output_function(context)
+        else:
+            produced = self.output_function(envelopes)
         if isinstance(produced, (str, bytes, Mapping)) or not isinstance(produced, Iterable):
             raise TypeError("output_function must return an iterable of EvidenceOutputChannel values")
         outputs = tuple(produced)
@@ -566,6 +1083,7 @@ class EvidencePackage:
             output_function_version=self.output_function_version,
             source_envelopes=envelopes,
             outputs=outputs,
+            dependencies=dependencies,
         )
 
 
@@ -574,8 +1092,354 @@ def serialize_evidence_package_output(result: EvidencePackageOutput) -> dict[str
     if not isinstance(result, EvidencePackageOutput):
         raise TypeError("result must be an EvidencePackageOutput")
     serialized = _json_value(result)
+    serialized["dependencies"] = [
+        {
+            "package_id": dependency.package_id,
+            "output_identity": dependency.output_identity,
+            "package_freshness": dependency.package_freshness,
+            "channels": _json_value(dependency.channels),
+        }
+        for dependency in result.dependencies
+    ]
     serialized["output_identity"] = result.output_identity
+    # Computation identity excludes readings; this digest covers the full saved content.
+    serialized["payload_fingerprint"] = hashlib.sha256(_canonical_json(serialized).encode("utf-8")).hexdigest()
     return serialized
+
+
+def serialize_evidence_processed_output(result: EvidenceProcessedOutput) -> dict[str, Any]:
+    """Save processed content separately, binding recipe identity and all output bytes."""
+    if not isinstance(result, EvidenceProcessedOutput):
+        raise TypeError("result must be an EvidenceProcessedOutput")
+    serialized = _json_value(result)
+    if result.parameter_snapshot is None:
+        # Keep schema-less receipts byte-for-byte compatible with historical records.
+        serialized.pop("parameter_snapshot", None)
+    else:
+        serialized["parameter_snapshot"] = result.parameter_snapshot.to_json()
+    serialized["schema"] = "evidence-processed-output/v1"
+    serialized["processing_identity"] = result.processing_identity
+    # Recipe identity excludes output readings; a second digest protects those bytes.
+    serialized["payload_fingerprint"] = hashlib.sha256(_canonical_json(serialized).encode("utf-8")).hexdigest()
+    return serialized
+
+
+def _validate_snapshot_json(value: Any) -> None:
+    """Reject Python-only values before parsing the fixed saved JSON contracts."""
+    if value is None or type(value) in (str, bool, int):
+        return
+    if type(value) is float:
+        if not isfinite(value):
+            raise ValueError("snapshot JSON values must be finite")
+        return
+    if type(value) is list:
+        for item in value:
+            _validate_snapshot_json(item)
+        return
+    if type(value) is dict and all(type(key) is str for key in value):
+        for item in value.values():
+            _validate_snapshot_json(item)
+        return
+    raise TypeError("snapshot payload must contain JSON values only")
+
+
+def _snapshot_record(payload: Any, record_type: type) -> dict[str, Any]:
+    """Check the object shape for an explicitly selected v1 contract record."""
+    if type(payload) is not dict:
+        raise TypeError(f"{record_type.__name__} must be a JSON object")
+    contract_fields = {field.name: field for field in fields(record_type)}
+    unknown = set(payload) - contract_fields.keys()
+    required = {name for name, field in contract_fields.items()
+                if field.default is MISSING and field.default_factory is MISSING}
+    if unknown or required - payload.keys():
+        raise ValueError(f"{record_type.__name__} has unknown or missing contract fields: "
+                         f"{sorted(unknown | (required - payload.keys()))}")
+    for name in ("source_ids", "channel_set", "derived_from", "channels", "source_envelopes", "outputs", "dependencies"):
+        if name in payload and type(payload[name]) is not list:
+            raise TypeError(f"{record_type.__name__}.{name} must be a JSON array")
+    for name in ("value_range", "endpoint_meanings"):
+        if name in payload and payload[name] is not None and type(payload[name]) is not list:
+            raise TypeError(f"{record_type.__name__}.{name} must be a JSON array or null")
+    return dict(payload)
+
+
+def deserialize_field_result_envelope(payload: dict[str, Any]) -> FieldResultEnvelope:
+    """Read the fixed v1 envelope JSON schema without interpreting arbitrary object names."""
+    _validate_snapshot_json(payload)
+    data = _snapshot_record(payload, FieldResultEnvelope)
+    if data.get("schema") != "field-result-envelope/v1":
+        raise ValueError("schema must be field-result-envelope/v1")
+    data["query"] = FieldQuery(**_snapshot_record(data["query"], FieldQuery))
+    if data.get("value") is not None:
+        value = data["value"]
+        if type(value) is not dict or set(value) != {"channels"} or type(value["channels"]) is not list:
+            raise ValueError("value must contain only the channels JSON array")
+        data["value"] = {"channels": tuple(
+            EvidenceChannelRecord(**_snapshot_record(record, EvidenceChannelRecord))
+            for record in value["channels"]
+        )}
+    # Dataclass validation owns evidence semantics after the saved record shapes are admitted.
+    return FieldResultEnvelope(**data)
+
+
+def deserialize_evidence_package_output(payload: dict[str, Any]) -> EvidencePackageOutput:
+    """Read fixed v1 output JSON; historical content alone establishes no current freshness."""
+    _validate_snapshot_json(payload)
+    if type(payload) is not dict:
+        raise TypeError("EvidencePackageOutput must be a JSON object")
+    data = dict(payload)
+    if "output_identity" not in data:
+        raise ValueError("saved package output requires output_identity")
+    declared_identity = data.pop("output_identity")
+    if "payload_fingerprint" in data:
+        declared_fingerprint = data.pop("payload_fingerprint")
+        content = {key: value for key, value in payload.items() if key != "payload_fingerprint"}
+        if declared_fingerprint != hashlib.sha256(_canonical_json(content).encode("utf-8")).hexdigest():
+            raise ValueError("payload_fingerprint does not match saved package content")
+    data = _snapshot_record(data, EvidencePackageOutput)
+    if data.get("schema") != "evidence-package-output/v1":
+        raise ValueError("schema must be evidence-package-output/v1")
+    data["source_envelopes"] = tuple(deserialize_field_result_envelope(item) for item in data["source_envelopes"])
+    data["outputs"] = tuple(_deserialize_output_channel(item) for item in data["outputs"])
+    dependencies = []
+    for item in data.get("dependencies", ()):
+        dependency = _snapshot_record(item, EvidencePackageDependency)
+        if {"source_output", "source_processed_output"} & dependency.keys():
+            raise ValueError("saved dependencies cannot contain runtime source outputs")
+        dependency["channels"] = tuple(
+            EvidencePackageChannelReference(**_snapshot_record(ref, EvidencePackageChannelReference))
+            for ref in dependency["channels"]
+        )
+        dependencies.append(EvidencePackageDependency(**dependency))
+    data["dependencies"] = tuple(dependencies)
+    result = EvidencePackageOutput(**data)
+    if declared_identity != result.output_identity:
+        raise ValueError("output_identity does not match saved package computation")
+    return result
+
+
+def _deserialize_output_channel(payload: dict[str, Any]) -> EvidenceOutputChannel:
+    """Decode the shared channel schema without guessing types from arbitrary object names."""
+    channel = _snapshot_record(payload, EvidenceOutputChannel)
+    channel["scale"] = EvidenceOutputScale(**_snapshot_record(channel["scale"], EvidenceOutputScale))
+    # The fixed local and package reference key sets are disjoint.
+    channel["derived_from"] = tuple(
+        (EvidencePackageChannelReference(**_snapshot_record(ref, EvidencePackageChannelReference))
+         if "package_id" in ref else EvidenceChannelReference(**_snapshot_record(ref, EvidenceChannelReference)))
+        for ref in channel["derived_from"]
+    )
+    return EvidenceOutputChannel(**channel)
+
+
+def deserialize_evidence_processed_output(
+    payload: dict[str, Any], *, raw_output: EvidencePackageOutput,
+) -> EvidenceProcessedOutput:
+    """Validate saved processed content against explicit raw bytes without running callbacks."""
+    _validate_snapshot_json(payload)
+    if type(payload) is not dict:
+        raise TypeError("EvidenceProcessedOutput must be a JSON object")
+    data = dict(payload)
+    if data.pop("schema", None) != "evidence-processed-output/v1":
+        raise ValueError("schema must be evidence-processed-output/v1")
+    if "processing_identity" not in data or "payload_fingerprint" not in data:
+        raise ValueError("saved processed output requires processing_identity and payload_fingerprint")
+    declared_identity = data.pop("processing_identity")
+    declared_fingerprint = data.pop("payload_fingerprint")
+    content = {key: value for key, value in payload.items() if key != "payload_fingerprint"}
+    if declared_fingerprint != hashlib.sha256(_canonical_json(content).encode("utf-8")).hexdigest():
+        raise ValueError("payload_fingerprint does not match saved processed content")
+    if "parameter_snapshot" in data:
+        data["parameter_snapshot"] = ParameterSnapshot.from_json(data["parameter_snapshot"])
+    data = _snapshot_record(data, EvidenceProcessedOutput)
+    data["outputs"] = tuple(_deserialize_output_channel(item) for item in data["outputs"])
+    result = EvidenceProcessedOutput(**data)
+    if declared_identity != result.processing_identity:
+        raise ValueError("processing_identity does not match saved processing recipe")
+    _validate_processed_binding(result, raw_output)
+    return result
+
+
+def _resolve_package_dependencies(
+    dependencies: tuple[EvidencePackageDependency, ...],
+) -> tuple[EvidencePackageResolvedDependency, ...]:
+    """Resolve declared references while withholding stale observations as usable values."""
+    resolved = []
+    for dependency in dependencies:
+        if dependency.source_output is not None and dependency.channels:
+            if dependency.package_freshness not in {"fresh", "stale", "unavailable"}:
+                raise ValueError("package_freshness must be fresh, stale, or unavailable")
+            if any(reference.port == "processed" for reference in dependency.channels):
+                # The binding serializes and fingerprints the complete raw publication, so verify it once
+                # before resolving this dependency's exact processed addresses.
+                _validate_processed_binding(
+                    dependency.source_processed_output,
+                    dependency.source_output,
+                )
+        for reference in dependency.channels:
+            if dependency.source_output is not None:
+                channel = _read_evidence_package_channel(
+                    dependency.source_output,
+                    reference,
+                    processed_output=dependency.source_processed_output,
+                    processed_binding_validated=reference.port == "processed",
+                )
+                resolved.append(_resolved_package_channel(
+                    reference,
+                    channel,
+                    dependency.package_freshness,
+                ))
+                continue
+            resolved.append(EvidencePackageResolvedDependency(
+                ref=reference,
+                channel=None,
+                audit_channel=None,
+                package_freshness=dependency.package_freshness,
+                channel_status=None,
+                effective_status=FieldResultStatus.NOT_AVAILABLE,
+                explanation="upstream package output is unavailable",
+            ))
+    return tuple(resolved)
+
+
+def read_evidence_package_channel(
+    output: EvidencePackageOutput,
+    reference: EvidencePackageChannelReference,
+    *,
+    processed_output: EvidenceProcessedOutput | None = None,
+) -> EvidenceOutputChannel:
+    """Read only the explicitly addressed raw or processed port from matching typed outputs."""
+    return _read_evidence_package_channel(
+        output,
+        reference,
+        processed_output=processed_output,
+        processed_binding_validated=False,
+    )
+
+
+def _read_evidence_package_channel(
+    output: EvidencePackageOutput,
+    reference: EvidencePackageChannelReference,
+    *,
+    processed_output: EvidenceProcessedOutput | None,
+    processed_binding_validated: bool,
+) -> EvidenceOutputChannel:
+    """Read one exact address, optionally reusing a dependency-level binding check."""
+    if not isinstance(output, EvidencePackageOutput):
+        raise TypeError("output must be an EvidencePackageOutput")
+    if not isinstance(reference, EvidencePackageChannelReference):
+        raise TypeError("reference must be an EvidencePackageChannelReference")
+    if output.package_id != reference.package_id:
+        raise ValueError("reference package_id does not match output")
+    if output.output_identity != reference.output_identity:
+        raise ValueError("reference output_identity does not match output")
+    channels = output.outputs
+    if reference.port == "processed":
+        if processed_binding_validated:
+            if not isinstance(processed_output, EvidenceProcessedOutput):
+                raise TypeError("processed_output must be an EvidenceProcessedOutput")
+        else:
+            _validate_processed_binding(processed_output, output)
+        if reference.processing_identity != processed_output.processing_identity:
+            raise ValueError("reference processing_identity does not match processed_output")
+        channels = processed_output.outputs
+    for channel in channels:
+        if (
+            channel.target["identity"] == reference.target_identity
+            and channel.channel == reference.channel
+        ):
+            return channel
+    raise ValueError("referenced target/channel is not published by output")
+
+
+def resolve_evidence_package_channel(
+    output: EvidencePackageOutput,
+    reference: EvidencePackageChannelReference,
+    *,
+    package_freshness: str,
+    processed_output: EvidenceProcessedOutput | None = None,
+) -> EvidencePackageResolvedDependency:
+    """Resolve a published channel while freshness-gating its usable observation."""
+    if package_freshness not in {"fresh", "stale", "unavailable"}:
+        raise ValueError("package_freshness must be fresh, stale, or unavailable")
+    channel = read_evidence_package_channel(output, reference, processed_output=processed_output)
+    return _resolved_package_channel(reference, channel, package_freshness)
+
+
+def _resolved_package_channel(
+    reference: EvidencePackageChannelReference,
+    channel: EvidenceOutputChannel,
+    package_freshness: str,
+) -> EvidencePackageResolvedDependency:
+    """Apply the package freshness gate to an already address-checked channel."""
+    usable = package_freshness == "fresh"
+    audit_channel = channel if usable else replace(channel, observation=None)
+    return EvidencePackageResolvedDependency(
+        ref=reference,
+        channel=channel if usable else None,
+        audit_channel=audit_channel,
+        package_freshness=package_freshness,
+        channel_status=channel.status,
+        effective_status=channel.status if usable else FieldResultStatus.NOT_AVAILABLE,
+        explanation=("" if usable else
+            "upstream package is stale" if package_freshness == "stale" else
+            "upstream package output is unavailable"),
+    )
+
+
+def validate_evidence_package_dependency_graph(
+    graph: Mapping[str, Iterable[str]],
+) -> None:
+    """Require a closed package graph and reject self-dependencies and longer cycles."""
+    _validate_evidence_package_dependency_cycles(_normalize_evidence_package_dependency_graph(graph))
+
+
+def _normalize_evidence_package_dependency_graph(
+    graph: Mapping[str, Iterable[str]],
+) -> dict[str, tuple[str, ...]]:
+    """Normalize graph IDs once and require every dependency to have a declared node."""
+    if not isinstance(graph, Mapping):
+        raise TypeError("graph must be a mapping")
+    normalized: dict[str, tuple[str, ...]] = {}
+    for package_id, dependencies in graph.items():
+        if not isinstance(package_id, str) or not package_id.strip():
+            raise ValueError("graph package ids must be non-empty strings")
+        package_id = package_id.strip()
+        if package_id in normalized:
+            raise ValueError("graph package ids cannot duplicate after normalization")
+        if isinstance(dependencies, (str, bytes)) or not isinstance(dependencies, Iterable):
+            raise TypeError("each dependency list must be iterable")
+        entries = tuple(dependencies)
+        if any(not isinstance(item, str) or not item.strip() for item in entries):
+            raise ValueError("dependency package ids must be non-empty strings")
+        entries = tuple(item.strip() for item in entries)
+        normalized[package_id] = entries
+    missing = {item for entries in normalized.values() for item in entries} - normalized.keys()
+    if missing:
+        raise ValueError(f"dependency graph must be closed; missing package nodes: {sorted(missing)}")
+    return normalized
+
+
+def _validate_evidence_package_dependency_cycles(graph: Mapping[str, tuple[str, ...]]) -> None:
+    """Reject cycles in an already normalized closed dependency graph."""
+    visiting: list[str] = []
+    visited: set[str] = set()
+
+    def visit(package_id: str) -> None:
+        """Visit reachable dependencies and report the concrete cycle path."""
+        if package_id in visiting:
+            start = visiting.index(package_id)
+            cycle = visiting[start:] + [package_id]
+            raise ValueError("evidence package dependency cycle: " + " -> ".join(cycle))
+        if package_id in visited:
+            return
+        visiting.append(package_id)
+        for dependency in graph[package_id]:
+            visit(dependency)
+        visiting.pop()
+        visited.add(package_id)
+
+    for package_id in graph:
+        visit(package_id)
 
 
 def build_field_result_cache_identity(*, target: Mapping[str, Any], query: FieldQuery, channel_declarations: Iterable[Any], input_fingerprint: str, source_fingerprint: str, recipe_fingerprint: str, algorithm_version: str, schema_version: str) -> dict[str, str]:
@@ -606,6 +1470,7 @@ _EVIDENCE_PACKAGE_DEPENDENCIES = (
     "recipe",
     "channels",
 )
+_EVIDENCE_PACKAGE_OPTIONAL_DEPENDENCIES = ("distance_modulation",)
 _EVIDENCE_PACKAGE_REASON_CODES = {
     "scene": "scene_changed",
     "model": "model_changed",
@@ -614,6 +1479,7 @@ _EVIDENCE_PACKAGE_REASON_CODES = {
     "query": "query_changed",
     "recipe": "recipe_changed",
     "channels": "channel_set_changed",
+    "distance_modulation": "distance_modulation_changed",
 }
 
 
@@ -651,7 +1517,7 @@ def _package_dependencies(value: Any) -> tuple[dict[str, str], ...]:
             raise TypeError("dependency records must be mappings")
         name = record.get("name")
         fingerprint = record.get("fingerprint")
-        if name not in _EVIDENCE_PACKAGE_DEPENDENCIES:
+        if name not in (_EVIDENCE_PACKAGE_DEPENDENCIES + _EVIDENCE_PACKAGE_OPTIONAL_DEPENDENCIES):
             raise ValueError(f"unsupported evidence package dependency: {name!r}")
         if not isinstance(fingerprint, str) or not fingerprint:
             raise ValueError(f"dependency {name!r} requires a non-empty fingerprint")
@@ -668,7 +1534,7 @@ def _package_dependencies(value: Any) -> tuple[dict[str, str], ...]:
 
 def _package_identity_payload(contract: Mapping[str, Any]) -> dict[str, Any]:
     """Return the identity-bearing subset of a package contract."""
-    return {
+    payload = {
         "package_id": contract["package_id"],
         "package_schema": contract["package_schema"],
         "producer": contract["producer"],
@@ -678,6 +1544,13 @@ def _package_identity_payload(contract: Mapping[str, Any]) -> dict[str, Any]:
         "schema_version": contract["schema_version"],
         "invalidation_scope": contract["invalidation_scope"],
     }
+    # A typed snapshot contributes only its owner-declared computation values;
+    # source labels and audit-only values must not churn raw cache identity.
+    if "parameter_snapshot" in contract:
+        payload["parameter_snapshot"] = ParameterSnapshot.from_json(
+            contract["parameter_snapshot"]
+        ).identity_payload()
+    return payload
 
 
 def build_evidence_package_contract(
@@ -690,6 +1563,7 @@ def build_evidence_package_contract(
     algorithm_version: str,
     schema_version: str,
     artifacts: Mapping[str, Any] | None = None,
+    parameter_snapshot: ParameterSnapshot | None = None,
 ) -> dict[str, Any]:
     """Build a deterministic package contract without reading or recomputing evidence."""
     for name, value in (
@@ -718,6 +1592,14 @@ def build_evidence_package_contract(
         raise TypeError("artifacts must be a JSON mapping")
     frozen_artifacts = _freeze(artifact_mapping)
     normalized["artifacts"] = _json_value(frozen_artifacts)
+    if parameter_snapshot is not None:
+        if not isinstance(parameter_snapshot, ParameterSnapshot):
+            raise TypeError("parameter_snapshot must be a ParameterSnapshot or None")
+        if parameter_snapshot.package_id != package_id:
+            raise ValueError("parameter snapshot must belong to this package")
+        # Keep the expanded snapshot as an additive audit field; identity uses
+        # only the projection above so legacy contracts remain byte-compatible.
+        normalized["parameter_snapshot"] = parameter_snapshot.to_json()
     identity_payload = _package_identity_payload(normalized)
     normalized["package_identity"] = hashlib.sha256(
         _canonical_json(identity_payload).encode()
@@ -731,6 +1613,11 @@ def _validate_evidence_package_contract(contract: Mapping[str, Any]) -> dict[str
         raise TypeError("package contract must be a mapping")
     if contract.get("schema") != _EVIDENCE_PACKAGE_CONTRACT_SCHEMA:
         raise ValueError("unsupported evidence package contract schema")
+    snapshot = None
+    if "parameter_snapshot" in contract:
+        # Validate persisted snapshots before rebuilding the normalized
+        # contract; current defaults must never be applied to old receipts.
+        snapshot = ParameterSnapshot.from_json(contract["parameter_snapshot"])
     normalized = build_evidence_package_contract(
         package_id=contract.get("package_id"),
         package_schema=contract.get("package_schema"),
@@ -740,6 +1627,7 @@ def _validate_evidence_package_contract(contract: Mapping[str, Any]) -> dict[str
         algorithm_version=contract.get("algorithm_version"),
         schema_version=contract.get("schema_version"),
         artifacts=contract.get("artifacts", {}),
+        parameter_snapshot=snapshot,
     )
     if contract.get("invalidation_scope") != "whole_package":
         raise ValueError("evidence package invalidation_scope must be whole_package")
@@ -770,6 +1658,7 @@ def evaluate_evidence_package_freshness(
     affected_targets = tuple(sorted(set(cached_targets) | set(current_targets)))
     reasons: list[dict[str, Any]] = []
     cached = current = None
+    parameter_status = None
     try:
         if cached_contract is not None:
             cached = _validate_evidence_package_contract(cached_contract)
@@ -829,7 +1718,7 @@ def evaluate_evidence_package_freshness(
     if cached is not None and current is not None:
         cached_dependencies = {item["name"]: item["fingerprint"] for item in cached["dependencies"]}
         current_dependencies = {item["name"]: item["fingerprint"] for item in current["dependencies"]}
-        for name in _EVIDENCE_PACKAGE_DEPENDENCIES:
+        for name in (_EVIDENCE_PACKAGE_DEPENDENCIES + _EVIDENCE_PACKAGE_OPTIONAL_DEPENDENCIES):
             if cached_dependencies.get(name) != current_dependencies.get(name):
                 reasons.append({
                     "code": _EVIDENCE_PACKAGE_REASON_CODES[name],
@@ -858,6 +1747,40 @@ def evaluate_evidence_package_freshness(
                 "cached": cached["package_schema"] + "::" + cached["schema_version"],
                 "current": current["package_schema"] + "::" + current["schema_version"],
             })
+        cached_snapshot = cached.get("parameter_snapshot")
+        current_snapshot = current.get("parameter_snapshot")
+        if cached_snapshot is not None or current_snapshot is not None:
+            if cached_snapshot is None or current_snapshot is None:
+                # A typed request cannot trust a receipt that omits its owner
+                # snapshot.  The storage boundary may still adopt that exact
+                # receipt when the package owner reconstructs and verifies it.
+                parameter_status = {
+                    "reuse": "missing",
+                    "exact_match": False,
+                    "recompute_required": True,
+                    "calculated_parameters": None,
+                    "requested_parameters": None,
+                    "warnings": [{"code": "parameter_snapshot_missing"}],
+                }
+                reasons.append({
+                    "code": "parameter_snapshot_missing",
+                    "dependency": "parameters",
+                    "cached": cached_snapshot,
+                    "current": current_snapshot,
+                })
+            else:
+                comparison = compare_parameter_snapshots(
+                    ParameterSnapshot.from_json(cached_snapshot),
+                    ParameterSnapshot.from_json(current_snapshot),
+                )
+                parameter_status = comparison
+                if comparison["recompute_required"]:
+                    reasons.append({
+                        "code": "parameters_changed",
+                        "dependency": "parameters",
+                        "cached": cached_snapshot["parameter_fingerprint"],
+                        "current": current_snapshot["parameter_fingerprint"],
+                    })
 
     if not artifacts_available:
         reasons.append({"code": "package_invalid", "dependency": "artifacts", "cached": None, "current": None})
@@ -869,7 +1792,7 @@ def evaluate_evidence_package_freshness(
         if not reasons
         else "stale"
     )
-    return {
+    status = {
         "schema": _EVIDENCE_PACKAGE_STATUS_SCHEMA,
         "package_id": package_id,
         "cached_package_identity": cached["package_identity"] if cached else None,
@@ -886,6 +1809,11 @@ def evaluate_evidence_package_freshness(
             "recompute_required": algorithm_recompute if algorithm_status != "same" else False,
         },
     }
+    # Preserve the legacy status shape when neither side carries a typed
+    # snapshot; add this field only for a typed comparison or its absence.
+    if parameter_status is not None:
+        status["parameter_status"] = parameter_status
+    return status
 
 
 def project_field_sample(result: FieldResultEnvelope) -> FieldSample[Any] | None:
@@ -921,7 +1849,9 @@ class Field(Generic[Target, Value], ABC):
         self.frame = _freeze(frame)
         self.value_schema = _freeze(value_schema)
         self.representation = _freeze(representation)
-        self.provenance = _freeze(provenance or {})
+        # Let __setattr__ distinguish trusted private overlays from ordinary
+        # mappings, freezing the latter while preserving validated shared data.
+        self.provenance = provenance or {}
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Keep declared metadata immutable after its first assignment."""
@@ -930,7 +1860,7 @@ class Field(Generic[Target, Value], ABC):
         ):
             raise AttributeError(f"{name} is immutable")
         if name in {"domain", "frame", "value_schema", "representation", "provenance"}:
-            value = _freeze(value)
+            value = value.mapping if type(value) is _MetadataOverlay else _freeze(value)
         object.__setattr__(self, name, value)
 
     @abstractmethod
