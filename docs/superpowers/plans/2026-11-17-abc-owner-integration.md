@@ -44,9 +44,9 @@
 
 **Files:** Accepted integration change and owner root workspace; no remote branch changes.
 
-- [ ] Recheck the tested bytes, absence of conflicts/markers, preserved owner files, and immutable accepted bookmarks. Commit the accepted integration and create `codex/abc-owner-integration-accepted`.
-- [ ] Verify the owner root still matches its pinned clean source, then advance its empty working copy onto the accepted integration. Preserve ignored/untracked artifacts and verify the resulting source bytes match the accepted candidate.
-- [ ] Run a root-path import/CLI smoke check and a small relevant regression selection. Record clean status, accepted commit, rollback source, and untested boundaries.
+- [x] Recheck the tested bytes, absence of conflicts/markers, preserved owner files, and immutable accepted bookmarks. Commit the accepted integration and create `codex/abc-owner-integration-accepted`.
+- [x] Verify the owner root still matches its pinned clean source, then advance its empty working copy onto the accepted integration. Preserve ignored/untracked artifacts and verify the resulting source bytes match the accepted candidate.
+- [x] Run a root-path import/CLI smoke check and a small relevant regression selection. Record clean status, accepted commit, rollback source, and untested boundaries.
 
 ## Preflight assessment and rulings
 
@@ -72,3 +72,10 @@ Ruling: The first workspace-add invocation used `--ignore-working-copy` and crea
 - 2026-11-17 Task 2 complete: independent fresh acceptance is **84 distinct PASS / 84 executions**, comprising 78 integration tests (650.80 s) plus six backend-sensitive tests (1.65 s), both exit 0 with no exclusions. All 1,191 frozen files, 30 profile hashes, 74 fixture/source checks and retained evidence remain unchanged. Independent review is **SPEC PASS / QUALITY APPROVED**, with its two status-only corrections applied before commit.
 - Evidence: `D:/temp/oa-abc-integration-20261117/independent/integration-acceptance.json` and `D:/temp/oa-abc-integration-20261117/review/verdict.json`. Historical C acceptance remains the explicit 619+1 union; B remains its original 786 PASS. These are retained evidence, not fresh reruns.
 - Environment qualification: root and B/C use NumPy 2.4.3 but different binary distributions; SciPy is absent from root. The six added existing tests cover the actual clearance, exact-section, enclosure/fallback and free-space reuse seams. Neither environment was changed, and binary-build identity is not claimed.
+
+- 2026-11-17 Task 3 complete: accepted integration merge `fae03b2a2a7fb92cc3bea68587af0e65d7c054b8` joins owner `e54867c22066a5d6475de8c9ff62d04ca13aae3e` and accepted C `3f9e6c45b7f3ffbf099e519b4d70e31bebe2c3e3`. The local `codex/abc-owner-integration-accepted` bookmark follows the final documentation-only completion commit. Accepted C history and the excluded draft remain unchanged.
+- The owner root is reconnected. All 359 executable/configuration paths and the fixed test inputs match the tested candidate's actual bytes; all 1,191 promoted paths match its normalized content before this completion prose. Existing unrelated document/artifact line endings are preserved. All 30 compatibility-profile hashes match and the real legacy-backend admission succeeds. All four owner-only files retain their original bytes.
+- Root-path acceptance: **23/23 PASS** (4.672 s), five CLI `--help` entries exit 0, and actual package imports resolve to the owner root. Receipt: `D:/temp/oa-abc-integration-20261117/root-smoke/acceptance-result.json`; XML and exact commands are beside it. The root smoke repeats a small path-sensitive subset; do not add its count to the independent 84 as distinct tests.
+- Finalization setup records are preserved: the raw-byte post-checkout guard stopped at an unrelated historical patch, then read-back established EOL-only differences and alignment was narrowed to functional source/config/fixtures. The first smoke import probe used the obsolete top-level `analyzer` path; the probe was corrected to the actual public `.features.analyzer` export before tests ran. Neither case required a product or test change.
+- Local source rollback remains available at `e54867c22066a5d6475de8c9ff62d04ca13aae3e`; use a new jj change from that source after preserving any later work. This source checkpoint is not a claim of automatic IFC/Blender/runtime rollback. No workspace, model cache or historical evidence was deleted; no integration push was performed.
+- Final IDs and clean status are recorded externally in `D:/temp/oa-abc-integration-20261117/completion.json`, avoiding a self-referential commit hash in this file. Whole-repository and fresh native/visual acceptance remain outside this integration.

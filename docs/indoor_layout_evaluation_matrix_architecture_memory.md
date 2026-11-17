@@ -13,6 +13,23 @@ Do not add a parallel `hyperparameter` field. Keep semantic outputs distinct fro
 raw/processed layers. This records development boundaries only; existing opt-in
 C APIs, combined APIs and deferred intermediate runtime remain unchanged.
 
+## Owner-root A/B/C integration — verified 2026-11-17
+
+The owner root now contains the accepted A/B/C source through merge
+`fae03b2a2a7fb92cc3bea68587af0e65d7c054b8`, preserving the historical owner
+`e54867c2`, all four owner-only files and the existing hierarchy/namespace/combined
+API behavior. The [integration plan](superpowers/plans/2026-11-17-abc-owner-integration.md)
+records independent **84/84 PASS**, root-path **23/23 PASS**, five CLI smoke
+checks and **SPEC PASS / QUALITY APPROVED**. The local
+`codex/abc-owner-integration-accepted` bookmark names the completed delivery;
+this integration has not been pushed.
+
+Actual root executable/configuration bytes and all 30 legacy compatibility hashes
+match the tested source. The root NumPy build differs from the old B/C environment;
+six targeted numerical checks passed without altering either environment. Historical
+A/B/C receipts retain their original scopes. Fresh native Blender/visual acceptance,
+B3 and the existing distance visual gates are not claimed by this integration.
+
 ## Independent output ports — Plan C locally verified 2026-11-17
 
 C implementation is locally accepted at
