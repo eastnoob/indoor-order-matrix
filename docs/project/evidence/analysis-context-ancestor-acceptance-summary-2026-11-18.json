@@ -1,0 +1,184 @@
+{
+  "date": "2026-11-18",
+  "scope": "selected feature acceptance, not full-suite or native acceptance",
+  "checkpoint": "9483866193f206019d9ec53de7c295a74e22dbe9",
+  "distinct_nodes": 832,
+  "passed": 830,
+  "skipped": 2,
+  "reports": [
+    {
+      "report": "D:\\temp\\oa-ancestor-acceptance-20261118\\context-scene-free-space.xml",
+      "sha256": "3404286f0d23e013a1184cc8de81398da23e25f9b43afd71fd175fd95877475d",
+      "passed": 197,
+      "skipped": []
+    },
+    {
+      "report": "D:\\temp\\oa-ancestor-acceptance-20261118\\core-callers-cache.xml",
+      "sha256": "68f8ba8ad643bb12031b07b42d184244ffbe51b2c61f4349f778469764855c71",
+      "passed": 385,
+      "skipped": [],
+      "pytest_import_mode": "importlib"
+    },
+    {
+      "report": "D:\\temp\\oa-ancestor-acceptance-20261118\\requests-processed-readback.xml",
+      "sha256": "8f789c77ece752971ae43a27050b3d48f64a264d408cfd3a967541b6bbb590c4",
+      "passed": 248,
+      "skipped": [
+        {
+          "node": "test.test_group_distance_processed_ifc::test_path_only_matches_combined_on_retained_geometry",
+          "reason": "accepted native free-space publication is not installed"
+        },
+        {
+          "node": "test.test_group_distance_processed_ifc::test_real_euclidean_excludes_route_only_inputs",
+          "reason": "accepted native free-space publication is not installed"
+        }
+      ]
+    }
+  ],
+  "code_identity": {
+    "checkpoint": "9483866193f206019d9ec53de7c295a74e22dbe9",
+    "files": [
+      {
+        "path": "adapters\\free_space_evidence_package.py",
+        "sha256": "6cf04696af7e9a6785f352c20d8c4a5e78cc1ba5bfc18dc8b3741a45dee8d8e4"
+      },
+      {
+        "path": "features\\field_core.py",
+        "sha256": "0c7bd3a668bd2b1a1059acda6f1861819e20b3ee4fd4a4c6d6b0406c9899cce2"
+      },
+      {
+        "path": "features\\group_axis_output_ports.py",
+        "sha256": "9862d8340077b9cd5372fd38f318c358c005fc1dd5ba0dc7016be488c06bd3b4"
+      },
+      {
+        "path": "features\\group_axis_potential_field.py",
+        "sha256": "38264c41766c3d09c64769eb7642a44a124339a0b0c8bc0af61adbdd5cd11cf7"
+      },
+      {
+        "path": "features\\group_distance_evidence_package.py",
+        "sha256": "1e94d867d1d86bbc5157c4254cd59e1f4531feba35488bab16ebcbf60e979df9"
+      },
+      {
+        "path": "features\\group_distance_output_ports.py",
+        "sha256": "618917e8f7d964a90bb0de7ec42045e72518647355e7e00dc1cc7fcdb12e049d"
+      },
+      {
+        "path": "features\\output_port_cache.py",
+        "sha256": "67525bfb40f13858460c98f5f4cfcf9a0d69000d50720bfcf6bf4e8d24de96f9"
+      },
+      {
+        "path": "features\\package_analysis_context.py",
+        "sha256": "c54e75ebc324750f34f71d5935927b34df1d1136bdc659a44c49de5ee545cce6"
+      },
+      {
+        "path": "scripts\\design\\group_level\\replay_evidence_package_readback.py",
+        "sha256": "8577dbccc57e37817e752594842a3637734f6520517682b386be854c8d546044"
+      },
+      {
+        "path": "scripts\\design\\group_level\\run_group_axis_distance_modulation_ifc.py",
+        "sha256": "488d09470dadc31006dbb1fffc3bb1ea8dd3e5994e54878b240d8ca926059e33"
+      },
+      {
+        "path": "scripts\\design\\group_level\\run_group_distance_linear_comparison_ifc.py",
+        "sha256": "d21d749070de642ba7904f9998e80387ff7189303e78549af5cef3298b168ab9"
+      },
+      {
+        "path": "scripts\\design\\group_level\\run_group_distance_processed_ifc.py",
+        "sha256": "faa3e9c0b86b8f9a62ac227bc56bde504ee6f038c9174c80dc3ad771964e22e3"
+      },
+      {
+        "path": "test\\test_package_analysis_context.py",
+        "sha256": "427013fed24b2c069646106c455679b7295376d7508a53d1bbf60e316038a792"
+      }
+    ],
+    "line_ending_note": "Recorded hashes compare physical candidate/acceptance CRLF bytes; checkpoint LF content matches after CRLF-to-LF conversion only."
+  },
+  "retained_fixture_copies": [
+    {
+      "relative_path": "outputs/design/group_trend_alignment_field_ifc/run_20261027T224335Z/envelopes.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_trend_alignment_field_ifc\\run_20261027T224335Z\\envelopes.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_trend_alignment_field_ifc\\run_20261027T224335Z\\envelopes.json",
+      "sha256": "de0434b947e562b0ed9f486fe134da118e5d25b81199582dc9374903336534c0",
+      "byte_length": 1558006
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/source_manifest.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\source_manifest.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\source_manifest.json",
+      "sha256": "0dda960341a0d71d14439bb35042355d9a99eb557a8053d1792afaeecd55400c",
+      "byte_length": 1231
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/description.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\description.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\description.json",
+      "sha256": "d75d59a5d542c668d4a790248b49295ac2ef3b8189c902185b4b3985a77a04cd",
+      "byte_length": 12876906
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/envelopes.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\envelopes.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\envelopes.json",
+      "sha256": "de0434b947e562b0ed9f486fe134da118e5d25b81199582dc9374903336534c0",
+      "byte_length": 1558006
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/axis_potential_output.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\axis_potential_output.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\axis_potential_output.json",
+      "sha256": "e5aa9bbdc9547147e0735064e68b4bd7ee7219dc863c4840626d1c9516802d66",
+      "byte_length": 23324990
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/field_matrix.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\field_matrix.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\field_matrix.json",
+      "sha256": "d4f33e85d5600189905ee8e897d9eac53d3236d2b88fc0e58e6c546040286994",
+      "byte_length": 1123492
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/field_profiles.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\field_profiles.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\field_profiles.json",
+      "sha256": "34ca7a8725e676043bd5623ad93248784d341e86c354b76525b24c1c253a1fe9",
+      "byte_length": 24130
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/field_directions.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\field_directions.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\field_directions.json",
+      "sha256": "1fd5383da9e287ff6d02b4fc75fa8d68976781d9a90ba173eab2da6f951b1af3",
+      "byte_length": 29476
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/field_view_manifest.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\field_view_manifest.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\field_view_manifest.json",
+      "sha256": "4e75047b294a06bd9fb40890cbfeb6bc36ff0220ca35f07348be484b2ab00cd7",
+      "byte_length": 25697
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/view_manifest.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\view_manifest.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\view_manifest.json",
+      "sha256": "28f951c683204adf5c372cdcda80b5e2c6b442c74a6732377e7c0b998c83578b",
+      "byte_length": 872
+    },
+    {
+      "relative_path": "outputs/design/group_axis_potential_ifc_replay/run_20261031T142448Z/source_reuse.json",
+      "source": "D:\\PROJECTS\\understandOtherPackage\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\source_reuse.json",
+      "destination": "D:\\temp\\oa-ancestor-acceptance-20261118\\order_analyzer\\outputs\\design\\group_axis_potential_ifc_replay\\run_20261031T142448Z\\source_reuse.json",
+      "sha256": "fca1de3caab501fac42b4ff09195bb1cec8320b20f73eb47d987215b76aed048",
+      "byte_length": 1045
+    }
+  ],
+  "root_preservation": {
+    "root_revision": "d6ab0f9a9aca3746ed3125aa2b43f0078b1a5472",
+    "saved_patch_sha256": "a6d515cd4984ddd29343baf2e26bbb37f5e327ea3d4f749dc03b71b1700dfc5d",
+    "direct_patch_sha256": "94e805c371c6064678dbfa0eb17c0bca76f21ca43031f93c7e953d32a4edc2db",
+    "equal_after_crlf_to_lf": true,
+    "saved_crlf_count": 6067,
+    "direct_crlf_count": 0
+  },
+  "preservation_limits": "No original per-file raw-byte manifest or ignored/untracked inventory was recorded."
+}

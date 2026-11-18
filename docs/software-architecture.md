@@ -29,8 +29,10 @@ calls.
 inherit from `AnalysisContext`. Native/UI settings and `.blend` restart/session
 lifecycle are deferred; a future adapter may convert persisted native settings
 into a frozen scene context. The [verification record](project/evidence/analysis-context-ancestor-verification-2026-11-18.md)
-records the fresh focused checks, static caller audit, known failure, and pending
-root-level full-suite/review evidence.
+records 830 passing selected tests and two native-publication skips from the
+package-shaped acceptance checkout, the static caller audit, and independent
+reviews. Whole-repository verification stopped at a missing historical B3 fixture;
+the isolated implementation is not integrated into the default workspace.
 
 ## Model-side cache — Plan B locally verified 2026-11-16
 

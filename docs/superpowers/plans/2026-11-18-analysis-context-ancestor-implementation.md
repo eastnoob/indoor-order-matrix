@@ -26,7 +26,7 @@ Spec: docs/superpowers/specs/2026-11-18-analysis-context-ancestor-design.md
 
 ## jj execution and rollback design
 
-The default workspace currently contains unrelated dirty work and an existing snapshot f457f56f. Do not reset, abandon, overwrite, merge, or push it.
+The default workspace contains unrelated dirty work. The verified starting root is `d6ab0f9a9aca3746ed3125aa2b43f0078b1a5472`; an older draft referred to `f457f56f`, which is not the recovery baseline for this delivery. Do not reset, abandon, overwrite, merge, or push the default workspace.
 
 1. Capture the default workspace state with jj --version, jj --ignore-working-copy status, jj --ignore-working-copy log -r '@' -n 8, and jj diff --stat.
 2. Create a dedicated workspace named analysis-context-ancestor-20261118 from the current owner revision, then apply the captured working-copy diff into that workspace so this implementation is isolated while the original dirty workspace remains recoverable.
@@ -136,15 +136,31 @@ Files:
 - Create docs/project/evidence/analysis-context-ancestor-verification-2026-11-18.md
 
 - [x] Update prose and diagrams to state one scene default, per-call snapshot, explicit replacement, and deferred UI/native lifecycle. Evidence: `docs/software-architecture.md` and the architecture memory entry, updated 2026-11-18.
-- [x] Run static call audit: `rg -n "\.evaluate\(|\.process_output\(" features adapters blender_addon --glob "*.py"`. Fresh result: 21 matches; package-relevant calls forward `analysis_context`/the resolved snapshot, while field/affordance evaluators are unrelated non-package APIs. Full output is retained in the verification record.
-- [x] Run: `pixi run pytest test/ -q`. Result: collection stopped with 48 errors caused by the nested-worktree package shape (`..features` relative imports beyond the top-level package and missing `octa` on `sys.path`); no implementation assertion ran in those files. This remains an environment limitation, not a package-context regression.
-- [x] Run final independent Superpowers review and final Grill-Me review; repair findings. Both reviews returned SPEC/QUALITY PASS. The only finding was stale pending ledger text; it is corrected in this plan before the final checkpoint.
-- [x] Record fresh command output, jj checkpoint names, and known limits. Focused command: `pixi run pytest test/test_package_analysis_context.py test/test_evidence_package_output.py test/test_evidence_package_processing.py test/test_output_port_cache.py -q -k "not context_contract_imports_under_both_namespaces_without_heavy_engines"` → `258 passed, 1 deselected in 11.33s`. Resolver-only focused command: `44 passed, 1 deselected`; unfiltered resolver command: `44 passed, 1 failed` only because its subprocess could not import `order_analyzer` from the hyphenated worktree parent. Targeted group-distance/lifecycle command: `125 passed`; group-axis command: `137 passed` plus 8 missing-retained-artifact failures. No UI/.blend lifecycle or physical-model recomputation was claimed.
+- [x] Run static call audit: `rg -n "\.evaluate\(|\.process_output\(" features adapters blender_addon --glob "*.py"`. Fresh result: 21 matches; package-relevant calls forward `analysis_context`/the resolved snapshot, while field/affordance evaluators are unrelated non-package APIs. Classification is recorded in the verification record; script callers were also reviewed and migrated.
+- [x] Attempt the full test suite and report its actual outcome. The nested-workspace `pixi run pytest test/ -q` stopped with 48 collection errors. A package-shaped jj acceptance checkout at `94838661`, with OCTA available, subsequently reached 317 passed and one missing historical B3 fixture setup error using `test/ -q --maxfail=1`. Whole-repository success remains unverified; this checked item records execution, not a passing gate.
+- [x] Run final independent Superpowers review and final Grill-Me review; repair findings. Grill-Me returned PASS and Superpowers returned SPEC PASS / QUALITY PASS. Stale pending ledger text was repaired; the later evidence follow-up and its reproduction correction are recorded below.
+- [x] Record commands, checkpoint IDs, and limits. Historical subsets and failures remain historical. Final package-shaped selected runs cover 830 distinct passes and two explicit native-publication skips, with no failures/errors across 832 distinct nodes; the formerly failing namespace smoke test is included and passes. Eleven retained artifacts were copied with matching hashes, without recomputation. See the verification record and machine-readable acceptance summary for exact reports, source identity, and skip reasons. No UI/.blend lifecycle or full physical-model acceptance is claimed.
 - [x] Create jj checkpoint documentation-and-verification; do not push or merge. The final local checkpoint is created after this ledger update and is recorded in the verification evidence and final response.
 
 ## Completion gate
 
 Complete only when inheritance, replacement, multi-plane permission, invalid-input ordering, ignored-plane identity, plane-using dependency, caller coverage, architecture synchronization, and jj rollback checkpoints are all evidenced by fresh tests or explicit review records. UI and .blend lifecycle work remain deferred.
+
+Core-feature completion is distinct from whole-repository or integration acceptance. This delivery satisfies the former in an isolated jj workspace; the missing historical B3 fixture and two explicit native-publication skips limit broader acceptance. The default-root interrupted run (exit `1073807364`, no final report, two unidentified failure markers) is inconclusive and is not candidate or passing-baseline evidence.
+
+## Final acceptance-evidence follow-up
+
+- [x] Recheck the three JUnit reports: 197 passed; 385 passed; 248 passed and two skipped. Verify 832 distinct testcase identities, no overlap, failures, or errors.
+- [x] Match all 13 changed Python files byte-for-byte between candidate and package-shaped acceptance; recheck all 11 retained fixture source/destination hashes and lengths.
+- [x] Retain report digests, skip reasons, code/fixture hashes and normalized root preservation evidence in `docs/project/evidence/analysis-context-ancestor-acceptance-summary-2026-11-18.json`.
+- [x] Record linear checkpoint IDs and a non-destructive `jj workspace add -r <checkpoint>` recovery example. Preserve existing checkpoints and the default workspace.
+- [x] Narrow preservation claims to recorded evidence: 58 dirty paths/content after CRLF-to-LF normalization, 1,201 snapshot paths, and the normalized complete patch. Original raw-byte/ignored/untracked inventory preservation is not proven.
+- [x] Complete focused independent Grill-Me and Superpowers documentation/evidence review. Grill-Me PASS; Superpowers SPEC PASS / QUALITY PASS after adding the core run's `--import-mode=importlib` flag and distinguishing common OCTA reproduction setup from historical invocation. The source/checkpoint CRLF-to-LF distinction is explicit; no source changed.
+- [x] Create documentation-only checkpoint `acceptance-evidence: record package-shaped verification and rollback limits`, then leave an empty child. The successful creation and final revision are verified externally after this ledger update; do not merge, push, or delete either workspace.
+
+Ruling: use jj workspace isolation and keep the accepted candidate rather than the Superpowers Git-worktree/cleanup commands — repository jj-first and preservation rules take precedence. No integration action is authorized, and whole-suite green status is not available. The finishing skill's green-suite/integration gate is therefore not claimed as passed. The remaining operation is an evidence-only checkpoint, not integration.
+
+Ruling: final documentation changes do not alter executable bytes — reuse the three completed candidate-code test reports, independently reparse their XML, and verify all changed source hashes rather than repeating expensive identical numerical runs. If source bytes change, this ruling no longer applies.
 
 
 ## Grill-Me corrections before implementation

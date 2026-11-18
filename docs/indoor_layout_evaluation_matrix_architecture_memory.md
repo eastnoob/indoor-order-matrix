@@ -21,7 +21,10 @@ path remains only for migration compatibility.
 
 UI/native settings, `.blend` restart, and native lifecycle integration remain
 deferred. See the [verification record](project/evidence/analysis-context-ancestor-verification-2026-11-18.md)
-for fresh focused evidence and clearly marked pending full-suite/review gates.
+for 830 passing selected tests, two native-publication skips, and independent
+review evidence from the package-shaped acceptance checkout. Whole-repository
+verification stopped at a missing historical B3 fixture. This isolated core
+implementation is not integrated into the default workspace.
 
 ## Evidence-package development boundary — user clarification 2026-11-17
 
