@@ -1,6 +1,7 @@
 """Analytic request composition, immutable identity and public import compatibility."""
 
 from dataclasses import FrozenInstanceError, replace
+from hashlib import sha256
 import importlib
 import json
 from pathlib import Path
@@ -865,6 +866,54 @@ def test_fingerprint_recipe_preserves_strict_identity_and_query():
     assert current_key != key and is_stale(run.snapshot, scene, current)
     assert current_key == semantic_cache_key(scene, current)
     assert requests._request_query(current, current_key).frame.endswith(":4")
+
+
+def test_legacy_profile_pins_real_current_implementation_bytes():
+    """A reviewed source change must not silently disable all historical cache reuse."""
+    root = Path(requests.__file__).resolve().parents[1]
+    profile = json.loads((root / "features/legacy_cache_compatibility.json").read_text())
+    actual = requests._backend_versions()
+    assert actual["implementations"] == profile["current_backend_versions"]["implementations"]
+    mismatches = {
+        relative: sha256((root / relative).read_bytes()).hexdigest()
+        for relative, expected in profile["current_content_implementations"].items()
+        if sha256((root / relative).read_bytes()).hexdigest() != expected
+    }
+    assert not mismatches
+
+
+def test_legacy_profile_admits_reviewed_files_only_on_recorded_numerical_stack():
+    """Real implementation pins admit original caches only with unchanged numerical versions."""
+    profile = json.loads(Path(requests.__file__).with_name("legacy_cache_compatibility.json").read_text())
+    current = requests._backend_versions()
+    original = profile["original_backend_versions"]
+    expected = ("pre-parameter-sidecar-storage/1"
+                if all(current[key] == original[key] for key in ("executor", "packages")) else None)
+    assert requests.legacy_backend_compatibility(original) == expected
+
+
+@pytest.mark.parametrize("section,name", [("implementations", "field_core"), ("packages", "numpy")])
+def test_legacy_profile_refuses_unknown_backend_versions(section, name):
+    """Caller-supplied unknown implementation or numerical versions cannot authorize reuse."""
+    profile = json.loads(Path(requests.__file__).with_name("legacy_cache_compatibility.json").read_text())
+    current = requests._backend_versions()
+    current[section][name] = "unreviewed-version"
+    assert requests.legacy_backend_compatibility(profile["original_backend_versions"], current) is None
+
+
+def test_legacy_profile_refuses_unknown_content_bytes(monkeypatch):
+    """An unreviewed content file misses even when every backend fingerprint is still real."""
+    profile = json.loads(Path(requests.__file__).with_name("legacy_cache_compatibility.json").read_text())
+    target = Path(requests.__file__).with_name("package_analysis_context.py").resolve()
+    read_bytes = Path.read_bytes
+
+    def unreviewed_content(path):
+        """Change only the non-backend content dependency and retain all other real file reads."""
+        payload = read_bytes(path)
+        return payload + b"\n# unreviewed implementation\n" if path.resolve() == target else payload
+
+    monkeypatch.setattr(Path, "read_bytes", unreviewed_content)
+    assert requests.legacy_backend_compatibility(profile["original_backend_versions"]) is None
 
 
 def test_native_core_imports_avoid_legacy_heavy_modules():

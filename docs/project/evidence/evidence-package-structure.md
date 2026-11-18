@@ -31,23 +31,30 @@ no automatic whole-model/subset input router.
 Composition is the current design. This responsibility map is not a full
 repository coupling/quality audit and does not call for an OOP rewrite.
 
-### Required analysis-plane call context — 2026-11-17
+### Required analysis-plane call context — 2026-11-18
 
-Every evaluation and processing call receives a nonempty frozen
-`PackageAnalysisContext` from `features/package_analysis_context.py`. Algorithms
-may ignore it; passing a context does not project geometry, extract a model or
-construct a grid. `AnalysisPlane` remains a coordinate fact. The shared template
-validates selection while package-owned guards retain actual geometric dependencies.
-
-Scene settings own an `AnalysisPlaneCatalog` default and package overrides;
-native UI settings persist author observations and freeze one selection at Start.
-By default a package accepts one plane. Multiple planes require both
+Scene-level `AnalysisContext` is the core ancestor and owns exactly one required
+`analysis_plane`, the scene default. Every evaluation and processing call resolves
+a nonempty frozen `PackageAnalysisContext` from
+`features/package_analysis_context.py` as its per-call snapshot. Omitted
+`package_planes` inherits the ancestor default; explicit `package_planes`
+completely replaces it, without appending the default. By default a package
+accepts one plane. Multiple planes require both
 `supports_multiple_planes=True` and `allow_multiple_planes=True` for that call.
-An omitted context can be derived only from one complete source query plane;
-partial or absent historical plane facts require an explicit scenario context.
-`EvidencePackageInput.analysis_context` makes that context available to context
+
+`NativePlaneSettings` and `AnalysisPlaneCatalog` remain native/UI adapter helpers,
+not the core ancestor. Native settings-to-context lifecycle integration remains
+deferred. Without an explicit context or package selection, only one complete,
+unique source-query plane can supply the historical migration fallback; partial
+or absent historical plane facts require explicit context or selection.
+`EvidencePackageInput.analysis_context` exposes the frozen snapshot to context
 callbacks without changing legacy callback signatures or raw/processed v1 bytes.
-Unused context is not a new numerical input or cache dependency.
+
+Algorithms may ignore the snapshot. Passing it does not project geometry, extract
+a model or construct a grid. `AnalysisPlane` remains a coordinate fact. The shared
+template validates selection; plane-using packages own their true geometric and
+plane identity/revision dependencies before cache lookup. An unused plane is not
+a numerical input or cache dependency.
 
 ### Parameters and the `exposed` convention
 

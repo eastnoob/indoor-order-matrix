@@ -194,3 +194,64 @@ The following rulings are binding for all tasks:
 Task 0 review evidence: docs/project/evidence/analysis-context-ancestor-plan-grill-review-2026-11-18.md
 jj preflight patch SHA-256: A6D515CD4984DDD29343BAF2E26BBB37F5E327EA3D4F749DC03B71B1700DFC5D
 
+## Owner-requested bounded cache-profile repair — 2026-11-18
+
+This addendum follows independent mainline review of delivered candidate
+`bdf2d5f12ec1cd18ce1dc42023b47c4ebdf26200`. It preserves all earlier failures,
+the original 830-pass/two-skip acceptance scope, and the unmerged delivery status.
+Owner alone controls jj history writes and integration. Repair work changes
+physical candidate files in the existing implementation workspace; no checkpoint,
+snapshot, bookmark, merge, push, or workspace operation was performed.
+
+Scope: the legacy profile, focused request tests, the structure guide's
+"Required analysis-plane call context" section, and this plan/verification
+record. An unchanged native helper also needed its already-pinned LF bytes
+restored; its content version was not reapproved.
+
+- [x] Reproduce with actual `_backend_versions()` under Pixi: Shapely 2.1.2,
+  Trimesh 5.1.0, NumPy 2.4.3; original-to-candidate compatibility returned `None`.
+  Five changed content files and backend `field_core` had stale pins. A sixth
+  content mismatch was only the unchanged `plane_settings.py` CRLF checkout.
+- [x] Verify root `plane_settings.py` equals the d6 blob and pinned LF SHA256
+  `e92c4e1560b7354d7887c3cf044f68c29b94568c22c8eee8a0ab235778a44d3b`, then restore
+  those exact bytes in the implementation workspace without changing its pin.
+- [x] Audit all consumers: the central profile validator, Blender historical-key
+  reconstruction, and free-space adoption/readback. No parallel compatibility
+  authority, fixture change, dependency, export, or numerical algorithm is needed.
+- [x] Review the five changed wrappers/resolver against d6: they add ancestor/
+  selection admission and forwarding; original numerical kernels, contracts,
+  identities, serializers and processing formulas remain unchanged. This is
+  compatibility for original artifacts, not a claim of unchanged admission APIs.
+- [x] Add five regression nodes using real files and real `_backend_versions()`.
+  Before profile repair: two expected failures and three passes. After repair:
+  five passes. Unknown backend/numerical versions and one independently changed
+  content-only file still miss.
+- [x] Update only five reviewed `current_content_implementations` values plus
+  `current_backend_versions.implementations.field_core`. Preserve both original
+  maps, all numeric/executor versions, schema/profile IDs, mapping membership,
+  and the complete strict validation implementation.
+- [x] Run 417 focused regression nodes through Pixi, including both requested
+  historical `auth_free_space` and `blender_wire` P/Q/R restart families with
+  forbidden producers, byte/ref retention and index rebuild checks: 417 passed,
+  zero failures/errors/skips. The new package-shaped test copy is separate from
+  the frozen original acceptance checkout; 215 Python source/test files and the
+  repaired profile match the candidate byte-for-byte.
+- [x] Correct only the requested structure-guide section: `AnalysisContext`
+  ancestor owns one required default; explicit planes replace it; per-call
+  `PackageAnalysisContext` is frozen; native settings/catalog are adapter helpers;
+  retain dual multi-plane permission and package-owned true dependencies.
+- [x] Independent bounded Grill-Me review PASS; Superpowers SPEC PASS / QUALITY
+  PASS. Both verified the exact profile delta, real file hashes, strict validator
+  preservation, tests and corrected structure section. Neither substitutes for
+  the root-executed 417-test gate.
+- [x] Append exact commands, report hashes, reviewed implementation hashes and
+  limits to the existing verification record; leave the repair unsnapshotted for
+  owner verification/integration. Candidate remains on `a8c2f3fe` above `bdf2d5f1`;
+  default root remains `d6ab0f9a` under read-only inspection.
+
+No broader cache migration is authorized by this repair: the bridge remains the
+profile's original-to-reviewed-candidate scope. Arbitrary intermediate d6 caches
+or other numerical dependency versions do not gain no-recompute acceptance.
+Owner must verify every physical source SHA after final checkout/integration,
+because exact compatibility intentionally remains sensitive to line endings.
+

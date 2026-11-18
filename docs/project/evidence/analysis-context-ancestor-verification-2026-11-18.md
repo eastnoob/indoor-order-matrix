@@ -210,3 +210,141 @@ No UI, native multi-plane management, settings persistence, `.blend` save/reopen
 fresh IFC extraction, or large model recomputation was performed. Whole-repository
 green status remains unverified due to the B3 fixture error; two selected native
 publication tests were skipped. This is isolated core delivery, unmerged/unpushed.
+
+## Bounded legacy compatibility repair for owner integration — 2026-11-18
+
+This is a later repair of delivered candidate `bdf2d5f12ec1cd18ce1dc42023b47c4ebdf26200`,
+not a replacement for the preceding 830-pass/two-skip scope or failed/inconclusive
+historical runs. No full-suite, fresh Blender/IFC, UI, or mainline acceptance is
+claimed by this addendum. Owner alone owns version writes and integration.
+
+### Reproduction and exact repair boundary
+
+Using actual files and `_backend_versions()` in the implementation workspace,
+Pixi reports Shapely `2.1.2`, Trimesh `5.1.0`, NumPy `2.4.3`, and executor
+`planar-analysis-request/2`, exactly the profile's numerical stack. Before repair,
+`legacy_backend_compatibility(profile["original_backend_versions"])` returned
+`None`. Five current content pins and backend `field_core` were stale after the
+ancestor implementation. An additional native helper mismatch was only checkout
+line endings.
+
+`blender_addon/order_analyzer_ui/plane_settings.py` was verified against both
+physical default-root bytes and `jj --ignore-working-copy file show -r d6ab0f9a`
+before restoration. Both equal the existing pinned LF SHA256
+`e92c4e1560b7354d7887c3cf044f68c29b94568c22c8eee8a0ab235778a44d3b`.
+The implementation helper was restored to those bytes; the CRLF form
+`cc822caab439c27894f032f39424af46e2994f8c59ef29a20ce55119c5d5e4cc` was not approved
+as a new implementation.
+
+Only these reviewed current content pins changed:
+
+| Physical source | Reviewed candidate SHA256 | Compatibility review |
+|---|---|---|
+| `adapters/free_space_evidence_package.py` | `6cf04696af7e9a6785f352c20d8c4a5e78cc1ba5bfc18dc8b3741a45dee8d8e4` | Selection admission/forwarding; original request, keys, authentication and codecs unchanged. |
+| `features/field_core.py` | `0c7bd3a668bd2b1a1059acda6f1861819e20b3ee4fd4a4c6d6b0406c9899cce2` | Boundary resolution only; original numerical/publication/processing identities unchanged. Also updated in current backend implementation pins. |
+| `features/group_axis_potential_field.py` | `38264c41766c3d09c64769eb7642a44a124339a0b0c8bc0af61adbdd5cd11cf7` | Runner forwards selection/permission; original contracts, dependencies and potential calculations unchanged. |
+| `features/group_distance_evidence_package.py` | `1e94d867d1d86bbc5157c4254cd59e1f4531feba35488bab16ebcbf60e979df9` | Evaluation/run wrappers forward selection/permission; original distances, repair adaptation and contracts unchanged. |
+| `features/package_analysis_context.py` | `c54e75ebc324750f34f71d5935927b34df1d1136bdc659a44c49de5ee545cce6` | Ancestor/default/override admission extension; old frozen-context/query inference and multi-plane gates retained; no numerical calculation. |
+
+Static comparison against d6 found nine changed wrapper/resolver functions and
+no module assignment/version constant changes in these five files. This supports
+reuse of original numerical artifacts; the ancestor admission API has deliberately
+changed and has its separate context tests.
+
+Both `original_backend_versions` and `original_content_implementations` remain
+unchanged. Current numerical/executor versions, schema/profile IDs and map
+membership remain unchanged. `features/analysis_requests.py` and its strict
+validator were not modified: saved/original equality, actual/current equality,
+all real content hashes, and version checks still apply. No wildcard, bypass,
+automatic trust, intermediate-cache bridge or migration framework was added.
+The runtime consumers remain the central validator, Blender historical-key
+reconstruction and free-space adoption/readback.
+
+### Fresh tests, source identity and reproduction
+
+The five new request-test nodes use actual `_backend_versions()` and real source
+bytes. The content-only negative alters only the read of
+`package_analysis_context.py`, leaving all backend and other content reads real.
+Unknown caller-supplied implementation/numerical versions also return `None`.
+
+| Report | Observed result | SHA256 |
+|---|---|---|
+| `red-profile.xml` | 2 expected failures, 3 passes before manifest repair | `c68fda4511b5fb8a2e943887f4de2b72938a580133a19565f68bb18d0f73012d` |
+| `green-profile.xml` | 5 passes after manifest repair | `b613d026218829173b426cf5089b9808ce6f0de768a1650054622a83e604b715` |
+| `focused-repair.xml` | 417 passes, zero failures/errors/skips | `ade6d8bf973028e7632e0421c9adaa917ca8d237e71e9ec241cd96405fedb223` |
+
+The red assertions failed specifically at stale real `field_core` pins and
+`None` versus the expected profile ID, not import/setup errors. Two preliminary
+nested-workspace collection probes failed at relative imports, including one
+`--import-mode=importlib --rootdir=..` attempt; those are environment diagnostics,
+not test executions or candidate regressions.
+
+Original acceptance remains frozen. The owner-authorized new package-shaped
+copy and reports are under `D:/temp/oa-ancestor-cache-repair-20261118/`, with source
+at `order_analyzer/`. Copy setup omitted `.jj`, `.pixi`, `__pycache__`, and
+`.pytest_cache`. Before tests, the added test and restored helper were copied
+from the candidate; after repair, only the repaired profile also needed copying.
+All 215 Python files under candidate `features`, `adapters`, `blender_addon`, and
+`test`, plus the profile, were checked byte-for-byte against the test copy after
+the run. Test source therefore is the repaired candidate, not old default-root
+or frozen acceptance code.
+
+The temporary `run_repair_tests.py` starts via `pixi run python` from the
+implementation workspace, changes to the new package directory, sets both
+`sys.path` and `PYTHONPATH` to its parent, itself, and root-vendored OCTA, then
+calls `pytest.main()` with `--import-mode=importlib -q -p no:cacheprovider`.
+It uses a main guard for Windows spawned processes. Exact focused command:
+
+```powershell
+pixi run python D:/temp/oa-ancestor-cache-repair-20261118/run_repair_tests.py `
+  test/test_analysis_requests.py `
+  test/test_package_analysis_context.py `
+  test/test_free_space_evidence_package.py `
+  test/test_blender_analysis_session.py `
+  test/test_cache_migration_preflight.py `
+  'test/test_cache_migration.py::test_migrated_legacy_runner_reuse_survives_process_restart[auth_free_space]' `
+  'test/test_cache_migration.py::test_migrated_legacy_runner_reuse_survives_process_restart[blender_wire]' `
+  --junitxml=D:/temp/oa-ancestor-cache-repair-20261118/focused-repair.xml
+```
+
+For red/green reproduction the test selection was
+`test/test_analysis_requests.py -k legacy_profile`, with the corresponding
+`--junitxml` report above. Focused counts by file are 166 requests, 45 context,
+51 free-space, 151 Blender-session, two migration preflight and two restart
+nodes. The focused process exited 0 in 29.04 seconds. The five green-profile
+nodes are included in the 417, not additional distinct acceptance nodes.
+
+Both requested historical families passed real retained-fixture import and P/Q/R
+process restarts with executor sentinels, unchanged historical payload hashes/
+origin refs, index rebuilding, and unknown numerical/implementation rejection.
+This restores only the original-to-reviewed-candidate bridge; it does not promise
+zero recomputation for arbitrary intermediate d6 caches or other numerical stacks.
+
+`repair-verification.json` in that temporary evidence directory records all 32
+current physical content hashes, the 11 backend hashes, numerical versions,
+report hashes/counts and source-equality count. Fresh runtime checks in candidate
+and test copy return `pre-parameter-sidecar-storage/1`; every content and backend
+pin matches. The compatibility manifest's old bytes are retained separately as
+`profile-before.json` for independent delta checking.
+
+### Review, documentation and integration boundary
+
+Independent bounded Grill-Me review: PASS. Independent Superpowers review:
+SPEC PASS / QUALITY PASS. Both independently checked the six-value manifest
+delta, originals/version preservation, all 32 content/11 backend pins, unchanged
+strict validator, meaningful negatives and requested structure section. Report
+parsing is explicitly review evidence, not a second execution of the 417 tests.
+
+Only the structure guide's "Required analysis-plane call context" section was
+corrected: `AnalysisContext` is the one-default-plane ancestor, explicit
+`package_planes` replaces that default, `PackageAnalysisContext` is the frozen
+per-call snapshot, and native settings/catalog remain adapter helpers. Dual
+multi-plane permission and package-owned true dependencies are retained.
+
+No jj history write occurred during this repair. Read-only inspection still shows
+candidate child `a8c2f3fe7080b4805d98a649e9c636a44f99e782` over delivered `bdf2d5f1`
+and default root `d6ab0f9a9aca3746ed3125aa2b43f0078b1a5472`. Physical repairs remain
+unsnapshotted for owner review. Neither the root nor original acceptance checkout
+was modified. Owner must recheck actual physical SHA256 values after checkout and
+integration, particularly the mixed existing CRLF/LF boundaries; unknown bytes
+must continue to miss. No mainline merge or remote push was performed here.
