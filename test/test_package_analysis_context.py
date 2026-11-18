@@ -19,6 +19,7 @@ from features.package_analysis_context import (
     AnalysisPlaneCatalog, PackageAnalysisContext, resolve_package_analysis_context,
 )
 from features.scene_contract import AnalysisPlane
+from features.scene_contract import AnalysisContext, NEUTRAL_SCENE_V2
 from .test_evidence_package_output import _package_output_function, _source_envelope
 from .test_evidence_package_processing import _process
 from .test_output_port_cache import _contract
@@ -33,6 +34,26 @@ def _plane(identity="plane:p1", *, revision=1, name="call selection"):
 def _source(plane):
     """Present historical query facts directly to the compatibility resolver."""
     return SimpleNamespace(query=SimpleNamespace(plane=plane))
+
+
+def _scene_context(plane=None):
+    """Build a complete scene context with the supplied default plane."""
+    return AnalysisContext(
+        contract_version=NEUTRAL_SCENE_V2,
+        source_schema="IFC4",
+        adapter_version="0.1.0",
+        source_length_unit="m",
+        analysis_length_unit="m",
+        world_coordinate_system={"name": "test"},
+        level_references=("level:ground",),
+        analysis_plane=plane or _plane("scene:default"),
+        geometry_tolerance=0.001,
+        topology_tolerance=0.005,
+        walking_body_profiles=(),
+        visual_height_bands=(),
+        capability_flags={},
+        input_mode="ifc",
+    )
 
 
 def _package(*, producer=_package_output_function, context_producer=None,
@@ -87,6 +108,71 @@ def test_unique_typed_or_complete_extended_query_plane_is_compatible():
         _source({**mapping, "name": "renamed display"})))
     assert context.planes == (plane,)
     assert mapping["normal"] == [0, 0, 1]
+
+
+def test_scene_context_inherits_its_single_default_plane():
+    """A scene context supplies exactly its default plane when no override is given."""
+    scene_plane = _plane("scene:default")
+    context = resolve_package_analysis_context(
+        analysis_context=_scene_context(scene_plane),
+    )
+    assert context.planes == (scene_plane,)
+
+
+def test_scene_context_explicit_package_planes_replace_the_default():
+    """Explicit package planes replace the scene default instead of being merged."""
+    scene_plane = _plane("scene:default")
+    package_plane = _plane("package:override")
+    context = resolve_package_analysis_context(
+        analysis_context=_scene_context(scene_plane),
+        package_planes=(package_plane,),
+    )
+    assert context.planes == (package_plane,)
+
+
+def test_scene_context_explicit_multi_plane_replacement_requires_permission():
+    """An explicit multi-plane replacement needs package capability and caller permission."""
+    planes = (_plane("package:p1"), _plane("package:p2"))
+    scene = _scene_context(_plane("scene:default"))
+    with pytest.raises(ValueError, match="multiple planes"):
+        resolve_package_analysis_context(
+            analysis_context=scene,
+            package_planes=planes,
+            supports_multiple_planes=True,
+        )
+    resolved = resolve_package_analysis_context(
+        analysis_context=scene,
+        package_planes=planes,
+        supports_multiple_planes=True,
+        allow_multiple_planes=True,
+    )
+    assert resolved.planes == planes
+
+
+def test_package_context_and_explicit_package_planes_are_conflicting_sources():
+    """A frozen package context cannot be combined with another explicit plane set."""
+    frozen = PackageAnalysisContext((_plane("frozen"),))
+    with pytest.raises(ValueError, match="conflict"):
+        resolve_package_analysis_context(
+            analysis_context=frozen,
+            package_planes=(_plane("override"),),
+        )
+    with pytest.raises(ValueError, match="conflict"):
+        resolve_package_analysis_context(analysis_context=frozen, package_planes=())
+
+
+def test_explicit_planes_work_without_an_analysis_context():
+    """Explicit package planes are valid during migration without a scene context."""
+    plane = _plane("explicit")
+    context = resolve_package_analysis_context(package_planes=(plane,))
+    assert context.planes == (plane,)
+
+
+@pytest.mark.parametrize("package_planes", [(), (_plane(), _plane()), ("not-a-plane",)])
+def test_invalid_explicit_package_planes_fail_before_resolution(package_planes):
+    """Empty, duplicate, and non-plane explicit sets are rejected at admission."""
+    with pytest.raises((ValueError, TypeError)):
+        resolve_package_analysis_context(package_planes=package_planes)
 
 
 @pytest.mark.parametrize("missing", ["name", "identity", "revision", "origin", "basis"])

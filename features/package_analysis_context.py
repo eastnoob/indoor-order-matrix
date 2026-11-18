@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 
-from .scene_contract import AnalysisPlane
+from .scene_contract import AnalysisContext, AnalysisPlane
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,14 +84,31 @@ def _query_plane(value: object) -> AnalysisPlane:
 
 def resolve_package_analysis_context(
     source_envelopes: Iterable[object] = (), *,
-    analysis_context: PackageAnalysisContext | None = None,
+    analysis_context: AnalysisContext | PackageAnalysisContext | None = None,
+    package_planes: Iterable[AnalysisPlane] | None = None,
     supports_multiple_planes: bool = False,
     allow_multiple_planes: bool = False,
 ) -> PackageAnalysisContext:
-    """Require call context, deriving only a unique complete historical query plane."""
+    """Resolve one frozen package plane set using strict ancestor precedence."""
     if type(supports_multiple_planes) is not bool or type(allow_multiple_planes) is not bool:
         raise TypeError("multiple-plane capability and permission must be boolean")
-    if analysis_context is None:
+    if isinstance(analysis_context, PackageAnalysisContext) and package_planes is not None:
+        raise ValueError("analysis_context and package_planes are conflicting sources")
+    explicit_context = None
+    if package_planes is not None:
+        try:
+            explicit_context = PackageAnalysisContext(tuple(package_planes))
+        except TypeError as error:
+            raise TypeError("package_planes must be an iterable of AnalysisPlane values") from error
+
+    if isinstance(analysis_context, PackageAnalysisContext):
+        resolved = analysis_context
+    elif isinstance(analysis_context, AnalysisContext):
+        # An explicit package set replaces the scene default; inheritance is the only implicit merge.
+        resolved = (explicit_context or PackageAnalysisContext((analysis_context.analysis_plane,)))
+    elif analysis_context is None and explicit_context is not None:
+        resolved = explicit_context
+    elif analysis_context is None:
         unique = {}
         for source in source_envelopes:
             value = getattr(getattr(source, "query", None), "plane", None)
@@ -103,13 +120,13 @@ def resolve_package_analysis_context(
             unique.setdefault(key, plane)
         if len(unique) != 1:
             raise ValueError("analysis_context is required unless source queries identify one complete plane")
-        analysis_context = PackageAnalysisContext(tuple(unique.values()))
-    elif not isinstance(analysis_context, PackageAnalysisContext):
-        raise TypeError("analysis_context must be a PackageAnalysisContext")
-    if len(analysis_context.planes) > 1 and not (supports_multiple_planes and allow_multiple_planes):
+        resolved = PackageAnalysisContext(tuple(unique.values()))
+    else:
+        raise TypeError("analysis_context must be an AnalysisContext, PackageAnalysisContext, or None")
+    if len(resolved.planes) > 1 and not (supports_multiple_planes and allow_multiple_planes):
         raise ValueError("multiple planes require package capability and explicit call permission")
     # Selection is not a claim of numerical use; package-specific input guards own that dependency.
-    return analysis_context
+    return resolved
 
 
 __all__ = [

@@ -47,9 +47,9 @@ Interfaces:
 - Produce a design-review record before code changes.
 
 - [x] Write this plan and record jj preflight.
-- [ ] Self-review the plan against every design-note requirement.
-- [ ] Run an independent Grill-Me review of the design and plan. Challenge default inheritance, explicit replacement, multi-plane admission, compatibility inference, cache behavior, and dirty-work rollback; record findings and rulings.
-- [ ] Create the isolated jj workspace and verify its starting diff.
+- [x] Self-review the plan against every design-note requirement.
+- [x] Run an independent Grill-Me review of the design and plan. Challenge default inheritance, explicit replacement, multi-plane admission, compatibility inference, cache behavior, and dirty-work rollback; record findings and rulings.
+- [x] Create the isolated jj workspace and verify its starting diff.
 
 Expected gate evidence: plan, Grill-Me review/rulings, workspace name, and intended file list.
 
@@ -145,4 +145,36 @@ Files:
 ## Completion gate
 
 Complete only when inheritance, replacement, multi-plane permission, invalid-input ordering, ignored-plane identity, plane-using dependency, caller coverage, architecture synchronization, and jj rollback checkpoints are all evidenced by fresh tests or explicit review records. UI and .blend lifecycle work remain deferred.
+
+
+## Grill-Me corrections before implementation
+
+The following rulings are binding for all tasks:
+
+1. Resolver precedence matrix:
+   - \`analysis_context=AnalysisContext\`, no \`package_planes\`: resolve exactly the scene's one \`analysis_plane\`.
+   - \`analysis_context=AnalysisContext\`, explicit non-empty \`package_planes\`: resolve exactly that explicit set; never append the scene plane.
+   - \`analysis_context=PackageAnalysisContext\`, no \`package_planes\`: use that frozen set.
+   - \`analysis_context=PackageAnalysisContext\` plus \`package_planes\`: reject the conflicting two sources before producer, processor, storage, or cache work.
+   - \`analysis_context=None\`, explicit non-empty \`package_planes\`: use that explicit set.
+   - \`analysis_context=None\`, \`package_planes=None\`: allow only the existing unique complete source-query inference migration path.
+   - Explicit empty, duplicate, non-\`AnalysisPlane\`, malformed, or unauthorized multi-plane sets fail before package work.
+
+2. Runner propagation is part of the contract, not an optional follow-up. The package-level \`package_planes\` input must be accepted and forwarded through \`EvidencePackage.evaluate()\`, \`EvidencePackage.process_output()\`, \`run_port_processor()\`, free-space evaluate/run entrypoints, group-axis evaluate/run/output entrypoints, and group-distance evaluate/run/output entrypoints. The free-space request plane is an explicit package override when a scene context is also present.
+
+3. Cache identity ruling:
+   - A package that ignores \`PackageAnalysisContext\` keeps the same raw and processed bytes and identities for P0 versus P1.
+   - A package that uses a plane must include plane identity and revision in its own output, contract, parameter snapshot, or explicit dependency before cache lookup; the generic cache layer must not guess usage.
+   - Task 4 must exercise both cases through warm and cold paths.
+
+4. Explicit context is a trusted selection boundary, but does not silently merge source query planes. Existing source/query compatibility checks remain package-owned for plane-dependent packages. The migration inference path still rejects missing, malformed, conflicting, or revision-mismatched source query planes when no explicit context is supplied.
+
+5. jj preservation evidence:
+   - Before workspace creation, save complete \`jj diff\` output, tracked/untracked/ignored file lists, and hashes for the existing dirty paths.
+   - After workspace creation and dirty patch application, compare the complete patch and hashes and confirm the default workspace is unchanged.
+   - Record base revision, workspace revision, checkpoint revisions, and restoration commands in the verification evidence.
+
+
+Task 0 review evidence: docs/project/evidence/analysis-context-ancestor-plan-grill-review-2026-11-18.md
+jj preflight patch SHA-256: A6D515CD4984DDD29343BAF2E26BBB37F5E327EA3D4F749DC03B71B1700DFC5D
 
