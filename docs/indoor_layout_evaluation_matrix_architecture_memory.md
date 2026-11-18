@@ -19,12 +19,16 @@ group-axis, group-distance, output-port, and lifecycle callers forward the same
 frozen snapshot through nested calls. The unique complete source-query inference
 path remains only for migration compatibility.
 
-UI/native settings, `.blend` restart, and native lifecycle integration remain
-deferred. See the [verification record](project/evidence/analysis-context-ancestor-verification-2026-11-18.md)
-for 830 passing selected tests, two native-publication skips, and independent
-review evidence from the package-shaped acceptance checkout. Whole-repository
-verification stopped at a missing historical B3 fixture. This isolated core
-implementation is not integrated into the default workspace.
+The core increment is now integrated into the default workspace. The
+[owner acceptance record](project/evidence/analysis-context-ancestor-owner-acceptance-2026-11-18.md)
+records 1,028 fresh selected passes, a separate 215-pass root-path smoke,
+independent review, exact source/preservation checks, and the repaired strict
+original-to-current cache compatibility bridge. The earlier 830-pass/two-skip
+delivery evidence remains historical. Existing native settings/catalog helpers
+are retained; their connection to the new ancestor path, `.blend` restart and
+native lifecycle acceptance remain deferred. Whole-repository green status is
+unverified. Local recovery is `codex/analysis-context-ancestor-owner-before`;
+no remote push or workspace cleanup was performed.
 
 ## Evidence-package development boundary — user clarification 2026-11-17
 

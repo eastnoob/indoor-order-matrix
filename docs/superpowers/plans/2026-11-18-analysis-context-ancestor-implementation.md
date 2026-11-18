@@ -255,3 +255,20 @@ or other numerical dependency versions do not gain no-recompute acceptance.
 Owner must verify every physical source SHA after final checkout/integration,
 because exact compatibility intentionally remains sensitive to line endings.
 
+## Owner integration gate — completed 2026-11-18
+
+The later human handoff authorizes independent testing and local mainline
+integration. Earlier no-integration rulings above describe the isolated delivery,
+not this later owner gate. Maintain this checklist and its linked evidence when
+progress or scope changes.
+
+- [x] Preserve root `d6ab0f9a` and all 1,201 tracked physical files; retain a local recovery bookmark.
+- [x] Independently verify and repair the strict legacy-cache P1 without broadening historical compatibility.
+- [x] Review repaired candidate `bf84d25c` and run 1,028 selected tests: all pass, zero skips/errors/failures.
+- [x] Advance the default workspace to a child of the repaired candidate; verify 1,182 untouched baseline files, all 32 current implementation pins and 14 changed Python files against tested bytes.
+- [x] Run 215 separate root-path smoke tests and a real strict-profile probe: all pass; record the initial import-path collection failure separately.
+- [x] Update architecture/memory and the [owner acceptance record](../../project/evidence/analysis-context-ancestor-owner-acceptance-2026-11-18.md); retain earlier failures and bounded acceptance claims.
+
+No remote push, workspace cleanup, extra UI work or physical IFC recomputation
+belongs to this gate. Overlapping test selections are not added together.
+

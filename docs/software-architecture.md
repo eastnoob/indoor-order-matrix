@@ -26,13 +26,16 @@ callers resolve and forward the frozen snapshot through their nested package
 calls.
 
 `EvidencePackage` remains a composed execution/publication template and does not
-inherit from `AnalysisContext`. Native/UI settings and `.blend` restart/session
-lifecycle are deferred; a future adapter may convert persisted native settings
-into a frozen scene context. The [verification record](project/evidence/analysis-context-ancestor-verification-2026-11-18.md)
-records 830 passing selected tests and two native-publication skips from the
-package-shaped acceptance checkout, the static caller audit, and independent
-reviews. Whole-repository verification stopped at a missing historical B3 fixture;
-the isolated implementation is not integrated into the default workspace.
+inherit from `AnalysisContext`. Existing `NativePlaneSettings` and
+`AnalysisPlaneCatalog` remain native/UI adapter helpers; wiring those settings
+to the new ancestor path and `.blend` restart/session acceptance are deferred.
+The core is integrated into the default workspace. The
+[owner acceptance record](project/evidence/analysis-context-ancestor-owner-acceptance-2026-11-18.md)
+records 1,028 fresh selected passes, a separate 215-pass root-path smoke,
+independent review and the exact-hash legacy compatibility repair. Earlier
+delivery evidence remains in the [verification record](project/evidence/analysis-context-ancestor-verification-2026-11-18.md).
+Whole-repository green status and native lifecycle acceptance are unverified;
+no remote push or workspace cleanup was performed.
 
 ## Model-side cache — Plan B locally verified 2026-11-16
 
