@@ -1,6 +1,6 @@
 # 软件架构
 
-## Analysis-plane call context — locally verified 2026-11-17
+## AnalysisContext ancestor and package snapshots — locally verified 2026-11-18
 
 The [shared-context design](superpowers/specs/2026-11-17-analysis-plane-shared-context-design.md)
 adds a pure frozen `PackageAnalysisContext` containing ordered `AnalysisPlane`

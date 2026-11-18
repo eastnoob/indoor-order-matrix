@@ -163,7 +163,7 @@ def _run_result(publication, entry, *, hit, parameters, freshness="fresh"):
                    None if entry is None else str(entry.payload_paths[0].parent))
 
 
-def _run_pure(sources, store, parameters, analysis_context):
+def _run_pure(sources, store, parameters, analysis_context, allow_multiple_planes=False):
     """Run the existing pure producer only after a miss under the shared identity lock."""
     contract = _axis_contract(sources, parameters)
     address = CacheAddress(contract.source_fingerprint, potential.PACKAGE_ID,
@@ -180,7 +180,8 @@ def _run_pure(sources, store, parameters, analysis_context):
         if publication is not None:
             return _run_result(publication, entry, hit=True, parameters=parameters)
         raw = potential.build_group_axis_potential_package().evaluate(
-            sources, analysis_context=analysis_context)
+            sources, analysis_context=analysis_context,
+            allow_multiple_planes=allow_multiple_planes)
         publication = bind_raw_port(contract, raw, parameter_snapshot=parameters)
         entry = save_raw_port(store, publication)
         return _run_result(publication, entry, hit=False, parameters=parameters)
@@ -190,7 +191,7 @@ def run_group_axis_output_ports(
     envelopes, *, store, parameters, distance_raw=None, distance_processed=None,
     distance_processor=None, current_distance_contract=None,
     requested_distance_parameters=REQUIRED, compatibility=None, dependency_graph=None,
-    analysis_context=None, allow_multiple_planes=False,
+    analysis_context=None, package_planes=None, allow_multiple_planes=False,
 ):
     """Reuse pure-axis evidence independently and optionally consume exact Euclidean processing."""
     if not isinstance(parameters, ParameterSnapshot):
@@ -202,7 +203,7 @@ def run_group_axis_output_ports(
     if not sources or any(not isinstance(source, FieldResultEnvelope) for source in sources):
         raise TypeError("envelopes must contain FieldResultEnvelope values")
     analysis_context = resolve_package_analysis_context(sources, analysis_context=analysis_context,
-        allow_multiple_planes=allow_multiple_planes)
+        package_planes=package_planes, allow_multiple_planes=allow_multiple_planes)
     enabled = parameters.effective_parameters["distance_modulation_enabled"]
     modulation = None
     if enabled:
@@ -213,7 +214,7 @@ def run_group_axis_output_ports(
             requested_raw_parameters=requested_distance_parameters, compatibility=compatibility,
             dependency_graph=dependency_graph)
         potential._validate_distance_modulation(sources, modulation)
-    pure = _run_pure(sources, store, parameters, analysis_context)
+    pure = _run_pure(sources, store, parameters, analysis_context, allow_multiple_planes)
     result = {"axis_potential": pure}
     if modulation is None:
         return result
@@ -253,7 +254,8 @@ def run_group_axis_output_ports(
             "distance-modulated-axis-support/1", None, context_output_function=produce)
         raw = package.evaluate(sources, dependencies=(modulation.dependency,),
                                 dependency_graph=modulation.dependency_graph,
-                                analysis_context=analysis_context)
+                                analysis_context=analysis_context,
+                                allow_multiple_planes=allow_multiple_planes)
         publication = bind_raw_port(contract, raw, parameter_snapshot=parameters)
         # Availability is transient: never publish a redacted result as a complete cache entry.
         entry = save_raw_port(store, publication) if available else None

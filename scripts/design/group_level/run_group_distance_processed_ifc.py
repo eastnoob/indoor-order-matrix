@@ -17,6 +17,7 @@ from features.field_core import (
 from features.group_distance_evidence_package import (
     SOURCE_CHANNEL, build_euclidean_median_proximity_processor, build_group_distance_evidence_package,
 )
+from features.package_analysis_context import resolve_package_analysis_context
 from scripts.design.group_level import run_group_distance_decay_ifc as retained
 from scripts.design.group_level.replay_evidence_package_readback import load_saved_evidence_package
 
@@ -70,7 +71,9 @@ def load_trial(*, bundle_path: Path = retained.BUNDLE_PATH, package_path: Path =
     # The readback consumer authenticates context; only its upstream producer is processed.
     package = build_group_distance_evidence_package(output_processor=
         build_euclidean_median_proximity_processor(expected_target_ids=scope))
-    processed = package.process_output(raw, package_freshness=inputs.package_freshness)
+    analysis_context = resolve_package_analysis_context(raw.source_envelopes)
+    processed = package.process_output(raw, package_freshness=inputs.package_freshness,
+                                       analysis_context=analysis_context)
     if processed.error_code is not None:
         raise ValueError(f"{processed.error_code}: {processed.explanation}")
     return inputs, raw, processed

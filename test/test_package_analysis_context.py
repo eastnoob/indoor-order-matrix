@@ -12,7 +12,7 @@ import pytest
 from features.cache_store import CacheStore
 from features.field_core import (
     EvidenceOutputProcessor, EvidencePackage, serialize_evidence_package_output,
-    serialize_evidence_processed_output,
+    serialize_evidence_processed_output, fingerprint_evidence_dependency,
 )
 from features.output_port_cache import bind_raw_port, run_port_processor, save_raw_port
 from features.package_analysis_context import (
@@ -311,6 +311,167 @@ def test_ignored_context_preserves_raw_processed_bytes_and_never_reruns_producer
     assert serialize_evidence_package_output(raw_p1) == saved
     assert len(calls) == 2
     assert "analysis_context" not in json.dumps(saved)
+
+
+def test_ignored_context_preserves_cache_identity_bytes_and_skips_spatial_helpers(
+    tmp_path, monkeypatch,
+):
+    """A context-aware package that ignores selection reuses one cache entry for both planes."""
+    import features.free_space_evidence_package as free_space
+    import features.geometry_views as geometry_views
+    import features.group_distance_evidence_package as group_distance
+
+    helper_calls = []
+
+    def forbidden(*args, **kwargs):
+        """Make accidental projection, model, or grid work observable."""
+        helper_calls.append((args, kwargs))
+        raise AssertionError("ignored package invoked a spatial helper")
+
+    monkeypatch.setattr(geometry_views, "plan_projection", forbidden)
+    monkeypatch.setattr(free_space, "_calculation_source_cells", forbidden)
+    monkeypatch.setattr(group_distance, "_validated_result_scope", forbidden)
+
+    calls = {"producer": 0, "processor": 0}
+
+    def produce(value):
+        """Count raw production while intentionally ignoring the resolved context."""
+        calls["producer"] += 1
+        return _package_output_function(value.source_envelopes)
+
+    def process(raw, parameters):
+        """Count processing while consuming only raw bytes and recipe parameters."""
+        calls["processor"] += 1
+        return _process(raw, parameters)
+
+    package = _package(
+        producer=None,
+        context_producer=produce,
+        processor=EvidenceOutputProcessor("ignored-plane", "1", process, {}),
+    )
+    p0 = PackageAnalysisContext((_plane("plane:p0", revision=1),))
+    p1 = PackageAnalysisContext((_plane("plane:p1", revision=7),))
+    source = _source_envelope()
+    raw0 = package.evaluate((source,), analysis_context=p0)
+    raw1 = package.evaluate((source,), analysis_context=p1)
+
+    assert raw0.output_identity == raw1.output_identity
+    assert serialize_evidence_package_output(raw0) == serialize_evidence_package_output(raw1)
+    assert raw0.output_identity == serialize_evidence_package_output(raw0)["output_identity"]
+
+    selected0 = bind_raw_port(_contract(raw0), raw0)
+    selected1 = bind_raw_port(_contract(raw1), raw1)
+    assert selected0.ref == selected1.ref
+    assert selected0.ref.payload_fingerprint == selected1.ref.payload_fingerprint
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected0)
+    arguments = {
+        "store": store,
+        "current_raw_contract": selected0.contract,
+        "requested_raw_parameters": None,
+    }
+    first = run_port_processor(selected0, package, analysis_context=p0, **arguments)
+    second = run_port_processor(
+        selected1,
+        package,
+        analysis_context=p1,
+        current_raw_contract=selected1.contract,
+        **{key: value for key, value in arguments.items() if key != "current_raw_contract"},
+    )
+    assert first.cache_hit is False
+    assert second.cache_hit is True
+    assert first.publication.ref == second.publication.ref
+    assert serialize_evidence_processed_output(first.publication.processed_output) == serialize_evidence_processed_output(second.publication.processed_output)
+    assert calls == {"producer": 2, "processor": 1}
+    assert helper_calls == []
+
+
+def test_plane_using_package_declares_plane_dependency_and_cannot_reuse_wrong_warm_result(
+    tmp_path,
+):
+    """A plane-using package separates P0/P1 output and processed cache identities."""
+    def produce(value):
+        """Declare plane identity and revision in the package-owned output channel."""
+        plane = value.analysis_context.primary_plane
+        evidence = value.source_envelopes[0]
+        return (
+            replace(
+                _package_output_function((evidence,))[0],
+                channel=f"derived_{plane.identity}_{plane.revision}",
+                provenance={"analysis_plane": {
+                    "identity": plane.identity, "revision": plane.revision,
+                }},
+            ),
+        )
+
+    calls = []
+
+    def process(raw, parameters):
+        """Record each cold processed calculation for the selected plane."""
+        calls.append(raw.output_identity)
+        return _process(raw, parameters)
+
+    processor = EvidenceOutputProcessor("plane-processor", "1", process, {})
+    package = _package(producer=None, context_producer=produce, processor=processor)
+    p0 = PackageAnalysisContext((_plane("plane:p0", revision=1),))
+    p1 = PackageAnalysisContext((_plane("plane:p1", revision=7),))
+    source = _source_envelope()
+    raw0 = package.evaluate((source,), analysis_context=p0)
+    raw1 = package.evaluate((source,), analysis_context=p1)
+    assert raw0.output_identity != raw1.output_identity
+    assert serialize_evidence_package_output(raw0) != serialize_evidence_package_output(raw1)
+    assert raw0.outputs[0].provenance["analysis_plane"] == {"identity": "plane:p0", "revision": 1}
+    assert raw1.outputs[0].provenance["analysis_plane"] == {"identity": "plane:p1", "revision": 7}
+
+    def selected(raw, context):
+        """Bind plane identity/revision to this package's semantic contract."""
+        plane = context.primary_plane
+        contract = replace(
+            _contract(raw, output_port="plane-reading"),
+            input_fingerprints={
+                "source": "c" * 64,
+                "analysis_plane": fingerprint_evidence_dependency({
+                    "identity": plane.identity, "revision": plane.revision,
+                }),
+            },
+        )
+        return bind_raw_port(contract, raw)
+
+    selected0 = selected(raw0, p0)
+    selected1 = selected(raw1, p1)
+    assert selected0.contract.identity != selected1.contract.identity
+    assert selected0.ref.identity != selected1.ref.identity
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected0)
+    save_raw_port(store, selected1)
+    first = run_port_processor(
+        selected0, package, store=store, current_raw_contract=selected0.contract,
+        requested_raw_parameters=None, analysis_context=p0,
+    )
+    second = run_port_processor(
+        selected1, package, store=store, current_raw_contract=selected1.contract,
+        requested_raw_parameters=None, analysis_context=p1,
+    )
+    assert first.cache_hit is False
+    assert second.cache_hit is False
+    assert first.publication.ref != second.publication.ref
+    assert calls == [raw0.output_identity, raw1.output_identity]
+
+    def forbidden(raw, parameters):
+        """Fail if a warm P1 lookup accidentally reuses a different plane's result."""
+        raise AssertionError("warm lookup recalculated the plane-using result")
+
+    warm_package = _package(
+        producer=None,
+        context_producer=produce,
+        processor=EvidenceOutputProcessor("plane-processor", "1", forbidden, {}),
+    )
+    warm = run_port_processor(
+        selected1, warm_package, store=store, current_raw_contract=selected1.contract,
+        requested_raw_parameters=None, analysis_context=p1,
+    )
+    assert warm.cache_hit is True
+    assert warm.publication.ref == second.publication.ref
 
 
 def test_processed_warm_cache_gate_rejects_missing_context_before_storage(tmp_path, monkeypatch):

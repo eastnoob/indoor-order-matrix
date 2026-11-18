@@ -29,7 +29,7 @@ from features.group_distance_evidence_package import (
 )
 from features.evidence_package_storage import processed_cache_key
 from features.cache_paths import create_run_directory, run_journal
-from features.package_analysis_context import PackageAnalysisContext
+from features.package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
 from features.scene_contract import AnalysisPlane
 from scripts.design.group_level import run_group_distance_decay_ifc as retained
 from scripts.design.group_level.replay_evidence_package_readback import (
@@ -137,8 +137,10 @@ def load_modulation_inputs(*, scratch_directory: Path | None = None):
     compatibility = _compatibility_binding(envelopes, raw, report)
     scope = tuple(sorted(item.target["identity"] for item in raw.outputs if item.channel == "euclidean_distance"))
     processor = build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=scope)
+    analysis_context = resolve_package_analysis_context(raw.source_envelopes)
     fresh_processed = build_group_distance_evidence_package(output_processor=processor).process_output(
         raw, package_freshness=inputs.package_freshness,
+        analysis_context=analysis_context,
     )
     if fresh_processed.error_code is not None or fresh_processed.processing_identity != processed_cache_key(raw, processor):
         raise ValueError("current symmetric-reciprocal processor did not produce its expected current recipe")

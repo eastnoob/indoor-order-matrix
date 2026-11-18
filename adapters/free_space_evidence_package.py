@@ -25,7 +25,8 @@ if "." in (__package__ or ""):
     from ..features.evidence_package_parameters import compare_parameter_snapshots
     from ..features.cache_paths import CacheAddress, SidecarLocator, SourceBinding
     from ..features.cache_store import CacheStore
-    from ..features.package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
+    from ..features.package_analysis_context import resolve_package_analysis_context
+    from ..features.scene_contract import AnalysisContext
     from ..features.evidence_package_storage import (
         ProcessedCacheLookup, legacy_processed_cache_key, processed_cache_key,
         reconstruct_legacy_processed_snapshot, compare_receipt_parameters,
@@ -41,7 +42,8 @@ else:
     from features.evidence_package_parameters import compare_parameter_snapshots
     from features.cache_paths import CacheAddress, SidecarLocator, SourceBinding
     from features.cache_store import CacheStore
-    from features.package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
+    from features.package_analysis_context import resolve_package_analysis_context
+    from features.scene_contract import AnalysisContext
     from features.evidence_package_storage import (
         ProcessedCacheLookup, legacy_processed_cache_key, processed_cache_key,
         reconstruct_legacy_processed_snapshot, compare_receipt_parameters,
@@ -182,7 +184,8 @@ def _resolve_free_space_store(scene, *, cache_directory, model_path, temporary_c
     return store, binding
 
 
-def evaluate_saved_free_space_package(snapshot, *, analysis_context=None, allow_multiple_planes=False):
+def evaluate_saved_free_space_package(snapshot, *, analysis_context=None, package_planes=None,
+                                      allow_multiple_planes=False):
     """Adapt an already exact-opened authenticated snapshot and retain its freshness state."""
     if not isinstance(snapshot, wire.ReadOnlyResultSnapshot) or snapshot.ref.kind != "free_space_run":
         raise TypeError("an opened free-space ReadOnlyResultSnapshot is required")
@@ -194,6 +197,7 @@ def evaluate_saved_free_space_package(snapshot, *, analysis_context=None, allow_
         raise ValueError("saved snapshot has unsupported freshness state")
     source = package.build_free_space_source_envelope(snapshot.payload, source_freshness=snapshot.freshness)
     context = resolve_package_analysis_context((source,), analysis_context=analysis_context,
+                                              package_planes=package_planes,
                                               allow_multiple_planes=allow_multiple_planes)
     return package.build_free_space_evidence_package().evaluate((source,), analysis_context=context,
         allow_multiple_planes=allow_multiple_planes)
@@ -443,11 +447,13 @@ def _write_processed_cache(path, output, secret):
 
 
 def evaluate_free_space_package(scene, request, *, cache_directory=None, model_path=None,
-                                temporary_cache_root=None, analysis_context=None, allow_multiple_planes=False):
+                                temporary_cache_root=None, analysis_context=None, package_planes=None,
+                                allow_multiple_planes=False):
     """Compute or reuse occupancy for supplied immutable facts, then project the one package channel."""
     return run_free_space_package(
         scene, request, cache_directory=cache_directory, model_path=model_path,
         temporary_cache_root=temporary_cache_root, analysis_context=analysis_context,
+        package_planes=package_planes,
         allow_multiple_planes=allow_multiple_planes,
     )["raw_output"]
 
@@ -778,15 +784,19 @@ def _run_free_space_package_store(scene, request, *, store, binding, output_proc
 
 def run_free_space_package(scene, request, *, cache_directory=None, output_processor=None,
                            model_path=None, temporary_cache_root=None, analysis_context=None,
-                           allow_multiple_planes=False):
+                           package_planes=None, allow_multiple_planes=False):
     """Preserve legacy flat caches while enabling model-side storage for locator-aware calls."""
     if not isinstance(request, requests.AnalysisRequest):
         raise TypeError("free-space computation requires AnalysisRequest")
     # Selection is mandatory call metadata, and must be valid before any warm
     # lookup; an explicit unused selection never rewrites the actual request.
-    context = resolve_package_analysis_context((), analysis_context=(
-        PackageAnalysisContext((request.plane,)) if analysis_context is None else analysis_context),
-        allow_multiple_planes=allow_multiple_planes)
+    # The request plane is a package override when a scene ancestor is supplied.
+    if isinstance(analysis_context, AnalysisContext) and package_planes is None:
+        package_planes = (request.plane,)
+    if analysis_context is None and package_planes is None:
+        package_planes = (request.plane,)
+    context = resolve_package_analysis_context((), analysis_context=analysis_context,
+        package_planes=package_planes, allow_multiple_planes=allow_multiple_planes)
     if model_path is None and temporary_cache_root is None:
         return _run_free_space_package_legacy(
             scene, request, cache_directory=cache_directory, output_processor=output_processor,

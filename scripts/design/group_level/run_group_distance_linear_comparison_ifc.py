@@ -13,6 +13,7 @@ from features.group_distance_evidence_package import (
     build_euclidean_linear_proximity_processor, build_euclidean_symmetric_reciprocal_proximity_processor,
     build_group_distance_evidence_package,
 )
+from features.package_analysis_context import resolve_package_analysis_context
 from scripts.design.group_level import run_group_distance_processed_ifc as trial
 
 
@@ -149,16 +150,19 @@ def run_trial(output_dir: Path, *, compare_symmetric_reciprocal: bool = False) -
     if output_dir.exists():
         raise FileExistsError(f"comparison directory already exists: {output_dir}")
     inputs, raw, reciprocal = trial.load_trial()
+    analysis_context = resolve_package_analysis_context(raw.source_envelopes)
     processor = build_euclidean_linear_proximity_processor(expected_target_ids=
         [item.target["identity"] for item in raw.outputs if item.channel == "euclidean_distance"])
     linear = build_group_distance_evidence_package(output_processor=processor).process_output(
-        raw, package_freshness=inputs.package_freshness)
+        raw, package_freshness=inputs.package_freshness, analysis_context=analysis_context)
     processors = [("reciprocal", reciprocal), ("linear", linear)]
     symmetric = None
     if compare_symmetric_reciprocal:
         symmetric = build_group_distance_evidence_package(output_processor=
             build_euclidean_symmetric_reciprocal_proximity_processor(expected_target_ids=
-                processor.parameters["expected_target_ids"])).process_output(raw, package_freshness=inputs.package_freshness)
+                processor.parameters["expected_target_ids"])).process_output(
+                    raw, package_freshness=inputs.package_freshness,
+                    analysis_context=analysis_context)
         processors.append(("symmetric_reciprocal", symmetric))
     rows = build_comparison_rows(raw, reciprocal, linear, symmetric)
     output_dir.mkdir(parents=True, exist_ok=False)

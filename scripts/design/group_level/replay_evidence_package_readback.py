@@ -76,6 +76,7 @@ def consume_saved_evidence_package(
     current_processing_identity: str | None = None,
     processed_selections: Iterable[tuple[str, str, str]] = (),
     analysis_context: PackageAnalysisContext | None = None,
+    package_planes=None,
     allow_multiple_planes: bool = False,
 ) -> EvidencePackageOutput:
     """Copy explicitly selected channels with contract-gated usable observations.
@@ -99,6 +100,7 @@ def consume_saved_evidence_package(
     # Call context is required even when this faithful channel reader never uses its plane.
     analysis_context = resolve_package_analysis_context(
         source.source_envelopes, analysis_context=analysis_context,
+        package_planes=package_planes,
         allow_multiple_planes=allow_multiple_planes,
     )
     if not isinstance(dependency_graph, Mapping):
