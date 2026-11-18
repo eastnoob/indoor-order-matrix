@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 import hashlib
 import json
@@ -23,7 +23,8 @@ from .field_core import (
     fingerprint_evidence_dependency, serialize_evidence_package_output,
     serialize_evidence_processed_output,
 )
-from .package_analysis_context import resolve_package_analysis_context
+from .package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
+from .scene_contract import AnalysisContext, AnalysisPlane
 
 
 def _nonblank(value, name):
@@ -625,13 +626,16 @@ def _processed_run(publication, entry, raw, requested_raw, processor, *, hit):
 def run_port_processor(raw, package: EvidencePackage, *, store: CacheStore,
                        current_raw_contract: OutputPortContract,
                        requested_raw_parameters: ParameterSnapshot | None,
-                       analysis_context=None, allow_multiple_planes=False) -> PortRun:
+                       analysis_context: AnalysisContext | PackageAnalysisContext | None = None,
+                       package_planes: Iterable[AnalysisPlane] | None = None,
+                       allow_multiple_planes=False) -> PortRun:
     """Process verified current selected bytes only after an exact processed-cache miss."""
     if not isinstance(raw, RawPortPublication) or not isinstance(package, EvidencePackage):
         raise TypeError("run_port_processor requires a raw publication and package")
     # A stored processed result still requires the same call selection as a cache miss.
     analysis_context = resolve_package_analysis_context(raw.raw_view.source_envelopes,
-        analysis_context=analysis_context, supports_multiple_planes=package.supports_multiple_planes,
+        analysis_context=analysis_context, package_planes=package_planes,
+        supports_multiple_planes=package.supports_multiple_planes,
         allow_multiple_planes=allow_multiple_planes)
     verified = _current_raw(store, current_raw_contract, requested_raw_parameters, expected_ref=raw.ref)
     processor = package.output_processor

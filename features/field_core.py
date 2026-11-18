@@ -18,6 +18,7 @@ from .evidence_package_parameters import (
     compare_parameter_snapshots,
 )
 from .package_analysis_context import PackageAnalysisContext, resolve_package_analysis_context
+from .scene_contract import AnalysisContext, AnalysisPlane
 
 
 Target = TypeVar("Target")
@@ -994,7 +995,8 @@ class EvidencePackage:
         raw_output: EvidencePackageOutput,
         *,
         package_freshness: str = "unavailable",
-        analysis_context: PackageAnalysisContext | None = None,
+        analysis_context: AnalysisContext | PackageAnalysisContext | None = None,
+        package_planes: Iterable[AnalysisPlane] | None = None,
         allow_multiple_planes: bool = False,
     ) -> EvidenceProcessedOutput:
         """Process a matching fresh raw publication without invoking its producer again."""
@@ -1007,8 +1009,13 @@ class EvidencePackage:
             raise ValueError("raw_output producer function and version must match the package")
         if package_freshness not in {"fresh", "stale", "unavailable"}:
             raise ValueError("package_freshness must be fresh, stale, or unavailable")
-        resolve_package_analysis_context(raw_output.source_envelopes, analysis_context=analysis_context,
-            supports_multiple_planes=self.supports_multiple_planes, allow_multiple_planes=allow_multiple_planes)
+        analysis_context = resolve_package_analysis_context(
+            raw_output.source_envelopes,
+            analysis_context=analysis_context,
+            package_planes=package_planes,
+            supports_multiple_planes=self.supports_multiple_planes,
+            allow_multiple_planes=allow_multiple_planes,
+        )
 
         # Full content integrity is separate from the historical calculation identity.
         serialized = serialize_evidence_package_output(raw_output)
@@ -1051,15 +1058,21 @@ class EvidencePackage:
         *,
         dependencies: Iterable[EvidencePackageDependency] = (),
         dependency_graph: Mapping[str, Iterable[str]] | None = None,
-        analysis_context: PackageAnalysisContext | None = None,
+        analysis_context: AnalysisContext | PackageAnalysisContext | None = None,
+        package_planes: Iterable[AnalysisPlane] | None = None,
         allow_multiple_planes: bool = False,
     ) -> EvidencePackageOutput:
         """Run additive output validation; a complete graph guarantee requires an explicit graph."""
         envelopes = tuple(source_envelopes)
         if not envelopes or any(not isinstance(item, FieldResultEnvelope) for item in envelopes):
             raise TypeError("source_envelopes must contain FieldResultEnvelope values")
-        analysis_context = resolve_package_analysis_context(envelopes, analysis_context=analysis_context,
-            supports_multiple_planes=self.supports_multiple_planes, allow_multiple_planes=allow_multiple_planes)
+        analysis_context = resolve_package_analysis_context(
+            envelopes,
+            analysis_context=analysis_context,
+            package_planes=package_planes,
+            supports_multiple_planes=self.supports_multiple_planes,
+            allow_multiple_planes=allow_multiple_planes,
+        )
 
         dependencies = tuple(dependencies)
         if any(not isinstance(item, EvidencePackageDependency) for item in dependencies):

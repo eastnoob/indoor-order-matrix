@@ -237,6 +237,48 @@ def test_multiple_planes_require_package_capability_and_call_permission(capabili
         assert received == []
 
 
+def test_scene_context_reaches_context_callback_and_package_planes_replace_default():
+    """Package callbacks receive the frozen override in place of the scene default."""
+    received = []
+    scene_plane = _plane("scene:default")
+    package_plane = _plane("package:override")
+
+    def produce(value):
+        """Capture the resolved call snapshot before producing the ordinary output."""
+        received.append(value.analysis_context)
+        return _package_output_function(value.source_envelopes)
+
+    package = _package(producer=None, context_producer=produce)
+    package.evaluate(
+        (_source_envelope(),),
+        analysis_context=_scene_context(scene_plane),
+        package_planes=(package_plane,),
+    )
+    assert received == [PackageAnalysisContext((package_plane,))]
+
+
+def test_process_output_rejects_invalid_plane_admission_before_processor():
+    """Processing validates plane admission before invoking the processor callback."""
+    calls = []
+
+    def process(raw, parameters):
+        """Record callback entry so invalid multi-plane selection stays pre-processing."""
+        calls.append(raw)
+        return _process(raw, parameters)
+
+    package = _package(processor=EvidenceOutputProcessor("boundary", "1", process))
+    raw = package.evaluate((_source_envelope(),), analysis_context=_scene_context())
+    with pytest.raises(ValueError, match="multiple planes"):
+        package.process_output(
+            raw,
+            package_freshness="fresh",
+            analysis_context=_scene_context(),
+            package_planes=(_plane("package:p1"), _plane("package:p2")),
+            allow_multiple_planes=False,
+        )
+    assert calls == []
+
+
 @pytest.mark.parametrize("field", ["supports_multiple_planes", "allow_multiple_planes"])
 def test_plane_permission_flags_require_booleans(field):
     """Truthy values cannot accidentally grant permission to a multi-plane call."""
@@ -292,6 +334,27 @@ def test_processed_warm_cache_gate_rejects_missing_context_before_storage(tmp_pa
     monkeypatch.setattr(store, "get", forbidden)
     with pytest.raises(ValueError, match="analysis_context"):
         run_port_processor(selected, package, **arguments)
+
+
+def test_port_processor_accepts_scene_context_and_explicit_package_planes(tmp_path):
+    """The storage boundary forwards the resolved package selection on cold and warm calls."""
+    scene = _scene_context(_plane("scene:default"))
+    override = _plane("package:override")
+    package = _package(processor=EvidenceOutputProcessor("port-context", "1", _process))
+    raw = package.evaluate((_source_envelope(),), analysis_context=scene, package_planes=(override,))
+    selected = bind_raw_port(_contract(raw), raw)
+    store = CacheStore(tmp_path)
+    save_raw_port(store, selected)
+    arguments = {
+        "store": store,
+        "current_raw_contract": selected.contract,
+        "requested_raw_parameters": None,
+        "analysis_context": scene,
+        "package_planes": (override,),
+    }
+    first = run_port_processor(selected, package, **arguments)
+    second = run_port_processor(selected, package, **arguments)
+    assert not first.cache_hit and second.cache_hit
 
 
 def test_context_contract_imports_under_both_namespaces_without_heavy_engines():
