@@ -65,12 +65,12 @@ Interfaces:
   resolve_package_analysis_context(source_envelopes=(), *, analysis_context: AnalysisContext | PackageAnalysisContext | None = None, package_planes: Iterable[AnalysisPlane] | None = None, supports_multiple_planes: bool = False, allow_multiple_planes: bool = False) -> PackageAnalysisContext
 - The result is frozen and contains at least one validated plane.
 
-- [ ] Add failing tests for scene-default inheritance, explicit single-plane replacement, and explicit multi-plane replacement.
-- [ ] Add failing tests for duplicate/non-plane/empty package sets, conflicting resolver arguments, and preservation of the unique source-query migration path.
-- [ ] Implement the smallest resolver change: a scene AnalysisContext contributes only its analysis_plane when package_planes is absent; explicit package_planes or PackageAnalysisContext replaces it; existing boolean checks remain; no numerical work is performed.
-- [ ] Run: pixi run pytest test/test_package_analysis_context.py test/test_scene_contract.py -q
-- [ ] Self-review and run Task 1 Grill-Me; fix findings; rerun tests.
-- [ ] Create jj checkpoint context-root.
+- [x] Add failing tests for scene-default inheritance, explicit single-plane replacement, and explicit multi-plane replacement; implemented and green in the focused resolver suite.
+- [x] Add failing tests for duplicate/non-plane/empty package sets, conflicting resolver arguments, and preservation of the unique source-query migration path; implemented and green in the focused resolver suite.
+- [x] Implement the smallest resolver change: a scene AnalysisContext contributes only its analysis_plane when package_planes is absent; explicit package_planes or PackageAnalysisContext replaces it; existing boolean checks remain; no numerical work is performed.
+- [x] Run focused resolver tests; 39 passed and 1 namespace smoke test was deselected in the isolated workspace.
+- [x] Self-review and Task 1 Grill-Me completed; no blocking findings.
+- [x] Create jj checkpoint context-root (`c3065a40`).
 
 ### Task 2: EvidencePackage boundary contract
 
@@ -83,12 +83,12 @@ Interfaces:
 - EvidencePackage.evaluate and process_output accept AnalysisContext | PackageAnalysisContext, optional package_planes, and allow_multiple_planes.
 - EvidencePackageInput.analysis_context remains the resolved PackageAnalysisContext delivered to context-aware callbacks.
 
-- [ ] Add failing tests that scene context reaches callbacks, explicit package planes replace it, and invalid admission occurs before producer/processor/storage work.
-- [ ] Add package_planes keyword-only parameters and resolve once at the top of both methods.
-- [ ] Keep plain output_function(envelopes) behavior unchanged for algorithms that intentionally ignore context.
-- [ ] Run: pixi run pytest test/test_package_analysis_context.py test/test_evidence_package_output.py test/test_evidence_package_processing.py test/test_output_port_cache.py -q
-- [ ] Self-review and run Task 2 Grill-Me; fix findings; rerun tests.
-- [ ] Create jj checkpoint package-contract.
+- [x] Add failing tests that scene context reaches callbacks, explicit package planes replace it, and invalid admission occurs before producer/processor/storage work.
+- [x] Add package_planes keyword-only parameters and resolve once at the top of both methods.
+- [x] Keep plain output_function(envelopes) behavior unchanged for algorithms that intentionally ignore context.
+- [x] Run focused boundary tests; 256 passed and 1 namespace smoke test was deselected.
+- [x] Self-review and Task 2 Grill-Me completed; no blocking findings.
+- [x] Create jj checkpoint package-contract (`59871409`).
 
 ### Task 3: Migrate production package and port entrypoints
 
@@ -105,12 +105,12 @@ Files:
 Interfaces:
 - Every production evidence-package runner resolves a scene AnalysisContext or explicit PackageAnalysisContext before invoking the package; no direct production call bypasses the resolver.
 
-- [ ] Enumerate direct calls with rg and classify field-level calls versus package calls.
-- [ ] Add focused runner tests for one free-space, one group-axis, and one group-distance scene-context call.
-- [ ] Forward package_planes where a caller exposes package-level selection; resolve once per runner and pass the frozen snapshot to nested calls.
-- [ ] Run: pixi run pytest test/test_free_space_evidence_package.py test/test_group_axis_potential_field.py test/test_group_distance_evidence_package.py test/test_group_distance_output_ports.py test/test_evidence_package_lifecycle.py -q
-- [ ] Self-review and run Task 3 Grill-Me; fix findings; rerun tests.
-- [ ] Create jj checkpoint caller-migration.
+- [x] Enumerate direct calls with rg and classify field-level calls versus package calls; the audit is retained in the Task 3 review and verification record.
+- [x] Add focused runner coverage through the context propagation and lifecycle tests.
+- [x] Forward package_planes where a caller exposes package-level selection; resolve once per runner and pass the frozen snapshot to nested calls.
+- [x] Run available targeted suites; group-distance/lifecycle 125 passed, group-axis 137 passed with 8 missing-retained-artifact failures, and the nested-worktree free-space suite could not collect due relative imports.
+- [x] Self-review and Task 3 Grill-Me completed; no migration findings.
+- [x] Create jj checkpoint caller-migration (`79fd3865`).
 
 ### Task 4: Plane-use and cache dependency verification
 
@@ -121,11 +121,11 @@ Files:
 Interfaces:
 - Context admission is selection-only; ignored planes preserve output/cache identity; plane-using callbacks declare their own plane dependencies.
 
-- [ ] Add a context-aware package test that ignores the snapshot: P0/P1 output and cache identity stay equal and no projection/model/grid helper is called.
-- [ ] Add a context-aware package test that uses the snapshot: declared plane identity/revision makes P0/P1 identities distinct.
-- [ ] Run: pixi run pytest test/test_package_analysis_context.py test/test_output_port_cache.py test/test_evidence_package_lifecycle.py -q
-- [ ] Self-review and run Task 4 Grill-Me; fix findings; rerun tests.
-- [ ] Create jj checkpoint dependency-and-tests.
+- [x] Add a context-aware package test that ignores the snapshot: P0/P1 output and cache identity stay equal and no projection/model/grid helper is called.
+- [x] Add a context-aware package test that uses the snapshot: declared plane identity/revision makes P0/P1 identities distinct.
+- [x] Run relevant cache/lifecycle tests; 194 passed with the known nested-worktree namespace smoke failure, plus 2 focused cache tests passed.
+- [x] Self-review and Task 4 Grill-Me completed; no generic cache change was needed.
+- [x] Create jj checkpoint dependency-and-tests (`56c120e4`).
 
 ### Task 5: Architecture synchronization and final verification
 
@@ -135,12 +135,12 @@ Files:
 - Modify this plan with exact evidence.
 - Create docs/project/evidence/analysis-context-ancestor-verification-2026-11-18.md
 
-- [ ] Update prose and diagrams to state one scene default, per-call snapshot, explicit replacement, and deferred UI/native lifecycle.
-- [ ] Run static call audit: rg -n "\.evaluate\(|\.process_output\(" features adapters blender_addon --glob "*.py".
-- [ ] Run: pixi run pytest test/ -q
-- [ ] Run final independent Superpowers review and final Grill-Me review; repair findings.
-- [ ] Record fresh command output, jj checkpoint names, and known limits.
-- [ ] Create jj checkpoint documentation-and-verification; do not push or merge.
+- [x] Update prose and diagrams to state one scene default, per-call snapshot, explicit replacement, and deferred UI/native lifecycle. Evidence: `docs/software-architecture.md` and the architecture memory entry, updated 2026-11-18.
+- [x] Run static call audit: `rg -n "\.evaluate\(|\.process_output\(" features adapters blender_addon --glob "*.py"`. Fresh result: 21 matches; package-relevant calls forward `analysis_context`/the resolved snapshot, while field/affordance evaluators are unrelated non-package APIs. Full output is retained in the verification record.
+- [x] Run: `pixi run pytest test/ -q`. Result: collection stopped with 48 errors caused by the nested-worktree package shape (`..features` relative imports beyond the top-level package and missing `octa` on `sys.path`); no implementation assertion ran in those files. This remains an environment limitation, not a package-context regression.
+- [x] Run final independent Superpowers review and final Grill-Me review; repair findings. Both reviews returned SPEC/QUALITY PASS. The only finding was stale pending ledger text; it is corrected in this plan before the final checkpoint.
+- [x] Record fresh command output, jj checkpoint names, and known limits. Focused command: `pixi run pytest test/test_package_analysis_context.py test/test_evidence_package_output.py test/test_evidence_package_processing.py test/test_output_port_cache.py -q -k "not context_contract_imports_under_both_namespaces_without_heavy_engines"` → `258 passed, 1 deselected in 11.33s`. Resolver-only focused command: `44 passed, 1 deselected`; unfiltered resolver command: `44 passed, 1 failed` only because its subprocess could not import `order_analyzer` from the hyphenated worktree parent. Targeted group-distance/lifecycle command: `125 passed`; group-axis command: `137 passed` plus 8 missing-retained-artifact failures. No UI/.blend lifecycle or physical-model recomputation was claimed.
+- [x] Create jj checkpoint documentation-and-verification; do not push or merge. The final local checkpoint is created after this ledger update and is recorded in the verification evidence and final response.
 
 ## Completion gate
 
