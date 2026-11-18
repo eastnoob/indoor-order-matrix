@@ -1,23 +1,27 @@
 # Indoor Layout Matrix Architecture Memory
 
-## Required package plane context — locally verified 2026-11-17
+## AnalysisContext ancestor and package plane selection — locally verified 2026-11-18
 
-Every evidence-package evaluation/processing entry requires a nonempty frozen
-`PackageAnalysisContext`; omission is compatible only with one complete trusted
-source query plane. Algorithms may ignore context without projection or model
-extraction. `AnalysisPlaneCatalog` resolves scene defaults/package overrides;
-native settings persist independent author revisions and freeze request/binding
-at Start. Packages still compose existing functions and the shared template.
+Every evidence-package evaluation/processing entry resolves a nonempty frozen
+`PackageAnalysisContext` before package work. Scene `AnalysisContext` owns exactly
+one required `analysis_plane`, the default plane for that scene. Each call gets a
+per-call snapshot: omission inherits the scene default, while explicit
+`package_planes` replaces it and never appends to it. Multiple planes require
+both package capability and explicit caller permission; invalid or conflicting
+inputs fail before producer, processor, storage, or cache work.
 
-Full capture authentication and support consent remain mandatory. Numerical
-source projection excludes verified unused cameras and their derived audit IDs;
-saved external IFC SHA changes remain conservative misses. Historical raw/
-processed bytes and strict legacy adoption are retained. See the
-[verification record](project/evidence/analysis-plane-shared-context-verification-2026-11-17.md)
-for independent tests, review and the real portable-Blender camera lifecycle
-check. Live UI, `.blend` restart and physical-model recomputation are unverified.
-No accepted task commit or push is claimed; the record preserves the accidental
-read-only-flag omission snapshot separately.
+Selection alone does not make a plane a numerical dependency. Packages that ignore
+the snapshot preserve output/cache identities and bytes and do not trigger
+projection, grid, or model extraction. A plane-using package declares its own
+plane identity/revision dependency in package-owned output, contract, parameters,
+or an explicit dependency before cache lookup. The migrated free-space,
+group-axis, group-distance, output-port, and lifecycle callers forward the same
+frozen snapshot through nested calls. The unique complete source-query inference
+path remains only for migration compatibility.
+
+UI/native settings, `.blend` restart, and native lifecycle integration remain
+deferred. See the [verification record](project/evidence/analysis-context-ancestor-verification-2026-11-18.md)
+for fresh focused evidence and clearly marked pending full-suite/review gates.
 
 ## Evidence-package development boundary — user clarification 2026-11-17
 

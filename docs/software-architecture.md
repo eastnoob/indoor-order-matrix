@@ -2,36 +2,35 @@
 
 ## AnalysisContext ancestor and package snapshots — locally verified 2026-11-18
 
-The [shared-context design](superpowers/specs/2026-11-17-analysis-plane-shared-context-design.md)
-adds a pure frozen `PackageAnalysisContext` containing ordered `AnalysisPlane`
-values. It is required at the `EvidencePackage.evaluate()` and
-`process_output()` boundary, with a narrow compatibility resolver for one
-complete source query plane. `EvidencePackageInput` carries it to context
-callbacks; algorithms may ignore it without preparing a model view or grid.
+The scene `AnalysisContext` is the single ancestor for package plane selection
+and owns exactly one required `analysis_plane`, which is the scene's default
+plane. Each `EvidencePackage.evaluate()` and `process_output()` call resolves a
+fresh frozen `PackageAnalysisContext` snapshot before producer, processor,
+storage, or cache work. When `package_planes` is omitted, the snapshot contains
+the scene default; an explicit package plane or plane set replaces that default
+instead of merging with it.
 
-`AnalysisPlaneCatalog` resolves scene defaults and package overrides.
-`blender_addon/order_analyzer_ui/plane_settings.py` persists native authors and
-their separate observation revisions. Start freezes the plane and binding
-together; load/undo/redo invalidate session review and active jobs lock selection.
-Native New creates a distinct drawing, while explicit GUID ensure updates or
-restores that author. Existing singular `AnalysisContext`/`AnalysisRequest` and
-package-owned numerical/cache boundaries remain intact.
+Multiple planes are admitted only when the package declares multi-plane support
+and the caller explicitly enables it. Empty, duplicate, malformed, conflicting,
+or unauthorized selections fail at the boundary. The old unique complete
+source-query inference remains only as a narrow migration path when no explicit
+context is supplied.
 
-The selected-but-unused context is not added to old query or wire identities.
-Capture/session adapters preserve full authentication and current support
-consent before projecting verified physical facts into numerical cache identity.
-Unused native-camera edits can reuse results after necessary reconfirmation;
-external dependencies, including saved IFC SHA, remain exact dependencies.
-Changed saved IFC bytes conservatively miss because no camera-private IFC
-dependency proof is implemented. Historical cache adoption retains its complete
-old key and exact reviewed compatibility hashes.
+Context selection is not numerical use. A package that ignores the snapshot
+keeps the same output/cache identity and bytes across planes, with no projection,
+grid, or model extraction. A plane-using package must include plane identity and
+revision in its package-owned output, contract, parameter snapshot, or explicit
+dependency before cache lookup; the generic cache layer does not infer that use.
+The migrated free-space, group-axis, group-distance, output-port, and lifecycle
+callers resolve and forward the frozen snapshot through their nested package
+calls.
 
-The [verification record](project/evidence/analysis-plane-shared-context-verification-2026-11-17.md)
-records independent tests, specification/quality reviews and a successful
-portable-Blender native lifecycle check against an unchanged real IFC copy.
-Live UI interaction, `.blend` restart and full physical geometry recomputation
-were not checked. The [implementation plan](superpowers/plans/2026-11-17-analysis-plane-shared-context.md)
-records scope and verification; no delivery commit or push is claimed.
+`EvidencePackage` remains a composed execution/publication template and does not
+inherit from `AnalysisContext`. Native/UI settings and `.blend` restart/session
+lifecycle are deferred; a future adapter may convert persisted native settings
+into a frozen scene context. The [verification record](project/evidence/analysis-context-ancestor-verification-2026-11-18.md)
+records the fresh focused checks, static caller audit, known failure, and pending
+root-level full-suite/review evidence.
 
 ## Model-side cache — Plan B locally verified 2026-11-16
 
